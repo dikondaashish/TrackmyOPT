@@ -10,8 +10,8 @@
 
 **Implementation audit: 2026-07-25.**
 
-- Phases 1, 1B, 1C, and 3 have substantial implementation merged to `main`,
-  but the extension remains **unreleased at `0.1.11`**.
+- Phases 1, 1B, 1C, and 3 have substantial implementation in the local staged
+  branch stack. The extension is a **local, unreleased `0.1.12` candidate**.
 - The deterministic artifact, contact, resume, history, education, skills, and
   prefill-mode core is implemented and tested. The unchecked items below are
   real blockers or incomplete acceptance criteria, not missing checkbox
@@ -1411,8 +1411,10 @@ artifact is shipping.
 **Goal:** make the generic engine dependable on the two launch ATS platforms
 without delaying release for a broad adapter matrix.
 
-- [ ] Add one Workday adapter from sanitized fixtures.
-- [ ] Add one Greenhouse adapter from sanitized fixtures.
+- [x] Add one Workday adapter from sanitized fixtures
+      (`apps/web/lib/extension/ats-prefill-adapters.test.ts:26-66`).
+- [x] Add one Greenhouse adapter from sanitized fixtures
+      (`apps/web/lib/extension/ats-prefill-adapters.test.ts:68-108`).
 - [ ] Support tested native/custom date and tag controls only on those platforms.
 - [ ] Re-run Step-by-step or Continuous prefill as new visible controls load.
 - [ ] Merge child-frame coverage where required.
@@ -1443,14 +1445,14 @@ investment.
 - [x] Gate core artifact prefill, skills, Continuous mode, AI drafts, cover
       letters, history fields, and ATS adapters independently.
 - [ ] Start with internal users and sanitized fixtures.
-- [ ] Add low-cardinality analytics only: feature flag, adapter ID, mode, source
+- [x] Add low-cardinality analytics only: feature flag, adapter ID, mode, source
       type, expiry/mismatch reason, review state, and counts by field group.
-- [ ] Add user-visible error reporting without resume, question, answer, or
+- [x] Add user-visible error reporting without resume, question, answer, or
       cover-letter content.
 - [ ] Roll out the core before waiting for Phase 2 hardening.
 - [ ] Validate Workday and Greenhouse before broad adapter claims.
 - [ ] Use telemetry to prioritize Lever, Ashby, iCIMS, or another ATS.
-- [ ] Document AI drafting, answer reuse, cover letters, skills, and Continuous
+- [x] Document AI drafting, answer reuse, cover letters, skills, and Continuous
       mode in privacy/support materials.
 
 #### Acceptance criteria

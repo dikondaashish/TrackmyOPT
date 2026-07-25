@@ -91,7 +91,7 @@ async function isSignedIn(): Promise<boolean> {
           if (tokenRes.ok) {
             const body = (await tokenRes.json()) as { token?: string };
             if (typeof body.token === 'string' && body.token.length > 0) {
-              await chrome.storage.sync.set({ idToken: body.token });
+              await setIdToken(body.token);
             }
           }
         }

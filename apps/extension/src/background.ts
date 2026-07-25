@@ -13,6 +13,7 @@ import {
   buildGeneratedResumeResult,
   type SnapshotExtractionHandoff,
 } from './resume-generation-result';
+import { compileLatexWithSingleRepair } from './compile-latex-with-repair';
 import type {
   BasicContactProfile,
   GeneratedCoverLetterAttachment,
@@ -1026,27 +1027,24 @@ async function generateTailoredResume(input: {
     return buf.byteLength ? { pdf: buf } : { error: 'empty pdf' };
   };
 
-  let latex = gen.latex;
-  let out = await compile(latex);
-  if (!out.pdf) {
-    try {
+  const compiled = await compileLatexWithSingleRepair({
+    initialLatex: gen.latex,
+    compile,
+    repair: async (latexCode, errorMessage) => {
       const fixRes = await fetch(`${WEBSITE_URL}/api/resume-generator/fix-latex`, {
         method: 'POST',
         headers: auth,
-        body: JSON.stringify({ latexCode: latex, errorMessage: out.error || 'Compilation failed' }),
+        body: JSON.stringify({ latexCode, errorMessage }),
       });
       if (fixRes.ok) {
         const fixed = (await fixRes.json()) as { latex?: string };
-        if (fixed.latex) {
-          latex = fixed.latex;
-          out = await compile(latex);
-        }
+        return fixed.latex;
       }
-    } catch {
-      /* keep the original failure */
-    }
-  }
-  if (!out.pdf) return { ok: false, error: 'compile_failed' };
+      return undefined;
+    },
+  });
+  if (!compiled.pdf) return { ok: false, error: 'compile_failed' };
+  const latex = compiled.finalLatex;
 
   // Extract a structured snapshot only after the exact, possibly repaired,
   // LaTeX has compiled. Extraction is deliberately non-blocking: the PDF is
@@ -1074,7 +1072,7 @@ async function generateTailoredResume(input: {
     snapshotExtraction = { structuredFieldsAvailable: false };
   }
 
-  const pdfBase64 = arrayBufferToBase64(out.pdf);
+  const pdfBase64 = arrayBufferToBase64(compiled.pdf);
   let artifact: GeneratedResumeArtifactV1 | undefined;
   try {
     const builtArtifact = await buildGeneratedResumeArtifactV1({

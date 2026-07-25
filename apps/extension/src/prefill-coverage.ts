@@ -17,6 +17,7 @@ export interface PrefillCoverageResult {
   skipped: number;
   total: number;
   groups: Record<PrefillFieldGroup, PrefillCoverageGroupResult>;
+  adapterId?: 'generic' | 'workday' | 'greenhouse';
   remainingRecords?: { experience: number; education: number };
   firstSkippedSelector?: string;
 }

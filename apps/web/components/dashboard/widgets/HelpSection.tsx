@@ -38,6 +38,7 @@ import {
   Check,
   BadgeCheck,
 } from "lucide-react";
+import { EXTENSION_AUTOFILL_SUPPORT_NOTICE } from "@/lib/legal/legal-config";
 
 // Collapsible section component
 function CollapsibleSection({
@@ -966,9 +967,36 @@ export function HelpSection() {
                     <li>✓ Quick access to all 4 OPT calculators</li>
                     <li>✓ View unemployment days at a glance</li>
                     <li>✓ Check case status without leaving your tab</li>
+                    <li>✓ Prefill eligible empty profile and work-history fields on an open job application</li>
+                    <li>✓ Attach the active job-scoped generated resume only when the Resume/CV input is empty</li>
                     <li>✓ Dark mode support</li>
                     <li>✓ Syncs with your account</li>
                   </ul>
+                </div>
+
+                <div className="p-3 border border-cyan-200 dark:border-cyan-800 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
+                  <h5 className="font-medium text-sm mb-2 text-cyan-800 dark:text-cyan-300">
+                    Application prefill safety
+                  </h5>
+                  <p className="text-xs leading-relaxed text-cyan-700 dark:text-cyan-400">
+                    {EXTENSION_AUTOFILL_SUPPORT_NOTICE}
+                  </p>
+                  <ul className="mt-2 text-xs space-y-1 text-cyan-700 dark:text-cyan-400">
+                    <li>• Generated resume data expires after 30 minutes or when the job changes.</li>
+                    <li>• Existing field values and uploaded files are never replaced.</li>
+                    <li>• Visa, sponsorship, work-authorization, salary, EEO, DOB, and SSN questions stay for you.</li>
+                    <li>• Custom dropdowns and unsupported controls stay blank; enter those values manually.</li>
+                    <li>• TrackMyOPT never clicks Add another, Next, Review, Done, or Submit.</li>
+                  </ul>
+                </div>
+
+                <div className="p-3 border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <h5 className="font-medium text-sm mb-2 text-amber-800 dark:text-amber-300">
+                    Features not enabled in this release
+                  </h5>
+                  <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
+                    Continuous mode, skills prefill, AI screening-answer drafts and exact-question answer reuse, and generated cover-letter attachment are independently gated off. If a future release enables AI drafts, every inserted draft will require an edit or an explicit Confirm reviewed action.
+                  </p>
                 </div>
 
                 <div className="p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
@@ -1204,6 +1232,14 @@ export function HelpSection() {
                 <FAQItem
                   question="Does the extension work offline?"
                   answer="The OPT calculators work offline once loaded. However, features like Case Status Tracker require an internet connection to check USCIS for updates."
+                />
+                <FAQItem
+                  question="What does application Prefill change?"
+                  answer="Prefill only adds eligible TrackMyOPT profile and active job-scoped resume information to empty supported fields on the open application. It does not replace existing values or files, answer sensitive questions, add extra rows, navigate the application, or submit it. Review every field and attachment yourself."
+                />
+                <FAQItem
+                  question="Why did Prefill leave a field or attachment blank?"
+                  answer="The control may already contain a value, require a custom dropdown, be a sensitive question, reject PDF upload, or be unsupported on that application. Generated resume data also expires after 30 minutes or when the job URL, company, or role changes. Enter or upload the value manually and contact support with the content-free error category shown by the extension."
                 />
               </div>
             </div>

@@ -47,6 +47,7 @@ import {
   resolveAutofillFeatureFlags,
   type AutofillFeatureFlags,
 } from './autofill-feature-flags';
+import { autofillErrorCopy } from './autofill-errors';
 
 export type { PrefillCoverageResult } from './prefill-coverage';
 
@@ -408,7 +409,7 @@ function pdfBase64ToFile(pdfBase64: string, filename: string): File | null {
 }
 
 /** Attach only to a confidently identified, currently empty Resume/CV input. */
-function attachGeneratedResume(
+export function attachGeneratedResume(
   container: HTMLElement,
   attachment?: GeneratedResumeAttachment
 ): ResumeAttachmentResult {
@@ -742,6 +743,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     );
     return emptyCoverage;
   }
+  const adapter = selectAtsPrefillAdapter(
+    document,
+    featureFlags.atsAdapters
+  );
 
   const resumeResult = attachGeneratedResume(
     container,
@@ -765,10 +770,6 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const historyRemaining = { experience: 0, education: 0 };
   const snapshot = featureFlags.artifactPrefill ? options.snapshot : undefined;
   if (snapshot && featureFlags.historyFields) {
-    const adapter = selectAtsPrefillAdapter(
-      document,
-      featureFlags.atsAdapters
-    );
     const historyControls = adapter.classifyRepeatableSections(container);
     for (const section of ['experience', 'education'] as const) {
       const outcome = fillRepeatableRecords(section, historyControls, snapshot);
@@ -788,6 +789,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   }
   const coverageFor = (outcomes: PrefillControlOutcome[]): PrefillCoverageResult => ({
     ...summarizePrefillOutcomes(outcomes),
+    adapterId: adapter.id,
     remainingRecords: historyRemaining,
   });
 
@@ -894,12 +896,14 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     if (options.resume && resumeResult === 'unsupported') {
-      notify('The visible resume field does not accept the generated PDF, so it was left unchanged.');
+      const copy = autofillErrorCopy('attachment_failed');
+      notify(`${copy.message} ${copy.recovery}`);
       return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     notify(
       'Nothing to prefill here. TrackMyOPT never fills work-authorization, ' +
-        'visa, or EEO questions — please answer those yourself.'
+        'visa, or EEO questions — please answer those yourself. ' +
+        autofillErrorCopy('unsupported_control').message
     );
   } else {
     const resumeSummary = resumeResult === 'attached'
@@ -909,7 +913,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         : options.resume && resumeResult === 'not_found'
           ? 'No Resume/CV upload field is visible yet; click Prefill again when that field appears.'
           : options.resume && resumeResult === 'unsupported'
-            ? 'The visible resume field does not accept a PDF, so it was left unchanged.'
+            ? autofillErrorCopy('attachment_failed').message
             : '';
     const coverLetterSummary =
       coverLetterResult === 'attached'

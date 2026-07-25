@@ -33,7 +33,7 @@ describe('screening-question review DOM', () => {
     (Array.from(root.querySelectorAll('button')).find((button) => button.textContent === 'Insert draft') as HTMLButtonElement).click();
     expect(field.value).toBe('Grounded draft');
     expect(root.querySelector('[data-review-state="needs-review"]')?.textContent)
-      .toBe('Needs your review/edit');
+      .toContain('stays marked for review');
   });
 
   it('does not clear Needs review for an untrusted synthetic event', async () => {
@@ -188,6 +188,7 @@ describe('cover-letter edit controller', () => {
   it('lets an unedited draft leave needs-review only through Confirm reviewed', async () => {
     const field = document.createElement('textarea');
     const reviewed = vi.fn();
+    const reviewStateChanged = vi.fn();
     const root = createScreeningQuestionReviewUI({
       question: {
         label: 'Why this role?',
@@ -210,6 +211,7 @@ describe('cover-letter edit controller', () => {
         },
       }),
       onReviewed: reviewed,
+      onReviewStateChange: reviewStateChanged,
     });
     document.body.append(root, field);
 
@@ -224,9 +226,11 @@ describe('cover-letter edit controller', () => {
     findButton('Insert draft').click();
 
     expect(reviewed).not.toHaveBeenCalled();
+    expect(reviewStateChanged).toHaveBeenCalledWith('needs_review');
     expect(root.querySelector('[data-review-state="needs-review"]')).not.toBeNull();
     findButton('Confirm reviewed').click();
     expect(reviewed).toHaveBeenCalledWith('Confirmed draft');
+    expect(reviewStateChanged).toHaveBeenLastCalledWith('confirmed');
     expect(root.querySelector('[data-review-state="reviewed"]')?.textContent)
       .toBe('Reviewed and confirmed');
   });

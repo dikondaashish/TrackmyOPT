@@ -6,6 +6,7 @@ import {
   type EligibleScreeningQuestion,
   type SavedScreeningAnswer,
 } from './screening-question-drafts';
+import { autofillErrorCopy } from './autofill-errors';
 
 export interface ScreeningDraftLimits {
   dailyRemaining: number;
@@ -24,6 +25,9 @@ export interface ScreeningQuestionReviewOptions {
   savedAnswer?: SavedScreeningAnswer;
   generateDraft(regenerate: boolean): Promise<ScreeningDraftResult>;
   onReviewed(answer: string): void;
+  onReviewStateChange?(
+    state: 'needs_review' | 'confirmed' | 'edited',
+  ): void;
   onDeleteSavedAnswer?: (questionHash: string) => Promise<void>;
 }
 
@@ -75,8 +79,9 @@ export function createScreeningQuestionReviewUI(
     }
     insertedValue = selectedDraft;
     reviewState = createDraftReviewState(selectedDraft);
-    status.textContent = 'Needs your review/edit';
+    status.textContent = autofillErrorCopy('draft_review_pending').message;
     status.dataset.reviewState = 'needs-review';
+    options.onReviewStateChange?.('needs_review');
     confirm.hidden = false;
   });
   confirm.addEventListener('click', () => {
@@ -87,6 +92,7 @@ export function createScreeningQuestionReviewUI(
     status.textContent = 'Reviewed and confirmed';
     status.dataset.reviewState = 'reviewed';
     confirm.hidden = true;
+    options.onReviewStateChange?.('confirmed');
     options.onReviewed(reviewState.text);
   });
 
@@ -145,6 +151,7 @@ export function createScreeningQuestionReviewUI(
     status.textContent = 'Reviewed and edited';
     status.dataset.reviewState = 'reviewed';
     confirm.hidden = true;
+    options.onReviewStateChange?.('edited');
     options.onReviewed(reviewState.text);
   });
 

@@ -79,6 +79,12 @@ import { mountCoverLetterReviewUi } from './cover-letter-review';
 import { detectScreeningQuestion } from './screening-question-drafts';
 import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+import {
+  buildPrefillTelemetryProperties,
+  type PrefillArtifactStateReason,
+  type PrefillSourceType,
+} from './prefill-telemetry';
+import { autofillErrorCopy } from './autofill-errors';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -324,6 +330,9 @@ function generatedResumeFor(job: JobInfo): GeneratedResumeAttachment | undefined
 type PrefillExecutionResult = {
   result: PrefillCoverageResult;
   hasResume: boolean;
+  hasCoverLetter: boolean;
+  sourceType: PrefillSourceType;
+  artifactStateReason: PrefillArtifactStateReason;
   stoppedReason?: 'expired' | 'job_changed' | 'invalid';
 };
 
@@ -344,13 +353,21 @@ async function executeResolvedPrefill(
     const result = mode === 'step_by_step'
       ? await runPrefill({ autofillSkills: false })
       : emptyPrefillCoverage();
-    return { result, hasResume: false };
+    return {
+      result,
+      hasResume: false,
+      hasCoverLetter: false,
+      sourceType: 'unavailable',
+      artifactStateReason: 'unavailable',
+    };
   }
 
   let hasResume = false;
+  let hasCoverLetter = false;
   let prefill: PrefillOptions;
   if (resolved.source === 'generated_resume') {
     hasResume = true;
+    hasCoverLetter = Boolean(resolved.coverLetter);
     prefill = {
       resume: resolved.resume,
       coverLetter: resolved.coverLetter,
@@ -377,6 +394,9 @@ async function executeResolvedPrefill(
       return {
         result: emptyPrefillCoverage(),
         hasResume: false,
+        hasCoverLetter: false,
+        sourceType: 'profile_only',
+        artifactStateReason: resolved.reason,
         stoppedReason: resolved.reason,
       };
     }
@@ -394,7 +414,54 @@ async function executeResolvedPrefill(
   }).catch(() => {});
   const result = await runPrefill(prefill);
   if (hasResume && result.filled > 0) artifactBackedFieldsFilled = true;
-  return { result, hasResume };
+  return {
+    result,
+    hasResume,
+    hasCoverLetter,
+    sourceType: resolved.source,
+    artifactStateReason:
+      resolved.source === 'generated_resume' ? 'none' : resolved.reason,
+  };
+}
+
+function trackPrefillExecution(
+  execution: PrefillExecutionResult,
+  mode: AutofillPreferences['mode'],
+  outcome: 'success' | 'error',
+): void {
+  trackWidgetAnalytics(
+    'extension_widget_prefill_completed',
+    buildPrefillTelemetryProperties({
+      outcome,
+      result: execution.result,
+      mode,
+      sourceType: execution.sourceType,
+      artifactStateReason: execution.artifactStateReason,
+      hasResume: execution.hasResume,
+      hasCoverLetter: execution.hasCoverLetter,
+      featureFlags: AUTOFILL_FEATURE_FLAGS,
+    }),
+  );
+}
+
+function trackPrefillRuntimeFailure(
+  mode: AutofillPreferences['mode'],
+  hasResume = false,
+): void {
+  trackWidgetAnalytics(
+    'extension_widget_prefill_completed',
+    buildPrefillTelemetryProperties({
+      outcome: 'error',
+      result: emptyPrefillCoverage(),
+      mode,
+      sourceType: 'unavailable',
+      artifactStateReason: 'unavailable',
+      hasResume,
+      hasCoverLetter: false,
+      featureFlags: AUTOFILL_FEATURE_FLAGS,
+      errorCode: 'runtime',
+    }),
+  );
 }
 
 function paintPrefillCoverage(
@@ -479,6 +546,11 @@ async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): P
             editedAnswer: answer,
             source: 'user_edited_ai_draft',
           },
+        });
+      },
+      onReviewStateChange: (reviewState) => {
+        trackWidgetAnalytics('extension_widget_screening_review_state', {
+          review_state: reviewState,
         });
       },
       onDeleteSavedAnswer: async (questionHash) => {
@@ -2301,18 +2373,9 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
           await mountScreeningQuestionReviews(card, job);
         }
-        trackWidgetAnalytics('extension_widget_prefill_completed', {
-          outcome: 'success',
-          filled: result.filled,
-          skipped: result.skipped,
-          total: result.total,
-          has_resume: hasResume,
-        });
+        trackPrefillExecution(execution, 'step_by_step', 'success');
       } catch {
-        trackWidgetAnalytics('extension_widget_prefill_completed', {
-          outcome: 'error',
-          has_resume: hasResume,
-        });
+        trackPrefillRuntimeFailure('step_by_step', hasResume);
       } finally {
         prefillBtn.disabled = false;
         if (label) {
@@ -3739,6 +3802,7 @@ function openResumePanel(
         generatedScore?: number;
         scoreError?: 'limit_reached' | 'scan_failed';
         artifact?: GeneratedResumeArtifactV1;
+        structuredFieldsAvailable?: boolean;
       } | undefined
     ) => {
       window.clearInterval(interval);
@@ -3759,12 +3823,26 @@ function openResumePanel(
           baseline_score: comparison?.baseline,
           generated_score: comparison?.generated,
           score_delta: comparison?.delta,
+          error_code:
+            res.structuredFieldsAvailable === false
+              ? 'extraction_failed'
+              : undefined,
         });
         renderResumeResult(panel, res.pdfBase64, job, res.artifact, res.editorUrl, {
           baselineScore: res.baselineScore,
           generatedScore: res.generatedScore,
           scoreError: res.scoreError,
         });
+        if (res.structuredFieldsAvailable === false) {
+          const copy = autofillErrorCopy('extraction_failed');
+          const notice = document.createElement('p');
+          notice.dataset.autofillError = 'extraction_failed';
+          notice.setAttribute('role', 'status');
+          notice.textContent = `${copy.message} ${copy.recovery}`;
+          notice.style.cssText =
+            'margin:10px 0 0;padding:9px;border:1px solid var(--tmo-widget-warning-border);border-radius:8px;background:var(--tmo-widget-warning-surface);color:var(--tmo-widget-warning-ink);font-size:11px;line-height:1.4;';
+          panel.appendChild(notice);
+        }
         return;
       }
       trackWidgetAnalytics('extension_widget_resume_generated', {
@@ -4025,12 +4103,16 @@ async function runContinuousPrefill(): Promise<void> {
     const execution = await executeResolvedPrefill(job, 'continuous');
     if (execution.stoppedReason) {
       paintContinuousStopGuidance(execution.stoppedReason);
+      trackPrefillExecution(execution, 'continuous', 'error');
       return;
     }
     const resultLine = document.querySelector<HTMLElement>('.tmo-prefill-result-line');
     if (resultLine && execution.result.total > 0) {
       paintPrefillCoverage(resultLine, execution.result);
     }
+    trackPrefillExecution(execution, 'continuous', 'success');
+  } catch {
+    trackPrefillRuntimeFailure('continuous');
   } finally {
     continuousPrefillInFlight = false;
     previousContinuousSignature = getPrefillCandidateSignature();

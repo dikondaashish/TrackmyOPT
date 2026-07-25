@@ -5,7 +5,7 @@
 > Rollout decision: ship the deterministic artifact-prefill core behind
 > independent flags; keep AI screening drafts and cover letters off until their
 > generation paths are real and production-safe.  
-> Release state: merged code is unreleased; extension version is `0.1.11`.
+> Release state: local `0.1.12` release candidate; not submitted or published.
 
 ## Executive finding
 
@@ -47,6 +47,9 @@ for releasing the working deterministic core.
   AI routes behind `501`, removes fake PDF generation, wires hash-locked
   cover-letter transport, adds explicit draft confirmation, caps question text,
   and closes organization-trap classifier parity.
+- Stage 3 adds content-free rollout diagnostics at both analytics boundaries,
+  a shared support error taxonomy, privacy/support disclosure drafts, missing
+  ATS/attachment/repair fixtures, and the local `0.1.12` release checklist.
 - The matrix below is the frozen Stage 0 audit baseline. Completed remediation
   is tracked in the stage checklists and Git history instead of erasing the
   original findings.
@@ -313,42 +316,84 @@ and organization-trap behavior is consistent.
 
 ### Telemetry and errors
 
-- [ ] Extend prefill telemetry with only bounded enums/counts: feature state,
+- [x] Extend prefill telemetry with only bounded enums/counts: feature state,
       adapter ID, mode, source type, expiry/mismatch reason, review state, and
       filled/skipped counts per field group.
-- [ ] Extend the server allowlist and rejection tests.
-- [ ] Add a shared user-facing error taxonomy for extraction failure,
+- [x] Extend the server allowlist and rejection tests.
+- [x] Add a shared user-facing error taxonomy for extraction failure,
       unsupported control, review pending, and attachment failure.
-- [ ] Prove names, employers, titles, dates, URLs, question/answer text, cover
+- [x] Prove names, employers, titles, dates, URLs, question/answer text, cover
       letter text, resume text, hashes, and PDFs are rejected from analytics.
+
+Evidence: extension allowlist and bounded values at
+`apps/extension/src/widget-platform.ts:158-240`; server event-specific allowlist
+at `apps/web/lib/extension/widget-analytics.ts:22-225`; per-run properties at
+`apps/extension/src/prefill-telemetry.ts:26-75`; manual and Continuous emitters
+at `apps/extension/src/content-job-portal.ts:427-465`, `2376-2378`, and
+`4106-4115`; screening review-state emission at
+`apps/extension/src/content-job-portal.ts:552-554`; content rejection tests at
+`apps/web/lib/extension/widget-analytics.test.ts:61-163` and
+`apps/extension/tests/prefill-telemetry.test.ts:10-77`; error taxonomy at
+`apps/extension/src/autofill-errors.ts:1-55` with user-facing uses at
+`apps/extension/src/content-job-portal.ts:3828-3846`,
+`apps/extension/src/easy-apply-engine.ts:899-916`, and
+`apps/extension/src/screening-question-review-ui.ts:82`.
 
 ### Legal and support
 
-- [ ] Update `legal-config.ts` with reviewed extension-autofill disclosure copy.
-- [ ] Update privacy/support pages for deterministic autofill, Continuous mode,
+- [x] Add extension-autofill disclosure copy to `legal-config.ts`; owner and
+      attorney review remains an explicit release-checklist item.
+- [x] Update privacy/support pages for deterministic autofill, Continuous mode,
       exact-question answer reuse, disabled/future AI drafts, cover letters, and
       optional skills.
-- [ ] Preserve the attorney-review marker and bump policy version/effective date
-      only if the product owner approves the material legal change.
+- [x] Preserve the attorney-review marker and leave policy version/effective
+      date unchanged until the product owner approves the material legal change.
+
+Evidence: disclosure and review marker at
+`apps/web/lib/legal/legal-config.ts:1-49`; privacy copy at
+`apps/web/app/privacy/page.tsx:86-100`; support copy at
+`apps/web/components/dashboard/widgets/HelpSection.tsx:963-1001` and
+`1235-1243`. `LEGAL_EFFECTIVE_DATE` and `LEGAL_VERSION_ID` remain unchanged.
 
 ### Missing test fixtures
 
-- [ ] Add sanitized Workday `classifyRepeatableSections` DOM fixture.
-- [ ] Add sanitized Greenhouse `classifyRepeatableSections` DOM fixture.
-- [ ] Add resume empty-input/existing-file/accept-type DOM attachment tests.
-- [ ] Add compile-repair-to-final-snapshot-hash integration test.
-- [ ] Retain every existing no-overwrite/no-click/no-sensitive/no-sync-storage
+- [x] Add sanitized Workday `classifyRepeatableSections` DOM fixture.
+- [x] Add sanitized Greenhouse `classifyRepeatableSections` DOM fixture.
+- [x] Add resume empty-input/existing-file/accept-type DOM attachment tests.
+- [x] Add compile-repair-to-final-snapshot-hash integration test.
+- [x] Retain every existing no-overwrite/no-click/no-sensitive/no-sync-storage
       assertion.
+
+Evidence: ATS fixtures at
+`apps/web/lib/extension/ats-prefill-adapters.test.ts:26-108`; attachment DOM
+coverage at `apps/web/lib/extension/resume-attachment.test.ts:36-93`; production
+repair boundary at `apps/extension/src/compile-latex-with-repair.ts:1-42` and
+`apps/extension/src/background.ts:1030-1057`; repaired-source integration at
+`apps/extension/tests/compile-repair-artifact-hash.test.ts:7-81`.
 
 ### Release
 
-- [ ] Bump both extension package and manifest versions together.
-- [ ] Expand `apps/extension/README.md` with a job-scoped autofill production
+- [x] Bump both extension package and manifest versions together.
+- [x] Expand `apps/extension/README.md` with a job-scoped autofill production
       checklist, flag defaults, privacy verification, manual Workday/Greenhouse
       matrix, rollback controls, and frame-scope Web Store justification.
-- [ ] Run the full suite and `tsc --noEmit`.
-- [ ] Produce the local release handoff; Chrome Web Store submission remains an
+- [x] Run the full suite and `tsc --noEmit`.
+- [x] Produce the local release handoff; Chrome Web Store submission remains an
       owner action.
+
+Evidence: matching `0.1.12` versions at `apps/extension/package.json:3` and
+`apps/extension/manifest.json:4`; release scope, matrix, privacy review, frame
+justification, and rollback at `apps/extension/README.md:195-298`.
+
+Validation on 2026-07-25:
+
+- Web: 87 test files, 426 tests passed.
+- Extension: all scripted assertions and 29 Node tests passed.
+- API: two suites, four tests passed.
+- Web, extension, and API TypeScript checks passed.
+- Production extension bundle built successfully; package, source manifest,
+  and `dist/manifest.json` all report `0.1.12`.
+- `git diff --check` passed.
 
 Stage 3 exit: the deterministic slice can be released behind independent
 controls with adequate privacy disclosures, support signals, platform fixtures,
