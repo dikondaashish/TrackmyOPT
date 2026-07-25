@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { useClientYear } from "@/hooks/useClientDate";
 import { User } from "@supabase/supabase-js";
@@ -324,6 +324,47 @@ export function DashboardContent({ user }: DashboardContentProps) {
     .filter((w) => w.visible)
     .sort((a, b) => a.order - b.order);
 
+  // Side-by-side pairs when both widgets are visible (md+)
+  const SIDE_BY_SIDE_PAIRS: [string, string][] = [
+    ["casestatus", "deadlines"],
+    ["reminders", "recent-activity"],
+  ];
+
+  const renderVisibleWidgets = () => {
+    const rendered = new Set<string>();
+    const nodes: ReactNode[] = [];
+    const visibleIds = new Set(visibleWidgets.map((w) => w.id));
+
+    for (const widget of visibleWidgets) {
+      if (rendered.has(widget.id)) continue;
+
+      const pair = SIDE_BY_SIDE_PAIRS.find(
+        ([a, b]) => widget.id === a || widget.id === b
+      );
+
+      if (pair && visibleIds.has(pair[0]) && visibleIds.has(pair[1])) {
+        const [left, right] = pair;
+        nodes.push(
+          <div
+            key={`${left}-${right}`}
+            className="grid gap-6 md:grid-cols-2 md:items-stretch"
+          >
+            {renderWidget(left)}
+            {renderWidget(right)}
+          </div>
+        );
+        rendered.add(left);
+        rendered.add(right);
+        continue;
+      }
+
+      nodes.push(renderWidget(widget.id));
+      rendered.add(widget.id);
+    }
+
+    return nodes;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with customize button */}
@@ -383,7 +424,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
       <div className="grid gap-6">
         {!widgetsLoaded
           ? [...Array(3)].map((_, i) => <WidgetSkeleton key={`widget-skeleton-${i}`} />)
-          : visibleWidgets.map((widget) => renderWidget(widget.id))}
+          : renderVisibleWidgets()}
       </div>
 
       {/* Footer */}

@@ -116,7 +116,7 @@ export function CaseStatusSummary() {
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-xl p-5 animate-pulse">
+      <div className="bg-card border border-border rounded-xl p-5 animate-pulse h-full">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-muted rounded-lg" />
           <div className="flex-1">
@@ -131,7 +131,7 @@ export function CaseStatusSummary() {
 
   if (!caseStatus) {
     return (
-      <div className="bg-card border border-border rounded-xl p-5">
+      <div className="bg-card border border-border rounded-xl p-5 h-full">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2.5 bg-muted rounded-lg">
             <FileCheck className="w-5 h-5 text-muted-foreground" />
@@ -160,7 +160,7 @@ export function CaseStatusSummary() {
   const isPending = !statusText;
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5">
+    <div className="bg-card border border-border rounded-xl p-5 h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-primary/10 rounded-lg">

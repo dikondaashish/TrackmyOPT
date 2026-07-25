@@ -83,7 +83,7 @@ export function RecentActivityLog({ user, optStatus, employmentSpans }: RecentAc
   if (events.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm h-full">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold tracking-tight text-foreground">Timeline</h3>
       </div>
