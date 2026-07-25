@@ -34,9 +34,35 @@ export const PrivateApplicationAnswersSchema = z
   .object({
     workAuthorization: z.enum(["yes", "no"]).optional(),
     requiresSponsorship: z.enum(["yes", "no"]).optional(),
+    visaType: z
+      .enum([
+        "us_citizen",
+        "permanent_resident",
+        "h1b",
+        "f1_student",
+        "opt",
+        "cpt",
+        "j1",
+        "l1",
+        "o1",
+        "tn",
+        "e3",
+        "other",
+      ])
+      .optional(),
+    visaOther: optionalText(120),
+    // Legacy free-text fields remain readable so existing encrypted records
+    // continue to decrypt after this rollout.
     visaStatus: optionalText(120),
     citizenship: optionalText(120),
     salaryExpectation: optionalText(200),
+    expectedAnnualSalary: optionalText(80),
+    expectedHourlyRate: optionalText(80),
+    canWorkInPerson: z.enum(["yes", "no"]).optional(),
+    willingToRelocate: z.enum(["yes", "no"]).optional(),
+    canStartImmediately: z.enum(["yes", "no"]).optional(),
+    reliableTransportation: z.enum(["yes", "no"]).optional(),
+    needsAccommodations: z.enum(["yes", "no"]).optional(),
     dateOfBirth: z.preprocess(
       emptyToUndefined,
       z.string().refine(isCalendarDate, "Enter a valid date of birth").optional()

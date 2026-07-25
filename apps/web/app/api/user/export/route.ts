@@ -55,7 +55,9 @@ export async function GET(request: NextRequest) {
     // 5. Get application profile (autofill data)
     const { data: applicationProfile } = await supabase
       .from('application_profile')
-      .select('phone, city, state, years_experience, linkedin_url, portfolio_url')
+      .select(
+        'first_name, last_name, application_email, phone, country, street_address, city, state, zip_code, county_district, years_experience, linkedin_url, github_url, portfolio_url'
+      )
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -91,11 +93,33 @@ export async function GET(request: NextRequest) {
         `Case Status,${caseStatus?.current_status || 'Not set'}`,
         `Timezone,${profile?.timezone || 'Not set'}`,
         `STEM Eligible,${profile?.is_stem_eligible ? 'Yes' : 'No'}`,
+        `Job Portal First Name,${applicationProfile?.first_name || 'Not set'}`,
+        `Job Portal Last Name,${applicationProfile?.last_name || 'Not set'}`,
+        `Job Portal Email,${applicationProfile?.application_email || 'Not set'}`,
+        `Job Portal Phone,${applicationProfile?.phone || 'Not set'}`,
+        `Job Portal Country,${applicationProfile?.country || 'Not set'}`,
+        `Job Portal Street Address,${applicationProfile?.street_address || 'Not set'}`,
+        `Job Portal City,${applicationProfile?.city || 'Not set'}`,
+        `Job Portal State,${applicationProfile?.state || 'Not set'}`,
+        `Job Portal ZIP Code,${applicationProfile?.zip_code || 'Not set'}`,
+        `Job Portal County or District,${applicationProfile?.county_district || 'Not set'}`,
+        `Job Portal LinkedIn URL,${applicationProfile?.linkedin_url || 'Not set'}`,
+        `Job Portal GitHub URL,${applicationProfile?.github_url || 'Not set'}`,
+        `Job Portal Website URL,${applicationProfile?.portfolio_url || 'Not set'}`,
         `Work Authorization,${privateApplicationAnswers?.workAuthorization || 'Not set'}`,
         `Sponsorship Required,${privateApplicationAnswers?.requiresSponsorship || 'Not set'}`,
         `Visa Status,${privateApplicationAnswers?.visaStatus || 'Not set'}`,
+        `Visa Type,${privateApplicationAnswers?.visaType || 'Not set'}`,
+        `Other Visa Type,${privateApplicationAnswers?.visaOther || 'Not set'}`,
         `Citizenship,${privateApplicationAnswers?.citizenship || 'Not set'}`,
         `Salary Expectation,${privateApplicationAnswers?.salaryExpectation || 'Not set'}`,
+        `Expected Annual Salary,${privateApplicationAnswers?.expectedAnnualSalary || 'Not set'}`,
+        `Expected Hourly Rate,${privateApplicationAnswers?.expectedHourlyRate || 'Not set'}`,
+        `Can Work In Person,${privateApplicationAnswers?.canWorkInPerson || 'Not set'}`,
+        `Willing To Relocate,${privateApplicationAnswers?.willingToRelocate || 'Not set'}`,
+        `Can Start Immediately,${privateApplicationAnswers?.canStartImmediately || 'Not set'}`,
+        `Reliable Transportation,${privateApplicationAnswers?.reliableTransportation || 'Not set'}`,
+        `Needs Accommodations,${privateApplicationAnswers?.needsAccommodations || 'Not set'}`,
         `Date of Birth,${privateApplicationAnswers?.dateOfBirth || 'Not set'}`,
         `Sex or Gender,${privateApplicationAnswers?.sexGender || 'Not set'}`,
         `Hispanic or Latino,${privateApplicationAnswers?.hispanicLatino || 'Not set'}`,
@@ -142,11 +166,19 @@ export async function GET(request: NextRequest) {
         lastCheckedAt: caseStatus?.last_checked_at || null,
       },
       applicationProfile: {
+        firstName: applicationProfile?.first_name || null,
+        lastName: applicationProfile?.last_name || null,
+        email: applicationProfile?.application_email || null,
         phone: applicationProfile?.phone || null,
+        country: applicationProfile?.country || null,
+        streetAddress: applicationProfile?.street_address || null,
         city: applicationProfile?.city || null,
         state: applicationProfile?.state || null,
+        zipCode: applicationProfile?.zip_code || null,
+        countyDistrict: applicationProfile?.county_district || null,
         yearsExperience: applicationProfile?.years_experience ?? null,
         linkedinUrl: applicationProfile?.linkedin_url || null,
+        githubUrl: applicationProfile?.github_url || null,
         portfolioUrl: applicationProfile?.portfolio_url || null,
       },
       privateApplicationAnswers,

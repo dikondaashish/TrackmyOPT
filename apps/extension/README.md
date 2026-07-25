@@ -195,12 +195,14 @@ The extension works with `localhost:3000` by default. To test:
 ## Job-scoped autofill release scope (`0.1.14`)
 
 Step-by-step and Continuous prefill use the active generated resume artifact
-plus the account profile to fill supported empty contact, experience,
-education, and optional skills fields. The extension may attach a generated
-resume and reviewed cover letter only to eligible empty PDF inputs. The
-artifact expires after 30 minutes and is invalidated when the normalized job
-URL, company, or role changes. Review-required AI screening drafts are limited
-to non-sensitive questions.
+plus the dedicated job-portal profile from Settings → Extension. Supported
+empty fields include name, job-application email, phone, country, street
+address, city, state, ZIP/postal code, county/district, LinkedIn, GitHub,
+website, contact, experience, education, and optional skills fields. The
+extension may attach a generated resume and reviewed cover letter only to
+eligible empty PDF inputs. The artifact expires after 30 minutes and is
+invalidated when the normalized job URL, company, or role changes.
+Review-required AI screening drafts are limited to non-sensitive questions.
 
 Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 
@@ -219,10 +221,11 @@ Every mode keeps the same hard boundaries:
 
 - never use a historical or merely latest resume as fallback;
 - never overwrite a non-empty field, existing tag, or existing file;
-- never guess visa, sponsorship, work-authorization, EEO, salary, DOB,
-  citizenship, veteran, disability, clearance, or SSN answers; optional saved
-  private answers are loaded only into the review panel and become usable only
-  after explicit confirmation for the current application;
+- never guess visa, sponsorship, work-authorization, work preferences, EEO,
+  compensation, DOB, citizenship, veteran, disability, clearance, or SSN
+  answers; optional saved private answers are encrypted, loaded only into the
+  review panel, and become usable only after explicit confirmation for the
+  current application;
 - never click Add another, Review, Submit, Apply, Finish, or another final
   action; Guided Autopilot alone may click exact allowlisted non-submit
   Next/Continue/Done controls;

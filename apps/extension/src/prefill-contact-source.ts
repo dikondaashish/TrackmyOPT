@@ -34,13 +34,18 @@ export function buildContactAutofillProfile(
     fullName,
     email: preferred(snapshot.contact.email, fallback.email),
     phone: preferred(snapshot.contact.phone, fallback.phone),
+    country: preferred(snapshot.contact.country, fallback.country),
+    streetAddress: fallback.streetAddress,
     city: preferred(snapshot.contact.city, fallback.city),
     state: preferred(snapshot.contact.state, fallback.state),
+    postalCode: fallback.postalCode,
+    countyDistrict: fallback.countyDistrict,
     yearsExperience:
       snapshot.totalYearsExperience !== undefined
         ? String(snapshot.totalYearsExperience)
         : fallback.yearsExperience,
     linkedinUrl: preferred(snapshot.contact.linkedinUrl, fallback.linkedinUrl),
+    githubUrl: fallback.githubUrl,
     portfolioUrl: preferred(
       snapshot.contact.portfolioUrl,
       fallback.portfolioUrl

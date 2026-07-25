@@ -251,7 +251,9 @@ export async function GET(request: NextRequest) {
     // Application profile (autofill data) — non-sensitive; null when not set yet.
     const { data: applicationProfile } = await dataClient
       .from('application_profile')
-      .select('phone, city, state, years_experience, linkedin_url, portfolio_url')
+      .select(
+        'first_name, last_name, application_email, phone, country, street_address, city, state, zip_code, county_district, years_experience, linkedin_url, github_url, portfolio_url'
+      )
       .eq('user_id', userId)
       .maybeSingle();
 

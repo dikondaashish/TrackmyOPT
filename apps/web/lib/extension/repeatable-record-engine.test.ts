@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { fillRepeatableRecords } from '../../../extension/src/repeatable-record-engine';
 import type { ClassifiedControl } from '../../../extension/src/ats-prefill-adapters';
 import type { ResumeAutofillSnapshotV1 } from '../../../extension/src/resume-autofill-contract';
-import { runPrefill } from '../../../extension/src/easy-apply-engine';
+import { getLabelText, runPrefill } from '../../../extension/src/easy-apply-engine';
+import { classifyField } from '../../../extension/src/easy-apply-matchers';
 
 const snapshot: ResumeAutofillSnapshotV1 = {
   contact: {}, skills: [], certifications: [], education: [],
@@ -50,8 +51,10 @@ describe('repeatable work-history records', () => {
     const result = await runPrefill({
       snapshot,
       profileFallback: {
-        firstName: '', lastName: '', fullName: '', email: '', phone: '', city: '',
-        state: '', yearsExperience: '', linkedinUrl: '', portfolioUrl: '',
+        firstName: '', lastName: '', fullName: '', email: '', phone: '',
+        country: '', streetAddress: '', city: '', state: '', postalCode: '',
+        countyDistrict: '', yearsExperience: '', linkedinUrl: '', githubUrl: '',
+        portfolioUrl: '',
       },
       quietResultToast: true,
     });
@@ -74,6 +77,87 @@ describe('repeatable work-history records', () => {
     expect((document.querySelector('#company-1') as HTMLInputElement).value).toBe('Beta Labs');
     expect((document.querySelector('#title-1') as HTMLInputElement).value).toBe('Engineer');
     expect(outcome).toMatchObject({ visibleRecordContainers: 2, remainingRecords: 0, filledFields: 4 });
+  });
+
+  it('fills the dedicated job-portal contact and address profile without touching employer fields', async () => {
+    document.body.innerHTML = `
+      <form id="application-form">
+        <label>First name <input id="first-name"></label>
+        <label>Last name <input id="last-name"></label>
+        <label>Email <input id="email" value="applicant-kept@example.com"></label>
+        <label>Phone <input id="phone"></label>
+        <label>Country
+          <select id="country"><option value=""></option><option value="US">United States</option></select>
+        </label>
+        <label>Street address <input id="street"></label>
+        <label>City <input id="city"></label>
+        <label>State <input id="state"></label>
+        <label>ZIP code <input id="zip"></label>
+        <label>County / District <input id="county"></label>
+        <label>LinkedIn URL <input id="linkedin"></label>
+        <label>GitHub URL <input id="github"></label>
+        <label>Personal website <input id="website"></label>
+        <label>Company website <input id="company-website"></label>
+      </form>`;
+    for (const control of Array.from(
+      document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+        'input,select'
+      )
+    )) {
+      control.getBoundingClientRect = () =>
+        ({
+          width: 160,
+          height: 32,
+          top: 0,
+          left: 0,
+          right: 160,
+          bottom: 32,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        }) as DOMRect;
+    }
+    expect(
+      classifyField(
+        getLabelText(document.querySelector('#github') as HTMLInputElement)
+      )
+    ).toBe('githubUrl');
+
+    await runPrefill({
+      profileFallback: {
+        firstName: 'Asha',
+        lastName: 'Candidate',
+        fullName: 'Asha Candidate',
+        email: 'jobs@example.com',
+        phone: '+1 555 0100',
+        country: 'United States',
+        streetAddress: '1 Main Street',
+        city: 'Boston',
+        state: 'MA',
+        postalCode: '02110',
+        countyDistrict: 'Suffolk County',
+        yearsExperience: '5',
+        linkedinUrl: 'https://linkedin.com/in/asha',
+        githubUrl: 'https://github.com/asha',
+        portfolioUrl: 'https://asha.example.com',
+      },
+      quietResultToast: true,
+    });
+
+    expect((document.querySelector('#first-name') as HTMLInputElement).value).toBe('Asha');
+    expect((document.querySelector('#last-name') as HTMLInputElement).value).toBe('Candidate');
+    expect((document.querySelector('#email') as HTMLInputElement).value).toBe('applicant-kept@example.com');
+    expect((document.querySelector('#phone') as HTMLInputElement).value).toBe('+1 555 0100');
+    expect((document.querySelector('#country') as HTMLSelectElement).value).toBe('US');
+    expect((document.querySelector('#street') as HTMLInputElement).value).toBe('1 Main Street');
+    expect((document.querySelector('#city') as HTMLInputElement).value).toBe('Boston');
+    expect((document.querySelector('#state') as HTMLInputElement).value).toBe('MA');
+    expect((document.querySelector('#zip') as HTMLInputElement).value).toBe('02110');
+    expect((document.querySelector('#county') as HTMLInputElement).value).toBe('Suffolk County');
+    expect((document.querySelector('#linkedin') as HTMLInputElement).value).toBe('https://linkedin.com/in/asha');
+    expect((document.querySelector('#github') as HTMLInputElement).value).toBe('https://github.com/asha');
+    expect((document.querySelector('#website') as HTMLInputElement).value).toBe('https://asha.example.com');
+    expect((document.querySelector('#company-website') as HTMLInputElement).value).toBe('');
   });
 
   it('preserves date precision and never invents a missing month', () => {

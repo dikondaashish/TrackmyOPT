@@ -103,10 +103,15 @@ export interface BasicContactProfile {
   fullName: string;
   email: string;
   phone: string;
+  country: string;
+  streetAddress: string;
   city: string;
   state: string;
+  postalCode: string;
+  countyDistrict: string;
   yearsExperience: string;
   linkedinUrl: string;
+  githubUrl: string;
   portfolioUrl: string;
 }
 

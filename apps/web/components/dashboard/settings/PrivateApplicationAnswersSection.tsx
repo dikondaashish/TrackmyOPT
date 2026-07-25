@@ -16,9 +16,18 @@ import { Input } from "@/components/ui/input";
 interface PrivateAnswersForm {
   workAuthorization: string;
   requiresSponsorship: string;
+  visaType: string;
+  visaOther: string;
   visaStatus: string;
   citizenship: string;
   salaryExpectation: string;
+  expectedAnnualSalary: string;
+  expectedHourlyRate: string;
+  canWorkInPerson: string;
+  willingToRelocate: string;
+  canStartImmediately: string;
+  reliableTransportation: string;
+  needsAccommodations: string;
   dateOfBirth: string;
   sexGender: string;
   hispanicLatino: string;
@@ -31,9 +40,18 @@ interface PrivateAnswersForm {
 const EMPTY: PrivateAnswersForm = {
   workAuthorization: "",
   requiresSponsorship: "",
+  visaType: "",
+  visaOther: "",
   visaStatus: "",
   citizenship: "",
   salaryExpectation: "",
+  expectedAnnualSalary: "",
+  expectedHourlyRate: "",
+  canWorkInPerson: "",
+  willingToRelocate: "",
+  canStartImmediately: "",
+  reliableTransportation: "",
+  needsAccommodations: "",
   dateOfBirth: "",
   sexGender: "",
   hispanicLatino: "",
@@ -51,9 +69,18 @@ function asForm(value: unknown): PrivateAnswersForm {
   return {
     workAuthorization: read("workAuthorization"),
     requiresSponsorship: read("requiresSponsorship"),
+    visaType: read("visaType"),
+    visaOther: read("visaOther"),
     visaStatus: read("visaStatus"),
     citizenship: read("citizenship"),
     salaryExpectation: read("salaryExpectation"),
+    expectedAnnualSalary: read("expectedAnnualSalary"),
+    expectedHourlyRate: read("expectedHourlyRate"),
+    canWorkInPerson: read("canWorkInPerson"),
+    willingToRelocate: read("willingToRelocate"),
+    canStartImmediately: read("canStartImmediately"),
+    reliableTransportation: read("reliableTransportation"),
+    needsAccommodations: read("needsAccommodations"),
     dateOfBirth: read("dateOfBirth"),
     sexGender: read("sexGender"),
     hispanicLatino: read("hispanicLatino"),
@@ -193,9 +220,9 @@ export function PrivateApplicationAnswersSection() {
         <h3 className="text-base font-semibold">Private application answers</h3>
       </div>
       <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-        Optional answers for work authorization, visa, sponsorship, salary,
-        date of birth, and EEO questions. They are protected with authenticated
-        encryption and are never sent to AI or analytics.
+        Optional answers for work authorization, visa, compensation, work
+        preferences, date of birth, and DEI questions. They are protected with
+        authenticated encryption and are never sent to AI or analytics.
       </p>
       <p className="mb-5 text-xs leading-5 text-gray-500 dark:text-gray-400">
         The TrackMyOPT extension loads these into a private review panel. You
@@ -248,14 +275,35 @@ export function PrivateApplicationAnswersSection() {
                 ["no", "No"],
               ]}
             />
-            <Field label="Visa / immigration status">
-              <Input
-                value={form.visaStatus}
-                onChange={update("visaStatus")}
-                placeholder="Example: F-1 OPT"
-                autoComplete="off"
-              />
-            </Field>
+            <SelectField
+              label="Visa / work status"
+              value={form.visaType}
+              onChange={update("visaType")}
+              options={[
+                ["us_citizen", "U.S. citizen"],
+                ["permanent_resident", "Permanent resident"],
+                ["h1b", "H-1B"],
+                ["f1_student", "F-1 student"],
+                ["opt", "OPT"],
+                ["cpt", "CPT"],
+                ["j1", "J-1"],
+                ["l1", "L-1"],
+                ["o1", "O-1"],
+                ["tn", "TN"],
+                ["e3", "E-3"],
+                ["other", "Other"],
+              ]}
+            />
+            {form.visaType === "other" && (
+              <Field label="Other visa / work status">
+                <Input
+                  value={form.visaOther}
+                  onChange={update("visaOther")}
+                  placeholder="Enter the exact status"
+                  autoComplete="off"
+                />
+              </Field>
+            )}
             <Field label="Citizenship">
               <Input
                 value={form.citizenship}
@@ -264,14 +312,54 @@ export function PrivateApplicationAnswersSection() {
                 autoComplete="off"
               />
             </Field>
-            <Field label="Salary expectation">
+            <Field label="Expected annual salary">
               <Input
-                value={form.salaryExpectation}
-                onChange={update("salaryExpectation")}
-                placeholder="Example: $120,000 or Negotiable"
+                value={form.expectedAnnualSalary}
+                onChange={update("expectedAnnualSalary")}
+                placeholder="Example: $120,000"
+                inputMode="decimal"
                 autoComplete="off"
               />
             </Field>
+            <Field label="Expected hourly rate">
+              <Input
+                value={form.expectedHourlyRate}
+                onChange={update("expectedHourlyRate")}
+                placeholder="Example: $58"
+                inputMode="decimal"
+                autoComplete="off"
+              />
+            </Field>
+            <SelectField
+              label="Can work in-person?"
+              value={form.canWorkInPerson}
+              onChange={update("canWorkInPerson")}
+              options={[["yes", "Yes"], ["no", "No"]]}
+            />
+            <SelectField
+              label="Willing to relocate?"
+              value={form.willingToRelocate}
+              onChange={update("willingToRelocate")}
+              options={[["yes", "Yes"], ["no", "No"]]}
+            />
+            <SelectField
+              label="Can start immediately?"
+              value={form.canStartImmediately}
+              onChange={update("canStartImmediately")}
+              options={[["yes", "Yes"], ["no", "No"]]}
+            />
+            <SelectField
+              label="Has reliable transportation?"
+              value={form.reliableTransportation}
+              onChange={update("reliableTransportation")}
+              options={[["yes", "Yes"], ["no", "No"]]}
+            />
+            <SelectField
+              label="Needs accommodations?"
+              value={form.needsAccommodations}
+              onChange={update("needsAccommodations")}
+              options={[["yes", "Yes"], ["no", "No"]]}
+            />
             <Field label="Date of birth">
               <Input
                 type="date"
@@ -281,7 +369,7 @@ export function PrivateApplicationAnswersSection() {
               />
             </Field>
             <SelectField
-              label="Sex / gender"
+              label="Gender (optional)"
               value={form.sexGender}
               onChange={update("sexGender")}
               options={[
@@ -292,7 +380,7 @@ export function PrivateApplicationAnswersSection() {
               ]}
             />
             <SelectField
-              label="Race / ethnicity"
+              label="Ethnicity / race (optional)"
               value={form.raceEthnicity}
               onChange={update("raceEthnicity")}
               options={[
@@ -326,7 +414,7 @@ export function PrivateApplicationAnswersSection() {
               ]}
             />
             <SelectField
-              label="Veteran status"
+              label="Veteran (optional)"
               value={form.veteranStatus}
               onChange={update("veteranStatus")}
               options={[
@@ -336,7 +424,7 @@ export function PrivateApplicationAnswersSection() {
               ]}
             />
             <SelectField
-              label="Disability status"
+              label="Has disability (optional)"
               value={form.disabilityStatus}
               onChange={update("disabilityStatus")}
               options={[

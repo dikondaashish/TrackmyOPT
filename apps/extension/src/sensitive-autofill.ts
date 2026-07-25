@@ -4,9 +4,30 @@ export interface SensitiveAnswerSession {
   confirmed: boolean;
   workAuthorization?: 'yes' | 'no';
   requiresSponsorship?: 'yes' | 'no';
+  visaType?:
+    | 'us_citizen'
+    | 'permanent_resident'
+    | 'h1b'
+    | 'f1_student'
+    | 'opt'
+    | 'cpt'
+    | 'j1'
+    | 'l1'
+    | 'o1'
+    | 'tn'
+    | 'e3'
+    | 'other';
+  visaOther?: string;
   visaStatus?: string;
   citizenship?: string;
   salaryExpectation?: string;
+  expectedAnnualSalary?: string;
+  expectedHourlyRate?: string;
+  canWorkInPerson?: 'yes' | 'no';
+  willingToRelocate?: 'yes' | 'no';
+  canStartImmediately?: 'yes' | 'no';
+  reliableTransportation?: 'yes' | 'no';
+  needsAccommodations?: 'yes' | 'no';
   dateOfBirth?: string;
   sexGender?: 'female' | 'male' | 'non_binary' | 'prefer_not_to_answer';
   hispanicLatino?: 'yes' | 'no' | 'prefer_not_to_answer';
@@ -33,6 +54,13 @@ export type SensitiveAnswerKind =
   | 'visaStatus'
   | 'citizenship'
   | 'salaryExpectation'
+  | 'expectedAnnualSalary'
+  | 'expectedHourlyRate'
+  | 'canWorkInPerson'
+  | 'willingToRelocate'
+  | 'canStartImmediately'
+  | 'reliableTransportation'
+  | 'needsAccommodations'
   | 'dateOfBirth'
   | 'sexGender'
   | 'hispanicLatino'
@@ -63,9 +91,33 @@ export function normalizeSensitiveAnswerSession(
     answer === 'yes' || answer === 'no' ? answer : undefined;
   const workAuthorization = yesNo(candidate.workAuthorization);
   const requiresSponsorship = yesNo(candidate.requiresSponsorship);
+  const visaType = [
+    'us_citizen',
+    'permanent_resident',
+    'h1b',
+    'f1_student',
+    'opt',
+    'cpt',
+    'j1',
+    'l1',
+    'o1',
+    'tn',
+    'e3',
+    'other',
+  ].includes(String(candidate.visaType))
+    ? (candidate.visaType as SensitiveAnswerSession['visaType'])
+    : undefined;
+  const visaOther = boundedText(candidate.visaOther, 120);
   const visaStatus = boundedText(candidate.visaStatus, 120);
   const citizenship = boundedText(candidate.citizenship, 120);
   const salaryExpectation = boundedText(candidate.salaryExpectation, 200);
+  const expectedAnnualSalary = boundedText(candidate.expectedAnnualSalary, 80);
+  const expectedHourlyRate = boundedText(candidate.expectedHourlyRate, 80);
+  const canWorkInPerson = yesNo(candidate.canWorkInPerson);
+  const willingToRelocate = yesNo(candidate.willingToRelocate);
+  const canStartImmediately = yesNo(candidate.canStartImmediately);
+  const reliableTransportation = yesNo(candidate.reliableTransportation);
+  const needsAccommodations = yesNo(candidate.needsAccommodations);
   const dateOfBirth =
     typeof candidate.dateOfBirth === 'string' &&
     /^\d{4}-\d{2}-\d{2}$/.test(candidate.dateOfBirth)
@@ -112,9 +164,18 @@ export function normalizeSensitiveAnswerSession(
     confirmed: true,
     ...(workAuthorization ? { workAuthorization } : {}),
     ...(requiresSponsorship ? { requiresSponsorship } : {}),
+    ...(visaType ? { visaType } : {}),
+    ...(visaOther ? { visaOther } : {}),
     ...(visaStatus ? { visaStatus } : {}),
     ...(citizenship ? { citizenship } : {}),
     ...(salaryExpectation ? { salaryExpectation } : {}),
+    ...(expectedAnnualSalary ? { expectedAnnualSalary } : {}),
+    ...(expectedHourlyRate ? { expectedHourlyRate } : {}),
+    ...(canWorkInPerson ? { canWorkInPerson } : {}),
+    ...(willingToRelocate ? { willingToRelocate } : {}),
+    ...(canStartImmediately ? { canStartImmediately } : {}),
+    ...(reliableTransportation ? { reliableTransportation } : {}),
+    ...(needsAccommodations ? { needsAccommodations } : {}),
     ...(dateOfBirth ? { dateOfBirth } : {}),
     ...(sexGender ? { sexGender } : {}),
     ...(hispanicLatino ? { hispanicLatino } : {}),
@@ -148,6 +209,17 @@ const VISA_RE = /\b(?:visa|immigration status)\b/i;
 const CITIZENSHIP_RE = /\b(?:citizen\w*|citizenship)\b/i;
 const SALARY_RE =
   /\b(?:salary|compensation|expected pay|desired pay|pay expectation)\b/i;
+const ANNUAL_SALARY_RE =
+  /\b(?:annual|yearly|per year)\b.{0,30}\b(?:salary|compensation|pay|rate)\b|\b(?:salary|compensation|pay|rate)\b.{0,30}\b(?:annual|yearly|per year)\b/i;
+const HOURLY_RATE_RE =
+  /\b(?:hourly|per hour)\b.{0,30}\b(?:rate|pay|salary|compensation)\b|\b(?:rate|pay|salary|compensation)\b.{0,30}\b(?:hourly|per hour)\b/i;
+const IN_PERSON_RE = /\b(?:work|available)\b.{0,25}\b(?:in person|on ?site)\b/i;
+const RELOCATE_RE = /\brelocat\w*\b/i;
+const START_IMMEDIATELY_RE =
+  /\b(?:start|available)\b.{0,30}\bimmediately\b/i;
+const TRANSPORTATION_RE = /\breliable transportation\b/i;
+const ACCOMMODATIONS_RE =
+  /\b(?:need|require|request)\w*\b.{0,30}\baccommodation\w*\b|\baccommodation\w*\b/i;
 const DOB_RE = /\b(?:date of birth|birth date|dob)\b/i;
 const SEX_GENDER_RE = /\b(?:gender|sex)\b/i;
 const HISPANIC_LATINO_RE = /\b(?:hispanic|latino|latina|latinx)\b/i;
@@ -166,7 +238,14 @@ export function classifySensitiveAnswer(label: string): SensitiveAnswerKind | nu
   if (WORK_AUTH_RE.test(signal)) return 'workAuthorization';
   if (CITIZENSHIP_RE.test(signal)) return 'citizenship';
   if (VISA_RE.test(signal)) return 'visaStatus';
+  if (ANNUAL_SALARY_RE.test(signal)) return 'expectedAnnualSalary';
+  if (HOURLY_RATE_RE.test(signal)) return 'expectedHourlyRate';
   if (SALARY_RE.test(signal)) return 'salaryExpectation';
+  if (IN_PERSON_RE.test(signal)) return 'canWorkInPerson';
+  if (RELOCATE_RE.test(signal)) return 'willingToRelocate';
+  if (START_IMMEDIATELY_RE.test(signal)) return 'canStartImmediately';
+  if (TRANSPORTATION_RE.test(signal)) return 'reliableTransportation';
+  if (ACCOMMODATIONS_RE.test(signal)) return 'needsAccommodations';
   if (DOB_RE.test(signal)) return 'dateOfBirth';
   if (SEX_GENDER_RE.test(signal)) return 'sexGender';
   if (HISPANIC_LATINO_RE.test(signal)) return 'hispanicLatino';
@@ -178,11 +257,21 @@ export function classifySensitiveAnswer(label: string): SensitiveAnswerKind | nu
 }
 
 function labelFor(element: HTMLElement): string {
+  const textWithoutControls = (node: Element | null): string | null => {
+    if (!node) return null;
+    const copy = node.cloneNode(true) as Element;
+    for (const child of Array.from(
+      copy.querySelectorAll('input,textarea,select,option,button,script,style')
+    )) {
+      child.remove();
+    }
+    return copy.textContent;
+  };
   const parts = [
     element.getAttribute('aria-label'),
     element.getAttribute('name'),
     element.getAttribute('id'),
-    element.closest('label')?.textContent,
+    textWithoutControls(element.closest('label')),
     element.closest('fieldset')?.querySelector('legend')?.textContent,
   ];
   if (element.id) {
@@ -199,6 +288,15 @@ function answerFor(
   kind: SensitiveAnswerKind,
   answers: SensitiveAnswerSession
 ): string | undefined {
+  if (kind === 'visaStatus') {
+    if (answers.visaType === 'other') {
+      return answers.visaOther || answers.visaStatus || 'other';
+    }
+    return answers.visaType || answers.visaStatus;
+  }
+  if (kind === 'salaryExpectation') {
+    return answers.salaryExpectation || answers.expectedAnnualSalary;
+  }
   return answers[kind];
 }
 
@@ -244,6 +342,24 @@ function candidateMatches(candidate: string, answer: string): boolean {
   if (answer === 'non_binary') {
     return /\b(?:non binary|nonbinary|gender non conforming)\b/.test(optionText);
   }
+  if (answer === 'us_citizen') {
+    return /\b(?:u s |us |united states )?citizen\b/.test(optionText);
+  }
+  if (answer === 'permanent_resident') {
+    return /\b(?:permanent resident|green card|lawful permanent)\b/.test(optionText);
+  }
+  if (answer === 'h1b') return /\bh ?1 ?b\b/.test(optionText);
+  if (answer === 'f1_student') {
+    return /\bf ?1\b/.test(optionText) && /\b(?:student|visa|status|f ?1)\b/.test(optionText);
+  }
+  if (answer === 'opt') return /\bopt\b/.test(optionText);
+  if (answer === 'cpt') return /\bcpt\b/.test(optionText);
+  if (answer === 'j1') return /\bj ?1\b/.test(optionText);
+  if (answer === 'l1') return /\bl ?1\b/.test(optionText);
+  if (answer === 'o1') return /\bo ?1\b/.test(optionText);
+  if (answer === 'tn') return /\btn\b/.test(optionText);
+  if (answer === 'e3') return /\be ?3\b/.test(optionText);
+  if (answer === 'other') return /\bother\b/.test(optionText);
   if (answer === 'american_indian_or_alaska_native') {
     return /\b(?:american indian|alaska native|indigenous)\b/.test(optionText);
   }

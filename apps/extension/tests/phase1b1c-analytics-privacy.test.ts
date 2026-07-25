@@ -30,6 +30,15 @@ assert.match(
   /sensitiveAnswerSession\.confirmed[\s\S]+sensitiveAnswers: sensitiveAnswerSession/,
   'only explicitly confirmed session answers enter the ephemeral frame relay',
 );
+const confirmedAnswerRelay = portal.slice(
+  portal.indexOf("type: 'PREFILL_CHILD_FRAMES'"),
+  portal.indexOf('const result = await runPrefill')
+);
+assert.doesNotMatch(
+  confirmedAnswerRelay,
+  /guidedAutopilot/,
+  'confirmed private answers must work with ordinary Prefill, not only Guided Autopilot',
+);
 const savedPrivateAnswerLoad = portal.slice(
   portal.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'"),
   portal.indexOf(

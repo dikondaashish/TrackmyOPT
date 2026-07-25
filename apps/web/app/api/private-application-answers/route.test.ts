@@ -102,7 +102,14 @@ describe("/api/private-application-answers", () => {
     const saveResponse = await PUT(
       request("PUT", {
         consent: true,
-        visaStatus: "F-1 OPT",
+        visaType: "opt",
+        expectedAnnualSalary: "$120,000",
+        expectedHourlyRate: "$58",
+        canWorkInPerson: "yes",
+        willingToRelocate: "no",
+        canStartImmediately: "yes",
+        reliableTransportation: "yes",
+        needsAccommodations: "no",
         dateOfBirth: "1998-04-12",
         sexGender: "female",
         eeoPreference: "prefer_not_to_answer",
@@ -111,7 +118,7 @@ describe("/api/private-application-answers", () => {
 
     expect(saveResponse.status).toBe(200);
     expect(mocks.lastUpsert?.user_id).toBe(USER_ID);
-    expect(String(mocks.lastUpsert?.encrypted_payload)).not.toContain("F-1 OPT");
+    expect(String(mocks.lastUpsert?.encrypted_payload)).not.toContain("$120,000");
     expect(String(mocks.lastUpsert?.encrypted_payload)).not.toContain(
       "1998-04-12"
     );
@@ -121,7 +128,14 @@ describe("/api/private-application-answers", () => {
 
     expect(getResponse.status).toBe(200);
     expect(body.data).toMatchObject({
-      visaStatus: "F-1 OPT",
+      visaType: "opt",
+      expectedAnnualSalary: "$120,000",
+      expectedHourlyRate: "$58",
+      canWorkInPerson: "yes",
+      willingToRelocate: "no",
+      canStartImmediately: "yes",
+      reliableTransportation: "yes",
+      needsAccommodations: "no",
       dateOfBirth: "1998-04-12",
       sexGender: "female",
       eeoPreference: "prefer_not_to_answer",

@@ -7,9 +7,9 @@
  * separate written license grant. None of AutoApplyMax's control flow,
  * auto-submit, or detection-evasion code is used here.
  *
- * SAFETY: SENSITIVE_FIELD_RE fields are NEVER classified for auto-fill. Work
- * authorization, visa/sponsorship, EEO, salary, DOB and SSN answers must be
- * entered by the user — they carry outsized consequences for F-1/OPT users.
+ * SAFETY: SENSITIVE_FIELD_RE fields are NEVER classified for ordinary profile
+ * autofill. They may only be handled by the separate, explicitly reviewed
+ * encrypted-answer flow.
  */
 
 import { SENSITIVE_QUESTION_RE } from './sensitive-question-policy';
@@ -22,11 +22,16 @@ export type FieldKind =
   | 'firstName'
   | 'lastName'
   | 'fullName'
+  | 'country'
+  | 'streetAddress'
   | 'city'
   | 'state'
+  | 'postalCode'
+  | 'countyDistrict'
   | 'location'
   | 'yearsExperience'
   | 'linkedinUrl'
+  | 'githubUrl'
   | 'portfolioUrl'
   | 'skills';
 
@@ -46,7 +51,7 @@ const ESSAY_RE =
  * from being treated as the applicant's own field).
  */
 export const ORG_TRAP_RE =
-  /\b(website|web\s*site|referr\w*|manager|supervisor|(?:company|employer|organization|organisation)\s+email)\b/i;
+  /\b(referr\w*|manager|supervisor|(?:company|employer|organization|organisation)\s+(?:email|website|web\s*site|github))\b/i;
 const NON_APPLICANT_ORG_RE =
   /\b(company|employer|organization|organisation|school|university|college|institution|reference)\b/i;
 
@@ -94,6 +99,8 @@ export function classifyField(labelText: string): FieldKind | null {
   // normalizeFieldSignal splits camelCase, so "LinkedIn" becomes "linked in";
   // tolerate the space/hyphen so human-facing "LinkedIn Profile URL" labels match.
   if (/\blinked[\s-]?in\b/.test(t)) return 'linkedinUrl';
+  // CamelCase normalization turns "GitHub" into "git hub".
+  if (/\bgit[\s-]?hub\b/.test(t)) return 'githubUrl';
   if (/\b(portfolio|personal website|personal site|website|web site)\b/.test(t)) return 'portfolioUrl';
 
   // Years of experience — CONSERVATIVE. Only a bare, general question fills.
@@ -114,8 +121,12 @@ export function classifyField(labelText: string): FieldKind | null {
   if (/\b(full name|legal name|your name|nom complet|nombre completo)\b/.test(t)) return 'fullName';
   if (t === 'name') return 'fullName'; // HTML autocomplete="name"
 
+  if (/\b(address line\s*1|street address|street-address)\b/.test(t)) return 'streetAddress';
   if (/\baddress level\s*2\b/.test(t)) return 'city'; // HTML autocomplete token
   if (/\baddress level\s*1\b/.test(t)) return 'state'; // HTML autocomplete token
+  if (/\b(country|country name|country-name)\b/.test(t)) return 'country';
+  if (/\b(zip|zip code|postal code|postal-code)\b/.test(t)) return 'postalCode';
+  if (/\b(county|district)\b/.test(t)) return 'countyDistrict';
   if (/\b(city|town|ville|ciudad)\b/.test(t)) return 'city';
   if (/\b(state|province|région|region)\b/.test(t)) return 'state';
   if (/\b(location|localisation)\b/.test(t)) return 'location';

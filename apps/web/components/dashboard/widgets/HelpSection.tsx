@@ -1233,7 +1233,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="What does application Prefill change?"
-                  answer="Prefill only adds eligible TrackMyOPT profile and active job-scoped resume information to empty supported fields on the open application. It does not replace existing values or files, answer sensitive questions, add extra rows, navigate the application, or submit it. Review every field and attachment yourself."
+                  answer="Prefill adds eligible information from your dedicated job-portal profile and active job-scoped resume only to empty supported fields. Optional private answers can fill only after you review and approve their exact values for the current application. Guided Autopilot may advance allowlisted Next, Continue, and Done steps, but it stops before Review and never submits. Existing values and files are never replaced; review every field and attachment yourself."
                 />
                 <FAQItem
                   question="Why did Prefill leave a field or attachment blank?"

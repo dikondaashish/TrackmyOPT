@@ -21,8 +21,11 @@ They are not backlog items:
 - Step-by-step, Continuous, and opt-in Guided Autopilot modes.
 - Guided clicks for allowlisted non-final Next, Continue, and Done controls.
 - Permanent stop before Review, Submit, Apply, Finish, or another final action.
-- Session-only user answers for visa, sponsorship, work authorization,
-  citizenship, salary, date of birth, and EEO questions.
+- Dedicated Chrome-extension job-portal profile for contact, full address,
+  social URLs, visa type, annual/hourly compensation, work preferences, date
+  of birth, and optional DEI answers.
+- Sensitive/private answers are stored separately with authenticated
+  encryption and require explicit review and approval for each application.
 - Visual filling progress, field highlights, success/error states, and Stop UI.
 - Durable Supabase AI quotas and user-owned screening-answer storage.
 - Workday/Greenhouse adapter fixtures and extension unit tests.
