@@ -192,7 +192,7 @@ The extension works with `localhost:3000` by default. To test:
 - Verify token is being sent in Authorization header
 - Check browser console for CORS errors
 
-## Job-scoped autofill release scope (`0.1.13`)
+## Job-scoped autofill release scope (`0.1.14`)
 
 Step-by-step and Continuous prefill use the active generated resume artifact
 plus the account profile to fill supported empty contact, experience,
@@ -220,8 +220,9 @@ Every mode keeps the same hard boundaries:
 - never use a historical or merely latest resume as fallback;
 - never overwrite a non-empty field, existing tag, or existing file;
 - never guess visa, sponsorship, work-authorization, EEO, salary, DOB,
-  citizenship, veteran, disability, clearance, or SSN answers; confirmed
-  sensitive facts remain memory-only for the current page session;
+  citizenship, veteran, disability, clearance, or SSN answers; optional saved
+  private answers are loaded only into the review panel and become usable only
+  after explicit confirmation for the current application;
 - never click Add another, Review, Submit, Apply, Finish, or another final
   action; Guided Autopilot alone may click exact allowlisted non-submit
   Next/Continue/Done controls;
@@ -232,7 +233,7 @@ Every mode keeps the same hard boundaries:
 
 ### Code and packaging
 
-- [x] Package and manifest versions match at `0.1.13`.
+- [x] Package and manifest versions match at `0.1.14`.
 - [x] Production is the default target in `src/config.ts`; localhost requires
   the explicit `EXT_TARGET=local` build.
 - [x] Run the complete web, extension, and API test suites.
@@ -254,11 +255,11 @@ click Submit.
 | Workday | Explicit prefill with a fresh matching artifact | Empty contact/history fields fill; empty Resume/CV accepts the matching PDF | [ ] |
 | Workday | Existing field values and resume upload | All existing values/files remain unchanged | [ ] |
 | Workday | Multi-record history | Visible records keep company/title/date boundaries; no Add another click | [ ] |
-| Workday | Manager/referral-company and sensitive questions | Fields stay blank | [ ] |
+| Workday | Manager/referral-company and sensitive questions | Manager/referral traps stay blank; only exact reviewed private answers fill eligible empty sensitive controls | [ ] |
 | Workday | 30-minute expiry or URL/company/role change | Artifact is rejected; profile-only/regenerate guidance appears | [ ] |
 | Greenhouse | Explicit prefill with a fresh matching artifact | Empty native contact/history fields fill; empty Resume/CV accepts the PDF | [ ] |
 | Greenhouse | Custom dropdown, tag editor, existing file/value | Unsupported or populated controls stay unchanged | [ ] |
-| Greenhouse | Sensitive screening and EEO fields | AI never receives them; only exact confirmed session answers may fill; EEO is decline-only | [ ] |
+| Greenhouse | Sensitive screening and EEO fields | AI never receives them; only exact answers approved for this application may fill | [ ] |
 | Both | Continuous mode default | Available but off in user preferences until explicitly selected | [ ] |
 | Both | Guided navigation | Non-submit Next/Continue/Done may advance; Review/Submit/Apply/Finish and submit-typed navigation are blocked | [ ] |
 
@@ -270,7 +271,7 @@ click Submit.
 - [x] `/privacy` describes the 30-minute artifact, empty-only behavior,
   sensitive-field exclusions, storage boundary, and content-free telemetry.
 - [x] `/dashboard/help` describes Continuous, Guided Autopilot, skills, AI
-  drafts/answer reuse, cover letters, session-only sensitive answers, and the
+  drafts/answer reuse, cover letters, review-required private answers, and the
   never-submit boundary.
 - [x] Support can map the content-free error codes `extraction_failed`,
   `unsupported_control`, `draft_review_pending`, and `attachment_failed`.

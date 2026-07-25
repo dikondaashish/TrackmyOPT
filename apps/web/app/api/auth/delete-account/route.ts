@@ -161,6 +161,7 @@ export async function DELETE() {
 
     // Application profile (autofill data)
     await supabaseAdmin.from('application_profile').delete().eq('user_id', userId);
+    await supabaseAdmin.from('private_application_answers').delete().eq('user_id', userId);
 
     // Policy consent records
     await supabaseAdmin.from('policy_consents').delete().eq('user_id', userId);

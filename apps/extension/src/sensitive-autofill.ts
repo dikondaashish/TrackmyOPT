@@ -8,6 +8,22 @@ export interface SensitiveAnswerSession {
   citizenship?: string;
   salaryExpectation?: string;
   dateOfBirth?: string;
+  sexGender?: 'female' | 'male' | 'non_binary' | 'prefer_not_to_answer';
+  hispanicLatino?: 'yes' | 'no' | 'prefer_not_to_answer';
+  raceEthnicity?:
+    | 'american_indian_or_alaska_native'
+    | 'asian'
+    | 'black_or_african_american'
+    | 'hispanic_or_latino'
+    | 'native_hawaiian_or_pacific_islander'
+    | 'white'
+    | 'two_or_more_races'
+    | 'prefer_not_to_answer';
+  veteranStatus?:
+    | 'not_protected_veteran'
+    | 'protected_veteran'
+    | 'prefer_not_to_answer';
+  disabilityStatus?: 'yes' | 'no' | 'prefer_not_to_answer';
   eeoPreference?: 'prefer_not_to_answer';
 }
 
@@ -18,7 +34,17 @@ export type SensitiveAnswerKind =
   | 'citizenship'
   | 'salaryExpectation'
   | 'dateOfBirth'
+  | 'sexGender'
+  | 'hispanicLatino'
+  | 'raceEthnicity'
+  | 'veteranStatus'
+  | 'disabilityStatus'
   | 'eeoPreference';
+
+export type SavedPrivateApplicationAnswers = Omit<
+  SensitiveAnswerSession,
+  'confirmed'
+>;
 
 function boundedText(value: unknown, max: number): string | undefined {
   if (typeof value !== 'string') return undefined;
@@ -45,6 +71,43 @@ export function normalizeSensitiveAnswerSession(
     /^\d{4}-\d{2}-\d{2}$/.test(candidate.dateOfBirth)
       ? candidate.dateOfBirth
       : undefined;
+  const sexGender = [
+    'female',
+    'male',
+    'non_binary',
+    'prefer_not_to_answer',
+  ].includes(String(candidate.sexGender))
+    ? (candidate.sexGender as SensitiveAnswerSession['sexGender'])
+    : undefined;
+  const hispanicLatino = ['yes', 'no', 'prefer_not_to_answer'].includes(
+    String(candidate.hispanicLatino)
+  )
+    ? (candidate.hispanicLatino as SensitiveAnswerSession['hispanicLatino'])
+    : undefined;
+  const raceEthnicity = [
+    'american_indian_or_alaska_native',
+    'asian',
+    'black_or_african_american',
+    'hispanic_or_latino',
+    'native_hawaiian_or_pacific_islander',
+    'white',
+    'two_or_more_races',
+    'prefer_not_to_answer',
+  ].includes(String(candidate.raceEthnicity))
+    ? (candidate.raceEthnicity as SensitiveAnswerSession['raceEthnicity'])
+    : undefined;
+  const veteranStatus = [
+    'not_protected_veteran',
+    'protected_veteran',
+    'prefer_not_to_answer',
+  ].includes(String(candidate.veteranStatus))
+    ? (candidate.veteranStatus as SensitiveAnswerSession['veteranStatus'])
+    : undefined;
+  const disabilityStatus = ['yes', 'no', 'prefer_not_to_answer'].includes(
+    String(candidate.disabilityStatus)
+  )
+    ? (candidate.disabilityStatus as SensitiveAnswerSession['disabilityStatus'])
+    : undefined;
   return {
     confirmed: true,
     ...(workAuthorization ? { workAuthorization } : {}),
@@ -53,10 +116,29 @@ export function normalizeSensitiveAnswerSession(
     ...(citizenship ? { citizenship } : {}),
     ...(salaryExpectation ? { salaryExpectation } : {}),
     ...(dateOfBirth ? { dateOfBirth } : {}),
+    ...(sexGender ? { sexGender } : {}),
+    ...(hispanicLatino ? { hispanicLatino } : {}),
+    ...(raceEthnicity ? { raceEthnicity } : {}),
+    ...(veteranStatus ? { veteranStatus } : {}),
+    ...(disabilityStatus ? { disabilityStatus } : {}),
     ...(candidate.eeoPreference === 'prefer_not_to_answer'
       ? { eeoPreference: 'prefer_not_to_answer' as const }
       : {}),
   };
+}
+
+/** Sanitize decrypted API data without approving it for the current form. */
+export function normalizeSavedPrivateApplicationAnswers(
+  value: unknown
+): SavedPrivateApplicationAnswers | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const normalized = normalizeSensitiveAnswerSession({
+    ...(value as Record<string, unknown>),
+    confirmed: true,
+  });
+  if (!normalized) return null;
+  const { confirmed: _confirmed, ...answers } = normalized;
+  return answers;
 }
 
 const SPONSORSHIP_RE = /\b(?:sponsor|sponsorship|future visa support)\b/i;
@@ -67,8 +149,12 @@ const CITIZENSHIP_RE = /\b(?:citizen\w*|citizenship)\b/i;
 const SALARY_RE =
   /\b(?:salary|compensation|expected pay|desired pay|pay expectation)\b/i;
 const DOB_RE = /\b(?:date of birth|birth date|dob)\b/i;
-const EEO_RE =
-  /\b(?:eeo|equal opportunity|race|ethnic\w*|gender|sex|veteran\w*|disab\w*)\b/i;
+const SEX_GENDER_RE = /\b(?:gender|sex)\b/i;
+const HISPANIC_LATINO_RE = /\b(?:hispanic|latino|latina|latinx)\b/i;
+const RACE_ETHNICITY_RE = /\b(?:race|racial|ethnic\w*)\b/i;
+const VETERAN_RE = /\bveteran\w*\b/i;
+const DISABILITY_RE = /\b(?:disab\w*|self identification of disability)\b/i;
+const EEO_RE = /\b(?:eeo|equal opportunity)\b/i;
 
 export function classifySensitiveAnswer(label: string): SensitiveAnswerKind | null {
   const signal = label
@@ -82,6 +168,11 @@ export function classifySensitiveAnswer(label: string): SensitiveAnswerKind | nu
   if (VISA_RE.test(signal)) return 'visaStatus';
   if (SALARY_RE.test(signal)) return 'salaryExpectation';
   if (DOB_RE.test(signal)) return 'dateOfBirth';
+  if (SEX_GENDER_RE.test(signal)) return 'sexGender';
+  if (HISPANIC_LATINO_RE.test(signal)) return 'hispanicLatino';
+  if (RACE_ETHNICITY_RE.test(signal)) return 'raceEthnicity';
+  if (VETERAN_RE.test(signal)) return 'veteranStatus';
+  if (DISABILITY_RE.test(signal)) return 'disabilityStatus';
   if (EEO_RE.test(signal)) return 'eeoPreference';
   return null;
 }
@@ -135,20 +226,56 @@ function normalized(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-function optionMatches(option: HTMLOptionElement, answer: string): boolean {
-  const optionText = normalized(`${option.value} ${option.textContent || ''}`);
-  if (answer === 'yes') return /^(?:yes|y|true|1)(?: |$)/.test(optionText);
-  if (answer === 'no') return /^(?:no|n|false|0)(?: |$)/.test(optionText);
+function candidateMatches(candidate: string, answer: string): boolean {
+  const optionText = normalized(candidate);
+  if (answer === 'yes') {
+    return /(?:^| )(?:yes|y|true|1)(?: |$)/.test(optionText);
+  }
+  if (answer === 'no') {
+    return /(?:^| )(?:no|n|false|0)(?: |$)/.test(optionText);
+  }
   if (answer === 'prefer_not_to_answer') {
     return /\b(?:prefer not|decline|do not wish|choose not|not disclose)\b/.test(
       optionText
     );
   }
+  if (answer === 'female') return /\b(?:female|woman)\b/.test(optionText);
+  if (answer === 'male') return /\b(?:male|man)\b/.test(optionText);
+  if (answer === 'non_binary') {
+    return /\b(?:non binary|nonbinary|gender non conforming)\b/.test(optionText);
+  }
+  if (answer === 'american_indian_or_alaska_native') {
+    return /\b(?:american indian|alaska native|indigenous)\b/.test(optionText);
+  }
+  if (answer === 'asian') return /\basian\b/.test(optionText);
+  if (answer === 'black_or_african_american') {
+    return /\b(?:black|african american)\b/.test(optionText);
+  }
+  if (answer === 'hispanic_or_latino') {
+    return /\b(?:hispanic|latino|latina|latinx)\b/.test(optionText);
+  }
+  if (answer === 'native_hawaiian_or_pacific_islander') {
+    return /\b(?:native hawaiian|pacific islander)\b/.test(optionText);
+  }
+  if (answer === 'white') return /\bwhite\b/.test(optionText);
+  if (answer === 'two_or_more_races') {
+    return /\b(?:two or more|multiracial|multi racial)\b/.test(optionText);
+  }
+  if (answer === 'not_protected_veteran') {
+    return /\b(?:not|non)\b.{0,20}\b(?:protected )?veteran\b/.test(optionText);
+  }
+  if (answer === 'protected_veteran') {
+    return (
+      !/\b(?:not|non)\b.{0,20}\bveteran\b/.test(optionText) &&
+      /\bprotected veteran\b/.test(optionText)
+    );
+  }
   const expected = normalized(answer);
-  return (
-    normalized(option.value) === expected ||
-    normalized(option.textContent || '') === expected
-  );
+  return optionText === expected;
+}
+
+function optionMatches(option: HTMLOptionElement, answer: string): boolean {
+  return candidateMatches(`${option.value} ${option.textContent || ''}`, answer);
 }
 
 function fillSelect(select: HTMLSelectElement, answer: string): boolean {
@@ -167,21 +294,15 @@ function fillInput(
   answer: string
 ): boolean {
   if (input.disabled || input.readOnly) return false;
-  if (input instanceof HTMLInputElement && input.type === 'radio') {
+  if (
+    input instanceof HTMLInputElement &&
+    (input.type === 'radio' || input.type === 'checkbox')
+  ) {
     if (input.checked) return false;
-    const radioText = normalized(labelFor(input) + ' ' + input.value);
-    const matches =
-      answer === 'yes'
-        ? /(?:^| )yes(?: |$)/.test(radioText)
-        : answer === 'no'
-          ? /(?:^| )no(?: |$)/.test(radioText)
-          : answer === 'prefer_not_to_answer'
-            ? /\b(?:prefer not|decline|do not wish|choose not|not disclose)\b/.test(
-                radioText
-              )
-            : normalized(input.value) === normalized(answer) ||
-              normalized(input.closest('label')?.textContent || '') ===
-                normalized(answer);
+    const matches = candidateMatches(
+      `${labelFor(input)} ${input.value}`,
+      answer
+    );
     if (!matches) return false;
     input.checked = true;
     dispatchValueEvents(input);
@@ -201,8 +322,8 @@ function fillInput(
 }
 
 /**
- * Fill only native, empty controls from answers explicitly confirmed in this
- * in-memory session. EEO is limited to "prefer not to answer."
+ * Fill only native, empty controls from answers explicitly reviewed and
+ * confirmed for this application session. The function never guesses values.
  */
 export function fillConfirmedSensitiveAnswers(
   root: ParentNode,
@@ -227,10 +348,7 @@ export function fillConfirmedSensitiveAnswers(
       }
       continue;
     }
-    if (
-      kind === 'eeoPreference' &&
-      answer !== 'prefer_not_to_answer'
-    ) {
+    if (kind === 'eeoPreference' && answer !== 'prefer_not_to_answer') {
       continue;
     }
     const changed =

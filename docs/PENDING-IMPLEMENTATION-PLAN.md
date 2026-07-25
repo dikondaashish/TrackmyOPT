@@ -40,7 +40,7 @@ They are not backlog items:
 ### 1. Release the Chrome extension safely
 
 This is the highest-priority remaining product task. The candidate is built as
-version `0.1.13`, but it has not completed the manual release gate.
+version `0.1.14`, but it has not completed the manual release gate.
 
 - [ ] Test in a fresh Chrome profile: sign in, token refresh, sign out, service
   worker restart, and full browser restart.

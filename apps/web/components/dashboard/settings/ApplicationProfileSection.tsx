@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Check, AlertCircle, ClipboardList } from "lucide-react";
 
 /**
- * Application profile — optional autofill data used by the Chrome extension to
- * prefill job applications (LinkedIn Easy Apply + ATS). Non-sensitive only:
- * this form never collects work-authorization, visa, EEO, or demographic data.
+ * General application profile data used by the Chrome extension to prefill job
+ * applications (LinkedIn Easy Apply + ATS). Sensitive optional answers are
+ * intentionally isolated in PrivateApplicationAnswersSection.
  */
 
 interface FormState {
@@ -107,8 +107,9 @@ export function ApplicationProfileSection() {
         <h3 className="text-base font-semibold">Application profile</h3>
       </div>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-        Used only to prefill your job applications in the TrackMyOPT extension. We never store
-        work-authorization, visa, or EEO answers — you always fill those in yourself.
+        General contact details used to prefill your job applications in the
+        TrackMyOPT extension. Optional sensitive answers are managed separately
+        below.
       </p>
 
       {loading ? (

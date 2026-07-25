@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { decryptPrivateApplicationAnswers } from '@/lib/private-application-answers';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +59,24 @@ export async function GET(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    // Server-only encrypted data is not directly selectable by browser clients.
+    // Include it in the user's explicit data export after re-authentication.
+    const admin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data: privateAnswerRow } = await admin
+      .from('private_application_answers')
+      .select('encrypted_payload')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    let privateApplicationAnswers = null;
+    if (privateAnswerRow?.encrypted_payload) {
+      privateApplicationAnswers = decryptPrivateApplicationAnswers(
+        privateAnswerRow.encrypted_payload
+      );
+    }
+
     if (format === 'csv') {
       // Create CSV
       const csvRows = [
@@ -71,6 +91,17 @@ export async function GET(request: NextRequest) {
         `Case Status,${caseStatus?.current_status || 'Not set'}`,
         `Timezone,${profile?.timezone || 'Not set'}`,
         `STEM Eligible,${profile?.is_stem_eligible ? 'Yes' : 'No'}`,
+        `Work Authorization,${privateApplicationAnswers?.workAuthorization || 'Not set'}`,
+        `Sponsorship Required,${privateApplicationAnswers?.requiresSponsorship || 'Not set'}`,
+        `Visa Status,${privateApplicationAnswers?.visaStatus || 'Not set'}`,
+        `Citizenship,${privateApplicationAnswers?.citizenship || 'Not set'}`,
+        `Salary Expectation,${privateApplicationAnswers?.salaryExpectation || 'Not set'}`,
+        `Date of Birth,${privateApplicationAnswers?.dateOfBirth || 'Not set'}`,
+        `Sex or Gender,${privateApplicationAnswers?.sexGender || 'Not set'}`,
+        `Hispanic or Latino,${privateApplicationAnswers?.hispanicLatino || 'Not set'}`,
+        `Race or Ethnicity,${privateApplicationAnswers?.raceEthnicity || 'Not set'}`,
+        `Veteran Status,${privateApplicationAnswers?.veteranStatus || 'Not set'}`,
+        `Disability Status,${privateApplicationAnswers?.disabilityStatus || 'Not set'}`,
       ];
 
       const csvContent = csvRows.join('\n');
@@ -79,6 +110,8 @@ export async function GET(request: NextRequest) {
         headers: {
           'Content-Type': 'text/csv',
           'Content-Disposition': `attachment; filename="trackmyopt-data-${new Date().toISOString().split('T')[0]}.csv"`,
+          'Cache-Control': 'no-store, private, max-age=0',
+          'X-Content-Type-Options': 'nosniff',
         },
       });
     }
@@ -116,6 +149,7 @@ export async function GET(request: NextRequest) {
         linkedinUrl: applicationProfile?.linkedin_url || null,
         portfolioUrl: applicationProfile?.portfolio_url || null,
       },
+      privateApplicationAnswers,
       employmentSpans: employmentSpans || [],
     };
 
@@ -123,6 +157,8 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Content-Disposition': `attachment; filename="trackmyopt-data-${new Date().toISOString().split('T')[0]}.json"`,
+        'Cache-Control': 'no-store, private, max-age=0',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
 
