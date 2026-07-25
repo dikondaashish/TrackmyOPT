@@ -1,6 +1,6 @@
 # TrackMyOPT Freemium → Paid Conversion Plan
 
-**Status:** Phases 0–2 live on `main` (PR #23) · Phases 3–6 complete in code (this PR) · measure conversion after web deploy  
+**Status:** Phases 0–6 live on `main` (PRs #23–#24) · production verification and Day 1/7/30 measurement in progress
 **Date:** 2026-07-25  
 **Sources:** Supabase (`profiles`, `case_status`, `job_applications`, `resume_generations`), PostHog project `369087`, Stripe subscriptions, codebase gate audit  
 
@@ -15,13 +15,21 @@
 | **0** | **100% code · live** | Identify on auth; server identify-before-capture + `supabase_user_id`; PricingModal `pricing_cta_viewed`; `checkout_started` only from server `create-checkout`; webhook user resolve via metadata → `stripe_customer_id`; `NORTH_STAR_FUNNEL_EVENTS`; PostHog board + baseline |
 | **1** | **100% code · live (PR #23)** | Premium-only auto-check queue; `skippedFree` in `/uscis/check-all`; packaging notice; Pro `nextCheckAt`; stale >24h upsell. **Ops:** after next overnight batch, confirm free `last_checked_at` unchanged |
 | **2** | **100% code · live** | plan-features SSoT; FAQ/SEO/Help aligned Free=manual refresh / Pro=daily auto-checks + status emails; H-1B 25, ATS 3, jobs unlimited; Dedicated = quotas + priority support |
-| **3** | **100% code · ship this PR** | Status-change wedge v2 (trial CTA → PricingModal); 2nd refresh + stale + receipt-added upsells; persistent trial strip; fake 5-job bar removed; `checkout_started` only on Stripe session (not modal open) |
-| **4** | **100% code · ship this PR** | Activation = receipt + successful check; post-auth → case-status; `dashboard_viewed` + `first_dashboard_viewed_at` without onboarding gate; D1 by signup age (**Vercel hourly cron**); activation poll; `pwa_installed` + manifest |
-| **5** | **100% code · ship this PR** | payment_failed hygiene; checkout recovery + Vercel cron; portal deep-link; past_due banner; trial_converted + renewal receipts; annual CTAs; retry-pending Vercel cron |
-| **6** | **100% code · ship this PR** | Dedicated closed for new sales + Pro migration; unused cancel win-back; `PRO_TRIAL_DAYS` wired; resume/ATS by `plan_tier` only |
+| **3** | **100% code · live (PR #24)** | Status-change wedge v2 (trial CTA → PricingModal); 2nd refresh + stale + receipt-added upsells; persistent trial strip; fake 5-job bar removed; `checkout_started` only on Stripe session (not modal open) |
+| **4** | **100% code · live (PR #24)** | Activation = receipt + successful check; post-auth → case-status; `dashboard_viewed` + `first_dashboard_viewed_at` without onboarding gate; D1 by signup age (**Vercel hourly cron**); activation poll; `pwa_installed` + manifest |
+| **5** | **100% code · live (PR #24)** | payment_failed hygiene; checkout recovery + Vercel cron; portal deep-link; past_due banner; trial_converted + renewal receipts; annual CTAs; retry-pending Vercel cron |
+| **6** | **100% code · live (PR #24)** | Dedicated closed for new sales + Pro migration; unused cancel win-back; `PRO_TRIAL_DAYS` wired; resume/ATS by `plan_tier` only |
 
 **PostHog dashboard:** [Freemium Conversion (Phase 0)](https://us.posthog.com/project/369087/dashboard/1897601)  
 **North-star funnel:** [n8q5vuJU](https://us.posthog.com/project/369087/insights/n8q5vuJU) · **Checkout→payment:** [d66YwCNm](https://us.posthog.com/project/369087/insights/d66YwCNm)
+
+### Production deployment (2026-07-25)
+
+- PR [#24](https://github.com/dikondaashish/TrackmyOPT/pull/24) merged at `1f4224d04fa966d9a944243c8e6aef12746b74a7`.
+- Vercel production deployment `dpl_BBkG21v4y5dD2ptndHcA3UL7NVS4` is Ready on `www.trackmyopt.com`.
+- Four production crons are registered: `check-case-status` (`0 14 * * *`), `checkout-recovery-emails` (`0 */4 * * *`), `d1-activation-nudge` (`0 * * * *`), and `retry-pending-emails` (`15 * * * *`).
+- Public `/pricing` smoke passed: Free + Pro purchase CTAs only, annual billing selected, and 7-day trial copy visible.
+- Authenticated PricingModal and post-checkout success-state smoke remain pending a signed-in production test session.
 
 
 ---
@@ -359,7 +367,7 @@ This is the highest-leverage product change.
 
 ### Exit criteria
 
-- [ ] Overnight job skips free cases (verified in logs + spot-check DB `last_checked_at`) — **pending production deploy**
+- [ ] Overnight job skips free cases (verified in logs + spot-check DB `last_checked_at`) — **Day 1 check after 2026-07-26 14:00 UTC batch**
 - [x] Pricing copy matches behavior
 - [ ] No spike in USCIS API errors from retries — **monitor after deploy**
 
@@ -409,10 +417,9 @@ Every Free/Pro claim on pricing, landing, feature pages, and emails matches code
 3. Email templates in `transactional-emails.ts` that mention limits.  
 4. Add/extend `plan-features.test.ts` so marketed numbers cannot drift from constants (`FREE_H1B_SPONSOR_LIMIT`, `FREE_ATS_SCAN_LIMIT`, resume free limit).  
 
-### Decision required (pick one for jobs)
+### Jobs decision (resolved 2026-07-25)
 
-**Option A (recommended):** Free unlimited jobs; remove from comparison table.  
-**Option B:** Enforce 5 in `createApplication` + UI. Only if you want career tools as a future wedge — data says not now.
+**Option A selected:** Free unlimited jobs; remove the fake 5-job comparison/usage bar. Do not add an enforcement branch to `createApplication`.
 
 ### Exit criteria
 
@@ -648,6 +655,15 @@ Both improve only **after** Pro does something free does not (Phase 1).
 - If Phase 1 causes large drop in DAU **and** no lift in checkout within 3 weeks → soften gate (e.g. auto-check every 3 days free, daily Pro) rather than full free auto-check.  
 - If paywall UX increases prompts but not checkout → problem is price/trust (Phase 5–6), not awareness.  
 
+### Deploy and measurement checkpoints
+
+| Checkpoint | Date | Gate / error health | Event health | Product metrics / decision |
+|------------|------|---------------------|--------------|----------------------------|
+| Day 0 | 2026-07-25 | Production Ready; four crons registered; case-status/USCIS `$exception` = 0 events / 0 people in prior 24h | `checkout_recovery_email_sent`, `trial_converted`, `pwa_installed`, and `cancel_feedback` absent from taxonomy immediately after deploy; wait for real triggers | Pre-deploy `$pageview` DAU averaged **55.9/day** over 2026-07-11–24; public pricing smoke passed |
+| Day 1 | 2026-07-26 | Pending overnight DB/log spot-check and USCIS error comparison | Begin daily taxonomy/trigger checks | No product conclusion before the first full post-deploy day |
+| Day 7 | 2026-08-01 | Pending | Confirm Phase 5–6 event emitters after observed triggers | Run unique-person activation, checkout, payment-failure, subscription, cancellation, and DAU checkpoint |
+| Day 30 | 2026-08-24 | Pending | Confirm stable taxonomy | Rerun metrics; evaluate exit and kill criteria; record keep/soften-gate decision |
+
 ---
 
 ## 8. Code anchors
@@ -711,9 +727,9 @@ Both improve only **after** Pro does something free does not (Phase 1).
 | 2026-07-23 | Analysis: free auto-check is the #1 leak | Eng/Product | This doc |
 | 2026-07-23 | Dedicated closed for new sales; Pro migration in-app | Eng | Phase 6 |
 | 2026-07-23 | No price raise until Phase 1 conversion measured | Product | Phase 6 |
-| | Jobs: Option A (unlimited free) vs B (enforce 5) | Product | TBD |
-| | Grandfather free auto-check for N days? | Product | TBD |
-| | Hide Dedicated? | Product | TBD |
+| 2026-07-25 | Jobs: Option A — unlimited free | Product | Fake 5-job bar removed; no `createApplication` limit |
+| 2026-07-25 | No grandfather grace for free auto-check | Product | Gate and in-app notice already live via PR #23; no retroactive grace |
+| 2026-07-25 | Dedicated remains legacy-only; closed to new sales | Product | Hidden from new purchase flows; retain sync and Pro migration until legacy subscribers move |
 
 ---
 
