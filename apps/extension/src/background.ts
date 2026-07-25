@@ -30,6 +30,7 @@ import {
 } from './resume-artifact-validator';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
 import { normalizeQuestionText } from './screening-question-drafts';
+import { resolveScreeningDraftJobContext } from './screening-draft-context';
 import { normalizeSensitiveAnswerSession } from './sensitive-autofill';
 import {
   clearActiveGeneratedResumeArtifact,
@@ -785,8 +786,19 @@ function arrayBufferToBase64(buf: ArrayBuffer): string {
 }
 
 async function requestScreeningDraft(input: Record<string, unknown>) {
-  const artifact = currentGeneratedResumeArtifact;
+  const artifact = await readCurrentGeneratedResumeArtifact();
   if (!artifact) return { ok: false, error: 'artifact_unavailable' };
+  const job = resolveScreeningDraftJobContext({
+    artifactJob: artifact.job,
+    pageContext: {
+      companyName: String(input.companyName ?? ''),
+      roleTitle: String(input.roleTitle ?? ''),
+      jobDescription: String(input.jobDescription ?? ''),
+    },
+  });
+  if (!job.jobDescription) {
+    return { ok: false, error: 'insufficient_context' };
+  }
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
   const response = await fetch(`${WEBSITE_URL}/api/extension/screening-answer`, {
@@ -795,11 +807,7 @@ async function requestScreeningDraft(input: Record<string, unknown>) {
     body: JSON.stringify({
       questionText: normalizeQuestionText(String(input.questionText ?? '')),
       ...(typeof input.characterLimit === 'number' ? { characterLimit: input.characterLimit } : {}),
-      job: {
-        companyName: String(input.companyName ?? artifact.job.companyName),
-        roleTitle: String(input.roleTitle ?? artifact.job.roleTitle),
-        jobDescription: String(input.jobDescription ?? ''),
-      },
+      job,
       snapshot: artifact.snapshot,
       sourceContentHash: artifact.generatedContentHash,
       regenerate: input.regenerate === true,
@@ -1091,6 +1099,7 @@ async function generateTailoredResume(input: {
         companyName,
         roleTitle,
       },
+      jobDescription,
       finalLatex: latex,
       extractedContentHash: snapshotExtraction?.generatedContentHash,
       extractedSnapshot: snapshotExtraction?.snapshot,

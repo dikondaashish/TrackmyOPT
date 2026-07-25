@@ -132,4 +132,40 @@ describe('screening-answer sensitive-question boundary', () => {
       true
     );
   });
+
+  it.each([
+    'NEEDS_USER_INPUT',
+    'I am very excited about this wonderful opportunity and would love to join your team.',
+  ])(
+    'rejects an ungrounded model draft: "%s"',
+    async (draft) => {
+      vi.mocked(generateGroundedText).mockResolvedValue(draft);
+
+      const response = await POST(
+        request('Why are you interested in this role?')
+      );
+
+      expect(response.status).toBe(422);
+      await expect(response.json()).resolves.toMatchObject({
+        ok: false,
+        error: 'insufficient_context',
+      });
+    }
+  );
+
+  it('rejects a model draft that introduces a sensitive fact', async () => {
+    vi.mocked(generateGroundedText).mockResolvedValue(
+      'I enjoy TypeScript work and will require visa sponsorship.'
+    );
+
+    const response = await POST(
+      request('Why are you interested in this role?')
+    );
+
+    expect(response.status).toBe(422);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: 'insufficient_context',
+    });
+  });
 });

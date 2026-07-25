@@ -8,6 +8,7 @@ import {
 } from './resume-autofill-contract';
 
 export const RESUME_ARTIFACT_TTL_MS = 30 * 60 * 1_000;
+export const RESUME_ARTIFACT_JOB_DESCRIPTION_MAX_CHARS = 12_000;
 const ARTIFACT_IDENTIFIER_MAX_LENGTH = 200;
 
 export type ArtifactInvalidReason =
@@ -48,6 +49,15 @@ function normalizeDisplayText(value: string): string {
   return value.normalize('NFKC').trim().replace(/\s+/g, ' ');
 }
 
+function normalizeJobDescription(value: string | undefined): string | undefined {
+  const normalized = value
+    ?.normalize('NFKC')
+    .replace(/\r\n?/g, '\n')
+    .trim()
+    .slice(0, RESUME_ARTIFACT_JOB_DESCRIPTION_MAX_CHARS);
+  return normalized || undefined;
+}
+
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join(
     ''
@@ -78,6 +88,7 @@ export async function buildGeneratedResumeArtifactV1(input: {
   templateId: string;
   jobKey: string;
   jobContext: JobContextIdentity;
+  jobDescription?: string;
   finalLatex: string;
   extractedContentHash?: string;
   extractedSnapshot?: ResumeAutofillSnapshotV1;
@@ -105,6 +116,7 @@ export async function buildGeneratedResumeArtifactV1(input: {
     input.extractedSnapshot &&
       input.extractedContentHash === generatedContentHash
   );
+  const jobDescription = normalizeJobDescription(input.jobDescription);
 
   return {
     structuredFieldsAvailable,
@@ -118,6 +130,7 @@ export async function buildGeneratedResumeArtifactV1(input: {
         jobKey: artifactJobKey,
         companyName: normalizeDisplayText(input.jobContext.companyName),
         roleTitle: normalizeDisplayText(input.jobContext.roleTitle),
+        ...(jobDescription ? { jobDescription } : {}),
         sourceUrl: normalizeJobUrl(input.jobContext.jobUrl),
         requisitionId: extractWorkdayJobIdentity(input.jobContext.jobUrl)
           ?.requisitionId,

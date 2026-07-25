@@ -354,6 +354,7 @@ export async function validateGeneratedResumeArtifactV1(
       'jobKey',
       'companyName',
       'roleTitle',
+      'jobDescription',
       'sourceUrl',
       'requisitionId',
     ])
@@ -362,6 +363,8 @@ export async function validateGeneratedResumeArtifactV1(
   if (!requiredString(value.job.jobKey, LIMITS.identifier)) return false;
   if (!requiredString(value.job.companyName, LIMITS.shortText)) return false;
   if (!requiredString(value.job.roleTitle, LIMITS.shortText)) return false;
+  if (!optionalString(value.job.jobDescription, LIMITS.description))
+    return false;
   if (!validUrl(value.job.sourceUrl)) return false;
   if (!optionalString(value.job.requisitionId, LIMITS.identifier)) return false;
   if (

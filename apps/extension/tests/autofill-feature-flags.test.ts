@@ -45,8 +45,8 @@ assert.match(
 );
 assert.match(
   portal,
-  /lastResumeGenerationRequest\?\.jobDescription \|\|\s*scrapeJobDescription\(\)/,
-  'screening drafts must use the visible job description when this content script did not generate the artifact',
+  /resolvedJobDescription \|\|\s*lastResumeGenerationRequest\?\.jobDescription \|\|\s*scrapeJobDescription\(\)/,
+  'screening drafts must prefer the job description bound to the resolved resume artifact',
 );
 assert.match(
   portal,

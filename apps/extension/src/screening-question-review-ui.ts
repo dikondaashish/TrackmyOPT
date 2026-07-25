@@ -109,10 +109,18 @@ export function createScreeningQuestionReviewUI(
       status.textContent = 'AI generation limit reached.';
       return;
     }
-    const result = await options.generateDraft(regenerate);
-    limits = result.limits;
-    renderUsage();
-    showDraft(result.draft);
+    try {
+      const result = await options.generateDraft(regenerate);
+      limits = result.limits;
+      renderUsage();
+      showDraft(result.draft);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : '';
+      status.textContent =
+        code === 'insufficient_context'
+          ? 'TrackMyOPT could not create a reliable answer from this resume and job description. Please answer this question yourself.'
+          : 'TrackMyOPT could not generate this draft. Please try again or answer this question yourself.';
+    }
   };
 
   const generate = button('Generate draft');

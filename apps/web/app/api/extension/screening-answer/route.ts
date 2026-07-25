@@ -5,6 +5,7 @@ import type { ScreeningQuestionDraftRequest, ScreeningQuestionDraftResponse } fr
 import { consumeAiGeneration } from '@/lib/ai-generation-limits';
 import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
 import { buildScreeningAnswerPrompt } from '@/lib/ai/prompts/screening-answer';
+import { validateScreeningDraftGrounding } from '@/lib/ai/screening-answer-grounding';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { getUserId } from '@/lib/auth/getUserId';
 import { ResumeAutofillSnapshotV1Schema } from '@/lib/resume/autofill-schema';
@@ -106,16 +107,16 @@ export async function POST(req: NextRequest) {
     const generated = await generateGroundedText(
       buildScreeningAnswerPrompt(body)
     );
-    if (generated === 'NEEDS_USER_INPUT') {
+    const maxLength = body.characterLimit ?? 1_200;
+    const draft = generated.slice(0, maxLength).trim();
+    const grounding = validateScreeningDraftGrounding(draft, body);
+    if (!grounding.valid) {
       return json(
         req,
         { ok: false, questionHash: qh, ...limits, error: 'insufficient_context' },
         422
       );
     }
-    const maxLength = body.characterLimit ?? 1_200;
-    const draft = generated.slice(0, maxLength).trim();
-    if (!draft) throw new Error('Empty draft');
     return json(req, {
       ok: true,
       questionHash: qh,

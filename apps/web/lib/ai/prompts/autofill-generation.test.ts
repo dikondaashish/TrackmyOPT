@@ -36,6 +36,38 @@ describe('autofill AI prompts', () => {
     expect(prompt).toContain('within 300 characters');
   });
 
+  it.each([
+    'Why do you want to work at Acme?',
+    'Why are you interested in this Software Engineer role?',
+    'What experience makes you a strong fit for this position?',
+    'Describe a project that prepared you for this work.',
+    'How would you approach the responsibilities in this role?',
+  ])(
+    'requires a specific job/resume connection for "%s"',
+    (questionText) => {
+      const prompt = buildScreeningAnswerPrompt({
+        questionText,
+        characterLimit: 600,
+        job,
+        snapshot,
+        sourceContentHash: 'a'.repeat(64),
+      });
+
+      expect(prompt).toContain(
+        'connect concrete job-description details to concrete resume facts'
+      );
+      expect(prompt).toContain(
+        'For company-interest or role-interest questions'
+      );
+      expect(prompt).toContain(
+        'For experience, accomplishment, project, or behavioral questions'
+      );
+      expect(prompt).toContain(JSON.stringify(questionText));
+      expect(prompt).toContain(JSON.stringify(job));
+      expect(prompt).toContain(JSON.stringify(snapshot));
+    }
+  );
+
   it('preserves official history facts in cover letters', () => {
     const request: GenerateCoverLetterRequest = {
       job,

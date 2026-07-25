@@ -95,6 +95,9 @@ export async function resolveV1PrefillPayload(input: {
     artifactId: validArtifact.artifactId,
     artifactLabel: `${validArtifact.sourceResumeFilename} · ${validArtifact.job.roleTitle}`,
     generatedContentHash: validArtifact.generatedContentHash,
+    ...(validArtifact.job.jobDescription
+      ? { jobDescription: validArtifact.job.jobDescription }
+      : {}),
     snapshot: validArtifact.snapshot,
     resume: {
       pdfBase64: validArtifact.pdf.base64,

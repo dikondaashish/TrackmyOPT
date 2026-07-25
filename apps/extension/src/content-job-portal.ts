@@ -485,6 +485,7 @@ type PrefillExecutionResult = {
   result: PrefillCoverageResult;
   hasResume: boolean;
   hasCoverLetter: boolean;
+  jobDescription?: string;
   sourceType: PrefillSourceType;
   artifactStateReason: PrefillArtifactStateReason;
   stoppedReason?: 'expired' | 'job_changed' | 'invalid';
@@ -593,6 +594,9 @@ async function executeResolvedPrefill(
     result,
     hasResume,
     hasCoverLetter,
+    ...(resolved.source === 'generated_resume' && resolved.jobDescription
+      ? { jobDescription: resolved.jobDescription }
+      : {}),
     sourceType: resolved.source,
     artifactStateReason:
       resolved.source === 'generated_resume' ? 'none' : resolved.reason,
@@ -670,6 +674,7 @@ async function mountScreeningQuestionReviews(
   card: HTMLElement,
   job: JobInfo,
   hasResolvedArtifact = false,
+  resolvedJobDescription = '',
 ): Promise<void> {
   if (!AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) return;
   // A valid artifact can be owned by the background/session store without
@@ -704,6 +709,7 @@ async function mountScreeningQuestionReviews(
           questionText: eligible.normalizedQuestionText,
           characterLimit: eligible.characterLimit,
           jobDescription:
+            resolvedJobDescription ||
             lastResumeGenerationRequest?.jobDescription ||
             scrapeJobDescription(),
           companyName: job.company_name || '',
@@ -2578,7 +2584,12 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
         if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
-          await mountScreeningQuestionReviews(card, job, execution.hasResume);
+          await mountScreeningQuestionReviews(
+            card,
+            job,
+            execution.hasResume,
+            execution.jobDescription,
+          );
         }
         trackPrefillExecution(execution, 'step_by_step', 'success');
       } catch {
@@ -4400,6 +4411,7 @@ async function runContinuousPrefill(): Promise<void> {
         widgetCard,
         job,
         execution.hasResume,
+        execution.jobDescription,
       );
     }
     trackPrefillExecution(execution, 'continuous', 'success');
