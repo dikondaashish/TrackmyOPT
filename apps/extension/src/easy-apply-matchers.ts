@@ -12,6 +12,10 @@
  * entered by the user — they carry outsized consequences for F-1/OPT users.
  */
 
+import { SENSITIVE_QUESTION_RE } from './sensitive-question-policy';
+
+export { SENSITIVE_QUESTION_RE } from './sensitive-question-policy';
+
 export type FieldKind =
   | 'email'
   | 'phone'
@@ -26,11 +30,8 @@ export type FieldKind =
   | 'portfolioUrl'
   | 'skills';
 
-/**
- * Fields we refuse to auto-fill under any circumstance. (Unchanged from slice 1.)
- */
-export const SENSITIVE_FIELD_RE =
-  /\b(visa|sponsor(?:ship|ed|ing)?|work authori[sz]\w*|authori[sz]\w*|work permit|eligib\w*|citizen\w*|immigration|clearance|gender|sex|race|ethnic\w*|hispanic|latino|veteran\w*|disab\w*|eeo|equal opportunity|salary|compensation|expected pay|desired pay|date of birth|dob|ssn|social security)\b/i;
+/** Backwards-compatible name used by the deterministic prefill modules. */
+export const SENSITIVE_FIELD_RE = SENSITIVE_QUESTION_RE;
 
 /**
  * Free-text prompts (cover letters, "describe…", essays). Never dump identity

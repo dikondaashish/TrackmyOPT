@@ -290,6 +290,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     generateCoverLetterForCurrentArtifact({
       artifactId: String(msg.artifactId ?? ''),
       jobDescription: String(msg.jobDescription ?? ''),
+      isRegeneration: msg.isRegeneration === true,
     }).then(sendResponse).catch(() => sendResponse({ ok: false, error: 'generation_failed' }));
     return true;
   }
@@ -780,6 +781,7 @@ async function saveScreeningAnswerForCurrentUser(answer: unknown) {
 async function generateCoverLetterForCurrentArtifact(input: {
   artifactId: string;
   jobDescription: string;
+  isRegeneration: boolean;
 }) {
   const artifact = currentGeneratedResumeArtifact;
   if (!artifact || artifact.artifactId !== input.artifactId) {
@@ -793,6 +795,7 @@ async function generateCoverLetterForCurrentArtifact(input: {
     body: JSON.stringify({
       snapshot: artifact.snapshot,
       sourceContentHash: artifact.generatedContentHash,
+      isRegeneration: input.isRegeneration,
       job: {
         companyName: artifact.job.companyName,
         roleTitle: artifact.job.roleTitle,

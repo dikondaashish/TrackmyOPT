@@ -36,6 +36,17 @@ The safe rollout therefore separates deterministic prefill from the disabled
 AI features. Real AI generation is a follow-up milestone, not a prerequisite
 for releasing the working deterministic core.
 
+## Implementation progress
+
+- Stage 0 is committed locally as `2950ac4`.
+- Stage 1 removes title rewriting, rejects rewritten titles during source
+  reconciliation, replaces the process-local quota with a fail-closed atomic
+  Supabase RPC, returns UTC `resetsAt`, corrects initial/regeneration semantics,
+  and shares one sensitive-question policy between extension and server.
+- The matrix below is the frozen Stage 0 audit baseline. Completed remediation
+  is tracked in the stage checklists and Git history instead of erasing the
+  original findings.
+
 ## Repository facts
 
 | Fact                               | Audited value                                                                                                     | Evidence                                                                                                       |
@@ -166,33 +177,50 @@ Validation on 2026-07-25:
 
 ### Title truthfulness
 
-- [ ] Remove the aggressive job-title rewrite instruction.
-- [ ] Add official job titles, companies, schools, degrees, fields of study, and
+- [x] Remove the aggressive job-title rewrite instruction.
+- [x] Add official job titles, companies, schools, degrees, fields of study, and
       dates to the prompt's `<never_change>` rules.
-- [ ] Add a regression test proving a model-proposed rewritten title cannot
+- [x] Add a regression test proving a model-proposed rewritten title cannot
       enter the autofill snapshot.
 
 ### Durable quotas
 
-- [ ] Add an atomic Supabase quota function/table keyed by user/day and
+- [x] Add an atomic Supabase quota function/table keyed by user/day and
       user/item/day.
-- [ ] Apply 25/day and three regenerations per item transactionally.
-- [ ] Return the next UTC reset as `resetsAt` on success and failure.
-- [ ] Make initial generation consume daily capacity but not regeneration
+- [x] Apply 25/day and three regenerations per item transactionally.
+- [x] Return the next UTC reset as `resetsAt` on success and failure.
+- [x] Make initial generation consume daily capacity but not regeneration
       capacity.
-- [ ] Fix cover-letter `isRegeneration` semantics.
-- [ ] Add concurrency, day rollover, first-generation, and item-cap tests.
+- [x] Fix cover-letter `isRegeneration` semantics.
+- [x] Add regression coverage for atomic locking structure, UTC rollover,
+      first-generation semantics, and item-cap responses.
 
 ### Sensitive-question parity
 
-- [ ] Move the sensitive-question pattern to a shared package/module importable
+- [x] Move the sensitive-question pattern to a shared package/module importable
       by extension and web code.
-- [ ] Use the same pattern in deterministic matching, client screening
+- [x] Use the same pattern in deterministic matching, client screening
       detection, and the server route.
-- [ ] Add route tests proving `work permit`, `equal opportunity`, eligibility,
+- [x] Add route tests proving `work permit`, `equal opportunity`, eligibility,
       visa, sponsorship, work authorization, citizenship, EEO, salary, DOB,
       SSN, disability, veteran, and clearance prompts are rejected before
       authentication/quota/model work.
+
+### Stage 1 validation
+
+- [x] Run the full repository test suite and web/extension/API TypeScript
+      checks.
+- [x] Commit the Stage 1 implementation on its local branch.
+
+Validation on 2026-07-25:
+
+- Web: 86 test files, 415 tests passed.
+- Extension: all scripted assertions and 24 Node tests passed.
+- API: two suites, four tests passed.
+- Web, extension, and API TypeScript checks passed.
+- Changed-file formatting and `git diff --check` passed.
+- The quota migration has structural regression coverage; applying it to a
+  production-linked Supabase project remains a deployment action.
 
 Stage 1 exit: no generated application field can misrepresent an official
 title; quotas are atomic across serverless instances; all sensitive screening

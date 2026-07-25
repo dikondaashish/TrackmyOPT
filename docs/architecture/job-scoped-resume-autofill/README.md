@@ -22,8 +22,10 @@
 - **Initial cover-letter generation is NOT FUNCTIONAL — stub.** The route emits
   fake `%PDF-1.4` bytes instead of compiling a real PDF. It must remain
   unreachable until replaced.
-- Production-safe AI quotas and independent rollout feature flags do not exist.
-  The deterministic core must ship separately from the disabled AI features.
+- Stage 1 implements production-safe, atomic AI quotas and a shared
+  sensitive-question policy, pending migration/review. Independent rollout
+  feature flags still do not exist, so the deterministic core must ship
+  separately from the disabled AI features.
 - The job-portal content script uses `all_frames: true` and
   `match_about_blank: true` without adding a Chrome permission. The Web Store
   release checklist must justify this frame access and verify the existing host
@@ -1204,8 +1206,8 @@ registry.
 
 #### Integrated work
 
-- [ ] Preserve official titles or require explicit confirmation for normalized
-      titles.
+- [x] Preserve official titles and reject normalized/rewritten titles from the
+      autofill snapshot.
 - [x] Add `ResumeAutofillSnapshotV1` and `GeneratedResumeArtifactV1` schemas,
       limits, and cross-resume contamination fixtures.
 - [x] Add the final-LaTeX-to-snapshot pipeline after compile repair.
@@ -1277,9 +1279,8 @@ in-memory artifact.
       hashes.
 - [x] Offer saved edited answers first, plus Regenerate fresh.
 - [x] Exclude AI question generation/insertion from Continuous automation.
-- [ ] Add independent quota/error UI and privacy-safe analytics counts.
-      **PARTIAL:** UI and privacy-safe analytics plumbing exist, but the
-      server-side quota is an in-process `Map` and is not enforceable on Vercel.
+- [x] Add independent quota/error UI, privacy-safe analytics counts, and an
+      atomic server-side Supabase quota with UTC reset timestamps.
 
 #### Acceptance criteria
 

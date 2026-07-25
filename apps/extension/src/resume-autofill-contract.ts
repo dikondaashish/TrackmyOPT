@@ -92,6 +92,7 @@ export interface GeneratedCoverLetterAttachment {
 export interface GenerateCoverLetterRequest {
   snapshot: ResumeAutofillSnapshotV1;
   sourceContentHash: string;
+  isRegeneration?: boolean;
   job: { companyName: string; roleTitle: string; jobDescription: string };
 }
 
