@@ -46,9 +46,3 @@ test.describe('Authentication & Dashboard Journey', () => {
     expect(hydrationErrors).toEqual([]);
   });
 });
-
-test.describe('Empty States & Board Polish', () => {
-    test.fixme('Job Tracker empty state triggers CTA highlight pulse', async ({ page }) => {
-        void page;
-    });
-});
