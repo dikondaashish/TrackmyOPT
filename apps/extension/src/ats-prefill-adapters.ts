@@ -3,7 +3,33 @@ import {
   SENSITIVE_FIELD_RE,
   normalizeFieldSignal,
 } from './easy-apply-matchers';
-import type { ClassifiedControl, FormSectionKind } from './section-aware-classifier';
+
+export type FormSectionKind =
+  | 'contact'
+  | 'experience'
+  | 'education'
+  | 'skills'
+  | 'unknown';
+
+export interface ClassifiedControl {
+  element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+  section: FormSectionKind;
+  recordIndex?: number;
+  field:
+    | 'company'
+    | 'title'
+    | 'location'
+    | 'startMonth'
+    | 'startYear'
+    | 'endMonth'
+    | 'endYear'
+    | 'isCurrent'
+    | 'description'
+    | 'school'
+    | 'degree'
+    | 'fieldOfStudy'
+    | 'skills';
+}
 
 /** The V1 boundary intentionally exposes no untested ATS-specific IDs. */
 export interface AtsPrefillAdapter {

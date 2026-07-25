@@ -1,5 +1,7 @@
 import {
   calculateUnemploymentDays,
+  daysBetween as sharedDaysBetween,
+  getFilingWindow,
   type EmploymentSpan,
 } from "@/lib/immigration/optCalculations";
 import {
@@ -53,7 +55,7 @@ function toCalcDateString(value: string): string {
 }
 
 export function daysBetween(from: Date, to: Date): number {
-  return Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
+  return sharedDaysBetween(from, to);
 }
 
 export interface OptDatesStatusSnapshot {
@@ -155,16 +157,15 @@ export function buildOptDatesStatusSnapshot(
   let filingTone: OptDatesStatusSnapshot["filingTone"] = "neutral";
   const programEnd = parseOptDateInput(savedDates.program_end_date);
   if (programEnd) {
-    const earliestFile = new Date(programEnd);
-    earliestFile.setDate(earliestFile.getDate() - 90);
+    const window = getFilingWindow(toCalcDateString(savedDates.program_end_date!));
+    const earliestFile = parseOptDateInput(window.earliestFile)!;
     const daysUntilOpen = daysBetween(today, earliestFile);
     if (daysUntilOpen > 0) {
       filingLabel = `${daysUntilOpen} days`;
       filingDetail = "Until filing window opens";
       filingTone = daysUntilOpen <= 30 ? "warning" : "neutral";
     } else {
-      const hardDeadline = new Date(programEnd);
-      hardDeadline.setDate(hardDeadline.getDate() + 60);
+      const hardDeadline = parseOptDateInput(window.hardDeadline)!;
       const daysUntilDeadline = daysBetween(today, hardDeadline);
       if (daysUntilDeadline >= 0) {
         filingLabel = "Open";

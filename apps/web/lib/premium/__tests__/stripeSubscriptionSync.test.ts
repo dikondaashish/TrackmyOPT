@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import type Stripe from "stripe";
 import {
   compareSubscriptions,
@@ -7,6 +7,7 @@ import {
   getTierRank,
   isValidAccessSubscription,
   pickBestSubscription,
+  reconcileCustomerBilling,
   subscriptionCanGrantTargetPlan,
   subscriptionHasPendingUpdate,
 } from "../stripeSubscriptionSync";
@@ -203,5 +204,32 @@ describe("stripeSubscriptionSync", () => {
     });
     const best = pickBestSubscription([dedicatedPastDue, proTrial]);
     expect(best?.id).toBe("sub_p");
+  });
+
+  it("throws when revoking premium fails so Stripe can retry", async () => {
+    const stripe = {
+      subscriptions: {
+        list: vi.fn().mockResolvedValue({ data: [], has_more: false }),
+      },
+    };
+    const updateQuery = {
+      update: vi.fn(),
+      eq: vi.fn().mockResolvedValue({
+        error: { message: "database unavailable" },
+      }),
+    };
+    updateQuery.update.mockReturnValue(updateQuery);
+    const supabase = {
+      from: vi.fn().mockReturnValue(updateQuery),
+    };
+
+    await expect(
+      reconcileCustomerBilling({
+        stripe: stripe as unknown as Stripe,
+        supabase: supabase as never,
+        customerId: "cus_1",
+        userId: "user-1",
+      }),
+    ).rejects.toThrow("database unavailable");
   });
 });

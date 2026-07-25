@@ -118,7 +118,7 @@ export function ActionableReminders() {
   });
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div className="bg-card border border-border rounded-xl overflow-hidden h-full">
       {/* Header */}
       <div
         className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors"

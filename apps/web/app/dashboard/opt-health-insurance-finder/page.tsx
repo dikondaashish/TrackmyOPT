@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, ChevronDown, ChevronRight, CreditCard, Clock, CheckCircle2 } from "lucide-react";
-import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 import { setInsuranceResultsPayload } from "@/lib/insurance/insurance-results-session";
 import { bucketMonthlyIncome } from "@/lib/posthog/income-bucket";
@@ -89,11 +88,6 @@ export default function HealthInsuranceFinderPage() {
   // Show pregnancy question only for genders that can give birth
   const showPregnancyQuestion = gender === "female" || gender === "other";
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
   const canSubmit = state && visaType && dateOfBirth;
 
   const handleShowResults = async () => {
@@ -102,19 +96,21 @@ export default function HealthInsuranceFinderPage() {
     setIsLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      await supabase.from("insurance_eligibility_checks").insert({
-        user_id: user?.id || null,
-        state,
-        monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : 0,
-        visa_type: visaType,
-        date_of_birth: dateOfBirth || null,
-        gender: gender || null,
-        is_pregnant: isPregnant,
-        has_employer_insurance: false,
-        checked_at: new Date().toISOString(),
+      const response = await fetch('/api/insurance-eligibility', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          state,
+          monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : 0,
+          visa_type: visaType,
+          date_of_birth: dateOfBirth || null,
+          gender: gender || null,
+          is_pregnant: isPregnant,
+          has_employer_insurance: false,
+        }),
       });
+      if (!response.ok) throw new Error('Eligibility check could not be saved');
     } catch (error) {
       console.error("Error saving:", error);
     }

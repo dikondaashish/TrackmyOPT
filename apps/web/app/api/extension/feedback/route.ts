@@ -13,7 +13,7 @@ import rateLimit from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
-const feedbackLimiter = rateLimit({ interval: 3_600_000 });
+const feedbackLimiter = rateLimit({ interval: 3_600_000, name: 'extension-feedback' });
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,11 +34,11 @@ export async function POST(req: NextRequest) {
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       req.headers.get('x-real-ip') ||
       'unknown';
-    const { isRateLimited } = feedbackLimiter.check(req, 10, `extension-feedback:${ip}`);
+    const { isRateLimited, unavailable } = await feedbackLimiter.check(req, 10, `extension-feedback:${ip}`);
     if (isRateLimited) {
       return NextResponse.json(
         { error: 'Too many submissions. Please try again later.' },
-        { status: 429, headers: corsHeaders }
+        { status: unavailable ? 503 : 429, headers: corsHeaders }
       );
     }
 

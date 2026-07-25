@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import {
   checkRateLimitByIP,
+  checkRateLimitByAccount,
   rateLimitResponse,
   EMAIL_RATE_LIMIT,
 } from '@/lib/auth/api-rate-limit';
@@ -9,7 +10,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  const rateLimitResult = checkRateLimitByIP(request, EMAIL_RATE_LIMIT);
+  const rateLimitResult = await checkRateLimitByIP(request, EMAIL_RATE_LIMIT);
   if (!rateLimitResult.success) {
     return rateLimitResponse(rateLimitResult, 'Too many reset attempts. Please try again later.');
   }
@@ -19,6 +20,17 @@ export async function POST(request: NextRequest) {
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    const accountRateLimit = await checkRateLimitByAccount(
+      email,
+      EMAIL_RATE_LIMIT
+    );
+    if (!accountRateLimit.success) {
+      return rateLimitResponse(
+        accountRateLimit,
+        'Too many reset attempts. Please try again later.'
+      );
     }
 
     const response = NextResponse.json({

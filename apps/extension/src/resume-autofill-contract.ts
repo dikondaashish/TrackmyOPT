@@ -56,6 +56,7 @@ export interface GeneratedResumeArtifactV1 {
     jobKey: string;
     companyName: string;
     roleTitle: string;
+    jobDescription?: string;
     sourceUrl: string;
     requisitionId?: string;
   };
@@ -125,6 +126,7 @@ export type V1PrefillPayloadResponse =
       artifactId: string;
       artifactLabel: string;
       generatedContentHash: string;
+      jobDescription?: string;
       snapshot: ResumeAutofillSnapshotV1;
       resume: GeneratedResumeAttachment;
       coverLetter?: GeneratedCoverLetterAttachment;

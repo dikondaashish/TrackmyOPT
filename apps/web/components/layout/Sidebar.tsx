@@ -253,7 +253,7 @@ const SidebarNavSection = memo(({
                     onTooltipEnter(e, section.label);
                     onSubmenuEnter(e, section);
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={() => {
                     onTooltipLeave();
                     onSubmenuLeave();
                 }}
@@ -320,8 +320,6 @@ export function Sidebar({
     isLoading
 }: SidebarProps) {
     const pathname = usePathname();
-    const router = useRouter(); // Although not used here, good to have for consistency
-
     // When the TrackMyOPT extension is installed, hide the Web Store promo link.
     // useExtensionDetector reads DOM markers injected by the extension content script (content.ts).
     const { isExtensionInstalled } = useExtensionDetector();
@@ -368,9 +366,6 @@ export function Sidebar({
                 : [...prev, label]
         );
     }, []);
-
-    // Tooltip state for fixed positioning to avoid overflow clipping
-    // const [tooltip, setTooltip] = useState<{ label: string; top: number; left: number } | null>(null); // Moved up
 
     const handleTooltipEnter = useCallback((e: React.MouseEvent, label: string) => {
         if (!effectiveCollapsed) return;

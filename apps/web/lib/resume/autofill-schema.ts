@@ -172,6 +172,12 @@ export const GeneratedResumeArtifactV1Schema = z
         jobKey: identifier,
         companyName: requiredShortText,
         roleTitle: requiredShortText,
+        jobDescription: z
+          .string()
+          .trim()
+          .min(1)
+          .max(AUTOFILL_CONTRACT_LIMITS.description)
+          .optional(),
         sourceUrl: url,
         requisitionId: identifier.optional(),
       })

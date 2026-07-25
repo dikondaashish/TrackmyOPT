@@ -505,9 +505,9 @@ export function renderStemClock(root: HTMLElement, onBack: () => void): void {
     text-align: center;
   `;
   optDaysCard.innerHTML = `
-    <div style="font-size: 56px; font-weight: 800; line-height: 1; margin-bottom: 6px;">60</div>
-    <div style="font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px;">TOTAL UNEMPLOYMENT DAYS</div>
-    <div style="font-size: 11px; opacity: 0.95;">60 days for STEM OPT</div>
+    <div style="font-size: 56px; font-weight: 800; line-height: 1; margin-bottom: 6px;">150</div>
+    <div style="font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px;">CUMULATIVE OPT/STEM MAXIMUM</div>
+    <div style="font-size: 11px; opacity: 0.95;">Initial OPT and STEM OPT unemployment count together; employment history is required.</div>
   `;
   content.appendChild(optDaysCard);
   

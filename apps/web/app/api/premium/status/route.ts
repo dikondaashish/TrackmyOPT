@@ -61,12 +61,12 @@ export async function GET(req: NextRequest) {
             set(name: string, value: string, options: CookieOptions) {
               try {
                 cookieStore.set({ name, value, ...options });
-              } catch (error) { /* ignore */ }
+              } catch { /* ignore */ }
             },
             remove(name: string, options: CookieOptions) {
               try {
                 cookieStore.set({ name, value: '', ...options });
-              } catch (error) { /* ignore */ }
+              } catch { /* ignore */ }
             },
           },
         }
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
       console.error('Error checking premium status:', sanitizeError(error));
       return NextResponse.json({
         isPremium: false,
-        error: error.message,
+        error: 'Unable to verify premium status',
         ...trialPayload(false),
       }, {
         status: 200,
@@ -317,4 +317,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-

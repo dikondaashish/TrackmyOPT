@@ -1,56 +1,78 @@
-# Internal Architectural Overview
+# Internal architecture overview
 
-This document provides a technical deep-dive into the design patterns used in TrackMyOPT.
+This is the current, code-backed system shape as of 2026-07-25.
 
-## 1. Data Layer (Supabase)
+## Applications
 
-We use **Supabase** as our unified backend. 
-- **PostgreSQL**: Stores user profiles, employment history, case status logs, and document metadata.
-- **Supabase Auth**: Handles social logins and JWT-based session management.
-- **Supabase Storage**: Stores user documents (I-20s, EAD cards, Resumes).
+| Application | Runtime | Responsibility |
+|-------------|---------|----------------|
+| `apps/web` | Next.js on Vercel | Public site, authenticated dashboard, lightweight APIs, Stripe webhooks, email orchestration, and extension-facing APIs |
+| `apps/api` | NestJS container on Render | Long-running OCR and USCIS queue workers plus resume/OCR APIs |
+| `apps/extension` | Manifest V3 Chrome extension | Job capture, job-scoped resume generation handoff, safe form filling, and Guided Autopilot |
 
-### Data Access Pattern
-We use the `@supabase/ssr` and `@supabase/supabase-js` clients. 
-- **Client-side**: `lib/supabaseClient.ts` provides a pre-configured client for use in Hooks and React components.
-- **Server-side**: API routes and Server Components create a client on-the-fly to ensure proper session verification.
+## Data and infrastructure
 
----
+- **Supabase PostgreSQL:** product records, billing evidence, email queue,
+  extension artifacts, quotas, and analytics-supporting views.
+- **Supabase Auth:** web sessions and the extension OAuth handoff.
+- **AWS S3:** document and generated-resume object storage. The app does not use
+  Supabase Storage for the document vault.
+- **AWS Textract:** OCR for uploaded resumes/documents.
+- **Redis + Bull:** durable OCR and USCIS background jobs in `apps/api`.
+- **Upstash Redis:** selected web rate limits and short-lived resume handoff
+  state.
+- **Google Gemini:** resume, screening-answer, and cover-letter generation.
+- **Stripe:** subscriptions, trials, portal, payment events, and receipts.
+- **PostHog:** consent-gated product analytics and server-side operational
+  events.
 
-## 2. Component Design (Atomic & Feature-Based)
+## Main data flows
 
-### Base UI (`components/ui/`)
-We follow an atomic design approach for basic UI elements (Buttons, Inputs, Modals). These should be generic and reusable across the brand.
+### Web authentication
 
-### Feature Subdirectories
-Components related to a specific feature (e.g., the Document Vault) are grouped into their own subdirectories within `components/dashboard/`.
-- **Pattern**: `DashboardContent.tsx` acts as the orchestrator for the main dashboard view, importing specialized "widgets" from the `widgets/` folder.
-- **Reusability**: Shared feature components (like `PricingModal` for upgrades) live under `components/pricing/` or `widgets/` so feature pages can reuse them.
+The browser authenticates with Supabase. Server Components and API routes call
+`auth.getUser()` before user-owned reads/writes. Service-role clients are
+server-only and routes derive ownership from the verified user, not request
+body IDs.
 
----
+### Resume and autofill
 
-## 3. Security Model (Document Vault)
+1. A user selects or uploads a resume and a job description.
+2. Web routes extract/repair content, generate with Gemini, compile the PDF, and
+   create a hash-bound autofill snapshot.
+3. The extension receives only the active user/job artifact through the
+   background worker.
+4. It fills eligible empty controls, optionally attaches the matching resume
+   and cover letter, and stops before final submission.
 
-The Document Vault uses a multi-layer security approach:
-1. **Server-Side Validation**: All document access is protected by Supabase RLS (Row Level Security).
-2. **Client-Side Passcode**: High-sensitivity documents can be locked with a secondary PIN.
-3. **Audit Trails**: Security actions (like passcode setup or verification) are logged for compliance.
+### OCR
 
----
+The web layer uploads to S3 and the Nest API queues OCR work. Bull workers call
+Textract and persist status/results for polling. Some web resume routes remain;
+future migration is measurement-driven, not an assumed rewrite.
 
-## 4. AI & Resume Generation
+### USCIS case checks
 
-The platform integrates AI directly into the user workflow.
-- **Prompts**: All AI system prompts are centralized in `lib/ai/prompts/`.
-- **OCR Pipeline**: 
-  1. User uploads PDF.
-  2. `AWS Textract` performs OCR to extract raw text.
-  3. `Google Gemini` processes the text to generate optimized resume content.
+The Vercel cron calls the authenticated web route, which dispatches to the Nest
+USCIS worker. Only enrolled premium cases are queued for automatic checks; free
+cases retain manual refresh. Sequential/neighbor scanning is disabled.
 
----
+### Billing and email
 
-## 5. Development Standards
+Stripe webhooks update Supabase entitlements and billing evidence. New billing
+mail uses `email_queue` plus the shared SMTP transport. Some older reminder and
+OTP paths still send directly and are listed in the pending plan.
 
-- **TypeScript**: Strictly enforced. Avoid `any`. Define interfaces for all API responses in `lib/types`.
-- **Imports**: Use the `@/` alias for absolute imports from the project root.
-- **Performance**: Use Next.js dynamic imports (`next/dynamic`) for heavy dashboard components to improve initial load time.
-- **Cleanliness**: Regularly audit for dead code. Every file in the root `components/dashboard/` should have a clear reason to exist; otherwise, it belongs in a sub-folder.
+## Security invariants
+
+- Row-level security and server-side ownership checks protect user records.
+- CORS allows configured web origins and explicit extension IDs; it does not
+  trust arbitrary extension origins for session APIs.
+- Secrets stay in server environment variables.
+- Sensitive job-application answers are session-only and never AI-generated.
+- The extension never auto-submits and never overwrites existing answers/files.
+- Analytics contain enums/counts, not resume, question, answer, or cover-letter
+  content.
+
+See [the pending implementation plan](../PENDING-IMPLEMENTATION-PLAN.md) for
+remaining work.

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import {
   checkRateLimitByIP,
+  checkRateLimitByAccount,
   rateLimitResponse,
   AUTH_RATE_LIMIT,
 } from '@/lib/auth/api-rate-limit';
@@ -9,7 +10,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  const rateLimitResult = checkRateLimitByIP(request, AUTH_RATE_LIMIT);
+  const rateLimitResult = await checkRateLimitByIP(request, AUTH_RATE_LIMIT);
   if (!rateLimitResult.success) {
     return rateLimitResponse(rateLimitResult, 'Too many requests. Please try again later.');
   }
@@ -22,6 +23,17 @@ export async function POST(request: NextRequest) {
     }
 
     const normalized = email.trim().toLowerCase();
+
+    const accountRateLimit = await checkRateLimitByAccount(
+      normalized,
+      AUTH_RATE_LIMIT
+    );
+    if (!accountRateLimit.success) {
+      return rateLimitResponse(
+        accountRateLimit,
+        'Too many requests. Please try again later.'
+      );
+    }
 
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

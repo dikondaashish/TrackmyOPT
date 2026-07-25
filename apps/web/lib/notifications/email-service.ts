@@ -323,7 +323,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
     case 'stem-clock':
       return {
         title: 'STEM Unemployment Clock',
-        subtitle: 'Track Your 60-Day STEM Unemployment Limit',
+        subtitle: 'Track Your 150-Day Cumulative OPT/STEM Limit',
         icon: '',
         accent: EMAIL.accent.stemClock,
         timelineHtml: data?.startDate ? `
@@ -344,7 +344,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
           <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('STEM OPT Employment Rules', 'alertTriangle')}</h3>
             <ul style="margin: 0; padding: 0 0 0 20px;">
-              <li style="${baseStyles.listItem}"><strong>60-Day Limit:</strong> You have 60 additional unemployment days during your STEM OPT period (separate from the 90 days during initial OPT)</li>
+              <li style="${baseStyles.listItem}"><strong>150-Day Cumulative Limit:</strong> Initial OPT and STEM OPT unemployment are counted together; STEM increases the aggregate maximum from 90 to 150 days.</li>
               <li style="${baseStyles.listItem}"><strong>E-Verify Required:</strong> You can only work for E-Verify enrolled employers</li>
               <li style="${baseStyles.listItem}"><strong>Wage Requirements:</strong> Must be paid at least as much as US workers in similar positions</li>
               <li style="${baseStyles.listItem}"><strong>Report Changes:</strong> Report any employer changes to your DSO within 10 days</li>
@@ -695,4 +695,3 @@ ${emailBodySectionClose()}`,
     return { success: false, error };
   }
 }
-

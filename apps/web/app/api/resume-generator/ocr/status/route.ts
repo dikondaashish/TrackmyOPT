@@ -46,14 +46,31 @@ export async function GET(req: NextRequest) {
         );
 
         // First check our durable store. If we already have a terminal result, return it.
-        const { data: cached } = await admin
+        const { data: cached, error: lookupError } = await admin
             .from('ocr_jobs')
             .select('user_id, status, extracted_text, error_message, file_name')
             .eq('textract_job_id', textractJobId)
             .maybeSingle();
 
+        if (lookupError) {
+            console.error('[OCR Status] Ownership lookup failed');
+            return NextResponse.json(
+                { status: 'failed', error: 'OCR job lookup failed' },
+                { status: 503, headers: corsHeaders }
+            );
+        }
+
+        // A Textract ID is never sufficient authority by itself. The start
+        // route must have persisted an owner-bound job before this route polls.
+        if (!cached) {
+            return NextResponse.json(
+                { status: 'failed', error: 'OCR job not found' },
+                { status: 404, headers: corsHeaders }
+            );
+        }
+
         // RLS bypass via service role — manually enforce ownership.
-        if (cached && cached.user_id !== userId) {
+        if (cached.user_id !== userId) {
             return NextResponse.json(
                 { status: 'failed', error: 'Forbidden' },
                 { status: 403, headers: corsHeaders }
@@ -90,7 +107,8 @@ export async function GET(req: NextRequest) {
                     await admin
                         .from('ocr_jobs')
                         .update({ status: 'SUCCEEDED', extracted_text: result.text || '' })
-                        .eq('textract_job_id', textractJobId);
+                        .eq('textract_job_id', textractJobId)
+                        .eq('user_id', userId);
                 } catch { /* non-fatal */ }
 
                 return NextResponse.json(
@@ -104,7 +122,8 @@ export async function GET(req: NextRequest) {
                     await admin
                         .from('ocr_jobs')
                         .update({ status: 'FAILED', error_message: result.error || 'Textract failed' })
-                        .eq('textract_job_id', textractJobId);
+                        .eq('textract_job_id', textractJobId)
+                        .eq('user_id', userId);
                 } catch { /* non-fatal */ }
 
                 return NextResponse.json(

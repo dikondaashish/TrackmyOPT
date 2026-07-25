@@ -68,14 +68,15 @@ Success response (200 or 202):
 }
 ```
 
-## Key Security Notes
+## Key handling
 
-⚠️ **IMPORTANT**: The `INDEXNOW_KEY` is sensitive:
-- ✅ Store in `.env.local` (Git-ignored)
-- ✅ Never commit to repository
-- ✅ Only available to server-side code
-- ❌ Do NOT expose to client-side code
-- ❌ Do NOT hardcode in source files
+An IndexNow ownership key is intentionally public: crawlers must fetch its
+verification file from the site. It is not an authentication secret. Keep the
+configured value consistent between the environment, submitted payload, and
+public verification file.
+
+The **route authentication secret is `CRON_SECRET`**. That value is sensitive,
+server-only, and must never be placed in the verification file or client code.
 
 ## IndexNow Documentation
 

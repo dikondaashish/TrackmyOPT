@@ -197,6 +197,13 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
             <small>Off by default · uses only this job's generated resume</small>
           </span>
         </label>
+        <label class="prefill-skills-toggle">
+          <input type="checkbox" id="guided-autopilot-toggle">
+          <span>
+            <b>Guided Autopilot</b>
+            <small>Fills each step and clicks safe Next/Done buttons · never Submit</small>
+          </span>
+        </label>
         <p class="prefill-mode-note" id="prefill-mode-note" role="status" aria-live="polite"></p>
       </div>
     </div>
@@ -302,7 +309,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     try {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id, allFrames: true },
-        files: ['easy-apply-fill.js'],
+        files: [
+          autofillPreferences.guidedAutopilot
+            ? 'content-job-portal.js'
+            : 'easy-apply-fill.js',
+        ],
       });
       window.close();
     } catch {
@@ -313,6 +324,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   const stepModeBtn = root.querySelector<HTMLButtonElement>('#prefill-mode-step');
   const continuousModeBtn = root.querySelector<HTMLButtonElement>('#prefill-mode-continuous');
   const skillsToggle = root.querySelector<HTMLInputElement>('#autofill-skills-toggle');
+  const guidedToggle = root.querySelector<HTMLInputElement>('#guided-autopilot-toggle');
   const skillsToggleLabel = root.querySelector<HTMLElement>(
     '.prefill-skills-toggle'
   );
@@ -329,15 +341,23 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     }
     if (skillsToggleLabel) skillsToggleLabel.hidden = true;
   }
+  if (!AUTOFILL_FEATURE_FLAGS.guidedAutopilot && guidedToggle) {
+    guidedToggle.checked = false;
+    guidedToggle.disabled = true;
+    guidedToggle.closest('label')!.hidden = true;
+  }
 
   const paintAutofillPreferences = () => {
     const continuous = autofillPreferences.mode === 'continuous';
     stepModeBtn?.setAttribute('aria-pressed', String(!continuous));
     continuousModeBtn?.setAttribute('aria-pressed', String(continuous));
     if (skillsToggle) skillsToggle.checked = autofillPreferences.autofillSkills;
+    if (guidedToggle) guidedToggle.checked = autofillPreferences.guidedAutopilot;
     if (modeNote) {
-      modeNote.textContent = continuous
-        ? 'Fills each new step as it loads. TrackMyOPT never clicks Next or Submit.'
+      modeNote.textContent = autofillPreferences.guidedAutopilot
+        ? 'Guided Autopilot fills and advances safe steps. It stops before Review/Submit; press Escape to stop anytime.'
+        : continuous
+        ? 'Fills each new step as it loads. You control all navigation.'
         : 'You click Prefill on each application page or step.';
     }
   };
@@ -351,11 +371,23 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   };
 
   stepModeBtn?.addEventListener('click', () => {
-    void saveAutofillPreferences({ ...autofillPreferences, mode: 'step_by_step' });
+    void saveAutofillPreferences({
+      ...autofillPreferences,
+      mode: 'step_by_step',
+      guidedAutopilot: false,
+    });
   });
   continuousModeBtn?.addEventListener('click', () => {
     if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
     void saveAutofillPreferences({ ...autofillPreferences, mode: 'continuous' });
+  });
+  guidedToggle?.addEventListener('change', () => {
+    if (!AUTOFILL_FEATURE_FLAGS.guidedAutopilot) return;
+    void saveAutofillPreferences({
+      ...autofillPreferences,
+      mode: guidedToggle.checked ? 'continuous' : autofillPreferences.mode,
+      guidedAutopilot: guidedToggle.checked,
+    });
   });
   skillsToggle?.addEventListener('change', () => {
     if (!AUTOFILL_FEATURE_FLAGS.skills) return;

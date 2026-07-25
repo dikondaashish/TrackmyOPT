@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fillRepeatableRecords, remainingRecordsMessage } from '../src/repeatable-record-engine';
-import type { ClassifiedControl } from '../src/section-aware-classifier';
+import type { ClassifiedControl } from '../src/ats-prefill-adapters';
 import type { ResumeAutofillSnapshotV1 } from '../src/resume-autofill-contract';
 
 const source = readFileSync('src/repeatable-record-engine.ts', 'utf8');

@@ -47,7 +47,9 @@ BEGIN
   SET email = EXCLUDED.email;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public;
 
 COMMENT ON FUNCTION public.handle_new_user() IS 
   'Automatically creates profile with email on user signup';
@@ -71,6 +73,7 @@ CREATE OR REPLACE FUNCTION public.upgrade_user_to_premium(
 )
 RETURNS BOOLEAN
 SECURITY DEFINER
+SET search_path = pg_catalog, public
 AS $$
 BEGIN
   UPDATE public.profiles
@@ -113,6 +116,7 @@ RETURNS TABLE (
   premium_purchased_at TIMESTAMPTZ
 ) 
 SECURITY DEFINER
+SET search_path = pg_catalog, public
 AS $$
 BEGIN
   RETURN QUERY
@@ -133,7 +137,6 @@ $$ LANGUAGE plpgsql;
 
 COMMENT ON FUNCTION public.get_premium_users_for_daily_email() IS 
   'Returns all premium users who have email reminders enabled';
-
 
 -- =============================================================================
 -- DOCUMENT FUNCTIONS

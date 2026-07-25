@@ -2,7 +2,8 @@
 
 Complete reference for **subject lines**, **who receives** each mail, and **what it contains**. Implementation lives in `lib/notifications/email-service.ts`, `lib/notifications/transactional-emails.ts`, `lib/notifications/email-brand.ts`, and the API routes listed below.
 
-**Related:** [EMAIL_ROADMAP.md](./EMAIL_ROADMAP.md) · [PAYMENT_FLOW_AUDIT.md](./PAYMENT_FLOW_AUDIT.md)
+**Related:** [EMAIL_ROADMAP.md](./EMAIL_ROADMAP.md) ·
+[legal/billing manual QA](../compliance/LEGAL_BILLING_COMPLIANCE_QA.md)
 
 ---
 
@@ -38,10 +39,20 @@ Defined in `lib/notifications/transactional-emails.ts` via `queueTransactionalEm
 |--------------|---------|-----------------|
 | `payment_failed` | `TrackMyOPT: Payment failed — update your card` | Card charge failed; update payment method / Stripe portal |
 | `subscription_ended` | `TrackMyOPT: Your Premium subscription has ended` | Access ended; what’s locked; resubscribe CTA |
+| `unused_cancel_winback` | Win-back copy for cancellation reason `unused` | Pro reminder sent only from the approved cancellation flow |
 | `welcome_free` | `Welcome to TrackMyOPT — here’s how to get started` | Free-tier onboarding (e.g. signup / OAuth paths) |
+| `welcome_free_resend` | Same welcome body | Controlled one-time welcome resend campaign |
+| `checkout_recovery` | `Finish setting up your daily USCIS alerts` | Resume an open checkout or start a fresh annual Pro checkout |
+| `free_receipt_reengagement` | `Try Pro: daily USCIS auto-checks + status-change emails` | One-off, flag-gated free-receipt campaign |
+| `at_risk_reengagement` | `Your OPT tools are still here when you need them` | Owner-approved, flag-gated at-risk campaign |
+| `d1_activation_nudge` | Dynamic first-day setup nudge | Free signup activation based on missing dashboard/case setup |
 | `refund_processed` | `TrackMyOPT: Refund confirmation` | Refund amount; premium ended; processing timeline |
 | `premium_welcome` | `Welcome to TrackMyOPT Premium! 🚀` | Post-checkout premium welcome |
 | `trial_ending` | `TrackMyOPT: Your Premium trial is ending soon` | Stripe trial ending (webhook-driven) |
+| `trial_started` | `TrackMyOPT: Your 7-day Pro trial has started` | Trial dates, renewal disclosure, and cancellation path |
+| `subscription_cancel_confirmed` | `TrackMyOPT: Subscription cancellation confirmed` | Access-through date and resubscribe path |
+| `subscription_receipt` | `TrackMyOPT: Subscription receipt` | Paid period/renewal receipt summary |
+| `material_policy_change` | `TrackMyOPT: Important update to subscription terms` | Effective date and links for an approved material change |
 | `contact_received` | `We received your message — TrackMyOPT Support` | Contact form auto-reply |
 | `stem_opt_window_open` | `Your STEM OPT extension window is now open — here's what to do` | Same STEM alert as cron (when sent via `sendStemOptWindowEmail`) |
 

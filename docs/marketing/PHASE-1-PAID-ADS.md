@@ -1,10 +1,15 @@
 # Phase 1: Paid Ad Campaigns & Performance Marketing
 
-**Status:** ✅ **COMPLETE - Ready for Launch**  
+**Status:** **PENDING DRAFT — not approved for launch**
 **Date Created:** March 12, 2026  
 **Platforms:** Google Ads, Facebook/Instagram, LinkedIn  
 **Budget:** $2,000-$5,000/month (scalable)  
 **ROI Target:** 3:1 (for every $1 spent, $3 in revenue)
+
+Before launch: verify conversion events, obtain owner/legal copy approval, use
+only evidenced testimonials/counts, and update cookie/privacy consent before
+adding any advertising or retargeting pixel. Budget and performance figures
+below are hypotheses, not achieved results.
 
 ---
 
@@ -33,7 +38,8 @@ Paid ad campaigns designed to drive high-intent traffic to TrackMyOPT during cri
 - Search keywords: "OPT application", "how to apply for OPT", "OPT processing time", "OPT eads card", "I-765 application"
 - Bid strategy: Target CPA ($10-15 per click, max)
 - Daily budget: $100
-- Ad copy: Highlight "OPT guidance tool", "approval checklist", "step-by-step"
+- Ad copy: Highlight the educational OPT guidance tool and step-by-step
+  application checklist; do not imply approval
 - Landing page: `/guides/opt-career` (pillar guide with internal linking)
 
 ---
@@ -41,12 +47,12 @@ Paid ad campaigns designed to drive high-intent traffic to TrackMyOPT during cri
 **Google Search Ad Copy:**
 
 **Headline 1:** OPT Application Guide 2026
-**Headline 2:** Expert-Verified Checklist & Timeline  
-**Headline 3:** $200K in Grants & Tool Access
+**Headline 2:** Educational Checklist & Timeline
+**Headline 3:** Free OPT Planning Tools
 
-**Description 1:** Get step-by-step OPT application help. Expert checklist. 50K+ students trust TrackMyOPT.
+**Description 1:** Organize OPT dates and review an educational application checklist.
 
-**Description 2:** Avoid 3 common mistakes. Free OPT Compliance Tracker. Approval checklist included.
+**Description 2:** Review common filing mistakes and use the free OPT timeline tracker.
 
 **Final URL:** trackmyopt.com/guides/opt-career
 
@@ -92,8 +98,8 @@ Paid ad campaigns designed to drive high-intent traffic to TrackMyOPT during cri
 
 Each ad should land on a page that:
 1. Matches the ad promise (ad says "checklist" → landing page shows checklist)
-2. Has clear CTA (sign up, download, start free trial)
-3. Has social proof (testimonials, statistics, trust badges)
+2. Has a clear CTA (create free account, use a free tool, or download a guide)
+3. Uses only attributable testimonials and verified statistics
 4. Includes FAQ section (answers objections)
 5. Mobile-optimized (50%+ traffic is mobile)
 
@@ -146,7 +152,7 @@ Each ad should land on a page that:
 **Ad 1: OPT Basics - Static Image**
 - Image: Infographic "OPT Timeline in 60 Seconds" (visual, colorful)
 - Headline: "Graduate Soon? Your OPT Guide is Here"
-- Text: "Free OPT application checklist. Step-by-step timeline. Used by 50K+ students."
+- Text: "Free educational OPT checklist and step-by-step timeline."
 - CTA: "Download Free Checklist"
 - Landing page: ChecklistLP or `/guides/opt-career`
 
@@ -183,7 +189,7 @@ Each ad should land on a page that:
 **Expected CTR:** 1.5-2.5%  
 **Expected cost/click:** $1.00-$1.50  
 
-**Retargeting pixels:**
+**Retargeting audiences (only after consent/legal implementation):**
 - Homepage visitor (didn't scroll beyond fold)
 - Blog reader (spent 30+ seconds)
 - Feature page visitor (engaged with content)
@@ -193,19 +199,19 @@ Each ad should land on a page that:
 
 **Ad 1: Objection Handling**
 - Headline: "Still worried about OPT?"
-- Text: "We've helped 50K+ students. Join the community. Free trial."
-- CTA: "Start Free Trial"
+- Text: "Keep your OPT dates, job search, and case tracking in one dashboard."
+- CTA: "Start Free"
 
 **Ad 2: Testimonial**
-- Testimonial quote from success story
+- Approved, attributable testimonial quote from a real success story
 - Profile picture + name
-- Headline: "[Name] landed H-1B in 6 months"
+- Headline: Use an approved factual quote; do not promise an immigration outcome
 - CTA: "Read Her Story"
 
 **Ad 3: Social Proof**
-- "4.8/5 stars from 2,000+ reviews"
-- "Trusted by 50K+ F-1 and international students"
-- "Recommended by immigration attorneys"
+- Insert only a current, evidenced rating/count if it exists
+- Otherwise use a factual product-benefit message
+- Do not claim attorney or government endorsement
 - CTA: "See Why Students Love Us"
 
 ---
@@ -371,7 +377,7 @@ White-label opportunity available.
 For each campaign, test:
 - **Headline:** A (Benefit-focused) vs. B (Curiosity-focused)
 - **Ad copy:** A (Long-form) vs. B (Short-form)
-- **CTA:** A (Free trial) vs. B (Download guide)
+- **CTA:** A (Start free) vs. B (Download guide)
 - **Image:** A (People-focused) vs. B (Data/metrics-focused)
 - **Audience:** A (Broad interest) vs. B (Narrow interest)
 - **Placement:** A (Desktop) vs. B (Mobile)
@@ -480,9 +486,10 @@ Test 1 variable at a time. Run for 2-3 weeks before conclusion.
 
 ## Launch Status
 
-✅ Google Ads campaigns: Ready to launch (March 15)  
-✅ Facebook/Instagram campaigns: Ready to launch (March 15)  
-✅ LinkedIn campaigns: Ready to launch (March 20)  
-✅ Tracking & analytics: Ready (March 15)  
+- [ ] Google Ads pilot approved and launched
+- [ ] Facebook/Instagram consent and policy changes approved before pixel use
+- [ ] LinkedIn pilot approved and launched
+- [ ] Conversion tracking verified with privacy/legal review
 
-**Total Paid Campaign Status: READY FOR LAUNCH (March 15, 2026)**
+**Status:** pending owner/legal approval, tracking validation, and budget
+approval.

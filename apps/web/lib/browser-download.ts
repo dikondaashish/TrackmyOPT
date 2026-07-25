@@ -14,7 +14,6 @@
  *     never during the React render phase.
  */
 
-const REVOKE_DELAY_MS = 1000;
 const REMOVE_DELAY_MS = 100;
 
 /** Download a Blob as a named file. */

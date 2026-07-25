@@ -8,6 +8,7 @@ import { getUserId } from '@/lib/auth/getUserId';
 // Rate Limiter: 10 requests per minute per user
 const limiter = rateLimit({
     interval: 60 * 1000,
+    name: 'fix-latex',
 });
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
@@ -22,12 +23,12 @@ export async function POST(req: NextRequest) {
     try {
         // Per-user rate limiting (keyed by user id, not IP)
         const limitKey = userId;
-        const { isRateLimited } = limiter.check(req, 10, limitKey);
+        const { isRateLimited, unavailable } = await limiter.check(req, 10, limitKey);
 
         if (isRateLimited) {
             return NextResponse.json(
                 { error: 'Too many requests. Please try again later.' },
-                { status: 429 }
+                { status: unavailable ? 503 : 429 }
             );
         }
 

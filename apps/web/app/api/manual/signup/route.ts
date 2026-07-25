@@ -14,6 +14,7 @@ import { mmddyyyyToISO } from "@/lib/date";
 import {
   AUTH_RATE_LIMIT,
   checkRateLimitByIP,
+  checkRateLimitByAccount,
   rateLimitResponse,
   addRateLimitHeaders
 } from "@/lib/auth/api-rate-limit";
@@ -38,7 +39,7 @@ const signupRequestSchema = z.object({
 
 export async function POST(req: NextRequest) {
   // SECURITY: Rate limit by IP to prevent abuse
-  const rateLimitResult = checkRateLimitByIP(req, AUTH_RATE_LIMIT);
+  let rateLimitResult = await checkRateLimitByIP(req, AUTH_RATE_LIMIT);
   if (!rateLimitResult.success) {
     return rateLimitResponse(
       rateLimitResult,
@@ -72,6 +73,35 @@ export async function POST(req: NextRequest) {
     programEnd, dsoReco, optEadEnd, optStart, stemStart, isStem, referralCode
   } = validation.data;
 
+  rateLimitResult = await checkRateLimitByAccount(email, AUTH_RATE_LIMIT);
+  if (!rateLimitResult.success) {
+    return rateLimitResponse(
+      rateLimitResult,
+      'Too many signup attempts. Please try again later.'
+    );
+  }
+
+  // Validate all required dates before creating a confirmed auth user.
+  const toISO = (value: string | undefined) =>
+    value ? mmddyyyyToISO(value) : null;
+  const datePayload = {
+    program_end_date: toISO(programEnd),
+    dso_recommendation_date: toISO(dsoReco),
+    opt_ead_end_date: toISO(optEadEnd),
+    opt_start_date: toISO(optStart),
+    stem_start_date: toISO(stemStart),
+  };
+  if (
+    !datePayload.program_end_date ||
+    !datePayload.opt_ead_end_date ||
+    !datePayload.opt_start_date
+  ) {
+    return NextResponse.json(
+      { ok: false, error: 'Invalid date format. Please use MM/DD/YYYY.' },
+      { status: 400 }
+    );
+  }
+
   // Use service role key for admin operations
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -96,44 +126,58 @@ export async function POST(req: NextRequest) {
   }
 
   const uid = signUpData.user.id;
+  const rollbackCreatedUser = async (reason: string) => {
+    console.error(`[manual/signup] ${reason}; rolling back auth user`);
+    const { error: rollbackError } =
+      await supabase.auth.admin.deleteUser(uid);
+    if (rollbackError) {
+      console.error('[manual/signup] Failed to roll back auth user');
+    }
+    return NextResponse.json(
+      { ok: false, error: 'Unable to create account. Please try again.' },
+      { status: 500 }
+    );
+  };
 
   // Create profile (with referral attribution if present)
   const sanitizedRef = referralCode
     ? referralCode.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase()
     : null;
 
-  await supabase.from("profiles").upsert({
-    user_id: uid,
-    timezone: "America/New_York",
-    is_stem_eligible: !!isStem,
-    ...(sanitizedRef ? { referred_by: sanitizedRef } : {}),
-  });
+  try {
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      user_id: uid,
+      timezone: "America/New_York",
+      is_stem_eligible: !!isStem,
+      ...(sanitizedRef ? { referred_by: sanitizedRef } : {}),
+    });
+    if (profileError) {
+      return rollbackCreatedUser('Required profile write failed');
+    }
 
-  // Track referral signup if code was provided
+    const { error: optStatusError } = await supabase
+      .from("opt_status")
+      .upsert({
+        user_id: uid,
+        ...datePayload,
+      });
+    if (optStatusError) {
+      return rollbackCreatedUser('Required OPT status write failed');
+    }
+  } catch {
+    return rollbackCreatedUser('Required signup write threw');
+  }
+
+  // Referral attribution is non-critical to account consistency.
   if (sanitizedRef) {
-    await supabase.rpc('increment_referral_signups', { ref_code: sanitizedRef });
-  }
-
-  // Convert and validate dates
-  const toISO = (x: string | undefined) => x ? mmddyyyyToISO(x) : null;
-  const payload = {
-    user_id: uid,
-    program_end_date: toISO(programEnd),
-    dso_recommendation_date: toISO(dsoReco),
-    opt_ead_end_date: toISO(optEadEnd),
-    opt_start_date: toISO(optStart),
-    stem_start_date: toISO(stemStart) || null,
-  };
-
-  if (!payload.program_end_date || !payload.opt_ead_end_date || !payload.opt_start_date) {
-    return NextResponse.json(
-      { ok: false, error: 'Invalid date format. Please use MM/DD/YYYY.' },
-      { status: 400 }
+    const { error: referralError } = await supabase.rpc(
+      'increment_referral_signups',
+      { ref_code: sanitizedRef }
     );
+    if (referralError) {
+      console.error('[manual/signup] Referral attribution failed');
+    }
   }
-
-  // Create OPT status
-  await supabase.from("opt_status").upsert(payload);
 
   after(async () => {
     try {

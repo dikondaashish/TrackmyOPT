@@ -91,9 +91,8 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Profile update error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to update profile' },
+      { ok: false, error: 'Failed to update profile' },
       { status: 500 }
     );
   }
 }
-

@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import { Calendar, Clock, Briefcase, GraduationCap, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
+import {
+  calculateUnemploymentDays,
+  daysBetween,
+  getFilingWindow,
+  type EmploymentSpan as CalculationEmploymentSpan,
+} from "@/lib/immigration/optCalculations";
 import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
 import {
   isEmploymentTrackingIncomplete,
@@ -126,18 +131,10 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     let maxUnemployment: 90 | 150 = 90;
 
     if (data.optStatus) {
-      const programEnd = new Date(data.optStatus.program_end_date);
-      const earliestFileDate = new Date(programEnd);
-      earliestFileDate.setDate(earliestFileDate.getDate() - 90);
-      filingWindowDays = Math.ceil((earliestFileDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-      // 60-day-after-program-end hard deadline (ISS-004)
-      const filingHardDeadline = new Date(programEnd);
-      filingHardDeadline.setDate(filingHardDeadline.getDate() + 60);
-      filingDeadlineDays = Math.ceil((filingHardDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-      const optEnd = new Date(data.optStatus.opt_ead_end_date);
-      daysUntilOPTEnd = Math.ceil((optEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const filingWindow = getFilingWindow(data.optStatus.program_end_date);
+      filingWindowDays = daysBetween(today, filingWindow.earliestFile);
+      filingDeadlineDays = daysBetween(today, filingWindow.hardDeadline);
+      daysUntilOPTEnd = daysBetween(today, data.optStatus.opt_ead_end_date);
 
       if (data.optStatus.stem_start_date) {
         maxUnemployment = 150;
@@ -399,4 +396,3 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
     </div>
   );
 }
-

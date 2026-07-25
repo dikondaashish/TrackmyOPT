@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Info, Save, Shield, GraduationCap, Lightbulb, ChevronRight, FileText, Target, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, Info, Save, Shield, GraduationCap, Lightbulb, ChevronRight, FileText, Calendar, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard } from "../ResultCard";
@@ -9,6 +9,7 @@ import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { TickingClock, TickingClockCompact } from "../TickingClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { addDays, daysBetween } from "@/lib/immigration/optCalculations";
 
 export function StemApplyTool() {
   const router = useRouter();
@@ -21,11 +22,6 @@ export function StemApplyTool() {
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [syncStatus, setSyncStatus] = useState({
-    lastSynced: null as Date | null,
-    isSyncing: false,
-    error: null as string | null,
-  });
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
@@ -60,19 +56,11 @@ export function StemApplyTool() {
         setIsPremium(premiumData.isPremium || false);
       }
 
-      setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatDateForInput = (isoDate: string) => {
-    const date = new Date(isoDate);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${month}/${day}/${date.getFullYear()}`;
   };
 
   const formatDateForDisplay = (date: Date) => {
@@ -91,17 +79,6 @@ export function StemApplyTool() {
     return null;
   };
 
-  const addDays = (date: Date, days: number): Date => {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
-  };
-
-  const daysBetween = (date1: Date, date2: Date): number => {
-    const diffTime = date2.getTime() - date1.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
   const calculate = () => {
     const optEnd = parseDate(optEndDate);
     if (!optEnd) {
@@ -109,9 +86,9 @@ export function StemApplyTool() {
       return;
     }
 
-    const earliestFile = addDays(optEnd, -90);
+    const earliestFile = new Date(`${addDays(optEnd, -90)}T00:00:00`);
     const deadline = optEnd;
-    const capGapEnd = addDays(optEnd, 180);
+    const capGapEnd = new Date(`${addDays(optEnd, 180)}T00:00:00`);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -144,7 +121,7 @@ export function StemApplyTool() {
       } else {
         alert('Failed to save. Please try again.');
       }
-    } catch (error) {
+    } catch {
       alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);

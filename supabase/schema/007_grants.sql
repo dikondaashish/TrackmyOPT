@@ -79,6 +79,10 @@ GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO service_role;
 -- =============================================================================
 -- Grant execute permissions on functions
 
+REVOKE ALL ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.upgrade_user_to_premium(UUID, TEXT, TEXT) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.get_premium_users_for_daily_email() FROM PUBLIC, anon, authenticated;
+
 GRANT EXECUTE ON FUNCTION public.update_updated_at_column() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_updated_at_column() TO service_role;
 

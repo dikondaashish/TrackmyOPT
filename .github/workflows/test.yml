@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: ['main']
   pull_request:
@@ -56,6 +57,24 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: 'ci-placeholder-anon-key'
           JWT_SIGNING_SECRET: 'ci-placeholder-must-be-at-least-32-chars-long'
           SUPABASE_SERVICE_ROLE_KEY: 'ci-placeholder-service-role-key'
+
+      - name: Extension tests
+        run: pnpm --filter extension run test
+
+      - name: Extension build
+        run: pnpm --filter extension run build
+
+      - name: API lint
+        run: pnpm --filter api run lint
+
+      - name: API unit tests
+        run: pnpm --filter api exec jest --runInBand
+
+      - name: API E2E
+        run: pnpm --filter api exec jest --config ./test/jest-e2e.json --runInBand
+
+      - name: API build
+        run: pnpm --filter api run build
 
   e2e:
     name: Playwright E2E (manual / nightly)

@@ -48,6 +48,10 @@ import {
   type AutofillFeatureFlags,
 } from './autofill-feature-flags';
 import { autofillErrorCopy } from './autofill-errors';
+import {
+  createAutofillVisualFeedback,
+  type AutofillVisualFeedback,
+} from './autofill-visual-feedback';
 
 export type { PrefillCoverageResult } from './prefill-coverage';
 
@@ -411,7 +415,8 @@ function pdfBase64ToFile(pdfBase64: string, filename: string): File | null {
 /** Attach only to a confidently identified, currently empty Resume/CV input. */
 export function attachGeneratedResume(
   container: HTMLElement,
-  attachment?: GeneratedResumeAttachment
+  attachment?: GeneratedResumeAttachment,
+  onAttached?: (input: HTMLInputElement) => void
 ): ResumeAttachmentResult {
   if (!attachment) return 'not_requested';
   const file = pdfBase64ToFile(attachment.pdfBase64, attachment.filename);
@@ -433,6 +438,7 @@ export function attachGeneratedResume(
       input.files = transfer.files;
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
+      onAttached?.(input);
       return 'attached';
     } catch {
       return 'unsupported';
@@ -445,7 +451,8 @@ export function attachGeneratedResume(
 export function attachGeneratedCoverLetter(
   container: HTMLElement,
   attachment: GeneratedCoverLetterAttachment | undefined,
-  generatedContentHash: string | undefined
+  generatedContentHash: string | undefined,
+  onAttached?: (input: HTMLInputElement) => void
 ): ResumeAttachmentResult {
   if (!attachment) return 'not_requested';
   if (
@@ -476,6 +483,7 @@ export function attachGeneratedCoverLetter(
       input.files = transfer.files;
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
+      onAttached?.(input);
       return 'attached';
     } catch {
       return 'unsupported';
@@ -668,7 +676,10 @@ function coverageGroupKey(el: HTMLElement, index: number): string {
   return `field:${index}`;
 }
 
-function remainingRequiredOutcomes(container: HTMLElement): PrefillControlOutcome[] {
+function remainingRequiredOutcomes(
+  container: HTMLElement,
+  visual?: AutofillVisualFeedback
+): PrefillControlOutcome[] {
   for (const oldTarget of queryAllDeep<HTMLElement>(container, `[${PREFILL_TARGET_ATTR}]`)) {
     oldTarget.removeAttribute(PREFILL_TARGET_ATTR);
   }
@@ -679,6 +690,7 @@ function remainingRequiredOutcomes(container: HTMLElement): PrefillControlOutcom
     if (!requiredControlNeedsUser(control, container)) continue;
     const marker = `tmo-${Date.now().toString(36)}-${++prefillTargetSequence}`;
     control.setAttribute(PREFILL_TARGET_ATTR, marker);
+    visual?.markNeedsUser(control);
     outcomes.push({
       needsUser: true,
       groupKey: coverageGroupKey(control, index),
@@ -730,8 +742,14 @@ export function jumpToPrefillField(selector: string): boolean {
 export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillCoverageResult> {
   const featureFlags = resolveAutofillFeatureFlags(options.featureFlags);
   const emptyCoverage = emptyPrefillCoverage();
+  let visual: AutofillVisualFeedback | undefined;
+  let latestNotice = '';
   const notify = (message: string) => {
-    if (!options.quietResultToast) showToast(message);
+    if (visual) {
+      latestNotice = message;
+    } else if (!options.quietResultToast) {
+      showToast(message);
+    }
   };
   const container = findApplicationForm();
   if (!container) {
@@ -747,17 +765,20 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     document,
     featureFlags.atsAdapters
   );
+  visual = createAutofillVisualFeedback(container.ownerDocument);
 
   const resumeResult = attachGeneratedResume(
     container,
-    featureFlags.artifactPrefill ? options.resume : undefined
+    featureFlags.artifactPrefill ? options.resume : undefined,
+    (input) => visual.markFieldFilled(input, 'resume')
   );
   const coverLetterResult =
     featureFlags.artifactPrefill && featureFlags.coverLetter
       ? attachGeneratedCoverLetter(
           container,
           options.coverLetter,
-          options.generatedContentHash
+          options.generatedContentHash,
+          (input) => visual.markFieldFilled(input, 'cover_letter')
         )
       : 'not_requested';
   const filledOutcomes: PrefillControlOutcome[] = resumeResult === 'attached'
@@ -772,7 +793,12 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   if (snapshot && featureFlags.historyFields) {
     const historyControls = adapter.classifyRepeatableSections(container);
     for (const section of ['experience', 'education'] as const) {
-      const outcome = fillRepeatableRecords(section, historyControls, snapshot);
+      const outcome = fillRepeatableRecords(
+        section,
+        historyControls,
+        snapshot,
+        (element) => visual.markFieldFilled(element, section)
+      );
       historyRemaining[section] = outcome.remainingRecords;
       filledOutcomes.push(
         ...Array.from({ length: outcome.filledFields }, () => ({
@@ -787,11 +813,17 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       );
     }
   }
-  const coverageFor = (outcomes: PrefillControlOutcome[]): PrefillCoverageResult => ({
-    ...summarizePrefillOutcomes(outcomes),
-    adapterId: adapter.id,
-    remainingRecords: historyRemaining,
-  });
+  const coverageFor = (
+    outcomes: PrefillControlOutcome[]
+  ): PrefillCoverageResult => {
+    const result = {
+      ...summarizePrefillOutcomes(outcomes),
+      adapterId: adapter.id,
+      remainingRecords: historyRemaining,
+    };
+    visual.finish(result, latestNotice);
+    return result;
+  };
 
   const resp = options.profileFallback
     ? { ok: true, profile: options.profileFallback }
@@ -817,14 +849,20 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       notify(
         `Your generated ${attached} ${attached.includes(' and ') ? 'were' : 'was'} attached. Profile fields could not be loaded, so please complete them manually.`
       );
-      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([
+        ...filledOutcomes,
+        ...remainingRequiredOutcomes(container, visual),
+      ]);
     }
     notify(
       resp?.error === 'not_signed_in'
         ? 'Sign in to TrackMyOPT in the extension first.'
         : 'Could not load your TrackMyOPT profile.'
     );
-    return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+    return coverageFor([
+      ...filledOutcomes,
+      ...remainingRequiredOutcomes(container, visual),
+    ]);
   }
 
   const profile = buildContactAutofillProfile(snapshot, resp.profile);
@@ -862,6 +900,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       filled: true,
       fieldGroup: kind === 'skills' ? 'skills' : 'contact',
     });
+    visual.markFieldFilled(
+      el,
+      kind === 'skills' ? 'skills' : 'contact'
+    );
     if (!kinds.includes(kind)) kinds.push(kind);
   }
 
@@ -879,26 +921,41 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       notify(
         `Your generated ${attachments} ${attachments.includes(' and ') ? 'were' : 'was'} attached. No empty profile fields were available to fill. Review the application and submit it yourself.`
       );
-      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([
+        ...filledOutcomes,
+        ...remainingRequiredOutcomes(container, visual),
+      ]);
     }
     if (coverLetterResult === 'source_mismatch') {
       notify(
         'The cover letter no longer matches this generated resume, so it was not attached.'
       );
-      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([
+        ...filledOutcomes,
+        ...remainingRequiredOutcomes(container, visual),
+      ]);
     }
     if (resumeResult === 'already_present') {
       notify('Your existing resume upload was left unchanged. No other empty profile fields were available to fill.');
-      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([
+        ...filledOutcomes,
+        ...remainingRequiredOutcomes(container, visual),
+      ]);
     }
     if (options.resume && resumeResult === 'not_found') {
       notify('No Resume/CV upload field is visible yet. Open that part of the application and click Prefill again.');
-      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([
+        ...filledOutcomes,
+        ...remainingRequiredOutcomes(container, visual),
+      ]);
     }
     if (options.resume && resumeResult === 'unsupported') {
       const copy = autofillErrorCopy('attachment_failed');
       notify(`${copy.message} ${copy.recovery}`);
-      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+      return coverageFor([
+        ...filledOutcomes,
+        ...remainingRequiredOutcomes(container, visual),
+      ]);
     }
     notify(
       'Nothing to prefill here. TrackMyOPT never fills work-authorization, ' +
@@ -928,5 +985,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         `${resumeSummary ? `${resumeSummary} ` : ''}${coverLetterSummary ? `${coverLetterSummary} ` : ''}Review every answer and click Submit yourself — we never submit for you.`
     );
   }
-  return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+  return coverageFor([
+    ...filledOutcomes,
+    ...remainingRequiredOutcomes(container, visual),
+  ]);
 }

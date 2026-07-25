@@ -1,5 +1,6 @@
 import { classifyField, SENSITIVE_FIELD_RE, normalizeFieldSignal, type FieldKind } from './easy-apply-matchers';
 import { normalizeApplicationQuestion } from './sensitive-question-policy';
+import { flashAutofillField } from './autofill-visual-feedback';
 
 export interface ScreeningQuestionControl {
   label: string;
@@ -47,6 +48,7 @@ export function insertScreeningDraft(control: ScreeningQuestionControl, draft: s
     control.element.value = draft;
     control.element.dispatchEvent(new Event('input', { bubbles: true }));
     control.element.dispatchEvent(new Event('change', { bubbles: true }));
+    flashAutofillField(control.element, 'filled');
   }
   control.value = draft;
   return true;

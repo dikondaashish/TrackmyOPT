@@ -3,6 +3,10 @@ import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 import { icon } from '../icons.js';
 import { toolSurfaceCard, type ToolSurfaceTone } from '../tool-page-theme.js';
+import {
+  loadVerifiedUnemploymentClock,
+  summarizeUnemploymentClock,
+} from '../unemployment-clock-contract.js';
 
 /**
  * Format date for card display (e.g., "13 OCTOBER 2025")
@@ -198,9 +202,9 @@ export function renderStemClockTracker(
   const content = document.createElement('div');
   content.style.cssText = 'margin-top: 12px;';
 
-  // Calculate end date (60 days of unemployment allowed for STEM OPT)
+  // STEM unemployment is cumulative with initial OPT. A STEM start date alone
+  // cannot produce a truthful deadline; verified usage is loaded below.
   const endDate = new Date(startDate);
-  endDate.setDate(endDate.getDate() + 60);
 
   const today = new Date();
 
@@ -213,7 +217,7 @@ export function renderStemClockTracker(
   const dateCardsContainer = document.createElement('div');
   dateCardsContainer.style.cssText = `
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     margin-bottom: 12px;
   `;
@@ -279,8 +283,6 @@ export function renderStemClockTracker(
     <div style="font-size: 11px; font-weight: 600; opacity: 0.9;">${endFormatted.year}</div>
     <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">END DATE</div>
   `;
-  dateCardsContainer.appendChild(endCard);
-
   content.appendChild(dateCardsContainer);
 
   // Countdown card
@@ -317,6 +319,12 @@ export function renderStemClockTracker(
     </div>
     
     <div id="countdown-message" style="text-align: center; font-size: 13px; font-weight: 600; opacity: 0.95;">${timeRemaining.message}</div>
+  `;
+  countdownCard.innerHTML = `
+    <div id="verified-clock-status" style="text-align:center;">
+      <div style="font-size:14px;font-weight:750;">Loading verified cumulative unemployment usage…</div>
+      <div style="font-size:11px;opacity:.8;margin-top:8px;">Includes initial OPT and STEM OPT employment records</div>
+    </div>
   `;
 
   content.appendChild(countdownCard);
@@ -382,11 +390,44 @@ export function renderStemClockTracker(
 
   root.appendChild(content);
 
+  void loadVerifiedUnemploymentClock()
+    .then((clock) => {
+      if (!clock || clock.phase !== 'stem') {
+        countdownCard.innerHTML = `
+          <div style="font-size:14px;font-weight:750;text-align:center;">A verified STEM unemployment clock is not available yet.</div>
+          <div style="font-size:11px;line-height:1.5;opacity:.85;text-align:center;margin-top:8px;">Add your initial OPT dates, STEM start date, and complete employment history in the dashboard. A STEM start date by itself cannot calculate remaining days.</div>
+        `;
+        return;
+      }
+
+      const summary = summarizeUnemploymentClock(clock);
+      const progress = Math.min(100, Math.round((clock.used / clock.max) * 100));
+      countdownCard.innerHTML = `
+        <div style="font-size:28px;font-weight:800;text-align:center;">${summary.headline}</div>
+        <div style="font-size:13px;font-weight:700;text-align:center;margin-top:8px;">${summary.usage}</div>
+        <div style="font-size:11px;opacity:.85;text-align:center;margin-top:4px;">${summary.phaseLabel}</div>
+        <div style="height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-top:16px;">
+          <div id="verified-stem-clock-progress" style="height:100%;width:0;background:linear-gradient(90deg,#10b981,#f59e0b,#dc2626);border-radius:999px;transition:width .65s ease;"></div>
+        </div>
+        <div style="font-size:11px;line-height:1.45;opacity:.8;text-align:center;margin-top:12px;">The 150-day maximum is cumulative across initial OPT and STEM OPT. Update employment records whenever work changes. This is a tracking aid, not legal advice.</div>
+      `;
+      requestAnimationFrame(() => {
+        const bar = document.getElementById('verified-stem-clock-progress');
+        if (bar) bar.style.width = `${progress}%`;
+      });
+    })
+    .catch(() => {
+      countdownCard.innerHTML = `
+        <div style="font-size:13px;font-weight:700;text-align:center;">Could not load verified cumulative unemployment usage.</div>
+        <div style="font-size:11px;opacity:.8;text-align:center;margin-top:8px;">Open the dashboard and review all OPT/STEM employment records.</div>
+      `;
+    });
+
   // Store previous values for flip animation
   let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
   // Update countdown every second with flip animation and dynamic colors
-  let countdownInterval: ReturnType<typeof setInterval> | null = setInterval(() => {
+  let countdownInterval: ReturnType<typeof setInterval> | null = false ? setInterval(() => {
     const remaining = calculateTimeRemaining(endDate);
 
     const daysEl = document.getElementById('countdown-days') as HTMLElement;
@@ -462,7 +503,7 @@ export function renderStemClockTracker(
       clearInterval(countdownInterval);
       countdownInterval = null;
     }
-  }, 1000);
+  }, 1000) : null;
 
   // Check premium status and update UI
   checkPremiumStatus().then(async (isPremium) => {
@@ -479,7 +520,6 @@ export function renderStemClockTracker(
             type="email" 
             id="reminder-email-input" 
             placeholder="your@email.com"
-            value="${savedEmail || ''}"
             style="
               width: 100%;
               padding: 14px 50px 14px 16px;
@@ -537,6 +577,8 @@ export function renderStemClockTracker(
         </button>
       `;
 
+      const reminderEmailInput = document.getElementById('reminder-email-input') as HTMLInputElement | null;
+      if (reminderEmailInput) reminderEmailInput.value = savedEmail || '';
       const saveEmailBtn = document.getElementById('save-email-btn') as HTMLButtonElement;
       const stopRemindersBtn = document.getElementById('stop-reminders-btn');
 
@@ -570,9 +612,6 @@ export function renderStemClockTracker(
         const success = await saveToolEmail('stem_clock', email);
 
         if (success) {
-          // Also save to local storage for quick access
-          await chrome.storage.sync.set({ subscribedEmail: email });
-
           // Show success notification
           chrome.notifications.create({
             type: 'basic',
@@ -605,9 +644,6 @@ export function renderStemClockTracker(
         if (confirm('Are you sure you want to stop daily reminders?')) {
           // Remove email from API (syncs with website and database)
           await saveToolEmail('stem_clock', '');
-
-          // Remove email from storage
-          await chrome.storage.sync.remove('subscribedEmail');
 
           // Show notification
           chrome.notifications.create({

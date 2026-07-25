@@ -82,13 +82,11 @@ export async function POST(request: NextRequest) {
         { status: 202 }
       );
     } else {
-      const errorText = await response.text();
-      console.error('IndexNow API error:', response.status, errorText);
+      console.error('IndexNow API error:', response.status);
       return NextResponse.json(
         {
           success: false,
           error: `IndexNow API returned status ${response.status}`,
-          details: errorText,
         },
         { status: response.status }
       );
@@ -98,7 +96,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'IndexNow submission failed',
       },
       { status: 500 }
     );

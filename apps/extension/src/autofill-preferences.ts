@@ -8,11 +8,13 @@ export const AUTOFILL_PREFERENCES_KEY = 'autofillPreferencesV1';
 export interface AutofillPreferences {
   mode: 'step_by_step' | 'continuous';
   autofillSkills: boolean;
+  guidedAutopilot: boolean;
 }
 
 export const DEFAULT_AUTOFILL_PREFERENCES: Readonly<AutofillPreferences> = {
   mode: 'step_by_step',
   autofillSkills: false,
+  guidedAutopilot: false,
 };
 
 /** Accept only the two documented non-sensitive preferences from storage. */
@@ -24,11 +26,17 @@ export function normalizeAutofillPreferences(
     return { ...DEFAULT_AUTOFILL_PREFERENCES };
   }
   const candidate = value as Record<string, unknown>;
+  const mode =
+    featureFlags.continuousMode && candidate.mode === 'continuous'
+      ? 'continuous'
+      : 'step_by_step';
   return {
-    mode:
-      featureFlags.continuousMode && candidate.mode === 'continuous'
-        ? 'continuous'
-        : 'step_by_step',
+    mode,
     autofillSkills: featureFlags.skills && candidate.autofillSkills === true,
+    guidedAutopilot:
+      featureFlags.guidedAutopilot &&
+      featureFlags.continuousMode &&
+      mode === 'continuous' &&
+      candidate.guidedAutopilot === true,
   };
 }

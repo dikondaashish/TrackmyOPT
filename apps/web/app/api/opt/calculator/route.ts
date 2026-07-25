@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
       console.error('❌ Error fetching opt_status:', error);
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ ok: false, error: 'Failed to load OPT dates' }, { status: 500, headers: corsHeaders });
     }
 
     if (!data) {
@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('GET /api/opt/calculator error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to load data' },
+      { ok: false, error: 'Failed to load data' },
       { status: 500, headers: corsHeaders }
     );
   }
@@ -254,7 +254,7 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('❌ Error upserting opt_status:', error);
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ ok: false, error: 'Failed to save OPT dates' }, { status: 500, headers: corsHeaders });
     }
 
     // Update profiles table if course info was provided
@@ -279,7 +279,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('POST /api/opt/calculator error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to save data' },
+      { ok: false, error: 'Failed to save data' },
       { status: 500 }
     );
   }

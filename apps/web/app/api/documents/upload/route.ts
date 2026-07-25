@@ -15,7 +15,6 @@ import {
   uploadToS3,
   deleteFromS3,
   isValidDocumentType,
-  getFileExtension,
   generateS3Key
 } from '@/lib/aws/s3';
 import { analyzeDocument, normalizeText } from '@/lib/ai/gemini-ai';
@@ -83,7 +82,6 @@ export async function POST(request: NextRequest) {
     // Parse multipart form data
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const category = formData.get('category') as string || 'other';
 
     if (!file) {
       return NextResponse.json(
@@ -225,16 +223,14 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
-        error: 'Failed to upload document',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Failed to upload document'
       },
       { status: 500 }
     );
   }
 }
 
-// Next.js 14 App Router configuration
+// Next.js 16 App Router configuration
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes for AI processing
-

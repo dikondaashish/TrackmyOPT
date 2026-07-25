@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getUserId } from '@/lib/auth/getUserId';
 import { consumeAiGeneration } from '@/lib/ai-generation-limits';
+import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
 
 import { POST } from './route';
 
@@ -13,14 +14,41 @@ vi.mock('@/lib/auth/getUserId', () => ({
 vi.mock('@/lib/ai-generation-limits', () => ({
   consumeAiGeneration: vi.fn(),
 }));
+vi.mock('@/lib/ai/generate-grounded-text', () => ({
+  generateGroundedText: vi.fn(),
+}));
 
-function request(questionText: string): NextRequest {
+const snapshot = {
+  contact: { firstName: 'Asha', lastName: 'Patel' },
+  skills: ['TypeScript'],
+  experience: [],
+  education: [],
+  certifications: [],
+};
+
+function request(
+  questionText: string,
+  overrides: Record<string, unknown> = {}
+): NextRequest {
   return new NextRequest(
     'https://www.trackmyopt.com/api/extension/screening-answer',
     {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ questionText }),
+      headers: {
+        'content-type': 'application/json',
+        origin: 'chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm',
+      },
+      body: JSON.stringify({
+        questionText,
+        job: {
+          companyName: 'Acme',
+          roleTitle: 'Software Engineer',
+          jobDescription: 'Build reliable TypeScript products.',
+        },
+        snapshot,
+        sourceContentHash: 'a'.repeat(64),
+        ...overrides,
+      }),
     }
   );
 }
@@ -28,6 +56,18 @@ function request(questionText: string): NextRequest {
 describe('screening-answer sensitive-question boundary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getUserId).mockResolvedValue('user-1');
+    vi.mocked(consumeAiGeneration).mockResolvedValue({
+      allowed: true,
+      dailyLimit: 25,
+      dailyRemaining: 24,
+      itemRegenerationLimit: 3,
+      itemRegenerationsRemaining: 3,
+      resetsAt: '2026-07-26T00:00:00.000Z',
+    });
+    vi.mocked(generateGroundedText).mockResolvedValue(
+      'I enjoy building reliable TypeScript products.'
+    );
   });
 
   it.each([
@@ -59,15 +99,73 @@ describe('screening-answer sensitive-question boundary', () => {
     }
   );
 
-  it('returns 501 for a non-sensitive draft before auth or quota work', async () => {
+  it('generates a grounded draft with durable quota metadata', async () => {
     const response = await POST(request('Why are you interested in this role?'));
 
-    expect(response.status).toBe(501);
+    expect(response.status).toBe(200);
+    expect(response.headers.get('access-control-allow-origin')).toBe(
+      'chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm'
+    );
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      draft: 'I enjoy building reliable TypeScript products.',
+      dailyRemaining: 24,
+      sourceContentHash: 'a'.repeat(64),
+    });
+    expect(getUserId).toHaveBeenCalledOnce();
+    expect(consumeAiGeneration).toHaveBeenCalledWith(
+      'user-1',
+      expect.stringMatching(/^screening:[a-f0-9]{64}:a{64}$/),
+      false
+    );
+  });
+
+  it('uses regeneration quota only when regenerate is explicitly true', async () => {
+    const response = await POST(
+      request('Why are you interested in this role?', { regenerate: true })
+    );
+
+    expect(response.status).toBe(200);
+    expect(consumeAiGeneration).toHaveBeenCalledWith(
+      'user-1',
+      expect.any(String),
+      true
+    );
+  });
+
+  it.each([
+    'NEEDS_USER_INPUT',
+    'I am very excited about this wonderful opportunity and would love to join your team.',
+  ])(
+    'rejects an ungrounded model draft: "%s"',
+    async (draft) => {
+      vi.mocked(generateGroundedText).mockResolvedValue(draft);
+
+      const response = await POST(
+        request('Why are you interested in this role?')
+      );
+
+      expect(response.status).toBe(422);
+      await expect(response.json()).resolves.toMatchObject({
+        ok: false,
+        error: 'insufficient_context',
+      });
+    }
+  );
+
+  it('rejects a model draft that introduces a sensitive fact', async () => {
+    vi.mocked(generateGroundedText).mockResolvedValue(
+      'I enjoy TypeScript work and will require visa sponsorship.'
+    );
+
+    const response = await POST(
+      request('Why are you interested in this role?')
+    );
+
+    expect(response.status).toBe(422);
     await expect(response.json()).resolves.toMatchObject({
       ok: false,
-      error: 'feature_disabled',
+      error: 'insufficient_context',
     });
-    expect(getUserId).not.toHaveBeenCalled();
-    expect(consumeAiGeneration).not.toHaveBeenCalled();
   });
 });

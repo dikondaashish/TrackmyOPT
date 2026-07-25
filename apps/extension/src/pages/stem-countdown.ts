@@ -284,7 +284,6 @@ export async function renderStemCountdown(
               type="email" 
               id="reminder-email-input"
               placeholder="your@email.com"
-              value="${subscribedEmail || ''}"
               style="
                 flex: 1;
                 padding: 12px;
@@ -383,6 +382,8 @@ export async function renderStemCountdown(
   `;
 
   root.appendChild(content);
+  const reminderEmailInput = content.querySelector('#reminder-email-input') as HTMLInputElement | null;
+  if (reminderEmailInput) reminderEmailInput.value = subscribedEmail || '';
 
   // Store previous values for flip animation
   let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -519,9 +520,6 @@ export async function renderStemCountdown(
         const success = await saveToolEmail('stem_apply', email);
 
         if (success) {
-          // Also save to local storage for quick access
-          await chrome.storage.sync.set({ subscribedEmail: email });
-
           // Show success notification
           chrome.notifications.create({
             type: 'basic',
@@ -555,8 +553,6 @@ export async function renderStemCountdown(
         if (confirm('Are you sure you want to stop daily reminders?')) {
           // Remove email from API (syncs with website)
           await saveToolEmail('stem_apply', '');
-          // Also remove from local storage
-          await chrome.storage.sync.remove('subscribedEmail');
 
           // Show notification
           chrome.notifications.create({

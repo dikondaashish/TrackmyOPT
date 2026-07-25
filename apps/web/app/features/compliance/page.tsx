@@ -11,11 +11,6 @@ import {
     Shield,
     AlertTriangle,
     CheckCircle2,
-    Mail,
-    Smartphone,
-    TrendingDown,
-    Users,
-    XCircle
 } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { FeatureHero } from "@/components/features/FeatureHero";
@@ -81,7 +76,7 @@ export default function CompliancePage() {
                 description="Track your entire OPT timeline, unemployment days, and USCIS deadlines in real-time. Stay compliant with multi-channel alerts for all critical milestones including filing windows and employer reporting."
                 featurePath="/features/compliance"
                 faqItems={[
-                  {question: "What happens if I exceed my unemployment limit?", answer: "Exceeding your unemployment limit (90 days for Initial OPT, or the additional 60 days for STEM OPT) can result in status violation and potential deportation. TrackMyOPT tracks your unemployment days in real-time and sends alerts before you approach limits."},
+                  {question: "What happens if I exceed my unemployment limit?", answer: "The aggregate limit is 90 days during initial OPT and 150 days across initial OPT plus STEM OPT. Exceeding the applicable limit can violate F-1 status. TrackMyOPT tracks saved employment periods and alerts you as you approach the limit; verify your situation with your DSO."},
                   {question: "How does TrackMyOPT calculate my unemployment days?", answer: "We track the gap between your employment end dates and start dates. You enter your employment history, and our system automatically calculates cumulative unemployment. We account for weekends and holidays per USCIS guidelines."},
                   {question: "When should I apply for STEM OPT extension?", answer: "You must apply 90 days before your OPT expires. Our filing calculator shows you the exact window and sends reminders 60, 30, and 7 days before your deadline."},
                   {question: "Do I need to report every job change to SEVP?", answer: "Yes, you must update the SEVP Portal within 10 days of any employment change including new jobs, address changes, or employer name changes. TrackMyOPT reminds you of these reporting requirements."},
@@ -266,7 +261,7 @@ export default function CompliancePage() {
                 items={[
                     {
                         question: "What happens if I exceed my unemployment limit?",
-                        answer: "Exceeding your unemployment limit (90 days for Initial OPT, or the additional 60 days for STEM OPT) can result in status violation and potential deportation. TrackMyOPT tracks your unemployment days in real-time and sends alerts before you approach limits."
+                        answer: "The aggregate limit is 90 days during initial OPT and 150 days across initial OPT plus STEM OPT. Exceeding the applicable limit can violate F-1 status. TrackMyOPT tracks saved employment periods and alerts you as you approach the limit; verify your situation with your DSO."
                     },
                     {
                         question: "How does TrackMyOPT calculate my unemployment days?",

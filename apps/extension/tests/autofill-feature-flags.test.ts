@@ -8,10 +8,11 @@ import {
 
 assert.deepEqual(AUTOFILL_FEATURE_FLAGS, {
   artifactPrefill: true,
-  skills: false,
-  continuousMode: false,
-  aiScreeningDrafts: false,
-  coverLetter: false,
+  skills: true,
+  continuousMode: true,
+  aiScreeningDrafts: true,
+  coverLetter: true,
+  guidedAutopilot: true,
   historyFields: true,
   atsAdapters: true,
 });
@@ -36,6 +37,17 @@ for (const flag of [
 assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.continuousMode/);
 assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.aiScreeningDrafts/);
 assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.coverLetter/);
+assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.guidedAutopilot/);
+assert.match(
+  portal,
+  /mountScreeningQuestionReviews\(\s*widgetCard,\s*job,\s*execution\.hasResume/,
+  'a background-resolved artifact must unlock screening review UI after Continuous prefill',
+);
+assert.match(
+  portal,
+  /resolvedJobDescription \|\|\s*lastResumeGenerationRequest\?\.jobDescription \|\|\s*scrapeJobDescription\(\)/,
+  'screening drafts must prefer the job description bound to the resolved resume artifact',
+);
 assert.match(
   portal,
   /if \(artifact\) \{\s*setCurrentGeneratedArtifact\(artifact\)/,

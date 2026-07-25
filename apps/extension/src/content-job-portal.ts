@@ -85,6 +85,15 @@ import {
   type PrefillSourceType,
 } from './prefill-telemetry';
 import { autofillErrorCopy } from './autofill-errors';
+import {
+  runGuidedNavigation,
+  type GuidedNavigationResult,
+} from './guided-autopilot';
+import {
+  fillConfirmedSensitiveAnswers,
+  normalizeSensitiveAnswerSession,
+  type SensitiveAnswerSession,
+} from './sensitive-autofill';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -125,7 +134,152 @@ let lastResumeGenerationRequest: LastResumeGenerationRequest | null = null;
 let regenerationRecheckPending = false;
 let latestJobFitScore: { jobFingerprint: string; score: number } | null = null;
 let currentAutofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
+// User-entered sensitive answers live only in this page's content-script memory.
+// They are never sent to AI, storage, or analytics.
+let sensitiveAnswerSession: SensitiveAnswerSession = { confirmed: false };
 const trackedWidgetAnalytics = new Set<string>();
+const guidedClickedControls = new WeakSet<HTMLElement>();
+
+function guidedStatus(message: string): void {
+  for (const line of Array.from(
+    document.querySelectorAll<HTMLElement>('.tmo-guided-status-copy')
+  )) {
+    line.textContent = message;
+  }
+}
+
+function selectField(
+  label: string,
+  options: Array<[string, string]>
+): { wrapper: HTMLLabelElement; control: HTMLSelectElement } {
+  const wrapper = document.createElement('label');
+  wrapper.style.cssText =
+    'display:grid;gap:3px;color:var(--tmo-widget-ink);font-size:10.5px;font-weight:700;';
+  wrapper.append(label);
+  const control = document.createElement('select');
+  control.style.cssText =
+    'width:100%;min-height:32px;padding:5px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:11px;';
+  for (const [value, text] of options) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = text;
+    control.appendChild(option);
+  }
+  wrapper.appendChild(control);
+  return { wrapper, control };
+}
+
+function textField(
+  label: string,
+  type: 'text' | 'date' = 'text',
+  placeholder = ''
+): { wrapper: HTMLLabelElement; control: HTMLInputElement } {
+  const wrapper = document.createElement('label');
+  wrapper.style.cssText =
+    'display:grid;gap:3px;color:var(--tmo-widget-ink);font-size:10.5px;font-weight:700;';
+  wrapper.append(label);
+  const control = document.createElement('input');
+  control.type = type;
+  control.placeholder = placeholder;
+  control.autocomplete = 'off';
+  control.style.cssText =
+    'box-sizing:border-box;width:100%;min-height:32px;padding:5px 7px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:11px;';
+  wrapper.appendChild(control);
+  return { wrapper, control };
+}
+
+function createSensitiveAnswerPanel(): HTMLElement {
+  const section = document.createElement('section');
+  section.className = 'tmo-sensitive-answer-panel';
+  section.style.cssText =
+    'border-top:1px solid var(--tmo-widget-border);padding:9px 11px;background:var(--tmo-widget-surface-2);';
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.textContent = 'Sensitive answers (session only)';
+  toggle.style.cssText =
+    'width:100%;padding:0;border:0;background:transparent;color:var(--tmo-widget-ink);font:inherit;font-size:11px;font-weight:800;text-align:left;cursor:pointer;';
+  const body = document.createElement('div');
+  body.hidden = true;
+  body.style.cssText = 'display:grid;gap:7px;margin-top:8px;';
+  const note = document.createElement('p');
+  note.textContent =
+    'You enter these facts. TrackMyOPT never asks AI to guess them and forgets them when this tab/session ends.';
+  note.style.cssText =
+    'margin:0;color:var(--tmo-widget-muted);font-size:10.5px;line-height:1.4;';
+
+  const yesNoOptions: Array<[string, string]> = [
+    ['', 'Leave unanswered'],
+    ['yes', 'Yes'],
+    ['no', 'No'],
+  ];
+  const workAuth = selectField('Authorized to work?', yesNoOptions);
+  const sponsorship = selectField('Need sponsorship now or later?', yesNoOptions);
+  const visa = textField('Visa / immigration status', 'text', 'Example: F-1 OPT');
+  const citizenship = textField('Citizenship', 'text', 'Exact answer to use');
+  const salary = textField('Salary expectation', 'text', 'Your preferred answer');
+  const dob = textField('Date of birth', 'date');
+  const eeo = selectField('EEO questions', [
+    ['', 'Leave unanswered'],
+    ['prefer_not_to_answer', 'Prefer not to answer'],
+  ]);
+  const save = document.createElement('button');
+  save.type = 'button';
+  save.textContent = 'Use these answers for this session';
+  save.style.cssText =
+    'min-height:34px;padding:6px 8px;border:0;border-radius:7px;background:var(--tmo-widget-accent);color:#fff;font:inherit;font-size:11px;font-weight:800;cursor:pointer;';
+  const status = document.createElement('p');
+  status.setAttribute('role', 'status');
+  status.style.cssText =
+    'margin:0;color:var(--tmo-widget-success-ink);font-size:10.5px;font-weight:700;';
+
+  toggle.addEventListener('click', () => {
+    body.hidden = !body.hidden;
+    body.style.display = body.hidden ? 'none' : 'grid';
+  });
+  save.addEventListener('click', () => {
+    sensitiveAnswerSession = {
+      confirmed: true,
+      ...(workAuth.control.value
+        ? { workAuthorization: workAuth.control.value as 'yes' | 'no' }
+        : {}),
+      ...(sponsorship.control.value
+        ? { requiresSponsorship: sponsorship.control.value as 'yes' | 'no' }
+        : {}),
+      ...(visa.control.value.trim()
+        ? { visaStatus: visa.control.value.trim() }
+        : {}),
+      ...(citizenship.control.value.trim()
+        ? { citizenship: citizenship.control.value.trim() }
+        : {}),
+      ...(salary.control.value.trim()
+        ? { salaryExpectation: salary.control.value.trim() }
+        : {}),
+      ...(dob.control.value ? { dateOfBirth: dob.control.value } : {}),
+      ...(eeo.control.value === 'prefer_not_to_answer'
+        ? { eeoPreference: 'prefer_not_to_answer' as const }
+        : {}),
+    };
+    status.textContent =
+      'Saved in this session only. Guided Autopilot can use these exact answers.';
+    previousContinuousSignature = '';
+    scheduleContinuousPrefill();
+  });
+
+  body.append(
+    note,
+    workAuth.wrapper,
+    sponsorship.wrapper,
+    visa.wrapper,
+    citizenship.wrapper,
+    salary.wrapper,
+    dob.wrapper,
+    eeo.wrapper,
+    save,
+    status
+  );
+  section.append(toggle, body);
+  return section;
+}
 
 function currentSessionStorage(): Storage | null {
   try {
@@ -331,6 +485,7 @@ type PrefillExecutionResult = {
   result: PrefillCoverageResult;
   hasResume: boolean;
   hasCoverLetter: boolean;
+  jobDescription?: string;
   sourceType: PrefillSourceType;
   artifactStateReason: PrefillArtifactStateReason;
   stoppedReason?: 'expired' | 'job_changed' | 'invalid';
@@ -410,14 +565,38 @@ async function executeResolvedPrefill(
   // Frames receive only the already-resolved, ephemeral payload for this run.
   chrome.runtime.sendMessage({
     type: 'PREFILL_CHILD_FRAMES',
-    prefill,
+    prefill: {
+      ...prefill,
+      ...(AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
+      currentAutofillPreferences.guidedAutopilot &&
+      sensitiveAnswerSession.confirmed
+        ? { sensitiveAnswers: sensitiveAnswerSession }
+        : {}),
+    },
   }).catch(() => {});
   const result = await runPrefill(prefill);
+  if (
+    AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
+    currentAutofillPreferences.guidedAutopilot
+  ) {
+    const sensitive = fillConfirmedSensitiveAnswers(
+      findApplicationForm() ?? document,
+      sensitiveAnswerSession
+    );
+    if (sensitive.unresolved.length > 0) {
+      guidedStatus(
+        'Paused: add the required sensitive answers in the session-only panel.'
+      );
+    }
+  }
   if (hasResume && result.filled > 0) artifactBackedFieldsFilled = true;
   return {
     result,
     hasResume,
     hasCoverLetter,
+    ...(resolved.source === 'generated_resume' && resolved.jobDescription
+      ? { jobDescription: resolved.jobDescription }
+      : {}),
     sourceType: resolved.source,
     artifactStateReason:
       resolved.source === 'generated_resume' ? 'none' : resolved.reason,
@@ -491,10 +670,17 @@ function paintPrefillCoverage(
   }
 }
 
-async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): Promise<void> {
+async function mountScreeningQuestionReviews(
+  card: HTMLElement,
+  job: JobInfo,
+  hasResolvedArtifact = false,
+  resolvedJobDescription = '',
+): Promise<void> {
   if (!AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) return;
-  const artifact = generatedResumeArtifactForCurrentJob;
-  if (!artifact) return;
+  // A valid artifact can be owned by the background/session store without
+  // existing in this content script's short-lived module cache. The resolved
+  // prefill result is the authority for that common handoff path.
+  if (!generatedResumeArtifactForCurrentJob && !hasResolvedArtifact) return;
   card.querySelector('.tmo-screening-review-list')?.remove();
   const host = document.createElement('div');
   host.className = 'tmo-screening-review-list';
@@ -522,7 +708,10 @@ async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): P
           type: 'GENERATE_SCREENING_DRAFT',
           questionText: eligible.normalizedQuestionText,
           characterLimit: eligible.characterLimit,
-          jobDescription: lastResumeGenerationRequest?.jobDescription || '',
+          jobDescription:
+            resolvedJobDescription ||
+            lastResumeGenerationRequest?.jobDescription ||
+            scrapeJobDescription(),
           companyName: job.company_name || '',
           roleTitle: job.role_title || '',
           regenerate,
@@ -1642,9 +1831,22 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     const motionStyle = document.createElement('style');
     motionStyle.id = 'tmo-minimized-motion-style';
     motionStyle.textContent = `
+      @keyframes tmo-prefill-chip-pulse {
+        0%,100% { transform:scale(1);box-shadow:0 2px 6px rgba(15,23,42,0.14); }
+        50% { transform:scale(1.08);box-shadow:0 0 0 6px rgba(37,99,235,0.13); }
+      }
+      #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling > span:first-child {
+        animation:tmo-prefill-chip-pulse 760ms ease-in-out infinite;
+      }
+      #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling {
+        background:var(--tmo-widget-info-surface) !important;
+      }
       @media (prefers-reduced-motion: reduce) {
         #${WIDGET_ROOT_ID} .tmo-minimized-tab,
-        #${WIDGET_ROOT_ID} .tmo-minimized-tab * { transition:none !important; }
+        #${WIDGET_ROOT_ID} .tmo-minimized-tab *,
+        #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling > span:first-child {
+          animation:none !important;transition:none !important;
+        }
       }
     `;
     document.head.appendChild(motionStyle);
@@ -1740,6 +1942,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
 
   // ---- Expanded card ----
   const card = document.createElement('div');
+  card.className = 'tmo-job-widget-card';
   card.style.cssText = `
     width: min(320px, calc(100vw - 20px)); background:var(--tmo-widget-surface);
     border:1px solid var(--tmo-widget-border);border-right:none;border-radius:14px 0 0 14px;
@@ -1988,6 +2191,29 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
 
   toolsPanel.appendChild(prefillBtn);
   toolsPanel.appendChild(prefillResultLine);
+  if (AUTOFILL_FEATURE_FLAGS.guidedAutopilot) {
+    const guidedHost = document.createElement('div');
+    guidedHost.className = 'tmo-guided-status';
+    guidedHost.setAttribute('role', 'status');
+    guidedHost.setAttribute('aria-live', 'polite');
+    guidedHost.style.cssText =
+      'display:none;align-items:center;gap:7px;padding:8px 11px;border-top:1px solid var(--tmo-widget-border);background:#eff6ff;color:#1e3a8a;font-size:10.5px;line-height:1.35;';
+    const copy = document.createElement('span');
+    copy.className = 'tmo-guided-status-copy';
+    copy.style.flex = '1';
+    copy.textContent =
+      'Guided Autopilot is active. It may click safe Next/Done controls, never Submit.';
+    const stop = document.createElement('button');
+    stop.type = 'button';
+    stop.textContent = 'Stop';
+    stop.style.cssText =
+      'padding:5px 7px;border:1px solid #b91c1c;border-radius:6px;background:#fff;color:#b91c1c;font:inherit;font-weight:800;cursor:pointer;';
+    stop.addEventListener('click', () => void stopGuidedAutopilot());
+    guidedHost.append(copy, stop);
+    toolsPanel.appendChild(guidedHost);
+    toolsPanel.appendChild(createSensitiveAnswerPanel());
+    paintGuidedStateUi();
+  }
   toolsPanel.appendChild(artifactStaleBanner);
   toolsPanel.appendChild(artifactInactiveFallback);
   toolsPanel.appendChild(rowDivider());
@@ -2364,6 +2590,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
       const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
       let hasResume = false;
       prefillBtn.disabled = true;
+      prefillBtn.setAttribute('aria-busy', 'true');
+      prefillBtn.classList.add('tmo-is-filling');
       if (label) label.textContent = 'Prefilling…';
       try {
         const execution = await executeResolvedPrefill(job, 'step_by_step');
@@ -2371,13 +2599,20 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
         if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
-          await mountScreeningQuestionReviews(card, job);
+          await mountScreeningQuestionReviews(
+            card,
+            job,
+            execution.hasResume,
+            execution.jobDescription,
+          );
         }
         trackPrefillExecution(execution, 'step_by_step', 'success');
       } catch {
         trackPrefillRuntimeFailure('step_by_step', hasResume);
       } finally {
         prefillBtn.disabled = false;
+        prefillBtn.setAttribute('aria-busy', 'false');
+        prefillBtn.classList.remove('tmo-is-filling');
         if (label) {
           label.textContent = hasResume || generatedResumeFor(job)
             ? 'Prefill application + resume'
@@ -4066,6 +4301,7 @@ let _spaObserver: MutationObserver | null = null;
 let _earlyRetryId: number | null = null;
 let _continuousPrefillObserver: MutationObserver | null = null;
 let continuousPrefillTimer: number | null = null;
+let guidedNavigationTimer: number | null = null;
 let continuousPrefillInFlight = false;
 let continuousMutationPending = false;
 let previousContinuousSignature = '';
@@ -4081,6 +4317,80 @@ function stopContinuousPrefill(): void {
   continuousPrefillInFlight = false;
   continuousMutationPending = false;
   previousContinuousSignature = '';
+}
+
+function paintGuidedStateUi(): void {
+  const active =
+    AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
+    currentAutofillPreferences.guidedAutopilot;
+  for (const host of Array.from(
+    document.querySelectorAll<HTMLElement>('.tmo-guided-status')
+  )) {
+    host.style.display = active ? 'flex' : 'none';
+  }
+}
+
+async function stopGuidedAutopilot(): Promise<void> {
+  if (guidedNavigationTimer !== null) {
+    window.clearTimeout(guidedNavigationTimer);
+    guidedNavigationTimer = null;
+  }
+  stopContinuousPrefill();
+  currentAutofillPreferences = {
+    ...currentAutofillPreferences,
+    mode: 'step_by_step',
+    guidedAutopilot: false,
+  };
+  trackWidgetAnalytics('extension_widget_guided_navigation', {
+    navigation_outcome: 'stopped',
+  });
+  paintGuidedStateUi();
+  await chrome.storage.sync.set({
+    [AUTOFILL_PREFERENCES_KEY]: currentAutofillPreferences,
+  }).catch(() => {});
+}
+
+function paintGuidedNavigationResult(result: GuidedNavigationResult): void {
+  trackWidgetAnalytics('extension_widget_guided_navigation', {
+    navigation_outcome: result.outcome,
+  });
+  if (result.outcome === 'advanced') {
+    guidedStatus(
+      `Advanced with “${result.label || 'Next'}”. Waiting for the next step…`
+    );
+  } else if (result.outcome === 'blocked_required_fields') {
+    guidedStatus(
+      `Paused: ${result.unansweredRequiredCount || 1} required field(s) still need your review.`
+    );
+  } else if (result.outcome === 'stopped_review_step') {
+    guidedStatus('Stopped at Review. Please review the application yourself.');
+  } else if (result.outcome === 'stopped_final_step') {
+    guidedStatus('Stopped before the final action. TrackMyOPT never submits.');
+  } else if (result.outcome === 'no_safe_control') {
+    guidedStatus('Paused: no safe Next/Done control was found.');
+  }
+}
+
+function scheduleGuidedNavigation(): void {
+  if (
+    !AUTOFILL_FEATURE_FLAGS.guidedAutopilot ||
+    !currentAutofillPreferences.guidedAutopilot
+  ) {
+    return;
+  }
+  if (guidedNavigationTimer !== null) {
+    window.clearTimeout(guidedNavigationTimer);
+  }
+  guidedStatus(
+    'Reviewing this step. Press Escape or Stop to pause Guided Autopilot.'
+  );
+  guidedNavigationTimer = window.setTimeout(() => {
+    guidedNavigationTimer = null;
+    if (!currentAutofillPreferences.guidedAutopilot) return;
+    paintGuidedNavigationResult(
+      runGuidedNavigation(document, guidedClickedControls)
+    );
+  }, 1_200);
 }
 
 async function runContinuousPrefill(): Promise<void> {
@@ -4110,7 +4420,19 @@ async function runContinuousPrefill(): Promise<void> {
     if (resultLine && execution.result.total > 0) {
       paintPrefillCoverage(resultLine, execution.result);
     }
+    const widgetCard = document.querySelector<HTMLElement>(
+      `#${WIDGET_ROOT_ID} .tmo-job-widget-card`
+    );
+    if (widgetCard && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+      await mountScreeningQuestionReviews(
+        widgetCard,
+        job,
+        execution.hasResume,
+        execution.jobDescription,
+      );
+    }
     trackPrefillExecution(execution, 'continuous', 'success');
+    scheduleGuidedNavigation();
   } catch {
     trackPrefillRuntimeFailure('continuous');
   } finally {
@@ -4166,6 +4488,7 @@ async function initializeAutofillPreferences(): Promise<void> {
   } catch {
     currentAutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
   }
+  paintGuidedStateUi();
   if (
     AUTOFILL_FEATURE_FLAGS.continuousMode &&
     currentAutofillPreferences.mode === 'continuous'
@@ -4178,6 +4501,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   currentAutofillPreferences = normalizeAutofillPreferences(
     changes[AUTOFILL_PREFERENCES_KEY].newValue,
   );
+  paintGuidedStateUi();
   if (
     AUTOFILL_FEATURE_FLAGS.continuousMode &&
     currentAutofillPreferences.mode === 'continuous'
@@ -4185,6 +4509,17 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     startContinuousPrefill();
   else stopContinuousPrefill();
 });
+
+document.addEventListener(
+  'keydown',
+  (event) => {
+    if (event.key !== 'Escape' || !currentAutofillPreferences.guidedAutopilot) {
+      return;
+    }
+    void stopGuidedAutopilot();
+  },
+  true
+);
 
 /**
  * False once the extension is reloaded/updated while THIS old content script is
@@ -4352,7 +4687,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     profileFallback?: BasicContactProfile;
     autofillSkills?: boolean;
     quietResultToast?: boolean;
+    sensitiveAnswers?: unknown;
   };
+  const sensitiveAnswers = normalizeSensitiveAnswerSession(
+    prefill.sensitiveAnswers
+  );
   void runPrefill({
     resume: prefill.resume,
     coverLetter: prefill.coverLetter,
@@ -4363,7 +4702,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     quietResultToast: prefill.quietResultToast === true,
     quietIfNoForm: true,
   })
-    .then(() => sendResponse({ ok: true }))
+    .then(() => {
+      if (sensitiveAnswers) {
+        fillConfirmedSensitiveAnswers(
+          findApplicationForm() ?? document,
+          sensitiveAnswers
+        );
+      }
+      sendResponse({ ok: true });
+    })
     .catch(() => sendResponse({ ok: false }));
   return true;
 });
@@ -4381,8 +4728,6 @@ if (window.top !== window.self) {
     // Not a career page — fully inert, zero DOM work.
   } else {
     void initializeAutofillPreferences();
-    // Log why we activated (shows in DevTools → Console on career pages).
-    console.log(`[TrackMyOPT] Career page detected: ${careerReason}`);
     if (shouldUseFullJobAssistMode()) {
       // Well-known job board or ATS: full SPA observer + retry loop.
       initFullJobAssistMode();

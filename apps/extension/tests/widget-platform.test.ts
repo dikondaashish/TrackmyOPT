@@ -43,6 +43,7 @@ assert.deepEqual(
     flag_continuous_mode: true,
     flag_ai_screening_drafts: false,
     flag_cover_letter: false,
+    flag_guided_autopilot: true,
     flag_history_fields: true,
     flag_ats_adapters: true,
     resume_filled: 1,
@@ -73,6 +74,7 @@ assert.deepEqual(
     flag_continuous_mode: true,
     flag_ai_screening_drafts: false,
     flag_cover_letter: false,
+    flag_guided_autopilot: true,
     flag_history_fields: true,
     flag_ats_adapters: true,
     resume_filled: 1,
@@ -80,6 +82,20 @@ assert.deepEqual(
     experience_skipped: 2,
   },
   'analytics keeps bounded low-cardinality properties and drops job data',
+);
+
+assert.deepEqual(
+  normalizeWidgetAnalyticsProperties('extension_widget_guided_navigation', {
+    site_family: 'workday',
+    navigation_outcome: 'stopped_final_step',
+    button_text: 'Submit application',
+  }),
+  {
+    source: 'chrome_extension',
+    site_family: 'workday',
+    navigation_outcome: 'stopped_final_step',
+  },
+  'guided navigation telemetry never accepts page content',
 );
 
 assert.deepEqual(

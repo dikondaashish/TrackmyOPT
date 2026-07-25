@@ -2259,12 +2259,15 @@ export async function resolveUserForStripeCustomer(
   supabase: SupabaseClient,
   stripeCustomerId: string
 ): Promise<{ userId: string; email: string; firstName: string | null } | null> {
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("user_id, email, first_name")
     .eq("stripe_customer_id", stripeCustomerId)
     .maybeSingle();
 
+  if (profileError) {
+    throw new Error(`Stripe customer profile lookup failed: ${profileError.message}`);
+  }
   if (!profile?.user_id) return null;
 
   let email = profile.email?.trim() || "";
@@ -2287,12 +2290,15 @@ export async function resolveUserById(
   supabase: SupabaseClient,
   userId: string
 ): Promise<{ userId: string; email: string; firstName: string | null } | null> {
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("user_id, email, first_name")
     .eq("user_id", userId)
     .maybeSingle();
 
+  if (profileError) {
+    throw new Error(`Billing profile lookup failed: ${profileError.message}`);
+  }
   if (!profile?.user_id) return null;
 
   let email = profile.email?.trim() || "";
@@ -2375,7 +2381,6 @@ export type EmailPreviewItem = {
 export function getTransactionalEmailPreviews(firstName = "Alex"): EmailPreviewItem[] {
   const base = getAppBaseUrl();
   const settingsUrl = `${base}/dashboard/settings`;
-  const checkoutUrl = `${base}/premium/checkout`;
   const dashUrl = `${base}/dashboard`;
   const termsUrl = `${base}/terms`;
   const refundUrl = `${base}/refund-policy`;

@@ -125,6 +125,7 @@ export const WIDGET_ANALYTICS_EVENTS = [
   'extension_widget_screening_review_state',
   'extension_widget_job_analyzed',
   'extension_widget_resume_generated',
+  'extension_widget_guided_navigation',
 ] as const;
 
 export type WidgetAnalyticsEvent = (typeof WIDGET_ANALYTICS_EVENTS)[number];
@@ -173,6 +174,7 @@ const EVENT_KEYS: Record<WidgetAnalyticsEvent, readonly string[]> = {
     'flag_continuous_mode',
     'flag_ai_screening_drafts',
     'flag_cover_letter',
+    'flag_guided_autopilot',
     'flag_history_fields',
     'flag_ats_adapters',
     'resume_filled',
@@ -192,6 +194,7 @@ const EVENT_KEYS: Record<WidgetAnalyticsEvent, readonly string[]> = {
   extension_widget_screening_review_state: ['site_family', 'review_state'],
   extension_widget_job_analyzed: ['site_family', 'outcome', 'score', 'matched_keywords_count', 'missing_keywords_count', 'error_code'],
   extension_widget_resume_generated: ['site_family', 'outcome', 'template_id', 'baseline_score', 'generated_score', 'score_delta', 'error_code'],
+  extension_widget_guided_navigation: ['site_family', 'navigation_outcome'],
 };
 
 const ENUM_VALUES: Record<string, readonly string[]> = {
@@ -217,6 +220,14 @@ const ENUM_VALUES: Record<string, readonly string[]> = {
   review_state: [
     'not_applicable', 'not_requested', 'needs_review', 'confirmed', 'edited',
   ],
+  navigation_outcome: [
+    'advanced',
+    'stopped_final_step',
+    'stopped_review_step',
+    'blocked_required_fields',
+    'no_safe_control',
+    'stopped',
+  ],
 };
 
 const NUMBER_KEYS = new Set([
@@ -236,7 +247,7 @@ const BOOLEAN_KEYS = new Set([
   'has_resume', 'has_cover_letter', 'refreshed',
   'flag_artifact_prefill', 'flag_skills', 'flag_continuous_mode',
   'flag_ai_screening_drafts', 'flag_cover_letter', 'flag_history_fields',
-  'flag_ats_adapters',
+  'flag_ats_adapters', 'flag_guided_autopilot',
 ]);
 
 function boundedInteger(value: unknown, min: number, max: number): number | undefined {

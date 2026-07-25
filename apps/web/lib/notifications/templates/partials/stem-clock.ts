@@ -5,8 +5,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
   const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
     tool.urgency === 'urgent' ? '#D97706' : '#059669';
 
-  const daysElapsed = tool.totalDays - tool.daysLeft;
-  const unemploymentDaysUsed = daysElapsed;
+  const cumulativeUnemploymentDaysUsed = tool.totalDays - tool.daysLeft;
   const today = new Date().toLocaleString('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: 'numeric', day: 'numeric',
@@ -17,18 +16,15 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
-  let statusEmoji = '';
   let motivationalMessage = 'You have time to find the right opportunity! Focus on quality applications and networking.';
 
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = '';
     motivationalMessage = 'Time is critical! Intensify your job search immediately - consider all options including NGOs and internships.';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = '';
     motivationalMessage = 'Stay focused on your job search. Consistency is key - apply daily and follow up on applications.';
   }
 
@@ -41,7 +37,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
           STEM Unemployment Clock
         </h2>
         <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
-          Track Your 60-Day STEM Unemployment Limit
+          Track Your 150-Day Cumulative OPT/STEM Limit
         </p>
       </div>
 
@@ -56,12 +52,12 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
             <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${tool.daysLeft} days</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Days Elapsed:</td>
-            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${daysElapsed} days</td>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Cumulative Unemployment Used:</td>
+            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${cumulativeUnemploymentDaysUsed} days</td>
           </tr>
           <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• STEM Unemployment Used:</td>
-            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${unemploymentDaysUsed} / 60</td>
+            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Aggregate OPT/STEM Limit:</td>
+            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${cumulativeUnemploymentDaysUsed} / ${tool.totalDays}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• STEM Start Date:</td>
@@ -127,7 +123,7 @@ export function generateStemClockSection(tool: ToolReminderDetail): string {
           Critical STEM OPT Employment Rules:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #7F1D1D; font-size: 14px; line-height: 1.8;">
-          <li><strong>60-Day Limit:</strong> Maximum unemployment during STEM period (separate from OPT's 90 days)</li>
+          <li><strong>150-Day Cumulative Limit:</strong> Unemployment across initial OPT and STEM OPT is counted together. The extension increases the aggregate maximum from 90 to 150 days.</li>
           <li><strong>E-Verify ONLY:</strong> Can only work for employers enrolled in E-Verify</li>
           <li><strong>Minimum 20 Hours:</strong> Must work at least 20 hours per week</li>
           <li><strong>Report Changes:</strong> Report any employer changes to DSO within <strong>10 days</strong></li>

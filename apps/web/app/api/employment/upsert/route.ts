@@ -83,9 +83,8 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Employment upsert error:', error);
     return NextResponse.json(
-      { ok: false, error: error.message || 'Failed to save employment span' },
+      { ok: false, error: 'Failed to save employment span' },
       { status: 500 }
     );
   }
 }
-

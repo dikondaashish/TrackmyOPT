@@ -1,97 +1,62 @@
-# Legal & billing compliance QA
+# Legal and billing compliance — pending manual QA
 
-**Not legal advice.** Have U.S. counsel review all public legal pages before launch.
+Automated implementation checks are present in code/tests. This checklist now
+contains only work that still requires production/test-mode observation or
+professional review.
 
-## Public pages
+**Not legal advice. Have U.S. counsel review public legal and billing terms.**
 
-- [ ] `/privacy` loads; version date matches `LEGAL_VERSION_ID` in `lib/legal/legal-config.ts`
-- [ ] `/terms` loads; immigration disclaimer (§2A) visible; no government affiliation claims
-- [ ] `/refund-policy` loads; Pro 7-day trial + Dedicated 3-day guarantee match code
-- [ ] `/disclaimer` loads; not legal advice; no outcome guarantees
-- [ ] `/cookie-policy` loads; lists PostHog/Vercel when used
-- [ ] `/security` loads; no false SOC2/PCI claims
+## 1. Public browser smoke
 
-## Footer & navigation
+- [ ] Open `/privacy`, `/terms`, `/refund-policy`, `/disclaimer`,
+  `/cookie-policy`, and `/security` in production.
+- [ ] Confirm footer/signup/billing links reach the correct pages.
+- [ ] Confirm consent-gated PostHog, GA4, and AdSense behavior matches the
+  Privacy and Cookie policies.
+- [ ] Confirm case-status results and immigration content show the
+  educational/non-affiliation disclaimer.
+- [ ] Confirm extension privacy/support links and autofill/AI disclosures are
+  visible.
 
-- [ ] Footer links: Privacy, Terms, Refund, Disclaimer, Cookie, Security, Contact
-- [ ] `/security` included in `app/sitemap.ts` legal pages
-- [ ] `robots.txt` does not block `/privacy`, `/terms`, `/security`, etc.
-- [ ] Signup checkbox links: Privacy, Terms, Disclaimer
-- [ ] Billing FAQ links Refund + Terms
+## 2. Stripe test-mode flow
 
-## Checkout & billing
+Use [stripe-test-billing-validation.md](./stripe-test-billing-validation.md);
+do not create a live charge.
 
-- [ ] All paid checkout paths use `PricingModal` with inline consent checkboxes (`legal-config` labels)
-- [ ] Checkbox required; API returns 400 without `recurringBillingAccepted: true`
-- [ ] Disclosure shows plan, price, interval, trial, cancel method, Terms/Refund/Privacy links
-- [ ] `billing_consent_events` row created with policy versions + disclosures JSON
-- [ ] Settings → Cancel subscription visible with access-through date
-- [ ] Stripe portal cancel → confirmation email (if webhook configured)
+- [ ] Eligible Pro checkout shows the 7-day trial.
+- [ ] Trial-ineligible Pro checkout does not offer another trial.
+- [ ] Recurring-billing consent is required and the evidence row includes
+  request metadata, policy versions, and disclosures.
+- [ ] Session metadata contains the same policy versions.
+- [ ] Trial start/end, successful payment, failed payment, cancellation,
+  subscription end, and refund emails/events are observed.
+- [ ] Settings and Customer Portal cancellation show the correct access-through
+  date and do not imply an unavailable refund.
+- [ ] `GET /api/admin/billing-evidence?email=` returns consent, transaction, and
+  billing-email evidence for the test user.
 
-## Copy consistency
+## 3. Production Stripe/DNS configuration
 
-- [ ] No “USCIS-approved,” “guaranteed approval,” or “fully compliant” language
-- [ ] USCIS features use `USCIS_API_DISCLOSURE` / “USCIS Case Status API access” wording (not “authorized access” or product endorsement)
-- [ ] Extension page does not claim “zero personal data” or “no analytics”
-- [ ] Case-status dashboard + `/features/case-status` show delay/verification disclaimer
-- [ ] Contact page refund FAQ matches Refund Policy (not 14-day generic)
-- [ ] Footer does not claim SOC 2 / PCI DSS unless certified
-- [ ] No “bank-grade,” “encrypted at rest” (product-wide), or E2E encryption claims without evidence
+- [ ] Webhook endpoint and every handled event are enabled.
+- [ ] Production price/promotion IDs match the intended plans.
+- [ ] Customer Portal cancellation/change settings match product copy.
+- [ ] Stripe receipts are enabled.
+- [ ] SPF and DKIM pass for `@trackmyopt.com`.
+- [ ] Supabase `policy_versions` matches the versions in the deployed code.
 
-## Sensitive data accuracy
+## 4. Counsel review
 
-- [ ] Privacy describes receipt numbers, USCIS API case status, case history, document vault, Stripe, optional PostHog/Gemini
-- [ ] Privacy states vault passcode is not end-to-end encryption
-- [ ] Cookie policy does not claim “no analytics” if PostHog env is set in production
-- [ ] Extension feature page links Privacy, Terms, Disclaimer, Cookie Policy
+- [ ] Immigration/non-affiliation disclaimers and USCIS API language.
+- [ ] Auto-renewal consent and applicable federal/state requirements.
+- [ ] Trial, refund, cancellation, dispute, and chargeback language.
+- [ ] Arbitration, governing law, CCPA/CPRA, and GDPR representations.
+- [ ] Dedicated attorney benefit description and attorney compensation model.
+- [ ] Gemini/autofill/answer-library/cover-letter privacy disclosures.
+- [ ] The actual USCIS agreement checklist in
+  [USCIS_API_AGREEMENT_REVIEW_CHECKLIST.md](./USCIS_API_AGREEMENT_REVIEW_CHECKLIST.md).
 
-## Automated checks
+## Record
 
-- [ ] `npm run test` — `legal-config.test.ts` + `marketing-copy-compliance.test.ts` pass
-- [ ] `policy_versions` migration seeds: refund, subscription_billing_terms, privacy, terms, disclaimer, cookie, security_page
-
-## Checkout (re-verify)
-
-- [ ] No “14-day refund” marketing copy remains
-- [ ] Pro: 7-day trial; Dedicated: immediate charge + 3-day first-month guarantee only
-- [ ] Checkout requires `recurringBillingAccepted: true`
-
-## Admin / disputes
-
-- [ ] `GET /api/admin/billing-evidence?email=` with `Authorization: Bearer ADMIN_SECRET`
-
-## Policy change workflow
-
-| Change | Action |
-|--------|--------|
-| Wording only | Bump version in `legal-config.ts` + DB seed |
-| Material (price, trial, refund, cancel rights) | Email subscribers + in-app notice before effective date |
-
-## Attorney-confirmed launch checklist (final pass)
-
-- [ ] Removed “authorized access” from customer-facing copy
-- [ ] Removed “official USCIS API” from customer-facing copy
-- [ ] USCIS API wording uses “USCIS Case Status API access”
-- [ ] Non-affiliation notice appears with USCIS data-source copy
-- [ ] Privacy Policy includes dormant account clause (24 months)
-- [ ] Privacy Policy includes business transfer/acquisition clause
-- [ ] Privacy Policy includes breach notification clause
-- [ ] Payment copy no longer says end-to-end encryption (Stripe PCI DSS Level 1 over encrypted connection)
-- [ ] PostHog email opt-out described in Privacy + Cookie Policy
-- [ ] Case-status disclaimer appears beside each status result
-- [ ] Dedicated plan uses “Attorney Session” (not “Lawyer Session”)
-- [ ] No “immigration experts verified” marketing claims on About/Compliance
-- [ ] USCIS API agreement manually reviewed — see `USCIS_API_AGREEMENT_REVIEW_CHECKLIST.md`
-- [ ] Vercel deploy uses final commit
-- [ ] Supabase `policy_versions` still aligned
-- [ ] Checkout consent still creates `billing_consent_events` row
-
-## Attorney review checklist
-
-- [ ] Immigration disclaimers (Terms, Disclaimer, product UI)
-- [ ] Subscription auto-renewal + California/FTC-style consent
-- [ ] Refund windows and chargeback language
-- [ ] Arbitration / governing law (Terms §14)
-- [ ] Privacy: CCPA/CPRA + GDPR representations
-- [ ] Dedicated attorney benefit description
-- [ ] AI feature disclosures (Gemini resume tools)
+| Date | Environment | Tester/reviewer | Result | Evidence/follow-up |
+|------|-------------|-----------------|--------|--------------------|
+| _pending_ |  |  |  |  |

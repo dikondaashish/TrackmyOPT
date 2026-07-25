@@ -96,21 +96,25 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            // ISS-024: persist job in Supabase so it survives cold starts
-            try {
-                const admin = createClient(
-                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            // Persist ownership before returning the public job identifier.
+            // Without this row the status route must refuse to poll Textract.
+            const admin = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            );
+            const { error: persistError } = await admin.from('ocr_jobs').insert({
+                user_id: userId,
+                textract_job_id: textractJobId,
+                status: 'IN_PROGRESS',
+                s3_key: s3Key,
+                file_name: filename || null,
+            });
+            if (persistError) {
+                console.error('[OCR] Failed to persist job ownership');
+                return NextResponse.json(
+                    { ok: false, error: 'Could not initialize secure OCR tracking' },
+                    { status: 503, headers: corsHeaders }
                 );
-                await admin.from('ocr_jobs').insert({
-                    user_id: userId,
-                    textract_job_id: textractJobId,
-                    status: 'IN_PROGRESS',
-                    s3_key: s3Key,
-                    file_name: filename || null,
-                });
-            } catch (persistErr) {
-                console.error('[OCR] Failed to persist job (non-fatal):', persistErr);
             }
 
             console.info('[OCR] Job started:', { textractJobId });
@@ -124,7 +128,7 @@ export async function POST(req: NextRequest) {
         } catch (s3Error: any) {
             console.error('[OCR] S3/Textract error:', s3Error);
             return NextResponse.json(
-                { ok: false, error: `OCR processing failed: ${s3Error?.message || 'Unknown error'}` },
+                { ok: false, error: 'OCR processing failed' },
                 { status: 500, headers: corsHeaders }
             );
         }

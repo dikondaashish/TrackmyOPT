@@ -1,81 +1,86 @@
-# Supabase `public` schema — Table Editor inventory (34 objects)
+# Supabase `public` schema inventory
 
-This matches what you see under **public** in the Table Editor: **28 base tables** + **6 views** = **34**.
+**Migration-backed snapshot:** 2026-07-25
+**Expected objects:** 44 base tables + 6 views = 50 public objects.
 
-**Do not drop** any of these in production without a deliberate data-migration plan. None are redundant “junk” tables—they either back the app, analytics, or H-1B data pipelines.
+The count combines the 35 tables/6 views in the checked-in generated types with
+nine applied table-creation migrations that are not yet in that type snapshot.
+Regenerating the types from production is a pending task.
 
----
+Do not drop an object because its name looks old. Confirm production usage,
+foreign keys, policies, functions, exports, and retention requirements first.
 
-## Base tables (28)
+## Base tables
 
-| Table | Role | Used in app / backend |
-|-------|------|------------------------|
-| `blocked_emails` | Block re-registration after delete | `api/auth/check-blocked`, `auth/callback`, `api/auth/delete-account` |
-| `case_status` | USCIS case tracking | Web API, `apps/api` USCIS processor/service |
-| `document_passcodes` | Vault passcode | Document passcode APIs |
-| `document_reminders` | Expiry reminders | Cron, `lib/notifications/reminders` |
-| `documents` | Document metadata | Document APIs, rate-limit, export |
-| `email_preferences` | Reminder prefs | Email prefs API, document reminder cron |
-| `email_queue` | Sent email log | Crons, case-status notify, admin bulk |
-| `employment_spans` | OPT employment history | Employment APIs, `/api/me`, export |
-| `export_otps` | Data export OTP | Export OTP + export-zip routes |
-| `extension_uninstall_feedback` | Chrome ext feedback | `api/extension/uninstall-feedback` |
-| `h1b_filings` | LCA filing rows (large dataset) | H-1B sponsor detail page, scripts |
-| `h1b_sponsors` | Sponsor directory | H-1B pages, enrich script |
-| `insurance_eligibility_checks` | Insurance tool analytics | Insurance API, health finder page |
-| `job_applications` | Job tracker applications | Job tracker actions, extension, usage API |
-| `job_followups` | Follow-ups | Job tracker actions |
-| `job_interviews` | Interviews | Job tracker actions |
-| `job_stages` | Custom Kanban stages | Job tracker actions |
-| `notification_settings` | Case/doc notification emails | Notification email API, delete-account |
-| `opt_status` | OPT dates / timeline | Many APIs, tool-email (enrollment), calculator |
-| `passcode_otps` | Passcode change OTP | Passcode OTP routes |
-| `payment_transactions` | Stripe payments | Premium webhook, checkout, applyStripe |
-| `policy_consents` | Policy acceptance | Policy consent API, delete-account |
-| `policy_versions` | Current policy versions | Policy consent API |
-| `profiles` | User profile + billing fields | Widespread |
-| `referrals` | Referral codes + metrics | Referral routes, auth callback |
-| `resume_generations` | Resume AI usage counts | `lib/usage-limit` |
-| `resumes` | Resume storage | `apps/api` resume service |
-| `user_sessions` | Extension / session tracking | Sessions API, extension ping |
+### Account, profile, and compliance
 
----
+`application_profile`, `blocked_emails`, `billing_consent_events`,
+`policy_consents`, `policy_notice_email_events`, `policy_versions`, `profiles`,
+`user_sessions`
 
-## Views (6) — not all queried from Next.js
+### Immigration and USCIS
 
-These appear in the Table Editor alongside tables. They are **reporting/analytics** layers (mostly `SECURITY INVOKER`), not duplicate “extra tables.”
+`case_status`, `employment_spans`, `opt_status`, `push_subscriptions`,
+`uscis_api_audit`, `uscis_case_cache`, `uscis_check_log`
 
-| View | Purpose | App code |
-|------|---------|----------|
-| `premium_stats` | Aggregate premium vs free users | SQL / admin / service_role (see `007_grants.sql`) |
-| `email_delivery_stats` | Email metrics (last 30 days) | Admin / analytics |
-| `revenue_stats` | Payment aggregates | Admin / analytics |
-| `document_expiry_overview` | Per-user document expiry buckets | Optional dashboards; RLS-friendly |
-| `user_activity_summary` | Cross-feature activity summary | Optional dashboards; RLS-friendly |
-| `sponsor_intelligence_agg` | Sponsor intel for LCA enrichment | Used by `get_sponsor_intelligence` RPC + `scripts/data/enrich-sponsors.ts` |
+### Documents, OCR, and resume generation
 
----
+`ai_generation_daily_usage`, `ai_generation_item_usage`,
+`document_passcodes`, `document_reminders`, `documents`, `export_otps`,
+`ocr_jobs`, `passcode_otps`, `resume_drafts`, `resume_generations`, `resumes`,
+`saved_resumes`, `screening_answers`
 
-## Foreign “schemas” (not part of the 34)
+### Jobs and extension
 
-Supabase also manages **`auth.*`**, **`storage.*`**, **`realtime.*`**, etc. Those are platform tables—**do not remove** them; they are required by Supabase Auth, Storage, and Realtime.
+`extension_feedback`, `extension_uninstall_feedback`, `job_applications`,
+`job_followups`, `job_interviews`, `job_stages`
 
----
+### Billing, email, leads, and growth
 
-## Regenerating TypeScript types
+`contact_submissions`, `email_preferences`, `email_queue`,
+`insurance_eligibility_checks`, `notification_settings`,
+`partnership_inquiries`, `payment_transactions`, `referrals`
 
-After schema changes:
+### Sponsor data
+
+`h1b_filings`, `h1b_sponsors`
+
+## Views
+
+| View | Purpose |
+|------|---------|
+| `document_expiry_overview` | Per-user document expiry reporting |
+| `email_delivery_stats` | Recent email delivery metrics |
+| `premium_stats` | Premium/free aggregates |
+| `revenue_stats` | Payment aggregates |
+| `sponsor_intelligence_agg` | H-1B sponsor enrichment |
+| `user_activity_summary` | Cross-feature activity summary |
+
+## Security notes
+
+- User-owned tables require RLS/ownership checks; several sensitive tables also
+  use FORCE RLS.
+- Public lead inserts are routed through server APIs; anon/authenticated direct
+  INSERT grants were revoked.
+- Legacy security-definer account/billing functions are service-role-only.
+- Referral/sponsor mutation RPCs are not executable by anon/authenticated
+  roles.
+- `auth.*`, `storage.*`, `realtime.*`, and other Supabase-managed schemas are
+  outside this inventory and must not be treated as application junk.
+
+## Regenerate TypeScript types
+
+After production migrations:
 
 ```bash
-# From repo root, if using Supabase CLI linked to the project:
-pnpm --filter web exec supabase gen types typescript --project-id <id> > apps/web/types/supabase.ts
+pnpm --filter web exec supabase gen types typescript \
+  --project-id deknauqkqqzwuvopqott > apps/web/types/supabase.ts
 ```
 
-Or use Cursor **Supabase MCP** → `generate_typescript_types` (already done in this project previously).
+Review the generated diff before committing. The expected newly typed tables
+include:
 
----
-
-## Summary
-
-- **34 objects** = **28 tables** + **6 views** — all accounted for.
-- **Nothing to remove** unless you are intentionally deprecating a product feature and have migrated data off first.
+`application_profile`, `billing_consent_events`, `extension_feedback`,
+`policy_notice_email_events`, `saved_resumes`, `screening_answers`,
+`uscis_api_audit`, `ai_generation_daily_usage`, and
+`ai_generation_item_usage`.

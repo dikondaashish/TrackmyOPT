@@ -4,6 +4,7 @@ import { LegalPageShell } from "@/components/legal/LegalPageShell";
 import {
   COMPANY,
   EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE,
+  EXTENSION_AUTOFILL_SUPPORT_NOTICE,
   LEGAL_CONTACT,
   THIRD_PARTY_SERVICES,
 } from "@/lib/legal/legal-config";
@@ -95,9 +96,7 @@ export default function PrivacyPage() {
 
       <h3>2.8 Chrome extension application prefill</h3>
       <p>{EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE}</p>
-      <p>
-        The current extension release uses deterministic prefill. Continuous prefill, optional skills prefill, AI screening-answer drafts and exact-question answer reuse, and generated cover-letter attachment are separate features that remain unavailable unless TrackMyOPT explicitly enables them. If enabled in a future release, the extension will show review controls before an AI draft can be treated as reviewed, and generated cover letters will be tied to the matching generated resume.
-      </p>
+      <p>{EXTENSION_AUTOFILL_SUPPORT_NOTICE}</p>
 
       <h2>3. How we use information</h2>
       <ul>

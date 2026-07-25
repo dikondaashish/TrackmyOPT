@@ -11,7 +11,8 @@
 supabase/
 ├── README.md                    # This file - Start here!
 ├── DATABASE_INVENTORY.md        # Audit: 28 tables + 6 views (34) vs codebase — read before dropping anything
-├── schema/                      # Core database schema (run in order)
+├── migrations/                  # Canonical, ordered database history
+├── schema/                      # Legacy core snapshot; reference only
 │   ├── 000_extensions.sql       # PostgreSQL extensions
 │   ├── 001_tables.sql           # All table definitions
 │   ├── 002_indexes.sql          # Performance indexes
@@ -52,18 +53,17 @@ supabase/
 
 ### Fresh Database Setup
 
-Run schema files **in order** in Supabase SQL Editor:
+Use the Supabase CLI migrations as the source of truth:
 
 ```bash
-1. schema/000_extensions.sql
-2. schema/001_tables.sql
-3. schema/002_indexes.sql
-4. schema/003_rls_policies.sql
-5. schema/004_functions.sql
-6. schema/005_triggers.sql
-7. schema/006_views.sql
-8. schema/007_grants.sql
+supabase db reset
 ```
+
+Do **not** initialize a database by running `schema/000`–`007`. Those files
+are a historical core snapshot and do not include every table, policy, view,
+or function added by later product work. New database changes must be added as
+an ordered file in `migrations/`; update the legacy snapshot only when a change
+also affects one of its original core objects.
 
 ---
 
@@ -330,4 +330,3 @@ WHERE tgname LIKE '%updated_at%';
 | 1.2 | Documents | Document vault, AI analysis |
 | 1.3 | Notifications | Tool-specific emails |
 | 2.0 | Refactor | Professional schema structure |
-

@@ -27,7 +27,7 @@ const faqs = [
     {
         question: "How accurate is the unemployment clock?",
         answer:
-            "Our unemployment clock calculates based on official USCIS rules (8 CFR § 214.2(f)(10)(ii)(E)): 90 days for initial OPT. STEM OPT holders receive an additional 60 days under 8 CFR § 214.16(f) — these are separate allowances, not combined. You log your employment periods, and we automatically calculate remaining days.",
+            "Our unemployment clock follows USCIS guidance: up to 90 aggregate unemployment days during initial post-completion OPT and up to 150 aggregate days across initial OPT plus the STEM OPT extension. You log employment periods, and we calculate remaining days from those records.",
     },
     {
         question: "How long does OPT processing take in 2026?",

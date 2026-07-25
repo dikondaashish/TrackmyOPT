@@ -1,0 +1,14 @@
+process.env.NODE_ENV = 'test';
+process.env.API_SECRET_KEY ||= 'test-api-secret';
+process.env.NEXT_PUBLIC_SUPABASE_URL ||= 'https://example.supabase.co';
+process.env.SUPABASE_SERVICE_ROLE_KEY ||= 'test-service-role-key';
+process.env.AWS_REGION ||= 'us-east-1';
+process.env.AWS_ACCESS_KEY_ID ||= 'test-access-key';
+process.env.AWS_SECRET_ACCESS_KEY ||= 'test-secret-key';
+process.env.AWS_S3_BUCKET ||= 'test-bucket';
+process.env.USCIS_CLIENT_ID ||= 'test-client-id';
+process.env.USCIS_CLIENT_SECRET ||= 'test-client-secret';
+process.env.USCIS_API_BASE_URL ||= 'https://example.com/case-status';
+process.env.USCIS_TOKEN_URL ||= 'https://example.com/oauth/token';
+process.env.NEXT_PUBLIC_SITE_URL ||= 'https://example.com';
+process.env.CRON_SECRET ||= 'test-cron-secret';

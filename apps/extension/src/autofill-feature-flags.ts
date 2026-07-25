@@ -1,7 +1,7 @@
 /**
- * One rollout boundary for job-scoped autofill. Defaults are deliberately
- * conservative: deterministic artifact/contact/history prefill is available,
- * while optional or unfinished behavior stays off.
+ * One rollout boundary for job-scoped autofill. These switches make completed
+ * capabilities available; user preferences still keep skills, Continuous, and
+ * Guided Autopilot opt-in, and every final-submit action remains prohibited.
  */
 export interface AutofillFeatureFlags {
   artifactPrefill: boolean;
@@ -9,6 +9,7 @@ export interface AutofillFeatureFlags {
   continuousMode: boolean;
   aiScreeningDrafts: boolean;
   coverLetter: boolean;
+  guidedAutopilot: boolean;
   historyFields: boolean;
   atsAdapters: boolean;
 }
@@ -16,10 +17,11 @@ export interface AutofillFeatureFlags {
 export const AUTOFILL_FEATURE_FLAGS: Readonly<AutofillFeatureFlags> =
   Object.freeze({
     artifactPrefill: true,
-    skills: false,
-    continuousMode: false,
-    aiScreeningDrafts: false,
-    coverLetter: false,
+    skills: true,
+    continuousMode: true,
+    aiScreeningDrafts: true,
+    coverLetter: true,
+    guidedAutopilot: true,
     historyFields: true,
     atsAdapters: true,
   });

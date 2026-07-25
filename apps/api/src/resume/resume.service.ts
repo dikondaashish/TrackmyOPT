@@ -220,11 +220,12 @@ export class ResumeService {
     };
   }
 
-  async getResumeById(id: string) {
+  async getResumeById(id: string, userId: string) {
     const response = (await this.supabase
       .from('resumes')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .single()) as unknown as {
       data: Record<string, unknown>;
       error: Error | null;
@@ -248,10 +249,21 @@ export class ResumeService {
     return { success: true };
   }
 
-  async getDownloadUrl(s3Key: string) {
+  async getDownloadUrl(userId: string, s3Key: string) {
     if (!this.s3Client) throw new Error('S3 Client not initialized');
 
     try {
+      const { data: ownedResume, error: ownershipError } = await this.supabase
+        .from('resumes')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('file_path', s3Key)
+        .maybeSingle();
+
+      if (ownershipError || !ownedResume) {
+        throw new Error('Resume file not found');
+      }
+
       const command = new GetObjectCommand({
         Bucket: this.bucket,
         Key: s3Key,
