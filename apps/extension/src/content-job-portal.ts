@@ -23,7 +23,7 @@ import {
 } from './easy-apply-engine';
 import { openFeedbackModal } from './feedback';
 import { icon } from './icons';
-import { WEBSITE_URL } from './config';
+import { API_ENDPOINTS, WEBSITE_URL } from './config';
 import {
   chooseJobDescriptionCandidate,
   type JobDescriptionCandidate,
@@ -207,6 +207,18 @@ function createSensitiveAnswerPanel(): HTMLElement {
     'Saved answers load here for review. TrackMyOPT never asks AI to guess them, never includes them in analytics, and never submits the application.';
   note.style.cssText =
     'margin:0;color:var(--tmo-widget-muted);font-size:10.5px;line-height:1.4;';
+  const manageSavedData = document.createElement('button');
+  manageSavedData.type = 'button';
+  manageSavedData.textContent = 'Manage saved prefill data';
+  manageSavedData.style.cssText =
+    'min-height:34px;padding:6px 8px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-accent);font:inherit;font-size:11px;font-weight:800;text-align:left;cursor:pointer;';
+  manageSavedData.addEventListener('click', () => {
+    window.open(
+      API_ENDPOINTS.DASHBOARD_JOB_PREFILL,
+      '_blank',
+      'noopener,noreferrer'
+    );
+  });
 
   const yesNoOptions: Array<[string, string]> = [
     ['', 'Leave unanswered'],
@@ -450,6 +462,7 @@ function createSensitiveAnswerPanel(): HTMLElement {
 
   body.append(
     note,
+    manageSavedData,
     workAuth.wrapper,
     sponsorship.wrapper,
     visaType.wrapper,

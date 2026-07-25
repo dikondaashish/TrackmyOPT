@@ -195,7 +195,8 @@ The extension works with `localhost:3000` by default. To test:
 ## Job-scoped autofill release scope (`0.1.14`)
 
 Step-by-step and Continuous prefill use the active generated resume artifact
-plus the dedicated job-portal profile from Settings → Extension. Supported
+plus the dedicated Chrome Job Prefill page at `/dashboard/extension`. The
+extension popup and in-page assistant both link directly to this page. Supported
 empty fields include name, job-application email, phone, country, street
 address, city, state, ZIP/postal code, county/district, LinkedIn, GitHub,
 website, contact, experience, education, and optional skills fields. The

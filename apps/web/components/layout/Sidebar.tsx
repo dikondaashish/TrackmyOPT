@@ -58,7 +58,7 @@ type SidebarItem =
     | { type: 'section'; item: NavSection }
     | { type: 'divider' };
 
-const SIDEBAR_CONFIG: SidebarItem[] = [
+export const SIDEBAR_CONFIG: SidebarItem[] = [
     { type: 'link', item: { label: "Home", href: "/dashboard", icon: Home } },
     { type: 'link', item: { label: "OPT Dates", href: "/dashboard/opt-dates", icon: Calendar } },
     {
@@ -95,9 +95,10 @@ const SIDEBAR_CONFIG: SidebarItem[] = [
     { type: 'link', item: { label: "Tax Filing", href: "/dashboard/tax-filing", icon: Receipt } },
     { type: 'link', item: { label: "Health Insurance", href: "/dashboard/opt-health-insurance-finder", icon: Heart } },
     { type: 'divider' },
-    { type: 'link', item: { label: "Chrome Extension", href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm", icon: Chrome } },
+    { type: 'link', item: { label: "Install Extension", href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm", icon: Chrome } },
     { type: 'link', item: { label: "Settings", href: "/dashboard/settings", icon: Settings } },
     { type: 'link', item: { label: "Help", href: "/dashboard/help", icon: HelpCircle } },
+    { type: 'link', item: { label: "Chrome Job Prefill", href: "/dashboard/extension", icon: Chrome } },
 ];
 
 // Standalone Component for Nav Link
@@ -116,27 +117,13 @@ const SidebarNavLink = memo(({
     onTooltipEnter: (e: React.MouseEvent<HTMLElement>, label: string) => void;
     onTooltipLeave: () => void;
 }) => {
-    const router = useRouter();
     const Icon = link.icon;
     const isExternal = link.href.startsWith("http");
 
-    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-        if (!isExternal) {
-            e.preventDefault();
-            e.stopPropagation();
-        } else {
-            // Let the standard <a> tag behavior handle the external navigation
-            if (onLinkClick) {
-                onLinkClick();
-            }
-            return;
-        }
-
+    const handleClick = () => {
         if (onLinkClick) {
             onLinkClick();
         }
-
-        router.push(link.href);
     };
 
     const commonClasses = cn(
@@ -169,7 +156,7 @@ const SidebarNavLink = memo(({
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handleClick as any}
+                onClick={handleClick}
                 onMouseEnter={(e) => onTooltipEnter(e, link.label)}
                 onMouseLeave={onTooltipLeave}
                 className={commonClasses}
@@ -180,16 +167,15 @@ const SidebarNavLink = memo(({
     }
 
     return (
-        <div
-            role="button"
-            tabIndex={0}
-            onClick={handleClick as any}
+        <Link
+            href={link.href}
+            onClick={handleClick}
             onMouseEnter={(e) => onTooltipEnter(e, link.label)}
             onMouseLeave={onTooltipLeave}
             className={cn(commonClasses, "cursor-pointer")}
         >
             {content}
-        </div>
+        </Link>
     );
 });
 
@@ -328,7 +314,10 @@ export function Sidebar({
     const filteredSidebarConfig = useMemo(() => {
         if (isExtensionInstalled) {
             return SIDEBAR_CONFIG.filter(item => {
-                if (item.type === 'link' && item.item.label === 'Chrome Extension') {
+                if (
+                    item.type === 'link' &&
+                    item.item.href.startsWith('https://chromewebstore.google.com/')
+                ) {
                     return false; // Hide if extension is installed
                 }
                 return true;

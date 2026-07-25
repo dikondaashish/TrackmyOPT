@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { triggerBrowserDownload } from "@/lib/browser-download";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -39,11 +40,10 @@ import {
   ChevronUp,
   HelpCircle,
   GraduationCap,
-  CheckCircle2
+  CheckCircle2,
+  ArrowRight
 } from "lucide-react";
 import { SubscriptionSettings } from "./SubscriptionSettings";
-import { ApplicationProfileSection } from "./ApplicationProfileSection";
-import { PrivateApplicationAnswersSection } from "./PrivateApplicationAnswersSection";
 import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
 
 const STEM_KEYWORDS = [
@@ -2331,19 +2331,24 @@ export function SettingsSection() {
               </div>
 
               <div className="space-y-6">
-                <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900 dark:bg-blue-950/20">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    Chrome Extension Job-Portal Prefill Profile
-                  </h3>
-                  <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
-                    This profile is separate from your normal TrackMyOPT
-                    account. The extension fills only empty application fields,
-                    shows progress, pauses for your review, and never submits.
-                  </p>
-                </div>
-
-                <ApplicationProfileSection />
-                <PrivateApplicationAnswersSection />
+                <Link
+                  href="/dashboard/extension"
+                  className="group flex min-h-24 items-center gap-4 rounded-xl border border-blue-200 bg-blue-50/60 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-blue-900 dark:bg-blue-950/20 dark:hover:border-blue-800 dark:hover:bg-blue-950/30"
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+                    <Chrome className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                      Set up Chrome Job Prefill
+                    </h3>
+                    <p className="mt-1 text-sm leading-5 text-gray-600 dark:text-gray-300">
+                      Add or edit the contact, address, visa, work preference,
+                      and optional DEI data used by the extension.
+                    </p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 shrink-0 text-blue-600 transition-transform duration-200 group-hover:translate-x-0.5 dark:text-blue-400" />
+                </Link>
 
                 {/* Connection Status */}
                 <div className={`p-4 rounded-xl border ${extensionStatus.isConnected ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'}`}>
