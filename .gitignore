@@ -6,6 +6,8 @@ node_modules/
 # Testing
 coverage/
 *.pdf
+playwright-report/
+test-results/
 
 # Build artifacts
 *.zip
