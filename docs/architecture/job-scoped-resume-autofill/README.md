@@ -1,11 +1,37 @@
 # Job-Scoped Generated Resume Autofill
 
-> Status: CEO-directed architecture decision and compressed delivery plan
 > Date: 2026-07-16  
 > Scope: the injected extension widget, job-scoped custom-resume generation,
 > contact/resume/history/skills prefill, AI screening-question drafts, tailored
 > cover letters, and safe attachment on Workday, Greenhouse, and generic
 > standards-based application forms.
+
+## Status
+
+**Implementation audit: 2026-07-25.**
+
+- Phases 1, 1B, 1C, and 3 have substantial implementation merged to `main`,
+  but the extension remains **unreleased at `0.1.11`**.
+- The deterministic artifact, contact, resume, history, education, skills, and
+  prefill-mode core is implemented and tested. The unchecked items below are
+  real blockers or incomplete acceptance criteria, not missing checkbox
+  maintenance.
+- **AI screening-answer generation is NOT FUNCTIONAL — stub.** The route returns
+  a hard-coded template and does not use the job description as generation
+  evidence.
+- **Initial cover-letter generation is NOT FUNCTIONAL — stub.** The route emits
+  fake `%PDF-1.4` bytes instead of compiling a real PDF. It must remain
+  unreachable until replaced.
+- Production-safe AI quotas and independent rollout feature flags do not exist.
+  The deterministic core must ship separately from the disabled AI features.
+- The job-portal content script uses `all_frames: true` and
+  `match_about_blank: true` without adding a Chrome permission. The Web Store
+  release checklist must justify this frame access and verify the existing host
+  match scope.
+
+See
+[`AUDIT-AND-ROLLOUT-MASTER-PLAN.md`](./AUDIT-AND-ROLLOUT-MASTER-PLAN.md)
+for criterion-by-criterion evidence and the ordered rollout gates.
 
 ## Executive decision
 
@@ -1180,24 +1206,25 @@ registry.
 
 - [ ] Preserve official titles or require explicit confirmation for normalized
       titles.
-- [ ] Add `ResumeAutofillSnapshotV1` and `GeneratedResumeArtifactV1` schemas,
+- [x] Add `ResumeAutofillSnapshotV1` and `GeneratedResumeArtifactV1` schemas,
       limits, and cross-resume contamination fixtures.
-- [ ] Add the final-LaTeX-to-snapshot pipeline after compile repair.
-- [ ] Validate immutable fields against the selected source resume.
-- [ ] Return the snapshot, final-content hash, and exact PDF together.
-- [ ] Add the in-memory 30-minute artifact and exact URL/company/role check.
-- [ ] Prefer artifact contact data and use `application_profile` only for
+- [x] Add the final-LaTeX-to-snapshot pipeline after compile repair.
+- [x] Validate immutable fields against the selected source resume.
+- [x] Return the snapshot, final-content hash, and exact PDF together.
+- [x] Add the single-active, session-scoped 30-minute artifact and exact
+      URL/company/role check without using `chrome.storage.sync`.
+- [x] Prefer artifact contact data and use `application_profile` only for
       missing contact values.
-- [ ] Attach the exact resume PDF from the same artifact.
-- [ ] Add `skills` to `FieldKind` behind the default-off setting.
-- [ ] Add Step-by-step/Continuous popup preference; Continuous uses the same
+- [x] Attach the exact resume PDF from the same artifact.
+- [x] Add `skills` to `FieldKind` behind the default-off setting.
+- [x] Add Step-by-step/Continuous popup preference; Continuous uses the same
       engine and never clicks navigation/submission controls.
-- [ ] Pass the resolved artifact through the existing child-frame relay only
+- [x] Pass the resolved artifact through the existing child-frame relay only
       during a permitted prefill run.
-- [ ] Show artifact filename, job, and expiry; explain missing, expired,
+- [x] Show artifact filename, job, and expiry; explain missing, expired,
       changed-job, and invalid states.
-- [ ] Extend grouped coverage for resume, contact, and optional skills.
-- [ ] Preserve sensitive-field, no-overwrite, and no-auto-submit invariants.
+- [x] Extend grouped coverage for resume, contact, and optional skills.
+- [x] Preserve sensitive-field, no-overwrite, and no-auto-submit invariants.
 
 #### Acceptance criteria
 
@@ -1239,16 +1266,20 @@ This work does not depend on an artifact registry. It can run in parallel
 against the snapshot contract and fixtures while Phase 1 implements the V1
 in-memory artifact.
 
-- [ ] Add a separate sensitive-first screening-question detector.
-- [ ] Add the authenticated generation route and strict request/response schema.
-- [ ] Ground prompts in JD, company, role, and snapshot.
-- [ ] Add visible preview, explicit insert, and needs-review/edit state.
-- [ ] Detect trusted user edits without taking control of ATS submission.
-- [ ] Add a user-scoped `screening_answer_library` with RLS and exact-question
+- [x] Add a separate sensitive-first screening-question detector.
+- [x] Add the authenticated route boundary and strict request/response schema.
+- [ ] **NOT FUNCTIONAL — stub:** ground a real AI-generated draft in the job
+      description, company, role, and snapshot. The current route returns a
+      hard-coded template and has no screening-answer prompt implementation.
+- [x] Add visible preview, explicit insert, and needs-review/edit state.
+- [x] Detect trusted user edits without taking control of ATS submission.
+- [x] Add a user-scoped `screening_answer_library` with RLS and exact-question
       hashes.
-- [ ] Offer saved edited answers first, plus Regenerate fresh.
-- [ ] Exclude AI question generation/insertion from Continuous automation.
+- [x] Offer saved edited answers first, plus Regenerate fresh.
+- [x] Exclude AI question generation/insertion from Continuous automation.
 - [ ] Add independent quota/error UI and privacy-safe analytics counts.
+      **PARTIAL:** UI and privacy-safe analytics plumbing exist, but the
+      server-side quota is an in-process `Map` and is not enforceable on Vercel.
 
 #### Acceptance criteria
 
@@ -1280,14 +1311,20 @@ in-memory artifact.
 **Goal:** generate, compile, review, and safely attach a cover-letter PDF derived
 from the same validated snapshot as the resume.
 
-- [ ] Add a hash-locked cover-letter generation route/contract.
-- [ ] Reuse the existing LaTeX compile and repair infrastructure.
-- [ ] Add Download/Edit/Regenerate actions without blocking resume readiness.
-- [ ] Store the reviewed PDF in optional `artifact.coverLetter`.
-- [ ] Add a cover-letter-specific file-input classifier and attachment result.
+- [x] Add a hash-locked cover-letter request and artifact contract.
+- [ ] **NOT FUNCTIONAL — stub:** generate and compile the initial cover letter.
+      The current route returns fake `%PDF-1.4` bytes and does not use the
+      existing compile/repair infrastructure.
+- [x] Add Download/Edit/Regenerate actions without blocking resume readiness.
+- [x] Store the reviewed PDF in optional `artifact.coverLetter`.
+- [x] Add a cover-letter-specific file-input classifier and attachment result.
 - [ ] Enforce empty-input, accepted-file-type, no-overwrite, and hash-match
       checks.
-- [ ] Report resume and cover-letter attachment separately.
+      **PARTIAL:** empty-input, type, and no-overwrite guards exist; hash
+      enforcement is missing at the attachment boundary.
+- [ ] Report resume and cover-letter attachment separately. The resolver/relay
+      does not carry `coverLetter`, and the engine currently discards
+      `coverLetterResult`.
 
 #### Acceptance criteria
 
@@ -1351,15 +1388,15 @@ exclusion, and no-overwrite behavior.
 **Goal:** fill already-visible repeatable history records safely after the core
 artifact is shipping.
 
-- [ ] Add section-aware company, title, location, date, current-role,
+- [x] Add section-aware company, title, location, date, current-role,
       description, school, degree, and field-of-study mappings.
-- [ ] Preserve original date precision and never invent missing dates.
-- [ ] Map records in resume display order.
-- [ ] Fill only visible, empty controls.
-- [ ] Integrate dedicated skills fields without widening history classifiers.
-- [ ] Leave untested custom comboboxes/date pickers/tag controls untouched.
-- [ ] Show remaining artifact records when the ATS has fewer visible rows.
-- [ ] Keep Add-another buttons manual.
+- [x] Preserve original date precision and never invent missing dates.
+- [x] Map records in resume display order.
+- [x] Fill only visible, empty controls.
+- [x] Integrate dedicated skills fields without widening history classifiers.
+- [x] Leave untested custom comboboxes/date pickers/tag controls untouched.
+- [x] Show remaining artifact records when the ATS has fewer visible rows.
+- [x] Keep Add-another buttons manual.
 
 #### Acceptance criteria
 
