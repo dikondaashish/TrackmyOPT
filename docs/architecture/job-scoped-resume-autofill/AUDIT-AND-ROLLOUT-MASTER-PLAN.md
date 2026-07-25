@@ -2,10 +2,10 @@
 
 > Audit date: 2026-07-25  
 > Audited base: `main` at `8abff97`  
-> Rollout decision: ship the deterministic artifact-prefill core behind
-> independent flags; keep AI screening drafts and cover letters off until their
-> generation paths are real and production-safe.  
-> Release state: local `0.1.12` release candidate; not submitted or published.
+> Rollout decision: the original deterministic-first gate was completed. On
+> 2026-07-25 the owner approved opt-in Guided Autopilot with a permanent
+> never-auto-submit boundary.
+> Release state: local `0.1.13` release candidate; not submitted or published.
 
 ## Executive finding
 
@@ -399,20 +399,61 @@ Stage 3 exit: the deterministic slice can be released behind independent
 controls with adequate privacy disclosures, support signals, platform fixtures,
 and rollback guidance.
 
+## Stage 4 — Guided Autopilot and real AI paths
+
+Owner decision: make the previously gated features available, allow safe
+step-navigation, and **never auto-submit**.
+
+- [x] Replace the screening-answer `501` stub with job/resume-grounded AI
+      generation, durable quota consumption, character limits, and mandatory
+      review.
+- [x] Keep every visa, sponsorship, work-authorization, citizenship, salary,
+      EEO, DOB, SSN, veteran, disability, and clearance question outside the AI
+      route.
+- [x] Replace the cover-letter `501` stub with grounded text generation, real
+      LaTeX compilation, PDF header/size validation, SHA-256 attachment
+      integrity, and active-resume source-hash locking.
+- [x] Enable skills and Continuous capabilities while retaining user opt-in
+      preferences.
+- [x] Add session-only user-entered visa, sponsorship, work-authorization,
+      citizenship, salary, DOB, and EEO-decline answers. Never persist or
+      analyze their values.
+- [x] Add opt-in Guided Autopilot with visible Stop, Escape-to-stop, required
+      field pauses, and an allowlist limited to exact non-submit
+      Next/Continue/Done controls.
+- [x] Treat Review as a stop and Submit/Apply/Finish/complete/final-form Done as
+      permanent no-click actions.
+- [x] Add content-free navigation-outcome telemetry and server allowlisting.
+- [x] Bump the local extension candidate to `0.1.13` and update privacy/support
+      and release documentation.
+- [ ] Complete manual sanitized Workday and Greenhouse testing before any Web
+      Store submission.
+
+Automated validation on 2026-07-25:
+
+- Web: 91 test files, 443 tests passed.
+- Extension: all scripted assertions and 29 Node tests passed.
+- API: two suites, four tests passed.
+- Web, extension, and API TypeScript checks passed.
+- Production extension bundle built successfully at `0.1.13`.
+- Changed web files passed ESLint; `git diff --check` passed.
+
 ## Invariants that no stage may weaken
 
 - Never select a historical or merely “latest” resume as an autofill fallback.
 - Never fill from an expired or job-mismatched artifact.
 - Never overwrite a non-empty field, existing tag, or existing file.
-- Never generate or insert an answer for a sensitive question.
-- Never click Add another, Next, Review, Done, Submit, or another host-page
-  navigation action.
+- Never ask AI to generate an answer for a sensitive question. Only exact facts
+  explicitly confirmed by the user for the current page session may fill.
+- Never click Add another, Review, Submit, Apply, Finish, or another final
+  action. Only opt-in Guided Autopilot may click exact allowlisted non-submit
+  Next/Continue/Done controls.
 - Never place resume, question, answer, or cover-letter content in analytics,
   logs, or `chrome.storage.sync`.
 - Never attach a cover letter whose source hash differs from the active resume
   artifact.
-- Keep Step-by-step as the default; Continuous and skills remain explicit
-  opt-ins.
+- Keep Step-by-step as the default; Continuous, skills, sensitive answers, and
+  Guided Autopilot remain explicit opt-ins.
 
 ## Local branch and handoff policy
 

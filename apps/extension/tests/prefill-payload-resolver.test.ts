@@ -85,6 +85,7 @@ test('artifact prefill can be disabled without removing profile-only prefill', a
       continuousMode: false,
       aiScreeningDrafts: false,
       coverLetter: false,
+      guidedAutopilot: false,
       historyFields: false,
       atsAdapters: false,
     },
@@ -116,6 +117,7 @@ test('cover letter is relayed only when its independent flag is enabled', async 
   const disabled = await resolveV1PrefillPayload({
     artifact,
     request,
+    featureFlags: resolveAutofillFeatureFlags({ coverLetter: false }),
     fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
   });
   assert.equal(
@@ -150,6 +152,7 @@ test('a disabled invalid cover letter cannot block deterministic resume prefill'
   const disabled = await resolveV1PrefillPayload({
     artifact,
     request,
+    featureFlags: resolveAutofillFeatureFlags({ coverLetter: false }),
     fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
   });
   assert.equal(

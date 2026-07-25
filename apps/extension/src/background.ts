@@ -30,6 +30,7 @@ import {
 } from './resume-artifact-validator';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
 import { normalizeQuestionText } from './screening-question-drafts';
+import { normalizeSensitiveAnswerSession } from './sensitive-autofill';
 import {
   clearActiveGeneratedResumeArtifact,
   readActiveGeneratedResumeArtifact,
@@ -234,6 +235,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       profileFallback?: unknown;
       autofillSkills?: unknown;
       quietResultToast?: unknown;
+      sensitiveAnswers?: unknown;
     };
     const generatedContentHash =
       AUTOFILL_FEATURE_FLAGS.artifactPrefill &&
@@ -281,6 +283,10 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           AUTOFILL_FEATURE_FLAGS.skills &&
           requestedPrefill.autofillSkills === true,
         quietResultToast: requestedPrefill.quietResultToast === true,
+        sensitiveAnswers:
+          AUTOFILL_FEATURE_FLAGS.guidedAutopilot
+            ? normalizeSensitiveAnswerSession(requestedPrefill.sensitiveAnswers)
+            : undefined,
       },
     }).then(() => sendResponse({ ok: true })).catch(() => {
       // A page without child-frame receivers is normal; the top-frame engine

@@ -54,6 +54,7 @@ export function buildPrefillTelemetryProperties(input: {
     flag_continuous_mode: input.featureFlags.continuousMode,
     flag_ai_screening_drafts: input.featureFlags.aiScreeningDrafts,
     flag_cover_letter: input.featureFlags.coverLetter,
+    flag_guided_autopilot: input.featureFlags.guidedAutopilot,
     flag_history_fields: input.featureFlags.historyFields,
     flag_ats_adapters: input.featureFlags.atsAdapters,
     resume_filled: groups.resume.filled,

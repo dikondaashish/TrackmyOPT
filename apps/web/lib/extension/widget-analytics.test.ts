@@ -75,6 +75,7 @@ describe('normalizeExtensionWidgetAnalytics', () => {
           flag_continuous_mode: true,
           flag_ai_screening_drafts: false,
           flag_cover_letter: false,
+          flag_guided_autopilot: true,
           flag_history_fields: true,
           flag_ats_adapters: true,
           resume_filled: 1,
@@ -110,6 +111,7 @@ describe('normalizeExtensionWidgetAnalytics', () => {
         flag_continuous_mode: true,
         flag_ai_screening_drafts: false,
         flag_cover_letter: false,
+        flag_guided_autopilot: true,
         flag_history_fields: true,
         flag_ats_adapters: true,
         resume_filled: 1,
@@ -117,6 +119,27 @@ describe('normalizeExtensionWidgetAnalytics', () => {
         experience_skipped: 2,
         has_resume: true,
         has_cover_letter: false,
+      },
+    });
+  });
+
+  it('accepts only bounded Guided Autopilot outcomes', () => {
+    expect(
+      normalizeExtensionWidgetAnalytics({
+        event: 'extension_widget_guided_navigation',
+        properties: {
+          site_family: 'greenhouse',
+          navigation_outcome: 'stopped_final_step',
+          button_text: 'Submit application',
+          question_text: 'Private question',
+        },
+      })
+    ).toEqual({
+      event: 'extension_widget_guided_navigation',
+      properties: {
+        source: 'chrome_extension',
+        site_family: 'greenhouse',
+        navigation_outcome: 'stopped_final_step',
       },
     });
   });

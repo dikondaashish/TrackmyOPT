@@ -11,21 +11,22 @@
 **Implementation audit: 2026-07-25.**
 
 - Phases 1, 1B, 1C, and 3 have substantial implementation in the local staged
-  branch stack. The extension is a **local, unreleased `0.1.12` candidate**.
+  branch stack. The extension is a **local, unreleased `0.1.13` candidate**.
 - The deterministic artifact, contact, resume, history, education, skills, and
   prefill-mode core is implemented and tested. The unchecked items below are
   real blockers or incomplete acceptance criteria, not missing checkbox
   maintenance.
-- **AI screening-answer generation is NOT FUNCTIONAL — safely disabled.** The
-  UI/background path is off and the route returns `501`; real grounded
-  generation remains a later milestone.
-- **Initial cover-letter generation is NOT FUNCTIONAL — safely disabled.** The
-  UI/background path is off, the route returns `501`, and the fake PDF emitter
-  has been removed.
-- Stage 1 implements production-safe, atomic AI quotas and a shared
-  sensitive-question policy, pending migration/review. Stage 2 adds independent
-  safe-default rollout flags: artifact/history/adapters on; skills, Continuous,
-  AI drafts, and cover letters off.
+- **AI screening-answer generation is functional and review-required.** It uses
+  the current job plus active generated-resume snapshot, durable quotas, and
+  refuses every sensitive-question category before authentication or AI work.
+- **Cover-letter generation is functional and review-required.** It produces a
+  grounded plain-text draft, compiles a real validated PDF, and hash-locks the
+  attachment to the active generated resume.
+- Stage 1 implements production-safe atomic AI quotas and a shared
+  sensitive-question policy. Stage 2 adds independent rollout flags. Stage 4
+  enables the completed paths and adds opt-in Guided Autopilot: exact
+  non-submit Next/Continue/Done controls may advance, while Review and
+  every final Submit/Apply/Finish action are hard stops.
 - The job-portal content script uses `all_frames: true` and
   `match_about_blank: true` without adding a Chrome permission. The Web Store
   release checklist must justify this frame access and verify the existing host
@@ -899,7 +900,8 @@ AI text is a draft, not an application answer:
 4. Mark the field “Needs your review/edit.”
 5. Listen for a trusted user input event and keep the extension status
    incomplete until the user edits or explicitly confirms the reviewed text.
-6. Never click Next, Review, Submit, Done, or any host-page action.
+6. The draft-review UI never clicks any host-page action. Guided Autopilot
+   remains a separate opt-in layer and cannot advance until review is complete.
 
 The extension cannot and should not take control of the ATS submit button. Its
 responsibility is to make review status visible and never represent untouched AI
@@ -1270,9 +1272,9 @@ in-memory artifact.
 
 - [x] Add a separate sensitive-first screening-question detector.
 - [x] Add the authenticated route boundary and strict request/response schema.
-- [ ] **NOT FUNCTIONAL — stub:** ground a real AI-generated draft in the job
-      description, company, role, and snapshot. The current route is safely
-      gated and returns `501`; no screening-answer prompt exists yet.
+- [x] Ground AI-generated drafts in the job description, company, role, and
+      active generated-resume snapshot; unsupported context returns
+      `NEEDS_USER_INPUT` instead of an invented claim.
 - [x] Add visible preview, explicit insert, and needs-review/edit state.
 - [x] Detect trusted user edits without taking control of ATS submission.
 - [x] Add a user-scoped `screening_answer_library` with RLS and exact-question
@@ -1313,9 +1315,8 @@ in-memory artifact.
 from the same validated snapshot as the resume.
 
 - [x] Add a hash-locked cover-letter request and artifact contract.
-- [ ] **NOT FUNCTIONAL — stub:** generate and compile the initial cover letter.
-      The current route returns `501`; the fake PDF emitter was removed and the
-      existing compile/repair infrastructure is not wired yet.
+- [x] Generate the initial grounded cover-letter text and compile it through
+      the real primary/fallback LaTeX services; reject non-PDF output.
 - [x] Add Download/Edit/Regenerate actions without blocking resume readiness.
 - [x] Store the reviewed PDF in optional `artifact.coverLetter`.
 - [x] Add a cover-letter-specific file-input classifier and attachment result.
@@ -1418,8 +1419,10 @@ without delaying release for a broad adapter matrix.
 - [ ] Support tested native/custom date and tag controls only on those platforms.
 - [ ] Re-run Step-by-step or Continuous prefill as new visible controls load.
 - [ ] Merge child-frame coverage where required.
-- [ ] Keep all buttons—including Add another, Next, Review, Done, and
-      Submit—manual.
+- [ ] Keep every button manual in Step-by-step and Continuous. In separately
+      enabled Guided Autopilot, allow only exact non-submit
+      Next/Continue/Done; keep Add another, Review, Submit, Apply, and Finish
+      manual.
 
 #### Fast-follow policy
 
@@ -1595,7 +1598,8 @@ part of V1 sign-off.
 - [ ] Cross-origin frames receive data only during an explicit Step-by-step run
       or an explicitly enabled Continuous run.
 - [ ] Continuous mode stores only its non-sensitive preference.
-- [ ] The extension never submits an application or clicks navigation controls.
+- [ ] The extension never submits an application. Only Guided Autopilot may
+      click the documented safe navigation allowlist.
 - [ ] The extension never overwrites non-empty fields, existing tags, or an
       existing file.
 
@@ -1649,7 +1653,10 @@ This release is complete only when all statements below are true:
 - Step-by-step remains the default; Continuous requires opt-in and never clicks
   Add another, Next, Review, Done, or Submit.
 - Existing answers, tags, and files are never overwritten.
-- Sensitive questions remain blank and never reach AI generation.
+- Sensitive questions never reach AI generation. Only exact user-confirmed
+  session answers may fill; EEO is limited to “Prefer not to answer.”
+- Guided Autopilot is opt-in, exposes Stop and Escape-to-stop, pauses for
+  required fields, and stops at Review and every final submission action.
 - Workday and Greenhouse pass manual and automated launch validation.
 - Lever, Ashby, and iCIMS adapters are not required for launch.
 - Automated tests cover cross-resume contamination, 30-minute expiry, context
@@ -1696,9 +1703,9 @@ lifecycle causes real abandonment; build Phase 2 only if the evidence says it
 will materially improve completion.
 
 The scope is faster, but the invariants do not change: never select another
-resume silently, never overwrite user input, never answer sensitive questions,
-never invent application claims, and never submit or navigate the application
-for the user.
+resume silently, never overwrite user input, never ask AI to answer sensitive
+questions, never invent application claims, and never submit the application
+for the user. Guided navigation is limited to the explicit safe allowlist.
 
 ## External platform references
 

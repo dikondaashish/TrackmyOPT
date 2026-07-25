@@ -26,7 +26,11 @@ const continuousBlock = portalSource.slice(
   portalSource.indexOf('function scheduleContinuousPrefill'),
 );
 assert.doesNotMatch(withoutComments(continuousBlock), /\.click\s*\(/);
-assert.doesNotMatch(withoutComments(continuousBlock), /GENERATE_|screening|cover.?letter/i);
+assert.doesNotMatch(
+  withoutComments(continuousBlock),
+  /GENERATE_SCREENING_DRAFT|requestScreeningDraft|GENERATE_COVER_LETTER|generateCoverLetterForCurrentArtifact/i,
+  'Continuous may surface review actions but never requests AI output itself',
+);
 assert.match(
   backgroundSource,
   /autofillSkills:\s*AUTOFILL_FEATURE_FLAGS\.skills\s*&&\s*requestedPrefill\.autofillSkills === true/,

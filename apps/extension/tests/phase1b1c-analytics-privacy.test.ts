@@ -10,6 +10,7 @@ assert.equal('resumeContent' in properties, false);
 
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
 const popup = readFileSync('src/popup.ts', 'utf8');
+const sensitiveAutofill = readFileSync('src/sensitive-autofill.ts', 'utf8');
 const analyticsCalls = Array.from(portal.matchAll(/trackWidgetAnalytics\([\s\S]{0,500}?\);/g))
   .map((match) => match[0])
   .join('\n');
@@ -18,6 +19,16 @@ assert.doesNotMatch(
   popup,
   /chrome\.storage\.sync\.set\(\s*\{\s*idToken/,
   'short-lived bearer tokens must never be written to browser sync storage',
+);
+assert.doesNotMatch(
+  sensitiveAutofill,
+  /chrome\.storage|trackWidgetAnalytics|console\.(?:log|info|debug)/,
+  'session-only sensitive answers cannot be persisted, analyzed, or logged',
+);
+assert.match(
+  portal,
+  /sensitiveAnswerSession\.confirmed[\s\S]+sensitiveAnswers: sensitiveAnswerSession/,
+  'only explicitly confirmed session answers enter the ephemeral frame relay',
 );
 
 for (const file of [

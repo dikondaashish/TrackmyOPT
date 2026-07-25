@@ -6,6 +6,7 @@ export const EXTENSION_WIDGET_EVENTS = [
   'extension_widget_screening_review_state',
   'extension_widget_job_analyzed',
   'extension_widget_resume_generated',
+  'extension_widget_guided_navigation',
 ] as const;
 
 export type ExtensionWidgetEvent = (typeof EXTENSION_WIDGET_EVENTS)[number];
@@ -37,6 +38,7 @@ const EVENT_KEYS: Record<ExtensionWidgetEvent, readonly string[]> = {
     'flag_continuous_mode',
     'flag_ai_screening_drafts',
     'flag_cover_letter',
+    'flag_guided_autopilot',
     'flag_history_fields',
     'flag_ats_adapters',
     'resume_filled',
@@ -70,6 +72,10 @@ const EVENT_KEYS: Record<ExtensionWidgetEvent, readonly string[]> = {
     'generated_score',
     'score_delta',
     'error_code',
+  ],
+  extension_widget_guided_navigation: [
+    'site_family',
+    'navigation_outcome',
   ],
 };
 const SAFE_STRING_VALUES: Record<string, readonly string[]> = {
@@ -140,6 +146,14 @@ const SAFE_STRING_VALUES: Record<string, readonly string[]> = {
     'confirmed',
     'edited',
   ],
+  navigation_outcome: [
+    'advanced',
+    'stopped_final_step',
+    'stopped_review_step',
+    'blocked_required_fields',
+    'no_safe_control',
+    'stopped',
+  ],
 };
 const SAFE_NUMBER_KEYS = new Set([
   'filled',
@@ -173,6 +187,7 @@ const SAFE_BOOLEAN_KEYS = new Set([
   'flag_continuous_mode',
   'flag_ai_screening_drafts',
   'flag_cover_letter',
+  'flag_guided_autopilot',
   'flag_history_fields',
   'flag_ats_adapters',
 ]);

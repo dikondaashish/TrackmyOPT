@@ -192,14 +192,15 @@ The extension works with `localhost:3000` by default. To test:
 - Verify token is being sent in Authorization header
 - Check browser console for CORS errors
 
-## Job-scoped autofill release scope (`0.1.12`)
+## Job-scoped autofill release scope (`0.1.13`)
 
-The releasable slice is deterministic: explicit Step-by-step prefill uses the
-active generated resume artifact plus the account profile to fill supported
-empty contact, experience, and education fields. It may attach the generated
-resume only to an empty Resume/CV PDF input. The artifact expires after 30
-minutes and is invalidated when the normalized job URL, company, or role
-changes.
+Step-by-step and Continuous prefill use the active generated resume artifact
+plus the account profile to fill supported empty contact, experience,
+education, and optional skills fields. The extension may attach a generated
+resume and reviewed cover letter only to eligible empty PDF inputs. The
+artifact expires after 30 minutes and is invalidated when the normalized job
+URL, company, or role changes. Review-required AI screening drafts are limited
+to non-sensitive questions.
 
 Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 
@@ -208,18 +209,22 @@ Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 | `artifactPrefill` | on | Active artifact and profile prefill |
 | `historyFields` | on | Experience and education fields |
 | `atsAdapters` | on | Conservative Workday/Greenhouse adapters |
-| `skills` | off | No skills field is filled |
-| `continuousMode` | off | No mutation-driven background pass |
-| `aiScreeningDrafts` | off | UI/background disabled; route returns `501` |
-| `coverLetter` | off | UI/background disabled; route returns `501` |
+| `skills` | on | User may opt in to dedicated skills fields |
+| `continuousMode` | on | User may opt in to fill newly loaded steps |
+| `aiScreeningDrafts` | on | Explicit, review-required grounded drafts |
+| `coverLetter` | on | Explicit AI draft plus real PDF compilation |
+| `guidedAutopilot` | on | User may opt in to allowlisted navigation |
 
 Every mode keeps the same hard boundaries:
 
 - never use a historical or merely latest resume as fallback;
 - never overwrite a non-empty field, existing tag, or existing file;
-- never fill visa, sponsorship, work-authorization, EEO, salary, DOB, SSN,
-  veteran, disability, citizenship, or clearance questions;
-- never click Add another, Next, Review, Done, Submit, or another host control;
+- never guess visa, sponsorship, work-authorization, EEO, salary, DOB,
+  citizenship, veteran, disability, clearance, or SSN answers; confirmed
+  sensitive facts remain memory-only for the current page session;
+- never click Add another, Review, Submit, Apply, Finish, or another final
+  action; Guided Autopilot alone may click exact allowlisted non-submit
+  Next/Continue/Done controls;
 - never place resume, question, answer, employer, school, title, URL, hash, or
   PDF content in analytics or `chrome.storage.sync`.
 
@@ -227,7 +232,7 @@ Every mode keeps the same hard boundaries:
 
 ### Code and packaging
 
-- [x] Package and manifest versions match at `0.1.12`.
+- [x] Package and manifest versions match at `0.1.13`.
 - [x] Production is the default target in `src/config.ts`; localhost requires
   the explicit `EXT_TARGET=local` build.
 - [x] Run the complete web, extension, and API test suites.
@@ -253,9 +258,9 @@ click Submit.
 | Workday | 30-minute expiry or URL/company/role change | Artifact is rejected; profile-only/regenerate guidance appears | [ ] |
 | Greenhouse | Explicit prefill with a fresh matching artifact | Empty native contact/history fields fill; empty Resume/CV accepts the PDF | [ ] |
 | Greenhouse | Custom dropdown, tag editor, existing file/value | Unsupported or populated controls stay unchanged | [ ] |
-| Greenhouse | Sensitive screening and EEO fields | Fields stay blank and never reach an AI route | [ ] |
-| Both | Continuous mode default | No Continuous pass occurs because the flag is off | [ ] |
-| Both | Navigation/submission controls | No Add another, Next, Review, Done, or Submit click occurs | [ ] |
+| Greenhouse | Sensitive screening and EEO fields | AI never receives them; only exact confirmed session answers may fill; EEO is decline-only | [ ] |
+| Both | Continuous mode default | Available but off in user preferences until explicitly selected | [ ] |
+| Both | Guided navigation | Non-submit Next/Continue/Done may advance; Review/Submit/Apply/Finish and submit-typed navigation are blocked | [ ] |
 
 ### Privacy and support verification
 
@@ -264,8 +269,9 @@ click Submit.
   only with explicit approval.
 - [x] `/privacy` describes the 30-minute artifact, empty-only behavior,
   sensitive-field exclusions, storage boundary, and content-free telemetry.
-- [x] `/dashboard/help` describes current deterministic scope and clearly marks
-  Continuous, skills, AI drafts/answer reuse, and cover letters unavailable.
+- [x] `/dashboard/help` describes Continuous, Guided Autopilot, skills, AI
+  drafts/answer reuse, cover letters, session-only sensitive answers, and the
+  never-submit boundary.
 - [x] Support can map the content-free error codes `extraction_failed`,
   `unsupported_control`, `draft_review_pending`, and `attachment_failed`.
 - [x] PostHog receives only allowlisted enums, booleans, and bounded counts.
@@ -295,8 +301,8 @@ fields, non-empty fields, and existing files.
 4. If deterministic prefill causes regressions, publish an emergency build with
    `artifactPrefill`, `historyFields`, or `atsAdapters` disabled independently;
    profile-only prefill remains available.
-5. Keep `aiScreeningDrafts` and `coverLetter` off until their real generation
-   implementations and production tests ship. Do not restore either stub.
+5. Disable `aiScreeningDrafts`, `coverLetter`, or `guidedAutopilot`
+   independently if production validation reveals a regression.
 
 Chrome Web Store packaging, upload, listing changes, and staged-channel
 submission remain owner actions and are intentionally not performed by Codex.
