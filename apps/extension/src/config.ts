@@ -16,6 +16,7 @@ export const WEBSITE_URL =
 
 export const API_ENDPOINTS = {
   ME: `${WEBSITE_URL}/api/me`,
+  PRIVATE_APPLICATION_ANSWERS: `${WEBSITE_URL}/api/private-application-answers`,
   STATUS: `${WEBSITE_URL}/api/premium/status`,
   CASE_STATUS: `${WEBSITE_URL}/api/case-status`,
   EXTENSION_TOKEN: `${WEBSITE_URL}/api/extension/token`,

@@ -23,12 +23,38 @@ assert.doesNotMatch(
 assert.doesNotMatch(
   sensitiveAutofill,
   /chrome\.storage|trackWidgetAnalytics|console\.(?:log|info|debug)/,
-  'session-only sensitive answers cannot be persisted, analyzed, or logged',
+  'private answers cannot be written to browser storage, analyzed, or logged',
 );
 assert.match(
   portal,
   /sensitiveAnswerSession\.confirmed[\s\S]+sensitiveAnswers: sensitiveAnswerSession/,
   'only explicitly confirmed session answers enter the ephemeral frame relay',
+);
+const savedPrivateAnswerLoad = portal.slice(
+  portal.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'"),
+  portal.indexOf(
+    "toggle.addEventListener('click'",
+    portal.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'")
+  ),
+);
+assert.doesNotMatch(
+  savedPrivateAnswerLoad,
+  /sensitiveAnswerSession\s*=/,
+  'loading saved private answers must never approve them automatically',
+);
+assert.match(
+  savedPrivateAnswerLoad,
+  /Review them, then approve for this application/,
+  'saved private answers must visibly require per-application review',
+);
+const privatePanel = portal.slice(
+  portal.indexOf('function createSensitiveAnswerPanel'),
+  portal.indexOf('function currentSessionStorage'),
+);
+assert.match(
+  privatePanel,
+  /toggle\.addEventListener\('click'[\s\S]+if \(!body\.hidden\) loadSavedAnswersForReview\(\)/,
+  'saved private answers are fetched only after the user opens the review panel',
 );
 
 for (const file of [

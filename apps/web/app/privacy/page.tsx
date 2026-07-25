@@ -97,6 +97,14 @@ export default function PrivacyPage() {
       <h3>2.8 Chrome extension application prefill</h3>
       <p>{EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE}</p>
       <p>{EXTENSION_AUTOFILL_SUPPORT_NOTICE}</p>
+      <p>
+        Saving private application answers is optional and requires an explicit
+        consent action. The encrypted record is retained while you keep it in
+        your account, and you may edit or permanently delete it from Settings.
+        When you choose to use an answer, it is disclosed to the employer or
+        applicant-tracking system whose form you are completing. Private
+        application answers are not used to train or prompt our AI features.
+      </p>
 
       <h2>3. How we use information</h2>
       <ul>
@@ -156,6 +164,7 @@ export default function PrivacyPage() {
       <h2>8. Your choices and rights</h2>
       <ul>
         <li><strong>Access / correction:</strong> Update profile and OPT data in Settings</li>
+        <li><strong>Private application answers:</strong> Review, change, or delete all saved answers in Settings → Profile</li>
         <li><strong>Deletion:</strong> Delete your account in Settings (or email {LEGAL_CONTACT.privacy})</li>
         <li><strong>Email opt-out:</strong> Unsubscribe links in marketing emails; manage notification preferences in Settings</li>
         <li><strong>California (CCPA/CPRA):</strong> Right to know, delete, correct, and opt out of sale/sharing (we do not sell personal information)</li>

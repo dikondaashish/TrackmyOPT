@@ -37,7 +37,11 @@ import {
   type SavedAnswerWrite,
 } from './saved-screening-answers';
 import { resolveScreeningDraftJobContext } from './screening-draft-context';
-import { normalizeSensitiveAnswerSession } from './sensitive-autofill';
+import {
+  normalizeSavedPrivateApplicationAnswers,
+  normalizeSensitiveAnswerSession,
+  type SavedPrivateApplicationAnswers,
+} from './sensitive-autofill';
 import {
   clearActiveGeneratedResumeArtifact,
   readActiveGeneratedResumeArtifact,
@@ -211,6 +215,14 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     getAutofillProfile()
       .then((profile) => sendResponse(profile))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
+  if (msg.type === 'GET_PRIVATE_APPLICATION_ANSWERS') {
+    getPrivateApplicationAnswers()
+      .then((response) => sendResponse(response))
+      .catch(() =>
+        sendResponse({ ok: false as const, error: 'unavailable' })
+      );
     return true;
   }
   if (msg.type === 'RESOLVE_V1_PREFILL_PAYLOAD') {
@@ -456,6 +468,12 @@ interface AutofillProfileResult {
   profile?: AutofillProfile;
 }
 
+interface PrivateApplicationAnswersResult {
+  ok: boolean;
+  error?: string;
+  data?: SavedPrivateApplicationAnswers | null;
+}
+
 function sanitizeBasicContactProfile(value: unknown): BasicContactProfile | undefined {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
   const profile = value as Record<string, unknown>;
@@ -548,6 +566,34 @@ async function getAutofillProfile(): Promise<AutofillProfileResult> {
       linkedinUrl: (ap.linkedin_url ?? '').trim(),
       portfolioUrl: (ap.portfolio_url ?? '').trim(),
     },
+  };
+}
+
+async function getPrivateApplicationAnswers(): Promise<PrivateApplicationAnswersResult> {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+
+  const response = await fetch(API_ENDPOINTS.PRIVATE_APPLICATION_ANSWERS, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${bearer}`,
+    },
+    cache: 'no-store',
+  });
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: response.status === 401 ? 'not_signed_in' : 'unavailable',
+    };
+  }
+
+  const body = (await response.json()) as { data?: unknown };
+  return {
+    ok: true,
+    data: body.data
+      ? normalizeSavedPrivateApplicationAnswers(body.data)
+      : null,
   };
 }
 

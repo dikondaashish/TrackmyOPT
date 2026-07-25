@@ -91,6 +91,7 @@ import {
 } from './guided-autopilot';
 import {
   fillConfirmedSensitiveAnswers,
+  normalizeSavedPrivateApplicationAnswers,
   normalizeSensitiveAnswerSession,
   type SensitiveAnswerSession,
 } from './sensitive-autofill';
@@ -134,8 +135,8 @@ let lastResumeGenerationRequest: LastResumeGenerationRequest | null = null;
 let regenerationRecheckPending = false;
 let latestJobFitScore: { jobFingerprint: string; score: number } | null = null;
 let currentAutofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
-// User-entered sensitive answers live only in this page's content-script memory.
-// They are never sent to AI, storage, or analytics.
+// Sensitive answers become usable only after review in this page's panel. The
+// confirmed copy stays in content-script memory and never enters AI/analytics.
 let sensitiveAnswerSession: SensitiveAnswerSession = { confirmed: false };
 const trackedWidgetAnalytics = new Set<string>();
 const guidedClickedControls = new WeakSet<HTMLElement>();
@@ -195,7 +196,7 @@ function createSensitiveAnswerPanel(): HTMLElement {
     'border-top:1px solid var(--tmo-widget-border);padding:9px 11px;background:var(--tmo-widget-surface-2);';
   const toggle = document.createElement('button');
   toggle.type = 'button';
-  toggle.textContent = 'Sensitive answers (session only)';
+  toggle.textContent = 'Private answers (review required)';
   toggle.style.cssText =
     'width:100%;padding:0;border:0;background:transparent;color:var(--tmo-widget-ink);font:inherit;font-size:11px;font-weight:800;text-align:left;cursor:pointer;';
   const body = document.createElement('div');
@@ -203,7 +204,7 @@ function createSensitiveAnswerPanel(): HTMLElement {
   body.style.cssText = 'display:grid;gap:7px;margin-top:8px;';
   const note = document.createElement('p');
   note.textContent =
-    'You enter these facts. TrackMyOPT never asks AI to guess them and forgets them when this tab/session ends.';
+    'Saved answers load here for review. TrackMyOPT never asks AI to guess them, never includes them in analytics, and never submits the application.';
   note.style.cssText =
     'margin:0;color:var(--tmo-widget-muted);font-size:10.5px;line-height:1.4;';
 
@@ -218,13 +219,49 @@ function createSensitiveAnswerPanel(): HTMLElement {
   const citizenship = textField('Citizenship', 'text', 'Exact answer to use');
   const salary = textField('Salary expectation', 'text', 'Your preferred answer');
   const dob = textField('Date of birth', 'date');
+  const sexGender = selectField('Sex / gender', [
+    ['', 'Leave unanswered'],
+    ['female', 'Female'],
+    ['male', 'Male'],
+    ['non_binary', 'Non-binary'],
+    ['prefer_not_to_answer', 'Prefer not to answer'],
+  ]);
+  const raceEthnicity = selectField('Race / ethnicity', [
+    ['', 'Leave unanswered'],
+    ['american_indian_or_alaska_native', 'American Indian or Alaska Native'],
+    ['asian', 'Asian'],
+    ['black_or_african_american', 'Black or African American'],
+    ['hispanic_or_latino', 'Hispanic or Latino'],
+    ['native_hawaiian_or_pacific_islander', 'Native Hawaiian or Pacific Islander'],
+    ['white', 'White'],
+    ['two_or_more_races', 'Two or more races'],
+    ['prefer_not_to_answer', 'Prefer not to answer'],
+  ]);
+  const hispanicLatino = selectField('Hispanic or Latino?', [
+    ['', 'Leave unanswered'],
+    ['yes', 'Yes'],
+    ['no', 'No'],
+    ['prefer_not_to_answer', 'Prefer not to answer'],
+  ]);
+  const veteranStatus = selectField('Veteran status', [
+    ['', 'Leave unanswered'],
+    ['not_protected_veteran', 'Not a protected veteran'],
+    ['protected_veteran', 'Protected veteran'],
+    ['prefer_not_to_answer', 'Prefer not to answer'],
+  ]);
+  const disabilityStatus = selectField('Disability status', [
+    ['', 'Leave unanswered'],
+    ['yes', 'Yes'],
+    ['no', 'No'],
+    ['prefer_not_to_answer', 'Prefer not to answer'],
+  ]);
   const eeo = selectField('EEO questions', [
     ['', 'Leave unanswered'],
     ['prefer_not_to_answer', 'Prefer not to answer'],
   ]);
   const save = document.createElement('button');
   save.type = 'button';
-  save.textContent = 'Use these answers for this session';
+  save.textContent = 'Review and use for this application';
   save.style.cssText =
     'min-height:34px;padding:6px 8px;border:0;border-radius:7px;background:var(--tmo-widget-accent);color:#fff;font:inherit;font-size:11px;font-weight:800;cursor:pointer;';
   const status = document.createElement('p');
@@ -232,9 +269,42 @@ function createSensitiveAnswerPanel(): HTMLElement {
   status.style.cssText =
     'margin:0;color:var(--tmo-widget-success-ink);font-size:10.5px;font-weight:700;';
 
+  let savedAnswersRequested = false;
+  const loadSavedAnswersForReview = () => {
+    if (savedAnswersRequested) return;
+    savedAnswersRequested = true;
+    chrome.runtime.sendMessage(
+      { type: 'GET_PRIVATE_APPLICATION_ANSWERS' },
+      (response?: { ok?: boolean; data?: unknown }) => {
+        if (chrome.runtime.lastError || !response?.ok) {
+          savedAnswersRequested = false;
+          return;
+        }
+        if (!response.data) return;
+        const saved = normalizeSavedPrivateApplicationAnswers(response.data);
+        if (!saved) return;
+        workAuth.control.value = saved.workAuthorization ?? '';
+        sponsorship.control.value = saved.requiresSponsorship ?? '';
+        visa.control.value = saved.visaStatus ?? '';
+        citizenship.control.value = saved.citizenship ?? '';
+        salary.control.value = saved.salaryExpectation ?? '';
+        dob.control.value = saved.dateOfBirth ?? '';
+        sexGender.control.value = saved.sexGender ?? '';
+        hispanicLatino.control.value = saved.hispanicLatino ?? '';
+        raceEthnicity.control.value = saved.raceEthnicity ?? '';
+        veteranStatus.control.value = saved.veteranStatus ?? '';
+        disabilityStatus.control.value = saved.disabilityStatus ?? '';
+        eeo.control.value = saved.eeoPreference ?? '';
+        status.textContent =
+          'Saved answers loaded. Review them, then approve for this application.';
+      }
+    );
+  };
+
   toggle.addEventListener('click', () => {
     body.hidden = !body.hidden;
     body.style.display = body.hidden ? 'none' : 'grid';
+    if (!body.hidden) loadSavedAnswersForReview();
   });
   save.addEventListener('click', () => {
     sensitiveAnswerSession = {
@@ -255,12 +325,42 @@ function createSensitiveAnswerPanel(): HTMLElement {
         ? { salaryExpectation: salary.control.value.trim() }
         : {}),
       ...(dob.control.value ? { dateOfBirth: dob.control.value } : {}),
+      ...(sexGender.control.value
+        ? {
+            sexGender: sexGender.control
+              .value as SensitiveAnswerSession['sexGender'],
+          }
+        : {}),
+      ...(hispanicLatino.control.value
+        ? {
+            hispanicLatino: hispanicLatino.control
+              .value as SensitiveAnswerSession['hispanicLatino'],
+          }
+        : {}),
+      ...(raceEthnicity.control.value
+        ? {
+            raceEthnicity: raceEthnicity.control
+              .value as SensitiveAnswerSession['raceEthnicity'],
+          }
+        : {}),
+      ...(veteranStatus.control.value
+        ? {
+            veteranStatus: veteranStatus.control
+              .value as SensitiveAnswerSession['veteranStatus'],
+          }
+        : {}),
+      ...(disabilityStatus.control.value
+        ? {
+            disabilityStatus: disabilityStatus.control
+              .value as SensitiveAnswerSession['disabilityStatus'],
+          }
+        : {}),
       ...(eeo.control.value === 'prefer_not_to_answer'
         ? { eeoPreference: 'prefer_not_to_answer' as const }
         : {}),
     };
     status.textContent =
-      'Saved in this session only. Guided Autopilot can use these exact answers.';
+      'Approved for this application. Guided Autopilot can use these exact answers.';
     previousContinuousSignature = '';
     scheduleContinuousPrefill();
   });
@@ -273,11 +373,17 @@ function createSensitiveAnswerPanel(): HTMLElement {
     citizenship.wrapper,
     salary.wrapper,
     dob.wrapper,
+    sexGender.wrapper,
+    hispanicLatino.wrapper,
+    raceEthnicity.wrapper,
+    veteranStatus.wrapper,
+    disabilityStatus.wrapper,
     eeo.wrapper,
     save,
     status
   );
   section.append(toggle, body);
+
   return section;
 }
 
@@ -585,7 +691,7 @@ async function executeResolvedPrefill(
     );
     if (sensitive.unresolved.length > 0) {
       guidedStatus(
-        'Paused: add the required sensitive answers in the session-only panel.'
+        'Paused: review the required private answers in the TrackMyOPT panel.'
       );
     }
   }

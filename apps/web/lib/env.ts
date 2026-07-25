@@ -88,6 +88,13 @@ const serverEnvSchema = clientEnvSchema.extend({
     JWT_SIGNING_SECRET: z
         .string()
         .min(32, 'JWT_SIGNING_SECRET must be at least 32 chars'),
+    PRIVATE_APPLICATION_ANSWERS_ENCRYPTION_KEY: z
+        .string()
+        .regex(
+            /^[A-Za-z0-9+/]{43}=$/,
+            'PRIVATE_APPLICATION_ANSWERS_ENCRYPTION_KEY must be a base64-encoded 32-byte key',
+        )
+        .optional(),
 
     // Stripe
     STRIPE_SECRET_KEY: z.string().optional(),
