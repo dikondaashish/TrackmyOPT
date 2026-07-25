@@ -24,12 +24,34 @@ describe('AppModule environment validation', () => {
     ).toBeUndefined();
   });
 
+  it('fills official USCIS URL defaults when omitted', () => {
+    const config = { ...completeConfig };
+    delete config.USCIS_API_BASE_URL;
+    delete config.USCIS_TOKEN_URL;
+
+    const result = appConfigValidationSchema.validate(config);
+    expect(result.error).toBeUndefined();
+    expect(result.value.USCIS_API_BASE_URL).toBe(
+      'https://api.uscis.gov/case-status',
+    );
+    expect(result.value.USCIS_TOKEN_URL).toBe(
+      'https://api.uscis.gov/oauth/accesstoken',
+    );
+  });
+
+  it('starts without notification fan-out env (Render-compatible)', () => {
+    const config = { ...completeConfig };
+    delete config.NEXT_PUBLIC_SITE_URL;
+    delete config.CRON_SECRET;
+
+    expect(appConfigValidationSchema.validate(config).error).toBeUndefined();
+  });
+
   it.each([
     'NEXT_PUBLIC_SUPABASE_URL',
     'SUPABASE_SERVICE_ROLE_KEY',
     'AWS_S3_BUCKET',
     'USCIS_CLIENT_SECRET',
-    'CRON_SECRET',
   ])('fails startup when %s is missing', (key) => {
     const config = { ...completeConfig };
     delete config[key as keyof typeof config];
