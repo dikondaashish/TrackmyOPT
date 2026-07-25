@@ -29,7 +29,9 @@
 - Vercel production deployment `dpl_BBkG21v4y5dD2ptndHcA3UL7NVS4` is Ready on `www.trackmyopt.com`.
 - Four production crons are registered: `check-case-status` (`0 14 * * *`), `checkout-recovery-emails` (`0 */4 * * *`), `d1-activation-nudge` (`0 * * * *`), and `retry-pending-emails` (`15 * * * *`).
 - Public `/pricing` smoke passed: Free + Pro purchase CTAs only, annual billing selected, and 7-day trial copy visible.
-- Authenticated PricingModal and post-checkout success-state smoke remain pending a signed-in production test session.
+- Authenticated PricingModal smoke passed on both Free and Pro accounts: only Free + Pro are offered, annual Pro is selected (`$4.17/mo`, billed yearly at `$49.99/year`), and the Free-account trial CTA, consent, and footer consistently use `PRO_TRIAL_DAYS` (7 days).
+- Cancelled checkout smoke passed: the no-charge confirmation renders and **Try again** reopens the annual Pro PricingModal.
+- Success-route landing smoke passed: the countdown returns the signed-in user to `/dashboard/case-status`. Trial-specific success copy was not exercised because it requires a real completed Stripe trial session; source/tests verify it uses `PRO_TRIAL_DAYS`, and no checkout session or subscription was created during this smoke test.
 
 
 ---
@@ -659,7 +661,7 @@ Both improve only **after** Pro does something free does not (Phase 1).
 
 | Checkpoint | Date | Gate / error health | Event health | Product metrics / decision |
 |------------|------|---------------------|--------------|----------------------------|
-| Day 0 | 2026-07-25 | Production Ready; four crons registered; case-status/USCIS `$exception` = 0 events / 0 people in prior 24h | `checkout_recovery_email_sent`, `trial_converted`, `pwa_installed`, and `cancel_feedback` absent from taxonomy immediately after deploy; wait for real triggers | Pre-deploy `$pageview` DAU averaged **55.9/day** over 2026-07-11–24; public pricing smoke passed |
+| Day 0 | 2026-07-25 | Production Ready; four crons registered; case-status/USCIS `$exception` = 0 events / 0 people in prior 24h | `checkout_recovery_email_sent`, `trial_converted`, `pwa_installed`, and `cancel_feedback` absent from taxonomy immediately after deploy; wait for real triggers | Pre-deploy `$pageview` DAU averaged **55.9/day** over 2026-07-11–24; public + authenticated PricingModal and cancelled-route smoke passed; success-route case-status landing passed; live-session trial success rendering not exercised |
 | Day 1 | 2026-07-26 | Pending overnight DB/log spot-check and USCIS error comparison | Begin daily taxonomy/trigger checks | No product conclusion before the first full post-deploy day |
 | Day 7 | 2026-08-01 | Pending | Confirm Phase 5–6 event emitters after observed triggers | Run unique-person activation, checkout, payment-failure, subscription, cancellation, and DAU checkpoint |
 | Day 30 | 2026-08-24 | Pending | Confirm stable taxonomy | Rerun metrics; evaluate exit and kill criteria; record keep/soften-gate decision |
