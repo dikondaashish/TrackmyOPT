@@ -76,11 +76,19 @@ function tableResult(table: string) {
   if (table === 'application_profile') {
     return {
       data: {
+        first_name: 'Extension',
+        last_name: 'Candidate',
+        application_email: 'jobs@example.com',
         phone: '5551234567',
+        country: 'United States',
+        street_address: '1 Main Street',
         city: 'Boston',
         state: 'MA',
+        zip_code: '02110',
+        county_district: 'Suffolk County',
         years_experience: 2,
         linkedin_url: null,
+        github_url: 'https://github.com/extension-candidate',
         portfolio_url: null,
       },
       error: null,
@@ -149,8 +157,13 @@ describe('GET /api/me bearer authentication', () => {
       degree_level: 'masters',
     });
     expect(body.applicationProfile).toMatchObject({
+      first_name: 'Extension',
+      application_email: 'jobs@example.com',
+      country: 'United States',
       city: 'Boston',
       state: 'MA',
+      zip_code: '02110',
+      github_url: 'https://github.com/extension-candidate',
     });
     expect(mocks.adminGetUserById).toHaveBeenCalledWith(USER_ID);
     expect(mocks.adminFrom).toHaveBeenCalledWith('profiles');

@@ -20,6 +20,7 @@ const cases: Array<[string, ReturnType<typeof classifyField>]> = [
   ['equal_opportunity_phone', null],
   ['candidate[linkedin_profile_url]', 'linkedinUrl'],
   ['candidate_github_url', 'githubUrl'],
+  ['GitHub Profile URL', 'githubUrl'],
   // camelCase "LinkedIn" normalizes to "linked in" — must still classify.
   ['LinkedIn Profile URL', 'linkedinUrl'],
   ['linkedInUrl', 'linkedinUrl'],

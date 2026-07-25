@@ -1457,9 +1457,6 @@ export function SettingsSection() {
                 </div>
               )}
 
-              <ApplicationProfileSection />
-              <PrivateApplicationAnswersSection />
-
             </div>
           </div>
         )}
@@ -2334,6 +2331,20 @@ export function SettingsSection() {
               </div>
 
               <div className="space-y-6">
+                <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Chrome Extension Job-Portal Prefill Profile
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                    This profile is separate from your normal TrackMyOPT
+                    account. The extension fills only empty application fields,
+                    shows progress, pauses for your review, and never submits.
+                  </p>
+                </div>
+
+                <ApplicationProfileSection />
+                <PrivateApplicationAnswersSection />
+
                 {/* Connection Status */}
                 <div className={`p-4 rounded-xl border ${extensionStatus.isConnected ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'}`}>
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">

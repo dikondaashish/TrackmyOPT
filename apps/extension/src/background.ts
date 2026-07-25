@@ -455,10 +455,15 @@ interface AutofillProfile {
   email: string;
   // application_profile fields (non-sensitive). Empty string when unset.
   phone: string;
+  country: string;
+  streetAddress: string;
   city: string;
   state: string;
+  postalCode: string;
+  countyDistrict: string;
   yearsExperience: string;
   linkedinUrl: string;
+  githubUrl: string;
   portfolioUrl: string;
 }
 
@@ -487,10 +492,15 @@ function sanitizeBasicContactProfile(value: unknown): BasicContactProfile | unde
     fullName: read('fullName'),
     email: read('email'),
     phone: read('phone'),
+    country: read('country'),
+    streetAddress: read('streetAddress'),
     city: read('city'),
     state: read('state'),
+    postalCode: read('postalCode'),
+    countyDistrict: read('countyDistrict'),
     yearsExperience: read('yearsExperience'),
     linkedinUrl: read('linkedinUrl'),
+    githubUrl: read('githubUrl'),
     portfolioUrl: read('portfolioUrl'),
   };
 }
@@ -529,11 +539,19 @@ async function getAutofillProfile(): Promise<AutofillProfileResult> {
     user?: { email?: string; user_metadata?: Record<string, unknown> };
     profile?: { first_name?: string; last_name?: string; email?: string };
     applicationProfile?: {
+      first_name?: string | null;
+      last_name?: string | null;
+      application_email?: string | null;
       phone?: string | null;
+      country?: string | null;
+      street_address?: string | null;
       city?: string | null;
       state?: string | null;
+      zip_code?: string | null;
+      county_district?: string | null;
       years_experience?: number | null;
       linkedin_url?: string | null;
+      github_url?: string | null;
       portfolio_url?: string | null;
     } | null;
   };
@@ -547,10 +565,10 @@ async function getAutofillProfile(): Promise<AutofillProfileResult> {
   };
 
   const fullNameMeta = (meta.full_name ?? '').trim();
-  const firstName = (profile.first_name || meta.firstName || meta.first_name || fullNameMeta.split(/\s+/)[0] || '').trim();
-  const lastName = (profile.last_name || fullNameMeta.split(/\s+/).slice(1).join(' ') || '').trim();
-  const fullName = fullNameMeta || [firstName, lastName].filter(Boolean).join(' ');
-  const email = (user.email || profile.email || '').trim();
+  const firstName = (ap.first_name || profile.first_name || meta.firstName || meta.first_name || fullNameMeta.split(/\s+/)[0] || '').trim();
+  const lastName = (ap.last_name || profile.last_name || fullNameMeta.split(/\s+/).slice(1).join(' ') || '').trim();
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || fullNameMeta;
+  const email = (ap.application_email || user.email || profile.email || '').trim();
 
   return {
     ok: true,
@@ -560,10 +578,15 @@ async function getAutofillProfile(): Promise<AutofillProfileResult> {
       fullName,
       email,
       phone: (ap.phone ?? '').trim(),
+      country: (ap.country ?? '').trim(),
+      streetAddress: (ap.street_address ?? '').trim(),
       city: (ap.city ?? '').trim(),
       state: (ap.state ?? '').trim(),
+      postalCode: (ap.zip_code ?? '').trim(),
+      countyDistrict: (ap.county_district ?? '').trim(),
       yearsExperience: ap.years_experience != null ? String(ap.years_experience) : '',
       linkedinUrl: (ap.linkedin_url ?? '').trim(),
+      githubUrl: (ap.github_url ?? '').trim(),
       portfolioUrl: (ap.portfolio_url ?? '').trim(),
     },
   };

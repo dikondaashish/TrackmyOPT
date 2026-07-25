@@ -271,16 +271,26 @@ function valueForKind(kind: FieldKind, p: AutofillProfile): string {
       return p.fullName || [p.firstName, p.lastName].filter(Boolean).join(' ');
     case 'phone':
       return p.phone;
+    case 'country':
+      return p.country;
+    case 'streetAddress':
+      return p.streetAddress;
     case 'city':
       return p.city;
     case 'state':
       return p.state;
+    case 'postalCode':
+      return p.postalCode;
+    case 'countyDistrict':
+      return p.countyDistrict;
     case 'location':
       return [p.city, p.state].filter(Boolean).join(', ');
     case 'yearsExperience':
       return p.yearsExperience;
     case 'linkedinUrl':
       return p.linkedinUrl;
+    case 'githubUrl':
+      return p.githubUrl;
     case 'portfolioUrl':
       return p.portfolioUrl;
     case 'skills':
@@ -958,8 +968,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       ]);
     }
     notify(
-      'Nothing to prefill here. TrackMyOPT never fills work-authorization, ' +
-        'visa, or EEO questions — please answer those yourself. ' +
+      'Nothing to prefill here. Private work-authorization, visa, compensation, ' +
+        'and DEI fields require review and approval in the TrackMyOPT panel. ' +
         autofillErrorCopy('unsupported_control').message
     );
   } else {

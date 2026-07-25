@@ -215,9 +215,45 @@ function createSensitiveAnswerPanel(): HTMLElement {
   ];
   const workAuth = selectField('Authorized to work?', yesNoOptions);
   const sponsorship = selectField('Need sponsorship now or later?', yesNoOptions);
-  const visa = textField('Visa / immigration status', 'text', 'Example: F-1 OPT');
+  const visaType = selectField('Visa / work status', [
+    ['', 'Leave unanswered'],
+    ['us_citizen', 'U.S. citizen'],
+    ['permanent_resident', 'Permanent resident'],
+    ['h1b', 'H-1B'],
+    ['f1_student', 'F-1 student'],
+    ['opt', 'OPT'],
+    ['cpt', 'CPT'],
+    ['j1', 'J-1'],
+    ['l1', 'L-1'],
+    ['o1', 'O-1'],
+    ['tn', 'TN'],
+    ['e3', 'E-3'],
+    ['other', 'Other'],
+  ]);
+  const visaOther = textField(
+    'Other visa / work status',
+    'text',
+    'Exact status if Other'
+  );
   const citizenship = textField('Citizenship', 'text', 'Exact answer to use');
-  const salary = textField('Salary expectation', 'text', 'Your preferred answer');
+  const annualSalary = textField(
+    'Expected annual salary',
+    'text',
+    'Example: $120,000'
+  );
+  const hourlyRate = textField(
+    'Expected hourly rate',
+    'text',
+    'Example: $58'
+  );
+  const inPerson = selectField('Can work in-person?', yesNoOptions);
+  const relocate = selectField('Willing to relocate?', yesNoOptions);
+  const startImmediately = selectField('Can start immediately?', yesNoOptions);
+  const transportation = selectField(
+    'Has reliable transportation?',
+    yesNoOptions
+  );
+  const accommodations = selectField('Needs accommodations?', yesNoOptions);
   const dob = textField('Date of birth', 'date');
   const sexGender = selectField('Sex / gender', [
     ['', 'Leave unanswered'],
@@ -285,9 +321,20 @@ function createSensitiveAnswerPanel(): HTMLElement {
         if (!saved) return;
         workAuth.control.value = saved.workAuthorization ?? '';
         sponsorship.control.value = saved.requiresSponsorship ?? '';
-        visa.control.value = saved.visaStatus ?? '';
+        visaType.control.value = saved.visaType ?? (
+          saved.visaStatus ? 'other' : ''
+        );
+        visaOther.control.value =
+          saved.visaOther ?? saved.visaStatus ?? '';
         citizenship.control.value = saved.citizenship ?? '';
-        salary.control.value = saved.salaryExpectation ?? '';
+        annualSalary.control.value =
+          saved.expectedAnnualSalary ?? saved.salaryExpectation ?? '';
+        hourlyRate.control.value = saved.expectedHourlyRate ?? '';
+        inPerson.control.value = saved.canWorkInPerson ?? '';
+        relocate.control.value = saved.willingToRelocate ?? '';
+        startImmediately.control.value = saved.canStartImmediately ?? '';
+        transportation.control.value = saved.reliableTransportation ?? '';
+        accommodations.control.value = saved.needsAccommodations ?? '';
         dob.control.value = saved.dateOfBirth ?? '';
         sexGender.control.value = saved.sexGender ?? '';
         hispanicLatino.control.value = saved.hispanicLatino ?? '';
@@ -315,14 +362,50 @@ function createSensitiveAnswerPanel(): HTMLElement {
       ...(sponsorship.control.value
         ? { requiresSponsorship: sponsorship.control.value as 'yes' | 'no' }
         : {}),
-      ...(visa.control.value.trim()
-        ? { visaStatus: visa.control.value.trim() }
+      ...(visaType.control.value
+        ? {
+            visaType: visaType.control
+              .value as SensitiveAnswerSession['visaType'],
+          }
+        : {}),
+      ...(visaOther.control.value.trim()
+        ? { visaOther: visaOther.control.value.trim() }
         : {}),
       ...(citizenship.control.value.trim()
         ? { citizenship: citizenship.control.value.trim() }
         : {}),
-      ...(salary.control.value.trim()
-        ? { salaryExpectation: salary.control.value.trim() }
+      ...(annualSalary.control.value.trim()
+        ? { expectedAnnualSalary: annualSalary.control.value.trim() }
+        : {}),
+      ...(hourlyRate.control.value.trim()
+        ? { expectedHourlyRate: hourlyRate.control.value.trim() }
+        : {}),
+      ...(inPerson.control.value
+        ? {
+            canWorkInPerson: inPerson.control.value as 'yes' | 'no',
+          }
+        : {}),
+      ...(relocate.control.value
+        ? {
+            willingToRelocate: relocate.control.value as 'yes' | 'no',
+          }
+        : {}),
+      ...(startImmediately.control.value
+        ? {
+            canStartImmediately: startImmediately.control.value as 'yes' | 'no',
+          }
+        : {}),
+      ...(transportation.control.value
+        ? {
+            reliableTransportation: transportation.control.value as
+              | 'yes'
+              | 'no',
+          }
+        : {}),
+      ...(accommodations.control.value
+        ? {
+            needsAccommodations: accommodations.control.value as 'yes' | 'no',
+          }
         : {}),
       ...(dob.control.value ? { dateOfBirth: dob.control.value } : {}),
       ...(sexGender.control.value
@@ -360,7 +443,7 @@ function createSensitiveAnswerPanel(): HTMLElement {
         : {}),
     };
     status.textContent =
-      'Approved for this application. Guided Autopilot can use these exact answers.';
+      'Approved for this application. Prefill can use these exact answers.';
     previousContinuousSignature = '';
     scheduleContinuousPrefill();
   });
@@ -369,9 +452,16 @@ function createSensitiveAnswerPanel(): HTMLElement {
     note,
     workAuth.wrapper,
     sponsorship.wrapper,
-    visa.wrapper,
+    visaType.wrapper,
+    visaOther.wrapper,
     citizenship.wrapper,
-    salary.wrapper,
+    annualSalary.wrapper,
+    hourlyRate.wrapper,
+    inPerson.wrapper,
+    relocate.wrapper,
+    startImmediately.wrapper,
+    transportation.wrapper,
+    accommodations.wrapper,
     dob.wrapper,
     sexGender.wrapper,
     hispanicLatino.wrapper,
@@ -673,23 +763,21 @@ async function executeResolvedPrefill(
     type: 'PREFILL_CHILD_FRAMES',
     prefill: {
       ...prefill,
-      ...(AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
-      currentAutofillPreferences.guidedAutopilot &&
-      sensitiveAnswerSession.confirmed
+      ...(sensitiveAnswerSession.confirmed
         ? { sensitiveAnswers: sensitiveAnswerSession }
         : {}),
     },
   }).catch(() => {});
   const result = await runPrefill(prefill);
-  if (
-    AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
-    currentAutofillPreferences.guidedAutopilot
-  ) {
-    const sensitive = fillConfirmedSensitiveAnswers(
-      findApplicationForm() ?? document,
-      sensitiveAnswerSession
-    );
-    if (sensitive.unresolved.length > 0) {
+  const sensitive = fillConfirmedSensitiveAnswers(
+    findApplicationForm() ?? document,
+    sensitiveAnswerSession
+  );
+  if (sensitive.unresolved.length > 0) {
+    if (
+      AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
+      currentAutofillPreferences.guidedAutopilot
+    ) {
       guidedStatus(
         'Paused: review the required private answers in the TrackMyOPT panel.'
       );
