@@ -666,10 +666,16 @@ function paintPrefillCoverage(
   }
 }
 
-async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): Promise<void> {
+async function mountScreeningQuestionReviews(
+  card: HTMLElement,
+  job: JobInfo,
+  hasResolvedArtifact = false,
+): Promise<void> {
   if (!AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) return;
-  const artifact = generatedResumeArtifactForCurrentJob;
-  if (!artifact) return;
+  // A valid artifact can be owned by the background/session store without
+  // existing in this content script's short-lived module cache. The resolved
+  // prefill result is the authority for that common handoff path.
+  if (!generatedResumeArtifactForCurrentJob && !hasResolvedArtifact) return;
   card.querySelector('.tmo-screening-review-list')?.remove();
   const host = document.createElement('div');
   host.className = 'tmo-screening-review-list';
@@ -697,7 +703,9 @@ async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): P
           type: 'GENERATE_SCREENING_DRAFT',
           questionText: eligible.normalizedQuestionText,
           characterLimit: eligible.characterLimit,
-          jobDescription: lastResumeGenerationRequest?.jobDescription || '',
+          jobDescription:
+            lastResumeGenerationRequest?.jobDescription ||
+            scrapeJobDescription(),
           companyName: job.company_name || '',
           roleTitle: job.role_title || '',
           regenerate,
@@ -2570,7 +2578,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
         if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
-          await mountScreeningQuestionReviews(card, job);
+          await mountScreeningQuestionReviews(card, job, execution.hasResume);
         }
         trackPrefillExecution(execution, 'step_by_step', 'success');
       } catch {
@@ -4388,7 +4396,11 @@ async function runContinuousPrefill(): Promise<void> {
       `#${WIDGET_ROOT_ID} .tmo-job-widget-card`
     );
     if (widgetCard && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
-      await mountScreeningQuestionReviews(widgetCard, job);
+      await mountScreeningQuestionReviews(
+        widgetCard,
+        job,
+        execution.hasResume,
+      );
     }
     trackPrefillExecution(execution, 'continuous', 'success');
     scheduleGuidedNavigation();

@@ -40,6 +40,16 @@ assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.coverLetter/);
 assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.guidedAutopilot/);
 assert.match(
   portal,
+  /mountScreeningQuestionReviews\(\s*widgetCard,\s*job,\s*execution\.hasResume/,
+  'a background-resolved artifact must unlock screening review UI after Continuous prefill',
+);
+assert.match(
+  portal,
+  /lastResumeGenerationRequest\?\.jobDescription \|\|\s*scrapeJobDescription\(\)/,
+  'screening drafts must use the visible job description when this content script did not generate the artifact',
+);
+assert.match(
+  portal,
   /if \(artifact\) \{\s*setCurrentGeneratedArtifact\(artifact\)/,
   'disabled cover letters must not discard the deterministic resume artifact'
 );

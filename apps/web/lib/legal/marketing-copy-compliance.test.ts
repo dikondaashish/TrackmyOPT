@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
   CASE_STATUS_DISCLAIMER,
+  EXTENSION_AUTOFILL_SUPPORT_NOTICE,
   LEGAL_FOOTER_LINKS,
   LEGAL_POLICY_VERSIONS,
   RISKY_MARKETING_PHRASES,
@@ -100,6 +101,10 @@ describe("marketing copy compliance scan", () => {
     expect(privacy).toContain("merger, acquisition");
     expect(privacy).toContain("security breach");
     expect(privacy).toContain("request opt-out");
+    expect(privacy).toContain("extension_autofill_support_notice");
+    expect(privacy).not.toContain("features that remain unavailable");
+    expect(EXTENSION_AUTOFILL_SUPPORT_NOTICE).toContain("Guided Autopilot");
+    expect(EXTENSION_AUTOFILL_SUPPORT_NOTICE).toContain("never submits");
   });
 
   it("pricing FAQ does not claim encrypted end-to-end", () => {
