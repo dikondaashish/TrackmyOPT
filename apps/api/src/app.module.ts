@@ -30,10 +30,16 @@ export const appConfigValidationSchema = Joi.object({
   AWS_S3_BUCKET: Joi.string().required(),
   USCIS_CLIENT_ID: Joi.string().required(),
   USCIS_CLIENT_SECRET: Joi.string().required(),
-  USCIS_API_BASE_URL: Joi.string().uri().required(),
-  USCIS_TOKEN_URL: Joi.string().uri().required(),
-  NEXT_PUBLIC_SITE_URL: Joi.string().uri().required(),
-  CRON_SECRET: Joi.string().min(8).required(),
+  // Defaults match uscis.service.ts so Render can omit them.
+  USCIS_API_BASE_URL: Joi.string()
+    .uri()
+    .default('https://api.uscis.gov/case-status'),
+  USCIS_TOKEN_URL: Joi.string()
+    .uri()
+    .default('https://api.uscis.gov/oauth/accesstoken'),
+  // Optional: notification fan-out skips when unset (uscis.processor).
+  NEXT_PUBLIC_SITE_URL: Joi.string().uri().optional(),
+  CRON_SECRET: Joi.string().min(8).optional(),
 });
 
 const runtimeImports =
