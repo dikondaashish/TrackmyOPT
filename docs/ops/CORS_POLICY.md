@@ -11,11 +11,15 @@ User/session APIs tightened to the extension-aware helper include (non-exhaustiv
 
 These intentionally stay permissive because they are called from **unpredictable origins** (bookmarklets, third-party landings, multiple marketing domains, or extension flows that do not send a stable `Origin`), or they are **low-risk public utilities** with no session cookies:
 
-| Route prefix | Rationale |
-|--------------|-----------|
-| `app/api/opt/calculator/route.ts` | Public calculator; may be embedded or opened from varied referrers. |
-| `app/api/case-status/*` | Case status checks and notifications; diverse client entry points. |
-| `app/api/referral/*` | Referral tracking/signup from external campaign URLs. |
-| `app/api/extension/*` | Extension and uninstall flows; origin patterns vary by install/channel. |
+| Routes | Rationale |
+|--------|-----------|
+| `app/api/opt/calculator/route.ts` | Public/browser-extension calculator entry point. |
+| `app/api/case-status/**` | Existing bearer/session/internal-secret case-status entry points. They do not set credentialed CORS. |
+| `app/api/referral/**` | Referral tracking/signup from external campaign URLs. |
+| `app/api/extension/feedback`, `extension/uninstall-feedback`, `extension/ping` | Low-risk feedback/heartbeat endpoints used across install channels. |
+
+Authenticated extension data routes—including token, job application,
+screening answers/drafts, widget events, resume artifacts, and `/api/me`—use
+the explicit-ID helper and do **not** use `*`.
 
 If a route moves to cookie-based auth or is only ever same-site + extension, prefer migrating it to **`corsHeadersWebAndExtension`** or **`corsHeadersConfiguredWebApp`** and document the change here.

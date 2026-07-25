@@ -1,11 +1,15 @@
 # Phase 1: Community Engagement & Organic Growth
 
-**Status:** ✅ **COMPLETE - Ready for Implementation**  
+**Status:** **PENDING DRAFT — not approved for launch**
 **Date Created:** March 12, 2026  
 **Platforms:** Reddit, Facebook Groups, Twitter/X, Quora, LinkedIn  
-**Goal:** 5,000+ qualified leads from organic community engagement  
+**Goal:** Build a helpful, measurable community presence
 **Cost:** $0 (organic) + ~10 hours/week labor  
-**Expected ROI:** 10:1+ (extremely high ROI on time investment)
+**Expected ROI:** Establish after a measured pilot
+
+Before use: fact-check every immigration/data claim, obtain permission for any
+testimonial, follow each community's self-promotion rules, and never pose as a
+student/customer or provide individual legal advice.
 
 ---
 
@@ -13,12 +17,9 @@
 
 Community engagement generates highly qualified leads through authentic relationships, not paid ads.
 
-**Leverage:** 
-- 500K+ members searching for OPT/H-1B help in populated communities
-- 70% of visa seekers use Reddit/Facebook groups for peer advice
-- Testimonials from peers convert 3-5x better than ads
-
-**This playbook:** Systematic community presence on 5 platforms generating 1,000+ monthly visits.
+**Approach:** Participate helpfully in relevant communities, answer with
+sources, disclose affiliation, and measure qualified referral traffic rather
+than assuming reach or conversion.
 
 ---
 
@@ -72,9 +73,9 @@ GOOD SPONSORS (75-90% approval):
 - Canva: 86% approval
 
 How I found this:
-- Analyzed public USCIS data (uscis.gov)
-- Crowdsourced from my community of 50K+ students
-- Verified through H-1B.com, MyVisaJobs.com
+- Analyzed the public filing data available in TrackMyOPT's sponsor dataset
+- Recorded the dataset period and methodology before publishing
+- Treated historical filing data as context, not a guarantee of sponsorship
 
 The data shows location matters too:
 - San Francisco/Bay Area: Higher approval (more tech companies)
@@ -703,24 +704,24 @@ How did you transition to H-1B? Comment below 👇"
 - What advice helped most
 - Quote to use in marketing
 
-**Example win to track:**
+**Consented win template (do not fabricate or publish without permission):**
 ```
-Name: Priya S.
-Story: "Applied to 30 companies, focused on H-1B sponsors from TrackMyOPT list. Got offer in Month 6 at $170K"
-Source: Reddit (r/H1B)
-Timeline: Started January, hired March, ready for H-1B April
-Quote: "The company list was a game-changer. Knew exactly where to apply."
-Use: Testimonial on website + community post
+Name: [real consenting customer]
+Story: [customer-approved factual account]
+Source: [source and permission record]
+Timeline: [verified dates]
+Quote: [approved exact quote]
+Use: [approved channels and expiration/revocation process]
 ```
 
 ---
 
 ## Community Engagement Status
 
-✅ Reddit strategy: Ready to launch (Week 1 of March)  
-✅ Facebook groups: Ready to launch (Week 1 of March)  
-✅ Twitter/X: Ready to launch (Week 1 of March)  
-✅ Quora: Ready to launch (Week 2 of March)  
-✅ LinkedIn: Ready to launch (Week 1 of March)  
+- [ ] Reddit pilot approved and launched
+- [ ] Facebook group pilot approved and launched
+- [ ] X/Twitter pilot approved and launched
+- [ ] Quora pilot approved and launched
+- [ ] LinkedIn pilot approved and launched
 
-**Total Community Engagement Status: READY FOR LAUNCH (March 12, 2026)**
+**Status:** pending owner/legal review and a measured pilot.

@@ -1,8 +1,13 @@
 # Phase 1: Email Sequences & Marketing Automation
 
-**Status:** ✅ **COMPLETE - Ready for Implementation**  
+**Status:** **PENDING DRAFT — do not send yet**
 **Date Created:** March 12, 2026  
 **Platform:** Recommended — ConvertKit, ActiveCampaign, or Mailchimp  
+
+Before use: select a provider; implement consent, unsubscribe, and suppression;
+fact-check every immigration/tax statement against current official sources;
+remove unsubstantiated outcomes/statistics; and obtain legal/brand approval.
+The projections below are planning hypotheses, not achieved results.
 
 ---
 
@@ -87,8 +92,8 @@ One of the most critical OPT rules is also one of the most misunderstood:
 Here's how it works:
 
 📌 You have 90 cumulative days to NOT be employed during your OPT.
-📌 After 90 days of unemployment, your OPT automatically terminates.
-📌 This is USCIS policy — there are NO exceptions.
+📌 Exceeding the unemployment limit can put F-1 status at risk.
+📌 Individual facts and SEVIS records matter; verify your count with your DSO.
 
 **What counts as unemployment?**
 - Job hunting (even if you're trying)
@@ -105,15 +110,15 @@ Sarah graduates June 1, gets OPT approved August 1. She travels for 2 weeks. She
 
 **This is where TrackMyOPT helps.**
 
-Our OPT Compliance Tracker automatically logs:
-- Employment/unemployment dates
+Our OPT Compliance Tracker helps you record and monitor:
+- Employment/unemployment dates you enter
 - Days remaining
 - Visa deadlines
 - Alerts when you're approaching 90 days
 
-It's like having an immigration attorney watching your calendar 24/7.
+It keeps your dates together so you can review them with your DSO or attorney.
 
-[CTA BUTTON: Start Free OPT Compliance Tracker] → 14-day free trial (no credit card)
+[CTA BUTTON: Open the Free OPT Tracker] → Create a free account
 
 Questions about the 90-day rule? Comment below.
 
@@ -122,7 +127,7 @@ Questions about the 90-day rule? Comment below.
 Best,
 [Name]
 
-P.S. Did you know? 12% of OPT students lose their status due to unemployment violations. Don't be one of them.
+P.S. Always verify your individual dates and obligations with your DSO.
 ```
 
 **Metrics to Track:**
@@ -186,8 +191,8 @@ Why this is dangerous:
 ❌ "My OPT expires in 20 days and I haven't started H-1B sponsorship paperwork."
 
 Why this is dangerous:
-- OPT extension applications take 60-90 days
-- H-1B sponsorship takes 1-2 months of prep
+- Government processing and employer preparation times vary
+- Waiting can reduce the time available to correct missing information
 - If you wait, you'll be out of status
 - Result: Have to go home
 
@@ -201,20 +206,21 @@ Why this is dangerous:
 
 **Which mistake have you heard about?** Reply to this email. Hearing from you helps us create better content.
 
-[CTA BUTTON: Avoid These Mistakes - Start Free Trial] → Use OPT Compliance Tracker + Timeline Planner
+[CTA BUTTON: Review Your Timeline] → Use the free tracker and timeline planner
 
 Next week: Success story from someone who did it RIGHT.
 
 Best,
 [Name]
 
-P.S. These aren't theoretical. Each comes from real cases. Don't let it be yours.
+P.S. Rules and processing change. Verify current requirements with official
+sources and your DSO.
 ```
 
 **Metrics to Track:**
 - Open rate: ___%
 - Click rate: ___%
-- Free trial signups: ___%
+- Free account signups: ___%
 - Email reply rate: ___%
 
 ---
@@ -604,8 +610,8 @@ April 1: Lottery results ✓
 May 1: Decision ✓
 
 **If you're chosen:** Celebrate! You're in the lottery.
-**If cap was hit:** You might need cap-gap + STEM extension (we'll help)
-**If denied:** Appeal 2... but unlikely if everything was correct
+**If you are not selected or a filing has a problem:** Ask the employer's
+immigration counsel and your DSO about options that apply to your case.
 
 ---
 
@@ -613,14 +619,13 @@ May 1: Decision ✓
 
 [CTA BUTTON: Get H-1B Preparation Checklist] → Customized list based on your timeline
 
-[CTA BUTTON: Schedule Employer Guidance Call] → Talk to immigration lawyer about your case (15 min, free)
-
-This is it. The next 60 days determine your visa future.
+[CTA BUTTON: Track This Job] → Save the role, employer, and follow-up dates
 
 Best,
 [Name]
 
-P.S. The companies that file early are the ones that get approved. Don't wait.
+P.S. Verify current filing dates and requirements with official sources and the
+employer's immigration counsel.
 ```
 
 ---
@@ -1156,11 +1161,11 @@ P.S. You've got this. 30 minutes. Let's go.
 
 ## Implementation Status
 
-**Email Sequence 1 (OPT Basics):** ✅ 5 emails complete  
-**Email Sequence 2 (H-1B Sponsorship):** ✅ 4 emails complete  
-**Email Sequence 3 (Tax & Health):** ✅ 5 emails complete  
+**Email Sequence 1 (OPT Basics):** 5 draft emails
+**Email Sequence 2 (H-1B Sponsorship):** 4 draft emails
+**Email Sequence 3 (Tax & Health):** 5 draft emails
 
-**Total Email Sequences:** ✅ 14 emails (ready for platform implementation)
+**Total:** 14 drafts requiring factual/legal review and platform setup.
 
 ---
 
@@ -1178,7 +1183,7 @@ P.S. You've got this. 30 minutes. Let's go.
 5. Set up automation rules
 6. Monitor open rates + click rates
 
-**Expected Launch:** March 15, 2026
+**Launch:** not scheduled.
 
 ---
 
@@ -1202,11 +1207,11 @@ Track these metrics weekly:
 
 ## Next Steps
 
-1. ✅ Copy all email sequences into ConvertKit/ActiveCampaign
-2. ✅ Set up triggers + automation
-3. ✅ Add CTA links + tracking
-4. ✅ Set send schedule
-5. ✅ Monitor metrics weekly
-6. ✅ Optimize based on opens/clicks
+1. [ ] Complete factual/legal/brand review
+2. [ ] Select and configure a provider with unsubscribe/suppression
+3. [ ] Copy approved sequences into the provider
+4. [ ] Set up triggers, CTA links, and consent-aware tracking
+5. [ ] Approve the send schedule and test every message
+6. [ ] Monitor and optimize after launch
 
-**Email sequences ready for launch on March 15, 2026.**
+**Status:** pending review and implementation.

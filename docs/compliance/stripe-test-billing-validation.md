@@ -5,7 +5,9 @@ Safe local workflow for validating TrackMyOPT billing webhooks → PostHog → R
 **Do not** add test Stripe keys to Vercel Production or Preview (production requires `sk_live_*`).  
 **Do not** run this guide against production checkout with real cards.
 
-Related: [PAYMENT_FLOW_AUDIT.md](./PAYMENT_FLOW_AUDIT.md) · PostHog project **369087** · Revenue dashboard **1707552**
+Related:
+[LEGAL_BILLING_COMPLIANCE_QA.md](./LEGAL_BILLING_COMPLIANCE_QA.md) · PostHog
+project **369087** · Revenue dashboard **1707552**
 
 ---
 
@@ -30,10 +32,11 @@ Related: [PAYMENT_FLOW_AUDIT.md](./PAYMENT_FLOW_AUDIT.md) · PostHog project **3
    |----------|------------------|--------------|
    | Pro | Monthly | `STRIPE_PRICE_PRO_MONTHLY` |
    | Pro | Yearly | `STRIPE_PRICE_PRO_YEARLY` |
-   | Dedicated | Monthly | `STRIPE_PRICE_DEDICATED_MONTHLY` |
-   | Dedicated | Yearly | `STRIPE_PRICE_DEDICATED_YEARLY` |
+   | Dedicated (legacy migration tests only) | Monthly | `STRIPE_PRICE_DEDICATED_MONTHLY` |
+   | Dedicated (legacy migration tests only) | Yearly | `STRIPE_PRICE_DEDICATED_YEARLY` |
 
-   For each product, add a recurring price and copy the **test** `price_...` ID into `.env.test.local`.
+   Dedicated is closed to new purchases. Its test prices are optional unless
+   validating an existing Dedicated subscriber's migration to Pro.
 
 4. **Optional promos** (if testing EARLYBIRD auto-apply):
    - Create promotion codes in test mode
@@ -71,8 +74,8 @@ cp .env.test.local.example .env.test.local
 | `STRIPE_WEBHOOK_SECRET` | From `stripe listen` or test webhook endpoint (`whsec_*`) |
 | `STRIPE_PRICE_PRO_MONTHLY` | Test price ID |
 | `STRIPE_PRICE_PRO_YEARLY` | Test price ID |
-| `STRIPE_PRICE_DEDICATED_MONTHLY` | Test price ID |
-| `STRIPE_PRICE_DEDICATED_YEARLY` | Test price ID |
+| `STRIPE_PRICE_DEDICATED_MONTHLY` | Optional legacy-migration test price |
+| `STRIPE_PRICE_DEDICATED_YEARLY` | Optional legacy-migration test price |
 | `STRIPE_PROMO_CODE_PRO` | Optional test promo |
 | `STRIPE_PROMO_CODE_DEDICATED` | Optional test promo |
 
@@ -173,9 +176,9 @@ Use a dedicated test user. Note `TEST_START_UTC` before flow A.
    - `payment_succeeded` — **may also fire** on first invoice / checkout path (document count for P2 dedupe)
 3. **Revenue dashboard** — Trial → subscription funnel should show data after refresh.
 
-### C. Paid checkout (non-trial or Dedicated)
+### C. Paid Pro checkout (non-trial)
 
-1. Use Dedicated or Pro without trial / trial already consumed.
+1. Use a Pro test user whose trial is already consumed.
 2. **PostHog**:
    - `payment_succeeded` — `amount_cents`, `currency`, `plan_tier`, `interval`
    - `subscription_started`
@@ -196,12 +199,13 @@ Use a dedicated test user. Note `TEST_START_UTC` before flow A.
    - `subscription_canceled`
    - `plan_tier`
 
-### F. Optional upgrade (Pro → Dedicated)
+### F. Optional legacy migration (Dedicated → Pro)
 
-1. Start from active Pro test subscription → upgrade to Dedicated.
+1. Use a test account already marked as an existing Dedicated subscriber, then
+   migrate it to Pro. New Dedicated checkout must remain unavailable.
 2. **PostHog**:
-   - `checkout_started` with `is_upgrade: true` (and `from_plan` / `to_plan` when applicable)
-   - `subscription_upgraded` — **may fire from API and webhook** (document duplicates for P2)
+   - `checkout_started` with the migration source/target properties
+   - the subscription change event emitted by the migration path
 
 ### Duplicate behavior to document (do not fix in this pass)
 

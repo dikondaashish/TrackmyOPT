@@ -1,63 +1,71 @@
-# Directory Deep-Dive 📂
+# Directory deep-dive
 
-Getting lost in folders? Here is a map of the TrackMyOPT monorepo.
+Current monorepo map, verified against the filesystem on 2026-07-25.
 
-## 1. Root Directory
+## Root
 
-- **`apps/`**: The core applications (Web, API, Extension).
-- **`scripts/`**: DevOps scripts for indexing and maintenance.
-- **`docs/`**: (You are here) In-depth technical guides.
-- **`render.yaml`**: Deployment instructions for Render.com.
-- **`docker-compose.yml`**: Runs local Redis for testing.
+- `apps/web/` — Next.js web product and server routes.
+- `apps/api/` — NestJS API and Bull workers.
+- `apps/extension/` — Manifest V3 Chrome extension.
+- `supabase/migrations/` — canonical database changes.
+- `scripts/` — data, indexing, deployment, and verification utilities.
+- `docs/` — living references and pending work.
+- `render.yaml` — Nest API deployment.
+- `docker-compose.yml` — local API/Redis support.
 
----
+## Web (`apps/web`)
 
-## 2. Frontend (`apps/web`)
+- `app/` — App Router pages, layouts, and `app/api/**/route.ts` handlers.
+- `components/dashboard/` — authenticated dashboard features and widgets.
+- `components/pricing/`, `components/legal/`, `components/analytics/` — shared
+  product domains.
+- `lib/ai/` and `lib/ai/prompts/` — Gemini integration and generation policy.
+- `lib/aws/` — S3, Textract, and virus-scan integrations.
+- `lib/auth/`, `lib/api/`, `lib/security/` — authentication, rate limits, CORS,
+  safe fetches, and request guards.
+- `lib/notifications/` — queueing, SMTP transport, templates, and reminders.
+- `lib/posthog/` — event taxonomy, consent-aware capture, server capture, and
+  tests.
+- `types/supabase.ts` — generated database types; regenerate after migrations.
+- `vercel.json` — production cron registration.
 
-The frontend is the largest application. It follows Next.js 16 App Router patterns.
+## API (`apps/api`)
 
-- **`app/`**: **The Routes**.
-  - `(auth)/`: Authentication pages (Login, Signup, Callback).
-  - `dashboard/`: The private user experience. Each folder (e.g., `/documents`) corresponds to a URL path.
-  - `layout.tsx`: Global navigation and theme providers.
-- **`components/`**: **The Bricks**.
-  - `dashboard/widgets/`: **CRITICAL**. These are the "blocks" that make up the home dashboard (Resource Center, Tools Grid, etc.).
-  - `layout/`: Global components like Sidebar and Header.
-  - `ui/`: Base components (buttons, inputs) based on shadcn/radix patterns.
-- **`lib/`**: **The Tools**.
-  - `auth/`: JWT and session logic.
-  - `immigration/`: Specialized data for OPT and H-1B logic.
-  - `aws/`: S3 and Textract service wrappers.
-  - `secure-logger.ts`: **IMPORTANT**. Sanitized logging to prevent secret leaks in production.
+- `src/ocr/` — S3/Textract OCR controller, service, Bull processor, and tests.
+- `src/uscis/` — enrolled-case filtering, USCIS client/service, Bull processor,
+  and tests.
+- `src/resume/` — resume APIs/services.
+- `src/common/guards/` — API-key protection.
+- `src/app.module.ts` — configuration, Redis/Bull registration, and modules.
+- `test/` — API end-to-end tests.
 
----
+There is no separate `src/queues/` or `src/mail/` tree; queue processors live
+inside their feature modules, and product email currently lives in `apps/web`.
 
-## 3. Backend Engine (`apps/api`)
+## Extension (`apps/extension`)
 
-Built with NestJS for enterprise-grade feature isolation.
+The source is a flat TypeScript module tree rather than separate
+`content-scripts/`, `popup/`, and `background/` directories.
 
-- **`src/`**: All source code.
-  - `uscis/`: Logic for checking case statuses via scrapers or official APIs.
-  - `ocr/`: Logic for parsing documents.
-  - `queues/`: BullMQ configuration for background workers.
-  - `mail/`: Email templates and delivery logic.
-- **`test/`**: Integration and unit tests.
+- `src/background.ts` — authentication-isolated network access, artifacts, and
+  runtime messages.
+- `src/content-job-portal.ts` — job-page widget, job capture, prefill launch,
+  review UI, and Guided Autopilot orchestration.
+- `src/easy-apply-engine.ts` — empty-field/file-safe filling engine.
+- `src/guided-autopilot.ts` — allowlisted Next/Continue/Done navigation and
+  final-action rejection.
+- `src/ats-prefill-adapters.ts` — generic, Workday, and Greenhouse adapters.
+- `src/*artifact*`, `src/*snapshot*`, `src/*cover-letter*`,
+  `src/*screening*` — job-scoped resume, cover-letter, and question flows.
+- `src/home.ts` — extension home/popup UI.
+- `tests/` — Node/DOM fixtures and policy invariants.
+- `manifest.json` and `public/` — extension metadata and assets.
 
----
+## Conventions
 
-## 4. Browser Extension (`apps/extension`)
-
-A lightweight React app that lives in the browser.
-
-- **`src/`**:
-  - `content-scripts/`: Code that "injects" into other websites (like LinkedIn or USCIS).
-  - `popup/`: The UI you see when clicking the extension icon.
-  - `background/`: Long-running script that handles sync and state.
-
----
-
-## 🔍 Naming Conventions
-- **Files**: `kebab-case.tsx` (e.g., `user-profile.tsx`).
-- **Components**: `PascalCase` inside the file (e.g., `export function UserProfile`).
-- **Constants**: `SCREAMING_SNAKE_CASE` (e.g., `JWT_EXPIRY_TIME`).
-- **Hooks**: Start with "use" (e.g., `useAuth.ts`).
+- TypeScript modules generally use kebab-case; React components use PascalCase
+  exports.
+- Web imports prefer the `@/` alias.
+- Database changes go through timestamped migrations.
+- New server logging must use sanitized/structured logging and must not include
+  resume or answer content.
