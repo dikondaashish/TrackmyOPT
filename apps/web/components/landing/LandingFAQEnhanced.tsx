@@ -47,7 +47,7 @@ const faqCategories = [
             {
                 question: "How can I track my USCIS case status?",
                 answer:
-                    "You can track your USCIS case status using your 13-character receipt number (e.g., IOE1234567890 or MSC1234567890). Free accounts track 1 case; Pro tracks up to 8. You get plain-English status explanations, processing benchmarks, email alerts, and optional browser push (Pro) when we detect changes.",
+                    "You can track your USCIS case status using your 13-character receipt number (e.g., IOE1234567890 or MSC1234567890). Free accounts track 1 case with manual refresh anytime; Pro tracks up to 8 with daily auto-checks, status-change email alerts, and optional browser push.",
             },
             {
                 question: "What does each USCIS case status mean?",
@@ -92,7 +92,7 @@ const faqCategories = [
             {
                 question: "Is TrackMyOPT free?",
                 answer:
-                    "Yes! TrackMyOPT offers a comprehensive free plan that includes: OPT timeline dashboard with countdown timers, unemployment clock tracking, 1 USCIS case status tracker, H-1B sponsor database access, job application tracker, and email alerts. The Pro plan ($4.99/month) adds: track up to 8 USCIS cases, browser push case alerts, priority case monitoring, verified H-1B sponsor data, AI resume parser & scorer, and detailed job analytics.",
+                    "Yes! TrackMyOPT offers a free plan that includes: OPT timeline dashboard with countdown timers, unemployment clock tracking, 1 USCIS case tracker with manual refresh, H-1B sponsor database access (limited), and a job application tracker. The Pro plan ($4.99/month) adds: track up to 8 USCIS cases, daily USCIS auto-checks, status-change email alerts, browser push alerts, Document Vault, AI resume tools, and higher limits.",
             },
             {
                 question: "Is my data secure on TrackMyOPT?",

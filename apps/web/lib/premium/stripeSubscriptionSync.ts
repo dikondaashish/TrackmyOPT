@@ -455,3 +455,100 @@ export async function upgradeProSubscriptionToDedicated(args: {
     planTier: "dedicated",
   };
 }
+
+type DowngradeProResult =
+  | { outcome: "active"; subscriptionId: string; planTier: "pro" }
+  | { outcome: "payment_required"; message: string; hostedInvoiceUrl: string | null };
+
+/**
+ * Phase 6: move Dedicated subscribers onto Pro (same Stripe subscription id).
+ * Credit/proration handled by Stripe; no new checkout session.
+ */
+export async function downgradeDedicatedSubscriptionToPro(args: {
+  stripe: Stripe;
+  supabase: SupabaseClient;
+  userId: string;
+  customerId: string;
+  existingSubscriptionId: string;
+  proPriceId: string;
+  interval: BillingInterval;
+}): Promise<DowngradeProResult> {
+  const { stripe, supabase, userId, customerId, existingSubscriptionId, proPriceId, interval } =
+    args;
+
+  const subscription = await stripe.subscriptions.retrieve(existingSubscriptionId, {
+    expand: ["items.data.price"],
+  });
+
+  const existingPlan = getPlanFromSubscription(subscription);
+  if (existingPlan !== "dedicated") {
+    return {
+      outcome: "payment_required",
+      message: "Only an active Dedicated subscription can switch to Pro this way.",
+      hostedInvoiceUrl: null,
+    };
+  }
+
+  if (!isValidAccessSubscription(subscription)) {
+    return {
+      outcome: "payment_required",
+      message: "Your Dedicated subscription is not active. Please contact support.",
+      hostedInvoiceUrl: null,
+    };
+  }
+
+  const subscriptionItem = subscription.items.data[0];
+  if (!subscriptionItem?.id) {
+    return {
+      outcome: "payment_required",
+      message: "Could not read subscription items. Please contact support.",
+      hostedInvoiceUrl: null,
+    };
+  }
+
+  const updated = await stripe.subscriptions.update(existingSubscriptionId, {
+    items: [{ id: subscriptionItem.id, price: proPriceId }],
+    // Credit unused Dedicated time toward Pro; avoid charging immediately on downgrade.
+    proration_behavior: "create_prorations",
+    payment_behavior: "pending_if_incomplete",
+    metadata: {
+      ...subscription.metadata,
+      planId: "pro",
+      interval,
+      downgraded_from: "dedicated",
+      downgraded_to: "pro",
+      supabase_user_id: userId,
+    },
+  });
+
+  if (subscriptionHasPendingUpdate(updated)) {
+    return {
+      outcome: "payment_required",
+      message:
+        "We could not finish switching you to Pro yet. Update your payment method or contact support.",
+      hostedInvoiceUrl: extractHostedInvoiceUrl(updated),
+    };
+  }
+
+  if (!subscriptionCanGrantTargetPlan(updated, "pro")) {
+    return {
+      outcome: "payment_required",
+      message: "Pro access is not confirmed yet. Please try again or contact support.",
+      hostedInvoiceUrl: extractHostedInvoiceUrl(updated),
+    };
+  }
+
+  await syncProfileFromSubscription({
+    supabase,
+    userId,
+    customerId,
+    subscription: updated,
+  });
+
+  return {
+    outcome: "active",
+    subscriptionId: updated.id,
+    planTier: "pro",
+  };
+}
+

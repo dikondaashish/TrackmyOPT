@@ -4,6 +4,10 @@ import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { identifyTrackMyOptUser, associateUniversityPartnerGroup } from "@/lib/posthog-client";
 import { normalizePartnerGroupKey } from "@/lib/posthog/university-partner-groups";
+import {
+  hasSuccessfulCaseCheck,
+  resolveActivationState,
+} from "@/lib/posthog/activation";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 
 function resolvePlanTier(
@@ -15,17 +19,6 @@ function resolvePlanTier(
   if (normalized === "dedicated") return "dedicated";
   if (normalized === "pro") return "pro";
   return normalized || "pro";
-}
-
-function resolveActivationState(input: {
-  onboardingCompleted: boolean;
-  hasReceipt: boolean;
-  hasStatus: boolean;
-}): string {
-  if (!input.onboardingCompleted) return "onboarding_incomplete";
-  if (!input.hasReceipt) return "no_receipt";
-  if (!input.hasStatus) return "receipt_pending_status";
-  return "activated";
 }
 
 /**
@@ -58,19 +51,22 @@ export function PostHogIdentify() {
       if (cancelled) return;
 
       let hasReceipt = false;
-      let hasStatus = false;
+      let hasSuccessfulCheck = false;
       if (caseRes.ok) {
         const caseJson = await caseRes.json().catch(() => null);
-        const cases: Array<{ receipt_number?: string; current_status?: string | null }> =
-          caseJson?.cases?.length
-            ? caseJson.cases
-            : caseJson?.data
-              ? [caseJson.data]
-              : [];
+        const cases: Array<{
+          receipt_number?: string;
+          current_status?: string | null;
+          last_checked_at?: string | null;
+        }> = caseJson?.cases?.length
+          ? caseJson.cases
+          : caseJson?.data
+            ? [caseJson.data]
+            : [];
         const primary =
           cases.find((c) => c.receipt_number) ?? cases[0] ?? null;
         hasReceipt = Boolean(primary?.receipt_number);
-        hasStatus = Boolean(primary?.current_status);
+        hasSuccessfulCheck = hasSuccessfulCaseCheck(primary);
       }
 
       const onboardingCompleted = profile?.onboarding_completed === true;
@@ -82,9 +78,8 @@ export function PostHogIdentify() {
         is_stem_eligible: profile?.is_stem_eligible === true,
         has_receipt: hasReceipt,
         activation_state: resolveActivationState({
-          onboardingCompleted,
           hasReceipt,
-          hasStatus,
+          hasSuccessfulCheck,
         }),
         signup_date: user.created_at?.slice(0, 10),
         provider:

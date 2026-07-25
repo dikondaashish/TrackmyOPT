@@ -6,14 +6,12 @@ import {
     Briefcase,
     Zap,
 } from "lucide-react";
+import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
+import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
 
 export { PLAN_COMPARISON_FEATURES as comparisonFeatures } from "@/lib/pricing/plan-features";
 
-export const pricingFaqs = [
-    {
-        q: "When should I choose Dedicated over Pro?",
-        a: "Choose Pro if you want automated USCIS monitoring, unemployment alerts, document vault, and career tools — it covers most OPT and STEM OPT students. Choose Dedicated if you want a higher resume quota and priority email support on top of Pro.",
-    },
+const basePricingFaqs = [
     {
         q: "Is TrackMyOPT Pro worth it?",
         a: "For most OPT and STEM OPT students, Pro is worth it if you want daily 9:00 AM ET reminders, unemployment day tracking with alerts, and USCIS case monitoring in one place — without spreadsheets. It helps you stay organized before deadlines sneak up. Always confirm requirements with your DSO.",
@@ -36,7 +34,7 @@ export const pricingFaqs = [
     },
     {
         q: "Can I try Pro before paying?",
-        a: "Pro includes one 7-day free trial per account, ever: the first time you complete Pro checkout you can start with a trial (full access). After that, Pro checkout starts billing on Stripe’s schedule with no additional trial period. Cancel anytime before the trial ends and you will not be charged.",
+        a: `Pro includes one ${PRO_TRIAL_DAYS}-day free trial per account, ever: the first time you complete Pro checkout you can start with a trial (full access). After that, Pro checkout starts billing on Stripe’s schedule with no additional trial period. Cancel anytime before the trial ends and you will not be charged.`,
     },
     {
         q: "What payment methods do you accept?",
@@ -44,7 +42,7 @@ export const pricingFaqs = [
     },
     {
         q: "What is your refund policy?",
-        a: "Pro includes a 7-day free trial when eligible—cancel before it ends and you are not charged. Dedicated is billed immediately with a 3-day money-back guarantee on the first paid month only. After those windows, we generally do not refund change-of-mind charges. See our Refund Policy for exceptions.",
+        a: `Pro includes a ${PRO_TRIAL_DAYS}-day free trial when eligible—cancel before it ends and you are not charged. After that window, we generally do not refund change-of-mind charges. See our Refund Policy for exceptions.`,
     },
     {
         q: "Can I cancel my subscription anytime?",
@@ -52,13 +50,25 @@ export const pricingFaqs = [
     },
     {
         q: "Do you offer annual billing?",
-        a: "Yes. Annual billing saves you up to 40% compared to paying monthly. In the app we show the monthly equivalent for annual plans (about $4.17/mo for Pro and $12.50/mo for Dedicated) with a clear \"billed yearly\" label; you are charged the full annual amount at checkout.",
+        a: "Yes. Annual billing saves you money vs paying monthly. In the app we show the monthly equivalent for annual Pro (about $4.17/mo) with a clear \"billed yearly\" label; you are charged the full annual amount at checkout.",
     },
     {
         q: "Is my payment information secure?",
         a: "All payments are processed by Stripe, a PCI Level 1 certified payment processor. We never store your credit card information on our servers.",
     },
 ];
+
+const dedicatedFaqs = [
+    {
+        q: "When should I choose Dedicated over Pro?",
+        a: "Choose Pro if you want automated USCIS monitoring, unemployment alerts, document vault, and career tools — it covers most OPT and STEM OPT students. Choose Dedicated if you want a higher resume quota and priority email support on top of Pro.",
+    },
+];
+
+/** FAQs for /pricing — omit Dedicated sales Qs when the plan is closed to new purchases. */
+export const pricingFaqs = shouldShowDedicatedPlanForSale()
+    ? [...dedicatedFaqs, ...basePricingFaqs]
+    : basePricingFaqs;
 
 export const testimonials = [
     {

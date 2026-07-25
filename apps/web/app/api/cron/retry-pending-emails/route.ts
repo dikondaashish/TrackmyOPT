@@ -96,7 +96,30 @@ async function resolveBodiesForRetry(
       .eq("user_id", row.user_id)
       .maybeSingle();
     firstName = profile?.first_name ?? null;
-    const bodies = buildCheckoutRecoveryEmailBodies(firstName);
+
+    // Prefer stored resume URL from the original queue row when bodies were dropped.
+    let checkoutUrl: string | undefined;
+    let resumeKind: "open_session" | "fresh_checkout" | undefined;
+    const { data: fullRow } = await supabase
+      .from("email_queue")
+      .select("email_data")
+      .eq("id", row.id)
+      .maybeSingle();
+    const emailData = (fullRow?.email_data ?? null) as {
+      checkout_url?: string | null;
+      resume_kind?: string | null;
+    } | null;
+    if (typeof emailData?.checkout_url === "string" && emailData.checkout_url.trim()) {
+      checkoutUrl = emailData.checkout_url.trim();
+    }
+    if (emailData?.resume_kind === "open_session" || emailData?.resume_kind === "fresh_checkout") {
+      resumeKind = emailData.resume_kind;
+    }
+
+    const bodies = buildCheckoutRecoveryEmailBodies(firstName, {
+      checkoutUrl,
+      resumeKind,
+    });
     return { subject: bodies.subject, html: bodies.html, text: bodies.text };
   }
 

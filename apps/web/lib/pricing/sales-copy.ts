@@ -2,6 +2,9 @@
  * Conversion copy for Pro & Dedicated — single source for pricing surfaces.
  */
 
+import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
+import { isDedicatedOpenForNewPurchases } from "@/lib/pricing/dedicated-availability";
+
 export const PRICING_SOCIAL_PROOF =
   "Join 2,500+ international students who trust TrackMyOPT";
 
@@ -53,7 +56,7 @@ export const PLAN_SALES_META: Record<
       "Document vault + higher resume / ATS limits",
     ],
     badge: "Most Popular",
-    ctaDefault: "Start 7-Day Free Trial",
+    ctaDefault: `Start ${PRO_TRIAL_DAYS}-Day Free Trial`,
     ctaNoTrial: "Subscribe to Pro",
   },
   dedicated: {
@@ -75,6 +78,7 @@ export const PLAN_PICKER_GUIDE = {
   title: "Not sure which plan?",
   proLine:
     "Choose Pro if you want automated USCIS monitoring, unemployment alerts, and career tools — most students start here.",
+  /** Shown only while Dedicated is open for new purchases. */
   dedicatedLine:
     "Choose Dedicated if you want higher resume quotas and priority email support on top of Pro.",
 } as const;
@@ -87,8 +91,8 @@ export const LANDING_PLAN_COPY = {
   },
   pro: {
     description: "Daily reminders, unemployment alerts, and USCIS status monitoring in one place.",
-    users: "7-day free trial · cancel anytime",
-    buttonLabel: "Start 7-Day Free Trial",
+    users: `${PRO_TRIAL_DAYS}-day free trial · cancel anytime`,
+    buttonLabel: `Start ${PRO_TRIAL_DAYS}-Day Free Trial`,
   },
   dedicated: {
     description: "Pro + higher resume quota and priority email support.",
@@ -96,3 +100,8 @@ export const LANDING_PLAN_COPY = {
     buttonLabel: "Get Dedicated Support",
   },
 } as const;
+
+/** Public pricing surfaces should omit Dedicated when closed for new sales. */
+export function shouldShowDedicatedPlanForSale(): boolean {
+  return isDedicatedOpenForNewPurchases();
+}

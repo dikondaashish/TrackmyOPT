@@ -33,6 +33,7 @@ import {
   sendPaymentFailedEmail,
   sendRefundAcknowledgmentEmail,
   sendSubscriptionEndedEmail,
+  sendUnusedCancelWinbackEmail,
   sendTrialEndingEmail,
   sendTrialStartedEmail,
   sendCancellationConfirmedEmail,
@@ -54,6 +55,46 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+async function createBillingPortalUrl(
+  stripe: Stripe,
+  customerId: string
+): Promise<string | null> {
+  try {
+    const allowedOrigin =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      'https://www.trackmyopt.com';
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${allowedOrigin}/dashboard/settings?tab=subscription`,
+    });
+    return session.url ?? null;
+  } catch (e) {
+    secureLog.warn('createBillingPortalUrl failed:', sanitizeError(e));
+    return null;
+  }
+}
+
+async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
+  try {
+    if (!session.id) return;
+    const { error } = await supabase
+      .from('payment_transactions')
+      .update({
+        status: 'expired',
+        failure_reason: 'checkout_session_expired',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('stripe_checkout_session_id', session.id)
+      .eq('status', 'pending');
+    if (error) {
+      secureLog.warn('checkout.session.expired update failed:', error.message);
+    }
+  } catch (e) {
+    secureLog.error('handleCheckoutSessionExpired:', sanitizeError(e));
+  }
+}
 
 function getStripe(): Stripe {
   requireLiveStripeKeyInProduction();
@@ -115,6 +156,12 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
         await logPaymentFailure(session);
         await handleAsyncCheckoutPaymentFailed(session, event.id);
+        break;
+      }
+
+      case 'checkout.session.expired': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        await handleCheckoutSessionExpired(session);
         break;
       }
 
@@ -534,6 +581,12 @@ async function handlePaymentIntentPaymentFailed(
       return;
     }
 
+    // Phase 5: invoice.payment_failed is the canonical analytics+email emitter for
+    // subscription dunning. Skip duplicate payment_failed when an invoice exists.
+    if (invoiceId) {
+      return;
+    }
+
     const customerId =
       typeof full.customer === 'string' ? full.customer : full.customer?.id ?? null;
 
@@ -578,15 +631,23 @@ async function handlePaymentIntentPaymentFailed(
 
     const amountCents = full.amount;
     const currency = full.currency || 'usd';
-    const failureCode = full.last_payment_error?.code ?? undefined;
+    const failureCode =
+      full.last_payment_error?.decline_code ||
+      full.last_payment_error?.code ||
+      undefined;
 
     await captureServerEvent(resolved.userId, 'payment_failed', {
       $insert_id: billingInsertId('payment_failed', eventId),
       plan_tier: planTier,
       amount_cents: amountCents,
       currency,
+      failure_source: 'payment_intent',
       ...(failureCode ? { failure_code: failureCode } : {}),
     });
+
+    const portalUrl = customerId
+      ? await createBillingPortalUrl(stripe, customerId)
+      : null;
 
     const r = await sendPaymentFailedEmail({
       supabase,
@@ -598,6 +659,7 @@ async function handlePaymentIntentPaymentFailed(
       currency,
       stripeEventId: eventId,
       stripeInvoiceId: invoiceId,
+      updatePaymentUrl: portalUrl ?? undefined,
     });
     if (!r.ok && 'error' in r && r.error) {
       secureLog.error('payment_intent.payment_failed email:', r.error);
@@ -696,18 +758,41 @@ async function handleInvoicePaymentFailed(
 
     const amountCents = inv.amount_due || inv.total || 0;
     const currency = inv.currency || 'usd';
-    const failureCode =
+    let failureCode: string | undefined =
       typeof inv.last_finalization_error?.code === 'string'
         ? inv.last_finalization_error.code
         : undefined;
+
+    // Prefer charge decline code when present (more useful than empty finalization error).
+    if (!failureCode) {
+      try {
+        const chargeRef = (inv as Stripe.Invoice & { charge?: string | Stripe.Charge | null }).charge;
+        const chargeId = typeof chargeRef === 'string' ? chargeRef : chargeRef?.id;
+        if (chargeId) {
+          const charge = await stripe.charges.retrieve(chargeId);
+          const fromCharge =
+            charge.failure_code ||
+            charge.outcome?.reason ||
+            null;
+          if (typeof fromCharge === 'string' && fromCharge.length > 0) {
+            failureCode = fromCharge;
+          }
+        }
+      } catch {
+        /* non-blocking */
+      }
+    }
 
     await captureServerEvent(user.userId, 'payment_failed', {
       $insert_id: billingInsertId('payment_failed', eventId),
       plan_tier: planTier,
       amount_cents: amountCents,
       currency,
+      failure_source: 'invoice',
       ...(failureCode ? { failure_code: failureCode } : {}),
     });
+
+    const portalUrl = await createBillingPortalUrl(stripe, customerId);
 
     const r = await sendPaymentFailedEmail({
       supabase,
@@ -719,6 +804,7 @@ async function handleInvoicePaymentFailed(
       currency,
       stripeEventId: eventId,
       stripeInvoiceId: inv.id,
+      updatePaymentUrl: portalUrl ?? undefined,
     });
     if (!r.ok && r.error) {
       secureLog.error('invoice.payment_failed email:', r.error);
@@ -768,6 +854,7 @@ async function safeSendPaymentFailedForSubscription(
       currency,
       stripeEventId: eventId,
       stripeInvoiceId: invoiceId,
+      updatePaymentUrl: (await createBillingPortalUrl(stripe, customerId)) ?? undefined,
     });
     if (!r.ok && r.error) {
       secureLog.error('subscription payment_failed email:', r.error);
@@ -975,6 +1062,61 @@ async function handleInvoicePaid(
         })
       );
       await refreshPostHogLtv(user.userId);
+
+      // Renewals + trial→paid: send receipt (checkout path already emails immediate paid).
+      const billingReason = (inv as Stripe.Invoice & { billing_reason?: string | null })
+        .billing_reason;
+      if (
+        billingReason === 'subscription_cycle' ||
+        billingReason === 'subscription_update'
+      ) {
+        const periodEnd = (subscription as unknown as { current_period_end?: number })
+          .current_period_end;
+        const periodEndLabel = periodEnd
+          ? new Date(periodEnd * 1000).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : 'your next renewal';
+        const amountFormatted = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: (inv.currency || 'usd').toUpperCase(),
+        }).format(amountCents / 100);
+        const intervalLabel = interval === 'month' ? 'monthly' : 'yearly';
+
+        const trialEnd = subscription.trial_end;
+        const nowSec = Math.floor(Date.now() / 1000);
+        const isTrialConversion =
+          typeof trialEnd === 'number' &&
+          nowSec - trialEnd >= -3600 &&
+          nowSec - trialEnd <= 3 * 24 * 3600;
+
+        if (isTrialConversion) {
+          await captureServerEvent(user.userId, 'trial_converted', {
+            $insert_id: billingInsertId('trial_converted', stripeEventId),
+            plan_tier: planTier,
+            interval,
+            amount_cents: amountCents,
+            billing_reason: billingReason,
+          });
+        }
+
+        const receipt = await sendSubscriptionReceiptEmail({
+          supabase,
+          userId: user.userId,
+          toEmail: user.email,
+          firstName: user.firstName,
+          planLabel: `TrackMyOPT ${planTier} (${intervalLabel})`,
+          amountFormatted,
+          billingInterval: intervalLabel,
+          periodEndDate: periodEndLabel,
+          stripeEventId,
+        });
+        if (!receipt.ok && 'error' in receipt && receipt.error) {
+          secureLog.error('handleInvoicePaid receipt email:', receipt.error);
+        }
+      }
     }
 
     const result = await reconcileCustomerBilling({
@@ -1124,9 +1266,21 @@ async function handleSubscriptionDeleted(
 
     if (result.action !== 'revoked') return;
 
+    const cancelDetails = (
+      subscription as Stripe.Subscription & {
+        cancellation_details?: { feedback?: string | null; comment?: string | null } | null;
+      }
+    ).cancellation_details;
+    const cancelFeedback =
+      typeof cancelDetails?.feedback === 'string' ? cancelDetails.feedback : null;
+    const cancelComment =
+      typeof cancelDetails?.comment === 'string' ? cancelDetails.comment : null;
+
     await captureServerEvent(user.userId, 'subscription_canceled', {
       $insert_id: billingInsertId('subscription_canceled', eventId),
       plan_tier: normalizePlanTier(getPlanFromSubscription(subscription) ?? undefined),
+      ...(cancelFeedback ? { cancel_feedback: cancelFeedback } : {}),
+      ...(cancelComment ? { cancel_comment: cancelComment.slice(0, 200) } : {}),
     });
 
     const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end;
@@ -1142,16 +1296,30 @@ async function handleSubscriptionDeleted(
           year: 'numeric',
         });
 
-    const r = await sendSubscriptionEndedEmail({
-      supabase,
-      userId: user.userId,
-      toEmail: user.email,
-      firstName: user.firstName,
-      accessEndedDate,
-      stripeEventId: eventId,
-    });
-    if (!r.ok && r.error) {
-      secureLog.error('subscription_ended email:', r.error);
+    // Phase 6: unused cancels get the auto-check win-back; everyone else gets ended email.
+    if (cancelFeedback === 'unused') {
+      const r = await sendUnusedCancelWinbackEmail({
+        supabase,
+        userId: user.userId,
+        toEmail: user.email,
+        firstName: user.firstName,
+        stripeEventId: eventId,
+      });
+      if (!r.ok && r.error) {
+        secureLog.error('unused_cancel_winback email:', r.error);
+      }
+    } else {
+      const r = await sendSubscriptionEndedEmail({
+        supabase,
+        userId: user.userId,
+        toEmail: user.email,
+        firstName: user.firstName,
+        accessEndedDate,
+        stripeEventId: eventId,
+      });
+      if (!r.ok && r.error) {
+        secureLog.error('subscription_ended email:', r.error);
+      }
     }
   } catch (error: unknown) {
     secureLog.error('handleSubscriptionDeleted:', sanitizeError(error));

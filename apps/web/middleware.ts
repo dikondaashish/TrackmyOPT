@@ -25,6 +25,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { CRAWLER_NOINDEX_HEADERS, isSearchCrawler } from '@/lib/is-search-crawler';
+import { DEFAULT_POST_AUTH_PATH } from '@/lib/auth/post-auth-landing';
 
 // Routes that require authentication (redirect to login if not logged in)
 const protectedRoutes = ['/dashboard', '/admin'];
@@ -160,10 +161,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Auth route + authenticated = optionally redirect to dashboard
-  // Uncomment below if you want to redirect already-logged-in users away from login page
+  // Auth route + authenticated = send them into case status (Phase 4 activation path)
   if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL(DEFAULT_POST_AUTH_PATH, request.url));
   }
 
   // Security headers (CSP, X-Frame-Options, etc.) are set site-wide in next.config.js

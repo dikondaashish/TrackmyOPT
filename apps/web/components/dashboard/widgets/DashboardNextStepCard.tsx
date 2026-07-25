@@ -107,7 +107,7 @@ export function DashboardNextStepCard() {
           iconClass: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30",
           title: "Add your USCIS receipt",
           description:
-            "Track your case in one place — we'll check USCIS and show plain-English updates.",
+            "Track your case in one place — Free includes manual refresh with plain-English updates; Pro adds daily auto-checks.",
           cta: "Add receipt",
         };
       case "free_upsell":

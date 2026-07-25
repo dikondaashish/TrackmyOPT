@@ -71,7 +71,7 @@ export default function USCISCaseStatusTrackingGuide() {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    You can track your USCIS case status online at egov.uscis.gov using your 13-character receipt number (e.g., IOE0123456789). TrackMyOPT provides automated tracking with plain-English status explanations and alerts for status changes.
+                    You can track your USCIS case status online at egov.uscis.gov using your 13-character receipt number (e.g., IOE0123456789). TrackMyOPT Free provides manual tracking with plain-English status explanations; Pro adds daily auto-checks and email alerts when status changes.
                 </p>
             </div>
 
@@ -456,7 +456,7 @@ export default function USCISCaseStatusTrackingGuide() {
             <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Never Miss a USCIS Status Update</h2>
                 <p className="text-green-100 mb-6 max-w-lg mx-auto">
-                    Join 2,500+ F-1 students who use TrackMyOPT to automatically track their case status, get instant email alerts, and stay on top of their immigration journey.
+                    Join 2,500+ F-1 students who use TrackMyOPT to track case status — Free with manual refresh, or Pro with daily auto-checks and email alerts.
                 </p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-green-50 transition-colors">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />

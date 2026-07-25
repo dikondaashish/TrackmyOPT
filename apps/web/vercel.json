@@ -6,6 +6,18 @@
     {
       "path": "/api/cron/check-case-status",
       "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/checkout-recovery-emails",
+      "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/d1-activation-nudge",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/retry-pending-emails",
+      "schedule": "15 * * * *"
     }
   ]
 }

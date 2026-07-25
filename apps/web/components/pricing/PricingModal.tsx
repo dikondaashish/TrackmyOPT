@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   getPricingModalDedicatedConsentLabel,
   getPricingModalProConsentLabel,
+  PRO_TRIAL_DAYS,
 } from "@/lib/legal/legal-config";
 import {
   Dialog,
@@ -21,10 +22,11 @@ import { getPlanCardFeatures } from "@/lib/pricing/plan-features";
 import {
   PLAN_SALES_META,
   PRICING_MODAL,
+  shouldShowDedicatedPlanForSale,
   type PaidPlanId,
 } from "@/lib/pricing/sales-copy";
 import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
-import { captureCheckoutStarted, capturePricingCtaViewed } from "@/lib/posthog-client";
+import { capturePricingCtaViewed } from "@/lib/posthog-client";
 
 interface PricingModalProps {
   open: boolean;
@@ -176,11 +178,6 @@ export function PricingModal({
     const currentInterval = isYearly ? "year" : "month";
 
     try {
-      captureCheckoutStarted({
-        trigger: "pricing_modal",
-        source: checkoutPage ? "premium_checkout_page" : "pricing_modal",
-      });
-
       const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
       const response = await fetch('/api/premium/create-checkout', {
         method: 'POST',
@@ -303,7 +300,7 @@ export function PricingModal({
     features: Array<{ text: string; included: boolean; isHeader: boolean }>;
   }> => {
     const showProTrial = !isPremium && proFreeTrialEligible !== false;
-    return [
+    const allPlans = [
     {
       id: 'free',
       name: 'Free',
@@ -329,7 +326,7 @@ export function PricingModal({
       originalYearly: 79.99,
       popular: true,
       current: isPremium,
-      ...(showProTrial ? { trial: '7-day free trial' as const } : {}),
+      ...(showProTrial ? { trial: `${PRO_TRIAL_DAYS}-day free trial` as const } : {}),
       iconBg: 'bg-gradient-to-br from-violet-500 to-indigo-600',
       iconColor: 'text-white',
       borderColor: 'border-violet-500/50',
@@ -353,6 +350,10 @@ export function PricingModal({
       features: getPlanCardFeatures("dedicated"),
     },
   ];
+    // Phase 6: hide Dedicated from new sales while grandfathering existing subscribers.
+    return shouldShowDedicatedPlanForSale()
+      ? allPlans
+      : allPlans.filter((p) => p.id !== "dedicated");
   }, [isPremium, proFreeTrialEligible]);
 
   return (
@@ -499,7 +500,10 @@ export function PricingModal({
               }}
             />
           </div>
-          <div className="grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-3 md:items-stretch">
+          <div className={cn(
+            "grid gap-3 sm:gap-4 md:gap-3 md:items-stretch",
+            plans.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2"
+          )}>
             {plans.map((plan) => {
               const Icon = plan.icon;
               const monthlyDisplay = plan.monthlyPrice;
@@ -894,13 +898,15 @@ export function PricingModal({
               {!isPremium && proFreeTrialEligible !== false && (
               <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Sparkles className="w-3.5 h-3.5 md:w-3 md:h-3 text-violet-600" />
-                <span>Pro: 7-day free trial</span>
+                <span>Pro: {PRO_TRIAL_DAYS}-day free trial</span>
               </div>
               )}
+              {shouldShowDedicatedPlanForSale() ? (
               <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Shield className="w-3.5 h-3.5 md:w-3 md:h-3 text-amber-600" />
                 <span>Dedicated: 3-day money-back</span>
               </div>
+              ) : null}
               <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Zap className="w-3.5 h-3.5 md:w-3 md:h-3 text-amber-600" />
                 <span>Cancel in Settings → Billing</span>

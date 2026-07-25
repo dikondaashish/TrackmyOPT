@@ -12,6 +12,7 @@ import {
   PRICING_CTA_EXPERIMENT_FLAG,
   type PricingCtaVariant,
 } from "@/lib/posthog/pricing-cta-experiment";
+import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
 
 const PRO_CHECKOUT_HREF =
   "/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear";
@@ -89,16 +90,20 @@ export function PricingFinalCta() {
             >
               {ctaText} <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href={DEDICATED_CHECKOUT_HREF}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20"
-            >
-              Get Dedicated Support
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            {shouldShowDedicatedPlanForSale() ? (
+              <Link
+                href={DEDICATED_CHECKOUT_HREF}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20"
+              >
+                Get Dedicated Support
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            ) : null}
           </div>
           <p className="text-sm text-blue-100/80 mt-4">
-            Pro from $4.17/mo billed yearly · Dedicated adds priority email support
+            {shouldShowDedicatedPlanForSale()
+              ? "Pro from $4.17/mo billed yearly · Dedicated adds priority email support"
+              : "Pro from $4.17/mo billed yearly · cancel anytime"}
           </p>
         </div>
       </div>

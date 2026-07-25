@@ -13,6 +13,7 @@ import { sanitizeError, secureLog } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
 import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/proFreeTrialFromStripe";
 import {
+  downgradeDedicatedSubscriptionToPro,
   getPlanFromSubscription,
   getTierRank,
   listValidCustomerSubscriptions,
@@ -22,8 +23,9 @@ import {
 import type { CreateCheckoutResponse } from "@/lib/premium/checkoutResponseTypes";
 import { recordBillingConsentEvent } from "@/lib/billing/recordBillingConsent";
 import { getRequestAuditFromHeaders } from "@/lib/billing/request-audit";
-import { LEGAL_POLICY_VERSIONS } from "@/lib/billing/legal-config";
+import { LEGAL_POLICY_VERSIONS, PRO_TRIAL_DAYS } from "@/lib/billing/legal-config";
 import type { BillingInterval, PaidPlanId } from "@/lib/billing/legal-config";
+import { isDedicatedOpenForNewPurchases } from "@/lib/pricing/dedicated-availability";
 import {
   captureServerEvent,
   normalizeBillingInterval,
@@ -163,6 +165,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid plan or interval" }, { status: 400 });
     }
 
+    // Phase 6: Dedicated closed for new sales (existing Dedicated can still migrate to Pro).
+    if (planId === "dedicated" && !isDedicatedOpenForNewPurchases()) {
+      return NextResponse.json(
+        {
+          error:
+            "Dedicated is no longer available for new purchases. Choose Pro for daily USCIS auto-checks and alerts.",
+          code: "dedicated_closed",
+        },
+        { status: 400 }
+      );
+    }
+
     if (!recurringBillingAccepted) {
       return NextResponse.json(
         {
@@ -238,6 +252,70 @@ export async function POST(req: NextRequest) {
     if (bestExisting) {
       const existingPlan = getPlanFromSubscription(bestExisting);
       const portalUrl = await createBillingPortalUrl(stripe, customerId, origin);
+
+      // Phase 6: Dedicated → Pro migration (in-app switch for grandfathered subscribers).
+      if (targetPlan === "pro" && existingPlan === "dedicated") {
+        const audit = getRequestAuditFromHeaders(req);
+        await recordBillingConsentEvent({
+          userId,
+          eventType: "checkout_recurring_consent",
+          planId: "pro",
+          interval: interval as BillingInterval,
+          includeProTrial: false,
+          ipAddress: audit.ip_address,
+          userAgent: audit.user_agent,
+          metadata: {
+            checkout_promo_key: checkoutPromoKey,
+            downgrade_from: "dedicated",
+            stripe_subscription_id: bestExisting.id,
+          },
+        });
+
+        await captureServerEvent(userId, "checkout_started", {
+          $insert_id: billingInsertId("checkout_started", `${bestExisting.id}:dedicated-to-pro`),
+          plan_tier: "pro",
+          interval: normalizeBillingInterval(interval),
+          is_downgrade: true,
+          from_plan: "dedicated",
+          to_plan: "pro",
+        });
+
+        const downgrade = await downgradeDedicatedSubscriptionToPro({
+          stripe,
+          supabase,
+          userId,
+          customerId,
+          existingSubscriptionId: bestExisting.id,
+          proPriceId: priceId,
+          interval: interval as BillingInterval,
+        });
+
+        if (downgrade.outcome === "active") {
+          await captureServerEvent(userId, "subscription_upgraded", {
+            plan_tier: "pro",
+            interval: normalizeBillingInterval(interval),
+            is_downgrade: true,
+            from_plan: "dedicated",
+            to_plan: "pro",
+          });
+          const body: CreateCheckoutResponse = {
+            type: "subscription_updated",
+            status: "active",
+            redirect: `${origin}/premium/success?planId=pro&downgrade=1`,
+            planId: "pro",
+          };
+          return NextResponse.json(body);
+        }
+
+        return NextResponse.json(
+          {
+            error: downgrade.message,
+            portalUrl,
+            hostedInvoiceUrl: downgrade.hostedInvoiceUrl,
+          },
+          { status: 402 }
+        );
+      }
 
       if (targetPlan === "dedicated" && existingPlan === "pro") {
         const audit = getRequestAuditFromHeaders(req);
@@ -432,7 +510,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       subscription_data: {
-        trial_period_days: includeProTrial ? 7 : undefined,
+        trial_period_days: includeProTrial ? PRO_TRIAL_DAYS : undefined,
         metadata: {
           planId,
           interval,

@@ -198,47 +198,50 @@ export async function GET(req: NextRequest) {
     const now = new Date();
     const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
 
-    // subscription_expires_at is in the past — check Stripe before revoking.
-    // This self-heals cases where the renewal webhook fired but didn't update
-    // subscription_expires_at (e.g. missing customer.subscription.updated listener).
-    if (expiresAt && expiresAt < now) {
-      let stripeConfirmsActive = false;
-      let newExpiresAt: string | null = null;
-      let newPlanTier: string | null = null;
+    let billingStatus: string | null = null;
+    let stripeBestSub:
+      | (Stripe.Subscription & { current_period_end?: number })
+      | null = null;
 
-      if (data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
-        try {
-          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-            apiVersion: '2025-09-30.clover',
-          });
-          const validSubs = await listValidCustomerSubscriptions(stripe, data.stripe_customer_id);
-          const foundSub = pickBestSubscription(validSubs) as
-            | (Stripe.Subscription & { current_period_end?: number })
-            | null;
-          if (foundSub) {
-            stripeConfirmsActive = true;
-            newPlanTier = getPlanFromSubscription(foundSub) || data.plan_tier || 'pro';
-            const periodEnd: number | undefined = foundSub.current_period_end;
-            if (typeof periodEnd === 'number') {
-              newExpiresAt = new Date(periodEnd * 1000).toISOString();
-            } else {
-              newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-              secureLog.warn(
-                'GET /api/premium/status: current_period_end not found; using 30-day fallback expiry',
-              );
-            }
-          }
-        } catch (stripeErr) {
+    if (data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: '2025-09-30.clover',
+        });
+        const validSubs = await listValidCustomerSubscriptions(stripe, data.stripe_customer_id);
+        stripeBestSub = pickBestSubscription(validSubs) as
+          | (Stripe.Subscription & { current_period_end?: number })
+          | null;
+        billingStatus = stripeBestSub?.status ?? null;
+      } catch (stripeErr) {
+        // Non-blocking for past_due banner; expiry self-heal needs a clean fail below.
+        if (expiresAt && expiresAt < now) {
           secureLog.error(
             'GET /api/premium/status: Stripe check failed, trusting DB expiry:',
             sanitizeError(stripeErr),
           );
         }
       }
+    }
 
-      if (stripeConfirmsActive) {
-        const healedExpiry = newExpiresAt ?? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-        const healedPlan = newPlanTier ?? data.plan_tier ?? 'pro';
+    // subscription_expires_at is in the past — check Stripe before revoking.
+    // This self-heals cases where the renewal webhook fired but didn't update
+    // subscription_expires_at (e.g. missing customer.subscription.updated listener).
+    if (expiresAt && expiresAt < now) {
+      if (stripeBestSub) {
+        const healedPlan =
+          getPlanFromSubscription(stripeBestSub) || data.plan_tier || 'pro';
+        const periodEnd: number | undefined = stripeBestSub.current_period_end;
+        let healedExpiry: string;
+        if (typeof periodEnd === 'number') {
+          healedExpiry = new Date(periodEnd * 1000).toISOString();
+        } else {
+          healedExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+          secureLog.warn(
+            'GET /api/premium/status: current_period_end not found; using 30-day fallback expiry',
+          );
+        }
+
         await supabase
           .from('profiles')
           .update({
@@ -256,6 +259,7 @@ export async function GET(req: NextRequest) {
             expiresAt: healedExpiry,
             purchasedAt: data.premium_purchased_at,
             customerId: data.stripe_customer_id,
+            billingStatus: stripeBestSub.status,
             ...trialPayload(
               String(healedPlan).toLowerCase() === 'pro' ? true : data.pro_free_trial_consumed,
             ),
@@ -286,6 +290,7 @@ export async function GET(req: NextRequest) {
           expired: true,
           expiresAt: data.subscription_expires_at,
           customerId: data.stripe_customer_id,
+          billingStatus,
           ...trialPayload(data.pro_free_trial_consumed),
         },
         { status: 200, headers: cors }
@@ -298,6 +303,7 @@ export async function GET(req: NextRequest) {
       expiresAt: data.subscription_expires_at,
       purchasedAt: data.premium_purchased_at,
       customerId: data.stripe_customer_id,
+      billingStatus,
       ...trialPayload(data.pro_free_trial_consumed),
     }, {
       status: 200,

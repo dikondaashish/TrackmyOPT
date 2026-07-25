@@ -12,7 +12,7 @@ export function PricingFAQ() {
                         Pricing &amp; Pro Questions
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400">
-                        Everything you need to know about Free, Pro, and Dedicated
+                        Everything you need to know about Free and Pro
                     </p>
                 </div>
 

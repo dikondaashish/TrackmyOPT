@@ -1,36 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Bell, Crown } from "lucide-react";
 import {
   CHECKOUT_UPSELL_TRIGGER,
   formatStatusChangedDaysAgo,
 } from "@/lib/case-status/free-change-wedge";
-import {
-  captureCheckoutStarted,
-  captureUpgradePromptShown,
-} from "@/lib/posthog-client";
+import { captureUpgradePromptShown } from "@/lib/posthog-client";
+import { CASE_STATUS_MESSAGING, PRODUCT_CTAS } from "@/lib/messaging/product-copy";
 
 type StatusChangeUpgradeBannerProps = {
   statusLastChangedAt: string;
   onAcknowledged: () => void;
+  onStartTrial: () => void;
 };
 
 export function StatusChangeUpgradeBanner({
   statusLastChangedAt,
   onAcknowledged,
+  onStartTrial,
 }: StatusChangeUpgradeBannerProps) {
   const promptCapturedRef = useRef(false);
-
-  // Hydration fix: formatStatusChangedDaysAgo calls new Date() by default.
-  // Initialise to "" (renders nothing in the sentence) so server and client
-  // produce identical HTML on first paint; update after mount with real value.
   const [daysAgoLabel, setDaysAgoLabel] = useState<string>("");
 
   useEffect(() => {
-    // Set the real label once we're on the client (post-hydration).
     setDaysAgoLabel(formatStatusChangedDaysAgo(statusLastChangedAt));
   }, [statusLastChangedAt]);
 
@@ -39,17 +34,14 @@ export function StatusChangeUpgradeBanner({
     promptCapturedRef.current = true;
     captureUpgradePromptShown({
       trigger: CHECKOUT_UPSELL_TRIGGER.STATUS_CHANGE_WEDGE,
+      source: "case_status_page",
+      plan_suggested: "pro",
     });
   }, []);
 
-  // Don't render at all until the client label is ready — prevents a flash
-  // of "Your case status changed ." with an empty daysAgoLabel.
   if (!daysAgoLabel) return null;
 
-  const handleCheckoutClick = async () => {
-    captureCheckoutStarted({
-      trigger: CHECKOUT_UPSELL_TRIGGER.STATUS_CHANGE_WEDGE,
-    });
+  const markViewed = async () => {
     try {
       await fetch("/api/case-status/viewed", {
         method: "POST",
@@ -61,6 +53,12 @@ export function StatusChangeUpgradeBanner({
     onAcknowledged();
   };
 
+  const handleStartTrial = () => {
+    // checkout_started fires server-side in create-checkout after Stripe session exists.
+    onStartTrial();
+    void markViewed();
+  };
+
   return (
     <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -68,22 +66,34 @@ export function StatusChangeUpgradeBanner({
           <Bell className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              Your case status changed {daysAgoLabel}.
+              {CASE_STATUS_MESSAGING.statusChangeHeadline}{" "}
+              <span className="font-normal text-gray-600 dark:text-gray-400">
+                ({daysAgoLabel})
+              </span>
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Free includes manual refresh. Upgrade to Pro for daily auto-checks
-              and email the moment your status changes.
+              {CASE_STATUS_MESSAGING.statusChangeBody}
             </p>
           </div>
         </div>
-        <Link
-          href="/premium/checkout?planId=pro&interval=year"
-          onClick={handleCheckoutClick}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium h-10 px-4 w-full sm:w-auto shrink-0"
-        >
-          <Crown className="w-4 h-4" />
-          Upgrade to Pro
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-10 text-sm text-gray-600 dark:text-gray-300"
+            onClick={() => void markViewed()}
+          >
+            Got it
+          </Button>
+          <Button
+            type="button"
+            onClick={handleStartTrial}
+            className="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white h-10 px-4"
+          >
+            <Crown className="w-4 h-4" />
+            {PRODUCT_CTAS.startTrial}
+          </Button>
+        </div>
       </div>
     </Card>
   );

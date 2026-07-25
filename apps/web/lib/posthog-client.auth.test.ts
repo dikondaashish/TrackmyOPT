@@ -38,7 +38,7 @@ describe("posthog-client auth helpers", () => {
       premium_status: false,
       onboarding_completed: false,
       is_stem_eligible: false,
-      activation_state: "onboarding_incomplete",
+      activation_state: "no_receipt",
       signup_date: "2026-06-15",
       provider: "google",
     });

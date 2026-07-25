@@ -162,7 +162,7 @@ export async function GET(req: NextRequest) {
       plan_tier: "free",
       premium_status: false,
       onboarding_completed: false,
-      ...(isNewUser ? { activation_state: "onboarding_incomplete" } : {}),
+      ...(isNewUser ? { activation_state: "no_receipt" } : {}),
     });
 
     if (isNewUser) {

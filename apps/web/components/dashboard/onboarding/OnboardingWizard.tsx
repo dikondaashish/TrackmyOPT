@@ -727,7 +727,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
                 <h2 className="text-2xl font-bold tracking-tight">Track your USCIS case</h2>
               </div>
               <p className="text-muted-foreground mb-6">
-                We&apos;ll check USCIS daily and tell you the moment your status changes. Free includes 1 case; Pro tracks up to 8.
+                We&apos;ll save your receipt so you can refresh status anytime on Free. Pro adds daily auto-checks and email when status changes. Free includes 1 case; Pro tracks up to 8.
               </p>
 
               <div className="space-y-4 flex-1">

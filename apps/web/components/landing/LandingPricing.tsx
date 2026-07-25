@@ -6,7 +6,7 @@ import {
     LANDING_FREE_FEATURES,
     LANDING_PRO_FEATURES,
 } from "@/lib/pricing/plan-features";
-import { LANDING_PLAN_COPY } from "@/lib/pricing/sales-copy";
+import { LANDING_PLAN_COPY, shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
 import { Layers, Rocket, ShieldCheck } from "lucide-react";
 
 export function LandingPricing() {
@@ -38,7 +38,10 @@ export function LandingPricing() {
             recommended: true,
             badge: "Most Popular",
         },
-        {
+    ];
+
+    if (shouldShowDedicatedPlanForSale()) {
+        plans.push({
             id: "dedicated",
             name: "Dedicated",
             description: LANDING_PLAN_COPY.dedicated.description,
@@ -52,22 +55,26 @@ export function LandingPricing() {
             features: LANDING_DEDICATED_FEATURES,
             recommended: false,
             badge: "Priority Support",
-        },
-    ];
+        });
+    }
 
     return (
         <section id="pricing" className="py-24 relative">
             <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <PricingModule
                 title="Simple, Transparent Pricing"
-                subtitle="Start free. Upgrade to Pro for daily auto-checks, or Dedicated for higher quotas and priority support."
+                subtitle={
+                    shouldShowDedicatedPlanForSale()
+                        ? "Start free. Upgrade to Pro for daily auto-checks, or Dedicated for higher quotas and priority support."
+                        : "Start free. Upgrade to Pro for daily USCIS auto-checks and status-change alerts."
+                }
                 annualBillingLabel="Annual Billing"
-                buttonLabel="Start 7-Day Free Trial"
+                buttonLabel={LANDING_PLAN_COPY.pro.buttonLabel}
                 plans={plans}
                 className="!bg-transparent !py-0"
                 buildPlanHref={({ planId, interval }) => {
                     if (planId === "free") {
-                        return `/login?redirect=${encodeURIComponent("/dashboard")}`;
+                        return `/login?redirect=${encodeURIComponent("/dashboard/case-status")}`;
                     }
                     return `/login?redirect=${encodeURIComponent(
                         `/premium/checkout?planId=${planId}&interval=${interval}`
