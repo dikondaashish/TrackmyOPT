@@ -982,9 +982,9 @@ export function HelpSection() {
                   <ul className="mt-2 text-xs space-y-1 text-cyan-700 dark:text-cyan-400">
                     <li>• Generated resume data expires after 30 minutes or when the job changes.</li>
                     <li>• Existing field values and uploaded files are never replaced.</li>
-                    <li>• Visa, sponsorship, work authorization, salary, DOB, and EEO answers are never guessed. You may save optional private answers in Settings, but the extension requires your review before every application. SSN fields always stay for you.</li>
+                    <li>• Visa, sponsorship, work authorization, salary, DOB, and EEO answers are never guessed. You may save optional private answers on the Chrome Job Prefill page, but the extension requires your review before every application. SSN fields always stay for you.</li>
                     <li>• Custom dropdowns and unsupported controls stay blank; enter those values manually.</li>
-                    <li>• TrackMyOPT never clicks Add another, Next, Review, Done, or Submit.</li>
+                    <li>• Guided Autopilot may click safe Next, Continue, or Done steps after required fields are complete. It never clicks Add another, Review, Submit, Apply, Finish, or another final application action.</li>
                   </ul>
                 </div>
 

@@ -167,7 +167,22 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     </div>
 
     <div class="page-panel">
-      <div class="phead"><span class="pdot"></span> On this page</div>
+      <div class="phead"><span class="pdot"></span> Job application</div>
+      <a
+        class="act"
+        id="manage-job-prefill-link"
+        href="${API_ENDPOINTS.DASHBOARD_JOB_PREFILL}"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Add or edit the information TrackMyOPT uses to prefill job applications"
+      >
+        <span class="aic">${icon('sparkles', 16)}</span>
+        <span class="atxt">
+          <span class="at">Add or edit prefill data</span>
+          <span class="as">Name, address, visa &amp; work preferences</span>
+        </span>
+        <span class="arr">${icon('chevronRight', 16)}</span>
+      </a>
       <button class="act" id="scan-page-btn" type="button" title="Detect a job posting on the current tab and add it to your tracker">
         <span class="aic">${icon('fileText', 16)}</span>
         <span class="atxt">

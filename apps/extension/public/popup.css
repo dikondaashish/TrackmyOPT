@@ -396,10 +396,15 @@ body.dark-mode .case-more {
   text-align: left;
   background: transparent;
   color: inherit;
+  text-decoration: none;
   transition: background 0.15s ease;
 }
 .act:hover {
   background: var(--surface-2);
+}
+.act:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 .act + .act {
   border-top: 1px solid var(--border);
