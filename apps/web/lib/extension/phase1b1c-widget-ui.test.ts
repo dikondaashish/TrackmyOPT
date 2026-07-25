@@ -33,7 +33,7 @@ describe('screening-question review DOM', () => {
     (Array.from(root.querySelectorAll('button')).find((button) => button.textContent === 'Insert draft') as HTMLButtonElement).click();
     expect(field.value).toBe('Grounded draft');
     expect(root.querySelector('[data-review-state="needs-review"]')?.textContent)
-      .toBe('Needs your review/edit');
+      .toContain('stays marked for review');
   });
 
   it('does not clear Needs review for an untrusted synthetic event', async () => {
@@ -109,11 +109,129 @@ describe('cover-letter edit controller', () => {
     const result = attachGeneratedCoverLetter(form, {
       filename: 'cover-letter.pdf', base64: 'JVBERi0xLjQK', sha256: 'b'.repeat(64),
       generatedAt: '2026-07-16T12:00:00.000Z', sourceContentHash: 'a'.repeat(64),
-    });
+    }, 'a'.repeat(64));
 
     expect(result).toBe('not_found');
     expect((form.querySelector('#resume') as HTMLInputElement).files?.length).toBe(0);
     expect((form.querySelector('#transcript') as HTMLInputElement).files?.length).toBe(0);
     Object.defineProperty(globalThis, 'DataTransfer', { value: originalDataTransfer, configurable: true });
+  });
+
+  it('rejects a cover letter whose source hash differs from the active resume', () => {
+    const form = document.createElement('form');
+    form.innerHTML =
+      '<label for="cover">Cover letter</label><input id="cover" type="file" accept="application/pdf">';
+    const result = attachGeneratedCoverLetter(
+      form,
+      {
+        filename: 'cover-letter.pdf',
+        base64: 'JVBERi0xLjQK',
+        sha256: 'b'.repeat(64),
+        generatedAt: '2026-07-16T12:00:00.000Z',
+        sourceContentHash: 'a'.repeat(64),
+      },
+      'c'.repeat(64),
+    );
+
+    expect(result).toBe('source_mismatch');
+    expect((form.querySelector('#cover') as HTMLInputElement).files?.length)
+      .toBe(0);
+  });
+
+  it('attaches a hash-matched cover letter only to an empty cover-letter input', () => {
+    const originalDataTransfer = globalThis.DataTransfer;
+    class FakeDataTransfer {
+      files: File[] = [];
+      items = { add: (file: File) => { this.files.push(file); } };
+    }
+    Object.defineProperty(globalThis, 'DataTransfer', {
+      value: FakeDataTransfer,
+      configurable: true,
+    });
+    const form = document.createElement('form');
+    form.innerHTML = [
+      '<label for="resume-positive">Resume/CV</label><input id="resume-positive" type="file" accept="application/pdf">',
+      '<label for="cover-positive">Cover letter</label><input id="cover-positive" type="file" accept="application/pdf">',
+    ].join('');
+    const coverInput = form.querySelector(
+      '#cover-positive',
+    ) as HTMLInputElement;
+    Object.defineProperty(coverInput, 'files', {
+      value: [],
+      writable: true,
+      configurable: true,
+    });
+    const sourceContentHash = 'a'.repeat(64);
+    const result = attachGeneratedCoverLetter(
+      form,
+      {
+        filename: 'cover-letter.pdf',
+        base64: 'JVBERi0xLjQK',
+        sha256: 'b'.repeat(64),
+        generatedAt: '2026-07-16T12:00:00.000Z',
+        sourceContentHash,
+      },
+      sourceContentHash,
+    );
+
+    expect(result).toBe('attached');
+    expect(coverInput.files?.length).toBe(1);
+    expect(
+      (form.querySelector('#resume-positive') as HTMLInputElement).files?.length,
+    ).toBe(0);
+    Object.defineProperty(globalThis, 'DataTransfer', {
+      value: originalDataTransfer,
+      configurable: true,
+    });
+  });
+
+  it('lets an unedited draft leave needs-review only through Confirm reviewed', async () => {
+    const field = document.createElement('textarea');
+    const reviewed = vi.fn();
+    const reviewStateChanged = vi.fn();
+    const root = createScreeningQuestionReviewUI({
+      question: {
+        label: 'Why this role?',
+        normalizedQuestionText: 'Why this role?',
+        questionHash: 'c'.repeat(64),
+        element: field,
+        value: '',
+      },
+      limits: {
+        dailyRemaining: 25,
+        itemRegenerationsRemaining: 3,
+        itemRegenerationLimit: 3,
+      },
+      generateDraft: async () => ({
+        draft: 'Confirmed draft',
+        limits: {
+          dailyRemaining: 24,
+          itemRegenerationsRemaining: 3,
+          itemRegenerationLimit: 3,
+        },
+      }),
+      onReviewed: reviewed,
+      onReviewStateChange: reviewStateChanged,
+    });
+    document.body.append(root, field);
+
+    const findButton = (label: string) =>
+      Array.from(root.querySelectorAll('button')).find(
+        (candidate) => candidate.textContent === label,
+      ) as HTMLButtonElement;
+    findButton('Generate draft').click();
+    await vi.waitFor(() =>
+      expect(root.textContent).toContain('Review this draft'),
+    );
+    findButton('Insert draft').click();
+
+    expect(reviewed).not.toHaveBeenCalled();
+    expect(reviewStateChanged).toHaveBeenCalledWith('needs_review');
+    expect(root.querySelector('[data-review-state="needs-review"]')).not.toBeNull();
+    findButton('Confirm reviewed').click();
+    expect(reviewed).toHaveBeenCalledWith('Confirmed draft');
+    expect(reviewStateChanged).toHaveBeenLastCalledWith('confirmed');
+    expect(root.querySelector('[data-review-state="reviewed"]')?.textContent)
+      .toBe('Reviewed and confirmed');
   });
 });

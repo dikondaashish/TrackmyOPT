@@ -1,8 +1,12 @@
 import {
+  confirmDraftReview,
+  createDraftReviewState,
   insertScreeningDraft,
+  type DraftReviewState,
   type EligibleScreeningQuestion,
   type SavedScreeningAnswer,
 } from './screening-question-drafts';
+import { autofillErrorCopy } from './autofill-errors';
 
 export interface ScreeningDraftLimits {
   dailyRemaining: number;
@@ -21,6 +25,9 @@ export interface ScreeningQuestionReviewOptions {
   savedAnswer?: SavedScreeningAnswer;
   generateDraft(regenerate: boolean): Promise<ScreeningDraftResult>;
   onReviewed(answer: string): void;
+  onReviewStateChange?(
+    state: 'needs_review' | 'confirmed' | 'edited',
+  ): void;
   onDeleteSavedAnswer?: (questionHash: string) => Promise<void>;
 }
 
@@ -55,6 +62,7 @@ export function createScreeningQuestionReviewUI(
   let limits = options.limits;
   let selectedDraft = '';
   let insertedValue = '';
+  let reviewState: DraftReviewState | null = null;
   const renderUsage = () => {
     usage.textContent = `You have ${limits.dailyRemaining} AI generations left today. ${limits.itemRegenerationsRemaining} of ${limits.itemRegenerationLimit} regenerations remaining.`;
   };
@@ -62,14 +70,30 @@ export function createScreeningQuestionReviewUI(
 
   const insert = button('Insert draft');
   insert.hidden = true;
+  const confirm = button('Confirm reviewed');
+  confirm.hidden = true;
   insert.addEventListener('click', () => {
     if (!selectedDraft || !insertScreeningDraft(options.question, selectedDraft)) {
       status.textContent = 'The answer field must be empty before inserting.';
       return;
     }
     insertedValue = selectedDraft;
-    status.textContent = 'Needs your review/edit';
+    reviewState = createDraftReviewState(selectedDraft);
+    status.textContent = autofillErrorCopy('draft_review_pending').message;
     status.dataset.reviewState = 'needs-review';
+    options.onReviewStateChange?.('needs_review');
+    confirm.hidden = false;
+  });
+  confirm.addEventListener('click', () => {
+    if (!reviewState?.needsReview) return;
+    const current = options.question.element?.value ?? insertedValue;
+    if (!current.trim()) return;
+    reviewState = confirmDraftReview(reviewState, current);
+    status.textContent = 'Reviewed and confirmed';
+    status.dataset.reviewState = 'reviewed';
+    confirm.hidden = true;
+    options.onReviewStateChange?.('confirmed');
+    options.onReviewed(reviewState.text);
   });
 
   const showDraft = (draft: string) => {
@@ -114,15 +138,21 @@ export function createScreeningQuestionReviewUI(
     }
   }
 
-  root.append(preview, insert, status);
+  root.append(preview, insert, confirm, status);
 
   options.question.element?.addEventListener('input', (event) => {
     if (!event.isTrusted || status.dataset.reviewState !== 'needs-review') return;
     const current = options.question.element?.value ?? '';
     if (!current || current === insertedValue) return;
+    reviewState = confirmDraftReview(
+      reviewState ?? createDraftReviewState(insertedValue),
+      current
+    );
     status.textContent = 'Reviewed and edited';
     status.dataset.reviewState = 'reviewed';
-    options.onReviewed(current);
+    confirm.hidden = true;
+    options.onReviewStateChange?.('edited');
+    options.onReviewed(reviewState.text);
   });
 
   return root;

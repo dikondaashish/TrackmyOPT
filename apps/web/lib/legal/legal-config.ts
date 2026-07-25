@@ -39,6 +39,15 @@ export const EXTENSION_PRIVACY_SHORT =
 export const EXTENSION_FEATURE_DISCLAIMER =
   "The extension is a convenience tool for accessing TrackMyOPT workflows. It is not a government service, does not provide legal advice, and does not guarantee immigration outcomes.";
 
+// ATTORNEY REVIEW REQUIRED before publishing this new autofill disclosure or
+// treating it as a versioned policy update. The policy version/effective date
+// intentionally remain unchanged until the owner approves that release step.
+export const EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE =
+  "When you explicitly choose Prefill, the Chrome extension may read the open application form and place eligible information from your TrackMyOPT profile and the active job-scoped generated resume into empty fields. A generated resume artifact is kept in extension session storage for up to 30 minutes and is invalidated when its job URL, company, or role changes. The extension does not replace non-empty fields or existing files, answer work-authorization, visa, sponsorship, salary, date-of-birth, Social Security number, or equal-employment questions, click application navigation or submission controls, or send resume, answer, field, employer, school, job-title, URL, hash, or file content in autofill analytics. Autofill analytics are limited to bounded counts, feature states, adapter and mode identifiers, and content-free error categories.";
+
+export const EXTENSION_AUTOFILL_SUPPORT_NOTICE =
+  "Current release scope: explicit deterministic profile and active job-scoped resume/history prefill. Continuous prefill, optional skills prefill, AI screening-answer drafts, saved-answer reuse, and generated cover-letter attachment are independently controlled and remain unavailable unless TrackMyOPT explicitly enables them. TrackMyOPT never submits an application; review every field and attachment before you continue.";
+
 /** Phrases that must not appear in customer-facing product copy (tests scan for these). */
 export const RISKY_MARKETING_PHRASES = [
   "uscis approved",

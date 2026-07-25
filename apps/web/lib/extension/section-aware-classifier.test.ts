@@ -25,8 +25,11 @@ describe('section-aware history classification', () => {
     ['Referral company', 'referral-company'],
     ['Manager company', 'manager-company'],
     ['Company website', 'company-website'],
-  ])('never classifies %s outside a history section', (label, id) => {
-    document.body.innerHTML = `<label for="${id}">${label}</label><input id="${id}" />`;
+  ])('never classifies %s inside an experience section', (label, id) => {
+    document.body.innerHTML = `
+      <fieldset><legend>Work Experience</legend>
+        <label for="${id}">${label}</label><input id="${id}" />
+      </fieldset>`;
     expect(classifySectionAwareControls(document.body)).toEqual([]);
   });
 

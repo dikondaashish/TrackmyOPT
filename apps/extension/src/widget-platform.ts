@@ -122,6 +122,7 @@ export const WIDGET_ANALYTICS_EVENTS = [
   'extension_widget_sponsorship_classified',
   'extension_widget_job_saved',
   'extension_widget_prefill_completed',
+  'extension_widget_screening_review_state',
   'extension_widget_job_analyzed',
   'extension_widget_resume_generated',
 ] as const;
@@ -154,7 +155,41 @@ const EVENT_KEYS: Record<WidgetAnalyticsEvent, readonly string[]> = {
   extension_widget_shown: ['site_family', 'default_view'],
   extension_widget_sponsorship_classified: ['site_family', 'signal', 'refreshed'],
   extension_widget_job_saved: ['site_family', 'status', 'outcome'],
-  extension_widget_prefill_completed: ['site_family', 'outcome', 'filled', 'skipped', 'total', 'has_resume'],
+  extension_widget_prefill_completed: [
+    'site_family',
+    'outcome',
+    'filled',
+    'skipped',
+    'total',
+    'has_resume',
+    'has_cover_letter',
+    'adapter_id',
+    'mode',
+    'source_type',
+    'artifact_state_reason',
+    'review_state',
+    'flag_artifact_prefill',
+    'flag_skills',
+    'flag_continuous_mode',
+    'flag_ai_screening_drafts',
+    'flag_cover_letter',
+    'flag_history_fields',
+    'flag_ats_adapters',
+    'resume_filled',
+    'resume_skipped',
+    'cover_letter_filled',
+    'cover_letter_skipped',
+    'contact_filled',
+    'contact_skipped',
+    'skills_filled',
+    'skills_skipped',
+    'experience_filled',
+    'experience_skipped',
+    'education_filled',
+    'education_skipped',
+    'error_code',
+  ],
+  extension_widget_screening_review_state: ['site_family', 'review_state'],
   extension_widget_job_analyzed: ['site_family', 'outcome', 'score', 'matched_keywords_count', 'missing_keywords_count', 'error_code'],
   extension_widget_resume_generated: ['site_family', 'outcome', 'template_id', 'baseline_score', 'generated_score', 'score_delta', 'error_code'],
 };
@@ -166,17 +201,43 @@ const ENUM_VALUES: Record<string, readonly string[]> = {
   status: ['Applied', 'Wishlist'],
   outcome: ['success', 'error', 'limit', 'not_signed_in', 'no_job_description', 'no_base_resume'],
   template_id: ['professional', 'tech', 'modern', 'academic', 'executive', 'creative'],
-  error_code: ['network', 'runtime', 'not_signed_in', 'no_job_description', 'no_base_resume', 'limit', 'compile_failed', 'analyze_failed', 'unknown'],
+  error_code: [
+    'network', 'runtime', 'not_signed_in', 'no_job_description',
+    'no_base_resume', 'limit', 'compile_failed', 'analyze_failed',
+    'extraction_failed', 'unsupported_control', 'draft_review_pending',
+    'attachment_failed', 'unknown',
+  ],
+  adapter_id: ['generic', 'workday', 'greenhouse', 'none'],
+  mode: ['step_by_step', 'continuous'],
+  source_type: ['generated_resume', 'profile_only', 'unavailable'],
+  artifact_state_reason: [
+    'none', 'missing', 'expired', 'job_changed', 'invalid',
+    'feature_disabled', 'unavailable',
+  ],
+  review_state: [
+    'not_applicable', 'not_requested', 'needs_review', 'confirmed', 'edited',
+  ],
 };
 
 const NUMBER_KEYS = new Set([
   'filled', 'skipped', 'total', 'score', 'matched_keywords_count',
   'missing_keywords_count', 'baseline_score', 'generated_score',
+  'resume_filled', 'resume_skipped',
+  'cover_letter_filled', 'cover_letter_skipped',
+  'contact_filled', 'contact_skipped',
+  'skills_filled', 'skills_skipped',
+  'experience_filled', 'experience_skipped',
+  'education_filled', 'education_skipped',
 ]);
 // `score_delta` is signed: a tailored resume can score worse than the baseline,
 // so it must keep its sign instead of being clamped to 0 like the counts above.
 const SIGNED_NUMBER_KEYS = new Set(['score_delta']);
-const BOOLEAN_KEYS = new Set(['has_resume', 'refreshed']);
+const BOOLEAN_KEYS = new Set([
+  'has_resume', 'has_cover_letter', 'refreshed',
+  'flag_artifact_prefill', 'flag_skills', 'flag_continuous_mode',
+  'flag_ai_screening_drafts', 'flag_cover_letter', 'flag_history_fields',
+  'flag_ats_adapters',
+]);
 
 function boundedInteger(value: unknown, min: number, max: number): number | undefined {
   if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;

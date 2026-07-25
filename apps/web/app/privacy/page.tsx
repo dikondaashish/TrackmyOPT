@@ -1,7 +1,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { LegalPageShell } from "@/components/legal/LegalPageShell";
-import { COMPANY, LEGAL_CONTACT, THIRD_PARTY_SERVICES } from "@/lib/legal/legal-config";
+import {
+  COMPANY,
+  EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE,
+  LEGAL_CONTACT,
+  THIRD_PARTY_SERVICES,
+} from "@/lib/legal/legal-config";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | TrackMyOPT",
@@ -78,12 +83,20 @@ export default function PrivacyPage() {
           <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google&apos;s Privacy Policy</a>.
         </li>
         <li>Aggregated performance metrics (Vercel Analytics / Speed Insights) on our website</li>
-        <li>Chrome extension: version, timezone, and sync storage for sign-in state (see extension permissions)</li>
+        <li>
+          Chrome extension: version and content-free usage diagnostics. Non-sensitive display preferences may use browser sync storage; authentication tokens, generated resume artifacts, PDFs, structured resume fields, screening questions, and answers are not stored in sync storage.
+        </li>
       </ul>
 
       <h3>2.7 AI-assisted features</h3>
       <p>
         If you use resume or document AI features, content you submit may be sent to our AI provider (e.g. Google Gemini) to generate output. Do not submit information you are not comfortable sharing with that provider. AI output is not legal advice.
+      </p>
+
+      <h3>2.8 Chrome extension application prefill</h3>
+      <p>{EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE}</p>
+      <p>
+        The current extension release uses deterministic prefill. Continuous prefill, optional skills prefill, AI screening-answer drafts and exact-question answer reuse, and generated cover-letter attachment are separate features that remain unavailable unless TrackMyOPT explicitly enables them. If enabled in a future release, the extension will show review controls before an AI draft can be treated as reviewed, and generated cover letters will be tied to the matching generated resume.
       </p>
 
       <h2>3. How we use information</h2>

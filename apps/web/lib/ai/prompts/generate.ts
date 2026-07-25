@@ -39,14 +39,10 @@ Place every matched keyword in AT LEAST two of these locations:
 </process>
 
 <what_you_can_change>
-YOU ARE EXPECTED TO AGGRESSIVELY CHANGE THE FOLLOWING:
+YOU MAY CHANGE ONLY THE FOLLOWING:
 
-1. JOB TITLES — Match the target JD role directly.
-   - If resume says "Data Analyst" but JD is "Software Engineer" → change to "Software Engineer"
-   - If resume says "Junior Developer" but JD is "Full Stack Developer" → use "Full Stack Developer"
-   - This is the single most impactful ATS change — do it on every role where duties align
-
-2. BULLET POINTS — Completely rewrite every bullet to highlight JD-relevant skills/achievements.
+1. BULLET POINTS — Rewrite bullets to highlight JD-relevant skills/achievements
+   only when the source resume supports every claim.
    Use the XYZ formula: "Accomplished [X] as measured by [Y] by doing [Z]"
    - Always start with a strong past-tense action verb (Led, Engineered, Automated, Optimized, Delivered, Spearheaded, Implemented)
    - Never use weak verbs (Helped, Assisted, Participated, Worked on)
@@ -54,18 +50,18 @@ YOU ARE EXPECTED TO AGGRESSIVELY CHANGE THE FOLLOWING:
    - Weave JD keywords naturally into every bullet
    - 3–6 bullets per role; most recent role gets the most
 
-3. PROFESSIONAL SUMMARY — Fully rewrite to target this specific role.
+2. PROFESSIONAL SUMMARY — Fully rewrite to target this specific role.
    - Include the exact job title from the JD
    - 3–4 lines; include years of experience and 4–6 core JD keywords
 
-4. SKILLS SECTION — Reorder, add, and remove:
+3. SKILLS SECTION — Reorder, add, and remove:
    - Put JD-relevant skills first
    - Add skills the candidate likely has based on their experience
    - Remove skills irrelevant to this role
    - Use exact keyword form (JD says "Python" → write "Python", not "Python scripting")
    - Group by: Languages, Frameworks, Tools, Databases, Cloud, Methodologies
 
-5. SECTION ORDER — Lead with the most relevant section for this JD
+4. SECTION ORDER — Lead with the most relevant section for this JD
    - e.g., If JD values skills heavily, put Skills before Experience
    - Use standard ATS headings: Professional Summary, Experience, Education, Skills, Projects, Certifications
    - Preserve unique sections (Volunteering, Publications, Patents, Research, Awards) if they exist
@@ -83,6 +79,7 @@ YOU ARE EXPECTED TO AGGRESSIVELY CHANGE THE FOLLOWING:
 <self_check>
 Before writing any LaTeX, verify the following internally:
 - Every company name matches the source resume exactly — character for character
+- Every official job title matches the source resume exactly — character for character
 - Every employment start and end date matches the source resume exactly
 - No new companies, roles, or degrees were added that do not exist in the source
 - Candidate personal info (name, phone, email, LinkedIn, address) is unchanged
@@ -101,10 +98,12 @@ If any mismatch is found, correct it before proceeding to output.
 <never_change>
 THESE MUST NEVER BE MODIFIED — NOT EVEN SLIGHTLY:
 - Candidate name, phone number, email, LinkedIn URL, address
+- Official job titles (keep exactly as written; never normalize them to the target role)
 - Company names (keep exactly as written)
 - Employment start and end dates
 - School/university names
 - Degree names and fields of study
+- Education start, graduation, and completion dates
 - Do NOT invent experience at companies not on the resume
 - Do NOT add degrees the candidate doesn't have
 - Do NOT fabricate metrics — use scope descriptions if no metric is inferable (e.g., "across 3 product lines")

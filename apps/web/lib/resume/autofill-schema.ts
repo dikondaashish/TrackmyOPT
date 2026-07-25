@@ -224,6 +224,7 @@ export type GeneratedResumeArtifactV1 = z.infer<
 export const GenerateCoverLetterRequestSchema = z.object({
   snapshot: ResumeAutofillSnapshotV1Schema,
   sourceContentHash: sha256,
+  isRegeneration: z.boolean().optional(),
   job: z.object({
     companyName: requiredShortText,
     roleTitle: requiredShortText,

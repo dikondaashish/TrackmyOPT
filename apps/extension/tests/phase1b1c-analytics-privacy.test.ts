@@ -9,10 +9,16 @@ assert.equal('answerText' in properties, false);
 assert.equal('resumeContent' in properties, false);
 
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
+const popup = readFileSync('src/popup.ts', 'utf8');
 const analyticsCalls = Array.from(portal.matchAll(/trackWidgetAnalytics\([\s\S]{0,500}?\);/g))
   .map((match) => match[0])
   .join('\n');
 assert.doesNotMatch(analyticsCalls, /questionText|editedAnswer|normalizedQuestionText|pdfBase64|snapshot:/);
+assert.doesNotMatch(
+  popup,
+  /chrome\.storage\.sync\.set\(\s*\{\s*idToken/,
+  'short-lived bearer tokens must never be written to browser sync storage',
+);
 
 for (const file of [
   'src/screening-question-review-ui.ts',

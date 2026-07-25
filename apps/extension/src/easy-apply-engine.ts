@@ -43,6 +43,11 @@ import type {
 } from './resume-autofill-contract';
 import { selectAtsPrefillAdapter } from './ats-prefill-adapters';
 import { fillRepeatableRecords } from './repeatable-record-engine';
+import {
+  resolveAutofillFeatureFlags,
+  type AutofillFeatureFlags,
+} from './autofill-feature-flags';
+import { autofillErrorCopy } from './autofill-errors';
 
 export type { PrefillCoverageResult } from './prefill-coverage';
 
@@ -56,6 +61,7 @@ export interface GeneratedResumeAttachment {
 export interface PrefillOptions {
   resume?: GeneratedResumeAttachment;
   coverLetter?: GeneratedCoverLetterAttachment;
+  generatedContentHash?: string;
   snapshot?: ResumeAutofillSnapshotV1;
   profileFallback?: BasicContactProfile;
   /** Rule 8 is default-off and only reads snapshot.skills when explicitly on. */
@@ -65,9 +71,18 @@ export interface PrefillOptions {
   quietIfNoForm?: boolean;
   /** Continuous mode reports through the widget instead of spawning toasts. */
   quietResultToast?: boolean;
+  /** Tests/future remote config only. Runtime message boundaries do not relay
+   * feature overrides from job pages. */
+  featureFlags?: Partial<AutofillFeatureFlags>;
 }
 
-type ResumeAttachmentResult = 'not_requested' | 'attached' | 'already_present' | 'not_found' | 'unsupported';
+type ResumeAttachmentResult =
+  | 'not_requested'
+  | 'attached'
+  | 'already_present'
+  | 'not_found'
+  | 'unsupported'
+  | 'source_mismatch';
 
 const TOAST_ID = 'tmo-easy-apply-toast';
 const FILLABLE_INPUT_TYPES = new Set(['text', 'email', 'tel', 'url', 'number']);
@@ -394,7 +409,7 @@ function pdfBase64ToFile(pdfBase64: string, filename: string): File | null {
 }
 
 /** Attach only to a confidently identified, currently empty Resume/CV input. */
-function attachGeneratedResume(
+export function attachGeneratedResume(
   container: HTMLElement,
   attachment?: GeneratedResumeAttachment
 ): ResumeAttachmentResult {
@@ -427,18 +442,46 @@ function attachGeneratedResume(
   return sawResumeInput ? 'unsupported' : 'not_found';
 }
 
-export function attachGeneratedCoverLetter(container: HTMLElement, attachment?: GeneratedCoverLetterAttachment): ResumeAttachmentResult {
+export function attachGeneratedCoverLetter(
+  container: HTMLElement,
+  attachment: GeneratedCoverLetterAttachment | undefined,
+  generatedContentHash: string | undefined
+): ResumeAttachmentResult {
   if (!attachment) return 'not_requested';
+  if (
+    !generatedContentHash ||
+    attachment.sourceContentHash !== generatedContentHash
+  )
+    return 'source_mismatch';
   const file = pdfBase64ToFile(attachment.base64, attachment.filename);
   if (!file || typeof DataTransfer === 'undefined') return 'unsupported';
-  let saw=false;
-  for (const input of queryAllDeep<HTMLInputElement>(container,'input[type="file"]')) {
-    const label=getFileInputLabel(input);
-    if (!/\b(cover\s*letter|letter\s*of\s*interest)\b/i.test(label) || /\b(resume|cv|portfolio|transcript|photo|certificate)\b/i.test(label)) continue;
-    saw=true; if(input.disabled) continue; if(input.files?.length) return 'already_present'; if(!acceptsPdf(input)) continue;
-    try { const transfer=new DataTransfer(); transfer.items.add(file); input.files=transfer.files; input.dispatchEvent(new Event('input',{bubbles:true})); input.dispatchEvent(new Event('change',{bubbles:true})); return 'attached'; } catch { return 'unsupported'; }
+  let saw = false;
+  for (const input of queryAllDeep<HTMLInputElement>(
+    container,
+    'input[type="file"]'
+  )) {
+    const label = getFileInputLabel(input);
+    if (
+      !/\b(cover\s*letter|letter\s*of\s*interest)\b/i.test(label) ||
+      /\b(resume|cv|portfolio|transcript|photo|certificate)\b/i.test(label)
+    )
+      continue;
+    saw = true;
+    if (input.disabled) continue;
+    if (input.files?.length) return 'already_present';
+    if (!acceptsPdf(input)) continue;
+    try {
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return 'attached';
+    } catch {
+      return 'unsupported';
+    }
   }
-  return saw?'unsupported':'not_found';
+  return saw ? 'unsupported' : 'not_found';
 }
 
 function showToast(message: string): void {
@@ -685,6 +728,7 @@ export function jumpToPrefillField(selector: string): boolean {
  * on-page widget). Shows a toast with the result. Never submits.
  */
 export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillCoverageResult> {
+  const featureFlags = resolveAutofillFeatureFlags(options.featureFlags);
   const emptyCoverage = emptyPrefillCoverage();
   const notify = (message: string) => {
     if (!options.quietResultToast) showToast(message);
@@ -699,19 +743,36 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     );
     return emptyCoverage;
   }
+  const adapter = selectAtsPrefillAdapter(
+    document,
+    featureFlags.atsAdapters
+  );
 
-  const resumeResult = attachGeneratedResume(container, options.resume);
-  const coverLetterResult = attachGeneratedCoverLetter(container, options.coverLetter);
+  const resumeResult = attachGeneratedResume(
+    container,
+    featureFlags.artifactPrefill ? options.resume : undefined
+  );
+  const coverLetterResult =
+    featureFlags.artifactPrefill && featureFlags.coverLetter
+      ? attachGeneratedCoverLetter(
+          container,
+          options.coverLetter,
+          options.generatedContentHash
+        )
+      : 'not_requested';
   const filledOutcomes: PrefillControlOutcome[] = resumeResult === 'attached'
     ? [{ filled: true, fieldGroup: 'resume' }]
     : [];
+  if (coverLetterResult === 'attached') {
+    filledOutcomes.push({ filled: true, fieldGroup: 'cover_letter' });
+  }
 
   const historyRemaining = { experience: 0, education: 0 };
-  if (options.snapshot) {
-    const adapter = selectAtsPrefillAdapter(document);
+  const snapshot = featureFlags.artifactPrefill ? options.snapshot : undefined;
+  if (snapshot && featureFlags.historyFields) {
     const historyControls = adapter.classifyRepeatableSections(container);
     for (const section of ['experience', 'education'] as const) {
-      const outcome = fillRepeatableRecords(section, historyControls, options.snapshot);
+      const outcome = fillRepeatableRecords(section, historyControls, snapshot);
       historyRemaining[section] = outcome.remainingRecords;
       filledOutcomes.push(
         ...Array.from({ length: outcome.filledFields }, () => ({
@@ -728,6 +789,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   }
   const coverageFor = (outcomes: PrefillControlOutcome[]): PrefillCoverageResult => ({
     ...summarizePrefillOutcomes(outcomes),
+    adapterId: adapter.id,
     remainingRecords: historyRemaining,
   });
 
@@ -742,8 +804,19 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       } | null);
 
   if (!resp?.ok || !resp.profile) {
-    if (resumeResult === 'attached') {
-      notify('Your generated resume was attached. Profile fields could not be loaded, so please complete them manually.');
+    if (
+      resumeResult === 'attached' ||
+      coverLetterResult === 'attached'
+    ) {
+      const attached = [
+        resumeResult === 'attached' ? 'resume' : '',
+        coverLetterResult === 'attached' ? 'cover letter' : '',
+      ]
+        .filter(Boolean)
+        .join(' and ');
+      notify(
+        `Your generated ${attached} ${attached.includes(' and ') ? 'were' : 'was'} attached. Profile fields could not be loaded, so please complete them manually.`
+      );
       return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     notify(
@@ -754,7 +827,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
   }
 
-  const profile = buildContactAutofillProfile(options.snapshot, resp.profile);
+  const profile = buildContactAutofillProfile(snapshot, resp.profile);
   const controls = queryAllDeep<HTMLElement>(container, 'input, textarea, select');
   let filled = filledOutcomes.filter((outcome) => outcome.filled && (outcome.fieldGroup === 'experience' || outcome.fieldGroup === 'education')).length;
   const kinds: string[] = [
@@ -766,7 +839,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     const kind = classifyField(getLabelText(el));
     if (!kind) continue; // no confident match, or a sensitive field -> leave it
     const value = kind === 'skills'
-      ? buildSkillsPrefillValue(options.snapshot?.skills ?? [], options.autofillSkills === true)
+      ? buildSkillsPrefillValue(
+          snapshot?.skills ?? [],
+          featureFlags.skills && options.autofillSkills === true
+        )
       : valueForKind(kind, profile);
     if (!value) continue; // we don't have this datum -> leave it blank
 
@@ -790,8 +866,25 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   }
 
   if (filled === 0) {
-    if (resumeResult === 'attached') {
-      notify('Your generated resume was attached. No empty profile fields were available to fill. Review the application and submit it yourself.');
+    if (
+      resumeResult === 'attached' ||
+      coverLetterResult === 'attached'
+    ) {
+      const attachments = [
+        resumeResult === 'attached' ? 'resume' : '',
+        coverLetterResult === 'attached' ? 'cover letter' : '',
+      ]
+        .filter(Boolean)
+        .join(' and ');
+      notify(
+        `Your generated ${attachments} ${attachments.includes(' and ') ? 'were' : 'was'} attached. No empty profile fields were available to fill. Review the application and submit it yourself.`
+      );
+      return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
+    }
+    if (coverLetterResult === 'source_mismatch') {
+      notify(
+        'The cover letter no longer matches this generated resume, so it was not attached.'
+      );
       return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     if (resumeResult === 'already_present') {
@@ -803,12 +896,14 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     if (options.resume && resumeResult === 'unsupported') {
-      notify('The visible resume field does not accept the generated PDF, so it was left unchanged.');
+      const copy = autofillErrorCopy('attachment_failed');
+      notify(`${copy.message} ${copy.recovery}`);
       return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);
     }
     notify(
       'Nothing to prefill here. TrackMyOPT never fills work-authorization, ' +
-        'visa, or EEO questions — please answer those yourself.'
+        'visa, or EEO questions — please answer those yourself. ' +
+        autofillErrorCopy('unsupported_control').message
     );
   } else {
     const resumeSummary = resumeResult === 'attached'
@@ -818,11 +913,19 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         : options.resume && resumeResult === 'not_found'
           ? 'No Resume/CV upload field is visible yet; click Prefill again when that field appears.'
           : options.resume && resumeResult === 'unsupported'
-            ? 'The visible resume field does not accept a PDF, so it was left unchanged.'
+            ? autofillErrorCopy('attachment_failed').message
+            : '';
+    const coverLetterSummary =
+      coverLetterResult === 'attached'
+        ? 'Your generated cover letter was attached.'
+        : coverLetterResult === 'already_present'
+          ? 'Your existing cover-letter upload was left unchanged.'
+          : coverLetterResult === 'source_mismatch'
+            ? 'The cover letter did not match this resume and was not attached.'
             : '';
     notify(
       `TrackMyOPT prefilled ${filled} field${filled > 1 ? 's' : ''} (${kinds.join(', ')}). ` +
-        `${resumeSummary ? `${resumeSummary} ` : ''}Review every answer and click Submit yourself — we never submit for you.`
+        `${resumeSummary ? `${resumeSummary} ` : ''}${coverLetterSummary ? `${coverLetterSummary} ` : ''}Review every answer and click Submit yourself — we never submit for you.`
     );
   }
   return coverageFor([...filledOutcomes, ...remainingRequiredOutcomes(container)]);

@@ -78,6 +78,13 @@ import { shouldRunContinuousPrefill } from './continuous-prefill';
 import { mountCoverLetterReviewUi } from './cover-letter-review';
 import { detectScreeningQuestion } from './screening-question-drafts';
 import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
+import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+import {
+  buildPrefillTelemetryProperties,
+  type PrefillArtifactStateReason,
+  type PrefillSourceType,
+} from './prefill-telemetry';
+import { autofillErrorCopy } from './autofill-errors';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -323,6 +330,9 @@ function generatedResumeFor(job: JobInfo): GeneratedResumeAttachment | undefined
 type PrefillExecutionResult = {
   result: PrefillCoverageResult;
   hasResume: boolean;
+  hasCoverLetter: boolean;
+  sourceType: PrefillSourceType;
+  artifactStateReason: PrefillArtifactStateReason;
   stoppedReason?: 'expired' | 'job_changed' | 'invalid';
 };
 
@@ -343,29 +353,50 @@ async function executeResolvedPrefill(
     const result = mode === 'step_by_step'
       ? await runPrefill({ autofillSkills: false })
       : emptyPrefillCoverage();
-    return { result, hasResume: false };
+    return {
+      result,
+      hasResume: false,
+      hasCoverLetter: false,
+      sourceType: 'unavailable',
+      artifactStateReason: 'unavailable',
+    };
   }
 
   let hasResume = false;
+  let hasCoverLetter = false;
   let prefill: PrefillOptions;
   if (resolved.source === 'generated_resume') {
     hasResume = true;
+    hasCoverLetter = Boolean(resolved.coverLetter);
     prefill = {
       resume: resolved.resume,
+      coverLetter: resolved.coverLetter,
+      generatedContentHash: resolved.generatedContentHash,
       snapshot: resolved.snapshot,
       profileFallback: resolved.profileFallback,
-      autofillSkills: currentAutofillPreferences.autofillSkills,
+      autofillSkills:
+        AUTOFILL_FEATURE_FLAGS.skills &&
+        currentAutofillPreferences.autofillSkills,
       quietResultToast: mode === 'continuous',
     };
   } else {
-    markCurrentArtifactInvalid(
-      resolved.reason,
-      resolved.reason !== 'expired',
-    );
-    if (mode === 'continuous' && resolved.reason !== 'missing') {
+    if (resolved.reason !== 'feature_disabled') {
+      markCurrentArtifactInvalid(
+        resolved.reason,
+        resolved.reason !== 'expired',
+      );
+    }
+    if (
+      mode === 'continuous' &&
+      resolved.reason !== 'missing' &&
+      resolved.reason !== 'feature_disabled'
+    ) {
       return {
         result: emptyPrefillCoverage(),
         hasResume: false,
+        hasCoverLetter: false,
+        sourceType: 'profile_only',
+        artifactStateReason: resolved.reason,
         stoppedReason: resolved.reason,
       };
     }
@@ -383,7 +414,54 @@ async function executeResolvedPrefill(
   }).catch(() => {});
   const result = await runPrefill(prefill);
   if (hasResume && result.filled > 0) artifactBackedFieldsFilled = true;
-  return { result, hasResume };
+  return {
+    result,
+    hasResume,
+    hasCoverLetter,
+    sourceType: resolved.source,
+    artifactStateReason:
+      resolved.source === 'generated_resume' ? 'none' : resolved.reason,
+  };
+}
+
+function trackPrefillExecution(
+  execution: PrefillExecutionResult,
+  mode: AutofillPreferences['mode'],
+  outcome: 'success' | 'error',
+): void {
+  trackWidgetAnalytics(
+    'extension_widget_prefill_completed',
+    buildPrefillTelemetryProperties({
+      outcome,
+      result: execution.result,
+      mode,
+      sourceType: execution.sourceType,
+      artifactStateReason: execution.artifactStateReason,
+      hasResume: execution.hasResume,
+      hasCoverLetter: execution.hasCoverLetter,
+      featureFlags: AUTOFILL_FEATURE_FLAGS,
+    }),
+  );
+}
+
+function trackPrefillRuntimeFailure(
+  mode: AutofillPreferences['mode'],
+  hasResume = false,
+): void {
+  trackWidgetAnalytics(
+    'extension_widget_prefill_completed',
+    buildPrefillTelemetryProperties({
+      outcome: 'error',
+      result: emptyPrefillCoverage(),
+      mode,
+      sourceType: 'unavailable',
+      artifactStateReason: 'unavailable',
+      hasResume,
+      hasCoverLetter: false,
+      featureFlags: AUTOFILL_FEATURE_FLAGS,
+      errorCode: 'runtime',
+    }),
+  );
 }
 
 function paintPrefillCoverage(
@@ -414,6 +492,7 @@ function paintPrefillCoverage(
 }
 
 async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): Promise<void> {
+  if (!AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) return;
   const artifact = generatedResumeArtifactForCurrentJob;
   if (!artifact) return;
   card.querySelector('.tmo-screening-review-list')?.remove();
@@ -467,6 +546,11 @@ async function mountScreeningQuestionReviews(card: HTMLElement, job: JobInfo): P
             editedAnswer: answer,
             source: 'user_edited_ai_draft',
           },
+        });
+      },
+      onReviewStateChange: (reviewState) => {
+        trackWidgetAnalytics('extension_widget_screening_review_state', {
+          review_state: reviewState,
         });
       },
       onDeleteSavedAnswer: async (questionHash) => {
@@ -2286,19 +2370,12 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         hasResume = execution.hasResume;
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
-        await mountScreeningQuestionReviews(card, job);
-        trackWidgetAnalytics('extension_widget_prefill_completed', {
-          outcome: 'success',
-          filled: result.filled,
-          skipped: result.skipped,
-          total: result.total,
-          has_resume: hasResume,
-        });
+        if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+          await mountScreeningQuestionReviews(card, job);
+        }
+        trackPrefillExecution(execution, 'step_by_step', 'success');
       } catch {
-        trackWidgetAnalytics('extension_widget_prefill_completed', {
-          outcome: 'error',
-          has_resume: hasResume,
-        });
+        trackPrefillRuntimeFailure('step_by_step', hasResume);
       } finally {
         prefillBtn.disabled = false;
         if (label) {
@@ -3620,7 +3697,7 @@ function renderResumeResult(
   row.appendChild(ed);
   panel.appendChild(row);
 
-  if (artifact) {
+  if (artifact && AUTOFILL_FEATURE_FLAGS.coverLetter) {
     mountCoverLetterReviewUi(panel, {
       artifact,
       jobDescription: lastResumeGenerationRequest?.jobDescription || '',
@@ -3725,6 +3802,7 @@ function openResumePanel(
         generatedScore?: number;
         scoreError?: 'limit_reached' | 'scan_failed';
         artifact?: GeneratedResumeArtifactV1;
+        structuredFieldsAvailable?: boolean;
       } | undefined
     ) => {
       window.clearInterval(interval);
@@ -3745,12 +3823,26 @@ function openResumePanel(
           baseline_score: comparison?.baseline,
           generated_score: comparison?.generated,
           score_delta: comparison?.delta,
+          error_code:
+            res.structuredFieldsAvailable === false
+              ? 'extraction_failed'
+              : undefined,
         });
         renderResumeResult(panel, res.pdfBase64, job, res.artifact, res.editorUrl, {
           baselineScore: res.baselineScore,
           generatedScore: res.generatedScore,
           scoreError: res.scoreError,
         });
+        if (res.structuredFieldsAvailable === false) {
+          const copy = autofillErrorCopy('extraction_failed');
+          const notice = document.createElement('p');
+          notice.dataset.autofillError = 'extraction_failed';
+          notice.setAttribute('role', 'status');
+          notice.textContent = `${copy.message} ${copy.recovery}`;
+          notice.style.cssText =
+            'margin:10px 0 0;padding:9px;border:1px solid var(--tmo-widget-warning-border);border-radius:8px;background:var(--tmo-widget-warning-surface);color:var(--tmo-widget-warning-ink);font-size:11px;line-height:1.4;';
+          panel.appendChild(notice);
+        }
         return;
       }
       trackWidgetAnalytics('extension_widget_resume_generated', {
@@ -3993,6 +4085,7 @@ function stopContinuousPrefill(): void {
 
 async function runContinuousPrefill(): Promise<void> {
   continuousPrefillTimer = null;
+  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
   const signature = getPrefillCandidateSignature();
   if (!shouldRunContinuousPrefill({
     mode: currentAutofillPreferences.mode,
@@ -4010,12 +4103,16 @@ async function runContinuousPrefill(): Promise<void> {
     const execution = await executeResolvedPrefill(job, 'continuous');
     if (execution.stoppedReason) {
       paintContinuousStopGuidance(execution.stoppedReason);
+      trackPrefillExecution(execution, 'continuous', 'error');
       return;
     }
     const resultLine = document.querySelector<HTMLElement>('.tmo-prefill-result-line');
     if (resultLine && execution.result.total > 0) {
       paintPrefillCoverage(resultLine, execution.result);
     }
+    trackPrefillExecution(execution, 'continuous', 'success');
+  } catch {
+    trackPrefillRuntimeFailure('continuous');
   } finally {
     continuousPrefillInFlight = false;
     previousContinuousSignature = getPrefillCandidateSignature();
@@ -4028,6 +4125,7 @@ async function runContinuousPrefill(): Promise<void> {
 }
 
 function scheduleContinuousPrefill(): void {
+  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
   if (currentAutofillPreferences.mode !== 'continuous') return;
   if (continuousPrefillInFlight) {
     continuousMutationPending = true;
@@ -4042,6 +4140,7 @@ function scheduleContinuousPrefill(): void {
 
 function startContinuousPrefill(): void {
   stopContinuousPrefill();
+  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
   if (currentAutofillPreferences.mode !== 'continuous') return;
   if (!document.body) {
     document.addEventListener('DOMContentLoaded', startContinuousPrefill, { once: true });
@@ -4067,7 +4166,11 @@ async function initializeAutofillPreferences(): Promise<void> {
   } catch {
     currentAutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
   }
-  if (currentAutofillPreferences.mode === 'continuous') startContinuousPrefill();
+  if (
+    AUTOFILL_FEATURE_FLAGS.continuousMode &&
+    currentAutofillPreferences.mode === 'continuous'
+  )
+    startContinuousPrefill();
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -4075,7 +4178,11 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   currentAutofillPreferences = normalizeAutofillPreferences(
     changes[AUTOFILL_PREFERENCES_KEY].newValue,
   );
-  if (currentAutofillPreferences.mode === 'continuous') startContinuousPrefill();
+  if (
+    AUTOFILL_FEATURE_FLAGS.continuousMode &&
+    currentAutofillPreferences.mode === 'continuous'
+  )
+    startContinuousPrefill();
   else stopContinuousPrefill();
 });
 
@@ -4239,6 +4346,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME' || window.top === window.self) return false;
   const prefill = (message.prefill ?? {}) as {
     resume?: GeneratedResumeAttachment;
+    coverLetter?: PrefillOptions['coverLetter'];
+    generatedContentHash?: string;
     snapshot?: ResumeAutofillSnapshotV1;
     profileFallback?: BasicContactProfile;
     autofillSkills?: boolean;
@@ -4246,6 +4355,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   };
   void runPrefill({
     resume: prefill.resume,
+    coverLetter: prefill.coverLetter,
+    generatedContentHash: prefill.generatedContentHash,
     snapshot: prefill.snapshot,
     profileFallback: prefill.profileFallback,
     autofillSkills: prefill.autofillSkills === true,

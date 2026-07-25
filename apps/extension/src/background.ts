@@ -13,8 +13,10 @@ import {
   buildGeneratedResumeResult,
   type SnapshotExtractionHandoff,
 } from './resume-generation-result';
+import { compileLatexWithSingleRepair } from './compile-latex-with-repair';
 import type {
   BasicContactProfile,
+  GeneratedCoverLetterAttachment,
   GeneratedResumeArtifactV1,
   ResumeAutofillSnapshotV1,
   V1PrefillPayloadRequest,
@@ -22,7 +24,12 @@ import type {
 } from './resume-autofill-contract';
 import { buildGeneratedResumeArtifactV1 } from './resume-artifact-lifecycle';
 import { resolveV1PrefillPayload } from './prefill-payload-resolver';
-import { validateResumeAutofillSnapshotV1 } from './resume-artifact-validator';
+import {
+  validateGeneratedCoverLetterAttachment,
+  validateResumeAutofillSnapshotV1,
+} from './resume-artifact-validator';
+import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+import { normalizeQuestionText } from './screening-question-drafts';
 import {
   clearActiveGeneratedResumeArtifact,
   readActiveGeneratedResumeArtifact,
@@ -221,13 +228,22 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     }
     const requestedPrefill = (msg.prefill ?? { resume: msg.resume }) as {
       resume?: { pdfBase64?: unknown; filename?: unknown };
+      coverLetter?: unknown;
+      generatedContentHash?: unknown;
       snapshot?: unknown;
       profileFallback?: unknown;
       autofillSkills?: unknown;
       quietResultToast?: unknown;
     };
+    const generatedContentHash =
+      AUTOFILL_FEATURE_FLAGS.artifactPrefill &&
+      typeof requestedPrefill.generatedContentHash === 'string' &&
+      /^[a-f0-9]{64}$/i.test(requestedPrefill.generatedContentHash)
+        ? requestedPrefill.generatedContentHash
+        : undefined;
     const requestedResume = requestedPrefill.resume;
-    const resume = requestedResume &&
+    const resume = AUTOFILL_FEATURE_FLAGS.artifactPrefill &&
+      requestedResume &&
       typeof requestedResume.pdfBase64 === 'string' &&
       requestedResume.pdfBase64.length <= 25_000_000 &&
       typeof requestedResume.filename === 'string'
@@ -236,7 +252,18 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           filename: requestedResume.filename.slice(0, 180),
         }
       : undefined;
-    const snapshot = validateResumeAutofillSnapshotV1(requestedPrefill.snapshot)
+    const coverLetter =
+      AUTOFILL_FEATURE_FLAGS.coverLetter &&
+      generatedContentHash &&
+      validateGeneratedCoverLetterAttachment(
+        requestedPrefill.coverLetter,
+        generatedContentHash
+      )
+        ? (requestedPrefill.coverLetter as GeneratedCoverLetterAttachment)
+        : undefined;
+    const snapshot =
+      AUTOFILL_FEATURE_FLAGS.artifactPrefill &&
+      validateResumeAutofillSnapshotV1(requestedPrefill.snapshot)
       ? requestedPrefill.snapshot
       : undefined;
     const profileFallback = sanitizeBasicContactProfile(
@@ -246,9 +273,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       type: 'RUN_PREFILL_IN_CHILD_FRAME',
       prefill: {
         resume,
+        coverLetter,
+        generatedContentHash,
         snapshot,
         profileFallback,
-        autofillSkills: requestedPrefill.autofillSkills === true,
+        autofillSkills:
+          AUTOFILL_FEATURE_FLAGS.skills &&
+          requestedPrefill.autofillSkills === true,
         quietResultToast: requestedPrefill.quietResultToast === true,
       },
     }).then(() => sendResponse({ ok: true })).catch(() => {
@@ -287,13 +318,22 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg.type === 'GENERATE_COVER_LETTER') {
+    if (!AUTOFILL_FEATURE_FLAGS.coverLetter) {
+      sendResponse({ ok: false, error: 'feature_disabled' });
+      return false;
+    }
     generateCoverLetterForCurrentArtifact({
       artifactId: String(msg.artifactId ?? ''),
       jobDescription: String(msg.jobDescription ?? ''),
+      isRegeneration: msg.isRegeneration === true,
     }).then(sendResponse).catch(() => sendResponse({ ok: false, error: 'generation_failed' }));
     return true;
   }
   if (msg.type === 'RECOMPILE_COVER_LETTER') {
+    if (!AUTOFILL_FEATURE_FLAGS.coverLetter) {
+      sendResponse({ ok: false, error: 'feature_disabled' });
+      return false;
+    }
     recompileCoverLetterForCurrentArtifact({
       artifactId: String(msg.artifactId ?? ''),
       editedText: String(msg.editedText ?? ''),
@@ -302,6 +342,10 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg.type === 'GENERATE_SCREENING_DRAFT') {
+    if (!AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+      sendResponse({ ok: false, error: 'feature_disabled' });
+      return false;
+    }
     requestScreeningDraft(msg).then(sendResponse).catch(() => sendResponse({ ok: false, error: 'generation_failed' }));
     return true;
   }
@@ -743,7 +787,7 @@ async function requestScreeningDraft(input: Record<string, unknown>) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` },
     body: JSON.stringify({
-      questionText: String(input.questionText ?? ''),
+      questionText: normalizeQuestionText(String(input.questionText ?? '')),
       ...(typeof input.characterLimit === 'number' ? { characterLimit: input.characterLimit } : {}),
       job: {
         companyName: String(input.companyName ?? artifact.job.companyName),
@@ -780,6 +824,7 @@ async function saveScreeningAnswerForCurrentUser(answer: unknown) {
 async function generateCoverLetterForCurrentArtifact(input: {
   artifactId: string;
   jobDescription: string;
+  isRegeneration: boolean;
 }) {
   const artifact = currentGeneratedResumeArtifact;
   if (!artifact || artifact.artifactId !== input.artifactId) {
@@ -793,6 +838,7 @@ async function generateCoverLetterForCurrentArtifact(input: {
     body: JSON.stringify({
       snapshot: artifact.snapshot,
       sourceContentHash: artifact.generatedContentHash,
+      isRegeneration: input.isRegeneration,
       job: {
         companyName: artifact.job.companyName,
         roleTitle: artifact.job.roleTitle,
@@ -981,27 +1027,24 @@ async function generateTailoredResume(input: {
     return buf.byteLength ? { pdf: buf } : { error: 'empty pdf' };
   };
 
-  let latex = gen.latex;
-  let out = await compile(latex);
-  if (!out.pdf) {
-    try {
+  const compiled = await compileLatexWithSingleRepair({
+    initialLatex: gen.latex,
+    compile,
+    repair: async (latexCode, errorMessage) => {
       const fixRes = await fetch(`${WEBSITE_URL}/api/resume-generator/fix-latex`, {
         method: 'POST',
         headers: auth,
-        body: JSON.stringify({ latexCode: latex, errorMessage: out.error || 'Compilation failed' }),
+        body: JSON.stringify({ latexCode, errorMessage }),
       });
       if (fixRes.ok) {
         const fixed = (await fixRes.json()) as { latex?: string };
-        if (fixed.latex) {
-          latex = fixed.latex;
-          out = await compile(latex);
-        }
+        return fixed.latex;
       }
-    } catch {
-      /* keep the original failure */
-    }
-  }
-  if (!out.pdf) return { ok: false, error: 'compile_failed' };
+      return undefined;
+    },
+  });
+  if (!compiled.pdf) return { ok: false, error: 'compile_failed' };
+  const latex = compiled.finalLatex;
 
   // Extract a structured snapshot only after the exact, possibly repaired,
   // LaTeX has compiled. Extraction is deliberately non-blocking: the PDF is
@@ -1029,7 +1072,7 @@ async function generateTailoredResume(input: {
     snapshotExtraction = { structuredFieldsAvailable: false };
   }
 
-  const pdfBase64 = arrayBufferToBase64(out.pdf);
+  const pdfBase64 = arrayBufferToBase64(compiled.pdf);
   let artifact: GeneratedResumeArtifactV1 | undefined;
   try {
     const builtArtifact = await buildGeneratedResumeArtifactV1({

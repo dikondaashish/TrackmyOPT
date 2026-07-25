@@ -6,6 +6,7 @@ import {
 
 const result = summarizePrefillOutcomes([
   { filled: true, fieldGroup: 'resume' },
+  { filled: true, fieldGroup: 'cover_letter' },
   { filled: true, fieldGroup: 'contact' },
   { filled: true, fieldGroup: 'contact' },
   { filled: true, fieldGroup: 'skills' },
@@ -16,11 +17,12 @@ const result = summarizePrefillOutcomes([
 ]);
 
 assert.deepEqual(result, {
-  filled: 4,
+  filled: 5,
   skipped: 2,
-  total: 6,
+  total: 7,
   groups: {
     resume: { filled: 1, skipped: 0, total: 1 },
+    cover_letter: { filled: 1, skipped: 0, total: 1 },
     contact: { filled: 2, skipped: 0, total: 2 },
     skills: { filled: 1, skipped: 1, total: 2 },
     experience: { filled: 0, skipped: 0, total: 0 },
@@ -35,6 +37,7 @@ assert.deepEqual(summarizePrefillOutcomes([]), {
   total: 0,
   groups: {
     resume: { filled: 0, skipped: 0, total: 0 },
+    cover_letter: { filled: 0, skipped: 0, total: 0 },
     contact: { filled: 0, skipped: 0, total: 0 },
     skills: { filled: 0, skipped: 0, total: 0 },
     experience: { filled: 0, skipped: 0, total: 0 },
@@ -44,7 +47,7 @@ assert.deepEqual(summarizePrefillOutcomes([]), {
 
 assert.equal(
   formatPrefillCoverageSummary(result),
-  'Resume attached · 2 contact fields · 1 skills field filled · 2 need you',
+  'Resume attached · Cover letter attached · 2 contact fields · 1 skills field filled · 2 need you',
 );
 
 const historyResult = summarizePrefillOutcomes([

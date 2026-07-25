@@ -37,6 +37,13 @@ function documentFixture(
     selectAtsPrefillAdapter(documentFixture('acme.wd5.myworkdayjobs.com')).id,
     'workday',
   );
+  assert.equal(
+    selectAtsPrefillAdapter(
+      documentFixture('acme.wd5.myworkdayjobs.com'),
+      false
+    ).id,
+    'generic',
+  );
 }
 
 {
@@ -92,7 +99,18 @@ function section(
   const title1 = control('Job title', firstRecord);
   const employer2 = control('Employer', secondRecord);
   const sensitive = control('Visa sponsorship details', secondRecord);
-  const experience = section('Work Experience', [employer1, title1, employer2, sensitive]);
+  const organizationTraps = [
+    control('Manager company', secondRecord),
+    control('Referral company', secondRecord),
+    control('Company website', secondRecord),
+  ];
+  const experience = section('Work Experience', [
+    employer1,
+    title1,
+    employer2,
+    sensitive,
+    ...organizationTraps,
+  ]);
   const root = {
     querySelectorAll() {
       return [experience];
@@ -109,6 +127,10 @@ function section(
     ],
   );
   assert.equal(classified.some(({ element }) => element === sensitive), false);
+  assert.equal(
+    classified.some(({ element }) => organizationTraps.includes(element)),
+    false,
+  );
 }
 
 console.log('ats-prefill-adapters: generic, Workday, and Greenhouse boundary passed');

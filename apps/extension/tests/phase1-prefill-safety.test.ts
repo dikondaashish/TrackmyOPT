@@ -29,7 +29,7 @@ assert.doesNotMatch(withoutComments(continuousBlock), /\.click\s*\(/);
 assert.doesNotMatch(withoutComments(continuousBlock), /GENERATE_|screening|cover.?letter/i);
 assert.match(
   backgroundSource,
-  /autofillSkills:\s*requestedPrefill\.autofillSkills === true/,
+  /autofillSkills:\s*AUTOFILL_FEATURE_FLAGS\.skills\s*&&\s*requestedPrefill\.autofillSkills === true/,
   'child frames receive only an explicitly enabled skills preference',
 );
 

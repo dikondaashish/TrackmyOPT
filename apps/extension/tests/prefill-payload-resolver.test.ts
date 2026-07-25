@@ -4,6 +4,7 @@ import test from 'node:test';
 import { buildGeneratedResumeArtifactV1 } from '../src/resume-artifact-lifecycle';
 import { resolveV1PrefillPayload } from '../src/prefill-payload-resolver';
 import { jobMemoryKey } from '../src/smart-flow';
+import { resolveAutofillFeatureFlags } from '../src/autofill-feature-flags';
 import type {
   BasicContactProfile,
   GeneratedResumeArtifactV1,
@@ -66,9 +67,108 @@ test('valid artifact resolves generated resume, snapshot, and profile fallback t
   assert.equal(response.source, 'generated_resume');
   if (response.source !== 'generated_resume') return;
   assert.equal(response.artifactId, artifact.artifactId);
+  assert.equal(response.generatedContentHash, artifact.generatedContentHash);
   assert.equal(response.resume.pdfBase64, artifact.pdf.base64);
   assert.deepEqual(response.snapshot, artifact.snapshot);
   assert.deepEqual(response.profileFallback, fallback);
+});
+
+test('artifact prefill can be disabled without removing profile-only prefill', async () => {
+  const artifact = await validArtifact();
+  let rejected = false;
+  const response = await resolveV1PrefillPayload({
+    artifact,
+    request,
+    featureFlags: {
+      artifactPrefill: false,
+      skills: false,
+      continuousMode: false,
+      aiScreeningDrafts: false,
+      coverLetter: false,
+      historyFields: false,
+      atsAdapters: false,
+    },
+    onArtifactRejected: () => {
+      rejected = true;
+    },
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+
+  assert.deepEqual(response, {
+    ok: true,
+    source: 'profile_only',
+    reason: 'feature_disabled',
+    profileFallback: fallback,
+  });
+  assert.equal(rejected, false);
+});
+
+test('cover letter is relayed only when its independent flag is enabled', async () => {
+  const artifact = await validArtifact();
+  artifact.coverLetter = {
+    filename: 'cover-letter.pdf',
+    base64: 'JVBERi0xLjQK',
+    sha256: 'b'.repeat(64),
+    generatedAt: '2026-07-16T12:05:00.000Z',
+    sourceContentHash: artifact.generatedContentHash,
+  };
+
+  const disabled = await resolveV1PrefillPayload({
+    artifact,
+    request,
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+  assert.equal(
+    disabled.ok &&
+      disabled.source === 'generated_resume' &&
+      disabled.coverLetter,
+    undefined,
+  );
+
+  const enabled = await resolveV1PrefillPayload({
+    artifact,
+    request,
+    featureFlags: resolveAutofillFeatureFlags({ coverLetter: true }),
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+  assert.equal(enabled.ok, true);
+  if (!enabled.ok || enabled.source !== 'generated_resume') return;
+  assert.deepEqual(enabled.coverLetter, artifact.coverLetter);
+  assert.equal(enabled.generatedContentHash, artifact.generatedContentHash);
+});
+
+test('a disabled invalid cover letter cannot block deterministic resume prefill', async () => {
+  const artifact = await validArtifact();
+  artifact.coverLetter = {
+    filename: 'cover-letter.pdf',
+    base64: 'JVBERi0xLjQK',
+    sha256: 'b'.repeat(64),
+    generatedAt: '2026-07-16T12:05:00.000Z',
+    sourceContentHash: 'c'.repeat(64),
+  };
+
+  const disabled = await resolveV1PrefillPayload({
+    artifact,
+    request,
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+  assert.equal(
+    disabled.ok && disabled.source === 'generated_resume',
+    true,
+  );
+
+  const enabled = await resolveV1PrefillPayload({
+    artifact,
+    request,
+    featureFlags: resolveAutofillFeatureFlags({ coverLetter: true }),
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+  assert.deepEqual(enabled, {
+    ok: true,
+    source: 'profile_only',
+    reason: 'invalid',
+    profileFallback: fallback,
+  });
 });
 
 test('missing, expired, and mismatched artifacts return profile_only and never query latest resume', async () => {

@@ -88,7 +88,9 @@ pnpm build
 - **Real-time Countdown**: See days remaining in your OPT period
 - **OPT Status Display**: View all your important dates at a glance
 - **Dashboard Link**: Quick access to your web dashboard
-- **Sync Across Devices**: Uses `chrome.storage.sync` for cross-device sync
+- **Account-backed data**: Loads TrackMyOPT account data after sign-in
+- **Safe job application prefill**: Fills eligible empty fields and can attach
+  the active job-scoped generated resume without navigating or submitting
 - **Job Tracker Capture**: Add jobs from supported job portals into TrackMyOPT
 
 ## 🌍 Job Capture Compatibility
@@ -101,7 +103,8 @@ Job capture works on common job boards and many company career pages. Avoid list
 2. Extension opens web auth flow via `chrome.identity.launchWebAuthFlow`
 3. User authenticates on your website
 4. Website redirects back with JWT token in URL fragment
-5. Extension stores token securely in `chrome.storage.sync`
+5. Extension stores short-lived token material in device-local storage, never
+   browser sync storage
 6. Extension uses token to call `/api/me` endpoint
 
 ## 🌐 Configuration
@@ -189,35 +192,114 @@ The extension works with `localhost:3000` by default. To test:
 - Verify token is being sent in Authorization header
 - Check browser console for CORS errors
 
-## 📦 Publishing
+## Job-scoped autofill release scope (`0.1.12`)
 
-### Before Publishing to Chrome Web Store
+The releasable slice is deterministic: explicit Step-by-step prefill uses the
+active generated resume artifact plus the account profile to fill supported
+empty contact, experience, and education fields. It may attach the generated
+resume only to an empty Resume/CV PDF input. The artifact expires after 30
+minutes and is invalidated when the normalized job URL, company, or role
+changes.
 
-1. Update version in `manifest.json`
-2. Build for production: `pnpm build`
-3. Test thoroughly in multiple scenarios
-4. Update `WEBSITE_URL` to production domain
-5. Add high-quality icons (128x128 required)
-6. Prepare promotional images and description
-7. Create a zip of the `dist/` folder
-8. Submit to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 
-### Industry-Ready Notes
+| Flag | Default | Release behavior |
+| --- | --- | --- |
+| `artifactPrefill` | on | Active artifact and profile prefill |
+| `historyFields` | on | Experience and education fields |
+| `atsAdapters` | on | Conservative Workday/Greenhouse adapters |
+| `skills` | off | No skills field is filled |
+| `continuousMode` | off | No mutation-driven background pass |
+| `aiScreeningDrafts` | off | UI/background disabled; route returns `501` |
+| `coverLetter` | off | UI/background disabled; route returns `501` |
 
-- Use least-privilege host permissions (only your domain + supported job portals).
-- Avoid broad patterns such as `https://*/*` unless absolutely required.
-- Keep permission descriptions in Web Store listing aligned with actual extension behavior.
+Every mode keeps the same hard boundaries:
 
-### Production Checklist
+- never use a historical or merely latest resume as fallback;
+- never overwrite a non-empty field, existing tag, or existing file;
+- never fill visa, sponsorship, work-authorization, EEO, salary, DOB, SSN,
+  veteran, disability, citizenship, or clearance questions;
+- never click Add another, Next, Review, Done, Submit, or another host control;
+- never place resume, question, answer, employer, school, title, URL, hash, or
+  PDF content in analytics or `chrome.storage.sync`.
 
-- [ ] Update `src/config.ts` with production URL
-- [ ] Update `manifest.json` host_permissions
-- [ ] Test OAuth flow end-to-end
-- [ ] Test on fresh Chrome profile
-- [ ] Verify all icons display correctly
-- [ ] Test sign in, data fetch, and sign out
-- [ ] Check for console errors
-- [ ] Verify data persists after browser restart
+## Chrome Web Store release checklist
+
+### Code and packaging
+
+- [x] Package and manifest versions match at `0.1.12`.
+- [x] Production is the default target in `src/config.ts`; localhost requires
+  the explicit `EXT_TARGET=local` build.
+- [x] Run the complete web, extension, and API test suites.
+- [x] Run web, extension, and API `tsc --noEmit`.
+- [x] Run `pnpm --dir apps/extension build` and inspect `dist/manifest.json`.
+- [x] Confirm no generated resume, PDF, snapshot, question, answer, cover
+  letter, or token is written to `chrome.storage.sync`.
+- [ ] Load the production build into a fresh Chrome profile; test sign-in,
+  refresh, sign-out, extension restart, and browser restart.
+- [ ] Verify icons, popup, job widget, dashboard links, and console output.
+
+### Manual Workday and Greenhouse matrix
+
+Use sanitized internal accounts and fixtures. Do not use a real application or
+click Submit.
+
+| Platform | Scenario | Expected result | Complete |
+| --- | --- | --- | --- |
+| Workday | Explicit prefill with a fresh matching artifact | Empty contact/history fields fill; empty Resume/CV accepts the matching PDF | [ ] |
+| Workday | Existing field values and resume upload | All existing values/files remain unchanged | [ ] |
+| Workday | Multi-record history | Visible records keep company/title/date boundaries; no Add another click | [ ] |
+| Workday | Manager/referral-company and sensitive questions | Fields stay blank | [ ] |
+| Workday | 30-minute expiry or URL/company/role change | Artifact is rejected; profile-only/regenerate guidance appears | [ ] |
+| Greenhouse | Explicit prefill with a fresh matching artifact | Empty native contact/history fields fill; empty Resume/CV accepts the PDF | [ ] |
+| Greenhouse | Custom dropdown, tag editor, existing file/value | Unsupported or populated controls stay unchanged | [ ] |
+| Greenhouse | Sensitive screening and EEO fields | Fields stay blank and never reach an AI route | [ ] |
+| Both | Continuous mode default | No Continuous pass occurs because the flag is off | [ ] |
+| Both | Navigation/submission controls | No Add another, Next, Review, Done, or Submit click occurs | [ ] |
+
+### Privacy and support verification
+
+- [ ] Owner/legal reviews the autofill disclosure in
+  `apps/web/lib/legal/legal-config.ts`; policy version/effective date is changed
+  only with explicit approval.
+- [x] `/privacy` describes the 30-minute artifact, empty-only behavior,
+  sensitive-field exclusions, storage boundary, and content-free telemetry.
+- [x] `/dashboard/help` describes current deterministic scope and clearly marks
+  Continuous, skills, AI drafts/answer reuse, and cover letters unavailable.
+- [x] Support can map the content-free error codes `extraction_failed`,
+  `unsupported_control`, `draft_review_pending`, and `attachment_failed`.
+- [x] PostHog receives only allowlisted enums, booleans, and bounded counts.
+
+### Frame access review justification
+
+The job-portal content script uses `all_frames: true` and
+`match_about_blank: true` because Workday, Greenhouse, and employer-hosted
+application forms can render upload or application controls in child or
+`about:blank` frames. This adds no Chrome permission. A child frame receives an
+already-resolved, bounded payload only during an explicit Step-by-step run (or
+a separately enabled Continuous run); inaccessible cross-origin DOM is not
+read directly. The engine still refuses host-page button clicks, sensitive
+fields, non-empty fields, and existing files.
+
+- [ ] Put this exact purpose in the Web Store permission/use justification.
+- [ ] Confirm the submitted manifest contains no permission added solely for
+  frame traversal.
+- [x] Verify child-frame relay size/schema validation and no persistent payload
+  storage.
+
+### Rollout and rollback
+
+1. Release to internal testers first with the default flag matrix above.
+2. Validate the manual Workday/Greenhouse matrix and content-free event schema.
+3. Expand only after error and skip counts are understood.
+4. If deterministic prefill causes regressions, publish an emergency build with
+   `artifactPrefill`, `historyFields`, or `atsAdapters` disabled independently;
+   profile-only prefill remains available.
+5. Keep `aiScreeningDrafts` and `coverLetter` off until their real generation
+   implementations and production tests ship. Do not restore either stub.
+
+Chrome Web Store packaging, upload, listing changes, and staged-channel
+submission remain owner actions and are intentionally not performed by Codex.
 
 ## 📚 Resources
 
@@ -351,4 +433,3 @@ For issues or questions:
 ---
 
 **Made with 💙 for international students tracking their OPT timeline**
-

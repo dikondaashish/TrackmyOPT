@@ -3,6 +3,7 @@ import {
   DEFAULT_AUTOFILL_PREFERENCES,
   normalizeAutofillPreferences,
 } from '../src/autofill-preferences';
+import { resolveAutofillFeatureFlags } from '../src/autofill-feature-flags';
 
 assert.deepEqual(DEFAULT_AUTOFILL_PREFERENCES, {
   mode: 'step_by_step',
@@ -11,9 +12,19 @@ assert.deepEqual(DEFAULT_AUTOFILL_PREFERENCES, {
 
 assert.deepEqual(normalizeAutofillPreferences(undefined), DEFAULT_AUTOFILL_PREFERENCES);
 assert.deepEqual(normalizeAutofillPreferences({ mode: 'continuous', autofillSkills: true }), {
+  mode: 'step_by_step',
+  autofillSkills: false,
+});
+assert.deepEqual(
+  normalizeAutofillPreferences(
+    { mode: 'continuous', autofillSkills: true },
+    resolveAutofillFeatureFlags({ continuousMode: true, skills: true })
+  ),
+  {
   mode: 'continuous',
   autofillSkills: true,
-});
+  }
+);
 assert.deepEqual(normalizeAutofillPreferences({ mode: 'always', autofillSkills: 'yes' }), {
   mode: 'step_by_step',
   autofillSkills: false,

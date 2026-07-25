@@ -98,6 +98,31 @@ describe('extractAutofillSnapshot', () => {
     expect(result.snapshot.skills).toEqual(['Python', 'SQL']);
   });
 
+  it('never lets a rewritten job title enter the autofill snapshot', async () => {
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        experience: [
+          {
+            ...jobASnapshot.experience[0],
+            title: 'Target-JD Software Engineer',
+          },
+        ],
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.snapshot.experience).toEqual([]);
+    expect(
+      result.snapshot.experience.some(
+        ({ title }) => title === 'Target-JD Software Engineer'
+      )
+    ).toBe(false);
+  });
+
   it('decodes LaTeX-escaped company, school, email, and percent values before extraction', async () => {
     let normalizedInput = '';
     const result = await extractAutofillSnapshot({
