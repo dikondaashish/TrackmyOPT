@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { captureDashboardViewed, ANALYTICS_CONSENT_CHANGE_EVENT, isBrowserPostHogReady } from "@/lib/posthog-client";
+import {
+  captureDashboardViewed,
+  ANALYTICS_CONSENT_CHANGE_EVENT,
+  isBrowserPostHogReady,
+} from "@/lib/posthog-client";
 import { hasAnalyticsConsent } from "@/lib/cookie-consent";
 import { isPendingStatus } from "@/lib/posthog/uscis-status-category";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { supabase } from "@/lib/supabaseClient";
+
+const DASHBOARD_VIEWED_SESSION_KEY = "tmo:dashboard_viewed_captured";
 
 function resolvePlanTier(isPremium: boolean | null, planName: string | null): string {
   if (isPremium !== true) return "free";
@@ -28,7 +34,10 @@ async function markFirstDashboardViewed(): Promise<void> {
   }
 }
 
-/** Fires `dashboard_viewed` once per dashboard mount. */
+/**
+ * Fires `dashboard_viewed` once per browser session on any dashboard route.
+ * Phase 4: no longer gated on onboarding_completed (that hid ~80% of the funnel).
+ */
 export function DashboardViewTracker() {
   const premium = usePremiumStatus();
   const trackedRef = useRef(false);
@@ -38,15 +47,31 @@ export function DashboardViewTracker() {
     if (premium.isLoading) return;
 
     const trackDashboardView = () => {
-      if (trackedRef.current || !hasAnalyticsConsent() || !isBrowserPostHogReady()) return;
+      if (trackedRef.current || !hasAnalyticsConsent() || !isBrowserPostHogReady()) {
+        return;
+      }
+      try {
+        if (sessionStorage.getItem(DASHBOARD_VIEWED_SESSION_KEY) === "1") {
+          trackedRef.current = true;
+          if (!activityMarkedRef.current) {
+            activityMarkedRef.current = true;
+            void markFirstDashboardViewed();
+          }
+          return;
+        }
+      } catch {
+        /* ignore */
+      }
 
       (async () => {
         let hasReceipt = false;
         let hasStatus = false;
         let isPending = false;
         let onboardingCompleted = false;
+        let path = "/dashboard";
 
         try {
+          path = window.location.pathname;
           const {
             data: { user },
           } = await supabase.auth.getUser();
@@ -62,8 +87,7 @@ export function DashboardViewTracker() {
           /* non-blocking */
         }
 
-        if (!onboardingCompleted) return;
-
+        // Stamp first dashboard view as soon as they hit any dashboard page.
         if (!activityMarkedRef.current) {
           activityMarkedRef.current = true;
           void markFirstDashboardViewed();
@@ -71,6 +95,11 @@ export function DashboardViewTracker() {
 
         if (trackedRef.current) return;
         trackedRef.current = true;
+        try {
+          sessionStorage.setItem(DASHBOARD_VIEWED_SESSION_KEY, "1");
+        } catch {
+          /* ignore */
+        }
 
         try {
           const response = await fetch("/api/case-status", { credentials: "include" });
@@ -92,6 +121,7 @@ export function DashboardViewTracker() {
           plan_tier: resolvePlanTier(premium.isPremium, premium.planName),
           premium_status: premium.isPremium === true,
           onboarding_completed: onboardingCompleted,
+          path,
         });
       })();
     };
@@ -100,7 +130,15 @@ export function DashboardViewTracker() {
 
     const onConsentChange = (event: Event) => {
       const accepted = (event as CustomEvent<{ accepted: boolean }>).detail?.accepted;
-      if (accepted) trackDashboardView();
+      if (accepted) {
+        trackedRef.current = false;
+        try {
+          sessionStorage.removeItem(DASHBOARD_VIEWED_SESSION_KEY);
+        } catch {
+          /* ignore */
+        }
+        trackDashboardView();
+      }
     };
 
     window.addEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onConsentChange);

@@ -44,7 +44,9 @@ import {
   MANUAL_REFRESH_COUNT_SESSION_KEY,
   MANUAL_REFRESH_UPSELL_SESSION_KEY,
   STALE_STATUS_UPSELL_SESSION_KEY,
+  RECEIPT_ADDED_UPSELL_SESSION_KEY,
   CHECKOUT_UPSELL_TRIGGER,
+  type CheckoutUpsellTrigger,
 } from "@/lib/case-status/free-change-wedge";
 import {
   captureCaseStatusCheckCompletedClient,
@@ -64,6 +66,7 @@ import {
   Loader2,
   Info,
   X,
+  Crown,
 } from "lucide-react";
 import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case-status/redesign/StickyCaseSwitcher";
 import { useClientDate } from "@/hooks/useClientDate";
@@ -75,7 +78,10 @@ import { ToolsAccordion } from "@/components/dashboard/case-status/redesign/Tool
 import { SmartNextSteps } from "@/components/dashboard/case-status/redesign/SmartNextSteps";
 import { OptJourneySection } from "@/components/dashboard/case-status/redesign/OptJourneySection";
 import { CaseInfoFooter } from "@/components/dashboard/case-status/redesign/CaseInfoFooter";
-import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
+import {
+  CASE_STATUS_MESSAGING,
+  PRODUCT_CTAS,
+} from "@/lib/messaging/product-copy";
 
 const PACKAGING_NOTICE_DISMISS_KEY = "tmo_packaging_notice_dismissed_v1";
 
@@ -125,6 +131,9 @@ export function CaseStatusSection() {
   // null = still loading, true/false = resolved — prevents free-tier flash for Pro users
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [pricingModalPlan, setPricingModalPlan] = useState<"pro" | "dedicated">(
+    "pro"
+  );
   const [notificationEmail, setNotificationEmail] = useState("");
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
@@ -141,9 +150,25 @@ export function CaseStatusSection() {
   const [packagingNoticeDismissed, setPackagingNoticeDismissed] = useState(true);
   const [showManualRefreshUpsell, setShowManualRefreshUpsell] = useState(false);
   const [showStaleStatusUpsell, setShowStaleStatusUpsell] = useState(false);
+  const [showReceiptAddedUpsell, setShowReceiptAddedUpsell] = useState(false);
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
   const [filingDateInput, setFilingDateInput] = useState("");
   const [filingDateSaving, setFilingDateSaving] = useState(false);
+
+  const openProTrialModal = useCallback(
+    (trigger?: CheckoutUpsellTrigger) => {
+      setPricingModalPlan("pro");
+      setShowPricingModal(true);
+      if (trigger) {
+        captureUpgradePromptShown({
+          trigger,
+          source: "case_status_page",
+          plan_suggested: "pro",
+        });
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     try {
@@ -168,6 +193,7 @@ export function CaseStatusSection() {
     captureUpgradePromptShown({
       trigger: CHECKOUT_UPSELL_TRIGGER.STALE_STATUS,
       source: "case_status_page",
+      plan_suggested: "pro",
     });
   }, [isPremium, caseStatus?.last_checked_at, caseStatus?.id]);
 
@@ -403,9 +429,11 @@ export function CaseStatusSection() {
 
     if (isNewCase && !canAddMoreCases) {
       setError(caseLimitMessage(isPremium === true));
-      if (isPremium === false) setShowPricingModal(true);
+      if (isPremium === false) openProTrialModal();
       return;
     }
+
+    const wasFirstCase = trackedCases.length === 0;
 
     try {
       setIsSaving(true);
@@ -429,7 +457,7 @@ export function CaseStatusSection() {
             "Failed to save receipt number."
         );
         if (postResult.code === "case_limit_reached" && isPremium === false) {
-          setShowPricingModal(true);
+          openProTrialModal();
         }
         return;
       }
@@ -457,6 +485,26 @@ export function CaseStatusSection() {
         setIsAddingCase(false);
       }
       setSuccess(true);
+
+      if (
+        isPremium === false &&
+        (wasFirstCase || isNewCase) &&
+        typeof window !== "undefined"
+      ) {
+        try {
+          if (!sessionStorage.getItem(RECEIPT_ADDED_UPSELL_SESSION_KEY)) {
+            sessionStorage.setItem(RECEIPT_ADDED_UPSELL_SESSION_KEY, "1");
+            setShowReceiptAddedUpsell(true);
+            captureUpgradePromptShown({
+              trigger: CHECKOUT_UPSELL_TRIGGER.RECEIPT_ADDED,
+              source: "case_status_page",
+              plan_suggested: "pro",
+            });
+          }
+        } catch {
+          setShowReceiptAddedUpsell(true);
+        }
+      }
 
       if (!statusResolved) {
         setError(
@@ -513,6 +561,8 @@ export function CaseStatusSection() {
             setShowManualRefreshUpsell(true);
             captureUpgradePromptShown({
               trigger: CHECKOUT_UPSELL_TRIGGER.SECOND_MANUAL_REFRESH,
+              source: "case_status_page",
+              plan_suggested: "pro",
             });
           }
         }
@@ -592,7 +642,7 @@ export function CaseStatusSection() {
   const handleStartAddCase = () => {
     if (!canAddMoreCases) {
       setError(caseLimitMessage(isPremium === true));
-      if (isPremium === false) setShowPricingModal(true);
+      if (isPremium === false) openProTrialModal();
       return;
     }
     setIsAddingCase(true);
@@ -606,7 +656,7 @@ export function CaseStatusSection() {
     if (!caseStatus) return;
 
     if (isPremium === false) {
-      setShowPricingModal(true);
+      openProTrialModal();
       return;
     }
 
@@ -673,7 +723,7 @@ export function CaseStatusSection() {
 
   const handleEmailSave = async () => {
     if (isPremium === false) {
-      setShowPricingModal(true);
+      openProTrialModal();
       return;
     }
 
@@ -843,10 +893,10 @@ export function CaseStatusSection() {
                   {CASE_STATUS_MESSAGING.packagingChangeNotice}{" "}
                   <button
                     type="button"
-                    onClick={() => setShowPricingModal(true)}
+                    onClick={() => openProTrialModal()}
                     className="font-medium underline underline-offset-2 hover:no-underline cursor-pointer"
                   >
-                    See Pro
+                    {PRODUCT_CTAS.startTrial}
                   </button>
                 </p>
                 <button
@@ -872,11 +922,32 @@ export function CaseStatusSection() {
           {showStatusChangeWedge && caseStatus.status_last_changed_at && (
             <StatusChangeUpgradeBanner
               statusLastChangedAt={caseStatus.status_last_changed_at}
+              onStartTrial={() => openProTrialModal()}
               onAcknowledged={() => {
                 setWedgeDismissed(true);
                 setCaseStatus((prev) => prev ? { ...prev, last_status_viewed_at: new Date().toISOString() } : prev);
               }}
             />
+          )}
+
+          {/* Persistent trial CTA for free users with a receipt */}
+          {isPremium === false && (
+            <Card className="p-3 border-purple-200 dark:border-purple-800 bg-purple-50/80 dark:bg-purple-950/20">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <p className="text-sm text-purple-950 dark:text-purple-100 flex-1">
+                  {CASE_STATUS_MESSAGING.trialCtaStrip}
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white shrink-0"
+                  onClick={() => openProTrialModal()}
+                >
+                  <Crown className="w-4 h-4 mr-1.5" />
+                  {PRODUCT_CTAS.startTrial}
+                </Button>
+              </div>
+            </Card>
           )}
 
           {/* ── 3. MAIN CASE HERO CARD ── */}
@@ -932,7 +1003,7 @@ export function CaseStatusSection() {
               emailAddress={notificationEmail}
               onEditEmail={() => setIsEditingEmail(true)}
               onUpgrade={
-                isPremium === false ? () => setShowPricingModal(true) : undefined
+                isPremium === false ? () => openProTrialModal() : undefined
               }
             />
           </CaseStatusPanelErrorBoundary>
@@ -954,7 +1025,7 @@ export function CaseStatusSection() {
               <AnalyticsTabs
                 receiptNumber={caseStatus.receipt_number}
                 isPremium={isPremium}
-                onUpgrade={() => setShowPricingModal(true)}
+                onUpgrade={() => openProTrialModal()}
                 daysSinceFiled={
                   clientNowMs !== null
                     ? daysSinceEpochMs(caseStatus.received_date, clientNowMs)
@@ -1106,7 +1177,7 @@ export function CaseStatusSection() {
                 onCancelEditEmail: () => setIsEditingEmail(false),
                 onSaveEmail: handleEmailSave,
                 onEmailChange: setNotificationEmail,
-                onUpgrade: () => setShowPricingModal(true),
+                onUpgrade: () => openProTrialModal(),
               }}
             />
           </CaseStatusPanelErrorBoundary>
@@ -1119,16 +1190,29 @@ export function CaseStatusSection() {
             />
           </CaseStatusPanelErrorBoundary>
 
-          {/* ── 8b. Manual refresh / stale status upsell ── */}
+          {/* ── 8b. Manual refresh / stale / receipt upsells ── */}
+          {showReceiptAddedUpsell && (
+            <ManualRefreshUpsellPrompt
+              trigger={CHECKOUT_UPSELL_TRIGGER.RECEIPT_ADDED}
+              message={CASE_STATUS_MESSAGING.receiptAddedNotice}
+              onStartTrial={() => openProTrialModal()}
+              onDismiss={() => setShowReceiptAddedUpsell(false)}
+            />
+          )}
           {showManualRefreshUpsell && (
-            <ManualRefreshUpsellPrompt onDismiss={() => setShowManualRefreshUpsell(false)} />
+            <ManualRefreshUpsellPrompt
+              onStartTrial={() => openProTrialModal()}
+              onDismiss={() => setShowManualRefreshUpsell(false)}
+            />
           )}
           {!showManualRefreshUpsell &&
+            !showReceiptAddedUpsell &&
             !showStatusChangeWedge &&
             showStaleStatusUpsell && (
               <ManualRefreshUpsellPrompt
                 trigger={CHECKOUT_UPSELL_TRIGGER.STALE_STATUS}
-                message="Status may be outdated. Pro auto-checks USCIS daily and emails you when it changes."
+                message={CASE_STATUS_MESSAGING.staleStatusNotice}
+                onStartTrial={() => openProTrialModal()}
                 onDismiss={() => setShowStaleStatusUpsell(false)}
               />
             )}
@@ -1191,6 +1275,8 @@ export function CaseStatusSection() {
         open={showPricingModal}
         onClose={() => setShowPricingModal(false)}
         isPremium={isPremium ?? false}
+        initialPlan={pricingModalPlan}
+        initialInterval="year"
       />
     </div>
   );

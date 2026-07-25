@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const D1_ACTIVATION_NUDGE_EMAIL_TYPE = "d1_activation_nudge";
 
-/** Hours after onboarding before sending D1 nudge (if no dashboard view). */
+/** Hours after signup before sending D1 nudge (if no dashboard view). */
 export const D1_ACTIVATION_NUDGE_DELAY_HOURS = 24;
 
 export const D1_ACTIVATION_NUDGE_DEFAULT_BATCH = 50;
@@ -18,8 +18,9 @@ export type D1ActivationNudgeCandidate = {
 };
 
 /**
- * Users who finished onboarding ≥24h ago, never opened the dashboard,
+ * Free users signed up ≥24h ago who never opened the dashboard
  * and have not received a D1 nudge.
+ * Phase 4: keyed off signup (`created_at`), not onboarding completion.
  */
 export async function findD1ActivationNudgeCandidates(
   supabase: SupabaseClient,
@@ -33,14 +34,13 @@ export async function findD1ActivationNudgeCandidates(
   const { data: profiles, error: profileErr } = await supabase
     .from("profiles")
     .select(
-      "user_id, email, first_name, premium_status, onboarding_completed_at, first_dashboard_viewed_at"
+      "user_id, email, first_name, premium_status, created_at, first_dashboard_viewed_at"
     )
-    .eq("onboarding_completed", true)
     .is("first_dashboard_viewed_at", null)
-    .not("onboarding_completed_at", "is", null)
-    .lte("onboarding_completed_at", cutoff)
+    .not("created_at", "is", null)
+    .lte("created_at", cutoff)
     .eq("premium_status", false)
-    .order("onboarding_completed_at", { ascending: true })
+    .order("created_at", { ascending: true })
     .limit(Math.max(limit * 3, limit));
 
   if (profileErr) {

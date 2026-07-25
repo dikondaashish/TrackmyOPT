@@ -4,43 +4,50 @@
 
 | Scheduler | Jobs |
 |-----------|------|
-| **Vercel Cron** (`apps/web/vercel.json`) | **USCIS case status batch only** — `/api/cron/check-case-status` |
-| **cron-job.org** | All other cron routes (emails, PostHog sync, reminders, D1 nudge, etc.) |
+| **Vercel Cron** (`apps/web/vercel.json`) | Case status, checkout recovery, D1 activation nudge, retry-pending emails |
+| **cron-job.org** | Optional backups + one-off campaigns (free-receipt reengagement, at-risk, PostHog sync, STEM alerts, etc.) |
 
 All routes use **`Authorization: Bearer <CRON_SECRET>`**. If `CRON_SECRET` is unset, routes return **503** (fail-closed). Auth: `lib/api/verify-cron-auth.ts`.
 
 ---
 
-## Vercel Cron (case status only)
+## Vercel Cron
 
-| Field | Value |
-|--------|--------|
-| **URL** | `https://www.trackmyopt.com/api/cron/check-case-status` |
-| **Method** | `GET` |
-| **Schedule** | Daily **14:00 UTC** (9 AM ET) — `0 14 * * *` in `apps/web/vercel.json` |
-| **Auth** | Vercel invokes with `CRON_SECRET` automatically when configured in project env |
+| Path | Schedule | Notes |
+|------|----------|-------|
+| `/api/cron/check-case-status` | Daily **14:00 UTC** (`0 14 * * *`) | USCIS batch — do **not** duplicate on cron-job.org |
+| `/api/cron/checkout-recovery-emails` | Every **4 hours** (`0 */4 * * *`) | Abandoned checkout resume (Phase 5) |
+| `/api/cron/d1-activation-nudge` | Hourly (`0 * * * *`) | Free signups ≥24h with no dashboard view (Phase 4) |
+| `/api/cron/retry-pending-emails` | Hourly at :15 (`15 * * * *`) | Re-send stuck `email_queue` pending rows |
 
-Do **not** duplicate this job on cron-job.org.
+**Auth:** Vercel invokes with `CRON_SECRET` automatically when configured in project env.  
+**Plan note:** Hourly/`*/4` schedules require **Vercel Pro** (Hobby is once-per-day only).
 
 ---
 
 ## cron-job.org jobs
 
-Configure each with **GET** + `Authorization: Bearer <CRON_SECRET>`.
+Configure each with **GET** + `Authorization: Bearer <CRON_SECRET>`. Prefer **not** duplicating Vercel Cron paths above.
 
-### D1 activation nudge
-
-Emails free users who **completed onboarding ≥24h ago** but **never opened the dashboard** (one email per user).
+### D1 activation nudge (optional backup)
 
 | Field | Value |
 |--------|--------|
 | **URL** | `https://www.trackmyopt.com/api/cron/d1-activation-nudge` |
-| **Schedule** | Every hour (`0 * * * *`) |
+| **Schedule** | Every hour (`0 * * * *`) — skip if Vercel cron is live |
 
 ```bash
 curl -sS "https://www.trackmyopt.com/api/cron/d1-activation-nudge" \
   -H "Authorization: Bearer YOUR_CRON_SECRET"
 ```
+
+### Free-receipt reengagement (one-off campaign)
+
+Not a standing cron. Set `FREE_RECEIPT_REENGAGEMENT_ENABLED=true`, run until `remaining=0`, then disable.
+
+| Field | Value |
+|--------|--------|
+| **URL** | `https://www.trackmyopt.com/api/cron/free-receipt-reengagement?limit=25` |
 
 ### STEM OPT window alert
 
@@ -70,15 +77,4 @@ curl -sS "https://www.trackmyopt.com/api/cron/d1-activation-nudge" \
 | Field | Value |
 |--------|--------|
 | **URL** | `https://www.trackmyopt.com/api/cron/posthog-partner-groups-sync` |
-| **Schedule** | Weekly (e.g. Monday 7:00 AM UTC) |
-| **Env** | `POSTHOG_PARTNER_GROUPS_SYNC_ENABLED=true` |
-
-### Other cron-job.org routes
-
-See route headers in `apps/web/app/api/cron/`:
-
-- `send-daily-reminders` — daily OPT reminders (premium)
-- `send-document-reminders` — document expiry
-- `retry-pending-emails` — every 30 min
-- `scan-nearby-cases` — every 15 min
-- `checkout-recovery-emails`, `free-receipt-reengagement`, `welcome-free-resend`
+| **Schedule** | Daily |

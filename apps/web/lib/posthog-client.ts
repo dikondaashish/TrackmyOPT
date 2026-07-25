@@ -75,7 +75,8 @@ export function identifyLoginSessionUser(user: AuthUserLike): void {
     plan_tier: "free",
     premium_status: false,
     onboarding_completed: false,
-    activation_state: "onboarding_incomplete",
+    // Provisional until PostHogIdentify loads receipt/check state.
+    activation_state: "no_receipt",
     signup_date: resolveSignupDate(user.created_at),
     provider: resolveAuthProvider(user),
   });
@@ -295,6 +296,7 @@ export type UpgradePromptTrigger =
   | "status_change_wedge"
   | "second_manual_refresh"
   | "stale_status"
+  | "receipt_added"
   | "h1b_limit"
   | "ats_limit"
   | "pricing_modal";
@@ -302,6 +304,7 @@ export type UpgradePromptTrigger =
 export type UpgradePromptShownProperties = {
   trigger?: UpgradePromptTrigger;
   source?: string;
+  plan_suggested?: "pro" | "dedicated";
 };
 
 export function captureUpgradePromptShown(
@@ -310,6 +313,7 @@ export function captureUpgradePromptShown(
   captureClientEvent("upgrade_prompt_shown", {
     ...properties,
     source: properties.source ?? properties.trigger ?? "case_status_page",
+    plan_suggested: properties.plan_suggested ?? "pro",
     capture_source: "client",
   });
 }
@@ -319,28 +323,18 @@ export type CheckoutStartedProperties = {
   source?: string;
 };
 
+/**
+ * @deprecated Phase 5/6 — do not call. `checkout_started` is emitted only by
+ * server `create-checkout` after a Stripe session exists.
+ */
 export function captureCheckoutStarted(
-  properties: CheckoutStartedProperties
+  _properties: CheckoutStartedProperties
 ): void {
-  if (!isBrowserPostHogReady()) return;
-
-  // Prefer the already-identified Supabase user id when present so this client
-  // click aligns with server checkout_started / payment_succeeded.
-  const identifiedId =
-    typeof posthog.get_distinct_id === "function"
-      ? posthog.get_distinct_id()
-      : undefined;
-  if (identifiedId && !identifiedId.startsWith("distinct_id_")) {
-    // no-op identify to force person merge before capture in same tick
-    posthog.identify(identifiedId);
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      "[posthog] captureCheckoutStarted is deprecated; use server create-checkout"
+    );
   }
-
-  captureClientEvent("checkout_started", {
-    ...properties,
-    capture_source: "client",
-    source: properties.source ?? properties.trigger ?? "case_status_page",
-    ...(identifiedId ? { supabase_user_id: identifiedId } : {}),
-  });
 }
 
 export type SignOutSource = "profile_menu" | "navbar" | "sidebar" | "unknown";
@@ -372,6 +366,7 @@ export type DashboardViewedProperties = {
   plan_tier: string;
   premium_status: boolean;
   onboarding_completed: boolean;
+  path?: string;
 };
 
 export function captureDashboardViewed(properties: DashboardViewedProperties): void {
@@ -493,9 +488,20 @@ export function captureExtensionDetected(properties: { version: string | null })
 
 export function captureActivationCompleted(properties: {
   days_since_signup: number | null;
+  within_24h?: boolean;
 }): void {
   captureClientEvent("activation_completed", {
     days_since_signup: properties.days_since_signup,
+    within_24h: properties.within_24h ?? null,
     source: "dashboard",
+  });
+}
+
+export function capturePwaInstalled(properties?: {
+  source?: string;
+}): void {
+  captureClientEvent("pwa_installed", {
+    source: properties?.source ?? "web",
+    capture_source: "client",
   });
 }

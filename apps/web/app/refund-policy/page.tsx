@@ -29,7 +29,7 @@ export default function RefundPolicyPage() {
           <strong>Pro</strong> — {PRO_TRIAL_DAYS}-day free trial when eligible (one per account, ever); then auto-renews at ${PLAN_DISPLAY_PRICES.pro.month}/month or ${PLAN_DISPLAY_PRICES.pro.year}/year
         </li>
         <li>
-          <strong>Dedicated</strong> — billed immediately at ${PLAN_DISPLAY_PRICES.dedicated.month}/month or ${PLAN_DISPLAY_PRICES.dedicated.year}/year; no free trial
+          <strong>Dedicated (legacy)</strong> — no longer offered to new customers. Existing Dedicated subscribers are billed at ${PLAN_DISPLAY_PRICES.dedicated.month}/month or ${PLAN_DISPLAY_PRICES.dedicated.year}/year with no free trial, and may switch to Pro in the dashboard.
         </li>
       </ul>
       <p>Exact amounts and discounts shown at checkout before you pay.</p>
@@ -41,9 +41,9 @@ export default function RefundPolicyPage() {
         <li>After the trial, your subscription renews automatically unless you cancel</li>
       </ul>
 
-      <h2>4. Dedicated money-back guarantee (first month only)</h2>
+      <h2>4. Dedicated money-back guarantee (first month only — legacy subscribers)</h2>
       <p>
-        Dedicated subscriptions are charged when you subscribe. We offer a <strong>{DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee</strong> on your <strong>first paid month only</strong>. Contact{" "}
+        Dedicated is closed to new purchases. For existing Dedicated subscriptions that were charged at signup, we offer a <strong>{DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee</strong> on your <strong>first paid month only</strong>. Contact{" "}
         <a href={`mailto:${LEGAL_CONTACT.support}`}>{LEGAL_CONTACT.support}</a> within {DEDICATED_MONEY_BACK_DAYS} days of your first Dedicated charge if the product is not right for you.
       </p>
 

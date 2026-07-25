@@ -2,11 +2,13 @@
 
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { PRICING_VALUE_ANCHOR } from "@/lib/pricing/sales-copy";
+import { PRICING_VALUE_ANCHOR, shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
+import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
 
 // ponytail: plain markup — framer-motion `initial` on this above-the-fold hero
 // was a hydration #418 risk for no product value; CSS fade is enough if we want motion later.
 export function PricingHero() {
+    const showDedicated = shouldShowDedicatedPlanForSale();
     return (
         <section className="pt-32 pb-8 text-center">
             <div className="max-w-4xl mx-auto px-4">
@@ -21,8 +23,9 @@ export function PricingHero() {
                     </span>
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-4">
-                    Pro automates unemployment tracking, USCIS monitoring, and deadline
-                    alerts. Dedicated adds higher resume quotas and priority email support.
+                    {showDedicated
+                        ? "Pro automates unemployment tracking, USCIS monitoring, and deadline alerts. Dedicated adds higher resume quotas and priority email support."
+                        : "Pro automates unemployment tracking, daily USCIS monitoring, and deadline alerts — so you catch status changes before they become problems."}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
                     {PRICING_VALUE_ANCHOR}
@@ -32,16 +35,18 @@ export function PricingHero() {
                         href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear"
                         className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors"
                     >
-                        Start Pro Free Trial
+                        Start Pro {PRO_TRIAL_DAYS}-Day Free Trial
                         <ArrowRight className="w-4 h-4" />
                     </Link>
-                    <Link
-                        href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Ddedicated%26interval%3Dyear"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold transition-colors"
-                    >
-                        Get Dedicated Support
-                        <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    {showDedicated ? (
+                        <Link
+                            href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Ddedicated%26interval%3Dyear"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold transition-colors"
+                        >
+                            Get Dedicated Support
+                            <ArrowRight className="w-4 h-4" />
+                        </Link>
+                    ) : null}
                 </div>
             </div>
         </section>

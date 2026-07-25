@@ -102,7 +102,11 @@ export const CHECKOUT_UPSELL_TRIGGER = {
   STATUS_CHANGE_WEDGE: "status_change_wedge",
   SECOND_MANUAL_REFRESH: "second_manual_refresh",
   STALE_STATUS: "stale_status",
+  RECEIPT_ADDED: "receipt_added",
 } as const;
 
 export type CheckoutUpsellTrigger =
   (typeof CHECKOUT_UPSELL_TRIGGER)[keyof typeof CHECKOUT_UPSELL_TRIGGER];
+
+export const RECEIPT_ADDED_UPSELL_SESSION_KEY =
+  "trackmyopt_case_status_receipt_added_upsell_shown";

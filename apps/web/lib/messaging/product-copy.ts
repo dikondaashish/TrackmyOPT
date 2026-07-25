@@ -43,14 +43,26 @@ export const CASE_STATUS_MESSAGING = {
   headline: "Track your USCIS case status in one place",
   subhead:
     "Add your receipt number — Free includes manual refresh; Pro adds daily auto-checks and email alerts.",
+  /** Canonical Free → Pro one-liner for paywalls */
+  freeProCanonical:
+    "Free: track 1 case and refresh anytime. Pro: we check USCIS every day and email you when anything changes.",
   proFeatureTitle: "Pro: Daily auto-checks + email when status changes",
   proFeatureBody:
     "We check USCIS every day and email you when your status changes — so you do not have to refresh manually.",
   howItWorksNotify: "Get notified by email when your status changes (Pro)",
-  upgradeForAutoChecks: "Upgrade to Pro for daily auto-checks",
+  upgradeForAutoChecks: "Start 7-day free trial for daily auto-checks",
   autoMonitorOffHint: "Manual refresh only — daily auto-check is Pro",
   packagingChangeNotice:
     "Free includes manual refresh. Daily USCIS auto-checks and status-change emails are on Pro.",
+  statusChangeHeadline: "Your case status changed. Alerts + daily auto-checks are on Pro.",
+  statusChangeBody:
+    "Free: track 1 case and refresh anytime. Pro: we check USCIS every day and email you when anything changes.",
+  receiptAddedNotice:
+    "We'll watch this case daily on Pro. Manual refresh stays free.",
+  staleStatusNotice:
+    "Status may be outdated. Auto-check daily with Pro — start your 7-day free trial.",
+  trialCtaStrip:
+    "Start 7-day free trial — daily USCIS auto-checks and email when status changes.",
   disclaimer:
     "Status data comes from USCIS. Processing times vary — check with your DSO or attorney for official guidance.",
 } as const;

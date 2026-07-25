@@ -3,6 +3,8 @@ import { CreditCard, Loader2, Check, Zap, Shield, Star, Crown } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
 import { getPlanBullets } from '@/lib/pricing/plan-features';
+import { shouldShowDedicatedPlanForSale } from '@/lib/pricing/sales-copy';
+import { PRO_TRIAL_DAYS } from '@/lib/legal/legal-config';
 import type { PromoCheckoutMode } from '@/lib/premium/promoCheckoutTypes';
 import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/formatMonthlyEquivalentFromYearly';
 import { SubscriptionUsage } from './SubscriptionUsage';
@@ -61,7 +63,12 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
 
     const handleDowngrade = (planName: string) => {
         if (currentPlan === 'dedicated') {
-            alert(`You are on the Dedicated plan. Your access continues until ${expiresAt ? new Date(expiresAt).toLocaleDateString() : 'the end of your billing cycle'}. Please contact support to make changes.`);
+            // Phase 6: Dedicated → Pro uses create-checkout migration path.
+            if (planName.toLowerCase() === 'pro') {
+                void onUpgrade('pro', 'year');
+                return;
+            }
+            alert(`You are on the Dedicated plan. Your access continues until ${expiresAt ? new Date(expiresAt).toLocaleDateString() : 'the end of your billing cycle'}. Switch to Pro from the banner, or contact support@trackmyopt.com.`);
         } else if (onManage) {
             onManage();
         }
@@ -88,7 +95,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             price: { monthly: 4.99, yearly: 49.99 },
             originalPrice: { monthly: 7.99, yearly: 79.99 },
             features: getPlanBullets("pro"),
-            cta: "Start 7-Day Free Trial",
+            cta: `Start ${PRO_TRIAL_DAYS}-Day Free Trial`,
             popular: true,
             highlight: true
         },
@@ -103,7 +110,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             popular: false,
             highlight: true
         }
-    ];
+    ].filter((plan) => plan.id !== "dedicated" || shouldShowDedicatedPlanForSale() || currentPlan === "dedicated");
 
     return (
         <div className="w-full">
@@ -132,7 +139,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             </div>
 
             {/* Plans Grid */}
-            <div className="grid lg:grid-cols-3 gap-6">
+            <div className={`grid gap-6 ${plans.length >= 3 ? "lg:grid-cols-3" : "lg:grid-cols-2"}`}>
                 {plans.map((plan, i) => {
                     const isCurrentPlan = currentPlan === plan.id;
                     // Determine Button Action
@@ -165,10 +172,12 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                             };
                         }
                     } else if (currentPlan === 'dedicated') {
-                        // Dedicated user cant downgrade easily
-                        if (plan.id === 'free' || plan.id === 'pro') {
-                            buttonText = "Downgrade";
-                            onClick = () => handleDowngrade(plan.name);
+                        if (plan.id === 'pro') {
+                            buttonText = "Switch to Pro";
+                            onClick = () => onUpgrade('pro', billingCycle === 'monthly' ? 'month' : 'year');
+                        } else if (plan.id === 'free') {
+                            buttonText = "Manage billing";
+                            onClick = () => onManage && onManage();
                         }
                     }
 

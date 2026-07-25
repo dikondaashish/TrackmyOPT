@@ -29,6 +29,12 @@ export const metadata: Metadata = {
     shortcut: '/TrackMyOPT Logo/Favicon.png',
     apple: '/TrackMyOPT Logo/Favicon.png',
   },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    title: 'TrackMyOPT',
+    statusBarStyle: 'default',
+  },
   openGraph: {
     title: 'OPT Timeline Tracker & H-1B Finder for F-1 Students',
     description: 'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — trusted by 2,500+ F-1 students.',

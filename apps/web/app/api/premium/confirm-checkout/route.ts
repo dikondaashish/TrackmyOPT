@@ -79,9 +79,37 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    let subscriptionStatus: string | null = null;
+    let trialEnd: string | null = null;
+    const subRef = session.subscription;
+    const subObj =
+      typeof subRef === "object" && subRef && "status" in subRef
+        ? (subRef as Stripe.Subscription)
+        : null;
+    if (subObj) {
+      subscriptionStatus = subObj.status;
+      if (subObj.trial_end) {
+        trialEnd = new Date(subObj.trial_end * 1000).toISOString();
+      }
+    } else if (typeof subRef === "string") {
+      try {
+        const sub = await stripe.subscriptions.retrieve(subRef);
+        subscriptionStatus = sub.status;
+        if (sub.trial_end) {
+          trialEnd = new Date(sub.trial_end * 1000).toISOString();
+        }
+      } catch {
+        /* non-blocking */
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       alreadyRecorded: result.alreadyRecorded,
+      subscriptionStatus,
+      trialEnd,
+      planId: session.metadata?.planId ?? null,
+      interval: session.metadata?.interval ?? null,
     });
   } catch (e) {
     console.error("confirm-checkout:", sanitizeError(e));

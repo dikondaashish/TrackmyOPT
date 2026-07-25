@@ -3,61 +3,102 @@
 import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { captureActivationCompleted } from "@/lib/posthog-client";
-import { daysSinceSignupDate, isActivatedUser } from "@/lib/posthog/activation";
+import {
+  daysSinceSignupDate,
+  hasSuccessfulCaseCheck,
+  isActivatedUser,
+  isWithinActivationWindow,
+} from "@/lib/posthog/activation";
 
 const ACTIVATION_CAPTURED_KEY = "tmo:activation_completed_captured";
+const POLL_MS = 15_000;
 
-/** Fires `activation_completed` once when onboarding + receipt + live status are all true. */
+/**
+ * Fires `activation_completed` once when Phase 4 activation is met:
+ * receipt present + successful case status check.
+ * Re-checks on focus/visibility and polls so same-session activation is captured.
+ */
 export function ActivationCompletedTracker() {
   const trackedRef = useRef(false);
 
   useEffect(() => {
-    if (trackedRef.current || localStorage.getItem(ACTIVATION_CAPTURED_KEY)) return;
+    let cancelled = false;
 
-    (async () => {
+    const alreadyCaptured = () => {
+      try {
+        return localStorage.getItem(ACTIVATION_CAPTURED_KEY) === "1";
+      } catch {
+        return false;
+      }
+    };
+
+    const tryCapture = async () => {
+      if (cancelled || trackedRef.current || alreadyCaptured()) return;
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user || cancelled) return;
 
-      const [{ data: profile }, caseRes] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("user_id", user.id)
-          .maybeSingle(),
-        fetch("/api/case-status", { credentials: "include", cache: "no-store" }),
-      ]);
+      const caseRes = await fetch("/api/case-status", {
+        credentials: "include",
+        cache: "no-store",
+      });
 
       let hasReceipt = false;
-      let hasStatus = false;
+      let hasSuccessfulCheck = false;
       if (caseRes.ok) {
         const caseJson = await caseRes.json().catch(() => null);
-        const cases: Array<{ receipt_number?: string; current_status?: string | null }> =
-          caseJson?.cases?.length
-            ? caseJson.cases
-            : caseJson?.data
-              ? [caseJson.data]
-              : [];
+        const cases: Array<{
+          receipt_number?: string;
+          current_status?: string | null;
+          last_checked_at?: string | null;
+        }> = caseJson?.cases?.length
+          ? caseJson.cases
+          : caseJson?.data
+            ? [caseJson.data]
+            : [];
         const primary = cases.find((c) => c.receipt_number) ?? cases[0] ?? null;
         hasReceipt = Boolean(primary?.receipt_number);
-        hasStatus = Boolean(primary?.current_status);
+        hasSuccessfulCheck = hasSuccessfulCaseCheck(primary);
       }
 
-      const onboardingCompleted = profile?.onboarding_completed === true;
       if (
-        !isActivatedUser({ onboardingCompleted, hasReceipt, hasStatus }) ||
-        trackedRef.current
+        cancelled ||
+        trackedRef.current ||
+        alreadyCaptured() ||
+        !isActivatedUser({ hasReceipt, hasSuccessfulCheck })
       ) {
         return;
       }
 
       trackedRef.current = true;
-      localStorage.setItem(ACTIVATION_CAPTURED_KEY, "1");
+      try {
+        localStorage.setItem(ACTIVATION_CAPTURED_KEY, "1");
+      } catch {
+        /* ignore */
+      }
       captureActivationCompleted({
         days_since_signup: daysSinceSignupDate(user.created_at?.slice(0, 10)),
+        within_24h: isWithinActivationWindow(user.created_at),
       });
-    })();
+    };
+
+    void tryCapture();
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void tryCapture();
+    };
+    window.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    const pollId = window.setInterval(() => void tryCapture(), POLL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(pollId);
+      window.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
   }, []);
 
   return null;

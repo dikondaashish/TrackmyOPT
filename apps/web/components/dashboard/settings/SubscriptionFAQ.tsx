@@ -6,7 +6,7 @@ import { DEDICATED_MONEY_BACK_DAYS, PRO_TRIAL_DAYS } from '@/lib/billing/legal-c
 const faqs = [
     {
         question: "Is this an auto-renewing subscription?",
-        answer: `Yes. Pro and Dedicated renew automatically at the price shown at checkout (monthly or yearly) until you cancel in Settings → Subscription → Cancel subscription (Stripe billing portal).`
+        answer: `Yes. Pro renews automatically at the price shown at checkout (monthly or yearly) until you cancel in Settings → Subscription → Cancel subscription (Stripe billing portal). Existing Dedicated subscribers renew the same way until they switch or cancel.`
     },
     {
         question: "How do I cancel?",
@@ -18,11 +18,11 @@ const faqs = [
     },
     {
         question: "What about Dedicated billing?",
-        answer: `Dedicated is charged when you subscribe (no trial). You have a ${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee on your first paid month only. See our Refund Policy for details.`
+        answer: `Dedicated is no longer offered to new customers. Existing Dedicated subscribers keep access and can switch to Pro in the dashboard (Stripe proration) or manage billing in Settings.`
     },
     {
         question: "Can I get a refund?",
-        answer: `After the Pro trial or Dedicated ${DEDICATED_MONEY_BACK_DAYS}-day first-month window, we do not refund change-of-mind charges. Exceptions: billing errors, unauthorized/fraudulent charges, or major service failure—contact support@trackmyopt.com.`
+        answer: `After the Pro trial or any remaining Dedicated ${DEDICATED_MONEY_BACK_DAYS}-day first-month window, we do not refund change-of-mind charges. Exceptions: billing errors, unauthorized/fraudulent charges, or major service failure—contact support@trackmyopt.com.`
     },
     {
         question: "Is my payment secure?",

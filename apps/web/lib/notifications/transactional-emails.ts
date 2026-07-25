@@ -421,9 +421,12 @@ export function buildPaymentFailedEmailBodies(args: {
   planLabel: string;
   amountCents: number;
   currency: string;
+  /** Prefer Stripe Customer Portal URL; falls back to /api/premium/portal GET. */
+  updatePaymentUrl?: string;
 }): { subject: string; html: string; text: string } {
   const base = getAppBaseUrl();
-  const settingsUrl = `${base}/dashboard/settings`;
+  const settingsUrl = `${base}/dashboard/settings?tab=subscription`;
+  const updateUrl = args.updatePaymentUrl?.trim() || `${base}/api/premium/portal`;
   const greeting = args.firstName?.trim()
     ? `Hi ${escapeHtml(args.firstName.trim())},`
     : "Hi,";
@@ -457,11 +460,11 @@ ${emailInfoCallout(`
 `)}
 ${emailTextLead("What to do")}
 ${emailTextList([
-  `Open <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Settings &rarr; Subscription</a>`,
-  "Select <strong>Manage billing</strong> to open the secure Stripe portal",
+  "Open the secure Stripe billing portal with the button below",
   "Update your card or payment method and save",
+  `Or go to <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Settings &rarr; Subscription</a> anytime`,
 ])}
-${emailPrimaryButton(settingsUrl, "Update payment method")}
+${emailPrimaryButton(updateUrl, "Update payment method")}
 ${emailTextMuted(
   `Questions? Contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
 )}
@@ -479,9 +482,8 @@ Amount: ${amountStr}
 
 Stripe may retry automatically. To keep Premium access without interruption, update your payment method:
 
-1. Open Settings → Subscription: ${settingsUrl}
-2. Tap Manage billing (Stripe Customer Portal)
-3. Update your card and save
+Update payment method: ${updateUrl}
+Settings → Subscription: ${settingsUrl}
 
 Questions? ${LEGAL_CONTACT.support}
 
@@ -504,6 +506,7 @@ export async function sendPaymentFailedEmail(args: {
   currency: string;
   stripeEventId: string;
   stripeInvoiceId?: string | null;
+  updatePaymentUrl?: string;
 }): Promise<QueueTransactionalResult> {
   const {
     supabase,
@@ -515,6 +518,7 @@ export async function sendPaymentFailedEmail(args: {
     currency,
     stripeEventId,
     stripeInvoiceId,
+    updatePaymentUrl,
   } = args;
 
   const { subject, html, text } = buildPaymentFailedEmailBodies({
@@ -522,6 +526,7 @@ export async function sendPaymentFailedEmail(args: {
     planLabel,
     amountCents,
     currency,
+    updatePaymentUrl,
   });
 
   return queueTransactionalEmailSend({
@@ -551,77 +556,39 @@ export function buildSubscriptionEndedEmailBodies(args: {
   accessEndedDate: string;
 }): { subject: string; html: string; text: string } {
   const base = getAppBaseUrl();
-  const checkoutUrl = `${base}/premium/checkout`;
+  const checkoutUrl = `${base}/premium/checkout?planId=pro&interval=year`;
   const dashUrl = `${base}/dashboard`;
   const settingsUrl = `${base}/dashboard/settings`;
-  const resumeUrl = `${base}/dashboard/career/resume-generator`;
   const caseStatusUrl = `${base}/dashboard/case-status`;
-  const pricingUrl = `${base}/premium/checkout`;
   const greeting = args.firstName?.trim()
     ? `Hi ${escapeHtml(args.firstName.trim())},`
     : "Hi,";
   const safeEndDate = escapeHtml(args.accessEndedDate);
 
   const html = buildTransactionalEmail({
-    headerTitle: "Your Premium subscription has ended",
+    headerTitle: "Your Pro access has ended",
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
-${emailTextLead("You&rsquo;re now on the Free plan")}
+${emailTextLead("Pro now auto-checks your case daily &mdash; reopen alerts")}
 ${emailTextP(
-  `Your paid subscription ended on ${emailTextStrong(safeEndDate)}. Your account is still active &mdash; nothing was deleted. You can keep using Free tools and resubscribe anytime to restore Premium.`
+  `Your paid subscription ended on ${emailTextStrong(safeEndDate)}. You&rsquo;re on Free now: manual case refresh still works, but daily USCIS auto-checks and status-change emails are paused.`
 )}
 ${emailInfoCallout(`
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
-  <tr>
-    <td style="padding:0 0 10px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
-      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Access ended</p>
-      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">${safeEndDate}</p>
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:12px 0 0 0;">
-      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Current plan</p>
-      <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">Free</p>
-    </td>
-  </tr>
-</table>
+<p class="tmo-force-info-text" style="margin:0;color:${EMAIL.infoText} !important;font-size:14px;line-height:1.55;">
+  Resubscribe to Pro and we&rsquo;ll auto-check USCIS every day and email you the moment your case status changes.
+</p>
 `)}
 ${emailTextLead("What you still have on Free")}
 ${emailTextList([
   "OPT &amp; STEM timeline calculators and unemployment trackers",
   "Manual USCIS case status checks and core dashboard access",
-  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("5 AI-built resumes per month")} on Free (saved drafts stay in your account)`,
+  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("5 AI-built resumes per month")}`,
   "Chrome extension and saved account data",
 ], { ordered: false })}
-${emailInfoCallout(`
-<p class="tmo-force-info-text" style="margin:0 0 8px 0;color:${EMAIL.infoText} !important;font-size:14px;font-weight:600;">Want your full career toolkit back?</p>
-<p class="tmo-force-light-text" style="margin:0 0 12px 0;color:${EMAIL.textSecondary} !important;font-size:14px;line-height:1.55;">
-  On Premium, the <strong>AI Resume Generator</strong> scales to ${emailTextStrong("500 resumes/month")}, plus unlimited ATS scans, job tracking, and daily USCIS alerts &mdash; built for serious OPT job searches.
-</p>
-<p style="margin:0;text-align:center;">
-  <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:600;font-size:14px;">Open AI Resume Generator</a>
-</p>
-`)}
-${emailTextLead("Other Premium features that are paused")}
-${emailTextList([
-  "Daily 9&nbsp;AM email reminders for OPT/STEM tools",
-  "Daily USCIS auto-checks and status-change alerts",
-  "Unlimited H-1B sponsor search and job application tracker",
-  "Secure document vault and expiry reminders",
-], { ordered: false })}
+${emailPrimaryButton(checkoutUrl, "Reopen daily USCIS alerts")}
 ${emailTextMuted(
-  `${emailTextStrong("Your data is safe:")} OPT/STEM dates, saved resumes, case trackers, and profile settings are still in your account &mdash; only feature limits changed.`
-)}
-${emailTextLead("Suggested next steps on Free")}
-${emailTextList([
-  `Use your monthly AI resume allowance in the <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a>`,
-  `Run a manual <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">USCIS case status</a> check when you need an update`,
-  `Review timelines and tools in <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">your dashboard</a>`,
-], { ordered: true })}
-${emailPrimaryButton(checkoutUrl, "Resubscribe to Premium")}
-${emailTextMuted(
-  `No further charges unless you resubscribe. Compare plans: <a href="${pricingUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View Premium</a> &middot; <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Billing settings</a>`
+  `No further charges unless you resubscribe. <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Case Status</a> &middot; <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Dashboard</a> &middot; <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Billing settings</a>`
 )}
 ${emailTextMuted(
   `Questions? Contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
@@ -632,47 +599,80 @@ ${emailBodySectionClose()}`,
   const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
   const text = `${greetingText}
 
-Your Premium subscription has ended. You're now on the Free plan.
+Pro now auto-checks your case daily — reopen alerts.
 
-Access ended: ${args.accessEndedDate}
-Current plan: Free
+Your paid subscription ended on ${args.accessEndedDate}. You're on Free: manual refresh still works, but daily auto-checks and status-change emails are paused.
 
-Your account is still active. You can keep using Free tools and resubscribe anytime.
+Reopen daily USCIS alerts: ${checkoutUrl}
 
 What you still have on Free:
 - OPT & STEM calculators and unemployment trackers
-- Manual USCIS case checks and core dashboard
-- AI Resume Generator — 5 AI-built resumes per month (saved drafts remain)
+- Manual USCIS case checks
+- AI Resume Generator — 5/month
 - Chrome extension and saved data
 
-On Premium, AI Resume Generator includes 500 resumes/month plus unlimited ATS scans and full career tools.
-
-Open AI Resume Generator: ${resumeUrl}
-
-Other Premium features that are paused:
-- Daily email reminders for OPT/STEM tools
-- Daily USCIS auto-checks and status alerts
-- Unlimited sponsor search and job tracker
-- Document vault and expiry reminders
-
-Your data is safe: OPT/STEM dates, saved resumes, and profile settings remain in your account.
-
-Suggested next steps on Free:
-1. Use AI Resume Generator (5/month): ${resumeUrl}
-2. Manual USCIS case check: ${caseStatusUrl}
-3. Review dashboard: ${dashUrl}
-
-No further charges unless you resubscribe.
-View Premium: ${pricingUrl}
-Resubscribe: ${checkoutUrl}
-Settings: ${settingsUrl}
+Dashboard: ${dashUrl}
+Billing settings: ${settingsUrl}
 
 Questions? ${LEGAL_CONTACT.support}
 
-© ${new Date().getFullYear()} ${COMPANY.legalName}`;
+— ${COMPANY.productName} Team`;
 
   return {
-    subject: "TrackMyOPT: Your Premium subscription has ended",
+    subject: "Pro now auto-checks your case daily — reopen alerts",
+    html,
+    text,
+  };
+}
+
+/** Targeted win-back when Stripe cancel feedback is "unused". */
+export function buildUnusedCancelWinbackEmailBodies(args: {
+  firstName: string | null;
+}): { subject: string; html: string; text: string } {
+  const checkoutUrl = `${getAppBaseUrl()}/premium/checkout?planId=pro&interval=year`;
+  const caseStatusUrl = `${getAppBaseUrl()}/dashboard/case-status`;
+  const greeting = args.firstName?.trim()
+    ? `Hi ${escapeHtml(args.firstName.trim())},`
+    : "Hi,";
+  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+
+  const html = buildTransactionalEmail({
+    headerTitle: "Your case still needs daily monitoring",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextLead("Pro now auto-checks your case daily &mdash; reopen alerts")}
+${emailTextP(
+  "You canceled because Pro wasn&rsquo;t getting used. That&rsquo;s fair &mdash; and it&rsquo;s fixed: Pro runs daily USCIS auto-checks and emails you when status changes, so you don&rsquo;t have to remember to refresh."
+)}
+${emailTextList(
+  [
+    "Automatic daily USCIS case checks",
+    "Instant email when your status changes",
+    "OPT/STEM reminders and document vault",
+  ],
+  { ordered: false }
+)}
+${emailPrimaryButton(checkoutUrl, "Restart Pro with daily auto-checks")}
+${emailTextMuted(
+  `Prefer Free for now? Keep using <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">manual Case Status</a> anytime.`
+)}
+${emailBodySectionClose()}`,
+  });
+
+  const text = `${greetingText}
+
+Pro now auto-checks your case daily — reopen alerts.
+
+You canceled because Pro wasn't getting used. Pro now runs daily USCIS auto-checks and emails you when status changes.
+
+Restart Pro: ${checkoutUrl}
+Manual Case Status (Free): ${caseStatusUrl}
+
+— ${COMPANY.productName} Team`;
+
+  return {
+    subject: "Pro now auto-checks your case daily — reopen alerts",
     html,
     text,
   };
@@ -703,6 +703,29 @@ export async function sendSubscriptionEndedEmail(args: {
     text,
     emailData: { access_ended_date: accessEndedDate },
     dedupe: { kind: "stripe_event_alltime", stripeEventId },
+  });
+}
+
+export async function sendUnusedCancelWinbackEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  stripeEventId: string;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, firstName, stripeEventId } = args;
+  const { subject, html, text } = buildUnusedCancelWinbackEmailBodies({ firstName });
+
+  return queueTransactionalEmailSend({
+    supabase,
+    userId,
+    emailAddress: toEmail,
+    emailType: "unused_cancel_winback",
+    subject,
+    html,
+    text,
+    emailData: { cancel_feedback: "unused" },
+    dedupe: { kind: "stripe_event_alltime", stripeEventId: `${stripeEventId}:unused_winback` },
   });
 }
 
@@ -895,15 +918,30 @@ export async function sendWelcomeFreeResendEmail(args: {
   });
 }
 
-/** HTML + text for abandoned checkout recovery — CTA starts a fresh checkout session. */
-export function buildCheckoutRecoveryEmailBodies(firstName: string | null): {
+/** HTML + text for abandoned checkout recovery — resume open session or fresh checkout. */
+export function buildCheckoutRecoveryEmailBodies(
+  firstName: string | null,
+  options?: {
+    checkoutUrl?: string;
+    resumeKind?: "open_session" | "fresh_checkout";
+  }
+): {
   subject: string;
   html: string;
   text: string;
 } {
-  const checkoutUrl = `${getAppBaseUrl()}/premium/checkout`;
+  const checkoutUrl =
+    options?.checkoutUrl?.trim() ||
+    `${getAppBaseUrl()}/premium/checkout?planId=pro&interval=year`;
+  const isOpenSession = options?.resumeKind === "open_session";
   const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
   const greetingText = firstName?.trim() ? `Hi ${firstName.trim()},` : "Hi,";
+  const muted = isOpenSession
+    ? "This link resumes your open Stripe checkout session."
+    : "This link opens a fresh checkout &mdash; your previous session may have expired.";
+  const mutedText = isOpenSession
+    ? "This link resumes your open Stripe checkout session."
+    : "This link opens a fresh checkout — your previous session may have expired.";
 
   const html = buildTransactionalEmail({
     headerTitle: "Finish your Pro setup",
@@ -923,9 +961,7 @@ ${emailTextList(
   { ordered: false }
 )}
 ${emailPrimaryButton(checkoutUrl, "Finish checkout")}
-${emailTextMuted(
-  "This link opens a fresh checkout &mdash; your previous session may have expired."
-)}
+${emailTextMuted(muted)}
 ${emailBodySectionClose()}`,
   });
 
@@ -939,7 +975,7 @@ You started setting up daily USCIS alerts. Finish in one step.
 
 Finish checkout: ${checkoutUrl}
 
-This link opens a fresh checkout — your previous session may have expired.
+${mutedText}
 
 — ${COMPANY.productName} Team`;
 
@@ -955,9 +991,14 @@ export async function sendCheckoutRecoveryEmail(args: {
   userId: string;
   toEmail: string;
   firstName: string | null;
+  checkoutUrl?: string;
+  resumeKind?: "open_session" | "fresh_checkout";
 }): Promise<QueueTransactionalResult> {
-  const { supabase, userId, toEmail, firstName } = args;
-  const { subject, html, text } = buildCheckoutRecoveryEmailBodies(firstName);
+  const { supabase, userId, toEmail, firstName, checkoutUrl, resumeKind } = args;
+  const { subject, html, text } = buildCheckoutRecoveryEmailBodies(firstName, {
+    checkoutUrl,
+    resumeKind,
+  });
 
   return queueTransactionalEmailSend({
     supabase,
@@ -967,18 +1008,22 @@ export async function sendCheckoutRecoveryEmail(args: {
     subject,
     html,
     text,
-    emailData: { recovery_email_sent: true },
+    emailData: {
+      recovery_email_sent: true,
+      resume_kind: resumeKind ?? "fresh_checkout",
+      checkout_url: checkoutUrl ?? null,
+    },
     dedupe: { kind: "checkout_recovery" },
   });
 }
 
-/** HTML + text for free users with a saved receipt — Pro alert upsell. */
+/** HTML + text for free users with a saved receipt — Pro trial / auto-check upsell. */
 export function buildFreeReceiptReengagementEmailBodies(firstName: string | null): {
   subject: string;
   html: string;
   text: string;
 } {
-  const checkoutUrl = `${getAppBaseUrl()}/premium/checkout`;
+  const trialUrl = `${getAppBaseUrl()}/premium/checkout?planId=pro&interval=year`;
   const caseStatusUrl = `${getAppBaseUrl()}/dashboard/case-status`;
   const greeting = firstName?.trim() ? `Hi ${escapeHtml(firstName.trim())},` : "Hi,";
   const greetingText = firstName?.trim() ? `Hi ${firstName.trim()},` : "Hi,";
@@ -987,41 +1032,41 @@ export function buildFreeReceiptReengagementEmailBodies(firstName: string | null
     headerTitle: "Your case is on our radar",
     bodyHtml: `
 ${emailBodySectionOpen()}
-${emailTextLead("Stay ahead of USCIS status changes")}
+${emailTextLead("Next: refresh once, then try Pro daily auto-checks")}
 ${emailTextP(greeting)}
 ${emailTextP(
-  "Free includes manual refresh anytime. Pro runs daily USCIS auto-checks and emails you when we detect a status change &mdash; so you do not have to keep refreshing."
+  "You already saved a receipt. On Free, open Case Status and refresh anytime. Pro adds daily USCIS auto-checks and emails you when status changes &mdash; start with a 7-day free trial."
 )}
 ${emailTextList(
   [
-    "Pro: automatic daily USCIS status checks",
-    "Pro: email when your status changes",
-    "Full case history in one place",
+    "Open Case Status and run a manual refresh (Free)",
+    "Start a 7-day Pro trial for daily auto-checks",
+    "Get email when your USCIS status changes",
   ],
-  { ordered: false }
+  { ordered: true }
 )}
-${emailPrimaryButton(checkoutUrl, "Upgrade to Pro")}
+${emailPrimaryButton(trialUrl, "Start 7-Day Free Trial")}
 ${emailTextMuted(
-  `<a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View your case status</a> in your dashboard anytime.`
+  `<a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View your case status</a> and refresh anytime on Free.`
 )}
 ${emailBodySectionClose()}`,
   });
 
   const text = `${greetingText}
 
-Free includes manual refresh anytime. Pro runs daily USCIS auto-checks and emails you when status changes — so you do not have to keep refreshing.
+You already saved a receipt. On Free, open Case Status and refresh anytime. Pro adds daily USCIS auto-checks and emails you when status changes — start with a 7-day free trial.
 
-- Pro: automatic daily USCIS status checks
-- Pro: email when your status changes
-- Full case history in one place
+1. Open Case Status and run a manual refresh (Free)
+2. Start a 7-day Pro trial for daily auto-checks
+3. Get email when your USCIS status changes
 
-Upgrade to Pro: ${checkoutUrl}
+Start 7-Day Free Trial: ${trialUrl}
 View your case status: ${caseStatusUrl}
 
 — ${COMPANY.productName} Team`;
 
   return {
-    subject: "Pro emails you the moment your USCIS status changes",
+    subject: "Try Pro: daily USCIS auto-checks + status-change emails",
     html,
     text,
   };
@@ -1131,7 +1176,7 @@ export function buildD1ActivationNudgeEmailBodies(args: {
   caseStatusText: string | null;
   optHeadline: string | null;
 }): { subject: string; html: string; text: string } {
-  const dashboardUrl = `${getAppBaseUrl()}/dashboard`;
+  const caseStatusUrl = `${getAppBaseUrl()}/dashboard/case-status`;
   const greeting = args.firstName?.trim()
     ? `Hi ${escapeHtml(args.firstName.trim())},`
     : "Hi,";
@@ -1143,29 +1188,41 @@ export function buildD1ActivationNudgeEmailBodies(args: {
     ? `Your USCIS status: ${escapeHtml(args.caseStatusText.slice(0, 120))}`
     : args.optHeadline
       ? escapeHtml(args.optHeadline)
-      : "Your OPT dashboard is ready";
+      : "Add your USCIS receipt to activate tracking";
 
   const lead = args.hasCaseStatus
-    ? "We saved your case — open your dashboard to see the full timeline and countdowns."
+    ? "Open Case Status to refresh anytime on Free — or start a 7-day Pro trial for daily auto-checks and email alerts."
     : args.optHeadline
-      ? "Your OPT dates are set — see your unemployment clock and filing windows in one place."
-      : "Finish setting up your dashboard — case tracking, OPT clocks, and reminders are waiting.";
+      ? "Next: add your I-765 receipt number so we can track your case. Free includes manual refresh; Pro adds daily auto-checks."
+      : "Your next step: open Case Status, add your receipt number, and run your first check. Then try Pro for daily auto-checks.";
 
   const subject = args.hasCaseStatus
-    ? "Your case status is waiting on your dashboard"
+    ? "Refresh your case — or try Pro daily auto-checks"
     : args.optHeadline
-      ? "Your OPT countdown is live — open your dashboard"
-      : "Your TrackMyOPT dashboard is ready";
+      ? "Add your USCIS receipt to finish activation"
+      : "Add your USCIS receipt — activate TrackMyOPT in 2 minutes";
+
+  const ctaLabel = args.hasCaseStatus
+    ? "Open Case Status"
+    : "Add your receipt";
 
   const html = buildTransactionalEmail({
-    headerTitle: "Open your dashboard",
+    headerTitle: "Activate your case tracker",
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
 ${emailTextLead(headline)}
 ${emailTextP(lead)}
-${emailPrimaryButton(dashboardUrl, "Open dashboard")}
-${emailTextMuted("You completed onboarding yesterday — this is your day-one nudge to come back.")}
+${emailTextList(
+  [
+    "Add your receipt number (Free)",
+    "Run a manual status check (Free)",
+    "Start a 7-day Pro trial for daily auto-checks + alerts",
+  ],
+  { ordered: true }
+)}
+${emailPrimaryButton(caseStatusUrl, ctaLabel)}
+${emailTextMuted("Signed up yesterday? Open Case Status to activate tracking — add your receipt, run a check, then try Pro.")}
 ${emailBodySectionClose()}
 `,
   });
@@ -1176,7 +1233,11 @@ ${emailBodySectionClose()}
     headline.replace(/<[^>]+>/g, ""),
     lead,
     "",
-    `Open dashboard: ${dashboardUrl}`,
+    "1. Add your receipt number (Free)",
+    "2. Run a manual status check (Free)",
+    "3. Start a 7-day Pro trial for daily auto-checks + alerts",
+    "",
+    `${ctaLabel}: ${caseStatusUrl}`,
   ].join("\n");
 
   return { subject, html, text };

@@ -1,0 +1,23 @@
+{
+  "name": "TrackMyOPT",
+  "short_name": "TrackMyOPT",
+  "description": "Track OPT deadlines, USCIS case status, and unemployment days.",
+  "start_url": "/dashboard/case-status",
+  "display": "standalone",
+  "background_color": "#e8edf5",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/TrackMyOPT Logo/Favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/TrackMyOPT Logo/Favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

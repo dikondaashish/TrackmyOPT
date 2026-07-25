@@ -11,6 +11,10 @@ import { PolicyUpdateConsentModal } from "@/components/compliance/PolicyUpdateCo
 import { PostHogIdentify } from "@/components/analytics/PostHogIdentify";
 import { ExtensionAnalyticsTracker } from "@/components/analytics/ExtensionAnalyticsTracker";
 import { ActivationCompletedTracker } from "@/components/analytics/ActivationCompletedTracker";
+import { DashboardViewTracker } from "@/components/analytics/DashboardViewTracker";
+import { PwaInstallTracker } from "@/components/analytics/PwaInstallTracker";
+import { PastDueBillingBanner } from "@/components/billing/PastDueBillingBanner";
+import { DedicatedMigrationBanner } from "@/components/billing/DedicatedMigrationBanner";
 import { NpsSurvey } from "@/components/dashboard/NpsSurvey";
 
 interface DashboardLayoutClientProps {
@@ -106,9 +110,13 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
         <div className="h-screen overflow-hidden bg-[#e8edf5] dark:bg-gray-950">
             <PostHogIdentify />
             <ExtensionAnalyticsTracker />
+            <DashboardViewTracker />
             <ActivationCompletedTracker />
+            <PwaInstallTracker />
             <NpsSurvey />
             <PolicyUpdateConsentModal />
+            <PastDueBillingBanner />
+            <DedicatedMigrationBanner />
             <ResumePromoBanner variant="dashboard" />
             {/* Fixed Header — below promo banner */}
             <Header

@@ -20,15 +20,12 @@ export async function POST(req: NextRequest) {
     const updates: Record<string, string> = {};
 
     if (body.first_dashboard_viewed === true) {
+      // Phase 4: stamp on any dashboard visit — do not require onboarding.
       const { data: profile } = await supabase
         .from("profiles")
-        .select("first_dashboard_viewed_at, onboarding_completed")
+        .select("first_dashboard_viewed_at")
         .eq("user_id", user.id)
         .maybeSingle();
-
-      if (profile?.onboarding_completed !== true) {
-        return apiOk({ updated: [], skipped: "onboarding_incomplete" });
-      }
 
       if (!profile?.first_dashboard_viewed_at) {
         updates.first_dashboard_viewed_at = new Date().toISOString();

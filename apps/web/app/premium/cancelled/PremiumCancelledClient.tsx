@@ -195,7 +195,7 @@ export function PremiumCancelledClient() {
                   "hover:from-teal-800 hover:to-teal-950",
                   "dark:from-teal-600 dark:to-teal-800 dark:hover:from-teal-500 dark:hover:to-teal-700"
                 )}
-                onClick={() => router.push("/premium/checkout")}
+                onClick={() => router.push("/premium/checkout?planId=pro&interval=year")}
               >
                 Try again
               </Button>

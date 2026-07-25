@@ -12,6 +12,8 @@ import {
   identifyLoginSessionUser,
 } from '@/lib/posthog-client';
 
+import { DEFAULT_POST_AUTH_PATH } from "@/lib/auth/post-auth-landing";
+
 type Mode = 'signin' | 'signup';
 
 function LoginPageContent() {
@@ -19,8 +21,11 @@ function LoginPageContent() {
   const router = useRouter();
   const errorParam = searchParams.get('error');
 
-  // Get redirect URL from query params (set by middleware for protected routes)
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
+  // Get redirect URL from query params (middleware sets returnTo; some links use redirect)
+  const redirectTo =
+    searchParams.get("redirect") ||
+    searchParams.get("returnTo") ||
+    DEFAULT_POST_AUTH_PATH;
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);
@@ -294,7 +299,7 @@ function LoginPageContent() {
             lastName,
             fullName: `${firstName} ${lastName}`,
           },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
         },
       });
 
@@ -410,7 +415,7 @@ function LoginPageContent() {
             fullName: `${firstName} ${lastName}`,
             ...(refCode ? { referral_code: refCode } : {}),
           },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
         },
       });
 

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, X } from "lucide-react";
@@ -8,23 +7,23 @@ import {
   CHECKOUT_UPSELL_TRIGGER,
   type CheckoutUpsellTrigger,
 } from "@/lib/case-status/free-change-wedge";
-import { captureCheckoutStarted } from "@/lib/posthog-client";
+import { PRODUCT_CTAS } from "@/lib/messaging/product-copy";
 
 type ManualRefreshUpsellPromptProps = {
   onDismiss: () => void;
+  onStartTrial: () => void;
   trigger?: CheckoutUpsellTrigger;
   message?: string;
+  ctaLabel?: string;
 };
 
 export function ManualRefreshUpsellPrompt({
   onDismiss,
-  trigger = CHECKOUT_UPSELL_TRIGGER.SECOND_MANUAL_REFRESH,
+  onStartTrial,
+  trigger: _trigger = CHECKOUT_UPSELL_TRIGGER.SECOND_MANUAL_REFRESH,
   message = "We check automatically every day for Pro members — no manual refreshing.",
+  ctaLabel = PRODUCT_CTAS.startTrial,
 }: ManualRefreshUpsellPromptProps) {
-  const handleCheckoutClick = () => {
-    captureCheckoutStarted({ trigger });
-  };
-
   return (
     <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
       <div className="flex items-start gap-3">
@@ -32,12 +31,12 @@ export function ManualRefreshUpsellPrompt({
         <div className="flex-1 min-w-0">
           <p className="text-sm text-gray-900 dark:text-gray-100">{message}</p>
           <Button
-            asChild
+            type="button"
             variant="link"
             className="h-auto p-0 mt-2 text-purple-600 dark:text-purple-400 font-medium"
-            onClick={handleCheckoutClick}
+            onClick={onStartTrial}
           >
-            <Link href="/premium/checkout?planId=pro&interval=year">Upgrade to Pro</Link>
+            {ctaLabel}
           </Button>
         </div>
         <button

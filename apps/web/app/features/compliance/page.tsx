@@ -85,7 +85,7 @@ export default function CompliancePage() {
                   {question: "How does TrackMyOPT calculate my unemployment days?", answer: "We track the gap between your employment end dates and start dates. You enter your employment history, and our system automatically calculates cumulative unemployment. We account for weekends and holidays per USCIS guidelines."},
                   {question: "When should I apply for STEM OPT extension?", answer: "You must apply 90 days before your OPT expires. Our filing calculator shows you the exact window and sends reminders 60, 30, and 7 days before your deadline."},
                   {question: "Do I need to report every job change to SEVP?", answer: "Yes, you must update the SEVP Portal within 10 days of any employment change including new jobs, address changes, or employer name changes. TrackMyOPT reminds you of these reporting requirements."},
-                  {question: "Is TrackMyOPT free to use?", answer: "Yes! Our core OPT tracking features are completely free forever. This includes the countdown timer, unemployment tracker, and deadline alerts. Premium features like document storage and H-1B sponsor search are available with a subscription."},
+                  {question: "Is TrackMyOPT free to use?", answer: "Yes! Core OPT tracking is free forever — countdown timer, unemployment tracker, and deadline tools. Free also includes 1 USCIS case with manual refresh and limited H-1B sponsor search. Pro adds daily case auto-checks, status-change emails, Document Vault, and higher limits."},
                   {question: "How accurate is the filing deadline calculator?", answer: "Our calculator uses publicly available USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. Always verify deadlines with your DSO or a licensed immigration attorney."}
                 ]}
             />
@@ -282,7 +282,7 @@ export default function CompliancePage() {
                     },
                     {
                         question: "Is TrackMyOPT free to use?",
-                        answer: "Yes! Our core OPT tracking features are completely free forever. This includes the countdown timer, unemployment tracker, and deadline alerts. Premium features like document storage and H-1B sponsor search are available with a subscription."
+                        answer: "Yes! Core OPT tracking is free forever — countdown timer, unemployment tracker, and deadline tools. Free also includes 1 USCIS case with manual refresh and limited H-1B sponsor search. Pro adds daily case auto-checks, status-change emails, Document Vault, and higher limits."
                     },
                     {
                         question: "How accurate is the filing deadline calculator?",

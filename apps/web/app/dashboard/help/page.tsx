@@ -84,7 +84,7 @@ const jsonLd = {
       name: "How do I track my USCIS case status?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Use your 13-character receipt number (e.g., IOE1234567890) to track your case on TrackMyOPT. We check USCIS directly and send you email notifications when your status changes. You can track EAD applications, H-1B petitions, and more.",
+        text: "Use your 13-character receipt number (e.g., IOE1234567890) to track your case on TrackMyOPT. Free includes manual refresh anytime. Pro adds daily USCIS auto-checks and email notifications when your status changes. You can track EAD applications, H-1B petitions, and more.",
       },
     },
     {

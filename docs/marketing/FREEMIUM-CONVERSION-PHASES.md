@@ -1,7 +1,7 @@
 # TrackMyOPT Freemium → Paid Conversion Plan
 
-**Status:** Phases 0–2 complete in code · Phases 3–6 not started  
-**Date:** 2026-07-23  
+**Status:** Phases 0–2 live on `main` (PR #23) · Phases 3–6 complete in code (this PR) · measure conversion after web deploy  
+**Date:** 2026-07-25  
 **Sources:** Supabase (`profiles`, `case_status`, `job_applications`, `resume_generations`), PostHog project `369087`, Stripe subscriptions, codebase gate audit  
 
 **Companion canvas:** open [`freemium-conversion-analysis.canvas.tsx`](/Users/ashishdikonda/.cursor/projects/Users-ashishdikonda-Documents-Office-ZYENE-Our-Products-1-Trackmyopt-TrackMyOPT-TrackMyOPT/canvases/freemium-conversion-analysis.canvas.tsx) beside chat in Cursor
@@ -12,10 +12,13 @@
 
 | Phase | Status | Notes |
 |------:|--------|-------|
-| **0** | **100% code** | Identify on auth; server identify-before-capture + `supabase_user_id`; PricingModal `pricing_cta_viewed` + client `checkout_started` re-identify; webhook user resolve via metadata → `stripe_customer_id` (no email required for analytics); `NORTH_STAR_FUNNEL_EVENTS`; PostHog board + baseline |
-| **1** | **100% code · ops blocked** | Premium-only auto-check queue; `skippedFree` in `/uscis/check-all` response; free UI monitor CTA; packaging notice; Pro `nextCheckAt`; stale >24h upsell; manual refresh stays free. **Ops:** gate is **not live yet** — API changes are local/uncommitted; production still auto-checks free cases (2026-07-23 spot-check: 42 free cases refreshed in last 36h vs 1 premium) |
-| **2** | **100% code** | H-1B 25, ATS 3, jobs unlimited; partners free; Dedicated = quotas + priority support; pricing/landing/emails/SEO/blog product claims aligned Free=manual / Pro=auto-check |
-| 3–6 | Not started | Paywall UX polish, activation, checkout recovery, retention |
+| **0** | **100% code · live** | Identify on auth; server identify-before-capture + `supabase_user_id`; PricingModal `pricing_cta_viewed`; `checkout_started` only from server `create-checkout`; webhook user resolve via metadata → `stripe_customer_id`; `NORTH_STAR_FUNNEL_EVENTS`; PostHog board + baseline |
+| **1** | **100% code · live (PR #23)** | Premium-only auto-check queue; `skippedFree` in `/uscis/check-all`; packaging notice; Pro `nextCheckAt`; stale >24h upsell. **Ops:** after next overnight batch, confirm free `last_checked_at` unchanged |
+| **2** | **100% code · live** | plan-features SSoT; FAQ/SEO/Help aligned Free=manual refresh / Pro=daily auto-checks + status emails; H-1B 25, ATS 3, jobs unlimited; Dedicated = quotas + priority support |
+| **3** | **100% code · ship this PR** | Status-change wedge v2 (trial CTA → PricingModal); 2nd refresh + stale + receipt-added upsells; persistent trial strip; fake 5-job bar removed; `checkout_started` only on Stripe session (not modal open) |
+| **4** | **100% code · ship this PR** | Activation = receipt + successful check; post-auth → case-status; `dashboard_viewed` + `first_dashboard_viewed_at` without onboarding gate; D1 by signup age (**Vercel hourly cron**); activation poll; `pwa_installed` + manifest |
+| **5** | **100% code · ship this PR** | payment_failed hygiene; checkout recovery + Vercel cron; portal deep-link; past_due banner; trial_converted + renewal receipts; annual CTAs; retry-pending Vercel cron |
+| **6** | **100% code · ship this PR** | Dedicated closed for new sales + Pro migration; unused cancel win-back; `PRO_TRIAL_DAYS` wired; resume/ATS by `plan_tier` only |
 
 **PostHog dashboard:** [Freemium Conversion (Phase 0)](https://us.posthog.com/project/369087/dashboard/1897601)  
 **North-star funnel:** [n8q5vuJU](https://us.posthog.com/project/369087/insights/n8q5vuJU) · **Checkout→payment:** [d66YwCNm](https://us.posthog.com/project/369087/insights/d66YwCNm)
@@ -466,9 +469,16 @@ Use one sentence everywhere:
 
 ### Exit criteria
 
-- [ ] Upgrade prompt → checkout started ≥ 15% (30d rolling, after identify fix)  
-- [ ] At least 3 instrumented triggers with non-null `trigger`  
-- [ ] Trial CTA visible on case status for free users with a receipt  
+- [ ] Upgrade prompt → checkout started ≥ 15% (30d rolling, after identify fix + deploy) — **metric, not code**
+- [x] At least 3 instrumented triggers with non-null `trigger` (`status_change_wedge`, `second_manual_refresh`, `stale_status`, `receipt_added` + `plan_suggested`)
+- [x] Trial CTA visible on case status for free users with a receipt (persistent strip + wedge/upsells → PricingModal with “Start 7-Day Free Trial”)
+
+### Code shipped in Phase 3
+
+- Status-change wedge v2: trial primary CTA opens PricingModal (`initialPlan=pro`)
+- Second manual refresh + stale + receipt-added upsells open PricingModal (not bare checkout URL)
+- Fake job-tracker “5 jobs” usage bar removed (unlimited Free)
+- Canonical Free/Pro copy in `CASE_STATUS_MESSAGING`
 
 ### How this solves conversion
 
@@ -486,30 +496,36 @@ You cannot monetize users who never reach the case tracker.
 
 ### Work items
 
-1. **Define activation** (product)  
-   - Recommended: `receipt_added` + at least one successful `case_status_check_completed` within 24h of signup.  
+1. **Define activation** (product) — **done**  
+   - `receipt_added` + at least one successful case status check (`last_checked_at` + real status, not pending).  
+   - Tracked as `activation_completed` with `within_24h` vs signup. Onboarding is **not** required.  
+   - Code: `apps/web/lib/posthog/activation.ts`, `ActivationCompletedTracker` (poll + visibility recheck for same-session activation).  
+   - Person `activation_state`: `no_receipt` | `receipt_pending_status` | `activated`.
 
-2. **Onboarding path**  
-   - After auth: land on case status / “Add receipt” — not a generic empty dashboard.  
-   - One primary CTA; defer career tools, insurance, etc.  
+2. **Onboarding path** — **done**  
+   - After auth: land on `/dashboard/case-status` (`DEFAULT_POST_AUTH_PATH`).  
+   - Middleware logged-in `/login` → case-status; OAuth/magic-link fallback same; login default `redirect`/`returnTo` → case-status.
 
-3. **Track why dashboard_viewed is low**  
-   - Extension-only users?  
-   - Auth callback redirect wrong?  
-   - Event not firing on real dashboard?  
-   - Cross-check with `first_dashboard_viewed_at` on profiles (D1 nudge already uses this).  
+3. **Track why dashboard_viewed is low** — **done (instrumentation)**  
+   - `DashboardViewTracker` mounted on **all** dashboard routes via `DashboardLayoutClient` (not hub-only).  
+   - No longer gated on `onboarding_completed`.  
+   - Session-once capture + stamps `first_dashboard_viewed_at` via `/api/profile/activity` (**no onboarding requirement**).  
+   - Event includes `path` for extension vs web diagnosis.
 
-4. **D1 / free-receipt reengagement**  
-   - You already have crons (`d1-activation-nudge`, `free-receipt-reengagement`). Audit send rates and copy to push **add receipt → first check → Pro trial**.  
+4. **D1 / free-receipt reengagement** — **done**  
+   - D1 cohort: free + `created_at` ≥24h ago + null `first_dashboard_viewed_at` (not onboarding-gated).  
+   - D1 nudge CTA → Case Status; copy = add receipt → manual check → Pro trial.  
+   - Free-receipt reengagement CTA → **Start 7-Day Free Trial** (`/premium/checkout?planId=pro`) + secondary Case Status link.
 
-5. **PWA / install**  
-   - If “install” is a growth goal, instrument `pwa_installed` properly; currently ~0 tracked.  
+5. **PWA / install** — **done (minimal)**  
+   - `PwaInstallTracker` → `pwa_installed` on `appinstalled` / standalone.  
+   - `public/manifest.webmanifest` + root layout `manifest` / `appleWebApp` (no full offline PWA).
 
 ### Exit criteria
 
-- [ ] Signup → dashboard_viewed ≥ 50% (or explain remaining gap with extension-only cohort)  
-- [ ] Signup → receipt_added ≥ 30% within 7 days  
-- [ ] Activation definition documented and tracked  
+- [ ] Signup → dashboard_viewed ≥ 50% (or explain remaining gap with extension-only cohort) — **measure after deploy**  
+- [ ] Signup → receipt_added ≥ 30% within 7 days — **measure after deploy**  
+- [x] Activation definition documented and tracked  
 
 ### How this solves conversion
 
@@ -523,30 +539,44 @@ More users at the case-status moment = more people eligible for Phase 1/3 paywal
 
 People who decide to pay should succeed. Today failures ≈ successes, and attribution is broken.
 
+### Investigation note (2026-07-23)
+
+PostHog last 90d: `payment_failed` **18 events / 2 unique people**; `payment_succeeded` **18 unique people**. The ~1:1 event ratio was **renewal dunning retries**, not 18 unique checkout declines. KPI should use **unique people**, not raw event count.
+
 ### Work items
 
-1. **Investigate `payment_failed` (18 in 90d)**  
-   - Stripe dashboard: decline codes, 3DS, card errors, incomplete subscriptions.  
-   - Correlate with webhook handling in `apps/web/app/api/premium/webhook/route.ts`.  
+1. **Investigate `payment_failed`** — **done (code + baseline)**  
+   - Documented dunning vs checkout failure above.  
+   - Webhook: `invoice.payment_failed` is canonical PostHog+email emitter; `payment_intent.payment_failed` skips when an invoice exists (stops double counts).  
+   - Enrich `failure_code` from decline_code / charge.failure_code.  
+   - Handle `checkout.session.expired` → mark pending `payment_transactions` as `expired`.
 
-2. **Checkout recovery**  
-   - You have `checkout-recovery` cron/lib — verify it runs, emails fire, and links resume the right Stripe session / Customer Portal.  
+2. **Checkout recovery** — **done**  
+   - `findCheckoutAbandoners` returns `stripeCheckoutSessionId` + billing interval.  
+   - Resume **open** Stripe Checkout `session.url`; else fresh `/premium/checkout?planId&interval` (annual default).  
+   - Vercel cron every 4h: `/api/cron/checkout-recovery-emails` (also still callable via cron-job.org).  
+   - Event: `checkout_recovery_email_sent` includes `resume_kind`.
 
-3. **Identity**  
-   - Same as Phase 0: one user ID from PricingModal → Stripe Checkout → webhook → PostHog.  
+3. **Identity** — **done**  
+   - PricingModal no longer fires client `checkout_started` before Stripe session (server `create-checkout` is sole funnel emitter).  
+   - Webhook resolve remains metadata → `stripe_customer_id`.
 
-4. **UX**  
-   - After failed payment: clear retry CTA, not silent return to dashboard.  
-   - Prefer annual plan presentation if monthly cancels dominate (data: monthly cancels >> annual).  
+4. **UX** — **done**  
+   - Payment-failed email CTA → Stripe Customer Portal (or `/api/premium/portal` GET).  
+   - Dashboard `PastDueBillingBanner` when `billingStatus` is `past_due`/`unpaid`.  
+   - Cancelled checkout “Try again” → annual Pro checkout.  
+   - Annual remains default in PricingModal / create-checkout.
 
-5. **Trial → paid**  
-   - Confirm trial users convert; if they cancel as “unused”, trial did not demonstrate auto-check value (ties to Phase 1).  
+5. **Trial → paid** — **done**  
+   - Success page: trialing copy + trial end date; land on case-status.  
+   - `invoice.paid` after recent trial end → `trial_converted` + subscription receipt email.  
+   - Renewals also get receipt email (deduped by Stripe event).
 
 ### Exit criteria
 
-- [ ] `payment_failed` / (`payment_succeeded` + `payment_failed`) trending down  
-- [ ] Checkout recovery email open→pay measurable  
-- [ ] PostHog ordered checkout→payment > 40% when payments occur  
+- [ ] `payment_failed` / (`payment_succeeded` + `payment_failed`) trending down — **measure unique people after deploy**  
+- [ ] Checkout recovery email open→pay measurable — **instrumented; needs volume after cron runs**  
+- [ ] PostHog ordered checkout→payment > 40% when payments occur — **measure after identity fix**  
 
 ### How this solves conversion
 
@@ -569,26 +599,31 @@ Both improve only **after** Pro does something free does not (Phase 1).
 
 ### Work items
 
-1. **Dedicated**  
-   - Hide or rewrite plan.  
-   - Offer existing Dedicated customers a clear Pro migration if attorney access is not real.  
+1. **Dedicated** — **done**  
+   - Closed for new purchases (`DEDICATED_OPEN_FOR_NEW_PURCHASES = false`).  
+   - Hidden from PricingModal, landing, pricing page CTAs, settings upgrades.  
+   - `create-checkout` rejects new Dedicated; Stripe sync kept for grandfathered subs.  
+   - In-app **Switch to Pro** (`DedicatedMigrationBanner` + settings + `downgradeDedicatedSubscriptionToPro`).
 
-2. **Unused cancel win-back**  
-   - Email: “Pro now auto-checks your case daily — reopen alerts.”  
+2. **Unused cancel win-back** — **done**  
+   - Webhook captures Stripe `cancellation_details.feedback` on `subscription_canceled`.  
+   - `feedback=unused` → `unused_cancel_winback` email (“Pro now auto-checks your case daily”).  
+   - All other ends → updated `subscription_ended` with the same auto-check reopen CTA (annual Pro).
 
-3. **Pricing experiments (only after Phase 1 stable)**  
-   - Annual-first default  
-   - Trial length (7 vs 3)  
-   - Do **not** raise price until auto-check gate is live and understood  
+3. **Pricing experiments** — **done (hygiene; no price raise)**  
+   - Annual-first already live (Phase 5).  
+   - `trial_period_days` uses `PRO_TRIAL_DAYS` (flip 7↔3 in one constant).  
+   - **Do not raise price** until Phase 1 auto-check conversion is measured in production.
 
-4. **Quota fairness**  
-   - Resume max gens skewed (some users >> free limit historically) — audit premium overrides / bugs so free limits actually apply.  
+4. **Quota fairness** — **done**  
+   - Removed `premium_status` → Pro limit override.  
+   - Resume + ATS limits resolve from `plan_tier` only; resume checks use service role like ATS.
 
 ### Exit criteria
 
-- [ ] Active Stripe subs trending up month over month  
-- [ ] Cancel reason “unused” declining  
-- [ ] Dedicated claims match delivery  
+- [ ] Active Stripe subs trending up month over month — **measure after deploy**  
+- [ ] Cancel reason “unused” declining — **instrumented via `cancel_feedback`**  
+- [ ] Dedicated claims match delivery — **new sales stopped; existing can migrate to Pro**
 
 ---
 
@@ -630,7 +665,17 @@ Both improve only **after** Pro does something free does not (Phase 1).
 | Alert gate | `apps/web/app/api/case-status/notify/route.ts` |
 | Checkout | `apps/web/app/api/premium/create-checkout/route.ts` |
 | Webhooks / premium sync | `apps/web/app/api/premium/webhook/route.ts`, `apps/web/lib/premium/*` |
-| Analytics helpers | `apps/web/lib/posthog-client.ts` |
+| Checkout recovery | `apps/web/lib/billing/checkout-recovery.ts`, `app/api/cron/checkout-recovery-emails` |
+| Past-due banner | `apps/web/components/billing/PastDueBillingBanner.tsx` |
+| Stripe portal (GET email deep-link) | `apps/web/app/api/premium/portal/route.ts` |
+| Dedicated sales gate | `apps/web/lib/pricing/dedicated-availability.ts` |
+| Dedicated → Pro migration | `downgradeDedicatedSubscriptionToPro`, `DedicatedMigrationBanner.tsx` |
+| Unused cancel win-back | `buildUnusedCancelWinbackEmailBodies` + webhook `cancel_feedback` |
+| Resume / ATS quota fairness | `apps/web/lib/usage-limit.ts` (`plan_tier` only) |
+| Activation definition | `apps/web/lib/posthog/activation.ts` |
+| Post-auth landing | `apps/web/lib/auth/post-auth-landing.ts` (`DEFAULT_POST_AUTH_PATH`) |
+| Dashboard view tracking | `apps/web/components/analytics/DashboardViewTracker.tsx` (layout-mounted) |
+| PWA install tracking | `apps/web/components/analytics/PwaInstallTracker.tsx`, `public/manifest.webmanifest` |
 
 ---
 
@@ -664,6 +709,8 @@ Both improve only **after** Pro does something free does not (Phase 1).
 | Date | Decision | Owner | Notes |
 |------|----------|-------|-------|
 | 2026-07-23 | Analysis: free auto-check is the #1 leak | Eng/Product | This doc |
+| 2026-07-23 | Dedicated closed for new sales; Pro migration in-app | Eng | Phase 6 |
+| 2026-07-23 | No price raise until Phase 1 conversion measured | Product | Phase 6 |
 | | Jobs: Option A (unlimited free) vs B (enforce 5) | Product | TBD |
 | | Grandfather free auto-check for N days? | Product | TBD |
 | | Hide Dedicated? | Product | TBD |

@@ -486,7 +486,7 @@ export function HelpSection() {
               <FeatureCard
                 icon={<ClipboardCheck className="w-5 h-5 text-green-600" />}
                 title="Case Status Tracker"
-                description="Monitor your USCIS case status in real-time. Get notifications when your status changes."
+                description="Monitor your USCIS case status. Free: manual refresh anytime. Pro: daily auto-checks + email when status changes."
                 link="/dashboard/case-status"
               />
               <FeatureCard
@@ -578,8 +578,8 @@ export function HelpSection() {
                     <li>Go to <strong>Case Status</strong> from the sidebar</li>
                     <li>Enter your 13-character <strong>Receipt Number</strong> (e.g., EAC2390012345)</li>
                     <li>Click <strong>Save</strong> to save your receipt number</li>
-                    <li>Click <strong>Refresh Status</strong> to check current status</li>
-                    <li>Enable <strong>Notifications</strong> to get alerts on status changes</li>
+                    <li>Click <strong>Refresh Status</strong> to check current status (Free)</li>
+                    <li>Upgrade to <strong>Pro</strong> for daily auto-checks and email when status changes</li>
                   </ol>
                 </div>
 
@@ -1221,7 +1221,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="How does the case status tracker work?"
-                  answer="We check your case status directly from the USCIS website. When you enable notifications, we periodically check for updates and notify you via email when your status changes."
+                  answer="We check your case status directly from the USCIS website. On Free, you refresh manually anytime. On Pro, we run daily auto-checks and email you when your status changes."
                 />
                 <FAQItem
                   question="What's included in Pro?"

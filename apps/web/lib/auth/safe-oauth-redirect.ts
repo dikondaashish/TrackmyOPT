@@ -3,6 +3,8 @@
  * to an external origin (open redirect). Used by /auth/callback routes only.
  */
 
+import { DEFAULT_POST_AUTH_PATH } from "@/lib/auth/post-auth-landing";
+
 const ALLOWED_PATH_PREFIXES = [
   '/dashboard',
   '/premium',
@@ -20,7 +22,7 @@ export function safeInternalRedirectTarget(
   baseUrl: string,
 ): URL {
   const base = new URL(baseUrl);
-  const fallback = new URL('/dashboard', base);
+  const fallback = new URL(DEFAULT_POST_AUTH_PATH, base);
 
   if (nextParam == null) return fallback;
 

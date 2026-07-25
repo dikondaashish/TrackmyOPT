@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { Check, X, ArrowRight, Shield } from "lucide-react";
 import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
+import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
+import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
 
 export function PricingComparison() {
+    const showDedicated = shouldShowDedicatedPlanForSale();
     return (
         <section className="py-24 bg-gray-50 dark:bg-zinc-900/50">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,7 +16,9 @@ export function PricingComparison() {
                         Free vs Pro — Side by Side
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400">
-                        See what Pro adds. Need more resume capacity and faster email support? Dedicated includes everything below plus priority support.
+                        {showDedicated
+                            ? "See what Pro adds. Need more resume capacity and faster email support? Dedicated includes everything below plus priority support."
+                            : "See what Pro adds: daily USCIS auto-checks, status-change alerts, and higher career tool limits."}
                     </p>
                 </div>
 
@@ -60,7 +65,7 @@ export function PricingComparison() {
                                 { feature: "Document Vault", free: false, pro: "Encrypted storage + expiry reminders" },
                                 { feature: "STEM OPT Extension Planner", free: "Basic calculator", pro: "Full I-983 tracking + E-Verify check" },
                                 { feature: "Sprintax partner coupon ($20)", free: true, pro: true },
-                                { feature: "Priority email support", free: false, pro: "Dedicated plan" },
+                                { feature: "Priority email support", free: false, pro: showDedicated ? "Dedicated plan" : false },
                             ].map((row, i) => (
                                 <tr
                                     key={i}
@@ -95,6 +100,7 @@ export function PricingComparison() {
                     </table>
                 </div>
 
+                {showDedicated ? (
                 <div className="mt-8 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50/80 dark:bg-amber-950/20 p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex gap-3">
@@ -119,6 +125,7 @@ export function PricingComparison() {
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
                 <div className="mt-8">
                     <PlanPickerGuide />
@@ -129,11 +136,11 @@ export function PricingComparison() {
                         href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear"
                         className="inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors"
                     >
-                        Start Pro 7-Day Free Trial
+                        Start Pro {PRO_TRIAL_DAYS}-Day Free Trial
                         <ArrowRight className="w-4 h-4" />
                     </Link>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-                        Pro includes a 7-day free trial when eligible. Cancel anytime in Settings.
+                        Pro includes a {PRO_TRIAL_DAYS}-day free trial when eligible. Cancel anytime in Settings.
                     </p>
                 </div>
             </div>

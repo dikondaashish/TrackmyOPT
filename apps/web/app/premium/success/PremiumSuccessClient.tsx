@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { capturePremiumCheckoutCompleted } from "@/lib/posthog-client";
+import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
 
 const CONFETTI = [
   { tx: "28px", ty: "-52px", rot: "18deg", delay: "0s" },
@@ -141,6 +142,8 @@ export function PremiumSuccessClient() {
   const [syncState, setSyncState] = useState<
     "idle" | "syncing" | "synced" | "error"
   >("idle");
+  const [isTrialing, setIsTrialing] = useState(false);
+  const [trialEndLabel, setTrialEndLabel] = useState<string | null>(null);
 
   const isDedicated = planId === "dedicated";
   const variant = isDedicated ? "dedicated" : "pro";
@@ -168,6 +171,21 @@ export function PremiumSuccessClient() {
         });
         const data = await res.json().catch(() => ({}));
         if (!cancelled && res.ok && data.ok) {
+          if (data.subscriptionStatus === "trialing") {
+            setIsTrialing(true);
+            if (typeof data.trialEnd === "string") {
+              const d = new Date(data.trialEnd);
+              if (!Number.isNaN(d.getTime())) {
+                setTrialEndLabel(
+                  d.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                );
+              }
+            }
+          }
           setSyncState("synced");
           return;
         }
@@ -196,7 +214,7 @@ export function PremiumSuccessClient() {
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          router.push("/dashboard");
+          router.push("/dashboard/case-status");
           return 0;
         }
         return prev - 1;
@@ -206,10 +224,17 @@ export function PremiumSuccessClient() {
     return () => clearInterval(timer);
   }, [router]);
 
-  const headline = isDedicated ? "You're set for Dedicated." : "You're all set.";
-  const sub =
-    isDedicated
-      ? "Higher resume quota and priority email support are live on your account."
+  const headline = isDedicated
+    ? "You're set for Dedicated."
+    : isTrialing
+      ? `Your ${PRO_TRIAL_DAYS}-day Pro trial is live.`
+      : "You're all set.";
+  const sub = isDedicated
+    ? "Higher resume quota and priority email support are live on your account."
+    : isTrialing
+      ? `Daily USCIS auto-checks and status-change emails are on${
+          trialEndLabel ? ` through ${trialEndLabel}` : ""
+        }. First charge is after the trial — cancel anytime in Settings.`
       : "Pro is live—here’s what you can use first.";
 
   const proFeatures = [

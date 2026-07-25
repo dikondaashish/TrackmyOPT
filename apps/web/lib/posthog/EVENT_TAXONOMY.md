@@ -1,7 +1,7 @@
 # PostHog event taxonomy — TrackMyOPT
 
 **Project:** [369087](https://us.posthog.com/project/369087)  
-**Last updated:** 2026-07-05 (Phase 5 closure)
+**Last updated:** 2026-07-23 (Phase 5 closure)
 
 Canonical list of product events. Prefer these names in new dashboards and funnels. See [LEGACY_EVENTS.md](./LEGACY_EVENTS.md) for deprecated billing and case-status events.
 
@@ -25,9 +25,10 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | `receipt_added` | Server | `is_first_receipt` | **Preferred** over legacy `case_status_enrolled` |
 | `receipt_updated` | Server | — | Subsequent receipt changes |
 | `case_status_check_completed` | Client + server | `source` | Triggers NPS survey |
-| `activation_completed` | Client | `days_since_signup`, `source` | Onboarding + receipt + live status |
+| `activation_completed` | Client | `days_since_signup`, `within_24h`, `source` | Receipt + successful case check (Phase 4; onboarding not required) |
 | `extension_detected` | Client | `version`, `source` | Chrome extension present on dashboard |
-| `dashboard_viewed` | Client | `section` | Product funnel (not `$pageview` alone) |
+| `dashboard_viewed` | Client | `has_receipt`, `path`, `plan_tier`, … | All dashboard routes (Phase 4); once per session |
+| `pwa_installed` | Client | `source` | `appinstalled` / standalone display mode |
 
 ## Monetization
 
@@ -35,9 +36,13 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 |-------|--------|------------|-------|
 | `premium_checkout_viewed` | Client | `plan_id`, `interval`, `source` | Checkout modal load |
 | `premium_checkout_completed` | Client | `plan_tier`, `stripe_session_id`, `source` | Success page; triggers post-checkout NPS |
-| `checkout_started` | Client + server | `plan_id`, `amount_cents` | Stripe session created |
+| `checkout_started` | Server | `plan_id`, `amount_cents`, `$insert_id` | Sole emitter: `create-checkout` after Stripe session exists (Phase 5) |
+| `checkout_recovery_email_sent` | Server | `resume_kind`, `plan_id` | Abandoned checkout cron |
 | `payment_succeeded` | Server | `amount_cents`, `$insert_id` | Billing — see LEGACY_EVENTS validation |
+| `payment_failed` | Server | `failure_code`, `$insert_id` | Canonical on `invoice.payment_failed`; PI path skips when invoice exists |
+| `trial_converted` | Server | `plan_tier`, `$insert_id` | First paid invoice near trial end |
 | `subscription_started` | Server | `plan_tier` | Billing — unvalidated in test mode |
+| `subscription_canceled` | Server | `plan_tier`, `cancel_feedback` | Stripe Portal feedback when present (Phase 6) |
 
 ## Resume / engagement
 

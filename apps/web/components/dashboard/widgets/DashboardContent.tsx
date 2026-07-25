@@ -14,7 +14,6 @@ import {
   DashboardCustomizeButton
 } from "./DashboardWidgets";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DashboardViewTracker } from "@/components/analytics/DashboardViewTracker";
 import { DashboardNextStepCard } from "./DashboardNextStepCard";
 import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
 
@@ -327,7 +326,6 @@ export function DashboardContent({ user }: DashboardContentProps) {
 
   return (
     <div className="space-y-6">
-      <DashboardViewTracker />
       {/* Header with customize button */}
       <div className="flex items-center justify-between">
         <div>

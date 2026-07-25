@@ -1,7 +1,7 @@
 /**
- * D1 activation nudge — users who completed onboarding but never opened the dashboard.
+ * D1 activation nudge — free users signed up ≥24h ago who never opened the dashboard.
  *
- * Schedule on cron-job.org (e.g. hourly):
+ * Vercel Cron hourly (see vercel.json). Also callable via cron-job.org:
  *   GET /api/cron/d1-activation-nudge
  *   Authorization: Bearer CRON_SECRET
  */
