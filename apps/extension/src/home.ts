@@ -355,6 +355,12 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
             : 'easy-apply-fill.js',
         ],
       });
+      // The ordinary popup path also has a top-frame-only, explicit review
+      // flow for standalone employer login/account-creation pages.
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['job-portal-login-entry.js'],
+      });
       window.close();
     } catch {
       if (prefillLabel) showTransientLabel(prefillLabel, 'Cannot prefill on this page', prefillLabelText);

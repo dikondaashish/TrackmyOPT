@@ -101,6 +101,11 @@ export default function PrivacyPage() {
         Saving private application answers is optional and requires an explicit
         consent action. The encrypted record is retained while you keep it in
         your account, and you may edit or permanently delete it from Settings.
+        If you save an employer job-portal login, TrackMyOPT stores its exact
+        hostname, login email, and password in that encrypted record. The server
+        must decrypt it to provide autofill, so this is not end-to-end
+        encryption. Do not save your TrackMyOPT password or a reused primary
+        password.
         When you choose to use an answer, it is disclosed to the employer or
         applicant-tracking system whose form you are completing. Private
         application answers are not used to train or prompt our AI features.

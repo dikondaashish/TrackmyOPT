@@ -102,6 +102,17 @@ import {
   type SensitiveAnswerSession,
 } from './sensitive-autofill';
 import { scanApplicationFields } from './application-field-scan';
+import {
+  credentialForHostname,
+  fillJobPortalLogin,
+  type JobPortalLoginCredential,
+} from './job-portal-login';
+import {
+  approvalMatchesJob,
+  approvalMatchesUrl,
+  createPrivateApprovalBinding,
+  type PrivateApprovalBinding,
+} from './private-approval-session';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -148,8 +159,36 @@ let widgetViewportResizeObserver: ResizeObserver | null = null;
 // Sensitive answers become usable only after review in this page's panel. The
 // confirmed copy stays in content-script memory and never enters AI/analytics.
 let sensitiveAnswerSession: SensitiveAnswerSession = { confirmed: false };
+let approvedJobPortalLogin: JobPortalLoginCredential | null = null;
+let privateApprovalBinding: PrivateApprovalBinding | null = null;
 const trackedWidgetAnalytics = new Set<string>();
 const guidedClickedControls = new WeakSet<HTMLElement>();
+
+function clearPrivateApplicationApproval(): void {
+  approvedJobPortalLogin = null;
+  sensitiveAnswerSession = { confirmed: false };
+  privateApprovalBinding = null;
+  previousContinuousSignature = '';
+}
+
+function invalidatePrivateApprovalForUrl(nextUrl: string): void {
+  if (
+    privateApprovalBinding &&
+    !approvalMatchesUrl(privateApprovalBinding, nextUrl)
+  ) {
+    clearPrivateApplicationApproval();
+  }
+}
+
+function invalidatePrivateApprovalForJob(job: JobInfo | null): void {
+  if (
+    privateApprovalBinding &&
+    job &&
+    !approvalMatchesJob(privateApprovalBinding, jobContextFor(job))
+  ) {
+    clearPrivateApplicationApproval();
+  }
+}
 
 function guidedStatus(message: string): void {
   for (const line of Array.from(
@@ -199,7 +238,8 @@ function textField(
   return { wrapper, control };
 }
 
-function createSensitiveAnswerPanel(): HTMLElement {
+function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
+  const panelApprovalBinding = createPrivateApprovalBinding(jobContextFor(job));
   const section = document.createElement('section');
   section.className = 'tmo-sensitive-answer-panel';
   section.style.cssText =
@@ -214,7 +254,7 @@ function createSensitiveAnswerPanel(): HTMLElement {
   body.style.cssText = 'display:none;gap:7px;margin-top:8px;';
   const note = document.createElement('p');
   note.textContent =
-    'Saved answers load here for review. TrackMyOPT never asks AI to guess them, never includes them in analytics, and never submits the application.';
+    'Saved answers and an exact-site portal login load here for review. Passwords stay masked. TrackMyOPT never sends them to AI or analytics and never submits the application.';
   note.style.cssText =
     'margin:0;color:var(--tmo-widget-muted);font-size:10.5px;line-height:1.4;';
   const manageSavedData = document.createElement('button');
@@ -229,6 +269,12 @@ function createSensitiveAnswerPanel(): HTMLElement {
       'noopener,noreferrer'
     );
   });
+  const portalLoginSummary = document.createElement('p');
+  portalLoginSummary.style.cssText =
+    'margin:0;padding:7px 8px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-muted);font-size:10.5px;line-height:1.4;';
+  portalLoginSummary.textContent =
+    `No approved job-portal login loaded for ${window.location.hostname}.`;
+  let loadedJobPortalLogin: JobPortalLoginCredential | null = null;
 
   const yesNoOptions: Array<[string, string]> = [
     ['', 'Leave unanswered'],
@@ -341,6 +387,13 @@ function createSensitiveAnswerPanel(): HTMLElement {
         if (!response.data) return;
         const saved = normalizeSavedPrivateApplicationAnswers(response.data);
         if (!saved) return;
+        loadedJobPortalLogin = credentialForHostname(
+          saved.jobPortalLogins ?? [],
+          window.location.hostname
+        );
+        portalLoginSummary.textContent = loadedJobPortalLogin
+          ? `Saved login found for ${loadedJobPortalLogin.hostname}: ${loadedJobPortalLogin.email}. Password: ••••••••`
+          : `No saved login matches ${window.location.hostname}. Add this exact portal in TrackMyOPT.`;
         workAuth.control.value = saved.workAuthorization ?? '';
         sponsorship.control.value = saved.requiresSponsorship ?? '';
         visaType.control.value = saved.visaType ?? (
@@ -376,6 +429,18 @@ function createSensitiveAnswerPanel(): HTMLElement {
     if (!body.hidden) loadSavedAnswersForReview();
   });
   save.addEventListener('click', () => {
+    const currentJob = getJobInfo();
+    if (
+      !currentJob ||
+      !approvalMatchesJob(panelApprovalBinding, jobContextFor(currentJob))
+    ) {
+      loadedJobPortalLogin = null;
+      clearPrivateApplicationApproval();
+      status.textContent =
+        'This application changed. Review the private answers again for the current job.';
+      return;
+    }
+    approvedJobPortalLogin = loadedJobPortalLogin;
     sensitiveAnswerSession = {
       confirmed: true,
       ...(workAuth.control.value
@@ -464,8 +529,11 @@ function createSensitiveAnswerPanel(): HTMLElement {
         ? { eeoPreference: 'prefer_not_to_answer' as const }
         : {}),
     };
+    privateApprovalBinding = panelApprovalBinding;
     status.textContent =
-      'Approved for this application. Prefill can use these exact answers.';
+      approvedJobPortalLogin
+        ? 'Approved for this application. Prefill can use the masked portal login and these exact answers.'
+        : 'Approved for this application. Prefill can use these exact answers.';
     previousContinuousSignature = '';
     scheduleContinuousPrefill();
   });
@@ -473,6 +541,7 @@ function createSensitiveAnswerPanel(): HTMLElement {
   body.append(
     note,
     manageSavedData,
+    portalLoginSummary,
     workAuth.wrapper,
     sponsorship.wrapper,
     visaType.wrapper,
@@ -637,6 +706,7 @@ function setCurrentGeneratedArtifact(artifact: GeneratedResumeArtifactV1): void 
 }
 
 function invalidateArtifactForUrlChange(nextUrl: string): void {
+  invalidatePrivateApprovalForUrl(nextUrl);
   const artifact = generatedResumeArtifactForCurrentJob;
   if (!artifact) return;
   if (!jobUrlsReferToSameJob(
@@ -791,7 +861,24 @@ async function executeResolvedPrefill(
         : {}),
     },
   }).catch(() => {});
-  const result = await runPrefill(prefill);
+  const loginFill = approvedJobPortalLogin
+    ? fillJobPortalLogin(
+        document,
+        approvedJobPortalLogin,
+        window.location.hostname
+      )
+    : { emailFilled: 0, passwordFilled: 0, totalFilled: 0 };
+  const result = await runPrefill({
+    ...prefill,
+    quietResultToast:
+      prefill.quietResultToast === true || loginFill.totalFilled > 0,
+  });
+  if (loginFill.totalFilled > 0) {
+    result.filled += loginFill.totalFilled;
+    result.total += loginFill.totalFilled;
+    result.groups.contact.filled += loginFill.totalFilled;
+    result.groups.contact.total += loginFill.totalFilled;
+  }
   const applicationRoot = findApplicationForm() ?? document;
   const sensitive = await fillConfirmedSensitiveAnswers(
     applicationRoot,
@@ -2549,7 +2636,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     stop.addEventListener('click', () => void stopGuidedAutopilot());
     guidedHost.append(copy, stop);
     toolsPanel.appendChild(guidedHost);
-    toolsPanel.appendChild(createSensitiveAnswerPanel());
+    toolsPanel.appendChild(createSensitiveAnswerPanel(job));
     paintGuidedStateUi();
   }
   toolsPanel.appendChild(artifactStaleBanner);
@@ -4569,9 +4656,10 @@ async function injectOrRefreshButton() {
     return;
   }
 
-  if (generatedResumeArtifactForCurrentJob) {
-    const currentJob = getJobInfo();
-    if (currentJob) generatedResumeFor(currentJob);
+  const currentJobAtStart = getJobInfo();
+  invalidatePrivateApprovalForJob(currentJobAtStart);
+  if (generatedResumeArtifactForCurrentJob && currentJobAtStart) {
+    generatedResumeFor(currentJobAtStart);
   }
 
   // Keep an existing widget exactly as-is while the user is mid-interaction.
@@ -4588,7 +4676,7 @@ async function injectOrRefreshButton() {
     return;
   }
 
-  const job = getJobInfo();
+  const job = currentJobAtStart ?? getJobInfo();
   // Never overwrite the original posting snapshot with a confirmation page;
   // auto-add relies on this context after the application flow navigates.
   if (job && !isApplicationSuccessPage()) saveJobContext(job);
@@ -4943,6 +5031,7 @@ function extAlive(): boolean {
 /** Stop every timer/observer and remove the widget (used when the context dies). */
 function teardownWidgetRuntime() {
   stopContinuousPrefill();
+  clearPrivateApplicationApproval();
   widgetViewportResizeObserver?.disconnect();
   widgetViewportResizeObserver = null;
   if (_spaObserver) {

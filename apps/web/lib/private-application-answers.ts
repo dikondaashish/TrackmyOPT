@@ -25,6 +25,49 @@ const optionalYesNo = z.preprocess(
   z.enum(["yes", "no"]).optional()
 );
 
+export function normalizeJobPortalHostname(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > 2048) return null;
+  try {
+    const parsed = new URL(
+      /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)
+        ? trimmed
+        : `https://${trimmed}`
+    );
+    const hostname = parsed.hostname.toLowerCase().replace(/\.$/, "");
+    if (
+      parsed.username ||
+      parsed.password ||
+      !hostname.includes(".") ||
+      hostname === "trackmyopt.com" ||
+      hostname.endsWith(".trackmyopt.com") ||
+      !/^[a-z0-9.-]+$/.test(hostname)
+    ) {
+      return null;
+    }
+    return hostname;
+  } catch {
+    return null;
+  }
+}
+
+export const JobPortalLoginSchema = z
+  .object({
+    hostname: z
+      .string()
+      .trim()
+      .min(1)
+      .max(2048)
+      .refine(
+        (value) => normalizeJobPortalHostname(value) !== null,
+        "Enter a valid employer job-portal website"
+      )
+      .transform((value) => normalizeJobPortalHostname(value)!),
+    email: z.string().trim().email().max(254),
+    password: z.string().min(8).max(256),
+  })
+  .strict();
+
 function isCalendarDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = new Date(`${value}T00:00:00.000Z`);
@@ -113,6 +156,24 @@ export const PrivateApplicationAnswersSchema = z
       emptyToUndefined,
       z.literal("prefer_not_to_answer").optional()
     ),
+    jobPortalLogins: z
+      .array(JobPortalLoginSchema)
+      .max(5)
+      .superRefine((logins, context) => {
+        const seen = new Set<string>();
+        for (let index = 0; index < logins.length; index += 1) {
+          const hostname = logins[index].hostname;
+          if (seen.has(hostname)) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: [index, "hostname"],
+              message: "Save only one login for each job portal",
+            });
+          }
+          seen.add(hostname);
+        }
+      })
+      .optional(),
   })
   .strict();
 

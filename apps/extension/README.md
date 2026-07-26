@@ -240,6 +240,10 @@ Every mode keeps the same hard boundaries:
   answers; optional saved private answers are encrypted, loaded only into the
   review panel, and become usable only after explicit confirmation for the
   current application;
+- never use a saved job-portal credential outside its exact hostname, on a
+  TrackMyOPT page, in a password-change/OTP field, or in a child-frame relay;
+  the password stays masked in the review panel and exists only in isolated
+  extension memory during the approved fill;
 - never click Add another, Review, Submit, Apply, Finish, or another final
   action; Guided Autopilot alone may click exact allowlisted non-submit
   Next/Continue/Done controls;
@@ -302,8 +306,9 @@ application forms can render upload or application controls in child or
 `about:blank` frames. This adds no Chrome permission. A child frame receives an
 already-resolved, bounded payload only during an explicit Step-by-step run (or
 a separately enabled Continuous run); inaccessible cross-origin DOM is not
-read directly. The engine still refuses host-page button clicks, sensitive
-fields, non-empty fields, and existing files.
+read directly. Job-portal login credentials are never included in the
+child-frame payload. The engine still refuses final-action clicks, unapproved
+sensitive fields, non-empty fields, and existing files.
 
 - [ ] Put this exact purpose in the Web Store permission/use justification.
 - [ ] Confirm the submitted manifest contains no permission added solely for
