@@ -93,9 +93,67 @@ describe("/api/private-application-answers", () => {
         dateOfBirth: "1998-04-12",
       })
     );
+    const body = await response.json();
 
     expect(response.status).toBe(400);
+    expect(body.error).toBe("Confirm the privacy notice before saving");
     expect(mocks.lastUpsert).toBeNull();
+  });
+
+  it("does not blame consent when an answer itself is invalid", async () => {
+    const response = await PUT(
+      request("PUT", {
+        consent: true,
+        dateOfBirth: "2099-04-12",
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe(
+      "Check the private application answers you entered"
+    );
+  });
+
+  it("accepts untouched Leave unanswered values from the private-answer form", async () => {
+    const response = await PUT(
+      request("PUT", {
+        consent: true,
+        workAuthorization: "yes",
+        requiresSponsorship: "no",
+        visaType: "opt",
+        visaOther: "",
+        visaStatus: "",
+        citizenship: "India",
+        salaryExpectation: "",
+        expectedAnnualSalary: "$120,000",
+        expectedHourlyRate: "",
+        canWorkInPerson: "",
+        willingToRelocate: "",
+        canStartImmediately: "",
+        reliableTransportation: "",
+        needsAccommodations: "no",
+        dateOfBirth: "2002-06-06",
+        sexGender: "male",
+        hispanicLatino: "no",
+        raceEthnicity: "asian",
+        veteranStatus: "not_protected_veteran",
+        disabilityStatus: "no",
+        eeoPreference: "",
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.data).toMatchObject({
+      workAuthorization: "yes",
+      requiresSponsorship: "no",
+      visaType: "opt",
+      dateOfBirth: "2002-06-06",
+      sexGender: "male",
+      raceEthnicity: "asian",
+    });
+    expect(body.data).not.toHaveProperty("eeoPreference");
   });
 
   it("stores ciphertext and returns the authenticated user's answers", async () => {

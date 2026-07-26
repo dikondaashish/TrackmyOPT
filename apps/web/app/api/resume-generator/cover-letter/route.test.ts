@@ -7,6 +7,7 @@ import { getUserId } from '@/lib/auth/getUserId';
 import { consumeAiGeneration } from '@/lib/ai-generation-limits';
 import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
 import { compileCoverLetterPdf } from '@/lib/resume/cover-letter-pdf';
+import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 
 import { POST } from './route';
 
@@ -21,6 +22,9 @@ vi.mock('@/lib/ai/generate-grounded-text', () => ({
 }));
 vi.mock('@/lib/resume/cover-letter-pdf', () => ({
   compileCoverLetterPdf: vi.fn(),
+}));
+vi.mock('@/lib/premium/user-plan-tier', () => ({
+  getActiveUserPlanTier: vi.fn(),
 }));
 
 const requestBody = {
@@ -44,8 +48,12 @@ const publishedExtensionOrigin =
 describe('cover-letter generation', () => {
   it('generates, compiles, hashes, and returns a real PDF attachment', async () => {
     vi.mocked(getUserId).mockResolvedValue('user-1');
+    vi.mocked(getActiveUserPlanTier).mockResolvedValue('free');
     vi.mocked(consumeAiGeneration).mockResolvedValue({
       allowed: true,
+      quotaPeriod: 'month',
+      quotaLimit: 1,
+      quotaRemaining: 0,
       dailyLimit: 25,
       dailyRemaining: 24,
       itemRegenerationLimit: 3,
@@ -88,7 +96,11 @@ describe('cover-letter generation', () => {
     expect(consumeAiGeneration).toHaveBeenCalledWith(
       'user-1',
       expect.stringContaining('cover-letter'),
-      false
+      false,
+      {
+        feature: 'cover_letter',
+        planTier: 'free',
+      },
     );
     expect(compileCoverLetterPdf).toHaveBeenCalledOnce();
 

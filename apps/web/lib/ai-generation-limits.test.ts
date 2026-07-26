@@ -40,8 +40,11 @@ describe('durable AI generation limits', () => {
       data: [
         {
           allowed: true,
+          quota_period: 'month',
+          quota_limit: 5,
+          quota_remaining: 4,
           daily_limit: 25,
-          daily_remaining: 24,
+          daily_remaining: 25,
           item_regeneration_limit: 3,
           item_regenerations_remaining: 3,
           resets_at: resetsAt,
@@ -59,24 +62,32 @@ describe('durable AI generation limits', () => {
         false,
         {
           client,
+          feature: 'screening_answer',
+          planTier: 'free',
         }
       )
     ).resolves.toEqual({
       allowed: true,
+      quotaPeriod: 'month',
+      quotaLimit: 5,
+      quotaRemaining: 4,
       dailyLimit: AI_DAILY_GENERATION_LIMIT,
-      dailyRemaining: 24,
+      dailyRemaining: 25,
       itemRegenerationLimit: AI_ITEM_REGENERATION_LIMIT,
       itemRegenerationsRemaining: 3,
       resetsAt,
     });
 
-    expect(rpc).toHaveBeenCalledWith('consume_ai_generation_quota', {
+    expect(rpc).toHaveBeenCalledWith('consume_plan_ai_generation_quota', {
       p_user_id: '00000000-0000-4000-8000-000000000001',
       p_item_key_hash: createHash('sha256')
         .update(itemKey, 'utf8')
         .digest('hex'),
       p_requested_regeneration: false,
+      p_feature_key: 'screening_answer',
+      p_is_premium: false,
       p_daily_limit: 25,
+      p_free_monthly_limit: 5,
       p_item_regeneration_limit: 3,
     });
     expect(JSON.stringify(rpc.mock.calls)).not.toContain(itemKey);
@@ -89,6 +100,9 @@ describe('durable AI generation limits', () => {
         [
           {
             allowed: false,
+            quota_period: 'day',
+            quota_limit: 25,
+            quota_remaining: 12,
             daily_limit: 25,
             daily_remaining: 12,
             item_regeneration_limit: 3,
@@ -101,6 +115,9 @@ describe('durable AI generation limits', () => {
       )
     ).toEqual({
       allowed: false,
+      quotaPeriod: 'day',
+      quotaLimit: 25,
+      quotaRemaining: 12,
       dailyLimit: 25,
       dailyRemaining: 12,
       itemRegenerationLimit: 3,
@@ -108,6 +125,47 @@ describe('durable AI generation limits', () => {
       resetsAt: '2026-07-27T00:00:00.000Z',
       error: 'ai_item_regeneration_limit_reached',
     });
+  });
+
+  it('uses the shared daily allowance for Pro without a monthly cap', async () => {
+    const { client, rpc } = rpcClient({
+      data: [
+        {
+          allowed: true,
+          quota_period: 'day',
+          quota_limit: 25,
+          quota_remaining: 24,
+          daily_limit: 25,
+          daily_remaining: 24,
+          item_regeneration_limit: 3,
+          item_regenerations_remaining: 3,
+          resets_at: '2026-07-26T00:00:00.000Z',
+          error_code: null,
+        },
+      ],
+      error: null,
+    });
+
+    const result = await consumeAiGeneration('user-pro', 'cover-letter', false, {
+      client,
+      feature: 'cover_letter',
+      planTier: 'pro',
+    });
+
+    expect(result).toMatchObject({
+      allowed: true,
+      quotaPeriod: 'day',
+      quotaLimit: 25,
+      quotaRemaining: 24,
+    });
+    expect(rpc).toHaveBeenCalledWith(
+      'consume_plan_ai_generation_quota',
+      expect.objectContaining({
+        p_is_premium: true,
+        p_feature_key: 'cover_letter',
+        p_free_monthly_limit: 1,
+      }),
+    );
   });
 
   it('fails closed with a reset time when Supabase is unavailable', async () => {
@@ -126,10 +184,15 @@ describe('durable AI generation limits', () => {
         {
           client,
           now,
+          feature: 'cover_letter',
+          planTier: 'pro',
         }
       )
     ).resolves.toEqual({
       allowed: false,
+      quotaPeriod: 'day',
+      quotaLimit: 25,
+      quotaRemaining: 0,
       dailyLimit: 25,
       dailyRemaining: 0,
       itemRegenerationLimit: 3,
@@ -163,6 +226,25 @@ describe('durable AI generation limits', () => {
     );
     expect(migration).toMatch(
       /REVOKE ALL ON FUNCTION public\.consume_ai_generation_quota[\s\S]+FROM PUBLIC, anon, authenticated/i
+    );
+  });
+
+  it('adds an atomic monthly Free allowance without weakening the daily Pro cap', () => {
+    const migration = readFileSync(
+      resolve(
+        process.cwd(),
+        '../../supabase/migrations/20260725234500_add_plan_aware_ai_quotas.sql',
+      ),
+      'utf8',
+    );
+
+    expect(migration).toMatch(/ai_generation_monthly_usage/i);
+    expect(migration).toMatch(/consume_plan_ai_generation_quota/i);
+    expect(migration).toMatch(/p_free_monthly_limit/i);
+    expect(migration).toMatch(/p_is_premium/i);
+    expect(migration).toMatch(/pg_advisory_xact_lock/i);
+    expect(migration).toMatch(
+      /REVOKE ALL ON FUNCTION public\.consume_plan_ai_generation_quota[\s\S]+FROM PUBLIC, anon, authenticated/i,
     );
   });
 });

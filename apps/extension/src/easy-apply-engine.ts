@@ -11,13 +11,15 @@
  *
  * HARD INVARIANTS — do not change without product + compliance sign-off. These
  * apply to EVERY platform, no exceptions:
- *  1. NEVER clicks any button. No Submit / Next / Review / Done automation.
- *     (There is intentionally not a single button-click or .click() in here.)
+ *  1. NEVER clicks any action button. No Submit / Next / Review automation.
+ *     Guided navigation is a separate, explicit mode and still stops before
+ *     Review/Submit. Exact custom-dropdown option selection is delegated to
+ *     smart-dropdown.ts, whose candidates can never include action buttons.
  *  2. NEVER fills work-authorization / visa / sponsorship / EEO / salary / DOB /
  *     SSN fields. Those are the user's to answer (see SENSITIVE_FIELD_RE).
  *  3. NEVER overwrites a value the user already entered.
- *  4. NEVER fills combobox / autocomplete / typeahead widgets (see
- *     isComboboxLike) — the user picks those from the dropdown.
+ *  4. Custom dropdowns are selected only when exactly one high-confidence
+ *     saved value matches. Ambiguous or unsupported controls remain for review.
  *  5. No timers/delays for evasion, no loop. One open form, once.
  *  6. A resume PDF is attached only when the caller explicitly provides the
  *     job-scoped PDF, the input is confidently labeled Resume/CV, and the user
@@ -52,6 +54,14 @@ import {
   createAutofillVisualFeedback,
   type AutofillVisualFeedback,
 } from './autofill-visual-feedback';
+import { scanApplicationFields } from './application-field-scan';
+import {
+  CUSTOM_DROPDOWN_SELECTOR,
+  customDropdownHasValue,
+  isCustomDropdownControl,
+  selectSmartDropdown,
+  type SmartDropdownMatchKind,
+} from './smart-dropdown';
 
 export type { PrefillCoverageResult } from './prefill-coverage';
 
@@ -99,6 +109,8 @@ const prefillControlIdentities = new WeakMap<Element, number>();
 
 type SearchRoot = Document | ShadowRoot | HTMLElement;
 type FillableControl = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+const APPLICATION_CONTROL_SELECTOR =
+  `input,textarea,select,${CUSTOM_DROPDOWN_SELECTOR}`;
 
 const isInputElement = (el: Element): el is HTMLInputElement => el.tagName === 'INPUT';
 const isTextAreaElement = (el: Element): el is HTMLTextAreaElement => el.tagName === 'TEXTAREA';
@@ -215,8 +227,16 @@ function isComboboxLike(el: HTMLElement): boolean {
   return (
     el.getAttribute('role') === 'combobox' ||
     el.hasAttribute('aria-autocomplete') ||
-    el.classList.contains('select__input')
+    el.classList.contains('select__input') ||
+    Boolean(el.parentElement?.closest(CUSTOM_DROPDOWN_SELECTOR))
   );
+}
+
+function dropdownMatchKind(kind: FieldKind): SmartDropdownMatchKind {
+  if (kind === 'country' || kind === 'state' || kind === 'location') {
+    return kind;
+  }
+  return 'generic';
 }
 
 /** A control is fillable only if visible, enabled, empty, a text-like input or textarea, and not a combobox. */
@@ -529,12 +549,14 @@ function fieldGroup(kind: FieldKind): string {
  * (name / email / phone / city / linkedinUrl / …). Used to recognize a job
  * application form generically, without per-platform selectors. Counts fields
  * whether or not they're already filled, so a partly-completed form still
- * scores; combobox widgets are ignored.
+ * scores, including accessible custom dropdowns.
  */
 function applicationFieldScore(container: HTMLElement): number {
   const kinds = new Set<string>();
-  for (const el of queryAllDeep<HTMLElement>(container, 'input, textarea, select')) {
-    if (isComboboxLike(el)) continue;
+  for (const el of queryAllDeep<HTMLElement>(
+    container,
+    APPLICATION_CONTROL_SELECTOR
+  )) {
     if (!isControlVisible(el)) continue;
     const kind = classifyField(getLabelText(el));
     if (kind) kinds.add(fieldGroup(kind));
@@ -553,8 +575,7 @@ function applicationFieldScore(container: HTMLElement): number {
  * e.g. name + email). This is label-based and safety-guarded, so it never
  * mis-fills sensitive/custom fields even on platforms not explicitly verified.
  *
- * Returns null when no application-like form is found (e.g. an ATS that renders
- * only custom non-native widgets, or a page with no form) — the caller toasts.
+ * Returns null when no application-like form is found — the caller toasts.
  */
 export function findApplicationForm(): HTMLElement | null {
   const documents = reachableDocuments();
@@ -631,7 +652,10 @@ export function getPrefillCandidateSignature(): string {
   const container = findApplicationForm();
   if (!container) return '';
   const tokens: string[] = [];
-  for (const control of queryAllDeep<HTMLElement>(container, 'input, textarea, select')) {
+  for (const control of queryAllDeep<HTMLElement>(
+    container,
+    APPLICATION_CONTROL_SELECTOR
+  )) {
     if (!isControlVisible(control)) continue;
     if (isInputElement(control) && control.type.toLowerCase() === 'file') {
       if (
@@ -645,7 +669,9 @@ export function getPrefillCandidateSignature(): string {
     if (!kind) continue;
     const eligible = kind === 'skills'
       ? isPlainSkillsControl(control) && isFillable(control)
-      : isFillable(control) || isFillableSelect(control);
+      : isFillable(control) ||
+        isFillableSelect(control) ||
+        (isCustomDropdownControl(control) && !customDropdownHasValue(control));
     if (eligible) tokens.push(`${prefillControlIdentity(control)}:${kind}`);
   }
   return tokens.length > 0 ? `${window.location.href}|${tokens.join('|')}` : '';
@@ -657,6 +683,7 @@ function isRequiredControl(el: HTMLElement): boolean {
 
 function requiredControlNeedsUser(el: HTMLElement, container: HTMLElement): boolean {
   if (!isRequiredControl(el) || !isControlVisible(el)) return false;
+  if (isCustomDropdownControl(el)) return !customDropdownHasValue(el);
   if (isInputElement(el)) {
     if (el.disabled || el.readOnly) return false;
     const type = (el.type || 'text').toLowerCase();
@@ -694,7 +721,10 @@ function remainingRequiredOutcomes(
     oldTarget.removeAttribute(PREFILL_TARGET_ATTR);
   }
   const outcomes: PrefillControlOutcome[] = [];
-  const controls = queryAllDeep<HTMLElement>(container, 'input, textarea, select');
+  const controls = queryAllDeep<HTMLElement>(
+    container,
+    APPLICATION_CONTROL_SELECTOR
+  );
   for (let index = 0; index < controls.length; index += 1) {
     const control = controls[index];
     if (!requiredControlNeedsUser(control, container)) continue;
@@ -830,6 +860,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       ...summarizePrefillOutcomes(outcomes),
       adapterId: adapter.id,
       remainingRecords: historyRemaining,
+      applicationScan: scanApplicationFields(container),
     };
     visual.finish(result, latestNotice);
     return result;
@@ -876,7 +907,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   }
 
   const profile = buildContactAutofillProfile(snapshot, resp.profile);
-  const controls = queryAllDeep<HTMLElement>(container, 'input, textarea, select');
+  const controls = queryAllDeep<HTMLElement>(
+    container,
+    APPLICATION_CONTROL_SELECTOR
+  );
   let filled = filledOutcomes.filter((outcome) => outcome.filled && (outcome.fieldGroup === 'experience' || outcome.fieldGroup === 'education')).length;
   const kinds: string[] = [
     ...(filledOutcomes.some((outcome) => outcome.filled && outcome.fieldGroup === 'experience') ? ['experience'] : []),
@@ -894,17 +928,28 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       : valueForKind(kind, profile);
     if (!value) continue; // we don't have this datum -> leave it blank
 
+    let changed = false;
     if (kind === 'skills' && (!isPlainSkillsControl(el) || !isFillable(el))) {
       continue; // tag editors/custom widgets require a tested ATS adapter
     } else if (isFillable(el)) {
       setNativeValue(el, value);
+      changed = true;
     } else if (isFillableSelect(el)) {
       const selectValue = matchingSelectValue(el, kind, value);
       if (!selectValue) continue; // never guess a dropdown option
       setNativeSelectValue(el, selectValue);
+      changed = true;
+    } else if (isCustomDropdownControl(el)) {
+      const selection = await selectSmartDropdown(
+        el,
+        value,
+        dropdownMatchKind(kind)
+      );
+      changed = selection.outcome === 'selected';
     } else {
       continue;
     }
+    if (!changed) continue;
     filled += 1;
     filledOutcomes.push({
       filled: true,

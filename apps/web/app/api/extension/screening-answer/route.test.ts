@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getUserId } from '@/lib/auth/getUserId';
 import { consumeAiGeneration } from '@/lib/ai-generation-limits';
 import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
+import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 
 import { POST } from './route';
 
@@ -16,6 +17,9 @@ vi.mock('@/lib/ai-generation-limits', () => ({
 }));
 vi.mock('@/lib/ai/generate-grounded-text', () => ({
   generateGroundedText: vi.fn(),
+}));
+vi.mock('@/lib/premium/user-plan-tier', () => ({
+  getActiveUserPlanTier: vi.fn(),
 }));
 
 const snapshot = {
@@ -57,8 +61,12 @@ describe('screening-answer sensitive-question boundary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getUserId).mockResolvedValue('user-1');
+    vi.mocked(getActiveUserPlanTier).mockResolvedValue('free');
     vi.mocked(consumeAiGeneration).mockResolvedValue({
       allowed: true,
+      quotaPeriod: 'month',
+      quotaLimit: 5,
+      quotaRemaining: 4,
       dailyLimit: 25,
       dailyRemaining: 24,
       itemRegenerationLimit: 3,
@@ -116,7 +124,11 @@ describe('screening-answer sensitive-question boundary', () => {
     expect(consumeAiGeneration).toHaveBeenCalledWith(
       'user-1',
       expect.stringMatching(/^screening:[a-f0-9]{64}:a{64}$/),
-      false
+      false,
+      {
+        feature: 'screening_answer',
+        planTier: 'free',
+      },
     );
   });
 
@@ -129,7 +141,11 @@ describe('screening-answer sensitive-question boundary', () => {
     expect(consumeAiGeneration).toHaveBeenCalledWith(
       'user-1',
       expect.any(String),
-      true
+      true,
+      {
+        feature: 'screening_answer',
+        planTier: 'free',
+      },
     );
   });
 

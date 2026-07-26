@@ -1,4 +1,9 @@
 import { flashAutofillField } from './autofill-visual-feedback';
+import {
+  CUSTOM_DROPDOWN_SELECTOR,
+  isCustomDropdownControl,
+  selectSmartDropdown,
+} from './smart-dropdown';
 
 export interface SensitiveAnswerSession {
   confirmed: boolean;
@@ -324,7 +329,7 @@ function normalized(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-function candidateMatches(candidate: string, answer: string): boolean {
+export function candidateMatches(candidate: string, answer: string): boolean {
   const optionText = normalized(candidate);
   if (answer === 'yes') {
     return /(?:^| )(?:yes|y|true|1)(?: |$)/.test(optionText);
@@ -438,42 +443,65 @@ function fillInput(
 }
 
 /**
- * Fill only native, empty controls from answers explicitly reviewed and
- * confirmed for this application session. The function never guesses values.
+ * Fill native controls and exact-match accessible dropdowns from answers
+ * explicitly reviewed and confirmed for this application session. The
+ * function never guesses values.
  */
-export function fillConfirmedSensitiveAnswers(
+export async function fillConfirmedSensitiveAnswers(
   root: ParentNode,
   answers: SensitiveAnswerSession
-): { filled: number; unresolved: SensitiveAnswerKind[] } {
+): Promise<{ filled: number; unresolved: SensitiveAnswerKind[] }> {
   if (!answers.confirmed) return { filled: 0, unresolved: [] };
   let filled = 0;
   const unresolved = new Set<SensitiveAnswerKind>();
   const controls = Array.from(
-    root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-      'input,textarea,select'
+    root.querySelectorAll<HTMLElement>(
+      `input,textarea,select,${CUSTOM_DROPDOWN_SELECTOR}`
     )
   );
   for (const control of controls) {
-    if (!visiblyAvailable(control) || control.disabled) continue;
+    if (control.parentElement?.closest(CUSTOM_DROPDOWN_SELECTOR)) continue;
+    if (
+      !visiblyAvailable(control) ||
+      ('disabled' in control && Boolean(control.disabled))
+    ) {
+      continue;
+    }
     const kind = classifySensitiveAnswer(labelFor(control));
     if (!kind) continue;
+    const isRequired =
+      control.hasAttribute('required') ||
+      control.getAttribute('aria-required') === 'true';
     const answer = answerFor(kind, answers);
     if (!answer) {
-      if (control.required || control.getAttribute('aria-required') === 'true') {
-        unresolved.add(kind);
-      }
+      if (isRequired) unresolved.add(kind);
       continue;
     }
     if (kind === 'eeoPreference' && answer !== 'prefer_not_to_answer') {
       continue;
     }
-    const changed =
-      control instanceof HTMLSelectElement
-        ? fillSelect(control, answer)
-        : fillInput(control, answer);
+    let changed = false;
+    if (isCustomDropdownControl(control)) {
+      const selection = await selectSmartDropdown(
+        control,
+        answer,
+        'generic',
+        candidateMatches
+      );
+      changed = selection.outcome === 'selected';
+    } else if (control instanceof HTMLSelectElement) {
+      changed = fillSelect(control, answer);
+    } else if (
+      control instanceof HTMLInputElement ||
+      control instanceof HTMLTextAreaElement
+    ) {
+      changed = fillInput(control, answer);
+    }
     if (changed) {
       filled += 1;
       flashAutofillField(control, 'filled');
+    } else if (isRequired) {
+      unresolved.add(kind);
     }
   }
   return { filled, unresolved: Array.from(unresolved) };

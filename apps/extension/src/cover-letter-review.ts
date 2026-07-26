@@ -2,15 +2,23 @@ import type {
   GeneratedCoverLetterAttachment,
   GeneratedResumeArtifactV1,
 } from './resume-autofill-contract';
+import {
+  formatAiAllowanceCopy,
+  remainingAiAllowance,
+} from './ai-allowance-copy';
 
 export interface CoverLetterLimitState {
   allowed: boolean;
+  quotaPeriod?: 'day' | 'month';
+  quotaLimit?: number;
+  quotaRemaining?: number;
   dailyLimit: number;
   dailyRemaining: number;
   itemRegenerationLimit: number;
   itemRegenerationsRemaining: number;
   error?:
     | 'ai_daily_limit_reached'
+    | 'ai_monthly_limit_reached'
     | 'ai_item_regeneration_limit_reached'
     | 'ai_rate_limited';
 }
@@ -124,13 +132,15 @@ export class CoverLetterReviewController {
 export interface CoverLetterReviewUiOptions {
   artifact: GeneratedResumeArtifactV1;
   jobDescription: string;
+  initialLimits?: CoverLetterLimitState;
   sendMessage(message: unknown): Promise<CoverLetterGenerationResult>;
   onArtifactUpdated(artifact: GeneratedResumeArtifactV1): void;
   download(attachment: GeneratedCoverLetterAttachment): void;
+  onUpgrade?: () => void;
 }
 
 function limitCopy(limits: CoverLetterLimitState): string {
-  return `You have ${limits.dailyRemaining} AI generations left today. ${limits.itemRegenerationsRemaining} of ${limits.itemRegenerationLimit} cover-letter regenerations remaining.`;
+  return `${formatAiAllowanceCopy(limits)} ${limits.itemRegenerationsRemaining} of ${limits.itemRegenerationLimit} cover-letter regenerations remaining.`;
 }
 
 /** Mounts the non-blocking cover-letter action beneath the Resume ready state. */
@@ -180,16 +190,32 @@ export function mountCoverLetterReviewUi(
     if (state.error) {
       const error = document.createElement('div');
       error.setAttribute('role', 'alert');
-      error.textContent = state.error;
+      const monthlyLimitReached =
+        state.error === 'ai_monthly_limit_reached';
+      error.textContent = monthlyLimitReached
+        ? 'Your Free cover-letter allowance is used for this month.'
+        : state.error;
       error.style.cssText = 'margin-top:6px;font-size:11px;color:#b91c1c;';
       root.appendChild(error);
+      if (monthlyLimitReached && options.onUpgrade) {
+        const upgrade = document.createElement('button');
+        upgrade.type = 'button';
+        upgrade.textContent = 'Upgrade to Pro';
+        upgrade.style.cssText =
+          'margin-top:7px;padding:6px 9px;border:0;border-radius:7px;background:var(--tmo-widget-accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer;';
+        upgrade.addEventListener('click', options.onUpgrade);
+        root.appendChild(upgrade);
+      }
     }
 
     if (state.phase === 'ready' || state.phase === 'error') {
       const generate = document.createElement('button');
       generate.type = 'button';
       generate.textContent = artifact.coverLetter ? 'Regenerate cover letter' : 'Generate cover letter';
-      generate.disabled = !state.limits.allowed || state.limits.dailyRemaining <= 0 || state.limits.itemRegenerationsRemaining <= 0;
+      generate.disabled =
+        !state.limits.allowed ||
+        remainingAiAllowance(state.limits) <= 0 ||
+        state.limits.itemRegenerationsRemaining <= 0;
       generate.style.cssText = 'margin-top:7px;padding:6px 9px;border:0;border-radius:7px;background:var(--tmo-widget-accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer;';
       generate.addEventListener('click', () => void controller.generate());
       root.appendChild(generate);
@@ -246,6 +272,12 @@ export function mountCoverLetterReviewUi(
   };
 
   const controller = new CoverLetterReviewController(deps, render);
+  if (options.initialLimits) {
+    controller.state = {
+      ...controller.state,
+      limits: options.initialLimits,
+    };
+  }
   if (artifact.coverLetter) {
     controller.state = {
       ...controller.state,

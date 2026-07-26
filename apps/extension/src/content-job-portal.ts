@@ -80,6 +80,12 @@ import { detectScreeningQuestion } from './screening-question-drafts';
 import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
 import {
+  FREE_AUTOFILL_PLAN_ENTITLEMENTS,
+  resolveAutofillPlanEntitlements,
+  type AutofillPlanEntitlements,
+  type AutofillPlanTier,
+} from './autofill-plan-entitlements';
+import {
   buildPrefillTelemetryProperties,
   type PrefillArtifactStateReason,
   type PrefillSourceType,
@@ -95,6 +101,7 @@ import {
   normalizeSensitiveAnswerSession,
   type SensitiveAnswerSession,
 } from './sensitive-autofill';
+import { scanApplicationFields } from './application-field-scan';
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
@@ -135,6 +142,9 @@ let lastResumeGenerationRequest: LastResumeGenerationRequest | null = null;
 let regenerationRecheckPending = false;
 let latestJobFitScore: { jobFingerprint: string; score: number } | null = null;
 let currentAutofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
+let currentPlanEntitlements: Readonly<AutofillPlanEntitlements> =
+  FREE_AUTOFILL_PLAN_ENTITLEMENTS;
+let widgetViewportResizeObserver: ResizeObserver | null = null;
 // Sensitive answers become usable only after review in this page's panel. The
 // confirmed copy stays in content-script memory and never enters AI/analytics.
 let sensitiveAnswerSession: SensitiveAnswerSession = { confirmed: false };
@@ -201,7 +211,7 @@ function createSensitiveAnswerPanel(): HTMLElement {
     'width:100%;padding:0;border:0;background:transparent;color:var(--tmo-widget-ink);font:inherit;font-size:11px;font-weight:800;text-align:left;cursor:pointer;';
   const body = document.createElement('div');
   body.hidden = true;
-  body.style.cssText = 'display:grid;gap:7px;margin-top:8px;';
+  body.style.cssText = 'display:none;gap:7px;margin-top:8px;';
   const note = document.createElement('p');
   note.textContent =
     'Saved answers load here for review. TrackMyOPT never asks AI to guess them, never includes them in analytics, and never submits the application.';
@@ -782,10 +792,12 @@ async function executeResolvedPrefill(
     },
   }).catch(() => {});
   const result = await runPrefill(prefill);
-  const sensitive = fillConfirmedSensitiveAnswers(
-    findApplicationForm() ?? document,
+  const applicationRoot = findApplicationForm() ?? document;
+  const sensitive = await fillConfirmedSensitiveAnswers(
+    applicationRoot,
     sensitiveAnswerSession
   );
+  result.applicationScan = scanApplicationFields(applicationRoot);
   if (sensitive.unresolved.length > 0) {
     if (
       AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
@@ -855,13 +867,105 @@ function paintPrefillCoverage(
   result: PrefillCoverageResult,
 ): void {
   line.textContent = '';
-  if (result.total === 0) {
+  const scan = result.applicationScan;
+  const scannedFieldCount =
+    (scan?.requiredTotal ?? 0) + (scan?.optionalTotal ?? 0);
+  if (result.total === 0 && scannedFieldCount === 0) {
     line.style.display = 'none';
     return;
   }
-  line.style.display = 'flex';
+  line.style.display = 'block';
+
+  if (scan && scannedFieldCount > 0) {
+    const scanHeader = document.createElement('div');
+    scanHeader.style.cssText =
+      'display:flex;align-items:flex-start;justify-content:space-between;gap:10px;color:var(--tmo-widget-text);';
+    const scanTitle = document.createElement('strong');
+    scanTitle.textContent = 'TrackMyOPT scanned this page';
+    scanTitle.style.cssText = 'font-size:12px;line-height:1.35;';
+    const percent = document.createElement('strong');
+    percent.textContent = `${scan.requiredPercent}%`;
+    percent.style.cssText =
+      `font-size:12px;color:${scan.unansweredRequired === 0 ? '#047857' : '#b45309'};`;
+    scanHeader.append(scanTitle, percent);
+    line.appendChild(scanHeader);
+
+    const count = document.createElement('div');
+    count.textContent =
+      `${scan.requiredFilled}/${scan.requiredTotal} required fields filled`;
+    count.style.cssText =
+      'margin-top:3px;color:var(--tmo-widget-muted);font-size:11.5px;';
+    line.appendChild(count);
+
+    const track = document.createElement('div');
+    track.setAttribute('role', 'progressbar');
+    track.setAttribute('aria-valuemin', '0');
+    track.setAttribute('aria-valuemax', '100');
+    track.setAttribute('aria-valuenow', String(scan.requiredPercent));
+    track.setAttribute(
+      'aria-label',
+      `${scan.requiredFilled} of ${scan.requiredTotal} required fields filled`
+    );
+    track.style.cssText =
+      'height:6px;margin-top:7px;overflow:hidden;border-radius:999px;background:#dbe4f0;';
+    const fill = document.createElement('div');
+    fill.style.cssText =
+      `height:100%;width:${scan.requiredPercent}%;border-radius:inherit;background:` +
+      (scan.unansweredRequired === 0
+        ? 'linear-gradient(90deg,#10b981,#059669);'
+        : 'linear-gradient(90deg,#2563eb,#0ea5e9);');
+    track.appendChild(fill);
+    line.appendChild(track);
+
+    const appendFieldGroup = (
+      title: string,
+      fields: typeof scan.required
+    ) => {
+      if (fields.length === 0) return;
+      const details = document.createElement('details');
+      details.style.cssText =
+        'margin-top:7px;border-top:1px solid var(--tmo-widget-border);padding-top:6px;';
+      const detailsSummary = document.createElement('summary');
+      detailsSummary.textContent = `${title} (${fields.length})`;
+      detailsSummary.style.cssText =
+        'cursor:pointer;color:var(--tmo-widget-text);font-weight:800;';
+      details.appendChild(detailsSummary);
+      const list = document.createElement('div');
+      list.style.cssText =
+        'display:grid;gap:4px;margin-top:6px;max-height:154px;overflow:auto;padding-right:2px;';
+      for (const field of fields) {
+        const item = document.createElement('div');
+        item.style.cssText =
+          'display:flex;align-items:flex-start;justify-content:space-between;gap:8px;';
+        const label = document.createElement('span');
+        label.textContent = field.label;
+        label.style.cssText =
+          'min-width:0;overflow-wrap:anywhere;color:var(--tmo-widget-text);';
+        const state = document.createElement('span');
+        state.textContent = field.filled
+          ? '✓ Filled'
+          : field.required
+            ? 'Needs you'
+            : 'Optional';
+        state.style.cssText =
+          `flex:0 0 auto;font-weight:800;color:${
+            field.filled ? '#047857' : field.required ? '#b45309' : 'var(--tmo-widget-muted)'
+          };`;
+        item.append(label, state);
+        list.appendChild(item);
+      }
+      details.appendChild(list);
+      line.appendChild(details);
+    };
+
+    appendFieldGroup('Required', scan.required);
+    appendFieldGroup('Optional', scan.optional);
+  }
+
   const summary = document.createElement('span');
   summary.textContent = formatPrefillCoverageSummary(result);
+  summary.style.cssText =
+    `display:block;${scan && scannedFieldCount > 0 ? 'margin-top:7px;' : ''}`;
   line.appendChild(summary);
   if (result.skipped > 0 && result.firstSkippedSelector) {
     const jump = document.createElement('button');
@@ -908,7 +1012,18 @@ async function mountScreeningQuestionReviews(
     }).catch(() => null) as { answer?: import('./screening-question-drafts').SavedScreeningAnswer } | null;
     host.appendChild(createScreeningQuestionReviewUI({
       question: eligible,
-      limits: { dailyRemaining: 25, itemRegenerationsRemaining: 3, itemRegenerationLimit: 3 },
+      limits: {
+        quotaPeriod: currentPlanEntitlements.planTier === 'free'
+          ? 'month'
+          : 'day',
+        quotaLimit:
+          currentPlanEntitlements.screeningDraftsMonthlyLimit ?? 25,
+        quotaRemaining:
+          currentPlanEntitlements.screeningDraftsMonthlyLimit ?? 25,
+        dailyRemaining: 25,
+        itemRegenerationsRemaining: 3,
+        itemRegenerationLimit: 3,
+      },
       savedAnswer: savedResponse?.answer,
       generateDraft: async (regenerate) => {
         const response = await chrome.runtime.sendMessage({
@@ -922,11 +1037,23 @@ async function mountScreeningQuestionReviews(
           companyName: job.company_name || '',
           roleTitle: job.role_title || '',
           regenerate,
-        }) as { draft?: string; dailyRemaining?: number; itemRegenerationsRemaining?: number; itemRegenerationLimit?: number; error?: string };
+        }) as {
+          draft?: string;
+          quotaPeriod?: 'day' | 'month';
+          quotaLimit?: number;
+          quotaRemaining?: number;
+          dailyRemaining?: number;
+          itemRegenerationsRemaining?: number;
+          itemRegenerationLimit?: number;
+          error?: string;
+        };
         if (!response?.draft) throw new Error(response?.error || 'Draft generation failed');
         return {
           draft: response.draft,
           limits: {
+            quotaPeriod: response.quotaPeriod,
+            quotaLimit: response.quotaLimit,
+            quotaRemaining: response.quotaRemaining,
             dailyRemaining: response.dailyRemaining ?? 0,
             itemRegenerationsRemaining: response.itemRegenerationsRemaining ?? 0,
             itemRegenerationLimit: response.itemRegenerationLimit ?? 3,
@@ -951,6 +1078,9 @@ async function mountScreeningQuestionReviews(
       },
       onDeleteSavedAnswer: async (questionHash) => {
         await chrome.runtime.sendMessage({ type: 'DELETE_SCREENING_ANSWER', questionHash });
+      },
+      onUpgrade: () => {
+        window.open(API_ENDPOINTS.PRICING, '_blank', 'noopener,noreferrer');
       },
     }));
   }
@@ -2151,7 +2281,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const card = document.createElement('div');
   card.className = 'tmo-job-widget-card';
   card.style.cssText = `
-    width: min(320px, calc(100vw - 20px)); background:var(--tmo-widget-surface);
+    display:flex;flex-direction:column;width:min(320px,calc(100vw - 20px));
+    max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);background:var(--tmo-widget-surface);
     border:1px solid var(--tmo-widget-border);border-right:none;border-radius:14px 0 0 14px;
     box-shadow:var(--tmo-widget-shadow);overflow:hidden;color:var(--tmo-widget-ink);
   `;
@@ -2162,7 +2293,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     display: flex; align-items: center; gap: 8px;
     padding: 10px 10px 10px 12px;
     background:var(--tmo-widget-info-surface);border-bottom:1px solid var(--tmo-widget-info-border);
-    cursor: grab; user-select: none;
+    cursor: grab; user-select: none; flex:0 0 auto;
   `;
   const logoRing = document.createElement('div');
   logoRing.style.cssText = `
@@ -2512,6 +2643,14 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
 
   // Normal content (job info + actions + feedback link) — hidden while Settings is open.
   const normalBody = document.createElement('div');
+  normalBody.className = 'tmo-job-widget-scroll-body';
+  normalBody.setAttribute('role', 'group');
+  normalBody.setAttribute('aria-label', 'Job assistant tools');
+  normalBody.style.cssText = `
+    flex:1 1 auto;min-height:0;max-height:calc(100vh - 72px);max-height:calc(100dvh - 72px);
+    overflow-x:hidden;overflow-y:auto;
+    overscroll-behavior:contain;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;
+  `;
   normalBody.appendChild(jobLine);
   normalBody.appendChild(actions);
   normalBody.appendChild(optClockRow);
@@ -2530,7 +2669,12 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
 
   // ---- Settings panel ("Default plugin view": Expanded / Minimized) ----
   const settingsPanel = document.createElement('div');
-  settingsPanel.style.cssText = 'display:none;padding:14px 12px 16px;';
+  settingsPanel.style.cssText = `
+    display:none;flex:1 1 auto;min-height:0;max-height:calc(100vh - 72px);
+    max-height:calc(100dvh - 72px);padding:14px 12px 16px;
+    overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;
+  `;
 
   const settingsLabelRow = document.createElement('div');
   settingsLabelRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
@@ -2790,6 +2934,12 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     saveWidgetPosition(nextTop);
   };
   window.addEventListener('resize', clampWidgetToViewport, { passive: true });
+  widgetViewportResizeObserver?.disconnect();
+  widgetViewportResizeObserver = new ResizeObserver(() => {
+    if (!root.isConnected) return;
+    clampWidgetToViewport();
+  });
+  widgetViewportResizeObserver.observe(card);
 
   // ---- actions ----
   prefillBtn.addEventListener('click', () => {
@@ -4143,6 +4293,19 @@ function renderResumeResult(
     mountCoverLetterReviewUi(panel, {
       artifact,
       jobDescription: lastResumeGenerationRequest?.jobDescription || '',
+      initialLimits: {
+        allowed: true,
+        quotaPeriod: currentPlanEntitlements.planTier === 'free'
+          ? 'month'
+          : 'day',
+        quotaLimit: currentPlanEntitlements.coverLettersMonthlyLimit ?? 25,
+        quotaRemaining:
+          currentPlanEntitlements.coverLettersMonthlyLimit ?? 25,
+        dailyLimit: 25,
+        dailyRemaining: 25,
+        itemRegenerationLimit: 3,
+        itemRegenerationsRemaining: 3,
+      },
       sendMessage: (message) => new Promise((resolve) => {
         chrome.runtime.sendMessage(message, (response) => {
           if (chrome.runtime.lastError) {
@@ -4154,6 +4317,9 @@ function renderResumeResult(
       }),
       onArtifactUpdated: setCurrentGeneratedArtifact,
       download: (attachment) => downloadGeneratedPdf(attachment.base64, attachment.filename),
+      onUpgrade: () => {
+        window.open(API_ENDPOINTS.PRICING, '_blank', 'noopener,noreferrer');
+      },
     });
   }
   addResumePanelDismiss(panel);
@@ -4529,6 +4695,7 @@ function stopContinuousPrefill(): void {
 function paintGuidedStateUi(): void {
   const active =
     AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
+    currentPlanEntitlements.guidedAutopilot &&
     currentAutofillPreferences.guidedAutopilot;
   for (const host of Array.from(
     document.querySelectorAll<HTMLElement>('.tmo-guided-status')
@@ -4581,6 +4748,7 @@ function paintGuidedNavigationResult(result: GuidedNavigationResult): void {
 function scheduleGuidedNavigation(): void {
   if (
     !AUTOFILL_FEATURE_FLAGS.guidedAutopilot ||
+    !currentPlanEntitlements.guidedAutopilot ||
     !currentAutofillPreferences.guidedAutopilot
   ) {
     return;
@@ -4595,14 +4763,20 @@ function scheduleGuidedNavigation(): void {
     guidedNavigationTimer = null;
     if (!currentAutofillPreferences.guidedAutopilot) return;
     paintGuidedNavigationResult(
-      runGuidedNavigation(document, guidedClickedControls)
+      runGuidedNavigation(
+        findApplicationForm() ?? document,
+        guidedClickedControls
+      )
     );
   }, 1_200);
 }
 
 async function runContinuousPrefill(): Promise<void> {
   continuousPrefillTimer = null;
-  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
+  if (
+    !AUTOFILL_FEATURE_FLAGS.continuousMode ||
+    !currentPlanEntitlements.continuousMode
+  ) return;
   const signature = getPrefillCandidateSignature();
   if (!shouldRunContinuousPrefill({
     mode: currentAutofillPreferences.mode,
@@ -4654,7 +4828,10 @@ async function runContinuousPrefill(): Promise<void> {
 }
 
 function scheduleContinuousPrefill(): void {
-  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
+  if (
+    !AUTOFILL_FEATURE_FLAGS.continuousMode ||
+    !currentPlanEntitlements.continuousMode
+  ) return;
   if (currentAutofillPreferences.mode !== 'continuous') return;
   if (continuousPrefillInFlight) {
     continuousMutationPending = true;
@@ -4669,7 +4846,10 @@ function scheduleContinuousPrefill(): void {
 
 function startContinuousPrefill(): void {
   stopContinuousPrefill();
-  if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
+  if (
+    !AUTOFILL_FEATURE_FLAGS.continuousMode ||
+    !currentPlanEntitlements.continuousMode
+  ) return;
   if (currentAutofillPreferences.mode !== 'continuous') return;
   if (!document.body) {
     document.addEventListener('DOMContentLoaded', startContinuousPrefill, { once: true });
@@ -4688,9 +4868,23 @@ function startContinuousPrefill(): void {
 
 async function initializeAutofillPreferences(): Promise<void> {
   try {
+    const response = (await chrome.runtime.sendMessage({
+      type: 'GET_AUTOFILL_ENTITLEMENTS',
+    })) as { planTier?: AutofillPlanTier } | undefined;
+    const planTier: AutofillPlanTier =
+      response?.planTier === 'pro' || response?.planTier === 'dedicated'
+        ? response.planTier
+        : 'free';
+    currentPlanEntitlements = resolveAutofillPlanEntitlements(planTier);
+  } catch {
+    currentPlanEntitlements = FREE_AUTOFILL_PLAN_ENTITLEMENTS;
+  }
+  try {
     const stored = await chrome.storage.sync.get(AUTOFILL_PREFERENCES_KEY);
     currentAutofillPreferences = normalizeAutofillPreferences(
       stored[AUTOFILL_PREFERENCES_KEY],
+      AUTOFILL_FEATURE_FLAGS,
+      currentPlanEntitlements,
     );
   } catch {
     currentAutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
@@ -4698,6 +4892,7 @@ async function initializeAutofillPreferences(): Promise<void> {
   paintGuidedStateUi();
   if (
     AUTOFILL_FEATURE_FLAGS.continuousMode &&
+    currentPlanEntitlements.continuousMode &&
     currentAutofillPreferences.mode === 'continuous'
   )
     startContinuousPrefill();
@@ -4707,10 +4902,13 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== 'sync' || !changes[AUTOFILL_PREFERENCES_KEY]) return;
   currentAutofillPreferences = normalizeAutofillPreferences(
     changes[AUTOFILL_PREFERENCES_KEY].newValue,
+    AUTOFILL_FEATURE_FLAGS,
+    currentPlanEntitlements,
   );
   paintGuidedStateUi();
   if (
     AUTOFILL_FEATURE_FLAGS.continuousMode &&
+    currentPlanEntitlements.continuousMode &&
     currentAutofillPreferences.mode === 'continuous'
   )
     startContinuousPrefill();
@@ -4745,6 +4943,8 @@ function extAlive(): boolean {
 /** Stop every timer/observer and remove the widget (used when the context dies). */
 function teardownWidgetRuntime() {
   stopContinuousPrefill();
+  widgetViewportResizeObserver?.disconnect();
+  widgetViewportResizeObserver = null;
   if (_spaObserver) {
     _spaObserver.disconnect();
     _spaObserver = null;
@@ -4831,6 +5031,8 @@ function startEarlyRetryLoop() {
 // Cleanup on page unload (navigation away in non-SPA contexts).
 window.addEventListener('pagehide', () => {
   stopContinuousPrefill();
+  widgetViewportResizeObserver?.disconnect();
+  widgetViewportResizeObserver = null;
   if (_spaObserver) { _spaObserver.disconnect(); _spaObserver = null; }
   if (_earlyRetryId !== null) { window.clearInterval(_earlyRetryId); _earlyRetryId = null; }
   if (injectDebounceTimer) { clearTimeout(injectDebounceTimer); injectDebounceTimer = null; }
@@ -4909,9 +5111,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     quietResultToast: prefill.quietResultToast === true,
     quietIfNoForm: true,
   })
-    .then(() => {
+    .then(async () => {
       if (sensitiveAnswers) {
-        fillConfirmedSensitiveAnswers(
+        await fillConfirmedSensitiveAnswers(
           findApplicationForm() ?? document,
           sensitiveAnswers
         );

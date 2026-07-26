@@ -1,3 +1,5 @@
+import { scanApplicationFields } from './application-field-scan';
+
 export type GuidedNavigationOutcome =
   | 'advanced'
   | 'stopped_final_step'
@@ -54,50 +56,10 @@ function visiblyAvailable(element: HTMLElement): boolean {
   return true;
 }
 
-function inputHasValue(input: HTMLInputElement | HTMLTextAreaElement): boolean {
-  if (input instanceof HTMLInputElement) {
-    if (input.type === 'checkbox') return input.checked;
-    if (input.type === 'radio') {
-      const group = input.form ?? document;
-      const escapedName =
-        typeof CSS !== 'undefined' && CSS.escape
-          ? CSS.escape(input.name)
-          : input.name.replace(/["\\]/g, '\\$&');
-      return Boolean(
-        input.name &&
-          group.querySelector<HTMLInputElement>(
-            `input[type="radio"][name="${escapedName}"]:checked`
-          )
-      );
-    }
-    if (input.type === 'file') return Boolean(input.files?.length);
-  }
-  return input.value.trim().length > 0;
-}
-
 export function countVisibleUnansweredRequiredFields(
   root: ParentNode = document
 ): number {
-  const controls = Array.from(
-    root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-      'input[required],textarea[required],select[required],[aria-required="true"]'
-    )
-  );
-  const countedRadioNames = new Set<string>();
-  let count = 0;
-  for (const control of controls) {
-    if (!visiblyAvailable(control)) continue;
-    if (control instanceof HTMLSelectElement) {
-      if (!control.value.trim()) count += 1;
-      continue;
-    }
-    if (control instanceof HTMLInputElement && control.type === 'radio') {
-      if (countedRadioNames.has(control.name)) continue;
-      countedRadioNames.add(control.name);
-    }
-    if (!inputHasValue(control)) count += 1;
-  }
-  return count;
+  return scanApplicationFields(root).unansweredRequired;
 }
 
 export function runGuidedNavigation(

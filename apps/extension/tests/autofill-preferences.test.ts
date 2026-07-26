@@ -4,6 +4,7 @@ import {
   normalizeAutofillPreferences,
 } from '../src/autofill-preferences';
 import { resolveAutofillFeatureFlags } from '../src/autofill-feature-flags';
+import { resolveAutofillPlanEntitlements } from '../src/autofill-plan-entitlements';
 
 assert.deepEqual(DEFAULT_AUTOFILL_PREFERENCES, {
   mode: 'step_by_step',
@@ -13,7 +14,7 @@ assert.deepEqual(DEFAULT_AUTOFILL_PREFERENCES, {
 
 assert.deepEqual(normalizeAutofillPreferences(undefined), DEFAULT_AUTOFILL_PREFERENCES);
 assert.deepEqual(normalizeAutofillPreferences({ mode: 'continuous', autofillSkills: true }), {
-  mode: 'continuous',
+  mode: 'step_by_step',
   autofillSkills: true,
   guidedAutopilot: false,
 });
@@ -24,13 +25,30 @@ assert.deepEqual(
       continuousMode: true,
       skills: true,
       guidedAutopilot: true,
-    })
+    }),
+    resolveAutofillPlanEntitlements('pro'),
   ),
   {
   mode: 'continuous',
   autofillSkills: true,
   guidedAutopilot: true,
   }
+);
+assert.deepEqual(
+  normalizeAutofillPreferences(
+    { mode: 'continuous', autofillSkills: true, guidedAutopilot: true },
+    resolveAutofillFeatureFlags({
+      continuousMode: true,
+      skills: true,
+      guidedAutopilot: true,
+    }),
+    resolveAutofillPlanEntitlements('free'),
+  ),
+  {
+    mode: 'step_by_step',
+    autofillSkills: true,
+    guidedAutopilot: false,
+  },
 );
 assert.deepEqual(normalizeAutofillPreferences({ mode: 'always', autofillSkills: 'yes' }), {
   mode: 'step_by_step',

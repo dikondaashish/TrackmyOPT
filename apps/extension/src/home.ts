@@ -9,6 +9,12 @@ import {
   type AutofillPreferences,
 } from './autofill-preferences';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+import {
+  FREE_AUTOFILL_PLAN_ENTITLEMENTS,
+  resolveAutofillPlanEntitlements,
+  resolveAutofillPlanTier,
+  type AutofillPlanEntitlements,
+} from './autofill-plan-entitlements';
 
 /** Escape untrusted values before interpolating them into innerHTML. */
 function escapeHtml(value: unknown): string {
@@ -36,10 +42,13 @@ function showTransientLabel(label: HTMLElement, message: string, original: strin
  * Renders the signed-in home screen with tool tiles
  */
 export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
+  let storedAutofillPreferences: unknown;
   let autofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
+  let planEntitlements: Readonly<AutofillPlanEntitlements> =
+    FREE_AUTOFILL_PLAN_ENTITLEMENTS;
   try {
     const stored = await chrome.storage.sync.get(AUTOFILL_PREFERENCES_KEY);
-    autofillPreferences = normalizeAutofillPreferences(stored[AUTOFILL_PREFERENCES_KEY]);
+    storedAutofillPreferences = stored[AUTOFILL_PREFERENCES_KEY];
   } catch {
     // Safe defaults remain active if preferences cannot be read.
   }
@@ -84,9 +93,17 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       const badgeClass = plan === 'DEDICATED' ? 'badge-dedicated' : 'badge-pro';
       planBadge = `<span class="plan-badge ${badgeClass}">${escapeHtml(plan)}</span>`;
     }
+    planEntitlements = resolveAutofillPlanEntitlements(
+      resolveAutofillPlanTier(data),
+    );
   } catch (err) {
     console.error('Failed to fetch premium status for extension', err);
   }
+  autofillPreferences = normalizeAutofillPreferences(
+    storedAutofillPreferences,
+    AUTOFILL_FEATURE_FLAGS,
+    planEntitlements,
+  );
 
   try {
     const idToken = await getIdToken();
@@ -203,7 +220,10 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         <div class="prefill-setting-heading">Prefill mode</div>
         <div class="prefill-mode-toggle" role="group" aria-label="Prefill mode">
           <button type="button" id="prefill-mode-step" aria-pressed="false">Step-by-step</button>
-          <button type="button" id="prefill-mode-continuous" aria-pressed="false">Continuous</button>
+          <button type="button" id="prefill-mode-continuous" aria-pressed="false">
+            Continuous
+            ${planEntitlements.continuousMode ? '' : '<span class="pro-lock-badge">PRO</span>'}
+          </button>
         </div>
         <label class="prefill-skills-toggle">
           <input type="checkbox" id="autofill-skills-toggle">
@@ -212,14 +232,19 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
             <small>Off by default · uses only this job's generated resume</small>
           </span>
         </label>
-        <label class="prefill-skills-toggle">
+        <label class="prefill-skills-toggle" id="guided-autopilot-label">
           <input type="checkbox" id="guided-autopilot-toggle">
           <span>
-            <b>Guided Autopilot</b>
+            <b>Guided Autopilot ${planEntitlements.guidedAutopilot ? '' : '<span class="pro-lock-badge">PRO</span>'}</b>
             <small>Fills each step and clicks safe Next/Done buttons · never Submit</small>
           </span>
         </label>
         <p class="prefill-mode-note" id="prefill-mode-note" role="status" aria-live="polite"></p>
+        ${planEntitlements.continuousMode ? '' : `
+          <button type="button" class="prefill-upgrade" id="prefill-upgrade-btn">
+            Upgrade to Pro for Continuous + Guided Autopilot
+          </button>
+        `}
       </div>
     </div>
 
@@ -340,6 +365,8 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   const continuousModeBtn = root.querySelector<HTMLButtonElement>('#prefill-mode-continuous');
   const skillsToggle = root.querySelector<HTMLInputElement>('#autofill-skills-toggle');
   const guidedToggle = root.querySelector<HTMLInputElement>('#guided-autopilot-toggle');
+  const guidedToggleLabel = root.querySelector<HTMLElement>('#guided-autopilot-label');
+  const upgradePrefillButton = root.querySelector<HTMLButtonElement>('#prefill-upgrade-btn');
   const skillsToggleLabel = root.querySelector<HTMLElement>(
     '.prefill-skills-toggle'
   );
@@ -369,7 +396,9 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     if (skillsToggle) skillsToggle.checked = autofillPreferences.autofillSkills;
     if (guidedToggle) guidedToggle.checked = autofillPreferences.guidedAutopilot;
     if (modeNote) {
-      modeNote.textContent = autofillPreferences.guidedAutopilot
+      modeNote.textContent = !planEntitlements.continuousMode
+        ? 'Step-by-step and Skills are free. Continuous filling and Guided Autopilot are included with Pro.'
+        : autofillPreferences.guidedAutopilot
         ? 'Guided Autopilot fills and advances safe steps. It stops before Review/Submit; press Escape to stop anytime.'
         : continuous
         ? 'Fills each new step as it loads. You control all navigation.'
@@ -378,7 +407,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   };
 
   const saveAutofillPreferences = async (next: AutofillPreferences) => {
-    autofillPreferences = normalizeAutofillPreferences(next);
+    autofillPreferences = normalizeAutofillPreferences(
+      next,
+      AUTOFILL_FEATURE_FLAGS,
+      planEntitlements,
+    );
     paintAutofillPreferences();
     await chrome.storage.sync.set({
       [AUTOFILL_PREFERENCES_KEY]: autofillPreferences,
@@ -393,11 +426,24 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     });
   });
   continuousModeBtn?.addEventListener('click', () => {
-    if (!AUTOFILL_FEATURE_FLAGS.continuousMode) return;
+    if (
+      !AUTOFILL_FEATURE_FLAGS.continuousMode ||
+      !planEntitlements.continuousMode
+    ) {
+      void chrome.tabs.create({ url: API_ENDPOINTS.PRICING });
+      return;
+    }
     void saveAutofillPreferences({ ...autofillPreferences, mode: 'continuous' });
   });
   guidedToggle?.addEventListener('change', () => {
-    if (!AUTOFILL_FEATURE_FLAGS.guidedAutopilot) return;
+    if (
+      !AUTOFILL_FEATURE_FLAGS.guidedAutopilot ||
+      !planEntitlements.guidedAutopilot
+    ) {
+      guidedToggle.checked = false;
+      void chrome.tabs.create({ url: API_ENDPOINTS.PRICING });
+      return;
+    }
     void saveAutofillPreferences({
       ...autofillPreferences,
       mode: guidedToggle.checked ? 'continuous' : autofillPreferences.mode,
@@ -410,6 +456,13 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       ...autofillPreferences,
       autofillSkills: skillsToggle.checked,
     });
+  });
+  guidedToggleLabel?.classList.toggle(
+    'is-plan-locked',
+    !planEntitlements.guidedAutopilot,
+  );
+  upgradePrefillButton?.addEventListener('click', () => {
+    void chrome.tabs.create({ url: API_ENDPOINTS.PRICING });
   });
   paintAutofillPreferences();
 

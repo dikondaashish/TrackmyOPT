@@ -4,14 +4,24 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export const AI_DAILY_GENERATION_LIMIT = 25;
 export const AI_ITEM_REGENERATION_LIMIT = 3;
+export const FREE_SCREENING_DRAFTS_MONTHLY_LIMIT = 5;
+export const FREE_COVER_LETTERS_MONTHLY_LIMIT = 1;
+
+export type AiGenerationFeature = 'screening_answer' | 'cover_letter';
+export type AiGenerationPlanTier = 'free' | 'pro' | 'dedicated';
+export type AiGenerationQuotaPeriod = 'day' | 'month';
 
 export type AiGenerationLimitError =
   | 'ai_daily_limit_reached'
+  | 'ai_monthly_limit_reached'
   | 'ai_item_regeneration_limit_reached'
   | 'ai_rate_limited';
 
 export interface AiGenerationLimitState {
   allowed: boolean;
+  quotaPeriod: AiGenerationQuotaPeriod;
+  quotaLimit: number;
+  quotaRemaining: number;
   dailyLimit: number;
   dailyRemaining: number;
   itemRegenerationLimit: number;
@@ -35,10 +45,15 @@ export interface AiGenerationQuotaRpcClient {
 export interface AiGenerationLimitDependencies {
   client?: AiGenerationQuotaRpcClient;
   now?: Date;
+  feature: AiGenerationFeature;
+  planTier: AiGenerationPlanTier;
 }
 
 type QuotaRpcRow = {
   allowed?: unknown;
+  quota_period?: unknown;
+  quota_limit?: unknown;
+  quota_remaining?: unknown;
   daily_limit?: unknown;
   daily_remaining?: unknown;
   item_regeneration_limit?: unknown;
@@ -51,6 +66,14 @@ export function nextAiGenerationResetAt(now: Date = new Date()): string {
   const reset = new Date(now);
   reset.setUTCHours(24, 0, 0, 0);
   return reset.toISOString();
+}
+
+export function nextMonthlyAiGenerationResetAt(
+  now: Date = new Date(),
+): string {
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
+  ).toISOString();
 }
 
 function boundedInteger(
@@ -71,6 +94,7 @@ function normalizedResetAt(value: unknown, fallback: string): string {
 function normalizedError(value: unknown): AiGenerationLimitError {
   if (
     value === 'ai_daily_limit_reached' ||
+    value === 'ai_monthly_limit_reached' ||
     value === 'ai_item_regeneration_limit_reached'
   ) {
     return value;
@@ -78,9 +102,16 @@ function normalizedError(value: unknown): AiGenerationLimitError {
   return 'ai_rate_limited';
 }
 
-function failClosed(resetAt: string): AiGenerationLimitState {
+function failClosed(
+  resetAt: string,
+  quotaPeriod: AiGenerationQuotaPeriod = 'day',
+  quotaLimit = AI_DAILY_GENERATION_LIMIT,
+): AiGenerationLimitState {
   return {
     allowed: false,
+    quotaPeriod,
+    quotaLimit,
+    quotaRemaining: 0,
     dailyLimit: AI_DAILY_GENERATION_LIMIT,
     dailyRemaining: 0,
     itemRegenerationLimit: AI_ITEM_REGENERATION_LIMIT,
@@ -92,20 +123,48 @@ function failClosed(resetAt: string): AiGenerationLimitState {
 
 export function normalizeAiGenerationQuotaResult(
   data: unknown,
-  fallbackResetAt: string
+  fallbackResetAt: string,
+  fallbackQuotaPeriod: AiGenerationQuotaPeriod = 'day',
+  fallbackQuotaLimit = AI_DAILY_GENERATION_LIMIT,
 ): AiGenerationLimitState {
   const candidate = Array.isArray(data) ? data[0] : data;
   if (!candidate || typeof candidate !== 'object') {
-    return failClosed(fallbackResetAt);
+    return failClosed(
+      fallbackResetAt,
+      fallbackQuotaPeriod,
+      fallbackQuotaLimit,
+    );
   }
   const row = candidate as QuotaRpcRow;
   if (typeof row.allowed !== 'boolean') {
-    return failClosed(fallbackResetAt);
+    return failClosed(
+      fallbackResetAt,
+      fallbackQuotaPeriod,
+      fallbackQuotaLimit,
+    );
   }
 
   const allowed = row.allowed;
+  const quotaPeriod: AiGenerationQuotaPeriod =
+    row.quota_period === 'month'
+      ? 'month'
+      : row.quota_period === 'day'
+        ? 'day'
+        : fallbackQuotaPeriod;
+  const quotaLimit = boundedInteger(
+    row.quota_limit,
+    fallbackQuotaLimit,
+    10_000,
+  );
   const state: AiGenerationLimitState = {
     allowed,
+    quotaPeriod,
+    quotaLimit,
+    quotaRemaining: boundedInteger(
+      row.quota_remaining,
+      0,
+      quotaLimit,
+    ),
     dailyLimit: boundedInteger(
       row.daily_limit,
       AI_DAILY_GENERATION_LIMIT,
@@ -141,9 +200,20 @@ export async function consumeAiGeneration(
   userId: string,
   itemKey: string,
   isRegeneration: boolean,
-  dependencies: AiGenerationLimitDependencies = {}
+  dependencies: AiGenerationLimitDependencies,
 ): Promise<AiGenerationLimitState> {
-  const resetAt = nextAiGenerationResetAt(dependencies.now);
+  const isPremium = dependencies.planTier !== 'free';
+  const freeMonthlyLimit =
+    dependencies.feature === 'cover_letter'
+      ? FREE_COVER_LETTERS_MONTHLY_LIMIT
+      : FREE_SCREENING_DRAFTS_MONTHLY_LIMIT;
+  const quotaPeriod: AiGenerationQuotaPeriod = isPremium ? 'day' : 'month';
+  const quotaLimit = isPremium
+    ? AI_DAILY_GENERATION_LIMIT
+    : freeMonthlyLimit;
+  const resetAt = isPremium
+    ? nextAiGenerationResetAt(dependencies.now)
+    : nextMonthlyAiGenerationResetAt(dependencies.now);
   const itemKeyHash = createHash('sha256')
     .update(itemKey, 'utf8')
     .digest('hex');
@@ -152,26 +222,37 @@ export async function consumeAiGeneration(
     const client =
       dependencies.client ??
       (getSupabaseAdminClient() as unknown as AiGenerationQuotaRpcClient);
-    const { data, error } = await client.rpc('consume_ai_generation_quota', {
-      p_user_id: userId,
-      p_item_key_hash: itemKeyHash,
-      p_requested_regeneration: isRegeneration,
-      p_daily_limit: AI_DAILY_GENERATION_LIMIT,
-      p_item_regeneration_limit: AI_ITEM_REGENERATION_LIMIT,
-    });
+    const { data, error } = await client.rpc(
+      'consume_plan_ai_generation_quota',
+      {
+        p_user_id: userId,
+        p_item_key_hash: itemKeyHash,
+        p_requested_regeneration: isRegeneration,
+        p_feature_key: dependencies.feature,
+        p_is_premium: isPremium,
+        p_daily_limit: AI_DAILY_GENERATION_LIMIT,
+        p_free_monthly_limit: freeMonthlyLimit,
+        p_item_regeneration_limit: AI_ITEM_REGENERATION_LIMIT,
+      },
+    );
     if (error) {
       console.error(
         'AI generation quota RPC failed:',
         error.message || 'unknown datastore error'
       );
-      return failClosed(resetAt);
+      return failClosed(resetAt, quotaPeriod, quotaLimit);
     }
-    return normalizeAiGenerationQuotaResult(data, resetAt);
+    return normalizeAiGenerationQuotaResult(
+      data,
+      resetAt,
+      quotaPeriod,
+      quotaLimit,
+    );
   } catch (error) {
     console.error(
       'AI generation quota RPC failed:',
       error instanceof Error ? error.message : 'unknown datastore error'
     );
-    return failClosed(resetAt);
+    return failClosed(resetAt, quotaPeriod, quotaLimit);
   }
 }

@@ -6,6 +6,7 @@ import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
 import { buildCoverLetterPrompt } from '@/lib/ai/prompts/cover-letter';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { getUserId } from '@/lib/auth/getUserId';
+import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 import {
   GenerateCoverLetterRequestSchema,
   type GeneratedCoverLetterAttachment,
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
     return json(req, { error: 'unauthorized' }, 401);
   }
   const body = parsed.data;
+  const planTier = await getActiveUserPlanTier(userId);
   const itemKey = [
     'cover-letter',
     body.sourceContentHash,
@@ -54,7 +56,11 @@ export async function POST(req: NextRequest) {
   const limits = await consumeAiGeneration(
     userId,
     itemKey,
-    body.isRegeneration === true
+    body.isRegeneration === true,
+    {
+      feature: 'cover_letter',
+      planTier,
+    },
   );
   if (!limits.allowed) {
     return json(

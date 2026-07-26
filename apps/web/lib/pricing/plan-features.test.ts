@@ -2,8 +2,14 @@ import { describe, expect, it } from "vitest";
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
 import { FREE_ATS_SCAN_LIMIT } from "@/lib/usage-limit";
 import {
+  FREE_COVER_LETTERS_MONTHLY_LIMIT,
+  FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
+} from "@/lib/ai-generation-limits";
+import {
   DEDICATED_PLAN_CARD_FEATURES,
   FREE_ATS_SCAN_LIMIT_DISPLAY,
+  FREE_COVER_LETTER_LIMIT_DISPLAY,
+  FREE_SCREENING_DRAFT_LIMIT_DISPLAY,
   FREE_PLAN_CARD_FEATURES,
   PLAN_COMPARISON_FEATURES,
   PRO_PLAN_CARD_FEATURES,
@@ -47,6 +53,12 @@ describe("plan-features", () => {
 
   it("free limits match server-enforced constants", () => {
     expect(FREE_ATS_SCAN_LIMIT_DISPLAY).toBe(FREE_ATS_SCAN_LIMIT);
+    expect(FREE_SCREENING_DRAFT_LIMIT_DISPLAY).toBe(
+      FREE_SCREENING_DRAFTS_MONTHLY_LIMIT
+    );
+    expect(FREE_COVER_LETTER_LIMIT_DISPLAY).toBe(
+      FREE_COVER_LETTERS_MONTHLY_LIMIT
+    );
     const flat = PLAN_COMPARISON_FEATURES.flatMap((c) => c.features);
     expect(flat.some((r) => r.name.includes(String(FREE_H1B_SPONSOR_LIMIT)))).toBe(
       true
