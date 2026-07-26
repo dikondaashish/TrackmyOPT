@@ -5,6 +5,8 @@
 
 export const LEGAL_EFFECTIVE_DATE = "May 31, 2026";
 export const LEGAL_VERSION_ID = "2026-05-31";
+export const PRIVACY_CHOICES_EFFECTIVE_DATE = "July 26, 2026";
+export const PRIVACY_CHOICES_VERSION_ID = "2026-07-26";
 
 export const COMPANY = {
   legalName: "Zyene, Inc.",
@@ -84,11 +86,11 @@ export const RISKY_MARKETING_PHRASES = [
 
 /** Policy version IDs (YYYY-MM-DD). Bump when copy changes materially. */
 export const LEGAL_POLICY_VERSIONS = {
-  privacy_policy: LEGAL_VERSION_ID,
+  privacy_policy: PRIVACY_CHOICES_VERSION_ID,
   terms_of_service: LEGAL_VERSION_ID,
   refund_policy: LEGAL_VERSION_ID,
   disclaimer: LEGAL_VERSION_ID,
-  cookie_policy: LEGAL_VERSION_ID,
+  cookie_policy: PRIVACY_CHOICES_VERSION_ID,
   subscription_billing_terms: LEGAL_VERSION_ID,
   security_page: LEGAL_VERSION_ID,
 } as const;
@@ -294,5 +296,10 @@ export const MATERIAL_CHANGE_NOTICE =
   "We will email active subscribers before material changes to price, renewal, cancellation, or refund terms take effect.";
 
 export function formatPolicyVersionLabel(policyType: LegalPolicyType): string {
-  return `${LEGAL_EFFECTIVE_DATE} · Version ${LEGAL_POLICY_VERSIONS[policyType]}`;
+  const version = LEGAL_POLICY_VERSIONS[policyType];
+  const effectiveDate =
+    version === PRIVACY_CHOICES_VERSION_ID
+      ? PRIVACY_CHOICES_EFFECTIVE_DATE
+      : LEGAL_EFFECTIVE_DATE;
+  return `${effectiveDate} · Version ${version}`;
 }

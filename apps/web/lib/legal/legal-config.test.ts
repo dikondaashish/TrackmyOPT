@@ -7,12 +7,27 @@ import {
   getPricingModalProConsentLabel,
   LEGAL_FOOTER_LINKS,
   LEGAL_POLICY_VERSIONS,
+  PRIVACY_CHOICES_VERSION_ID,
+  formatPolicyVersionLabel,
   PLAN_DISPLAY_PRICES,
   PRO_TRIAL_DAYS,
   USCIS_API_DISCLOSURE,
 } from "./legal-config";
 
 describe("legal-config", () => {
+
+  it("dates the attorney-reviewed privacy choices disclosures independently", () => {
+    expect(LEGAL_POLICY_VERSIONS.privacy_policy).toBe(
+      PRIVACY_CHOICES_VERSION_ID
+    );
+    expect(LEGAL_POLICY_VERSIONS.cookie_policy).toBe(
+      PRIVACY_CHOICES_VERSION_ID
+    );
+    expect(formatPolicyVersionLabel("cookie_policy")).toContain(
+      "July 26, 2026"
+    );
+  });
+
   it("uses consistent policy version ids", () => {
     expect(LEGAL_POLICY_VERSIONS.refund_policy).toBe(LEGAL_POLICY_VERSIONS.terms_of_service);
   });
