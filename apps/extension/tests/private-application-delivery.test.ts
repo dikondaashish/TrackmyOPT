@@ -1,56 +1,65 @@
 import assert from 'node:assert/strict';
 import {
+  defaultPortalCredentialForSenderUrl,
   filterPrivateAnswersForSenderUrl,
-  portalCredentialForSenderUrl,
 } from '../src/private-application-delivery';
-import type { SavedPrivateApplicationAnswers } from '../src/sensitive-autofill';
+import {
+  normalizeSavedPrivateApplicationAnswers,
+  type SavedPrivateApplicationAnswers,
+} from '../src/sensitive-autofill';
 
 const saved: SavedPrivateApplicationAnswers = {
   workAuthorization: 'yes',
-  jobPortalLogins: [
-    {
-      hostname: 'acme.wd5.myworkdayjobs.com',
-      email: 'candidate@acme.example',
-      password: 'Acme-only!9A',
-    },
-    {
-      hostname: 'jobs.greenhouse.io',
-      email: 'candidate@greenhouse.example',
-      password: 'Greenhouse-only!8B',
-    },
-  ],
+  defaultJobPortalLogin: {
+    email: 'candidate@example.com',
+    password: 'Shared-default!9A',
+  },
 };
 
-const acme = filterPrivateAnswersForSenderUrl(
-  saved,
+for (const portalUrl of [
   'https://acme.wd5.myworkdayjobs.com/en-US/jobs/login',
-);
-assert.equal(acme?.workAuthorization, 'yes');
-assert.deepEqual(acme?.jobPortalLogins, [saved.jobPortalLogins?.[0]]);
+  'https://jobs.greenhouse.io/account/sign-in',
+  'https://careers.example.org/create-account',
+]) {
+  const delivered = filterPrivateAnswersForSenderUrl(saved, portalUrl);
+  assert.equal(delivered?.workAuthorization, 'yes');
+  assert.deepEqual(
+    delivered?.defaultJobPortalLogin,
+    saved.defaultJobPortalLogin,
+    `the same reviewed default is available on ${portalUrl}`,
+  );
+  assert.deepEqual(
+    defaultPortalCredentialForSenderUrl(saved, portalUrl),
+    saved.defaultJobPortalLogin,
+  );
+}
 assert.equal(
-  JSON.stringify(acme).includes('Greenhouse-only!8B'),
-  false,
-  'one employer tab must never receive another site password',
-);
-
-assert.deepEqual(
-  portalCredentialForSenderUrl(
+  defaultPortalCredentialForSenderUrl(
     saved,
-    'https://jobs.greenhouse.io/account/sign-in',
+    'https://www.trackmyopt.com/settings',
   ),
-  saved.jobPortalLogins?.[1],
-);
-assert.equal(
-  portalCredentialForSenderUrl(saved, 'https://www.trackmyopt.com/settings'),
   null,
   'TrackMyOPT pages never receive employer credentials',
 );
 assert.equal(
-  portalCredentialForSenderUrl(saved, 'chrome://extensions'),
+  defaultPortalCredentialForSenderUrl(saved, 'chrome://extensions'),
   null,
   'non-http pages never receive employer credentials',
 );
+assert.equal(
+  normalizeSavedPrivateApplicationAnswers({
+    jobPortalLogins: [
+      {
+        hostname: 'legacy.example.com',
+        email: 'legacy@example.com',
+        password: 'Legacy-only!8B',
+      },
+    ],
+  })?.defaultJobPortalLogin,
+  undefined,
+  'legacy hostname-bound entries stay inactive until the user migrates one',
+);
 
 console.log(
-  'private-application-delivery: exact sender-host credential minimization passed',
+  'private-application-delivery: shared default is delivered only to safe third-party web pages',
 );

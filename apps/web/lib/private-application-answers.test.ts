@@ -3,6 +3,7 @@ import {
   PrivateApplicationAnswersSchema,
   decryptPrivateApplicationAnswers,
   encryptPrivateApplicationAnswers,
+  encryptLegacyPrivateApplicationAnswersForMigration,
   type PrivateApplicationAnswers,
 } from "./private-application-answers";
 
@@ -29,13 +30,10 @@ const ANSWERS: PrivateApplicationAnswers = {
   veteranStatus: "not_protected_veteran",
   disabilityStatus: "prefer_not_to_answer",
   eeoPreference: "prefer_not_to_answer",
-  jobPortalLogins: [
-    {
-      hostname: "acme.wd5.myworkdayjobs.com",
-      email: "candidate@example.com",
-      password: "Application-only!9A",
-    },
-  ],
+  defaultJobPortalLogin: {
+    email: "candidate@example.com",
+    password: "Application-only!9A",
+  },
 };
 
 describe("private application answer protection", () => {
@@ -87,19 +85,17 @@ describe("private application answer protection", () => {
     ).toThrow();
   });
 
-  it("normalizes exact job-portal hostnames and rejects unsafe credentials", () => {
+  it("accepts one shared default login and rejects hostname-bound writes", () => {
     const parsed = PrivateApplicationAnswersSchema.parse({
-      jobPortalLogins: [
-        {
-          hostname: "https://ACME.wd5.myworkdayjobs.com/en-US/jobs",
-          email: "candidate@example.com",
-          password: "Application-only!9A",
-        },
-      ],
+      defaultJobPortalLogin: {
+        email: "candidate@example.com",
+        password: "Application-only!9A",
+      },
     });
-    expect(parsed.jobPortalLogins?.[0].hostname).toBe(
-      "acme.wd5.myworkdayjobs.com"
-    );
+    expect(parsed.defaultJobPortalLogin).toEqual({
+      email: "candidate@example.com",
+      password: "Application-only!9A",
+    });
     expect(() =>
       PrivateApplicationAnswersSchema.parse({
         jobPortalLogins: [
@@ -113,14 +109,38 @@ describe("private application answer protection", () => {
     ).toThrow();
     expect(() =>
       PrivateApplicationAnswersSchema.parse({
-        jobPortalLogins: [
-          {
-            hostname: "acme.wd5.myworkdayjobs.com",
-            email: "candidate@example.com",
-            password: "short",
-          },
-        ],
+        defaultJobPortalLogin: {
+          email: "candidate@example.com",
+          password: "short",
+        },
       })
     ).toThrow();
+  });
+
+  it("decrypts legacy per-host logins for explicit migration without activating a default", () => {
+    const encrypted = encryptLegacyPrivateApplicationAnswersForMigration({
+      workAuthorization: "yes",
+      jobPortalLogins: [
+        {
+          hostname: "jobs.example.com",
+          email: "candidate@example.com",
+          password: "Legacy-only!9A",
+        },
+      ],
+    });
+
+    expect(decryptPrivateApplicationAnswers(encrypted)).toEqual({
+      workAuthorization: "yes",
+      legacyJobPortalLogins: [
+        {
+          hostname: "jobs.example.com",
+          email: "candidate@example.com",
+          password: "Legacy-only!9A",
+        },
+      ],
+    });
+    expect(
+      decryptPrivateApplicationAnswers(encrypted).defaultJobPortalLogin
+    ).toBeUndefined();
   });
 });

@@ -292,7 +292,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         }
         sendResponse({
           ok: true,
-          credential: response.data?.jobPortalLogins?.[0] ?? null,
+          credential: response.data?.defaultJobPortalLogin ?? null,
         });
       })
       .catch(() =>

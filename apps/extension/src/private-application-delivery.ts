@@ -1,5 +1,4 @@
 import {
-  credentialForHostname,
   normalizeJobPortalHostname,
   type JobPortalLoginCredential,
 } from './job-portal-login';
@@ -24,30 +23,33 @@ export function hostnameFromSenderTabUrl(value: unknown): string | null {
   }
 }
 
-/** Return at most the one credential authorized for the requesting tab URL. */
-export function portalCredentialForSenderUrl(
+/** Return the default only to a validated third-party http(s) tab. */
+export function defaultPortalCredentialForSenderUrl(
   answers: SavedPrivateApplicationAnswers | null,
   senderTabUrl: unknown,
 ): JobPortalLoginCredential | null {
   if (!answers) return null;
   const hostname = hostnameFromSenderTabUrl(senderTabUrl);
   if (!hostname) return null;
-  return credentialForHostname(answers.jobPortalLogins ?? [], hostname);
+  return answers.defaultJobPortalLogin ?? null;
 }
 
 /**
  * Minimize decrypted data at the service-worker boundary. A content script may
- * receive the reviewed private answers, but never credentials for other sites.
+ * receive the one default credential only after its sender URL is validated.
  */
 export function filterPrivateAnswersForSenderUrl(
   answers: SavedPrivateApplicationAnswers | null,
   senderTabUrl: unknown,
 ): SavedPrivateApplicationAnswers | null {
   if (!answers) return null;
-  const { jobPortalLogins: _jobPortalLogins, ...nonCredentialAnswers } = answers;
-  const credential = portalCredentialForSenderUrl(answers, senderTabUrl);
+  const {
+    defaultJobPortalLogin: _defaultJobPortalLogin,
+    ...nonCredentialAnswers
+  } = answers;
+  const credential = defaultPortalCredentialForSenderUrl(answers, senderTabUrl);
   return {
     ...nonCredentialAnswers,
-    ...(credential ? { jobPortalLogins: [credential] } : {}),
+    ...(credential ? { defaultJobPortalLogin: credential } : {}),
   };
 }

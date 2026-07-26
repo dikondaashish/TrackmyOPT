@@ -5,7 +5,7 @@ import {
   selectSmartDropdown,
 } from './smart-dropdown';
 import {
-  normalizeSavedJobPortalLogins,
+  normalizeDefaultJobPortalLogin,
   type JobPortalLoginCredential,
 } from './job-portal-login';
 
@@ -82,7 +82,7 @@ export type SavedPrivateApplicationAnswers = Omit<
   SensitiveAnswerSession,
   'confirmed'
 > & {
-  jobPortalLogins?: JobPortalLoginCredential[];
+  defaultJobPortalLogin?: JobPortalLoginCredential;
 };
 
 function boundedText(value: unknown, max: number): string | undefined {
@@ -210,12 +210,12 @@ export function normalizeSavedPrivateApplicationAnswers(
   });
   if (!normalized) return null;
   const { confirmed: _confirmed, ...answers } = normalized;
-  const jobPortalLogins = normalizeSavedJobPortalLogins(
-    (value as Record<string, unknown>).jobPortalLogins
+  const defaultJobPortalLogin = normalizeDefaultJobPortalLogin(
+    (value as Record<string, unknown>).defaultJobPortalLogin
   );
   return {
     ...answers,
-    ...(jobPortalLogins.length > 0 ? { jobPortalLogins } : {}),
+    ...(defaultJobPortalLogin ? { defaultJobPortalLogin } : {}),
   };
 }
 

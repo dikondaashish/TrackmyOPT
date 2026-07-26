@@ -9,12 +9,11 @@ import {
 import { runStandaloneJobPortalLoginPrefill } from "../../../extension/src/standalone-job-portal-prefill";
 
 const CREDENTIAL: JobPortalLoginCredential = {
-  hostname: "acme.wd5.myworkdayjobs.com",
   email: "Candidate@example.com",
   password: "Application-only!9A",
 };
 
-describe("exact-site job-portal login filling", () => {
+describe("shared default job-portal login filling", () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <form id="login-form">
@@ -67,22 +66,29 @@ describe("exact-site job-portal login filling", () => {
     expect(submitHandler).not.toHaveBeenCalled();
   });
 
-  it("does not fill another hostname or overwrite existing values", () => {
+  it("uses the same default on three portal domains without overwriting values", () => {
     const email =
       document.querySelector<HTMLInputElement>("#login-email")!;
     email.value = "already-entered@example.com";
 
+    for (const hostname of [
+      "acme.wd5.myworkdayjobs.com",
+      "jobs.greenhouse.io",
+      "careers.example.org",
+    ]) {
+      document
+        .querySelectorAll<HTMLInputElement>('input[type="password"]')
+        .forEach((input) => {
+          input.value = "";
+        });
+      expect(
+        fillJobPortalLogin(document, CREDENTIAL, hostname)
+      ).toMatchObject({ emailFilled: 0, passwordFilled: 2 });
+      expect(email.value).toBe("already-entered@example.com");
+    }
     expect(
-      fillJobPortalLogin(document, CREDENTIAL, "evil.example.com").totalFilled
+      fillJobPortalLogin(document, CREDENTIAL, "www.trackmyopt.com").totalFilled
     ).toBe(0);
-    expect(
-      fillJobPortalLogin(
-        document,
-        CREDENTIAL,
-        "acme.wd5.myworkdayjobs.com"
-      )
-    ).toMatchObject({ emailFilled: 0, passwordFilled: 2 });
-    expect(email.value).toBe("already-entered@example.com");
   });
 
   it("refuses password-change and one-time-code controls", () => {
@@ -174,7 +180,7 @@ describe("exact-site job-portal login filling", () => {
     expect(
       runStandaloneJobPortalLoginPrefill({
         root: document,
-        currentHostname: CREDENTIAL.hostname,
+        currentHostname: "acme.wd5.myworkdayjobs.com",
         requestCredential,
       })
     ).toBe("shown");
@@ -208,6 +214,54 @@ describe("exact-site job-portal login filling", () => {
     expect(submitHandler).not.toHaveBeenCalled();
   });
 
+  it("offers the same reviewed default through the standalone flow on three domains", async () => {
+    const requestCredential = vi.fn().mockResolvedValue({
+      ok: true,
+      credential: CREDENTIAL,
+    });
+
+    for (const hostname of [
+      "workday.wd5.myworkdayjobs.com",
+      "jobs.greenhouse.io",
+      "careers.example.org",
+    ]) {
+      document.body.innerHTML = `
+        <form>
+          <label>Login email <input id="email" type="email"></label>
+          <label>Password <input id="password" type="password"></label>
+          <button type="submit">Sign in</button>
+        </form>
+      `;
+      expect(
+        runStandaloneJobPortalLoginPrefill({
+          root: document,
+          currentHostname: hostname,
+          requestCredential,
+        })
+      ).toBe("shown");
+      const reviewHost = document.querySelector<HTMLElement>(
+        "#tmo-job-portal-login-review"
+      )!;
+      const reviewButton = Array.from(
+        reviewHost.shadowRoot!.querySelectorAll("button")
+      ).find((button) => button.textContent === "Review saved login")!;
+
+      reviewButton.click();
+      await vi.waitFor(() =>
+        expect(reviewButton.textContent).toBe("Fill login fields")
+      );
+      reviewButton.click();
+
+      expect(
+        document.querySelector<HTMLInputElement>("#email")?.value
+      ).toBe(CREDENTIAL.email);
+      expect(
+        document.querySelector<HTMLInputElement>("#password")?.value
+      ).toBe(CREDENTIAL.password);
+    }
+    expect(requestCredential).toHaveBeenCalledTimes(3);
+  });
+
   it("mounts credential review inside an employer dialog so outside-click handling cannot close it", () => {
     document.body.innerHTML = `
       <section id="workday-dialog" role="dialog" aria-label="Sign In">
@@ -221,7 +275,7 @@ describe("exact-site job-portal login filling", () => {
     expect(
       runStandaloneJobPortalLoginPrefill({
         root: document,
-        currentHostname: CREDENTIAL.hostname,
+        currentHostname: "acme.wd5.myworkdayjobs.com",
         requestCredential: vi.fn(),
       })
     ).toBe("shown");

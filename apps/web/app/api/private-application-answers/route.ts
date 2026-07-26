@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getUserId } from "@/lib/auth/getUserId";
 import { corsHeadersWebAndExtension } from "@/lib/api/cors-policy";
 import {
+  PRIVATE_APPLICATION_ANSWERS_PAYLOAD_VERSION,
   PrivateApplicationAnswersSchema,
   decryptPrivateApplicationAnswers,
   encryptPrivateApplicationAnswers,
@@ -146,7 +147,7 @@ export async function PUT(req: NextRequest) {
         {
           user_id: userId,
           encrypted_payload: encryptedPayload,
-          payload_version: 1,
+          payload_version: PRIVATE_APPLICATION_ANSWERS_PAYLOAD_VERSION,
           consented_at: now,
           updated_at: now,
         },

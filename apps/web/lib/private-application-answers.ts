@@ -6,6 +6,7 @@ import {
 import { z } from "zod";
 
 const ENCRYPTION_VERSION = "v1";
+export const PRIVATE_APPLICATION_ANSWERS_PAYLOAD_VERSION = 2;
 const ENCRYPTION_AAD = Buffer.from(
   "trackmyopt:private-application-answers:v1",
   "utf8"
@@ -51,7 +52,14 @@ export function normalizeJobPortalHostname(value: string): string | null {
   }
 }
 
-export const JobPortalLoginSchema = z
+export const DefaultJobPortalLoginSchema = z
+  .object({
+    email: z.string().trim().email().max(254),
+    password: z.string().min(8).max(256),
+  })
+  .strict();
+
+const LegacyJobPortalLoginSchema = z
   .object({
     hostname: z
       .string()
@@ -156,8 +164,15 @@ export const PrivateApplicationAnswersSchema = z
       emptyToUndefined,
       z.literal("prefer_not_to_answer").optional()
     ),
+    defaultJobPortalLogin: DefaultJobPortalLoginSchema.optional(),
+  })
+  .strict();
+
+const LegacyPrivateApplicationAnswersSchema = PrivateApplicationAnswersSchema
+  .omit({ defaultJobPortalLogin: true })
+  .extend({
     jobPortalLogins: z
-      .array(JobPortalLoginSchema)
+      .array(LegacyJobPortalLoginSchema)
       .max(5)
       .superRefine((logins, context) => {
         const seen = new Set<string>();
@@ -180,6 +195,17 @@ export const PrivateApplicationAnswersSchema = z
 export type PrivateApplicationAnswers = z.infer<
   typeof PrivateApplicationAnswersSchema
 >;
+type LegacyPrivateApplicationAnswers = z.infer<
+  typeof LegacyPrivateApplicationAnswersSchema
+>;
+export type LegacyJobPortalLogin = z.infer<typeof LegacyJobPortalLoginSchema>;
+export type PrivateApplicationAnswersRead = PrivateApplicationAnswers & {
+  /**
+   * Decrypted v1 entries are exposed only to the website migration UI. The
+   * extension ignores them until the user explicitly saves one as the default.
+   */
+  legacyJobPortalLogins?: LegacyJobPortalLogin[];
+};
 
 function encryptionKey(): Buffer {
   const encoded = process.env.PRIVATE_APPLICATION_ANSWERS_ENCRYPTION_KEY?.trim();
@@ -195,10 +221,9 @@ function encryptionKey(): Buffer {
   return key;
 }
 
-export function encryptPrivateApplicationAnswers(
-  value: PrivateApplicationAnswers
+function encryptValidatedAnswers(
+  answers: PrivateApplicationAnswers | LegacyPrivateApplicationAnswers
 ): string {
-  const answers = PrivateApplicationAnswersSchema.parse(value);
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv);
   cipher.setAAD(ENCRYPTION_AAD);
@@ -216,9 +241,27 @@ export function encryptPrivateApplicationAnswers(
   ].join(".");
 }
 
+export function encryptPrivateApplicationAnswers(
+  value: PrivateApplicationAnswers
+): string {
+  return encryptValidatedAnswers(PrivateApplicationAnswersSchema.parse(value));
+}
+
+/**
+ * Retained for compatibility tests and controlled migration tooling only.
+ * New API writes must use encryptPrivateApplicationAnswers.
+ */
+export function encryptLegacyPrivateApplicationAnswersForMigration(
+  value: LegacyPrivateApplicationAnswers
+): string {
+  return encryptValidatedAnswers(
+    LegacyPrivateApplicationAnswersSchema.parse(value)
+  );
+}
+
 export function decryptPrivateApplicationAnswers(
   encrypted: string
-): PrivateApplicationAnswers {
+): PrivateApplicationAnswersRead {
   const [version, ivText, tagText, ciphertextText, extra] =
     encrypted.split(".");
   if (
@@ -243,5 +286,19 @@ export function decryptPrivateApplicationAnswers(
     decipher.final(),
   ]).toString("utf8");
 
-  return PrivateApplicationAnswersSchema.parse(JSON.parse(plaintext));
+  const raw = JSON.parse(plaintext);
+  const current = PrivateApplicationAnswersSchema.safeParse(raw);
+  if (current.success) return current.data;
+
+  const legacy = LegacyPrivateApplicationAnswersSchema.parse(raw);
+  const {
+    jobPortalLogins,
+    ...answers
+  } = legacy;
+  return {
+    ...answers,
+    ...(jobPortalLogins?.length
+      ? { legacyJobPortalLogins: jobPortalLogins }
+      : {}),
+  };
 }

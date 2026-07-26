@@ -103,7 +103,6 @@ import {
 } from './sensitive-autofill';
 import { scanApplicationFields } from './application-field-scan';
 import {
-  credentialForHostname,
   fillJobPortalLogin,
   type JobPortalLoginCredential,
 } from './job-portal-login';
@@ -254,7 +253,7 @@ function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
   body.style.cssText = 'display:none;gap:7px;margin-top:8px;';
   const note = document.createElement('p');
   note.textContent =
-    'Saved answers and an exact-site portal login load here for review. Passwords stay masked. TrackMyOPT never sends them to AI or analytics and never submits the application.';
+    'Saved answers and your shared default job-portal login load here for review. Passwords stay masked. TrackMyOPT never sends them to AI or analytics and never submits the application.';
   note.style.cssText =
     'margin:0;color:var(--tmo-widget-muted);font-size:10.5px;line-height:1.4;';
   const manageSavedData = document.createElement('button');
@@ -273,7 +272,7 @@ function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
   portalLoginSummary.style.cssText =
     'margin:0;padding:7px 8px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-muted);font-size:10.5px;line-height:1.4;';
   portalLoginSummary.textContent =
-    `No approved job-portal login loaded for ${window.location.hostname}.`;
+    'No approved default job-portal login is loaded.';
   let loadedJobPortalLogin: JobPortalLoginCredential | null = null;
 
   const yesNoOptions: Array<[string, string]> = [
@@ -387,13 +386,10 @@ function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
         if (!response.data) return;
         const saved = normalizeSavedPrivateApplicationAnswers(response.data);
         if (!saved) return;
-        loadedJobPortalLogin = credentialForHostname(
-          saved.jobPortalLogins ?? [],
-          window.location.hostname
-        );
+        loadedJobPortalLogin = saved.defaultJobPortalLogin ?? null;
         portalLoginSummary.textContent = loadedJobPortalLogin
-          ? `Saved login found for ${loadedJobPortalLogin.hostname}: ${loadedJobPortalLogin.email}. Password: ••••••••`
-          : `No saved login matches ${window.location.hostname}. Add this exact portal in TrackMyOPT.`;
+          ? `Default job-portal login ready for this application: ${loadedJobPortalLogin.email}. Password: ••••••••`
+          : 'No default job-portal login is saved. Add one in TrackMyOPT.';
         workAuth.control.value = saved.workAuthorization ?? '';
         sponsorship.control.value = saved.requiresSponsorship ?? '';
         visaType.control.value = saved.visaType ?? (
