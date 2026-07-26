@@ -15,7 +15,7 @@ assert.match(source, /if \(!event\.isTrusted \|\| status\.dataset\.reviewState !
 assert.match(source, /status\.dataset\.reviewState = 'needs-review'/);
 assert.match(source, /Use your previously edited answer/);
 assert.match(source, /Regenerate fresh \(\$\{limits\.itemRegenerationsRemaining\} remaining\)/);
-assert.match(source, /You have \$\{limits\.dailyRemaining\} AI generations left today/);
+assert.match(source, /formatAiAllowanceCopy\(limits\)/);
 assert.match(
   source,
   /could not create a reliable answer from this resume and job description/,

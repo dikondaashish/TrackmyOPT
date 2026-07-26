@@ -29,6 +29,11 @@ import {
   validateResumeAutofillSnapshotV1,
 } from './resume-artifact-validator';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+import {
+  FREE_AUTOFILL_PLAN_ENTITLEMENTS,
+  resolveAutofillPlanEntitlements,
+  resolveAutofillPlanTier,
+} from './autofill-plan-entitlements';
 import { normalizeQuestionText } from './screening-question-drafts';
 import {
   deleteSavedScreeningAnswer,
@@ -144,6 +149,43 @@ async function getExtensionBearerToken(forceRefresh = false): Promise<string | n
   return null;
 }
 
+async function getAutofillPlanEntitlements() {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) {
+    return {
+      ok: false as const,
+      planTier: 'free' as const,
+      entitlements: FREE_AUTOFILL_PLAN_ENTITLEMENTS,
+    };
+  }
+  try {
+    const response = await fetch(API_ENDPOINTS.STATUS, {
+      credentials: 'omit',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearer}`,
+      },
+    });
+    if (!response.ok) throw new Error('status_unavailable');
+    const status = (await response.json()) as {
+      isPremium?: boolean;
+      planName?: string;
+    };
+    const planTier = resolveAutofillPlanTier(status);
+    return {
+      ok: true as const,
+      planTier,
+      entitlements: resolveAutofillPlanEntitlements(planTier),
+    };
+  } catch {
+    return {
+      ok: false as const,
+      planTier: 'free' as const,
+      entitlements: FREE_AUTOFILL_PLAN_ENTITLEMENTS,
+    };
+  }
+}
+
 // ISS-039: refresh token whenever the user focuses the browser/extension —
 // this guarantees that after a logout/switch on the web side, the extension
 // picks up the new identity within seconds rather than up to 10 minutes.
@@ -215,6 +257,18 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     getAutofillProfile()
       .then((profile) => sendResponse(profile))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
+    return true;
+  }
+  if (msg.type === 'GET_AUTOFILL_ENTITLEMENTS') {
+    getAutofillPlanEntitlements()
+      .then(sendResponse)
+      .catch(() =>
+        sendResponse({
+          ok: false,
+          planTier: 'free',
+          entitlements: FREE_AUTOFILL_PLAN_ENTITLEMENTS,
+        })
+      );
     return true;
   }
   if (msg.type === 'GET_PRIVATE_APPLICATION_ANSWERS') {

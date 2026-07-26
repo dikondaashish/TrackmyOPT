@@ -988,12 +988,12 @@ export function HelpSection() {
                   </ul>
                 </div>
 
-                <div className="p-3 border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2 text-amber-800 dark:text-amber-300">
-                    Features not enabled in this release
+                <div className="p-3 border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <h5 className="font-medium text-sm mb-2 text-blue-800 dark:text-blue-300">
+                    Free and Pro access
                   </h5>
-                  <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
-                    Continuous mode, skills prefill, AI screening-answer drafts and exact-question answer reuse, and generated cover-letter attachment are independently gated off. If a future release enables AI drafts, every inserted draft will require an edit or an explicit Confirm reviewed action.
+                  <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-400">
+                    Free includes Step-by-step application prefill, skills, saved private-answer review, 5 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, and higher daily AI access. Every AI draft still requires your review, and neither plan ever submits an application.
                   </p>
                 </div>
 
@@ -1225,7 +1225,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="Is the extension free?"
-                  answer="Yes! The Chrome extension is free for OPT calculators and quick tools. Pro adds Document Vault, daily reminders, and case status email alerts."
+                  answer="Yes. Free includes OPT tools, job tracking, Step-by-step application prefill, skills, private-answer review, 5 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, higher daily AI access, Document Vault, daily reminders, and USCIS status alerts."
                 />
                 <FAQItem
                   question="Does the extension work offline?"

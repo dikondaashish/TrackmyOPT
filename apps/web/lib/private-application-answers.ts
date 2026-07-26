@@ -20,6 +20,11 @@ const optionalText = (max: number) =>
     z.string().trim().max(max).optional()
   );
 
+const optionalYesNo = z.preprocess(
+  emptyToUndefined,
+  z.enum(["yes", "no"]).optional()
+);
+
 function isCalendarDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = new Date(`${value}T00:00:00.000Z`);
@@ -32,10 +37,11 @@ function isCalendarDate(value: string): boolean {
 
 export const PrivateApplicationAnswersSchema = z
   .object({
-    workAuthorization: z.enum(["yes", "no"]).optional(),
-    requiresSponsorship: z.enum(["yes", "no"]).optional(),
-    visaType: z
-      .enum([
+    workAuthorization: optionalYesNo,
+    requiresSponsorship: optionalYesNo,
+    visaType: z.preprocess(
+      emptyToUndefined,
+      z.enum([
         "us_citizen",
         "permanent_resident",
         "h1b",
@@ -49,7 +55,8 @@ export const PrivateApplicationAnswersSchema = z
         "e3",
         "other",
       ])
-      .optional(),
+      .optional()
+    ),
     visaOther: optionalText(120),
     // Legacy free-text fields remain readable so existing encrypted records
     // continue to decrypt after this rollout.
@@ -58,23 +65,26 @@ export const PrivateApplicationAnswersSchema = z
     salaryExpectation: optionalText(200),
     expectedAnnualSalary: optionalText(80),
     expectedHourlyRate: optionalText(80),
-    canWorkInPerson: z.enum(["yes", "no"]).optional(),
-    willingToRelocate: z.enum(["yes", "no"]).optional(),
-    canStartImmediately: z.enum(["yes", "no"]).optional(),
-    reliableTransportation: z.enum(["yes", "no"]).optional(),
-    needsAccommodations: z.enum(["yes", "no"]).optional(),
+    canWorkInPerson: optionalYesNo,
+    willingToRelocate: optionalYesNo,
+    canStartImmediately: optionalYesNo,
+    reliableTransportation: optionalYesNo,
+    needsAccommodations: optionalYesNo,
     dateOfBirth: z.preprocess(
       emptyToUndefined,
       z.string().refine(isCalendarDate, "Enter a valid date of birth").optional()
     ),
-    sexGender: z
-      .enum(["female", "male", "non_binary", "prefer_not_to_answer"])
-      .optional(),
-    hispanicLatino: z
-      .enum(["yes", "no", "prefer_not_to_answer"])
-      .optional(),
-    raceEthnicity: z
-      .enum([
+    sexGender: z.preprocess(
+      emptyToUndefined,
+      z.enum(["female", "male", "non_binary", "prefer_not_to_answer"]).optional()
+    ),
+    hispanicLatino: z.preprocess(
+      emptyToUndefined,
+      z.enum(["yes", "no", "prefer_not_to_answer"]).optional()
+    ),
+    raceEthnicity: z.preprocess(
+      emptyToUndefined,
+      z.enum([
         "american_indian_or_alaska_native",
         "asian",
         "black_or_african_american",
@@ -84,18 +94,25 @@ export const PrivateApplicationAnswersSchema = z
         "two_or_more_races",
         "prefer_not_to_answer",
       ])
-      .optional(),
-    veteranStatus: z
-      .enum([
+      .optional()
+    ),
+    veteranStatus: z.preprocess(
+      emptyToUndefined,
+      z.enum([
         "not_protected_veteran",
         "protected_veteran",
         "prefer_not_to_answer",
       ])
-      .optional(),
-    disabilityStatus: z
-      .enum(["yes", "no", "prefer_not_to_answer"])
-      .optional(),
-    eeoPreference: z.literal("prefer_not_to_answer").optional(),
+      .optional()
+    ),
+    disabilityStatus: z.preprocess(
+      emptyToUndefined,
+      z.enum(["yes", "no", "prefer_not_to_answer"]).optional()
+    ),
+    eeoPreference: z.preprocess(
+      emptyToUndefined,
+      z.literal("prefer_not_to_answer").optional()
+    ),
   })
   .strict();
 

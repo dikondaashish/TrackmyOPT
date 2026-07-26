@@ -22,5 +22,6 @@ export const API_ENDPOINTS = {
   EXTENSION_TOKEN: `${WEBSITE_URL}/api/extension/token`,
   DASHBOARD_CASE_STATUS: `${WEBSITE_URL}/dashboard/case-status`,
   DASHBOARD_JOB_PREFILL: `${WEBSITE_URL}/dashboard/extension`,
+  PRICING: `${WEBSITE_URL}/pricing`,
   AUTH: `${WEBSITE_URL}/login`,
 };

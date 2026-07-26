@@ -205,6 +205,19 @@ eligible empty PDF inputs. The artifact expires after 30 minutes and is
 invalidated when the normalized job URL, company, or role changes.
 Review-required AI screening drafts are limited to non-sensitive questions.
 
+Plan access is intentionally separate from rollout flags:
+
+| Capability | Free | Pro / legacy Dedicated |
+| --- | --- | --- |
+| Manual Step-by-step prefill, history, skills, private-answer review | Included | Included |
+| Continuous filling | Upgrade required | Included |
+| Guided Autopilot | Upgrade required | Included |
+| AI screening drafts | 5/month | Shared 25/day safety cap |
+| AI cover letters | 1/month | Shared 25/day safety cap |
+
+All AI allowances are enforced atomically on the server. Extension controls
+also fail closed to Free access when plan status cannot be verified.
+
 Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 
 | Flag | Default | Release behavior |

@@ -8,6 +8,7 @@ import { buildScreeningAnswerPrompt } from '@/lib/ai/prompts/screening-answer';
 import { validateScreeningDraftGrounding } from '@/lib/ai/screening-answer-grounding';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { getUserId } from '@/lib/auth/getUserId';
+import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 import { ResumeAutofillSnapshotV1Schema } from '@/lib/resume/autofill-schema';
 import { AUTOFILL_FEATURE_FLAGS } from '../../../../../extension/src/autofill-feature-flags';
 import {
@@ -59,7 +60,18 @@ export async function POST(req: NextRequest) {
         )
       : '';
   const qh = hash(questionText);
-  const base = { ok:false, allowed: false, questionHash: qh, dailyLimit: DAILY_LIMIT, dailyRemaining: 0, itemRegenerationLimit: ITEM_LIMIT, itemRegenerationsRemaining: 0 } satisfies ScreeningQuestionDraftResponse;
+  const base = {
+    ok: false,
+    allowed: false,
+    questionHash: qh,
+    quotaPeriod: 'month' as const,
+    quotaLimit: 5,
+    quotaRemaining: 0,
+    dailyLimit: DAILY_LIMIT,
+    dailyRemaining: 0,
+    itemRegenerationLimit: ITEM_LIMIT,
+    itemRegenerationsRemaining: 0,
+  } satisfies ScreeningQuestionDraftResponse;
   if (!questionText) {
     return json(req, { ...base, error: 'insufficient_context' }, 400);
   }
@@ -83,12 +95,20 @@ export async function POST(req: NextRequest) {
   if (!userId) {
     return json(req, { ...base, error: 'generation_failed' }, 401);
   }
+  const planTier = await getActiveUserPlanTier(userId);
   const quota = await consumeAiGeneration(
     userId,
     `screening:${qh}:${body.sourceContentHash}`,
-    body.regenerate === true
+    body.regenerate === true,
+    {
+      feature: 'screening_answer',
+      planTier,
+    },
   );
   const limits = {
+    quotaPeriod: quota.quotaPeriod,
+    quotaLimit: quota.quotaLimit,
+    quotaRemaining: quota.quotaRemaining,
     dailyLimit: quota.dailyLimit,
     dailyRemaining: quota.dailyRemaining,
     itemRegenerationLimit: quota.itemRegenerationLimit,

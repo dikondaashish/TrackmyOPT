@@ -5,6 +5,8 @@ import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
  * Do not import usage-limit here (server-only cookies); keep this number in sync via test.
  */
 export const FREE_ATS_SCAN_LIMIT_DISPLAY = 3;
+export const FREE_SCREENING_DRAFT_LIMIT_DISPLAY = 5;
+export const FREE_COVER_LETTER_LIMIT_DISPLAY = 1;
 
 /**
  * Single source of truth for Free / Pro / Dedicated plan features.
@@ -73,6 +75,31 @@ export const PLAN_COMPARISON_FEATURES: ComparisonCategory[] = [
     category: "Career Tools",
     features: [
       { name: "Job Application Tracker", free: true, pro: true, dedicated: true },
+      {
+        name: "Chrome Application Prefill",
+        free: "Step-by-step",
+        pro: "Continuous",
+        dedicated: "Continuous",
+      },
+      { name: "Skills & Work-History Prefill", free: true, pro: true, dedicated: true },
+      {
+        name: "Guided Autopilot (Never Submits)",
+        free: false,
+        pro: true,
+        dedicated: true,
+      },
+      {
+        name: "AI Screening-Question Drafts",
+        free: `${FREE_SCREENING_DRAFT_LIMIT_DISPLAY}/mo`,
+        pro: "Shared AI limit: 25/day",
+        dedicated: "Shared AI limit: 25/day",
+      },
+      {
+        name: "AI Cover Letters",
+        free: `${FREE_COVER_LETTER_LIMIT_DISPLAY}/mo`,
+        pro: "Shared AI limit: 25/day",
+        dedicated: "Shared AI limit: 25/day",
+      },
       { name: "AI Resume Generator", free: "5/mo", pro: "500/mo", dedicated: "1000/mo" },
       {
         name: "ATS Resume Scanner",
@@ -128,6 +155,17 @@ export const FREE_PLAN_CARD_FEATURES: PlanCardFeature[] = [
     isHeader: false,
   },
   { text: "Job Application Tracker", included: true, isHeader: false },
+  { text: "Chrome Prefill (Step-by-step + Skills)", included: true, isHeader: false },
+  {
+    text: `AI Screening Drafts (${FREE_SCREENING_DRAFT_LIMIT_DISPLAY}/mo)`,
+    included: true,
+    isHeader: false,
+  },
+  {
+    text: `AI Cover Letter (${FREE_COVER_LETTER_LIMIT_DISPLAY}/mo)`,
+    included: true,
+    isHeader: false,
+  },
   { text: "Resume Generator (5/mo)", included: true, isHeader: false },
   {
     text: `ATS Resume Scanner (${FREE_ATS_SCAN_LIMIT_DISPLAY}/mo)`,
@@ -148,6 +186,9 @@ export const PRO_PLAN_CARD_FEATURES: PlanCardFeature[] = [
   { text: "Daily USCIS Auto-Checks", included: true, isHeader: false },
   { text: "Daily Status Change Alerts", included: true, isHeader: false },
   { text: "Career & documents", included: true, isHeader: true },
+  { text: "Continuous Chrome Prefill", included: true, isHeader: false },
+  { text: "Guided Autopilot (Never Submits)", included: true, isHeader: false },
+  { text: "Higher Daily AI Draft + Cover-Letter Access", included: true, isHeader: false },
   { text: "H-1B Sponsors (Unlimited + Analytics)", included: true, isHeader: false },
   { text: "Resume Generator (500/mo)", included: true, isHeader: false },
   { text: "ATS Scanner (Unlimited)", included: true, isHeader: false },
@@ -203,6 +244,15 @@ export const LANDING_FREE_FEATURES: LandingPlanFeature[] = [
   },
   { label: "Career Tools", included: true, isHeader: true },
   { label: "Job Application Tracker", included: true },
+  { label: "Chrome Prefill (Step-by-step + Skills)", included: true },
+  {
+    label: `AI Screening Drafts (${FREE_SCREENING_DRAFT_LIMIT_DISPLAY}/mo)`,
+    included: true,
+  },
+  {
+    label: `AI Cover Letter (${FREE_COVER_LETTER_LIMIT_DISPLAY}/mo)`,
+    included: true,
+  },
   { label: "Resume Generator (5/mo)", included: true },
   {
     label: `ATS Resume Scanner (${FREE_ATS_SCAN_LIMIT_DISPLAY}/mo)`,
@@ -233,6 +283,9 @@ export const LANDING_PRO_FEATURES: LandingPlanFeature[] = [
   { label: "Document Vault", included: true, tooltip: "Secure document storage with passcode" },
   { label: "Document Expiry Reminders", included: true, tooltip: "Alerts before document expiration" },
   { label: "Career Tools", included: true, isHeader: true },
+  { label: "Continuous Chrome Prefill", included: true },
+  { label: "Guided Autopilot (Never Submits)", included: true },
+  { label: "Higher Daily AI Draft + Cover-Letter Access", included: true },
   { label: "Resume Generator (500/mo)", included: true },
   { label: "ATS Scanner (Unlimited)", included: true },
 ];

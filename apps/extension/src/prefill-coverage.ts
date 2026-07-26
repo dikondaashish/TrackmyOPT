@@ -1,3 +1,5 @@
+import type { ApplicationFieldScan } from './application-field-scan';
+
 export type PrefillFieldGroup =
   | 'resume'
   | 'cover_letter'
@@ -20,6 +22,7 @@ export interface PrefillCoverageResult {
   adapterId?: 'generic' | 'workday' | 'greenhouse';
   remainingRecords?: { experience: number; education: number };
   firstSkippedSelector?: string;
+  applicationScan?: ApplicationFieldScan;
 }
 
 export interface PrefillControlOutcome {
@@ -50,6 +53,12 @@ export function emptyPrefillCoverage(): PrefillCoverageResult {
 /** Human-readable grouped result; analytics continue to receive counts only. */
 export function formatPrefillCoverageSummary(result: PrefillCoverageResult): string {
   const parts: string[] = [];
+  if (result.applicationScan?.requiredTotal) {
+    const scan = result.applicationScan;
+    parts.push(
+      `${scan.requiredFilled}/${scan.requiredTotal} required fields complete`
+    );
+  }
   if (result.groups.resume.filled > 0) parts.push('Resume attached');
   if (result.groups.cover_letter.filled > 0)
     parts.push('Cover letter attached');

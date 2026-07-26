@@ -117,10 +117,20 @@ export async function PUT(req: NextRequest) {
 
     const parsed = SaveSchema.safeParse(value);
     if (!parsed.success) {
+      const consentInvalid = parsed.error.issues.some(
+        (issue) => issue.path[0] === "consent"
+      );
+      const answerInvalid = parsed.error.issues.some(
+        (issue) => issue.path[0] !== "consent"
+      );
+      const error = consentInvalid
+        ? answerInvalid
+          ? "Confirm the privacy notice and check the private application answers you entered"
+          : "Confirm the privacy notice before saving"
+        : "Check the private application answers you entered";
       return NextResponse.json(
         {
-          error:
-            "Confirm consent and check the private application answers you entered",
+          error,
           code: "validation",
         },
         { status: 400, headers }

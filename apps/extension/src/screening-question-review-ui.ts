@@ -7,8 +7,15 @@ import {
   type SavedScreeningAnswer,
 } from './screening-question-drafts';
 import { autofillErrorCopy } from './autofill-errors';
+import {
+  formatAiAllowanceCopy,
+  remainingAiAllowance,
+} from './ai-allowance-copy';
 
 export interface ScreeningDraftLimits {
+  quotaPeriod?: 'day' | 'month';
+  quotaLimit?: number;
+  quotaRemaining?: number;
   dailyRemaining: number;
   itemRegenerationsRemaining: number;
   itemRegenerationLimit: number;
@@ -29,6 +36,7 @@ export interface ScreeningQuestionReviewOptions {
     state: 'needs_review' | 'confirmed' | 'edited',
   ): void;
   onDeleteSavedAnswer?: (questionHash: string) => Promise<void>;
+  onUpgrade?: () => void;
 }
 
 function button(label: string): HTMLButtonElement {
@@ -58,13 +66,16 @@ export function createScreeningQuestionReviewUI(
   preview.setAttribute('aria-label', 'AI draft preview');
   const status = document.createElement('p');
   status.setAttribute('role', 'status');
+  const upgrade = button('Upgrade to Pro');
+  upgrade.hidden = true;
+  upgrade.addEventListener('click', () => options.onUpgrade?.());
 
   let limits = options.limits;
   let selectedDraft = '';
   let insertedValue = '';
   let reviewState: DraftReviewState | null = null;
   const renderUsage = () => {
-    usage.textContent = `You have ${limits.dailyRemaining} AI generations left today. ${limits.itemRegenerationsRemaining} of ${limits.itemRegenerationLimit} regenerations remaining.`;
+    usage.textContent = `${formatAiAllowanceCopy(limits)} ${limits.itemRegenerationsRemaining} of ${limits.itemRegenerationLimit} regenerations remaining.`;
   };
   renderUsage();
 
@@ -105,7 +116,10 @@ export function createScreeningQuestionReviewUI(
   };
 
   const requestDraft = async (regenerate: boolean) => {
-    if (limits.dailyRemaining <= 0 || (regenerate && limits.itemRegenerationsRemaining <= 0)) {
+    if (
+      remainingAiAllowance(limits) <= 0 ||
+      (regenerate && limits.itemRegenerationsRemaining <= 0)
+    ) {
       status.textContent = 'AI generation limit reached.';
       return;
     }
@@ -116,10 +130,15 @@ export function createScreeningQuestionReviewUI(
       showDraft(result.draft);
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
-      status.textContent =
-        code === 'insufficient_context'
+      if (code === 'ai_monthly_limit_reached') {
+        status.textContent =
+          'Your Free AI allowance is used for this month. Upgrade to Pro for higher daily access.';
+        upgrade.hidden = false;
+      } else {
+        status.textContent = code === 'insufficient_context'
           ? 'TrackMyOPT could not create a reliable answer from this resume and job description. Please answer this question yourself.'
           : 'TrackMyOPT could not generate this draft. Please try again or answer this question yourself.';
+      }
     }
   };
 
@@ -146,7 +165,7 @@ export function createScreeningQuestionReviewUI(
     }
   }
 
-  root.append(preview, insert, confirm, status);
+  root.append(preview, insert, confirm, status, upgrade);
 
   options.question.element?.addEventListener('input', (event) => {
     if (!event.isTrusted || status.dataset.reviewState !== 'needs-review') return;
