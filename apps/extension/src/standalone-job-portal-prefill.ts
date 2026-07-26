@@ -1,9 +1,8 @@
 import {
-  credentialForHostname,
   findApprovedJobPortalPasswordField,
   fillJobPortalLogin,
+  normalizeDefaultJobPortalLogin,
   normalizeJobPortalHostname,
-  normalizeSavedJobPortalLogins,
   type JobPortalLoginCredential,
 } from './job-portal-login';
 
@@ -82,7 +81,7 @@ export function runStandaloneJobPortalLoginPrefill(
   title.style.cssText = 'display:block;font-size:16px;margin-bottom:5px;';
   const note = root.createElement('p');
   note.textContent =
-    `TrackMyOPT can fill an exact-site login saved for ${currentHostname}. It will never click Continue, Next, or Submit.`;
+    `TrackMyOPT can offer your shared default job-portal login on ${currentHostname}. Review it before filling. TrackMyOPT never clicks Login, Continue, Next, Create Account, or Submit.`;
   note.style.cssText = 'margin:0 0 12px;color:#475569;';
   const status = root.createElement('p');
   status.setAttribute('role', 'status');
@@ -124,11 +123,8 @@ export function runStandaloneJobPortalLoginPrefill(
     review.disabled = true;
     review.textContent = 'Loading…';
     const response = await requestCredential();
-    reviewedCredential = credentialForHostname(
-      normalizeSavedJobPortalLogins(
-        response?.credential ? [response.credential] : []
-      ),
-      currentHostname
+    reviewedCredential = normalizeDefaultJobPortalLogin(
+      response?.credential
     );
     if (!response?.ok || !reviewedCredential) {
       reviewedCredential = null;
@@ -136,7 +132,7 @@ export function runStandaloneJobPortalLoginPrefill(
       status.textContent =
         response?.error === 'not_signed_in'
           ? 'Sign in to TrackMyOPT, then try again.'
-          : `No saved login matches ${currentHostname}.`;
+          : 'No default job-portal login is saved. Add one in TrackMyOPT.';
       review.textContent = 'Try again';
       review.disabled = false;
       return;

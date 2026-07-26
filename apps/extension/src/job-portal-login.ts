@@ -1,7 +1,6 @@
 import { flashAutofillField } from './autofill-visual-feedback';
 
 export interface JobPortalLoginCredential {
-  hostname: string;
   email: string;
   password: string;
 }
@@ -47,23 +46,21 @@ export function normalizeJobPortalHostname(value: string): string | null {
   }
 }
 
-function normalizedCredential(
+export function normalizeDefaultJobPortalLogin(
   value: unknown
 ): JobPortalLoginCredential | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const candidate = value as Record<string, unknown>;
   if (
-    typeof candidate.hostname !== 'string' ||
+    'hostname' in candidate ||
     typeof candidate.email !== 'string' ||
     typeof candidate.password !== 'string'
   ) {
     return null;
   }
-  const hostname = normalizeJobPortalHostname(candidate.hostname);
   const email = candidate.email.trim();
   const password = candidate.password;
   if (
-    !hostname ||
     email.length > 254 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
     password.length < 8 ||
@@ -71,35 +68,7 @@ function normalizedCredential(
   ) {
     return null;
   }
-  return { hostname, email, password };
-}
-
-/** Sanitize decrypted API data and drop unsafe/duplicate portal entries. */
-export function normalizeSavedJobPortalLogins(
-  value: unknown
-): JobPortalLoginCredential[] {
-  if (!Array.isArray(value)) return [];
-  const seen = new Set<string>();
-  const result: JobPortalLoginCredential[] = [];
-  for (const entry of value.slice(0, 5)) {
-    const credential = normalizedCredential(entry);
-    if (!credential || seen.has(credential.hostname)) continue;
-    seen.add(credential.hostname);
-    result.push(credential);
-  }
-  return result;
-}
-
-/** Exact-host matching prevents credentials crossing employer/ATS tenants. */
-export function credentialForHostname(
-  credentials: JobPortalLoginCredential[],
-  hostname: string
-): JobPortalLoginCredential | null {
-  const normalized = normalizeJobPortalHostname(hostname);
-  if (!normalized) return null;
-  return (
-    credentials.find((credential) => credential.hostname === normalized) ?? null
-  );
+  return { email, password };
 }
 
 function visible(input: HTMLInputElement): boolean {
@@ -263,8 +232,8 @@ export function fillJobPortalLogin(
   credential: JobPortalLoginCredential,
   currentHostname: string
 ): JobPortalLoginFillResult {
-  const verified = credentialForHostname([credential], currentHostname);
-  if (!verified) {
+  const verified = normalizeDefaultJobPortalLogin(credential);
+  if (!verified || !normalizeJobPortalHostname(currentHostname)) {
     return { emailFilled: 0, passwordFilled: 0, totalFilled: 0 };
   }
 

@@ -140,13 +140,10 @@ describe("/api/private-application-answers", () => {
         veteranStatus: "not_protected_veteran",
         disabilityStatus: "no",
         eeoPreference: "",
-        jobPortalLogins: [
-          {
-            hostname: "https://acme.wd5.myworkdayjobs.com/jobs",
-            email: "candidate@example.com",
-            password: "Application-only!9A",
-          },
-        ],
+        defaultJobPortalLogin: {
+          email: "candidate@example.com",
+          password: "Application-only!9A",
+        },
       })
     );
     const body = await response.json();
@@ -159,13 +156,10 @@ describe("/api/private-application-answers", () => {
       dateOfBirth: "2002-06-06",
       sexGender: "male",
       raceEthnicity: "asian",
-      jobPortalLogins: [
-        {
-          hostname: "acme.wd5.myworkdayjobs.com",
-          email: "candidate@example.com",
-          password: "Application-only!9A",
-        },
-      ],
+      defaultJobPortalLogin: {
+        email: "candidate@example.com",
+        password: "Application-only!9A",
+      },
     });
     expect(body.data).not.toHaveProperty("eeoPreference");
   });
@@ -185,13 +179,10 @@ describe("/api/private-application-answers", () => {
         dateOfBirth: "1998-04-12",
         sexGender: "female",
         eeoPreference: "prefer_not_to_answer",
-        jobPortalLogins: [
-          {
-            hostname: "acme.wd5.myworkdayjobs.com",
-            email: "candidate@example.com",
-            password: "Application-only!9A",
-          },
-        ],
+        defaultJobPortalLogin: {
+          email: "candidate@example.com",
+          password: "Application-only!9A",
+        },
       })
     );
 
@@ -221,15 +212,31 @@ describe("/api/private-application-answers", () => {
       dateOfBirth: "1998-04-12",
       sexGender: "female",
       eeoPreference: "prefer_not_to_answer",
-      jobPortalLogins: [
-        {
-          hostname: "acme.wd5.myworkdayjobs.com",
-          email: "candidate@example.com",
-          password: "Application-only!9A",
-        },
-      ],
+      defaultJobPortalLogin: {
+        email: "candidate@example.com",
+        password: "Application-only!9A",
+      },
     });
     expect(getResponse.headers.get("cache-control")).toContain("no-store");
+    expect(mocks.lastUpsert?.payload_version).toBe(2);
+  });
+
+  it("rejects legacy hostname-bound login writes", async () => {
+    const response = await PUT(
+      request("PUT", {
+        consent: true,
+        jobPortalLogins: [
+          {
+            hostname: "jobs.example.com",
+            email: "candidate@example.com",
+            password: "Legacy-only!9A",
+          },
+        ],
+      })
+    );
+
+    expect(response.status).toBe(400);
+    expect(mocks.lastUpsert).toBeNull();
   });
 
   it("deletes all saved private answers", async () => {

@@ -35,14 +35,19 @@ interface PrivateAnswersForm {
   veteranStatus: string;
   disabilityStatus: string;
   eeoPreference: string;
-  jobPortalLogins: JobPortalLoginForm[];
+  defaultJobPortalLogin: DefaultJobPortalLoginForm;
 }
 
-interface JobPortalLoginForm {
-  hostname: string;
+interface DefaultJobPortalLoginForm {
   email: string;
   password: string;
   passwordConfirmation: string;
+}
+
+interface LegacyJobPortalLogin {
+  hostname: string;
+  email: string;
+  password: string;
 }
 
 const EMPTY: PrivateAnswersForm = {
@@ -67,7 +72,11 @@ const EMPTY: PrivateAnswersForm = {
   veteranStatus: "",
   disabilityStatus: "",
   eeoPreference: "",
-  jobPortalLogins: [],
+  defaultJobPortalLogin: {
+    email: "",
+    password: "",
+    passwordConfirmation: "",
+  },
 };
 
 function asForm(value: unknown): PrivateAnswersForm {
@@ -75,31 +84,26 @@ function asForm(value: unknown): PrivateAnswersForm {
   const data = value as Record<string, unknown>;
   const read = (key: keyof PrivateAnswersForm) =>
     typeof data[key] === "string" ? data[key] : "";
-  const jobPortalLogins = Array.isArray(data.jobPortalLogins)
-    ? data.jobPortalLogins
-        .slice(0, 5)
-        .flatMap((entry): JobPortalLoginForm[] => {
-          if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-            return [];
-          }
-          const login = entry as Record<string, unknown>;
-          if (
-            typeof login.hostname !== "string" ||
-            typeof login.email !== "string" ||
-            typeof login.password !== "string"
-          ) {
-            return [];
-          }
-          return [
-            {
-              hostname: login.hostname,
-              email: login.email,
-              password: login.password,
-              passwordConfirmation: login.password,
-            },
-          ];
-        })
-    : [];
+  const savedDefault =
+    data.defaultJobPortalLogin &&
+    typeof data.defaultJobPortalLogin === "object" &&
+    !Array.isArray(data.defaultJobPortalLogin)
+      ? (data.defaultJobPortalLogin as Record<string, unknown>)
+      : null;
+  const defaultJobPortalLogin =
+    savedDefault &&
+    typeof savedDefault.email === "string" &&
+    typeof savedDefault.password === "string"
+      ? {
+          email: savedDefault.email,
+          password: savedDefault.password,
+          passwordConfirmation: savedDefault.password,
+        }
+      : {
+          email: "",
+          password: "",
+          passwordConfirmation: "",
+        };
   return {
     workAuthorization: read("workAuthorization"),
     requiresSponsorship: read("requiresSponsorship"),
@@ -122,8 +126,30 @@ function asForm(value: unknown): PrivateAnswersForm {
     veteranStatus: read("veteranStatus"),
     disabilityStatus: read("disabilityStatus"),
     eeoPreference: read("eeoPreference"),
-    jobPortalLogins,
+    defaultJobPortalLogin,
   };
+}
+
+function legacyLoginsFrom(value: unknown): LegacyJobPortalLogin[] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+  const entries = (value as Record<string, unknown>).legacyJobPortalLogins;
+  if (!Array.isArray(entries)) return [];
+  return entries.slice(0, 5).flatMap((entry): LegacyJobPortalLogin[] => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+    const login = entry as Record<string, unknown>;
+    if (
+      typeof login.hostname !== "string" ||
+      typeof login.email !== "string" ||
+      typeof login.password !== "string"
+    ) {
+      return [];
+    }
+    return [{
+      hostname: login.hostname,
+      email: login.email,
+      password: login.password,
+    }];
+  });
 }
 
 export function PrivateApplicationAnswersSection() {
@@ -134,10 +160,15 @@ export function PrivateApplicationAnswersSection() {
   const [revealed, setRevealed] = useState(false);
   const [consent, setConsent] = useState(false);
   const [hasSavedAnswers, setHasSavedAnswers] = useState(false);
+  const [legacyJobPortalLogins, setLegacyJobPortalLogins] = useState<
+    LegacyJobPortalLogin[]
+  >([]);
+  const [legacyLoginDecisionMade, setLegacyLoginDecisionMade] = useState(true);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reviewAbortRef = useRef<AbortController | null>(null);
   const decryptedFormRef = useRef<PrivateAnswersForm>(EMPTY);
+  const decryptedLegacyLoginsRef = useRef<LegacyJobPortalLogin[]>([]);
   const plaintextAllowedRef = useRef(false);
 
   useEffect(() => {
@@ -149,6 +180,7 @@ export function PrivateApplicationAnswersSection() {
       reviewAbortRef.current?.abort();
       reviewAbortRef.current = null;
       decryptedFormRef.current = EMPTY;
+      decryptedLegacyLoginsRef.current = [];
       plaintextAllowedRef.current = false;
     };
   }, []);
@@ -157,8 +189,11 @@ export function PrivateApplicationAnswersSection() {
     reviewAbortRef.current?.abort();
     reviewAbortRef.current = null;
     decryptedFormRef.current = EMPTY;
+    decryptedLegacyLoginsRef.current = [];
     plaintextAllowedRef.current = false;
     setForm(EMPTY);
+    setLegacyJobPortalLogins([]);
+    setLegacyLoginDecisionMade(true);
     setConsent(false);
     setRevealed(false);
     setLoading(false);
@@ -188,8 +223,12 @@ export function PrivateApplicationAnswersSection() {
         return;
       }
       const nextForm = body?.data ? asForm(body.data) : EMPTY;
+      const legacyLogins = body?.data ? legacyLoginsFrom(body.data) : [];
       decryptedFormRef.current = nextForm;
+      decryptedLegacyLoginsRef.current = legacyLogins;
       setForm(nextForm);
+      setLegacyJobPortalLogins(legacyLogins);
+      setLegacyLoginDecisionMade(legacyLogins.length === 0);
       setHasSavedAnswers(Boolean(body?.data));
       setRevealed(true);
     } catch (caught) {
@@ -211,7 +250,7 @@ export function PrivateApplicationAnswersSection() {
 
   const update =
     (
-      key: Exclude<keyof PrivateAnswersForm, "jobPortalLogins">
+      key: Exclude<keyof PrivateAnswersForm, "defaultJobPortalLogin">
     ) =>
     (
       event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -221,50 +260,46 @@ export function PrivateApplicationAnswersSection() {
       setError(null);
     };
 
-  const updateJobPortalLogin =
-    (
-      index: number,
-      key: keyof JobPortalLoginForm
-    ) =>
+  const updateDefaultJobPortalLogin =
+    (key: keyof DefaultJobPortalLoginForm) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
+      if (legacyJobPortalLogins.length > 0) {
+        decryptedLegacyLoginsRef.current = [];
+        setLegacyJobPortalLogins([]);
+        setLegacyLoginDecisionMade(true);
+      }
       setForm((previous) => ({
         ...previous,
-        jobPortalLogins: previous.jobPortalLogins.map((login, loginIndex) =>
-          loginIndex === index ? { ...login, [key]: value } : login
-        ),
+        defaultJobPortalLogin: {
+          ...previous.defaultJobPortalLogin,
+          [key]: value,
+        },
       }));
       setSuccess(null);
       setError(null);
     };
 
-  const addJobPortalLogin = () => {
-    setForm((previous) => {
-      if (previous.jobPortalLogins.length >= 5) return previous;
-      return {
-        ...previous,
-        jobPortalLogins: [
-          ...previous.jobPortalLogins,
-          {
-            hostname: "",
-            email: "",
-            password: "",
-            passwordConfirmation: "",
-          },
-        ],
-      };
-    });
+  const chooseLegacyJobPortalLogin = (login: LegacyJobPortalLogin) => {
+    setForm((previous) => ({
+      ...previous,
+      defaultJobPortalLogin: {
+        email: login.email,
+        password: login.password,
+        passwordConfirmation: login.password,
+      },
+    }));
+    decryptedLegacyLoginsRef.current = [];
+    setLegacyJobPortalLogins([]);
+    setLegacyLoginDecisionMade(true);
     setSuccess(null);
     setError(null);
   };
 
-  const removeJobPortalLogin = (index: number) => {
-    setForm((previous) => ({
-      ...previous,
-      jobPortalLogins: previous.jobPortalLogins.filter(
-        (_, loginIndex) => loginIndex !== index
-      ),
-    }));
+  const discardLegacyJobPortalLogins = () => {
+    decryptedLegacyLoginsRef.current = [];
+    setLegacyJobPortalLogins([]);
+    setLegacyLoginDecisionMade(true);
     setSuccess(null);
     setError(null);
   };
@@ -274,31 +309,45 @@ export function PrivateApplicationAnswersSection() {
       setError("Please confirm the privacy notice before saving.");
       return;
     }
+    if (!legacyLoginDecisionMade) {
+      setError(
+        "Choose one older login as the default, enter a new default, or choose not to use the older logins."
+      );
+      return;
+    }
+    const defaultLogin = form.defaultJobPortalLogin;
+    const hasAnyLoginValue = Boolean(
+      defaultLogin.email.trim() ||
+      defaultLogin.password ||
+      defaultLogin.passwordConfirmation
+    );
     if (
-      form.jobPortalLogins.some(
-        (login) => login.password !== login.passwordConfirmation
-      )
+      hasAnyLoginValue &&
+      (!defaultLogin.email.trim() ||
+        !defaultLogin.password ||
+        !defaultLogin.passwordConfirmation)
     ) {
-      setError("Each job-portal password must match its re-entered password.");
+      setError("Enter the email, password, and re-entered password.");
+      return;
+    }
+    if (defaultLogin.password !== defaultLogin.passwordConfirmation) {
+      setError("The default job-portal passwords must match.");
       return;
     }
     const {
-      jobPortalLogins,
+      defaultJobPortalLogin: _defaultJobPortalLogin,
       ...answers
     } = form;
     const savePayload = {
       ...answers,
-      jobPortalLogins: jobPortalLogins
-        .filter(
-          (login) =>
-            login.hostname.trim() ||
-            login.email.trim() ||
-            login.password ||
-            login.passwordConfirmation
-        )
-        .map(
-          ({ passwordConfirmation: _passwordConfirmation, ...login }) => login
-        ),
+      ...(hasAnyLoginValue
+        ? {
+            defaultJobPortalLogin: {
+              email: defaultLogin.email.trim(),
+              password: defaultLogin.password,
+            },
+          }
+        : {}),
       consent: true,
     };
     setSaving(true);
@@ -323,6 +372,9 @@ export function PrivateApplicationAnswersSection() {
         setForm(savedForm);
         decryptedFormRef.current = savedForm;
       }
+      decryptedLegacyLoginsRef.current = [];
+      setLegacyJobPortalLogins([]);
+      setLegacyLoginDecisionMade(true);
       setHasSavedAnswers(true);
       setConsent(false);
       setSuccess(
@@ -358,7 +410,10 @@ export function PrivateApplicationAnswersSection() {
       }
       setForm(EMPTY);
       decryptedFormRef.current = EMPTY;
+      decryptedLegacyLoginsRef.current = [];
       plaintextAllowedRef.current = false;
+      setLegacyJobPortalLogins([]);
+      setLegacyLoginDecisionMade(true);
       setConsent(false);
       setHasSavedAnswers(false);
       setRevealed(false);
@@ -377,7 +432,7 @@ export function PrivateApplicationAnswersSection() {
         <h3 className="text-base font-semibold">Private application answers</h3>
       </div>
       <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-        Optional site-specific job-portal logins and answers for work
+        An optional shared job-portal login and answers for work
         authorization, visa, compensation, work preferences, date of birth,
         and DEI questions. They are protected with authenticated encryption and
         are never sent to AI or analytics.
@@ -415,112 +470,101 @@ export function PrivateApplicationAnswersSection() {
           </div>
 
           <div className="rounded-xl border border-red-200 bg-white/80 p-4 dark:border-red-950 dark:bg-zinc-950/50">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h4 className="text-sm font-semibold">
-                  Job-portal login credentials
-                </h4>
-                <p className="mt-1 max-w-2xl text-xs leading-5 text-gray-600 dark:text-gray-400">
-                  Save a separate login for each exact employer portal. The
-                  extension will use it only on that hostname, after you review
-                  and approve it for the open application.
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addJobPortalLogin}
-                disabled={form.jobPortalLogins.length >= 5}
-              >
-                Add portal login
-              </Button>
-            </div>
-            <p className="mt-3 rounded-lg bg-red-50 p-3 text-xs leading-5 text-red-800 dark:bg-red-950/30 dark:text-red-300">
-              Use the exact password accepted by that employer portal,
-              preferably a unique password. Do not enter your TrackMyOPT
-              password. TrackMyOPT does not generate, reset, or verify employer
-              passwords.
+            <h4 className="text-sm font-semibold">
+              Default job-portal login
+            </h4>
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-gray-600 dark:text-gray-400">
+              TrackMyOPT will offer this same login across all third-party job
+              portals where you choose Review, then Approve. It is never filled
+              silently, and credential prefill never clicks Login, Continue,
+              Next, Create Account, or Submit.
             </p>
-            {form.jobPortalLogins.length === 0 ? (
-              <p className="mt-4 text-sm text-gray-500">
-                No job-portal login is saved.
-              </p>
-            ) : (
-              <div className="mt-4 space-y-4">
-                {form.jobPortalLogins.map((login, index) => (
-                  <div
-                    key={index}
-                    className="rounded-lg border border-gray-200 p-4 dark:border-zinc-800"
+            <p className="mt-3 rounded-lg bg-red-50 p-3 text-xs leading-5 text-red-800 dark:bg-red-950/30 dark:text-red-300">
+              Using the same password across unrelated employers and hiring
+              systems creates a security risk if any one portal is compromised.
+              Only save this login if you understand that tradeoff. Do not
+              enter your TrackMyOPT password. TrackMyOPT does not generate,
+              reset, or verify employer passwords.
+            </p>
+
+            {legacyJobPortalLogins.length > 0 && (
+              <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/30">
+                <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+                  Action required for your older saved logins
+                </p>
+                <p className="mt-1 text-xs leading-5 text-amber-800 dark:text-amber-300">
+                  For safety, none of your older site-specific logins will be
+                  used across all portals automatically. Choose one below as
+                  the new default, enter a new default, or discard the older
+                  login entries.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {legacyJobPortalLogins.map((login) => (
+                    <Button
+                      key={`${login.hostname}:${login.email}`}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => chooseLegacyJobPortalLogin(login)}
+                    >
+                      Use {login.email} as default
+                    </Button>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={discardLegacyJobPortalLogins}
                   >
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <strong className="text-sm">
-                        Portal login {index + 1}
-                      </strong>
-                      <button
-                        type="button"
-                        onClick={() => removeJobPortalLogin(index)}
-                        className="text-xs font-medium text-red-700 hover:underline dark:text-red-400"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <Field label="Job portal website or hostname">
-                        <Input
-                          value={login.hostname}
-                          onChange={updateJobPortalLogin(index, "hostname")}
-                          placeholder="company.wd5.myworkdayjobs.com"
-                          autoComplete="url"
-                          spellCheck={false}
-                        />
-                      </Field>
-                      <Field label="Login email">
-                        <Input
-                          type="email"
-                          value={login.email}
-                          onChange={updateJobPortalLogin(index, "email")}
-                          placeholder="you@example.com"
-                          autoComplete="username"
-                          spellCheck={false}
-                        />
-                      </Field>
-                      <Field label="Password">
-                        <Input
-                          type="password"
-                          value={login.password}
-                          onChange={updateJobPortalLogin(index, "password")}
-                          minLength={8}
-                          maxLength={256}
-                          autoComplete="new-password"
-                          data-sensitive="true"
-                        />
-                      </Field>
-                      <Field label="Password (re-enter)">
-                        <Input
-                          type="password"
-                          value={login.passwordConfirmation}
-                          onChange={updateJobPortalLogin(
-                            index,
-                            "passwordConfirmation"
-                          )}
-                          minLength={8}
-                          maxLength={256}
-                          autoComplete="new-password"
-                          data-sensitive="true"
-                        />
-                      </Field>
-                    </div>
-                    <p className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                      Employer portals may require at least 8 characters,
-                      uppercase, lowercase, a number, and a special character.
-                      TrackMyOPT stores the password you provide; the employer
-                      portal decides its actual password rules.
-                    </p>
-                  </div>
-                ))}
+                    Do not use older logins
+                  </Button>
+                </div>
               </div>
             )}
+
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label="Default login email">
+                <Input
+                  type="email"
+                  value={form.defaultJobPortalLogin.email}
+                  onChange={updateDefaultJobPortalLogin("email")}
+                  placeholder="you@example.com"
+                  autoComplete="username"
+                  spellCheck={false}
+                />
+              </Field>
+              <div className="hidden sm:block" aria-hidden="true" />
+              <Field label="Default password">
+                <Input
+                  type="password"
+                  value={form.defaultJobPortalLogin.password}
+                  onChange={updateDefaultJobPortalLogin("password")}
+                  minLength={8}
+                  maxLength={256}
+                  autoComplete="new-password"
+                  data-sensitive="true"
+                />
+              </Field>
+              <Field label="Default password (re-enter)">
+                <Input
+                  type="password"
+                  value={form.defaultJobPortalLogin.passwordConfirmation}
+                  onChange={updateDefaultJobPortalLogin(
+                    "passwordConfirmation"
+                  )}
+                  minLength={8}
+                  maxLength={256}
+                  autoComplete="new-password"
+                  data-sensitive="true"
+                />
+              </Field>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
+              Employer portals may require at least 8 characters, uppercase,
+              lowercase, a number, and a special character. TrackMyOPT stores
+              the password you provide; each employer portal decides its
+              actual password rules.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -718,9 +762,11 @@ export function PrivateApplicationAnswersSection() {
               className="mt-1 h-4 w-4"
             />
             <span>
-              I choose to save these optional credentials and sensitive answers
-              so TrackMyOPT can show them to me for review before filling job
-              applications. I can edit or delete them at any time.
+              I understand that TrackMyOPT will make this same saved login
+              available for my review on job portals across different
+              employers and hiring systems. I choose to save it and these
+              optional sensitive answers, and I can edit or delete them at any
+              time.
             </span>
           </label>
 

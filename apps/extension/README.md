@@ -240,10 +240,14 @@ Every mode keeps the same hard boundaries:
   answers; optional saved private answers are encrypted, loaded only into the
   review panel, and become usable only after explicit confirmation for the
   current application;
-- never use a saved job-portal credential outside its exact hostname, on a
-  TrackMyOPT page, in a password-change/OTP field, or in a child-frame relay;
-  the password stays masked in the review panel and exists only in isolated
-  extension memory during the approved fill;
+- use only one user-approved default job-portal credential across third-party
+  portal hostnames; never use it on a TrackMyOPT page, in a password-change,
+  security-answer, financial, SSN, DOB, authentication-code, OTP, MFA, PIN, or
+  uncertain password-type field, or in a child-frame relay; the password stays
+  masked in the review panel and exists only in isolated extension memory
+  during the approved fill;
+- never click Login, Continue, Next, Create Account, or Submit as part of
+  credential filling;
 - never click Add another, Review, Submit, Apply, Finish, or another final
   action; Guided Autopilot alone may click exact allowlisted non-submit
   Next/Continue/Done controls;
