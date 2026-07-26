@@ -4,6 +4,10 @@ import {
   isCustomDropdownControl,
   selectSmartDropdown,
 } from './smart-dropdown';
+import {
+  normalizeSavedJobPortalLogins,
+  type JobPortalLoginCredential,
+} from './job-portal-login';
 
 export interface SensitiveAnswerSession {
   confirmed: boolean;
@@ -77,7 +81,9 @@ export type SensitiveAnswerKind =
 export type SavedPrivateApplicationAnswers = Omit<
   SensitiveAnswerSession,
   'confirmed'
->;
+> & {
+  jobPortalLogins?: JobPortalLoginCredential[];
+};
 
 function boundedText(value: unknown, max: number): string | undefined {
   if (typeof value !== 'string') return undefined;
@@ -204,7 +210,13 @@ export function normalizeSavedPrivateApplicationAnswers(
   });
   if (!normalized) return null;
   const { confirmed: _confirmed, ...answers } = normalized;
-  return answers;
+  const jobPortalLogins = normalizeSavedJobPortalLogins(
+    (value as Record<string, unknown>).jobPortalLogins
+  );
+  return {
+    ...answers,
+    ...(jobPortalLogins.length > 0 ? { jobPortalLogins } : {}),
+  };
 }
 
 const SPONSORSHIP_RE = /\b(?:sponsor|sponsorship|future visa support)\b/i;

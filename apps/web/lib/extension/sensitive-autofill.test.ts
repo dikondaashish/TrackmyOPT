@@ -134,16 +134,20 @@ describe('review-confirmed private answer filling', () => {
     disabilityStatus: 'prefer_not_to_answer',
   };
 
-  it('does nothing until the user confirms the session answers', () => {
+  it('does nothing until the user confirms the session answers', async () => {
     expect(
-      fillConfirmedSensitiveAnswers(document, { ...answers, confirmed: false })
-        .filled
+      (
+        await fillConfirmedSensitiveAnswers(document, {
+          ...answers,
+          confirmed: false,
+        })
+      ).filled
     ).toBe(0);
     expect(document.querySelector('select')!.value).toBe('');
   });
 
-  it('uses exact confirmed facts, chooses EEO decline, and never overwrites', () => {
-    const result = fillConfirmedSensitiveAnswers(document, answers);
+  it('uses exact confirmed facts, chooses EEO decline, and never overwrites', async () => {
+    const result = await fillConfirmedSensitiveAnswers(document, answers);
     const selects = document.querySelectorAll('select');
     const textInputs = document.querySelectorAll<HTMLInputElement>(
       'input[type="text"]'

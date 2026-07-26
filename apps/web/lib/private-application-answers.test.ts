@@ -3,11 +3,12 @@ import {
   PrivateApplicationAnswersSchema,
   decryptPrivateApplicationAnswers,
   encryptPrivateApplicationAnswers,
+  type PrivateApplicationAnswers,
 } from "./private-application-answers";
 
 const TEST_KEY = Buffer.alloc(32, 7).toString("base64");
 
-const ANSWERS = {
+const ANSWERS: PrivateApplicationAnswers = {
   workAuthorization: "yes",
   requiresSponsorship: "no",
   visaStatus: "F-1 OPT",
@@ -28,7 +29,14 @@ const ANSWERS = {
   veteranStatus: "not_protected_veteran",
   disabilityStatus: "prefer_not_to_answer",
   eeoPreference: "prefer_not_to_answer",
-} as const;
+  jobPortalLogins: [
+    {
+      hostname: "acme.wd5.myworkdayjobs.com",
+      email: "candidate@example.com",
+      password: "Application-only!9A",
+    },
+  ],
+};
 
 describe("private application answer protection", () => {
   beforeEach(() => {
@@ -44,6 +52,8 @@ describe("private application answer protection", () => {
 
     expect(encrypted).not.toContain("F-1 OPT");
     expect(encrypted).not.toContain("1998-04-12");
+    expect(encrypted).not.toContain("Application-only!9A");
+    expect(encrypted).not.toContain("candidate@example.com");
     expect(decryptPrivateApplicationAnswers(encrypted)).toEqual(ANSWERS);
   });
 
@@ -55,9 +65,15 @@ describe("private application answer protection", () => {
 
   it("rejects modified ciphertext", () => {
     const encrypted = encryptPrivateApplicationAnswers(ANSWERS);
-    const tampered = `${encrypted.slice(0, -1)}${
-      encrypted.endsWith("A") ? "B" : "A"
-    }`;
+    const [version, iv, tag, ciphertext] = encrypted.split(".");
+    const ciphertextBytes = Buffer.from(ciphertext, "base64url");
+    ciphertextBytes[0] ^= 1;
+    const tampered = [
+      version,
+      iv,
+      tag,
+      ciphertextBytes.toString("base64url"),
+    ].join(".");
 
     expect(() => decryptPrivateApplicationAnswers(tampered)).toThrow();
   });
@@ -67,6 +83,43 @@ describe("private application answer protection", () => {
       PrivateApplicationAnswersSchema.parse({
         ...ANSWERS,
         socialSecurityNumber: "123-45-6789",
+      })
+    ).toThrow();
+  });
+
+  it("normalizes exact job-portal hostnames and rejects unsafe credentials", () => {
+    const parsed = PrivateApplicationAnswersSchema.parse({
+      jobPortalLogins: [
+        {
+          hostname: "https://ACME.wd5.myworkdayjobs.com/en-US/jobs",
+          email: "candidate@example.com",
+          password: "Application-only!9A",
+        },
+      ],
+    });
+    expect(parsed.jobPortalLogins?.[0].hostname).toBe(
+      "acme.wd5.myworkdayjobs.com"
+    );
+    expect(() =>
+      PrivateApplicationAnswersSchema.parse({
+        jobPortalLogins: [
+          {
+            hostname: "www.trackmyopt.com",
+            email: "candidate@example.com",
+            password: "Application-only!9A",
+          },
+        ],
+      })
+    ).toThrow();
+    expect(() =>
+      PrivateApplicationAnswersSchema.parse({
+        jobPortalLogins: [
+          {
+            hostname: "acme.wd5.myworkdayjobs.com",
+            email: "candidate@example.com",
+            password: "short",
+          },
+        ],
       })
     ).toThrow();
   });

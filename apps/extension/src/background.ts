@@ -52,6 +52,10 @@ import {
   readActiveGeneratedResumeArtifact,
   replaceActiveGeneratedResumeArtifact,
 } from './active-resume-artifact-store';
+import {
+  filterPrivateAnswersForSenderUrl,
+  hostnameFromSenderTabUrl,
+} from './private-application-delivery';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -272,8 +276,25 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg.type === 'GET_PRIVATE_APPLICATION_ANSWERS') {
-    getPrivateApplicationAnswers()
+    getPrivateApplicationAnswers(_sender.tab?.url)
       .then((response) => sendResponse(response))
+      .catch(() =>
+        sendResponse({ ok: false as const, error: 'unavailable' })
+      );
+    return true;
+  }
+  if (msg.type === 'GET_JOB_PORTAL_LOGIN_FOR_TAB') {
+    getPrivateApplicationAnswers(_sender.tab?.url)
+      .then((response) => {
+        if (!response.ok) {
+          sendResponse(response);
+          return;
+        }
+        sendResponse({
+          ok: true,
+          credential: response.data?.jobPortalLogins?.[0] ?? null,
+        });
+      })
       .catch(() =>
         sendResponse({ ok: false as const, error: 'unavailable' })
       );
@@ -646,7 +667,12 @@ async function getAutofillProfile(): Promise<AutofillProfileResult> {
   };
 }
 
-async function getPrivateApplicationAnswers(): Promise<PrivateApplicationAnswersResult> {
+async function getPrivateApplicationAnswers(
+  senderTabUrl: unknown
+): Promise<PrivateApplicationAnswersResult> {
+  if (!hostnameFromSenderTabUrl(senderTabUrl)) {
+    return { ok: false, error: 'unavailable' };
+  }
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
 
@@ -666,11 +692,12 @@ async function getPrivateApplicationAnswers(): Promise<PrivateApplicationAnswers
   }
 
   const body = (await response.json()) as { data?: unknown };
+  const normalized = body.data
+    ? normalizeSavedPrivateApplicationAnswers(body.data)
+    : null;
   return {
     ok: true,
-    data: body.data
-      ? normalizeSavedPrivateApplicationAnswers(body.data)
-      : null,
+    data: filterPrivateAnswersForSenderUrl(normalized, senderTabUrl),
   };
 }
 

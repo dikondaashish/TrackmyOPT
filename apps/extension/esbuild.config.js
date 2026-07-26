@@ -42,6 +42,7 @@ const buildOptions = {
     'src/content.ts',
     'src/content-job-portal.ts',
     'src/easy-apply-fill.ts',
+    'src/job-portal-login-entry.ts',
     'src/feedback-modal-entry.ts',
   ],
   bundle: true,
@@ -70,4 +71,3 @@ if (isWatch) {
 } else {
   esbuild.build(buildOptions).catch(() => process.exit(1));
 }
-

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   Check,
@@ -35,6 +35,14 @@ interface PrivateAnswersForm {
   veteranStatus: string;
   disabilityStatus: string;
   eeoPreference: string;
+  jobPortalLogins: JobPortalLoginForm[];
+}
+
+interface JobPortalLoginForm {
+  hostname: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
 }
 
 const EMPTY: PrivateAnswersForm = {
@@ -59,6 +67,7 @@ const EMPTY: PrivateAnswersForm = {
   veteranStatus: "",
   disabilityStatus: "",
   eeoPreference: "",
+  jobPortalLogins: [],
 };
 
 function asForm(value: unknown): PrivateAnswersForm {
@@ -66,6 +75,31 @@ function asForm(value: unknown): PrivateAnswersForm {
   const data = value as Record<string, unknown>;
   const read = (key: keyof PrivateAnswersForm) =>
     typeof data[key] === "string" ? data[key] : "";
+  const jobPortalLogins = Array.isArray(data.jobPortalLogins)
+    ? data.jobPortalLogins
+        .slice(0, 5)
+        .flatMap((entry): JobPortalLoginForm[] => {
+          if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+            return [];
+          }
+          const login = entry as Record<string, unknown>;
+          if (
+            typeof login.hostname !== "string" ||
+            typeof login.email !== "string" ||
+            typeof login.password !== "string"
+          ) {
+            return [];
+          }
+          return [
+            {
+              hostname: login.hostname,
+              email: login.email,
+              password: login.password,
+              passwordConfirmation: login.password,
+            },
+          ];
+        })
+    : [];
   return {
     workAuthorization: read("workAuthorization"),
     requiresSponsorship: read("requiresSponsorship"),
@@ -88,12 +122,13 @@ function asForm(value: unknown): PrivateAnswersForm {
     veteranStatus: read("veteranStatus"),
     disabilityStatus: read("disabilityStatus"),
     eeoPreference: read("eeoPreference"),
+    jobPortalLogins,
   };
 }
 
 export function PrivateApplicationAnswersSection() {
   const [form, setForm] = useState<PrivateAnswersForm>(EMPTY);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [revealed, setRevealed] = useState(false);
@@ -101,42 +136,83 @@ export function PrivateApplicationAnswersSection() {
   const [hasSavedAnswers, setHasSavedAnswers] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const reviewAbortRef = useRef<AbortController | null>(null);
+  const decryptedFormRef = useRef<PrivateAnswersForm>(EMPTY);
+  const plaintextAllowedRef = useRef(false);
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const response = await fetch("/api/private-application-answers", {
-          credentials: "include",
-          cache: "no-store",
-        });
-        const body = await response.json().catch(() => ({}));
-        if (!active) return;
-        if (!response.ok) {
-          setError(
-            body?.error || "Private answers are temporarily unavailable."
-          );
-          return;
-        }
-        if (body?.data) {
-          setForm(asForm(body.data));
-          setHasSavedAnswers(true);
-        }
-      } catch {
-        if (active) {
-          setError("Could not load private answers. Please try again.");
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
+    decryptedFormRef.current = form;
+  }, [form]);
+
+  useEffect(() => {
     return () => {
-      active = false;
+      reviewAbortRef.current?.abort();
+      reviewAbortRef.current = null;
+      decryptedFormRef.current = EMPTY;
+      plaintextAllowedRef.current = false;
     };
   }, []);
 
+  const clearDecryptedAnswers = useCallback(() => {
+    reviewAbortRef.current?.abort();
+    reviewAbortRef.current = null;
+    decryptedFormRef.current = EMPTY;
+    plaintextAllowedRef.current = false;
+    setForm(EMPTY);
+    setConsent(false);
+    setRevealed(false);
+    setLoading(false);
+  }, []);
+
+  const reviewPrivateAnswers = useCallback(async () => {
+    reviewAbortRef.current?.abort();
+    const controller = new AbortController();
+    reviewAbortRef.current = controller;
+    plaintextAllowedRef.current = true;
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await fetch("/api/private-application-answers", {
+        credentials: "include",
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      const body = await response.json().catch(() => ({}));
+      if (controller.signal.aborted) return;
+      if (!response.ok) {
+        plaintextAllowedRef.current = false;
+        setError(
+          body?.error || "Private answers are temporarily unavailable."
+        );
+        return;
+      }
+      const nextForm = body?.data ? asForm(body.data) : EMPTY;
+      decryptedFormRef.current = nextForm;
+      setForm(nextForm);
+      setHasSavedAnswers(Boolean(body?.data));
+      setRevealed(true);
+    } catch (caught) {
+      if (
+        controller.signal.aborted ||
+        (caught instanceof DOMException && caught.name === "AbortError")
+      ) {
+        return;
+      }
+      plaintextAllowedRef.current = false;
+      setError("Could not load private answers. Please try again.");
+    } finally {
+      if (reviewAbortRef.current === controller) {
+        reviewAbortRef.current = null;
+        setLoading(false);
+      }
+    }
+  }, []);
+
   const update =
-    (key: keyof PrivateAnswersForm) =>
+    (
+      key: Exclude<keyof PrivateAnswersForm, "jobPortalLogins">
+    ) =>
     (
       event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
@@ -145,11 +221,86 @@ export function PrivateApplicationAnswersSection() {
       setError(null);
     };
 
+  const updateJobPortalLogin =
+    (
+      index: number,
+      key: keyof JobPortalLoginForm
+    ) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setForm((previous) => ({
+        ...previous,
+        jobPortalLogins: previous.jobPortalLogins.map((login, loginIndex) =>
+          loginIndex === index ? { ...login, [key]: value } : login
+        ),
+      }));
+      setSuccess(null);
+      setError(null);
+    };
+
+  const addJobPortalLogin = () => {
+    setForm((previous) => {
+      if (previous.jobPortalLogins.length >= 5) return previous;
+      return {
+        ...previous,
+        jobPortalLogins: [
+          ...previous.jobPortalLogins,
+          {
+            hostname: "",
+            email: "",
+            password: "",
+            passwordConfirmation: "",
+          },
+        ],
+      };
+    });
+    setSuccess(null);
+    setError(null);
+  };
+
+  const removeJobPortalLogin = (index: number) => {
+    setForm((previous) => ({
+      ...previous,
+      jobPortalLogins: previous.jobPortalLogins.filter(
+        (_, loginIndex) => loginIndex !== index
+      ),
+    }));
+    setSuccess(null);
+    setError(null);
+  };
+
   const save = async () => {
     if (!consent) {
       setError("Please confirm the privacy notice before saving.");
       return;
     }
+    if (
+      form.jobPortalLogins.some(
+        (login) => login.password !== login.passwordConfirmation
+      )
+    ) {
+      setError("Each job-portal password must match its re-entered password.");
+      return;
+    }
+    const {
+      jobPortalLogins,
+      ...answers
+    } = form;
+    const savePayload = {
+      ...answers,
+      jobPortalLogins: jobPortalLogins
+        .filter(
+          (login) =>
+            login.hostname.trim() ||
+            login.email.trim() ||
+            login.password ||
+            login.passwordConfirmation
+        )
+        .map(
+          ({ passwordConfirmation: _passwordConfirmation, ...login }) => login
+        ),
+      consent: true,
+    };
     setSaving(true);
     setSuccess(null);
     setError(null);
@@ -158,7 +309,7 @@ export function PrivateApplicationAnswersSection() {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, consent: true }),
+        body: JSON.stringify(savePayload),
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -167,11 +318,15 @@ export function PrivateApplicationAnswersSection() {
         );
         return;
       }
-      setForm(asForm(body.data));
+      const savedForm = asForm(body.data);
+      if (plaintextAllowedRef.current) {
+        setForm(savedForm);
+        decryptedFormRef.current = savedForm;
+      }
       setHasSavedAnswers(true);
       setConsent(false);
       setSuccess(
-        "Private answers saved. The extension will still ask you to review them for each application."
+        "Private application data saved. The extension will still ask you to review it for each application."
       );
     } catch {
       setError("Network error. Please try again.");
@@ -183,7 +338,7 @@ export function PrivateApplicationAnswersSection() {
   const deleteAnswers = async () => {
     if (
       !window.confirm(
-        "Delete every saved private application answer? This cannot be undone."
+        "Delete every saved private application answer and job-portal login? This cannot be undone."
       )
     ) {
       return;
@@ -202,6 +357,8 @@ export function PrivateApplicationAnswersSection() {
         return;
       }
       setForm(EMPTY);
+      decryptedFormRef.current = EMPTY;
+      plaintextAllowedRef.current = false;
       setConsent(false);
       setHasSavedAnswers(false);
       setRevealed(false);
@@ -220,9 +377,10 @@ export function PrivateApplicationAnswersSection() {
         <h3 className="text-base font-semibold">Private application answers</h3>
       </div>
       <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-        Optional answers for work authorization, visa, compensation, work
-        preferences, date of birth, and DEI questions. They are protected with
-        authenticated encryption and are never sent to AI or analytics.
+        Optional site-specific job-portal logins and answers for work
+        authorization, visa, compensation, work preferences, date of birth,
+        and DEI questions. They are protected with authenticated encryption and
+        are never sent to AI or analytics.
       </p>
       <p className="mb-5 text-xs leading-5 text-gray-500 dark:text-gray-400">
         The TrackMyOPT extension loads these into a private review panel. You
@@ -238,22 +396,131 @@ export function PrivateApplicationAnswersSection() {
         <Button
           type="button"
           variant="outline"
-          onClick={() => setRevealed(true)}
+          onClick={() => void reviewPrivateAnswers()}
           className="h-10"
         >
           <Eye className="mr-2 h-4 w-4" />
-          {hasSavedAnswers ? "Review private answers" : "Add private answers"}
+          Review private answers
         </Button>
       ) : (
         <div className="space-y-5">
           <div className="flex justify-end">
             <button
               type="button"
-              onClick={() => setRevealed(false)}
+              onClick={clearDecryptedAnswers}
               className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
               <EyeOff className="h-4 w-4" /> Hide answers
             </button>
+          </div>
+
+          <div className="rounded-xl border border-red-200 bg-white/80 p-4 dark:border-red-950 dark:bg-zinc-950/50">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-semibold">
+                  Job-portal login credentials
+                </h4>
+                <p className="mt-1 max-w-2xl text-xs leading-5 text-gray-600 dark:text-gray-400">
+                  Save a separate login for each exact employer portal. The
+                  extension will use it only on that hostname, after you review
+                  and approve it for the open application.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addJobPortalLogin}
+                disabled={form.jobPortalLogins.length >= 5}
+              >
+                Add portal login
+              </Button>
+            </div>
+            <p className="mt-3 rounded-lg bg-red-50 p-3 text-xs leading-5 text-red-800 dark:bg-red-950/30 dark:text-red-300">
+              Use the exact password accepted by that employer portal,
+              preferably a unique password. Do not enter your TrackMyOPT
+              password. TrackMyOPT does not generate, reset, or verify employer
+              passwords.
+            </p>
+            {form.jobPortalLogins.length === 0 ? (
+              <p className="mt-4 text-sm text-gray-500">
+                No job-portal login is saved.
+              </p>
+            ) : (
+              <div className="mt-4 space-y-4">
+                {form.jobPortalLogins.map((login, index) => (
+                  <div
+                    key={index}
+                    className="rounded-lg border border-gray-200 p-4 dark:border-zinc-800"
+                  >
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <strong className="text-sm">
+                        Portal login {index + 1}
+                      </strong>
+                      <button
+                        type="button"
+                        onClick={() => removeJobPortalLogin(index)}
+                        className="text-xs font-medium text-red-700 hover:underline dark:text-red-400"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <Field label="Job portal website or hostname">
+                        <Input
+                          value={login.hostname}
+                          onChange={updateJobPortalLogin(index, "hostname")}
+                          placeholder="company.wd5.myworkdayjobs.com"
+                          autoComplete="url"
+                          spellCheck={false}
+                        />
+                      </Field>
+                      <Field label="Login email">
+                        <Input
+                          type="email"
+                          value={login.email}
+                          onChange={updateJobPortalLogin(index, "email")}
+                          placeholder="you@example.com"
+                          autoComplete="username"
+                          spellCheck={false}
+                        />
+                      </Field>
+                      <Field label="Password">
+                        <Input
+                          type="password"
+                          value={login.password}
+                          onChange={updateJobPortalLogin(index, "password")}
+                          minLength={8}
+                          maxLength={256}
+                          autoComplete="new-password"
+                          data-sensitive="true"
+                        />
+                      </Field>
+                      <Field label="Password (re-enter)">
+                        <Input
+                          type="password"
+                          value={login.passwordConfirmation}
+                          onChange={updateJobPortalLogin(
+                            index,
+                            "passwordConfirmation"
+                          )}
+                          minLength={8}
+                          maxLength={256}
+                          autoComplete="new-password"
+                          data-sensitive="true"
+                        />
+                      </Field>
+                    </div>
+                    <p className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                      Employer portals may require at least 8 characters,
+                      uppercase, lowercase, a number, and a special character.
+                      TrackMyOPT stores the password you provide; the employer
+                      portal decides its actual password rules.
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -451,9 +718,9 @@ export function PrivateApplicationAnswersSection() {
               className="mt-1 h-4 w-4"
             />
             <span>
-              I choose to save these optional sensitive answers so TrackMyOPT
-              can show them to me for review before filling job applications. I
-              can edit or delete them at any time.
+              I choose to save these optional credentials and sensitive answers
+              so TrackMyOPT can show them to me for review before filling job
+              applications. I can edit or delete them at any time.
             </span>
           </label>
 
