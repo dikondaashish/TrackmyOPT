@@ -42,6 +42,10 @@ const REAL_WORKDAY_LISTING_URL =
   'https://interpublic.wd5.myworkdayjobs.com/OMC/job/New-York-New-York-United-States-of-America/Analyst--Business-Analytics_12235-SL?jr_id=6a58623b68d16a30e2412e0f';
 const REAL_WORKDAY_APPLY_URL =
   'https://interpublic.wd5.myworkdayjobs.com/en-US/OMC/job/New-York%2C-New-York%2C-United-States-of-America/Analyst--Business-Analytics_12235-SL/apply/autofillWithResume?jr_id=6a58623b68d16a30e2412e0f';
+const REAL_ICIMS_LISTING_URL =
+  'https://careers-cfins.icims.com/jobs/4991/reporting-%26-data-call-analyst---hybrid/job?jr_id=6a5a51814da96a42cfd952b9&mobile=false&width=768&height=500&bga=true&needsRedirect=false&jan1offset=-300&jun1offset=-240';
+const REAL_ICIMS_APPLY_URL =
+  'https://careers-cfins.icims.com/jobs/4991/reporting-%26-data-call-analyst---hybrid/job?mode=apply&apply=yes&in_iframe=1&hashed=-1834443227';
 
 async function validArtifact(): Promise<GeneratedResumeArtifactV1> {
   const result = await buildGeneratedResumeArtifactV1({
@@ -289,6 +293,44 @@ test('real Workday listing artifact resolves on the same-job apply route within 
   assert.equal(response.source, 'generated_resume');
   if (response.source !== 'generated_resume') return;
   assert.equal(response.artifactId, 'artifact-real-workday-route');
+  assert.equal(response.resume.pdfBase64, generation.artifact.pdf.base64);
+});
+
+test('real iCIMS listing artifact resolves on the same-job apply route within 30 minutes', async () => {
+  const generation = await buildGeneratedResumeArtifactV1({
+    artifactId: 'artifact-real-icims-route',
+    generatedAt: '2026-07-16T12:00:00.000Z',
+    sourceResumeId: 'resume-a',
+    sourceResumeFilename: 'resume-a.pdf',
+    templateId: 'classic',
+    jobKey: 'icims:4991',
+    jobContext: {
+      jobUrl: REAL_ICIMS_LISTING_URL,
+      companyName: 'Crum & Forster',
+      roleTitle: 'Reporting & Data Call Analyst - Hybrid',
+    },
+    finalLatex: '\\begin{document}iCIMS route fixture\\end{document}',
+    pdfBase64: 'JVBERi0xLjQK',
+    pdfFilename: 'resume-a.pdf',
+  });
+
+  assert.equal(generation.artifact.job.requisitionId, '4991');
+  const response = await resolveV1PrefillPayload({
+    artifact: generation.artifact,
+    request: {
+      now: '2026-07-16T12:29:59.999Z',
+      jobContext: {
+        jobUrl: REAL_ICIMS_APPLY_URL,
+        companyName: 'Crum & Forster',
+        roleTitle: 'Reporting & Data Call Analyst - Hybrid',
+      },
+    },
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+
+  assert.equal(response.ok, true);
+  if (!response.ok || response.source !== 'generated_resume') return;
+  assert.equal(response.artifactId, 'artifact-real-icims-route');
   assert.equal(response.resume.pdfBase64, generation.artifact.pdf.base64);
 });
 

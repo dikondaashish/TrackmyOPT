@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   artifactMatchesJobContext,
+  extractICimsJobIdentity,
   extractWorkdayJobIdentity,
   type GeneratedResumeArtifactV1,
 } from '../src/resume-autofill-contract';
@@ -11,6 +12,10 @@ const REAL_WORKDAY_LISTING_URL =
   'https://interpublic.wd5.myworkdayjobs.com/OMC/job/New-York-New-York-United-States-of-America/Analyst--Business-Analytics_12235-SL?jr_id=6a58623b68d16a30e2412e0f';
 const REAL_WORKDAY_APPLY_URL =
   'https://interpublic.wd5.myworkdayjobs.com/en-US/OMC/job/New-York%2C-New-York%2C-United-States-of-America/Analyst--Business-Analytics_12235-SL/apply/autofillWithResume?jr_id=6a58623b68d16a30e2412e0f';
+const REAL_ICIMS_LISTING_URL =
+  'https://careers-cfins.icims.com/jobs/4991/reporting-%26-data-call-analyst---hybrid/job?jr_id=6a5a51814da96a42cfd952b9&mobile=false&width=768&height=500&bga=true&needsRedirect=false&jan1offset=-300&jun1offset=-240';
+const REAL_ICIMS_APPLY_URL =
+  'https://careers-cfins.icims.com/jobs/4991/reporting-%26-data-call-analyst---hybrid/job?mode=apply&apply=yes&in_iframe=1&hashed=-1834443227';
 
 function artifactForJobA(): GeneratedResumeArtifactV1 {
   return {
@@ -140,4 +145,36 @@ test('real Workday listing and apply URLs resolve to the same requisition identi
     companyName: 'Interpublic',
     roleTitle: 'Analyst, Business Analytics',
   }), true);
+});
+
+test('real iCIMS listing and application URLs resolve to the same job identity', () => {
+  assert.deepEqual(extractICimsJobIdentity(REAL_ICIMS_LISTING_URL), {
+    jobId: '4991',
+  });
+  assert.deepEqual(
+    extractICimsJobIdentity(REAL_ICIMS_APPLY_URL),
+    extractICimsJobIdentity(REAL_ICIMS_LISTING_URL),
+  );
+
+  const artifact = artifactForJobA();
+  artifact.job.sourceUrl = REAL_ICIMS_LISTING_URL;
+  artifact.job.requisitionId = '4991';
+  artifact.job.companyName = 'Crum & Forster';
+  artifact.job.roleTitle = 'Reporting & Data Call Analyst - Hybrid';
+
+  assert.equal(artifactMatchesJobContext(artifact, {
+    jobUrl: REAL_ICIMS_APPLY_URL,
+    companyName: 'Crum & Forster',
+    roleTitle: 'Reporting & Data Call Analyst - Hybrid',
+  }), true);
+  assert.equal(artifactMatchesJobContext(artifact, {
+    jobUrl: REAL_ICIMS_APPLY_URL.replace('/4991/', '/4992/'),
+    companyName: 'Crum & Forster',
+    roleTitle: 'Reporting & Data Call Analyst - Hybrid',
+  }), false);
+  assert.equal(artifactMatchesJobContext(artifact, {
+    jobUrl: REAL_ICIMS_APPLY_URL,
+    companyName: 'Different company',
+    roleTitle: 'Reporting & Data Call Analyst - Hybrid',
+  }), false);
 });

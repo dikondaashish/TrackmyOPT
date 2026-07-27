@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "TrackMyOPT",
-  "version": "0.1.17",
-  "description": "Track your OPT timeline with precision",
+  "version": "0.1.19",
+  "description": "Manage OPT and job applications with review-first prefill and job tracking. Never auto-submits.",
   "permissions": ["storage", "tabs", "notifications", "scripting", "activeTab"],
   "host_permissions": [
     "https://www.trackmyopt.com/*",
