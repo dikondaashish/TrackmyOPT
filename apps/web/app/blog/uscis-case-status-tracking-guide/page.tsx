@@ -7,9 +7,9 @@ import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "USCIS Case Status Check Online (2026) — Track by Receipt Number",
-    description: "Check USCIS case status with your receipt number (IOE/MSC/LIN). What each status message means for OPT & I-765, plus TrackMyOPT free manual tracking and Pro daily auto-checks with email alerts.",
-    keywords: ["USCIS case status online", "USCIS case status check", "USCIS case status tracker", "check case status with receipt number", "I-765 case status", "EAD case tracker", "OPT case tracking", "egov.uscis.gov"],
+    title: "How to Check OPT & USCIS Case Status Online (2026 Guide)",
+    description: "How to check OPT status, track your EAD card, and read USCIS case updates by receipt number (IOE/MSC/LIN). Free manual tracking plus Pro daily alerts on TrackMyOPT.",
+    keywords: ["how to check opt status", "how to track uscis case", "how to track ead card", "USCIS case status online", "check case status with receipt number", "I-765 case status", "how to check uscis case status", "egov.uscis.gov"],
     openGraph: {
         title: "USCIS Case Status Check Online (2026) | TrackMyOPT",
         description: "Check USCIS case status by receipt number. Status message decoder + TrackMyOPT free manual tracking; Pro adds daily auto-checks and email alerts for OPT and EAD.",
@@ -22,6 +22,29 @@ export const metadata: Metadata = {
     },
 };
 
+const USCIS_TRACKING_FAQS = [
+    {
+        question: "How do I check my OPT application status?",
+        answer: "Use your 13-character USCIS receipt number at egov.uscis.gov/casestatus. For OPT (Form I-765), look for updates like 'Case Was Received,' biometrics scheduling, 'Card Is Being Produced,' and 'Card Was Mailed.' TrackMyOPT translates these into plain English and can alert you when status changes.",
+    },
+    {
+        question: "How to track my EAD card after approval?",
+        answer: "After USCIS shows 'Card Was Mailed,' your EAD ships via USPS. Use the tracking number on your USCIS account if provided, or sign up for USPS Informed Delivery. Delivery usually takes 7–14 business days after the mailed status.",
+    },
+    {
+        question: "How to check USCIS case status with receipt number?",
+        answer: "Go to egov.uscis.gov/casestatus/landing.do and enter your full receipt number (e.g., IOE0912345678) without spaces. IOE numbers are from online filing; MSC/LIN/WAC prefixes indicate the service center.",
+    },
+    {
+        question: "When does USCIS update case status?",
+        answer: "USCIS typically posts updates on business days, often overnight Eastern Time. There is no fixed daily time — check every few days or use TrackMyOPT Pro for daily automatic checks.",
+    },
+    {
+        question: "Can I track multiple USCIS cases at once?",
+        answer: "USCIS.gov checks one receipt at a time. TrackMyOPT lets you save multiple receipt numbers in one dashboard with email alerts when any case changes.",
+    },
+] as const;
+
 export default function USCISCaseStatusTrackingGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -30,7 +53,7 @@ export default function USCISCaseStatusTrackingGuide() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Uscis Case Status Tracking Guide", url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-05" modifiedDate="2026-06-05" author="Vinay Kumar" faqItems={[{question: "How do I check my USCIS case status?", answer: "Visit egov.uscis.gov/casestatus/landing.do and enter your 13-character receipt number (found on your I-797C Notice of Action). USCIS will display the most recent status update for your case."}, {question: "What does 'Case Was Received' mean?", answer: "This means USCIS has accepted your application and assigned it a receipt number, but processing has not yet begun. Your application is in the queue waiting for review."}, {question: "How long does I-765 processing take?", answer: "As of early 2026, the typical processing time for Form I-765 (Application for Employment Authorization) is 3–5 months from submission to card delivery. Processing times vary by service center."}, {question: "What should I do if I get an RFE?", answer: "A Request for Evidence (RFE) means USCIS needs additional documentation. Read the RFE letter carefully, respond well before the deadline (usually 87 days), and include a cover letter referencing your receipt number."}, {question: "Can I track multiple cases at once?", answer: "Yes. On USCIS.gov, you can check one case at a time. However, TrackMyOPT allows you to add multiple receipt numbers and track them all from a single dashboard with email notifications."} ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-05" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...USCIS_TRACKING_FAQS]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -52,21 +75,17 @@ export default function USCISCaseStatusTrackingGuide() {
                     </span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    USCIS Case Status Check Online (2026): Track by Receipt Number
+                    How to Check OPT & USCIS Case Status Online (2026)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Whether you've filed for OPT, a STEM extension, or any other immigration benefit, knowing how to check your USCIS case status is essential. This guide covers receipt numbers, status messages, processing times, and how to automate your tracking.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Last updated: June 5, 2026</span>
+                    <span>Last updated: July 27, 2026</span>
                     <span>•</span>
                     <span>Written by Vinay Kumar</span>
                 </div>
             </header>
-
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                <span>Last Updated: February 2026</span>
-            </div>
 
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>

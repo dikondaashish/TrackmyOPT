@@ -7,9 +7,9 @@ import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "OPT 90-Day Unemployment Rule (2026): How Days Are Counted + Free Tracker",
-    description: "OPT 90-day unemployment limit explained: calendar vs business days, what counts as employment, STEM 150-day rule, and how to track remaining days free on TrackMyOPT. Source: 8 CFR § 214.2(f).",
-    keywords: ["90 day rule OPT", "OPT unemployment days", "how many unemployment days OPT", "OPT unemployment tracker", "STEM OPT 150 days unemployment", "F-1 status violation"],
+    title: "How Many Unemployment Days on OPT? 90-Day Rule Explained (2026)",
+    description: "How many unemployment days are allowed on OPT? 90 days on initial OPT, 150 total with STEM OPT. Learn how days are counted, how to check the SEVP portal, and track remaining days free.",
+    keywords: ["how many unemployment days in opt", "how many days of unemployment on opt", "90 day rule OPT", "OPT unemployment days", "how to check unemployment days in sevp portal", "STEM OPT 150 days unemployment", "does opt unemployment days include weekends"],
     openGraph: {
         title: "OPT 90-Day Unemployment Rule (2026) — Days Counter | TrackMyOPT",
         description: "How OPT unemployment days are counted, STEM 150-day limit, and free tracker to stay compliant before SEVIS termination.",
@@ -29,6 +29,29 @@ export const metadata: Metadata = {
     },
 };
 
+const UNEMPLOYMENT_FAQS = [
+    {
+        question: "How many unemployment days are allowed on OPT?",
+        answer: "Post-completion OPT allows 90 cumulative calendar days of unemployment during your 12-month authorization. If you receive a STEM OPT extension, you get 60 additional days for a combined total of 150 days across the full OPT + STEM OPT period.",
+    },
+    {
+        question: "How to check unemployment days in the SEVP portal?",
+        answer: "Log in at sevp.ice.gov/opt with your SEVIS credentials. The dashboard shows your allowed, accrued, and remaining unemployment days. Update employer information within 10 days of any job change so the counter stays accurate.",
+    },
+    {
+        question: "Do OPT unemployment days include weekends?",
+        answer: "Yes. Unemployment is counted in calendar days, not business days. Weekends and holidays count if you do not have qualifying employment that day.",
+    },
+    {
+        question: "Will the 90-day period carry over to my STEM OPT period?",
+        answer: "Yes. Unemployment days used during initial OPT count toward your combined 150-day limit. STEM OPT adds 60 more days on top of the original 90 — it does not reset the counter to zero.",
+    },
+    {
+        question: "What happens after 90 days of unemployment on OPT?",
+        answer: "Exceeding the limit can lead to SEVIS termination, loss of F-1 status, and complications for future visa applications. Report employment promptly and track remaining days before you approach the limit.",
+    },
+] as const;
+
 export default function NinetyDayRuleArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -37,7 +60,7 @@ export default function NinetyDayRuleArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "90 Day Unemployment Rule Opt", url: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-13" modifiedDate="2026-01-13" author="Vinay Kumar" faqItems={[{question: "What is the 90-day rule for OPT?", answer: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit results in SEVIS termination."}, {question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 days of unemployment across the combined OPT + STEM OPT period: 90 days from initial OPT plus 60 additional days from the STEM extension."}, {question: "Do weekends count as unemployment days on OPT?", answer: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days."}, {question: "Can I reset my unemployment days?", answer: "No, unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period."}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-13" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...UNEMPLOYMENT_FAQS]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -59,26 +82,22 @@ export default function NinetyDayRuleArticle() {
                     </span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    The 90-Day OPT Unemployment Rule: Everything You Need to Know in 2026
+                    How Many Unemployment Days on OPT? The 90-Day Rule Explained (2026)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                    If you're an F-1 student on post-completion OPT, understanding the 90-day unemployment limit is critical to maintaining your legal status. Here's the complete guide.
+                    F-1 students on post-completion OPT get 90 unemployment days (150 with STEM OPT). Here is how days are counted, how to check the SEVP portal, and how to stay compliant.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Last updated: January 13, 2026</span>
+                    <span>Last updated: July 27, 2026</span>
                     <span>•</span>
                     <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                <span>Last Updated: February 2026</span>
-            </div>
-
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    F-1 students on post-completion OPT are limited to 90 cumulative days of unemployment. Exceeding this limit can result in loss of F-1 status and potential deportation proceedings.
+                    F-1 students on post-completion OPT are limited to <strong>90 cumulative calendar days</strong> of unemployment (150 total with STEM OPT). Exceeding the limit can result in SEVIS termination. Waiting for your EAD? See <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">how long OPT takes in 2026</Link>.
                 </p>
             </div>
 
@@ -302,7 +321,7 @@ export default function NinetyDayRuleArticle() {
                         <div className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2">2. SEVP Portal</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                Log into the <a href="https://sevp.ice.gov/opt/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">SEVP Portal</a> to check the official SEVIS Unemployment Counter. This shows your allowed, accrued, and remaining unemployment days.
+                                Log into the <a href="https://sevp.ice.gov/opt/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">SEVP Portal</a> to check the official SEVIS Unemployment Counter. This shows your allowed, accrued, and remaining unemployment days. See our <Link href="/blog/sevp-portal-guide-opt" className="text-blue-600 underline">SEVP portal guide</Link> for step-by-step login help.
                             </p>
                         </div>
 
@@ -341,12 +360,7 @@ export default function NinetyDayRuleArticle() {
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
-                        {[
-                            { question: "What is the 90-day rule for OPT?", answer: "The 90-day rule limits F-1 students on post-completion OPT to a maximum of 90 cumulative days of unemployment during their 12-month OPT authorization period. Exceeding this limit can result in SEVIS termination. Source: USCIS, 8 CFR § 214.2(f)(10)(ii)." },
-                            { question: "How many unemployment days are allowed on STEM OPT?", answer: "STEM OPT students are allowed a total of 150 days of unemployment across the combined 36-month OPT + STEM OPT period (90 days from initial OPT + 60 additional days from the STEM extension)." },
-                            { question: "Do weekends count as unemployment days on OPT?", answer: "Yes, weekends and holidays count as unemployment days if you do not have qualifying employment. The unemployment counter counts calendar days, not business days." },
-                            { question: "Can I reset my unemployment days?", answer: "No, the unemployment days are cumulative and cannot be reset. They accumulate throughout your entire OPT authorization period." },
-                        ].map((faq, i) => (
+                        {UNEMPLOYMENT_FAQS.map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">
