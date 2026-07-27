@@ -6,18 +6,41 @@ import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "OPT Application Denied? What to Do Next (2026 Guide)",
-    description: "Your OPT application was denied — now what? Common denial reasons, whether you can refile, the 60-day grace period, your legal options, and how to prevent OPT denial. Updated for 2026.",
-    keywords: ["OPT application denied", "I-765 denied", "OPT denial options", "OPT denial what to do", "EAD application denied"],
+    title: "Can OPT Be Denied? Reasons & What Happens Next (2026)",
+    description: "Can OPT be denied? Learn common Form I-765 denial reasons, when refiling or a motion may be possible, and how denial can affect your F-1 grace period.",
+    keywords: ["can OPT be denied", "what happens if OPT is denied", "OPT application denied", "I-765 denied", "OPT denial reasons", "OPT denial options"],
     openGraph: {
-        title: "OPT Application Denied? What to Do Next | TrackMyOPT",
-        description: "Common OPT denial reasons, your options after denial, and how to refile or maintain status.",
+        title: "Can OPT Be Denied? Reasons & Next Steps | TrackMyOPT",
+        description: "Understand common OPT denial reasons, whether a motion or new filing may be available, and the F-1 status rules that apply after denial.",
         url: "https://www.trackmyopt.com/blog/opt-application-denied",
         type: "article",
         images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Application Denied? What to Do Next (2026 Guide)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-application-denied" },
 };
+
+const DENIAL_FAQS = [
+    {
+        question: "Can OPT be denied?",
+        answer: "Yes. USCIS may deny Form I-765 for filing-window errors, an untimely or missing DSO recommendation, an incorrect eligibility category, missing evidence, or failure to maintain F-1 status. The denial notice should explain the specific reason.",
+    },
+    {
+        question: "Can I appeal an OPT denial?",
+        answer: "Form I-765 denials generally do not have an administrative appeal, but USCIS may allow a motion to reopen or reconsider on Form I-290B. Follow the review rights and deadline printed on your denial notice and obtain individualized advice before filing.",
+    },
+    {
+        question: "Can I refile my OPT application after denial?",
+        answer: "A new Form I-765 may be possible only if you remain eligible and USCIS can receive it within the applicable OPT filing window. Ask your DSO to review your SEVIS record and issue any required new OPT recommendation before you refile.",
+    },
+    {
+        question: "How long can I stay in the U.S. after OPT denial?",
+        answer: "For a post-completion OPT denial, USCIS says F-1 status generally expires 60 days after the program end date or the denial date, whichever is later. If USCIS denied the application for failure to maintain F-1 status, the student must depart immediately. STEM OPT denials follow additional EAD-expiration rules.",
+    },
+    {
+        question: "Does OPT denial affect future visa applications?",
+        answer: "A denial is part of your immigration history, but its effect depends on the reason and what you do next. Status violations, unauthorized employment, fraud, or remaining after your authorized period can have more serious consequences than a correctable filing error.",
+    },
+] as const;
 
 export default function OPTDeniedArticle() {
     return (
@@ -27,7 +50,7 @@ export default function OPTDeniedArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Opt Application Denied", url: "https://www.trackmyopt.com/blog/opt-application-denied" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-11" modifiedDate="2026-04-11" author="Vinay Kumar" faqItems={[{question: "Can I appeal my OPT denial?", answer: "You cannot formally appeal an OPT denial, but you can file a Motion to Reopen or Motion to Reconsider. This requires new evidence or proof of a legal error in the denial."}, {question: "Can I refile my OPT application after denial?", answer: "Yes. You can refile after addressing the reason for denial. Get an explanation from USCIS, fix the issue (additional documents, corrected form, etc.), and resubmit."}, {question: "What is the 60-day grace period?", answer: "After your OPT is denied, you enter a 60-day grace period to either prepare to leave the US, refile, or obtain another immigration status."}, {question: "How long do I have to leave the US if denied?", answer: "You have 60 days from your OPT end date (or denial notice) to depart. If you stay past this period without alternate status, you accrue unlawful presence."}, {question: "Will an OPT denial affect my future visa applications?", answer: "A single OPT denial is unlikely to permanently harm your immigration record, but consult an immigration attorney before future applications to ensure no issues exist."} ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-11" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...DENIAL_FAQS]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -40,17 +63,13 @@ export default function OPTDeniedArticle() {
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />8 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    OPT Application Denied? What to Do Next (2026 Guide)
+                    Can OPT Be Denied? Reasons and What Happens Next (2026)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Getting an OPT denial is stressful, but you still have options. This guide covers why applications get denied, what happens immediately after, whether you can refile, and how to protect your immigration status.
                 </p>
-                <div className="mt-6 text-sm text-gray-500">Last updated: April 11, 2026 • Written by Vinay Kumar</div>
+                <div className="mt-6 text-sm text-gray-500">Last updated: July 27, 2026 • Written by Vinay Kumar</div>
             </header>
-
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                <span>Last Updated: February 2026</span>
-            </div>
 
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
@@ -62,9 +81,9 @@ export default function OPTDeniedArticle() {
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-red-900 dark:text-red-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
                 <p className="text-red-800 dark:text-red-200 font-medium">
-                    OPT denials (Form I-765) <strong>cannot be formally appealed</strong> — there is no motion to reopen or reconsider for EAD applications. However, you may be able to <strong>refile a new application</strong> if you're still within the filing window. If not, you typically have a <strong>60-day grace period</strong> to make alternative arrangements or depart the U.S.
+                    A Form I-765 denial generally has <strong>no administrative appeal</strong>, but the denial notice may permit a <strong>motion to reopen or reconsider on Form I-290B</strong>. A new I-765 may also be possible if you are still eligible and within the filing window. Read the notice, contact your DSO, and get case-specific legal advice promptly.
                 </p>
-                <p className="text-red-700 dark:text-red-300 text-sm mt-2">Source: <a href="https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/optional-practical-training-opt-for-f-1-students" target="_blank" rel="noopener noreferrer" className="underline">USCIS OPT Page</a></p>
+                <p className="text-red-700 dark:text-red-300 text-sm mt-2">Sources: <a href="https://www.uscis.gov/policy-manual/volume-2-part-f-chapter-5" target="_blank" rel="noopener noreferrer" className="underline">USCIS Policy Manual: Practical Training</a> and <a href="https://www.uscis.gov/i-290b" target="_blank" rel="noopener noreferrer" className="underline">USCIS Form I-290B</a></p>
             </div>
 
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
@@ -110,8 +129,8 @@ export default function OPTDeniedArticle() {
                         {[
                             { step: "USCIS sends a denial notice", desc: "You'll receive a written denial notice (by mail or in your USCIS online account) explaining the reason for denial. Read this carefully — the stated reason determines your next steps.", color: "blue" },
                             { step: "You do NOT have work authorization", desc: "An OPT denial means you were never granted employment authorization. You cannot work in any capacity. If you were working based on a pending application (this is rare for OPT), you must stop immediately.", color: "red" },
-                            { step: "Your F-1 status is affected", desc: "If your academic program has ended and you don't have another valid status, you may enter the 60-day grace period. Your DSO will be notified through SEVIS.", color: "amber" },
-                            { step: "No formal appeal exists for EAD denials", desc: "Unlike some other immigration applications, Form I-765 denials cannot be appealed through a motion to reopen or motion to reconsider with the Administrative Appeals Office (AAO). Your only recourse is to refile if eligible.", color: "gray" },
+                            { step: "Your F-1 status is affected", desc: "For post-completion OPT, status generally expires 60 days after the program end date or denial date, whichever is later. A denial for failure to maintain status requires immediate departure.", color: "amber" },
+                            { step: "Review rights are time-sensitive", desc: "Form I-765 generally has no administrative appeal, but a motion to reopen or reconsider may be available. The denial notice explains whether Form I-290B may be filed and the applicable deadline.", color: "gray" },
                         ].map((item, i) => (
                             <div key={i} className="flex gap-4 items-start">
                                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-700 dark:text-red-300 text-xs font-bold">{i + 1}</div>
@@ -124,7 +143,7 @@ export default function OPTDeniedArticle() {
                     </div>
                     <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
                         <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-amber-800 dark:text-amber-200"><strong>Act quickly:</strong> The 60-day grace period starts from the date USCIS denies your application (or your program end date, if later). Don't wait for the paper notice — check your USCIS online account regularly for status updates.</p>
+                        <p className="text-sm text-amber-800 dark:text-amber-200"><strong>Act quickly:</strong> Do not assume you have 60 days. Read the denial basis and confirm your authorized period with your DSO; a failure-to-maintain-status denial requires immediate departure.</p>
                     </div>
                 </section>
 
@@ -136,7 +155,7 @@ export default function OPTDeniedArticle() {
                     <div className="space-y-3">
                         {[
                             { option: "Refile a new I-765 application", desc: "If the denial was due to a correctable error (wrong category, missing document, unsigned form) and you're still within the filing window (90 days before to 60 days after program end), you can submit a brand-new I-765 application with the correction. A new filing fee is required.", eligible: "Still within filing window + correctable error" },
-                            { option: "Transfer to a new school program", desc: "If you're still within the 60-day grace period, you can transfer your SEVIS record to a new school and enroll in a new program. This resets your F-1 status but means you'd need to complete another degree before applying for OPT again.", eligible: "Within 60-day grace period" },
+                            { option: "Transfer to a new school program", desc: "A SEVIS transfer may be possible while you remain in valid F-1 status. Ask both schools' DSOs to confirm timing and eligibility; a transfer does not erase the denial or guarantee future OPT.", eligible: "Valid status + eligible transfer timing" },
                             { option: "Change to another visa status", desc: "You may file Form I-539 to change to B-2 (tourist) status for a temporary stay, or to another eligible status. B-2 does not permit work. A change of status must be filed before your grace period expires, and you must not have violated your F-1 status.", eligible: "Valid reasons + no violations" },
                             { option: "Depart the United States", desc: "If no other option works, you must leave the U.S. before your 60-day grace period expires. Overstaying can result in bars on future visa applications. Departing on time preserves your ability to apply for future visas.", eligible: "Grace period has not expired" },
                         ].map((item, i) => (
@@ -156,7 +175,7 @@ export default function OPTDeniedArticle() {
                     </p>
                     <div className="space-y-3 mb-4">
                         {[
-                            { req: "You must still be within the filing window", detail: "USCIS must receive your new I-765 no earlier than 90 days before and no later than 60 days after your program end date. If this window has passed, you cannot refile." },
+                            { req: "You must still be within the filing window", detail: "For post-completion OPT, USCIS must receive the new I-765 no earlier than 90 days before and no later than 60 days after your program end date, and within the required period after the DSO enters the recommendation in SEVIS." },
                             { req: "Your SEVIS record must still be active", detail: "Your DSO must confirm that your SEVIS record is still in active or completed status. If it has been terminated, you cannot refile without resolving the SEVIS issue first." },
                             { req: "You need a new I-20 recommendation", detail: "Ask your DSO to issue a new I-20 with a fresh OPT recommendation. The original I-20 used in the denied application may no longer be valid, depending on timing." },
                             { req: "A new filing fee is required", detail: "USCIS does not refund the $410 fee from the denied application. You must pay the full fee again with your new I-765 submission." },
@@ -170,7 +189,7 @@ export default function OPTDeniedArticle() {
                     </div>
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 flex items-start gap-3">
                         <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-blue-800 dark:text-blue-200"><strong>Pro tip:</strong> If you refile, include a cover letter explaining that this is a corrected application following a prior denial. Attach a copy of the denial notice and clearly identify what was corrected. For a complete filing checklist, see our <Link href="/blog/opt-application-checklist-2026" className="underline font-medium">OPT Application Checklist 2026</Link>.</p>
+                        <p className="text-sm text-blue-800 dark:text-blue-200"><strong>Before refiling:</strong> Ask your DSO to confirm that you remain eligible, verify the SEVIS recommendation date, and follow the current Form I-765 instructions and fee schedule. For a filing checklist, see our <Link href="/blog/opt-application-checklist-2026" className="underline font-medium">OPT Application Checklist 2026</Link>.</p>
                     </div>
                 </section>
 
@@ -259,7 +278,7 @@ export default function OPTDeniedArticle() {
                 <section id="grace-period" className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">60-Day Grace Period Rules</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        After an OPT denial, if your academic program has ended, you typically enter the standard F-1 60-day grace period. Here's what you need to know about this critical window.
+                        For post-completion OPT, USCIS says F-1 status generally expires 60 days after the program end date or the denial date, whichever is later. This does not apply when the denial is based on failure to maintain F-1 status; in that situation, USCIS says the student must depart immediately. STEM OPT denials also depend on whether the underlying EAD remains valid.
                     </p>
                     <div className="overflow-x-auto mb-4">
                         <table className="w-full border-collapse text-sm">
@@ -275,7 +294,7 @@ export default function OPTDeniedArticle() {
                                     ["Change status (B-2, etc.)", "Yes", "File I-539 before grace period expires; must have valid reason"],
                                     ["Refile OPT (if within window)", "Yes", "Only if the filing window hasn't closed"],
                                     ["Travel outside the U.S.", "Risky", "Leaving during the grace period typically means you cannot re-enter on F-1 status without a new I-20 and valid visa"],
-                                    ["Remain in the U.S. past 60 days", "No", "Overstaying triggers unlawful presence, which can bar future visas"],
+                                    ["Remain past your authorized period", "No", "This can create unlawful-presence and future-admissibility issues"],
                                 ].map(([action, allowed, details], i) => (
                                     <tr key={i} className={i % 2 === 0 ? "bg-gray-50 dark:bg-zinc-900" : ""}>
                                         <td className="p-3 border dark:border-zinc-700 font-medium text-gray-900 dark:text-white">{action}</td>
@@ -292,7 +311,7 @@ export default function OPTDeniedArticle() {
                     </div>
                     <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 flex items-start gap-3">
                         <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-red-800 dark:text-red-200"><strong>Critical:</strong> The 60-day grace period is <strong>not renewable</strong> and <strong>not extendable</strong>. If you haven't taken action by day 60, you begin accruing unlawful presence. More than 180 days of unlawful presence triggers a 3-year bar on re-entry; more than 365 days triggers a 10-year bar.</p>
+                        <p className="text-sm text-red-800 dark:text-red-200"><strong>Critical:</strong> Do not calculate your authorized stay from a generic article. The denial reason, program end date, EAD validity, and your SEVIS record can change the result. Confirm the deadline shown in your notice with your DSO and a qualified immigration attorney.</p>
                     </div>
                 </section>
 
@@ -305,9 +324,9 @@ export default function OPTDeniedArticle() {
                         {[
                             { factor: "OPT denial alone", impact: "Minimal", detail: "A denial based on a procedural error (wrong category, missing document) does not indicate fraud or willful violation. Visa officers understand that administrative errors happen." },
                             { factor: "Denial due to violation", impact: "Significant", detail: "If the denial references unauthorized employment, status violations, or misrepresentation, this is documented in your immigration file and can affect future visa adjudications." },
-                            { factor: "Overstaying after denial", impact: "Severe", detail: "If you fail to depart within the 60-day grace period, you accrue unlawful presence. 180+ days triggers a 3-year re-entry bar; 365+ days triggers a 10-year bar under INA 212(a)(9)(B)." },
-                            { factor: "Clean departure", impact: "Positive", detail: "Departing the U.S. within the grace period after a denial shows respect for immigration law and is viewed favorably by consular officers evaluating future visa applications." },
-                            { factor: "Successful refile", impact: "Neutral", detail: "If you refile and are approved, the initial denial has no lasting negative effect. Your immigration record shows the approval, not the prior denial." },
+                            { factor: "Remaining beyond authorized stay", impact: "Severe", detail: "Remaining after your authorized period can create unlawful-presence and future-admissibility issues. Because the calculation is case-specific, confirm your deadline rather than assuming every denial creates the same 60-day period." },
+                            { factor: "Timely action", impact: "Positive", detail: "Following the denial notice, maintaining records, and taking any transfer, change-of-status, motion, refiling, or departure step within the applicable deadline helps avoid compounding the original issue." },
+                            { factor: "Successful refile", impact: "Neutral", detail: "A later approval does not erase the earlier decision, but a correctable filing error generally presents different concerns from a denial based on a status violation or misrepresentation." },
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
                                 <Shield className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -328,13 +347,7 @@ export default function OPTDeniedArticle() {
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
-                        {[
-                            { question: "Can I appeal an OPT denial?", answer: "No. Form I-765 (EAD) denials do not have a formal appeal process. There is no motion to reopen or motion to reconsider available for EAD applications. Your only option is to file a brand-new I-765 application if you are still within the eligible filing window." },
-                            { question: "Can I refile my OPT application after denial?", answer: "Yes, if you are still within the filing window (90 days before to 60 days after your program end date) and your SEVIS record is still active. You will need a new I-20 with an OPT recommendation, a corrected I-765, and a new $410 filing fee. Correct the issue that caused the initial denial." },
-                            { question: "What is the 60-day grace period after OPT denial?", answer: "After your OPT is denied and your academic program has ended, you enter a 60-day grace period. During this time, you can prepare to depart the U.S., transfer to a new school, change your immigration status, or refile OPT if still eligible. You cannot work during the grace period." },
-                            { question: "How long do I have to leave the US after OPT denial?", answer: "You must depart within 60 days of the denial (or 60 days after your program end date, whichever is later). Staying beyond this period accrues unlawful presence, which can result in 3-year or 10-year bars on future U.S. visa applications." },
-                            { question: "Does OPT denial affect future visa applications?", answer: "An OPT denial by itself does not bar you from future visa applications. However, if the denial was due to a violation (unauthorized employment, overstay), or if you overstay the 60-day grace period, those factors can negatively impact future applications. A clean departure within the grace period preserves your immigration record." },
-                        ].map((faq, i) => (
+                        {DENIAL_FAQS.map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>

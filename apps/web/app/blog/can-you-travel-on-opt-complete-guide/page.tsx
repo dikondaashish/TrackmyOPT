@@ -1,17 +1,17 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen, ExternalLink, Plane } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export const metadata: Metadata = {
-    title: "Can You Travel on OPT? Complete Travel Guide for F-1 Students",
-    description: "Complete guide to traveling while on OPT: travel while pending, required documents, advanced parole, re-entry permits, and travel authorization explained.",
-    keywords: ["travel on OPT", "F-1 travel while OPT pending", "OPT re-entry documents", "OPT travel authorization", "advance parole OPT", "can I leave US on OPT"],
+    title: "Can I Travel on OPT? Re-Entry Rules & Documents (2026)",
+    description: "Can you travel on OPT with or without a job? Learn the re-entry rules for pending and approved OPT, required documents, visa rules, and grace-period limits.",
+    keywords: ["can I travel on OPT", "can I travel on OPT without a job", "can I travel on OPT with a job", "F-1 travel while OPT pending", "OPT re-entry documents", "OPT travel signature"],
     openGraph: {
-        title: "Can You Travel on OPT? Complete Travel Guide for F-1 Students | TrackMyOPT",
-        description: "Learn the rules for traveling while on OPT including what documents you need, travel while pending, and visa considerations.",
+        title: "Can I Travel on OPT? Re-Entry Rules & Documents | TrackMyOPT",
+        description: "Pending versus approved OPT, the documents needed for re-entry, employment evidence, visa rules, and when travel can end F-1 re-entry eligibility.",
         url: "https://www.trackmyopt.com/blog/can-you-travel-on-opt-complete-guide",
         type: "article",
         images: [
@@ -28,6 +28,33 @@ export const metadata: Metadata = {
     },
 };
 
+const TRAVEL_FAQS = [
+    {
+        question: "Can I travel while my OPT application is pending?",
+        answer: "ICE says you may seek re-entry while OPT is pending, but travel should be undertaken with caution. You must be able to respond to any USCIS request, and if USCIS approves OPT while you are abroad, you are expected to have the EAD in hand to re-enter. Review your plans with your DSO before leaving.",
+    },
+    {
+        question: "Can I travel on OPT with a job?",
+        answer: "Generally, yes. For re-entry, carry your EAD, a travel-endorsed Form I-20, valid passport, valid F-1 visa unless an exception applies, and an employment letter or other evidence that you are returning to resume OPT employment.",
+    },
+    {
+        question: "Can I travel on OPT without a job?",
+        answer: "ICE warns that if you leave after OPT is approved but before obtaining a job, your OPT may end and you may not be able to re-enter in F-1 status. Travel also continues to count toward the unemployment limit. Speak with your DSO before making plans.",
+    },
+    {
+        question: "What documents do I need to travel on OPT?",
+        answer: "Carry a passport valid for re-entry, a valid F-1 visa unless an exception applies, a Form I-20 endorsed for travel by your DSO, your EAD, and proof of current or prospective OPT employment. Admission is always decided by CBP at the port of entry.",
+    },
+    {
+        question: "Do I need a valid F-1 visa to re-enter on OPT?",
+        answer: "Usually yes. Citizens of Canada and Bermuda generally do not need an F-1 visa, and limited automatic-revalidation rules may apply to some short trips to Canada, Mexico, or adjacent islands. Mexican and European Union citizenship does not by itself create an F-1 visa exemption.",
+    },
+    {
+        question: "Can I re-enter during the 60-day OPT grace period?",
+        answer: "No. ICE states that the 60-day period after completing OPT is to prepare to leave the United States; it does not provide a right to leave and re-enter in F-1 status.",
+    },
+] as const;
+
 export default function CanYouTravelOnOPTArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -36,16 +63,7 @@ export default function CanYouTravelOnOPTArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Can You Travel on OPT Guide", url: "https://www.trackmyopt.com/blog/can-you-travel-on-opt-complete-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-24" modifiedDate="2026-01-24" author="Vinay Kumar" faqItems={[
-                { question: "Can I travel while waiting for OPT approval?", answer: "No, do not travel while OPT is pending unless absolutely necessary. If you leave the US while pending, your case may be denied or abandoned. If you must travel, contact your DSO first to understand the risks." },
-                { question: "Can I travel once OPT is approved?", answer: "Yes, once your I-765 is approved and you have valid OPT authorization, you can travel outside the US. You must have a valid passport and your EAD card to re-enter." },
-                { question: "Do I need a visa to travel on OPT?", answer: "If you're from a visa-exempt country (Canada, Mexico, most EU countries), you don't need a US visa to re-enter. If you're from a visa-required country, check if your F-1 visa is still valid. If expired, you'll need a new visa to re-enter the US." },
-                { question: "What documents do I need to travel on OPT?", answer: "Your valid EAD card, valid passport, and valid US visa (if required by your nationality). Some countries may also require proof of OPT employment or an up-to-date I-94. Check your country's entry requirements." },
-                { question: "Can I apply for an extension or H-1B while traveling?", answer: "Yes, you can apply for extensions or status changes while outside the US, but it's risky. If your application is pending when you travel, delays could result in case denial. Consult an attorney before traveling during status change applications." },
-                { question: "Should I travel during the OPT grace period?", answer: "The grace period (60 days after OPT ends) is for finding employment only. If you travel during this period, you may have difficulty re-entering. It's safest to stay in the US during grace period." },
-                { question: "Do I need travel signature or permission from my employer?", answer: "You don't need formal permission from your employer to travel, but international trips could affect your employment or work authorization. Notify your employer of planned travel, especially if extended." },
-                { question: "Can I travel if my EAD card is expired?", answer: "No, you cannot travel without a valid EAD card. If your card is expired, you cannot re-enter the US. If you need to travel, renew your OPT/EAD before leaving." },
-            ]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-01-24" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...TRAVEL_FAQS]} />
 
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
@@ -68,26 +86,22 @@ export default function CanYouTravelOnOPTArticle() {
                     </span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    Can You Travel on OPT? Complete Travel Guide for F-1 Students
+                    Can I Travel on OPT? Re-Entry Rules and Required Documents (2026)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     Everything F-1 students need to know about traveling on OPT: travel while pending, required documents, visa requirements, and re-entry authorization.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: January 24, 2026</span>
+                    <span>Last updated: July 27, 2026</span>
                     <span>•</span>
                     <span>Updated by TrackMyOPT Travel Team</span>
                 </div>
             </header>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                <span>Last Updated: February 2026</span>
-            </div>
-
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    Yes, F-1 students can travel internationally while on approved OPT, but you need a valid passport, valid F-1 visa stamp, EAD card, and an I-20 with a travel signature from your DSO dated within the last 6 months. Traveling while your OPT application is pending carries significant risk.
+                    You can travel while OPT is pending or approved, but re-entry is not guaranteed. ICE advises caution while an application is pending. After approval, bring your EAD, travel-endorsed I-20, valid passport and F-1 visa (unless exempt), plus proof that you are returning to OPT employment.
                 </p>
             </div>
 
@@ -98,10 +112,10 @@ export default function CanYouTravelOnOPTArticle() {
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
-                    <strong>Do NOT travel while OPT is pending.</strong> Once approved with valid EAD, you can travel internationally. You'll need a valid passport, EAD card, and valid US visa (if your country requires one). Check visa status before leaving.
+                    <strong>Pending OPT:</strong> travel is possible but risky if USCIS requests evidence or approves the case while you are abroad. <strong>Approved OPT:</strong> ICE expects you to have the EAD in hand and employment to return to. Ask your DSO to check your SEVIS record and travel signature before departure.
                 </p>
                 <p className="text-blue-700 dark:text-blue-300 text-sm mt-2">
-                    Source: <a href="https://www.uscis.gov/i765" target="_blank" rel="noopener noreferrer" className="underline">USCIS I-765 Instructions</a>, <a href="https://www.state.gov" target="_blank" rel="noopener noreferrer" className="underline">U.S. Department of State</a>
+                    Sources: <a href="https://www.ice.gov/sevis/travel" target="_blank" rel="noopener noreferrer" className="underline">ICE: Travel and re-entry for F-1 students</a> and <a href="https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/visa-expiration-date/auto-revalidate.html" target="_blank" rel="noopener noreferrer" className="underline">Department of State: Automatic revalidation</a>
                 </p>
             </div>
 
@@ -134,23 +148,23 @@ export default function CanYouTravelOnOPTArticle() {
                         Can You Travel While OPT Pending?
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        <strong>NO. Do not travel internationally while your OPT application is pending.</strong> Traveling while waiting for I-765 approval is extremely risky and can result in case abandonment or denial.
+                        ICE says you <strong>may seek re-entry while OPT is pending</strong>, but travel should be undertaken with caution. USCIS may send a request for evidence while you are away, and an EAD can only be delivered to your U.S. address.
                     </p>
 
                     <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold">
-                            "Leaving the US while your OPT application is pending can cause USCIS to consider your case abandoned. You may not be eligible to reapply for 6-12 months."
+                            If USCIS approves OPT while you are abroad, ICE expects you to have the physical EAD in hand when you return. Plan how a trusted person would securely send the card to you, and discuss the trip with your DSO first.
                         </p>
                     </div>
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">Why Traveling While Pending is Dangerous</h3>
                     <div className="space-y-3 mb-6">
                         {[
-                            "USCIS may mark your application as 'abandoned' if you don't respond to notices while traveling",
-                            "Your case status updates could be missed while you're out of the country",
-                            "RFE deadlines pass without your knowledge, resulting in automatic denial",
-                            "You may not be eligible to re-apply for 6-12 months after abandonment",
-                            "Even returning to the US doesn't automatically revive your case",
+                            "USCIS may issue a request for evidence while you are outside the country",
+                            "Your EAD is mailed only to the U.S. address on your application",
+                            "Airlines and CBP may expect the physical EAD if OPT is approved before your return",
+                            "A missing or late response to a USCIS notice can lead to denial",
+                            "CBP makes the final admission decision at the port of entry",
                         ].map((item, i) => (
                             <div key={i} className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
                                 <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -162,7 +176,7 @@ export default function CanYouTravelOnOPTArticle() {
                     <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">What if you MUST travel while OPT is pending?</h3>
                         <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
-                            Contact your DSO immediately BEFORE traveling. Understand the risks. Set email forwarding to your phone and check USCIS status daily from abroad. Have an emergency contact in the US who can access your mail if needed.
+                            Ask your DSO to confirm that your SEVIS record and travel signature are current. Keep access to your USCIS account, arrange secure handling of mail and any EAD delivery, and carry evidence that the OPT application is pending.
                         </p>
                     </div>
                 </section>
@@ -179,12 +193,12 @@ export default function CanYouTravelOnOPTArticle() {
                     <div className="space-y-3 mb-6">
                         <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
                             <h4 className="font-bold text-green-900 dark:text-green-100 mb-1">After Approval Notice Received</h4>
-                            <p className="text-green-800 dark:text-green-200 text-sm">Once you receive the approval notice from USCIS (status shows "approved-decision sent"), you can travel safely.</p>
+                            <p className="text-green-800 dark:text-green-200 text-sm">Approval alone is not the complete travel document set. ICE expects the physical EAD for re-entry after OPT approval.</p>
                         </div>
 
                         <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
                             <h4 className="font-bold text-green-900 dark:text-green-100 mb-1">After EAD Card Arrives</h4>
-                            <p className="text-green-800 dark:text-green-200 text-sm">Having your physical EAD card makes re-entry easier. It proves your work authorization immediately upon arrival.</p>
+                            <p className="text-green-800 dark:text-green-200 text-sm">Carry the EAD together with a travel-endorsed I-20, passport, required visa, and evidence that you are returning to OPT employment.</p>
                         </div>
 
                         <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
@@ -212,7 +226,17 @@ export default function CanYouTravelOnOPTArticle() {
                                 Valid Passport
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                Must be valid for the entire duration of your travel. Check expiration before booking tickets. Most countries require 6+ months validity.
+                                ICE generally requires the passport to remain valid for at least six months after your re-entry date, unless your country is covered by a passport-validity agreement.
+                            </p>
+                        </div>
+
+                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                Form I-20 With Current Travel Endorsement
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                Ask your DSO to endorse the I-20 for travel and confirm that your SEVIS employment information is current. Travel endorsements during OPT are generally valid for six months.
                             </p>
                         </div>
 
@@ -229,10 +253,20 @@ export default function CanYouTravelOnOPTArticle() {
                         <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                                 <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                Evidence of OPT Employment
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                Carry a recent employer letter, offer letter, or other evidence that you have a qualifying job and are returning to resume employment. ICE specifically recommends an employment letter if you have one.
+                            </p>
+                        </div>
+
+                        <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <CheckCircle2 className="w-5 h-5 text-green-600" />
                                 Valid US Visa (If Required)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                Depends on your nationality. Check your passport for your F-1 visa validity. If expired, you may need to apply for a new visa to re-enter the US.
+                                Most students need a valid F-1 visa for re-entry. Citizens of Canada and Bermuda are generally visa-exempt, and limited automatic-revalidation rules may apply to some short trips.
                             </p>
                         </div>
 
@@ -266,22 +300,22 @@ export default function CanYouTravelOnOPTArticle() {
                                 <tr>
                                     <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">F-1 visa is valid (not expired)</td>
                                     <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✓ Yes</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Re-enter with EAD + valid F-1 visa</td>
+                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Also carry an endorsed I-20 and employment evidence</td>
                                 </tr>
                                 <tr className="bg-gray-50 dark:bg-zinc-900">
                                     <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">F-1 visa has expired (after graduation)</td>
                                     <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Need visa</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Cannot re-enter without valid visa. Apply at US embassy before travel.</td>
+                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Usually must obtain a new F-1 visa unless a narrow exception such as automatic revalidation applies</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Visa-exempt country (Canada, Mexico, etc)</td>
+                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Citizen of Canada or Bermuda</td>
                                     <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✓ Yes</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Can re-enter without visa. EAD sufficient proof of work authorization.</td>
+                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Generally visa-exempt, but still needs the other F-1/OPT re-entry documents</td>
                                 </tr>
                                 <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Have valid H-1B visa (transitioning)</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">✓ Yes</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Re-enter with valid H-1B visa or use EAD if H-1B pending</td>
+                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Expired visa; short eligible trip to Canada, Mexico, or an adjacent island</td>
+                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Maybe</td>
+                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Automatic revalidation is limited and has exclusions; verify eligibility before travel</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -384,21 +418,21 @@ export default function CanYouTravelOnOPTArticle() {
                         Traveling During OPT Grace Period
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        The OPT grace period (60 days after OPT ends) allows you to stay in the US job hunting. <strong>Traveling during this period is risky.</strong>
+                        The 60-day period after completing OPT is for preparing to leave the United States or taking another permitted status-related step. <strong>ICE says it does not allow re-entry in F-1 status.</strong>
                     </p>
 
                     <div className="p-5 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
                         <h3 className="font-bold text-red-900 dark:text-red-100 mb-2">Why You Shouldn't Travel During Grace Period</h3>
                         <ul className="space-y-2 text-red-800 dark:text-red-200 text-sm">
                             <li>• Your EAD is no longer valid outside the US</li>
-                            <li>• CBP may not recognize your work authorization upon return</li>
-                            <li>• You lose the grace period entry days while traveling</li>
-                            <li>• You may have difficulty re-entering the US</li>
+                            <li>• Your OPT employment authorization has ended</li>
+                            <li>• The grace period does not provide a right to re-enter</li>
+                            <li>• Departing generally ends your ability to use the remaining grace period inside the U.S.</li>
                         </ul>
                     </div>
 
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-6">
-                        If you need to travel during grace period, consult an immigration attorney first. You may lose your legal status.
+                        If you leave during the grace period, plan on completing your next immigration step from outside the United States unless a qualified adviser confirms another lawful basis for return.
                     </p>
                 </section>
 
@@ -410,7 +444,7 @@ export default function CanYouTravelOnOPTArticle() {
                     <div className="space-y-4">
                         {[
                             { practice: "Before You Leave", items: ["Check all document expiration dates (passport, visa, EAD)", "Notify your employer and DSO of travel plans", "Update your contact info with USCIS", "Arrange mail forwarding to a trusted contact", "Set up email alerts for USCIS status updates"] },
-                            { practice: "While Traveling", items: ["Keep documents in separate bags", "Have digital copies in secure cloud storage", "Avoid posting on social media about travel if your case is pending", "Check USCIS status every few days", "Be prepared to show proof of employment if asked"] },
+                            { practice: "While Traveling", items: ["Keep original documents in your carry-on", "Have digital backups in secure storage", "Monitor your USCIS account if your case is pending", "Arrange secure access to U.S. mail and EAD delivery", "Be prepared to show proof of employment if asked"] },
                             { practice: "Upon Re-Entry", items: ["Bring all documents to the airport", "Be ready to explain your OPT employment", "Comply with CBP officer requests", "Request secondary inspection if you have concerns", "Keep all re-entry documentation"] },
                         ].map((section, i) => (
                             <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
@@ -434,14 +468,7 @@ export default function CanYouTravelOnOPTArticle() {
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
-                        {[
-                            { question: "Can I travel while waiting for OPT approval?", answer: "No. Do not travel while OPT is pending. You risk case abandonment or denial if you leave the US during processing." },
-                            { question: "Can I travel once OPT is approved?", answer: "Yes, once your I-765 is approved and you have valid authorization, you can travel internationally with proper documents." },
-                            { question: "Do I need a visa to travel on OPT?", answer: "It depends on your nationality. Check if your current F-1 visa is valid. If expired and your country requires a US visa, you'll need to apply for a new one before traveling." },
-                            { question: "What documents do I need to travel on OPT?", answer: "Valid passport, valid EAD card, and valid US visa (if your country requires one). Check all expiration dates before booking travel." },
-                            { question: "Can I apply for H-1B while traveling on OPT?", answer: "Technically yes, but it's risky. Delays or missed notices could result in case denial. Consult an attorney before traveling during status change applications." },
-                            { question: "Do I need permission from my employer to travel?", answer: "You don't need formal legal permission, but inform your employer. Extended travel without notice could affect your employment." },
-                        ].map((faq, i) => (
+                        {TRAVEL_FAQS.map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
                                 <div itemScope itemType="https://schema.org/Answer" itemProp="acceptedAnswer">

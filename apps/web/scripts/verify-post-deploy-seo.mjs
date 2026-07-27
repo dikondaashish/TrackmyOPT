@@ -15,6 +15,11 @@ const JSON_LD_PATHS = [
   "/blog/90-day-unemployment-rule-opt",
   "/blog/i-983-training-plan-guide",
   "/blog/stem-opt-extension-guide",
+  "/blog/opt-application-denied",
+  "/blog/can-you-travel-on-opt-complete-guide",
+  "/blog/how-to-answer-sponsorship-question",
+  "/blog/cpt-12-month-rule-opt-eligibility",
+  "/answers/what-is-sevis",
   "/features/case-status",
 ];
 

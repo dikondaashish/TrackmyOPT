@@ -6,9 +6,9 @@ import { glossaryData, getAllTermsForSchema } from "../../../data/glossaryData";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 interface PageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 }
 
 // Generate all possible static paths for the glossary terms
@@ -28,8 +28,9 @@ function getTermBySlug(slug: string) {
     return null;
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-    const term = getTermBySlug(params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { slug } = await params;
+    const term = getTermBySlug(slug);
     
     if (!term) {
         return {
@@ -46,8 +47,9 @@ export function generateMetadata({ params }: PageProps): Metadata {
     };
 }
 
-export default function GlossaryTermPage({ params }: PageProps) {
-    const term = getTermBySlug(params.slug);
+export default async function GlossaryTermPage({ params }: PageProps) {
+    const { slug } = await params;
+    const term = getTermBySlug(slug);
 
     if (!term) {
         notFound();

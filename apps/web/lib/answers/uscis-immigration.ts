@@ -248,7 +248,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         question: "What Is SEVIS?",
         shortAnswer:
             "SEVIS (Student and Exchange Visitor Information System) is a web-based database managed by the U.S. Department of Homeland Security (DHS) that tracks and monitors F, M, and J nonimmigrant students and exchange visitors throughout their stay in the United States. It stores critical information including enrollment status, program details, employment authorization, and address records.",
-        lastUpdated: "February 2026",
+        lastUpdated: "July 2026",
         category: "uscis-immigration",
         categoryLabel: "USCIS & Immigration",
         keyTakeaway:
@@ -284,7 +284,7 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
                 heading: "SEVIS and Travel",
                 paragraphs: [
                     "SEVIS plays a critical role when international students travel outside the United States. Upon re-entry, CBP officers verify the student's SEVIS record at the port of entry. If the SEVIS record is not in active status or if there are discrepancies between the I-20 and the SEVIS database, the student may be denied entry or placed in secondary inspection for further review.",
-                    "Before traveling, students should ensure their SEVIS record is active and that their I-20 has a valid travel endorsement signature from the DSO. Students on OPT should carry their EAD card, a valid passport, a valid visa stamp (or be from a visa-exempt country), and a job offer letter or proof of employment when re-entering the U.S.",
+                    "Before traveling, students should ensure their SEVIS record is active and that their I-20 has a valid travel endorsement signature from the DSO. Students on OPT should carry their EAD card, a valid passport, a valid F-1 visa unless a specific exception applies, and a job offer letter or proof of employment when re-entering the U.S.",
                     "Students should also update their U.S. address in SEVIS within 10 days of any move, as an outdated address in SEVIS can create complications during re-entry and with USCIS correspondence. DSOs can update the address in SEVIS on behalf of the student, or STEM OPT students can update it directly through the SEVP Portal."
                 ]
             }
@@ -302,13 +302,15 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
             { question: "Can I Travel on OPT?", slug: "can-i-travel-on-opt" }
         ],
         metadata: {
-            title: "What Is SEVIS? Student and Exchange Visitor Information System Explained | TrackMyOPT",
+            title: "What Is SEVIS? SEVIS ID, Records & F-1 Status Guide",
             description:
-                "Learn what SEVIS is, how it tracks F-1 students, why your SEVIS record matters for OPT and immigration status, and how the I-901 fee works.",
+                "What is SEVIS? Learn what a SEVIS ID and record contain, how schools update F-1 status and OPT data, and when students may need to pay the I-901 fee.",
             keywords: [
+                "what is SEVIS",
                 "SEVIS",
                 "Student and Exchange Visitor Information System",
                 "SEVIS ID",
+                "SEVIS record",
                 "SEVIS fee",
                 "I-901",
                 "F-1 student tracking",

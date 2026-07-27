@@ -1,17 +1,18 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, BookOpen, MessageSquare, ShieldAlert, Award } from "lucide-react";
+import { Clock, ArrowRight, FileText, BookOpen, MessageSquare, ShieldAlert } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
 export const metadata: Metadata = {
-    title: "How to Answer the Visa Sponsorship Question in Job Interviews (2026)",
-    description: "Crucial guide for international students on OPT. Learn exactly how to answer 'Will you now or in the future require visa sponsorship?' without getting disqualified immediately.",
-    keywords: ["visa sponsorship interview", "require sponsorship OPT", "answer sponsorship question", "F-1 visa job search", "H-1B sponsorship question", "OPT interview strategy"],
+    title: "How to Answer Visa Sponsorship Questions on OPT (2026)",
+    description: "How should F-1 OPT students answer visa sponsorship questions? Use truthful application answers and recruiter scripts that explain current work authorization.",
+    keywords: ["how to answer visa sponsorship question", "will you require sponsorship OPT", "visa sponsorship interview", "require sponsorship OPT", "F-1 work authorization question", "H-1B sponsorship question"],
     openGraph: {
-        title: "How to Answer the Visa Sponsorship Question in Job Interviews | TrackMyOPT",
-        description: "Proven strategies and exact scripts to answer the visa sponsorship question honestly and strategically as an F-1 student on OPT.",
+        title: "How to Answer Visa Sponsorship Questions on OPT | TrackMyOPT",
+        description: "Truthful application answers and recruiter scripts for explaining current OPT work authorization and possible future sponsorship.",
         url: "https://www.trackmyopt.com/blog/how-to-answer-sponsorship-question",
         type: "article",
         publishedTime: "2026-07-11T00:00:00.000Z",
@@ -30,6 +31,25 @@ export const metadata: Metadata = {
     },
 };
 
+const SPONSORSHIP_FAQS = [
+    {
+        question: "How should I answer the visa sponsorship question on OPT?",
+        answer: "Answer the exact question truthfully. If asked whether you are currently authorized to work, answer based on your current EAD and dates. If asked whether you will now or in the future require sponsorship, answer yes if you expect the employer to sponsor a future status such as H-1B.",
+    },
+    {
+        question: "Does OPT require employer sponsorship?",
+        answer: "Initial post-completion OPT is employment authorization issued to the student, so an employer does not file an H-1B-style petition for you to use it. A STEM OPT extension does require an eligible E-Verify employer, a completed Form I-983, and employer certifications.",
+    },
+    {
+        question: "What should I say to a recruiter about OPT?",
+        answer: "State your current authorization and expiration date, then distinguish it from future sponsorship: 'I am currently authorized to work through [date] under F-1 OPT. I may need employer sponsorship for a longer-term status in the future.'",
+    },
+    {
+        question: "Should I say no to sponsorship because I have OPT?",
+        answer: "Not when the question includes 'now or in the future' and you expect to need employer sponsorship later. OPT can mean no immigration petition is needed for the current period, but it does not make future sponsorship unnecessary.",
+    },
+] as const;
+
 export default function SponsorshipQuestionGuide() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -39,16 +59,12 @@ export default function SponsorshipQuestionGuide() {
                 { name: "How to Answer Sponsorship Question", url: "https://www.trackmyopt.com/blog/how-to-answer-sponsorship-question" },
             ]} />
             <BlogPostSchema
-                title="How to Answer the Visa Sponsorship Question in Job Interviews"
-                description="Proven interview strategies for F-1 students on OPT when asked about work visa sponsorship."
+                title={metadata.title as string}
+                description={metadata.description as string}
                 publishedDate="2026-03-11"
-                modifiedDate="2026-03-11"
+                modifiedDate="2026-07-27"
                 author="Vinay Kumar"
-                faqItems={[
-                    { question: "Should I lie about my sponsorship requirement on a job application?", answer: "No, never lie on a job application or in an interview. If an employer finds out later that you misrepresented your work authorization, it is legal grounds for immediate termination." },
-                    { question: "How should I answer 'Do you require sponsorship now or in the future?'", answer: "You should answer 'Yes'. However, you can clarify that you have immediate, independent work authorization (OPT or STEM OPT) for up to 36 months, meaning no immediate sponsorship is needed." },
-                    { question: "When is the best time to bring up my visa status in an interview?", answer: "The best time is usually during the initial recruiter screen or after you have established your value (during the first round of interviews). Avoid bringing it up in the very first sentence, but do not wait until the final offer stage." },
-                ]}
+                faqItems={[...SPONSORSHIP_FAQS]}
             />
 
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
@@ -70,22 +86,25 @@ export default function SponsorshipQuestionGuide() {
                     </span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    How to Answer the Visa Sponsorship Question in Job Interviews
+                    How to Answer Visa Sponsorship Questions on OPT (2026)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                     &quot;Will you now or in the future require visa sponsorship?&quot; For F-1 OPT students, this is the most stressful screening question. Here is how to answer strategically, truthfully, and maximize your chances.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Published: March 11, 2026</span>
+                    <span>Last updated: July 27, 2026</span>
                     <span>•</span>
                     <span>Written by Vinay Kumar</span>
                 </div>
             </header>
 
             <figure className="mb-12">
-                <img
+                <Image
                     src="/blog/how-to-answer-sponsorship-question.png"
                     alt="Job description printout, open portfolio with interview preparation notes on a glass desk"
+                    width={1200}
+                    height={630}
+                    sizes="(max-width: 896px) 100vw, 896px"
                     className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800"
                 />
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -96,7 +115,7 @@ export default function SponsorshipQuestionGuide() {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    Answer <strong>truthfully (Yes)</strong> to the question, but pivot to emphasize your immediate, pre-authorized work authorization: <em>&quot;I have immediate work authorization through F-1 OPT for the next 12 to 36 months, which requires no employer sponsorship or fees during this period. I would, however, require sponsorship if we decide to transition to a long-term H-1B visa later.&quot;</em>
+                    Answer the exact question truthfully. For example: <em>&quot;I am currently authorized to work through [date] under F-1 OPT. My current OPT does not require the company to file a work-visa petition, but I may need sponsorship for a longer-term status in the future.&quot;</em> If you plan to use STEM OPT, explain that the employer must be in E-Verify and complete Form I-983.
                 </p>
             </div>
 
@@ -106,7 +125,7 @@ export default function SponsorshipQuestionGuide() {
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
-                    Do not let recruiters assume &apos;sponsorship&apos; means they must file expensive visa petitions today. Clarify that your EAD card acts as independent work authorization.
+                    Separate <strong>current work authorization</strong> from <strong>future sponsorship</strong>. Give the exact EAD expiration date and do not promise 36 months unless you are STEM-eligible and the employer can support a STEM OPT extension.
                 </p>
             </div>
 
@@ -144,16 +163,45 @@ export default function SponsorshipQuestionGuide() {
                             <ShieldAlert className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h4 className="font-bold text-gray-950 dark:text-white">1. Are you legally authorized to work in the US?</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Your Answer: YES.</strong> As long as you have or are eligible for your F-1 OPT EAD, you are legally authorized to work.</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Answer from your current documents.</strong> If your EAD is valid for the proposed start date, you can answer yes. Being merely eligible to apply for OPT is not the same as having employment authorization.</p>
                             </div>
                         </div>
                         <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-start gap-3">
                             <ShieldAlert className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h4 className="font-bold text-gray-950 dark:text-white">2. Will you now or in the future require visa sponsorship?</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Your Answer: YES.</strong> Even if you have 3 years of STEM OPT, you will eventually require H-1B sponsorship to stay long-term. Answering &apos;No&apos; is misrepresentation.</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Answer based on your expected path.</strong> If you expect the employer to sponsor a status after your available OPT period, answer yes even though no work-visa petition is needed for your current EAD.</p>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                <section id="how-to-apply" className="mb-12">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        How to Answer on an Online Job Application
+                    </h2>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                        Read each field literally. Applications often ask two different questions, and combining them can produce an inaccurate answer.
+                    </p>
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse text-sm">
+                            <thead>
+                                <tr className="bg-gray-100 dark:bg-zinc-800">
+                                    <th className="text-left p-3 border dark:border-zinc-700">Application question</th>
+                                    <th className="text-left p-3 border dark:border-zinc-700">How to evaluate it</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td className="p-3 border dark:border-zinc-700">&quot;Are you currently authorized to work in the U.S.?&quot;</td>
+                                    <td className="p-3 border dark:border-zinc-700">Answer from your current EAD and whether it will be valid on the start date.</td>
+                                </tr>
+                                <tr className="bg-gray-50 dark:bg-zinc-900">
+                                    <td className="p-3 border dark:border-zinc-700">&quot;Will you now or in the future require sponsorship?&quot;</td>
+                                    <td className="p-3 border dark:border-zinc-700">Answer yes if you expect the employer to sponsor a future immigration status, even if no petition is needed for your current OPT period.</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </section>
 
@@ -167,8 +215,36 @@ export default function SponsorshipQuestionGuide() {
                     <div className="bg-gray-100 dark:bg-zinc-800 rounded-xl p-5 border border-gray-200 dark:border-zinc-700 my-4 text-sm text-gray-800 dark:text-gray-200">
                         <h4 className="font-bold text-gray-900 dark:text-white mb-2">For STEM-Eligible Students (3 Years of Work Auth):</h4>
                         <p className="italic">
-                            &quot;I am authorized to work in the US for up to three years under the F-1 STEM OPT program. During these three years, there is zero administrative action, cost, or sponsorship required from the company. Later down the road, if we find that it&apos;s a great fit and want to transition to a long-term H-1B visa, I would require sponsorship at that point.&quot;
+                            &quot;I am currently authorized to work through [date] under F-1 OPT. I am also STEM-eligible, so I may qualify for a 24-month extension with an E-Verify employer that can complete the I-983 training plan. For a longer-term status after OPT, I may need sponsorship.&quot;
                         </p>
+                    </div>
+                </section>
+
+                <section id="value-first" className="mb-12">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Explain the Timeline, Then Return to Your Value
+                    </h2>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                        Keep the immigration explanation short and concrete: authorization type, expiration date, and whether future sponsorship may be needed. Then return the conversation to the role, your experience, and the results you can deliver.
+                    </p>
+                    <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                        <p className="text-blue-900 dark:text-blue-100 text-sm">
+                            <strong>Example:</strong> &quot;My EAD authorizes me to work through June 2027. I may need future sponsorship after my available OPT period. For this role, my recent work on [relevant project] is directly aligned with your need for [business outcome].&quot;
+                        </p>
+                    </div>
+                </section>
+
+                <section id="faq" className="mb-12">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                        Frequently Asked Questions
+                    </h2>
+                    <div className="space-y-4">
+                        {SPONSORSHIP_FAQS.map((faq) => (
+                            <div key={faq.question} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{faq.answer}</p>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
