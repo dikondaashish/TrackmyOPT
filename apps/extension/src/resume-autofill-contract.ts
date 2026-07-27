@@ -163,6 +163,16 @@ export interface WorkdayJobIdentity {
   queryRequisitionId?: string;
 }
 
+/**
+ * iCIMS keeps the application screen on the same `/jobs/<id>/.../job` path
+ * as the posting, but replaces the query string with `mode=apply`, `apply`,
+ * and an ephemeral `hashed` value. The numeric path segment is the stable
+ * identity, not those routing parameters.
+ */
+export interface ICimsJobIdentity {
+  jobId: string;
+}
+
 const TRACKING_PARAMETER_RE =
   /^(?:utm_.+|gclid|fbclid|msclkid|ref|referrer|source|trk)$/i;
 
@@ -191,6 +201,7 @@ export function normalizeJobIdentityText(value: string): string {
 }
 
 const WORKDAY_HOST_RE = /(?:^|\.)(?:myworkdayjobs|myworkday)\.com$/i;
+const ICIMS_HOST_RE = /(?:^|\.)icims\.com$/i;
 
 function normalizeRequisitionId(value: string): string {
   return value.normalize('NFKC').trim().toLocaleLowerCase('en-US');
@@ -244,11 +255,38 @@ export function extractWorkdayJobIdentity(
   }
 }
 
+/** Extract the stable iCIMS job ID from both listing and apply routes. */
+export function extractICimsJobIdentity(
+  value: string,
+): ICimsJobIdentity | undefined {
+  try {
+    const url = new URL(value);
+    if (!ICIMS_HOST_RE.test(url.hostname)) return undefined;
+    const match = url.pathname.match(/^\/jobs\/(\d+)\/[^/]+\/job\/?$/i);
+    return match ? { jobId: match[1] } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function jobUrlsReferToSameJob(
   artifactUrl: string,
   contextUrl: string,
   artifactRequisitionId?: string,
 ): boolean {
+  const artifactICimsIdentity = extractICimsJobIdentity(artifactUrl);
+  const contextICimsIdentity = extractICimsJobIdentity(contextUrl);
+  if (artifactICimsIdentity && contextICimsIdentity) {
+    try {
+      return (
+        new URL(artifactUrl).hostname === new URL(contextUrl).hostname &&
+        artifactICimsIdentity.jobId === contextICimsIdentity.jobId
+      );
+    } catch {
+      return false;
+    }
+  }
+
   const artifactIdentity = extractWorkdayJobIdentity(artifactUrl);
   const contextIdentity = extractWorkdayJobIdentity(contextUrl);
   if (artifactIdentity && contextIdentity) {

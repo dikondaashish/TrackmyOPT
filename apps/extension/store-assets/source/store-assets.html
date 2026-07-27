@@ -1,0 +1,1235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light" />
+    <title>TrackMyOPT Chrome Web Store assets</title>
+    <style>
+      :root {
+        --blue: #2764e6;
+        --blue-2: #10a5f5;
+        --navy: #071a49;
+        --ink: #0f172a;
+        --muted: #65748d;
+        --line: #dfe7f3;
+        --soft: #f4f7fc;
+        --green: #16a36a;
+        --red: #d33b49;
+        --violet: #754bf4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 28px;
+        background: #020817;
+        font-family:
+          Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      .asset {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        margin: 0 0 32px;
+        color: white;
+        background: var(--navy);
+        isolation: isolate;
+      }
+
+      .screenshot {
+        width: 1280px;
+        height: 800px;
+      }
+
+      .promo-small {
+        width: 440px;
+        height: 280px;
+      }
+
+      .promo-marquee {
+        width: 1400px;
+        height: 560px;
+      }
+
+      .generated-bg {
+        position: absolute;
+        inset: 0;
+        z-index: -3;
+        background:
+          linear-gradient(105deg, rgba(4, 18, 60, 0.34), rgba(6, 18, 55, 0.06)),
+          url("./background-generated.png") center / cover no-repeat;
+      }
+
+      .generated-bg::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background:
+          radial-gradient(circle at 18% 15%, rgba(43, 117, 255, 0.28), transparent 34%),
+          linear-gradient(90deg, rgba(4, 16, 49, 0.82) 0%, rgba(4, 16, 49, 0.5) 44%, rgba(4, 16, 49, 0.08) 100%);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .brand img {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(7, 26, 73, 0.3);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        padding: 8px 13px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #dbeafe;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #48d6ff;
+        box-shadow: 0 0 16px #48d6ff;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      .headline {
+        max-width: 545px;
+        font-size: 58px;
+        line-height: 1.02;
+        letter-spacing: -0.048em;
+      }
+
+      .subhead {
+        max-width: 520px;
+        margin-top: 22px;
+        color: #dbeafe;
+        font-size: 21px;
+        line-height: 1.5;
+      }
+
+      .never-submit {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 28px;
+        color: white;
+        font-size: 16px;
+        font-weight: 800;
+      }
+
+      .never-submit .shield {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 11px;
+        background: rgba(72, 214, 255, 0.16);
+        color: #68e6ff;
+        font-size: 20px;
+      }
+
+      .two-column {
+        position: relative;
+        display: grid;
+        height: 100%;
+        grid-template-columns: 47% 53%;
+        gap: 40px;
+        padding: 46px 48px 38px 62px;
+      }
+
+      .copy-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .copy-column .brand {
+        position: absolute;
+        top: 38px;
+        left: 62px;
+      }
+
+      .browser {
+        position: relative;
+        align-self: center;
+        min-height: 650px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.34);
+        border-radius: 24px;
+        background: #eef3fa;
+        box-shadow: 0 36px 80px rgba(1, 8, 31, 0.46);
+        color: var(--ink);
+        transform: perspective(1800px) rotateY(-2deg) rotateX(0.5deg);
+      }
+
+      .browser-bar {
+        display: flex;
+        height: 48px;
+        align-items: center;
+        gap: 7px;
+        padding: 0 17px;
+        background: white;
+        border-bottom: 1px solid #e6ebf3;
+      }
+
+      .browser-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #d6deea;
+      }
+
+      .address-bar {
+        height: 24px;
+        margin-left: 12px;
+        flex: 1;
+        border-radius: 999px;
+        background: #f0f4f9;
+      }
+
+      .browser-body {
+        position: relative;
+        display: grid;
+        min-height: 602px;
+        grid-template-columns: 55% 45%;
+      }
+
+      .application {
+        padding: 24px 18px 28px 24px;
+        background: #f9fbfe;
+      }
+
+      .app-title {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .app-meta {
+        margin: 6px 0 18px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .field-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .field,
+      .select-field {
+        min-height: 58px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: white;
+      }
+
+      .field.wide,
+      .select-field.wide {
+        grid-column: 1 / -1;
+      }
+
+      .field label,
+      .select-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .field .value,
+      .select-field .value {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .filled {
+        border-color: #a9d7c4;
+        background: #f4fff9;
+      }
+
+      .filled .value::after {
+        color: var(--green);
+        content: "✓";
+        font-weight: 900;
+      }
+
+      .widget {
+        padding: 17px;
+        background: white;
+        border-left: 1px solid var(--line);
+      }
+
+      .widget-brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--line);
+        color: #1d4ed8;
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .widget-brand img {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+      }
+
+      .job-card {
+        margin-top: 15px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: #fbfcff;
+      }
+
+      .job-card strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .job-card span {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .primary-action {
+        margin-top: 14px;
+        padding: 14px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #2454d8, #11a7f6);
+        color: white;
+        font-size: 13px;
+        font-weight: 900;
+        box-shadow: 0 12px 24px rgba(39, 100, 230, 0.2);
+      }
+
+      .progress-card {
+        margin-top: 14px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #f8faff;
+      }
+
+      .progress-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .progress-row strong {
+        color: var(--green);
+        font-size: 13px;
+      }
+
+      .progress-track {
+        height: 8px;
+        margin: 10px 0 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #dfe8f5;
+      }
+
+      .progress-fill {
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2454d8, #19b7ef);
+      }
+
+      .progress-caption {
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .safety-note {
+        margin-top: 14px;
+        padding: 12px;
+        border-radius: 12px;
+        background: #effaf5;
+        color: #0b7750;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+
+      .center-heading {
+        position: absolute;
+        top: 45px;
+        left: 60px;
+        right: 60px;
+        text-align: center;
+      }
+
+      .center-heading .brand {
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .center-heading h1 {
+        font-size: 48px;
+        letter-spacing: -0.04em;
+      }
+
+      .center-heading p {
+        margin-top: 12px;
+        color: #dbeafe;
+        font-size: 18px;
+      }
+
+      .showcase {
+        position: absolute;
+        left: 70px;
+        right: 70px;
+        bottom: 48px;
+        display: grid;
+        gap: 22px;
+      }
+
+      .four-cards {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .three-cards {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .glass-card {
+        min-height: 270px;
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 24px 50px rgba(1, 8, 31, 0.28);
+        color: var(--ink);
+      }
+
+      .glass-card .step {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        margin-bottom: 18px;
+        place-items: center;
+        border-radius: 13px;
+        background: #eaf1ff;
+        color: var(--blue);
+        font-size: 17px;
+        font-weight: 900;
+      }
+
+      .glass-card h3 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: -0.02em;
+      }
+
+      .glass-card p {
+        margin-top: 9px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mini-field {
+        margin-top: 17px;
+        padding: 11px 12px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: var(--soft);
+      }
+
+      .mini-field small {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .mini-field strong {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+      }
+
+      .mini-field strong::after {
+        color: var(--green);
+        content: "✓";
+      }
+
+      .ai-layout,
+      .private-layout,
+      .autopilot-layout {
+        position: absolute;
+        inset: 112px 64px 46px;
+        display: grid;
+        grid-template-columns: 42% 58%;
+        gap: 32px;
+      }
+
+      .feature-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .feature-copy .brand {
+        position: absolute;
+        top: -72px;
+        left: 0;
+      }
+
+      .feature-copy h1 {
+        font-size: 52px;
+        line-height: 1.05;
+        letter-spacing: -0.045em;
+      }
+
+      .feature-copy p {
+        margin-top: 20px;
+        color: #dbeafe;
+        font-size: 19px;
+        line-height: 1.5;
+      }
+
+      .feature-copy ul {
+        margin: 24px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .feature-copy li {
+        display: flex;
+        gap: 10px;
+        margin-top: 13px;
+        font-size: 15px;
+        font-weight: 750;
+      }
+
+      .feature-copy li::before {
+        color: #68e6ff;
+        content: "✓";
+        font-weight: 900;
+      }
+
+      .large-panel {
+        align-self: center;
+        min-height: 580px;
+        padding: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 34px 78px rgba(1, 8, 31, 0.44);
+        color: var(--ink);
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel-head strong {
+        font-size: 17px;
+      }
+
+      .badge {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #ece8ff;
+        color: #6240d8;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .prompt-card {
+        margin-top: 18px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #f8faff;
+      }
+
+      .prompt-card .question {
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .prompt-card .answer {
+        margin-top: 11px;
+        color: #43516a;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .review-state {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        color: #9a6a00;
+        font-size: 10px;
+        font-weight: 900;
+      }
+
+      .review-state::before {
+        display: grid;
+        width: 20px;
+        height: 20px;
+        place-items: center;
+        border-radius: 7px;
+        background: #fff2c7;
+        content: "!";
+      }
+
+      .document-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 15px;
+      }
+
+      .document-card {
+        padding: 15px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: white;
+      }
+
+      .document-card strong {
+        font-size: 12px;
+      }
+
+      .document-card span {
+        display: block;
+        margin-top: 7px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .review-button {
+        margin-top: 18px;
+        padding: 14px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #2558dd, #14a9f5);
+        color: white;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .private-panel {
+        min-height: 570px;
+      }
+
+      .private-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .private-item {
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: #f8faff;
+      }
+
+      .private-item small {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .private-item strong {
+        font-size: 12px;
+      }
+
+      .credential-card {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 15px;
+        border: 1px solid #cfdaf0;
+        border-radius: 15px;
+        background: #eef4ff;
+      }
+
+      .masked {
+        letter-spacing: 0.16em;
+      }
+
+      .autopilot-panel {
+        display: flex;
+        min-height: 570px;
+        flex-direction: column;
+        justify-content: center;
+        padding: 34px;
+      }
+
+      .flow-step {
+        display: grid;
+        grid-template-columns: 46px 1fr auto;
+        gap: 14px;
+        align-items: center;
+        margin: 9px 0;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #f9fbff;
+      }
+
+      .flow-icon {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 13px;
+        background: #eaf1ff;
+        color: var(--blue);
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      .flow-step strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .flow-step span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .flow-status {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #e9f8f1;
+        color: #0a7a50;
+        font-size: 9px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .flow-step.stop {
+        border-color: #f3b6bc;
+        background: #fff4f5;
+      }
+
+      .flow-step.stop .flow-icon {
+        background: #ffe0e3;
+        color: var(--red);
+      }
+
+      .flow-step.stop .flow-status {
+        background: #ffe0e3;
+        color: var(--red);
+      }
+
+      .promo-copy {
+        position: relative;
+        z-index: 2;
+      }
+
+      .promo-small .generated-bg::after {
+        background: linear-gradient(110deg, rgba(3, 17, 53, 0.88), rgba(8, 41, 116, 0.56));
+      }
+
+      .promo-small .promo-copy {
+        padding: 25px 28px;
+      }
+
+      .promo-small .brand {
+        gap: 10px;
+        font-size: 18px;
+      }
+
+      .promo-small .brand img {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+      }
+
+      .promo-small h2 {
+        max-width: 335px;
+        margin-top: 24px;
+        font-size: 33px;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .promo-small p {
+        margin-top: 14px;
+        color: #bdeeff;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .promo-marquee .generated-bg::after {
+        background: linear-gradient(90deg, rgba(3, 17, 53, 0.9) 0%, rgba(3, 17, 53, 0.58) 50%, rgba(3, 17, 53, 0.16) 100%);
+      }
+
+      .marquee-grid {
+        display: grid;
+        height: 100%;
+        grid-template-columns: 51% 49%;
+        align-items: center;
+        padding: 42px 54px 36px 64px;
+      }
+
+      .marquee-grid h2 {
+        max-width: 620px;
+        margin-top: 31px;
+        font-size: 58px;
+        line-height: 1.01;
+        letter-spacing: -0.05em;
+      }
+
+      .marquee-grid p {
+        margin-top: 20px;
+        color: #dbeafe;
+        font-size: 20px;
+      }
+
+      .marquee-widget {
+        width: 500px;
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.97);
+        box-shadow: 0 32px 70px rgba(1, 8, 31, 0.44);
+        color: var(--ink);
+        transform: rotate(-1.5deg);
+      }
+
+      .marquee-widget .job-card {
+        margin-top: 0;
+      }
+
+      .marquee-widget .primary-action {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .marquee-widget .primary-action::after {
+        content: "→";
+      }
+    </style>
+  </head>
+  <body>
+    <section id="screenshot-01-overview" class="asset screenshot">
+      <div class="generated-bg"></div>
+      <div class="two-column">
+        <div class="copy-column">
+          <div class="brand">
+            <img src="../../public/icons/icon128.png" alt="" />
+            <span>TrackMyOPT</span>
+          </div>
+          <div class="eyebrow"><span class="dot"></span>Chrome job assistant</div>
+          <h1 class="headline">Fill faster.<br />Review everything.</h1>
+          <p class="subhead">
+            Smart, review-first application prefill for F-1 students—built into
+            the OPT and job-search workspace you already use.
+          </p>
+          <div class="never-submit">
+            <span class="shield">✓</span>
+            Never auto-submits an application
+          </div>
+        </div>
+        <div class="browser">
+          <div class="browser-bar">
+            <span class="browser-dot"></span><span class="browser-dot"></span
+            ><span class="browser-dot"></span><span class="address-bar"></span>
+          </div>
+          <div class="browser-body">
+            <div class="application">
+              <div class="app-title">Product Analyst application</div>
+              <div class="app-meta">Example employer · Boston, MA</div>
+              <div class="field-grid">
+                <div class="field filled">
+                  <label>First name</label><div class="value">Alex</div>
+                </div>
+                <div class="field filled">
+                  <label>Last name</label><div class="value">Patel</div>
+                </div>
+                <div class="field wide filled">
+                  <label>Email</label><div class="value">alex@example.com</div>
+                </div>
+                <div class="select-field filled">
+                  <label>Phone type</label><div class="value">Mobile</div>
+                </div>
+                <div class="field filled">
+                  <label>Phone</label><div class="value">(555) 010-2040</div>
+                </div>
+                <div class="select-field wide filled">
+                  <label>State / Province</label
+                  ><div class="value">Massachusetts</div>
+                </div>
+                <div class="field wide">
+                  <label>Salary expectations</label
+                  ><div class="value">Needs your review</div>
+                </div>
+              </div>
+            </div>
+            <aside class="widget">
+              <div class="widget-brand">
+                <img src="../../public/icons/icon128.png" alt="" /> TrackMyOPT
+              </div>
+              <div class="job-card">
+                <strong>Product Analyst</strong>
+                <span>Example employer · Boston, MA</span>
+              </div>
+              <div class="primary-action">Prefill application</div>
+              <div class="progress-card">
+                <div class="progress-row">
+                  <span>Required fields</span><strong>15/15</strong>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill"></div>
+                </div>
+                <div class="progress-caption">100% required fields filled</div>
+              </div>
+              <div class="safety-note">
+                ✓ Existing values stay unchanged<br />
+                ✓ Private answers require review<br />
+                ✓ You submit only when ready
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenshot-02-smart-prefill" class="asset screenshot">
+      <div class="generated-bg"></div>
+      <div class="center-heading">
+        <div class="brand">
+          <img src="../../public/icons/icon128.png" alt="" />
+          <span>TrackMyOPT</span>
+        </div>
+        <h1>Smart fields, not blind guessing.</h1>
+        <p>
+          Handles common application inputs and dropdowns while leaving
+          uncertain questions for you.
+        </p>
+      </div>
+      <div class="showcase four-cards">
+        <div class="glass-card">
+          <div class="step">01</div>
+          <h3>Contact details</h3>
+          <p>Only eligible empty fields are filled from your saved profile.</p>
+          <div class="mini-field">
+            <small>Phone type</small><strong>Mobile</strong>
+          </div>
+          <div class="mini-field">
+            <small>Phone number</small><strong>(555) 010-2040</strong>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="step">02</div>
+          <h3>Address dropdowns</h3>
+          <p>Matches native and custom-select controls on supported forms.</p>
+          <div class="mini-field">
+            <small>Country</small><strong>United States</strong>
+          </div>
+          <div class="mini-field">
+            <small>State</small><strong>Massachusetts</strong>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="step">03</div>
+          <h3>Work authorization</h3>
+          <p>Sensitive answers are available only after your review.</p>
+          <div class="mini-field">
+            <small>Authorized to work?</small><strong>Yes</strong>
+          </div>
+          <div class="mini-field">
+            <small>Visa status</small><strong>OPT</strong>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="step">04</div>
+          <h3>Clear progress</h3>
+          <p>See what was filled, what is optional, and what still needs you.</p>
+          <div class="progress-card">
+            <div class="progress-row">
+              <span>Required</span><strong>15/15</strong>
+            </div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <div class="progress-caption">100% complete</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenshot-03-ai-review" class="asset screenshot">
+      <div class="generated-bg"></div>
+      <div class="ai-layout">
+        <div class="feature-copy">
+          <div class="brand">
+            <img src="../../public/icons/icon128.png" alt="" />
+            <span>TrackMyOPT</span>
+          </div>
+          <div class="eyebrow"><span class="dot"></span>AI with guardrails</div>
+          <h1>Job-specific drafts.<br />Human approval.</h1>
+          <p>
+            Draft screening answers and cover letters using the active resume
+            and job description—then review every word before use.
+          </p>
+          <ul>
+            <li>Resume + job context stays scoped to this application</li>
+            <li>Sensitive questions are excluded from AI</li>
+            <li>Unedited drafts remain marked for review</li>
+          </ul>
+        </div>
+        <div class="large-panel">
+          <div class="panel-head">
+            <strong>Screening answer draft</strong>
+            <span class="badge">Review required</span>
+          </div>
+          <div class="prompt-card">
+            <div class="question">
+              Why are you interested in this company and role?
+            </div>
+            <div class="answer">
+              I’m interested in the opportunity to turn customer and product
+              data into practical decisions. My experience building dashboards,
+              improving reporting workflows, and partnering across teams aligns
+              well with the role’s focus on measurable product outcomes.
+            </div>
+            <div class="review-state">Waiting for your confirmation</div>
+          </div>
+          <div class="document-row">
+            <div class="document-card">
+              <strong>Active resume</strong>
+              <span>Matched to this job</span>
+            </div>
+            <div class="document-card">
+              <strong>Cover letter</strong>
+              <span>Draft ready for review</span>
+            </div>
+          </div>
+          <div class="review-button">Review and confirm draft</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenshot-04-private-review" class="asset screenshot">
+      <div class="generated-bg"></div>
+      <div class="private-layout">
+        <div class="feature-copy">
+          <div class="brand">
+            <img src="../../public/icons/icon128.png" alt="" />
+            <span>TrackMyOPT</span>
+          </div>
+          <div class="eyebrow"><span class="dot"></span>Private by design</div>
+          <h1>Review private answers for every application.</h1>
+          <p>
+            Visa, sponsorship, EEO, salary, and the shared portal login stay
+            masked until you explicitly approve them for the current
+            application.
+          </p>
+          <ul>
+            <li>Never sent to AI or analytics</li>
+            <li>Never relayed to child frames</li>
+            <li>SSN, DOB, financial, OTP, MFA, and PIN fields are skipped</li>
+          </ul>
+        </div>
+        <div class="large-panel private-panel">
+          <div class="panel-head">
+            <strong>Private answers</strong>
+            <span class="badge">Application review</span>
+          </div>
+          <div class="private-grid">
+            <div class="credential-card">
+              <div class="private-item">
+                <small>Default portal email</small>
+                <strong>alex@example.com</strong>
+              </div>
+              <div class="private-item">
+                <small>Portal password</small>
+                <strong class="masked">••••••••••••</strong>
+              </div>
+            </div>
+            <div class="private-item">
+              <small>Authorized to work?</small><strong>Yes</strong>
+            </div>
+            <div class="private-item">
+              <small>Need sponsorship?</small><strong>No</strong>
+            </div>
+            <div class="private-item">
+              <small>Visa / work status</small><strong>OPT</strong>
+            </div>
+            <div class="private-item">
+              <small>EEO questions</small><strong>Prefer not to answer</strong>
+            </div>
+          </div>
+          <div class="review-button">
+            Review and use for this application
+          </div>
+          <div class="safety-note">
+            Approval is cleared when the job or application page changes.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenshot-05-guided-autopilot" class="asset screenshot">
+      <div class="generated-bg"></div>
+      <div class="autopilot-layout">
+        <div class="feature-copy">
+          <div class="brand">
+            <img src="../../public/icons/icon128.png" alt="" />
+            <span>TrackMyOPT</span>
+          </div>
+          <div class="eyebrow"><span class="dot"></span>Optional guided mode</div>
+          <h1>Guided Autopilot stops before submit.</h1>
+          <p>
+            Move through non-final application steps with visible progress and
+            safety boundaries. The final decision is always yours.
+          </p>
+          <ul>
+            <li>Fills only empty, supported controls</li>
+            <li>May use allowlisted Next, Continue, or Done actions</li>
+            <li>Never clicks Login, Review, Apply, Finish, or Submit</li>
+          </ul>
+        </div>
+        <div class="large-panel autopilot-panel">
+          <div class="flow-step">
+            <div class="flow-icon">✓</div>
+            <div>
+              <strong>Fill this page</strong>
+              <span>Eligible empty fields completed</span>
+            </div>
+            <div class="flow-status">Complete</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">→</div>
+            <div>
+              <strong>Next / Continue</strong>
+              <span>Non-final navigation only</span>
+            </div>
+            <div class="flow-status">Allowed</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-icon">✓</div>
+            <div>
+              <strong>Done</strong>
+              <span>Allowed only when it is not a final action</span>
+            </div>
+            <div class="flow-status">Guarded</div>
+          </div>
+          <div class="flow-step stop">
+            <div class="flow-icon">■</div>
+            <div>
+              <strong>Review / Apply / Submit</strong>
+              <span>TrackMyOPT stops and returns control to you</span>
+            </div>
+            <div class="flow-status">Blocked</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="promo-small" class="asset promo-small">
+      <div class="generated-bg"></div>
+      <div class="promo-copy">
+        <div class="brand">
+          <img src="../../public/icons/icon128.png" alt="" />
+          <span>TrackMyOPT</span>
+        </div>
+        <h2>Review-first job application prefill</h2>
+        <p>Never auto-submits.</p>
+      </div>
+    </section>
+
+    <section id="promo-marquee" class="asset promo-marquee">
+      <div class="generated-bg"></div>
+      <div class="marquee-grid">
+        <div>
+          <div class="brand">
+            <img src="../../public/icons/icon128.png" alt="" />
+            <span>TrackMyOPT</span>
+          </div>
+          <h2>OPT + job applications, under your control.</h2>
+          <p>Smart prefill. Private review. Never auto-submit.</p>
+        </div>
+        <div class="marquee-widget">
+          <div class="job-card">
+            <strong>Product Analyst</strong>
+            <span>Example employer · Boston, MA</span>
+          </div>
+          <div class="primary-action">Prefill application</div>
+          <div class="progress-card">
+            <div class="progress-row">
+              <span>Required fields</span><strong>15/15</strong>
+            </div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <div class="progress-caption">
+              100% required fields filled · Ready for your review
+            </div>
+          </div>
+          <div class="safety-note">
+            ✓ Existing answers remain unchanged<br />
+            ✓ Private answers require approval<br />
+            ✓ TrackMyOPT never submits
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

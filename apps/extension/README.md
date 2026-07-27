@@ -258,7 +258,7 @@ Every mode keeps the same hard boundaries:
 
 ### Code and packaging
 
-- [x] Package and manifest versions match at `0.1.14`.
+- [x] Package and manifest versions match at `0.1.19`.
 - [x] Production is the default target in `src/config.ts`; localhost requires
   the explicit `EXT_TARGET=local` build.
 - [x] Run the complete web, extension, and API test suites.
@@ -314,8 +314,8 @@ read directly. Job-portal login credentials are never included in the
 child-frame payload. The engine still refuses final-action clicks, unapproved
 sensitive fields, non-empty fields, and existing files.
 
-- [ ] Put this exact purpose in the Web Store permission/use justification.
-- [ ] Confirm the submitted manifest contains no permission added solely for
+- [x] Put this exact purpose in the Web Store permission/use justification.
+- [x] Confirm the submitted manifest contains no permission added solely for
   frame traversal.
 - [x] Verify child-frame relay size/schema validation and no persistent payload
   storage.
@@ -331,8 +331,9 @@ sensitive fields, non-empty fields, and existing files.
 5. Disable `aiScreeningDrafts`, `coverLetter`, or `guidedAutopilot`
    independently if production validation reveals a regression.
 
-Chrome Web Store packaging, upload, listing changes, and staged-channel
-submission remain owner actions and are intentionally not performed by Codex.
+Chrome Web Store packaging, listing changes, and submission require explicit
+owner authorization. Version `0.1.19` has authorization for draft preparation;
+final submission remains gated by the manual release checks above.
 
 ## 📚 Resources
 
