@@ -9,10 +9,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   COOKIE_CONSENT_KEY,
   COOKIE_CONSENT_TIMESTAMP_KEY,
+  requestOpenPrivacyChoices,
 } from '@/lib/cookie-consent';
 import { CookieConsent } from './CookieConsent';
 
 const postHogConsent = vi.hoisted(() => vi.fn());
+const mockPathname = vi.hoisted(() => vi.fn(() => '/'));
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => mockPathname(),
+}));
 
 vi.mock('@/lib/posthog/posthog-browser', () => ({
   setPostHogAnalyticsConsent: postHogConsent,
@@ -28,6 +34,7 @@ describe('CookieConsent', () => {
     vi.useFakeTimers();
     localStorage.clear();
     postHogConsent.mockReset();
+    mockPathname.mockReturnValue('/');
     document.getElementById('ga4-script')?.remove();
     document.getElementById('ga4-init')?.remove();
     document.getElementById('adsense-script')?.remove();
@@ -78,6 +85,32 @@ describe('CookieConsent', () => {
     );
     expect(
       screen.getByRole('button', { name: 'Open privacy choices' })
+    ).toBeInTheDocument();
+  });
+
+  it('hides the floating trigger on dashboard routes', () => {
+    storeChoice('accepted');
+    mockPathname.mockReturnValue('/dashboard');
+
+    render(<CookieConsent />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Open privacy choices' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('opens the panel when privacy choices are requested elsewhere', () => {
+    storeChoice('accepted');
+    mockPathname.mockReturnValue('/dashboard');
+
+    render(<CookieConsent />);
+
+    act(() => {
+      requestOpenPrivacyChoices();
+    });
+
+    expect(
+      screen.getByRole('region', { name: 'Privacy choices' })
     ).toBeInTheDocument();
   });
 

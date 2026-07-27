@@ -100,9 +100,10 @@ export default function CookiePolicyPage() {
       <h2>4. How to manage cookies</h2>
       <ul>
         <li>
-          <strong>Privacy choices:</strong> Use the persistent &quot;Privacy
-          choices&quot; button on TrackMyOPT to switch between Accept All and
-          Essential Only
+          <strong>Privacy choices:</strong> Use the &quot;Privacy
+          choices&quot; link in the site footer, your profile menu on the
+          dashboard, or the shield button on public pages to switch between
+          Accept All and Essential Only
         </li>
         <li>
           <strong>Browser settings:</strong> Chrome, Safari, Firefox, and Edge

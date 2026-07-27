@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { LEGAL_FOOTER_LINKS } from "@/lib/legal/legal-config";
+import { requestOpenPrivacyChoices } from "@/lib/cookie-consent";
 import { useClientYear } from "@/hooks/useClientDate";
 
 // Custom SVG Logos for Trust Signals
@@ -181,6 +182,15 @@ export function LandingFooter() {
                                     </Link>
                                 </li>
                             ))}
+                            <li>
+                                <button
+                                    type="button"
+                                    onClick={requestOpenPrivacyChoices}
+                                    className="inline-flex min-h-[44px] items-center text-base text-gray-600 transition-colors hover:text-gray-900 max-md:py-1 md:min-h-0 md:inline md:text-sm dark:text-gray-400 dark:hover:text-white"
+                                >
+                                    Privacy choices
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </div>
