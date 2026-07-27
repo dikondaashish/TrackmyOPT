@@ -292,8 +292,9 @@ export default function PrivacyPage() {
       <h2>8. Your choices and rights</h2>
       <ul>
         <li>
-          <strong>Browser analytics and advertising:</strong> Use the persistent
-          Privacy choices button to choose Accept All or Essential Only
+          <strong>Browser analytics and advertising:</strong> Use Privacy
+          choices in the site footer, your dashboard profile menu, or the shield
+          button on public pages to choose Accept All or Essential Only
         </li>
         <li>
           <strong>Access / correction:</strong> Update profile and OPT data in

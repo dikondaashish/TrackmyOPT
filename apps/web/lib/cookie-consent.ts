@@ -3,6 +3,7 @@
 export const COOKIE_CONSENT_KEY = "trackmyopt_cookie_consent";
 export const COOKIE_CONSENT_TIMESTAMP_KEY = "trackmyopt_cookie_consent_ts";
 export const COOKIE_CONSENT_EXPIRY_DAYS = 365;
+export const OPEN_PRIVACY_CHOICES_EVENT = "trackmyopt:open-privacy-choices";
 
 export type CookieConsentStatus = "accepted" | "declined" | null;
 
@@ -29,4 +30,10 @@ export function setStoredCookieConsent(status: "accepted" | "declined"): void {
 /** Accept All = product analytics (PostHog) + advertising (AdSense). */
 export function hasAnalyticsConsent(): boolean {
   return getStoredCookieConsent() === "accepted";
+}
+
+/** Reopen the consent panel from footer links, profile menu, etc. */
+export function requestOpenPrivacyChoices(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(OPEN_PRIVACY_CHOICES_EVENT));
 }

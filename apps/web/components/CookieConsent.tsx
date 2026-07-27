@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Cookie, ShieldCheck, X } from 'lucide-react';
 import {
   getStoredCookieConsent,
+  OPEN_PRIVACY_CHOICES_EVENT,
   setStoredCookieConsent,
   type CookieConsentStatus,
 } from '@/lib/cookie-consent';
@@ -59,6 +61,10 @@ function denyGoogleBrowserTracking() {
   });
 }
 
+function isDashboardPath(pathname: string | null): boolean {
+  return pathname?.startsWith('/dashboard') ?? false;
+}
+
 interface CookieConsentProps {
   reloadPage?: () => void;
 }
@@ -66,8 +72,10 @@ interface CookieConsentProps {
 export function CookieConsent({
   reloadPage = () => window.location.reload(),
 }: CookieConsentProps = {}) {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [consent, setConsent] = useState<CookieConsentStatus>(null);
+  const onDashboard = isDashboardPath(pathname);
 
   useEffect(() => {
     const stored = getStoredCookieConsent();
@@ -91,6 +99,12 @@ export function CookieConsent({
       const timer = setTimeout(() => setVisible(true), 1500);
       return () => clearTimeout(timer);
     }
+  }, []);
+
+  useEffect(() => {
+    const openPanel = () => setVisible(true);
+    window.addEventListener(OPEN_PRIVACY_CHOICES_EVENT, openPanel);
+    return () => window.removeEventListener(OPEN_PRIVACY_CHOICES_EVENT, openPanel);
   }, []);
 
   const handleAccept = useCallback(() => {
@@ -128,20 +142,20 @@ export function CookieConsent({
   }, [consent, handleDecline]);
 
   if (!visible) {
-    if (consent === null) return null;
+    if (consent === null || onDashboard) return null;
 
     return (
       <button
         type="button"
         onClick={() => setVisible(true)}
-        className="fixed bottom-3 left-3 z-[9998] inline-flex min-h-11 items-center gap-2 rounded-full border border-gray-200 bg-white/95 px-4 py-2 text-xs font-semibold text-gray-700 shadow-lg backdrop-blur transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-gray-200 dark:hover:bg-zinc-800 dark:focus:ring-offset-zinc-950"
+        className="fixed bottom-4 right-4 z-[9998] inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-lg backdrop-blur transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-gray-200 dark:hover:bg-zinc-800 dark:focus:ring-offset-zinc-950"
         aria-label="Open privacy choices"
+        title="Privacy choices"
       >
         <ShieldCheck
-          className="h-4 w-4 text-blue-600 dark:text-blue-400"
+          className="h-5 w-5 text-blue-600 dark:text-blue-400"
           aria-hidden
         />
-        Privacy choices
       </button>
     );
   }

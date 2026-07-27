@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Settings, HelpCircle, ChevronDown } from "lucide-react";
+import { LogOut, Settings, HelpCircle, ChevronDown, ShieldCheck } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { signOutWithAnalytics } from "@/lib/auth/signOutWithAnalytics";
+import { requestOpenPrivacyChoices } from "@/lib/cookie-consent";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -164,6 +165,17 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                                 <HelpCircle className="w-4 h-4" />
                                 Help & Support
                             </Link>
+                            <button
+                                type="button"
+                                className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                onClick={() => {
+                                    setShowProfileMenu(false);
+                                    requestOpenPrivacyChoices();
+                                }}
+                            >
+                                <ShieldCheck className="w-4 h-4" />
+                                Privacy choices
+                            </button>
                         </div>
 
                         {/* Sign Out */}
