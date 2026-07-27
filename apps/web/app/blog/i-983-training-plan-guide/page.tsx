@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, FileText, BookOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -8,9 +7,9 @@ import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "Form I-983 STEM OPT Training Plan (2026): Step-by-Step + E-Verify Guide",
-    description: "Complete Form I-983 for STEM OPT: every section explained, employer E-Verify requirements, DSO submission steps, and common mistakes that delay your 24-month extension.",
-    keywords: ["Form I-983", "I-983 training plan", "STEM OPT I-983", "STEM OPT training plan", "I-983 employer requirements", "E-Verify STEM OPT", "I-983 how to fill"],
+    title: "What Is a STEM OPT Training Plan (I-983)? Complete 2026 Guide",
+    description: "What is a STEM OPT training plan? Form I-983 explained: employer E-Verify requirements, every section, common mistakes, and step-by-step submission for your 24-month extension.",
+    keywords: ["what is stem opt training plan", "Form I-983", "I-983 training plan", "STEM OPT I-983", "will you require a stem opt training plan", "E-Verify STEM OPT", "I-983 how to fill"],
     openGraph: {
         title: "Form I-983 STEM OPT Training Plan Guide (2026) | TrackMyOPT",
         description: "Step-by-step I-983 for STEM OPT: employer requirements, training plan sections, and E-Verify checklist.",
@@ -21,6 +20,25 @@ export const metadata: Metadata = {
     alternates: { canonical: "https://www.trackmyopt.com/blog/i-983-training-plan-guide" },
 };
 
+const I983_FAQS = [
+    {
+        question: "What is a STEM OPT training plan?",
+        answer: "A STEM OPT training plan is documented on Form I-983 — a signed agreement between you and your E-Verify employer describing your role, learning objectives, and how the job provides practical training in your STEM field.",
+    },
+    {
+        question: "Will you require a STEM OPT training plan and employer certification?",
+        answer: "Yes. Every STEM OPT extension requires a completed Form I-983 signed by you, your employer, and your school official. The employer must be enrolled in E-Verify and certify the training plan is not replacing a full-time US worker.",
+    },
+    {
+        question: "What is Form I-983 used for?",
+        answer: "Form I-983 documents your STEM OPT training plan for USCIS and your DSO. It is submitted with your STEM OPT I-765 application and must be updated within 10 days of material changes to employment or duties.",
+    },
+    {
+        question: "Does my STEM OPT employer need E-Verify?",
+        answer: "Yes. E-Verify enrollment is mandatory for STEM OPT employers. Your employer provides their E-Verify Company ID on the I-983 before your DSO can recommend the extension in SEVIS.",
+    },
+] as const;
+
 export default function I983Article() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -29,7 +47,7 @@ export default function I983Article() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "I 983 Training Plan Guide", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-17" modifiedDate="2026-03-17" author="Vinay Kumar" howToItems={[{step: 1, name: "Download the I-983 Form", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#download", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Student Information Section", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#student-info", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Provide Employer Information and E-Verify Details", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#employer-info", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Detail the Training Plan and Job Duties", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#training-plan", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Have Employer Sign and Submit", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#sign", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Submit to Your DSO for SEVIS Recommendation", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#submit", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-17" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...I983_FAQS]} howToItems={[{step: 1, name: "Download the I-983 Form", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#download", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Student Information Section", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#student-info", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Provide Employer Information and E-Verify Details", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#employer-info", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Detail the Training Plan and Job Duties", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#training-plan", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Have Employer Sign and Submit", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#sign", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Submit to Your DSO for SEVIS Recommendation", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#submit", image: "https://www.trackmyopt.com/og-image.png"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -196,16 +214,7 @@ export default function I983Article() {
                 </Link>
             </div>
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: safeSerializeJsonLd({
-                    "@context": "https://schema.org", "@type": "FAQPage",
-                    "mainEntity": [
-                        { "@type": "Question", "name": "What is the I-983 form?", "acceptedAnswer": { "@type": "Answer", "text": "Form I-983 is the Training Plan for STEM OPT Students, a formal agreement between you and your employer describing how your employment provides practical training in your STEM field." } },
-                        { "@type": "Question", "name": "Does my employer need to be E-Verify enrolled?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. E-Verify enrollment is mandatory for STEM OPT employers." } },
-                        { "@type": "Question", "name": "When do I need to update my I-983?", "acceptedAnswer": { "@type": "Answer", "text": "Within 10 days of material changes to your training plan, including new employer, role change, or significant changes to duties." } },
-                    ]
-                })
-            }} />
+            <AuthorBio />
         </article>
     );
 }

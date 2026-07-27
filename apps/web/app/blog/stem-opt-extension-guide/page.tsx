@@ -8,9 +8,9 @@ import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
-    title: "STEM OPT Timeline & Processing Time 2026 — 24-Month Extension Guide",
-    description: "STEM OPT timeline for 2026: current processing times, 24-month extension steps, I-983 & E-Verify requirements, unemployment limits, and free timeline tracker for F-1 students.",
-    keywords: ["STEM OPT timeline", "STEM OPT processing time 2026", "STEM OPT extension", "STEM OPT guide 2026", "STEM OPT CIP codes", "STEM OPT 24 month extension", "STEM OPT wait time"],
+    title: "How Long Does STEM OPT Take? 24-Month Extension Guide (2026)",
+    description: "How long does STEM OPT approval take in 2026? Typical processing is 2–5 months. Full timeline: eligibility, I-983, E-Verify, filing I-765, and unemployment limits.",
+    keywords: ["how long does stem opt take", "how long does stem opt approval take", "STEM OPT processing time 2026", "STEM OPT extension", "what is stem opt", "STEM OPT timeline", "STEM OPT 24 month extension"],
     openGraph: {
         title: "STEM OPT Timeline & Processing Time 2026 | TrackMyOPT",
         description: "24-month STEM OPT extension timeline: eligibility, I-983, processing times, and free tracker.",
@@ -21,6 +21,25 @@ export const metadata: Metadata = {
     alternates: { canonical: "https://www.trackmyopt.com/blog/stem-opt-extension-guide" },
 };
 
+const STEM_OPT_FAQS = [
+    {
+        question: "How long does STEM OPT approval take in 2026?",
+        answer: "Most STEM OPT extension applications are processed in 2–5 months, similar to initial OPT. File as early as 90 days before your current OPT expires to avoid a gap in work authorization.",
+    },
+    {
+        question: "What is STEM OPT?",
+        answer: "STEM OPT is a 24-month extension of post-completion OPT for F-1 students with a qualifying STEM degree. Combined with initial OPT, you can work up to 36 months in the US.",
+    },
+    {
+        question: "How long does STEM OPT extension take to process?",
+        answer: "USCIS typically adjudicates STEM OPT I-765 filings in 2–5 months. You may continue working for up to 180 days while pending if you file before your current EAD expires and meet eligibility rules.",
+    },
+    {
+        question: "Does my employer need E-Verify for STEM OPT?",
+        answer: "Yes. Your employer must be enrolled in E-Verify and complete Form I-983 with you before your DSO can recommend the STEM extension in SEVIS.",
+    },
+] as const;
+
 export default function STEMOPTGuideArticle() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -29,7 +48,7 @@ export default function STEMOPTGuideArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Stem Opt Extension Guide", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-31" modifiedDate="2026-05-31" author="Vinay Kumar" howToItems={[{step: 1, name: "Verify Your Degree Is STEM-Designated", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#eligibility", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Verify Your Employer's E-Verify Enrollment", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form I-983 Training Plan", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Get Your DSO to Recommend STEM Extension in SEVIS", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#dso", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "File Form I-765 for STEM OPT Extension", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Receive Your Extended EAD and Begin STEM OPT", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#approval", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-31" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...STEM_OPT_FAQS]} howToItems={[{step: 1, name: "Verify Your Degree Is STEM-Designated", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#eligibility", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Verify Your Employer's E-Verify Enrollment", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form I-983 Training Plan", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Get Your DSO to Recommend STEM Extension in SEVIS", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#dso", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "File Form I-765 for STEM OPT Extension", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Receive Your Extended EAD and Begin STEM OPT", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#approval", image: "https://www.trackmyopt.com/og-image.png"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>
@@ -240,12 +259,7 @@ export default function STEMOPTGuideArticle() {
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-4">
-                        {[
-                            { question: "What is STEM OPT?", answer: "STEM OPT is a 24-month extension of Optional Practical Training available to F-1 students who hold a bachelor's, master's, or doctoral degree in a STEM-designated field (as identified by CIP code). It allows you to work in the US for up to 36 months total." },
-                            { question: "How long is the STEM OPT extension?", answer: "The STEM OPT extension is 24 months, added to your initial 12-month OPT, for a total of up to 36 months of work authorization." },
-                            { question: "Does my employer need to be E-Verify enrolled?", answer: "Yes. E-Verify enrollment is mandatory for STEM OPT employers. Your employer must provide their E-Verify Company Identification Number on Form I-983." },
-                            { question: "Can I apply for STEM OPT twice?", answer: "Yes, if you earn a second qualifying STEM degree at a higher level. For example, if you used STEM OPT with a bachelor's degree, you can apply again after earning a master's in a STEM field." },
-                        ].map((faq, i) => (
+                        {STEM_OPT_FAQS.map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">{faq.answer}</p>
