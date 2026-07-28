@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { getUserId } from '@/lib/auth/getUserId';
+import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import {
   extractAutofillSnapshot,
   FINAL_LATEX_MAX_CHARS,
@@ -31,7 +32,7 @@ const RequestSchema = z
   .strict();
 
 const extractionRateLimit =
-  process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  hasUpstashRedisConfig()
     ? new Ratelimit({
         redis: Redis.fromEnv(),
         limiter: Ratelimit.slidingWindow(20, '1 m'),

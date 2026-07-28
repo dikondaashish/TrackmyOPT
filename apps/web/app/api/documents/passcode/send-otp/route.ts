@@ -17,9 +17,10 @@ import { secureLog } from '@/lib/secure-logger';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import bcrypt from 'bcryptjs';
+import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 
 // Create a rate limiter that allows 3 requests per 10 minutes per IP
-const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
+const ratelimit = hasUpstashRedisConfig()
   ? new Ratelimit({
       redis: Redis.fromEnv(),
       limiter: Ratelimit.slidingWindow(3, '10 m'),

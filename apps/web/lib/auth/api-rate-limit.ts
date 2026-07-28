@@ -19,6 +19,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Ratelimit, type Duration } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 
 // ============================================================================
 // TYPES
@@ -88,15 +89,8 @@ export const EMAIL_RATE_LIMIT: RateLimitConfig = {
 
 const durableLimiters: Record<string, Ratelimit> = {};
 
-function hasDurableRateLimitConfig(): boolean {
-    return Boolean(
-        process.env.UPSTASH_REDIS_REST_URL &&
-        process.env.UPSTASH_REDIS_REST_TOKEN
-    );
-}
-
 function getDurableLimiter(config: RateLimitConfig): Ratelimit | null {
-    if (!hasDurableRateLimitConfig()) return null;
+    if (!hasUpstashRedisConfig()) return null;
 
     const key = `${config.name}:${config.limit}:${config.windowSeconds}`;
     if (!durableLimiters[key]) {

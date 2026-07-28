@@ -26,6 +26,8 @@ import {
 describe('durable authentication rate limiting', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    delete process.env.KV_REST_API_URL;
+    delete process.env.KV_REST_API_TOKEN;
     process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
     process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
     mocks.limit.mockResolvedValue({
@@ -53,9 +55,28 @@ describe('durable authentication rate limiting', () => {
     });
   });
 
+  it('uses Vercel KV credentials injected by the Upstash integration', async () => {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    process.env.KV_REST_API_URL = 'https://vercel-kv.example';
+    process.env.KV_REST_API_TOKEN = 'vercel-kv-token';
+
+    const result = await checkRateLimit('account:person@example.com', {
+      limit: 5,
+      windowSeconds: 900,
+      name: 'vercel-kv-auth-account',
+    });
+
+    expect(mocks.fromEnv).toHaveBeenCalled();
+    expect(mocks.limit).toHaveBeenCalledWith('account:person@example.com');
+    expect(result.success).toBe(true);
+  });
+
   it('fails closed in production when durable storage is unavailable', async () => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.KV_REST_API_URL;
+    delete process.env.KV_REST_API_TOKEN;
     vi.stubEnv('NODE_ENV', 'production');
 
     try {

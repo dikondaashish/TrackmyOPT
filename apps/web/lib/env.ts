@@ -136,9 +136,11 @@ const serverEnvSchema = clientEnvSchema.extend({
     USCIS_API_BASE_URL: z.string().url().optional(),
     USCIS_MOCK: z.enum(['true', 'false']).optional(),
 
-    // Upstash Redis (rate limiting)
+    // Upstash Redis (rate limiting). Vercel Marketplace injects the KV names.
     UPSTASH_REDIS_REST_URL: z.string().url().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+    KV_REST_API_URL: z.string().url().optional(),
+    KV_REST_API_TOKEN: z.string().optional(),
 
     // PostHog server
     POSTHOG_KEY: z.string().optional(),

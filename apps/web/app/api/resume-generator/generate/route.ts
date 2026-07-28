@@ -11,6 +11,7 @@ import { Redis } from '@upstash/redis';
 import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
 import { getUserId } from '@/lib/auth/getUserId';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
+import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import {
     JOB_DESCRIPTION_MAX_CHARS,
     prepareResumeText,
@@ -18,7 +19,7 @@ import {
 } from '@/lib/resume/resume-text-limits';
 
 // Rate Limiter: 10 requests per minute per IP using Upstash
-const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN 
+const ratelimit = hasUpstashRedisConfig()
   ? new Ratelimit({
       redis: Redis.fromEnv(),
       limiter: Ratelimit.slidingWindow(10, '1 m'),

@@ -33,7 +33,9 @@
                 "INDEXNOW_KEY",
                 "ADMIN_SECRET",
                 "POSTHOG_*",
-                "UPSTASH_*"
+                "UPSTASH_*",
+                "KV_REST_API_URL",
+                "KV_REST_API_TOKEN"
             ]
         },
         "lint": {
