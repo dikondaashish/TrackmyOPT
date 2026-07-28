@@ -36,10 +36,19 @@ export async function POST(req: NextRequest) {
       120,
       `extension-widget:${userId}`
     );
+    if (unavailable) {
+      // Telemetry is best-effort. Drop the event while the durable limiter is
+      // unavailable instead of turning an analytics dependency into a 5xx
+      // failure for the extension.
+      return NextResponse.json(
+        { ok: true, accepted: false },
+        { status: 202, headers }
+      );
+    }
     if (isRateLimited) {
       return NextResponse.json(
         { error: 'Too many events' },
-        { status: unavailable ? 503 : 429, headers }
+        { status: 429, headers }
       );
     }
 
