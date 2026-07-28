@@ -1,7 +1,18 @@
 import type { MetadataRoute } from "next";
 
-/** Paths crawlers must not index (auth APIs, gated dashboard, login). */
-const CRAWL_DISALLOW = ["/api/", "/auth/", "/dashboard/", "/login"] as const;
+/**
+ * Paths crawlers should not spend time fetching.
+ *
+ * Do not block `/login`: its page-level `noindex` must remain crawlable so
+ * search engines can remove previously discovered login URLs from results.
+ */
+const CRAWL_DISALLOW = [
+    "/api/",
+    "/admin/",
+    "/auth/extension",
+    "/auth/reset-password",
+    "/dashboard/",
+] as const;
 
 /** Public dashboard tool pages that remain crawlable (see proxy.ts). */
 const PUBLIC_DASHBOARD_ALLOW = [

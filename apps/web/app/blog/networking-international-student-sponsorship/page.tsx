@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "Stop Cold Applying: How to Network for H-1B Sponsorship",
         description: "The Applicant Tracking System (ATS) is designed to filter out international students. Here is how to bypass the algorithm through strategic networking.",
         type: "article",
-        url: "https://trackmyopt.com/blog/networking-international-student-sponsorship",
+        url: "https://www.trackmyopt.com/blog/networking-international-student-sponsorship",
         images: [{ url: "/blog/networking-international-student-sponsorship.jpg", width: 1200, height: 630, alt: "A conference name tag, a stack of business cards, and a smartphone showing an email draft" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/networking-international-student-sponsorship" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/networking-international-student-sponsorship" }
 };
 
 export default function NetworkingPage() {
@@ -77,7 +77,7 @@ export default function NetworkingPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Network Without the Panic</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Building relationships takes weeks. Knowing exactly how many days of unemployment you have left allows you to network strategically instead of desperately.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

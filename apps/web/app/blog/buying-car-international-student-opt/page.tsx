@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "Buying a Car on OPT? Read This Before You Go to the Dealership",
         description: "No US credit score? No problem. Learn how to secure an auto loan, get affordable insurance, and buy a car as an F-1 international student.",
         type: "article",
-        url: "https://trackmyopt.com/blog/buying-car-international-student-opt",
+        url: "https://www.trackmyopt.com/blog/buying-car-international-student-opt",
         images: [
             {
                 url: "/blog/buying-car-international-student-opt.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/buying-car-international-student-opt",
+        canonical: "https://www.trackmyopt.com/blog/buying-car-international-student-opt",
     }
 };
 
@@ -149,7 +149,7 @@ export default function BuyingCarPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Your TrackMyOPT Account

@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "The Non-STEM Student's Guide to Surviving OPT",
         description: "You only get 12 months of OPT. No extensions. Here is how business, arts, and humanities majors can secure sponsorship before time runs out.",
         type: "article",
-        url: "https://trackmyopt.com/blog/opt-non-stem-majors-guide",
+        url: "https://www.trackmyopt.com/blog/opt-non-stem-majors-guide",
         images: [{ url: "/blog/opt-non-stem-majors-guide.jpg", width: 1200, height: 630, alt: "Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/opt-non-stem-majors-guide" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-non-stem-majors-guide" }
 };
 
 export default function NonStemOPTPage() {
@@ -79,7 +79,7 @@ export default function NonStemOPTPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Make Your 12 Months Count</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Non-STEM majors have to be strategic. Use TrackMyOPT to effortlessly manage your SEVIS reporting and unemployment clock, so you can spend 100% of your energy networking for sponsorship.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

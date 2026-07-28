@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "Pre-Completion OPT vs CPT: A Complete Comparison for F-1 Students",
         description: "Deciding between Pre-Completion OPT and CPT for your internship? Understand the rules, costs, and impacts on your post-graduation OPT.",
         type: "article",
-        url: "https://trackmyopt.com/blog/pre-completion-opt-vs-cpt",
+        url: "https://www.trackmyopt.com/blog/pre-completion-opt-vs-cpt",
         images: [
             {
                 url: "/blog/pre-opt-vs-cpt.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/pre-completion-opt-vs-cpt",
+        canonical: "https://www.trackmyopt.com/blog/pre-completion-opt-vs-cpt",
     }
 };
 
@@ -225,7 +225,7 @@ export default function PreCompletionOPTvsCPTPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Free Account

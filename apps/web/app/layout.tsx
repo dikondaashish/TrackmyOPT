@@ -135,15 +135,7 @@ export default function RootLayout({
                 "@type": "WebSite",
                 "name": "TrackMyOPT",
                 "alternateName": "Track My OPT",
-                "url": "https://www.trackmyopt.com",
-                "potentialAction": {
-                  "@type": "SearchAction",
-                  "target": {
-                    "@type": "EntryPoint",
-                    "urlTemplate": "https://www.trackmyopt.com/answers?q={search_term_string}"
-                  },
-                  "query-input": "required name=search_term_string"
-                }
+                "url": "https://www.trackmyopt.com"
               },
               {
                 "@type": "SoftwareApplication",
@@ -165,4 +157,3 @@ export default function RootLayout({
     </html>
   );
 }
-

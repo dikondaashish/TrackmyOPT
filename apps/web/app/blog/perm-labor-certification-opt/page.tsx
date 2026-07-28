@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "PERM Labor Certification Process: A Complete Guide for OPT Workers",
         description: "Navigating the PERM process for your Green Card? Understand the strict advertising requirements, prevailing wage delays, and how long the ETA Form 9089 takes to process.",
         type: "article",
-        url: "https://trackmyopt.com/blog/perm-labor-certification-opt",
+        url: "https://www.trackmyopt.com/blog/perm-labor-certification-opt",
         images: [
             {
                 url: "/blog/perm-labor-certification-opt.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/perm-labor-certification-opt",
+        canonical: "https://www.trackmyopt.com/blog/perm-labor-certification-opt",
     }
 };
 
@@ -198,7 +198,7 @@ export default function PermLaborCertificationPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Free Account

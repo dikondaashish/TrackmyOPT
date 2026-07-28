@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "Cheapest Ways to Send Money Home While on OPT",
         description: "You are earning your first US salary. Here is exactly how to send money to your family back home without losing hundreds to bank wire fees.",
         type: "article",
-        url: "https://trackmyopt.com/blog/sending-money-home-opt-remittance",
+        url: "https://www.trackmyopt.com/blog/sending-money-home-opt-remittance",
         images: [{ url: "/blog/sending-money-home-opt-remittance.jpg", width: 1200, height: 630, alt: "Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/sending-money-home-opt-remittance" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/sending-money-home-opt-remittance" }
 };
 
 export default function SendingMoneyHomePage() {
@@ -87,7 +87,7 @@ export default function SendingMoneyHomePage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Focus on Your Finances, Not Your Status</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Let TrackMyOPT handle the immigration compliance while you handle the money. Automated unemployment tracking, SEVIS deadline alerts, and document storage—all in one place.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

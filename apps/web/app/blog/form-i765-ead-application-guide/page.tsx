@@ -378,7 +378,7 @@ export default function FormI765GuidePage() {
                 <p className="text-indigo-100 mb-6 max-w-2xl mx-auto">
                     TrackMyOPT calculates your OPT application deadline automatically — telling you exactly when to apply for your I-765 based on your program end date, sends you EAD expiration reminders, and tracks your STEM OPT 540-day extension countdown.
                 </p>
-                <Link href="/auth/sign-up" className="inline-flex items-center gap-2 bg-white text-indigo-700 font-semibold px-6 py-3 rounded-xl hover:bg-indigo-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 bg-white text-indigo-700 font-semibold px-6 py-3 rounded-xl hover:bg-indigo-50 transition-colors">
                     Track My OPT Deadlines Free <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

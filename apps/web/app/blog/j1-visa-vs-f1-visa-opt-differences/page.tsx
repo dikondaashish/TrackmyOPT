@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "F-1 vs. J-1 Visa: The Ultimate Comparison for Students",
         description: "Trying to decide between an F-1 or J-1 visa for your US studies? The wrong choice could force you to leave the US immediately after graduation.",
         type: "article",
-        url: "https://trackmyopt.com/blog/j1-visa-vs-f1-visa-opt-differences",
+        url: "https://www.trackmyopt.com/blog/j1-visa-vs-f1-visa-opt-differences",
         images: [
             {
                 url: "/blog/j1-visa-vs-f1-visa-opt-differences.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/j1-visa-vs-f1-visa-opt-differences",
+        canonical: "https://www.trackmyopt.com/blog/j1-visa-vs-f1-visa-opt-differences",
     }
 };
 
@@ -168,7 +168,7 @@ export default function J1vsF1Page() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Access the Document Safe

@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "Navigating the 60-Day Grace Period on F-1",
         description: "Whether your OPT naturally expired or you hit your 90-day unemployment limit, here is exactly what you can (and cannot) do during your 60-day grace period.",
         type: "article",
-        url: "https://trackmyopt.com/blog/60-day-grace-period-f1-students",
+        url: "https://www.trackmyopt.com/blog/60-day-grace-period-f1-students",
         images: [{ url: "/blog/60-day-grace-period-f1-students.jpg", width: 1200, height: 630, alt: "A calendar with a departure date circled, next to an I-20 and an airline itinerary" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/60-day-grace-period-f1-students" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/60-day-grace-period-f1-students" }
 };
 
 export default function GracePeriodPage() {
@@ -80,7 +80,7 @@ export default function GracePeriodPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Track Your Status with Confidence</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Don't guess when your status expires. Use TrackMyOPT's precision timeline tools to know exactly when your grace period starts and ends.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

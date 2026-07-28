@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "How to Rent an Apartment Without US Credit History",
         description: "Moving off-campus or relocating for your OPT job? Learn how to get an apartment lease approved when you have zero US credit history.",
         type: "article",
-        url: "https://trackmyopt.com/blog/renting-apartment-without-us-credit-history",
+        url: "https://www.trackmyopt.com/blog/renting-apartment-without-us-credit-history",
         images: [
             {
                 url: "/blog/renting-apartment-without-us-credit-history.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/renting-apartment-without-us-credit-history",
+        canonical: "https://www.trackmyopt.com/blog/renting-apartment-without-us-credit-history",
     }
 };
 

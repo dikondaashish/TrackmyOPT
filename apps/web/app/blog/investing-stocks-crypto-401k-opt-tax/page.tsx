@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "Investing on OPT: Stocks, Crypto, 401(k) & Tax Rules for F-1 Students",
         description: "You are earning a US salary on OPT. Can you invest it? Learn the tax rules for stocks, cryptocurrency, employer 401(k), and required FBAR filings.",
         type: "article",
-        url: "https://trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax",
+        url: "https://www.trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax",
         images: [{ url: "/blog/investing-stocks-crypto-401k-opt-tax.jpg", width: 1200, height: 630, alt: "Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax" }
 };
 
 export default function InvestingOnOPTPage() {
@@ -92,7 +92,7 @@ export default function InvestingOnOPTPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Invest in Your Future—and Your Status</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Building wealth on OPT starts with staying compliant. Use TrackMyOPT to monitor your employment deadlines, SEVIS reporting, and unemployment days while you grow your portfolio.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

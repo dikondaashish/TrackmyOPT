@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "Fallen Out of F-1 Status? Here Are Your Options",
         description: "Whether you missed a deadline, dropped below full-time, or exceeded unemployment days, here is exactly what happens when you lose F-1 status and how to fix it.",
         type: "article",
-        url: "https://trackmyopt.com/blog/fall-out-of-f1-status-options",
+        url: "https://www.trackmyopt.com/blog/fall-out-of-f1-status-options",
         images: [
             {
                 url: "/blog/fall-out-of-f1-status-options.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/fall-out-of-f1-status-options",
+        canonical: "https://www.trackmyopt.com/blog/fall-out-of-f1-status-options",
     }
 };
 
@@ -172,7 +172,7 @@ export default function FallOutOfStatusPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Free Account

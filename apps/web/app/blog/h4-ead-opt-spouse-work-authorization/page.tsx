@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "H-4 EAD: Work Authorization for H-1B Spouses",
         description: "Your spouse is on an H-4 visa and wants to work. Learn the exact eligibility rules, how to apply for the H-4 EAD, and when it might be revoked.",
         type: "article",
-        url: "https://trackmyopt.com/blog/h4-ead-opt-spouse-work-authorization",
+        url: "https://www.trackmyopt.com/blog/h4-ead-opt-spouse-work-authorization",
         images: [
             {
                 url: "/blog/h4-ead-opt-spouse-work-authorization.jpg",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/h4-ead-opt-spouse-work-authorization",
+        canonical: "https://www.trackmyopt.com/blog/h4-ead-opt-spouse-work-authorization",
     }
 };
 
@@ -179,7 +179,7 @@ export default function H4EADPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Start Planning Your Future

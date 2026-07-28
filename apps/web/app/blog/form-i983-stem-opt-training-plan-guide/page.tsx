@@ -364,7 +364,7 @@ export default function FormI983GuidePage() {
                 <p className="text-green-100 mb-6 max-w-2xl mx-auto">
                     TrackMyOPT automatically tracks your STEM OPT evaluation deadlines, employer change notifications, and 12-month reporting windows so you never miss a compliance requirement.
                 </p>
-                <Link href="/auth/sign-up" className="inline-flex items-center gap-2 bg-white text-green-700 font-semibold px-6 py-3 rounded-xl hover:bg-green-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 bg-white text-green-700 font-semibold px-6 py-3 rounded-xl hover:bg-green-50 transition-colors">
                     Track My STEM OPT Compliance <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

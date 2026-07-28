@@ -7,7 +7,7 @@ import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
  * 
  * This endpoint receives a JSON payload with URLs to submit:
  * {
- *   "urlList": ["https://trackmyopt.com/blog/article-1", "https://trackmyopt.com/blog/article-2"]
+ *   "urlList": ["https://www.trackmyopt.com/blog/article-1", "https://www.trackmyopt.com/blog/article-2"]
  * }
  * 
  * Environment variables required:
@@ -15,7 +15,7 @@ import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
  * - CRON_SECRET: Bearer token for POST (same secret as cron routes)
  * 
  * Bing will verify ownership by checking:
- * https://trackmyopt.com/{INDEXNOW_KEY}.txt
+ * https://www.trackmyopt.com/{INDEXNOW_KEY}.txt
  */
 
 export async function POST(request: NextRequest) {
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const indexNowPayload = {
       host: 'trackmyopt.com',
       key: indexNowKey,
-      keyLocation: `https://trackmyopt.com/${indexNowKey}.txt`,
+      keyLocation: `https://www.trackmyopt.com/${indexNowKey}.txt`,
       urlList: urlList.slice(0, 10000), // IndexNow limits to 10,000 URLs per request
     };
 
@@ -114,7 +114,7 @@ export async function GET() {
       endpoint: '/api/indexnow',
       headers: { Authorization: 'Bearer <CRON_SECRET>' },
       body: {
-        urlList: ['https://trackmyopt.com/page1', 'https://trackmyopt.com/page2'],
+        urlList: ['https://www.trackmyopt.com/page1', 'https://www.trackmyopt.com/page2'],
       },
     },
     documentation: 'https://www.indexnow.org/documentation',

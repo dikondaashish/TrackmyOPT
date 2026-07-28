@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "The Truth About Academic Probation and OPT",
         description: "Falling below a 2.0 or 3.0 GPA can put you on academic probation. Learn the exact immigration consequences and how to protect your future US work authorization.",
         type: "article",
-        url: "https://trackmyopt.com/blog/academic-probation-f1-student-opt",
+        url: "https://www.trackmyopt.com/blog/academic-probation-f1-student-opt",
         images: [
             {
                 url: "/blog/academic-probation-f1-student-opt.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/academic-probation-f1-student-opt",
+        canonical: "https://www.trackmyopt.com/blog/academic-probation-f1-student-opt",
     }
 };
 
@@ -153,7 +153,7 @@ export default function AcademicProbationPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Your TrackMyOPT Account

@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "Your First US Paycheck on OPT: Where Did Your Money Go?",
         description: "Expected $3,000 but got $2,100? Learn every deduction on your pay stub and which ones F-1 students on OPT are actually exempt from.",
         type: "article",
-        url: "https://trackmyopt.com/blog/first-us-paycheck-deductions-w4",
+        url: "https://www.trackmyopt.com/blog/first-us-paycheck-deductions-w4",
         images: [{ url: "/blog/first-us-paycheck-deductions-w4.jpg", width: 1200, height: 630, alt: "Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/first-us-paycheck-deductions-w4" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/first-us-paycheck-deductions-w4" }
 };
 
 export default function FirstPaycheckPage() {
@@ -88,7 +88,7 @@ export default function FirstPaycheckPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Start Your OPT Journey Right</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Your first paycheck is just the beginning. TrackMyOPT ensures you stay compliant from Day 1 with automated employment tracking, SEVIS alerts, and secure document storage.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Create Your TrackMyOPT Account</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Create Your TrackMyOPT Account</Link>
                 </div>
             </div>
             <div className="mt-16">

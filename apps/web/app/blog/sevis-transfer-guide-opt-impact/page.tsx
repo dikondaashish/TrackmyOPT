@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "How a SEVIS Transfer Instantly Cancels Your OPT",
         description: "Accepted into a Master's program? Read this before you request a SEVIS transfer from your DSO, or you might accidentally lose your current OPT job.",
         type: "article",
-        url: "https://trackmyopt.com/blog/sevis-transfer-guide-opt-impact",
+        url: "https://www.trackmyopt.com/blog/sevis-transfer-guide-opt-impact",
         images: [
             {
                 url: "/blog/sevis-transfer-guide-opt-impact.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/sevis-transfer-guide-opt-impact",
+        canonical: "https://www.trackmyopt.com/blog/sevis-transfer-guide-opt-impact",
     }
 };
 
@@ -153,7 +153,7 @@ export default function SevisTransferPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Free Account

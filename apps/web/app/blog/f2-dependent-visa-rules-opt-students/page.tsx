@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "The Complete F-2 Dependent Visa Guide for OPT Students",
         description: "Your spouse and children came to the US on an F-2 visa. Learn the exact rules about employment, education, and how your OPT status affects their stay.",
         type: "article",
-        url: "https://trackmyopt.com/blog/f2-dependent-visa-rules-opt-students",
+        url: "https://www.trackmyopt.com/blog/f2-dependent-visa-rules-opt-students",
         images: [
             {
                 url: "/blog/f2-dependent-visa-rules-opt-students.jpg",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/f2-dependent-visa-rules-opt-students",
+        canonical: "https://www.trackmyopt.com/blog/f2-dependent-visa-rules-opt-students",
     }
 };
 
@@ -165,7 +165,7 @@ export default function F2DependentPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Protect Your Family's Status

@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "How to Negotiate Salary When You Need Sponsorship",
         description: "Many international students accept the first offer they get because they fear losing H-1B sponsorship. Here is how to negotiate without risking the offer.",
         type: "article",
-        url: "https://trackmyopt.com/blog/salary-negotiation-international-workers-opt",
+        url: "https://www.trackmyopt.com/blog/salary-negotiation-international-workers-opt",
         images: [{ url: "/blog/salary-negotiation-international-workers-opt.jpg", width: 1200, height: 630, alt: "A desk with an offer letter, a smartphone calculator, and financial documents" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/salary-negotiation-international-workers-opt" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/salary-negotiation-international-workers-opt" }
 };
 
 export default function SalaryNegotiationPage() {
@@ -75,7 +75,7 @@ export default function SalaryNegotiationPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Negotiate with Confidence</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Know exactly how much time you have left to safely negotiate. Use TrackMyOPT's unemployment tracker to maintain your leverage during the hiring process.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

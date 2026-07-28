@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "The Ultimate Guide to Renewing Your F-1 Visa on OPT",
         description: "Your F-1 visa stamp has expired, but you want to visit home while working on OPT. Here is exactly what you need to know about renewing your visa abroad.",
         type: "article",
-        url: "https://trackmyopt.com/blog/renewing-f1-visa-on-opt",
+        url: "https://www.trackmyopt.com/blog/renewing-f1-visa-on-opt",
         images: [
             {
                 url: "/blog/renewing-f1-visa-on-opt.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/renewing-f1-visa-on-opt",
+        canonical: "https://www.trackmyopt.com/blog/renewing-f1-visa-on-opt",
     }
 };
 
@@ -151,7 +151,7 @@ export default function RenewF1VisaPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Secure Your OPT Status Now

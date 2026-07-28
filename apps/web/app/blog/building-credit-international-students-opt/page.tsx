@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "How to Build US Credit as an International Student (2026 Guide)",
         description: "No SSN? No credit history? No problem. Learn the exact steps to build a 700+ US credit score while on your F-1 visa or OPT.",
         type: "article",
-        url: "https://trackmyopt.com/blog/building-credit-international-students-opt",
+        url: "https://www.trackmyopt.com/blog/building-credit-international-students-opt",
         images: [
             {
                 url: "/blog/building-credit-international-students-opt.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/building-credit-international-students-opt",
+        canonical: "https://www.trackmyopt.com/blog/building-credit-international-students-opt",
     }
 };
 

@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "How to Optimize Your LinkedIn for H-1B Sponsorship",
         description: "Stop hiding your immigration status on LinkedIn. Learn how to strategically position yourself to attract recruiters who actually offer H-1B sponsorship.",
         type: "article",
-        url: "https://trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship",
+        url: "https://www.trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship",
         images: [{ url: "/blog/linkedin-optimization-f1-h1b-sponsorship.jpg", width: 1200, height: 630, alt: "Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship" }
 };
 
 export default function LinkedInOptimizationPage() {
@@ -85,7 +85,7 @@ export default function LinkedInOptimizationPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Focus on Networking, We'll Handle Compliance</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Job hunting on OPT is stressful enough. Let TrackMyOPT handle your unemployment counter and SEVIS reporting deadlines so you can focus 100% on securing that H-1B offer.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

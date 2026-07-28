@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "Domestic Travel on OPT: Passports, REAL ID, and TSA Rules",
         description: "Flying from New York to LA for a weekend trip? Learn what documents TSA and Border Patrol require international students to carry for domestic flights.",
         type: "article",
-        url: "https://trackmyopt.com/blog/real-id-domestic-flights-international-students",
+        url: "https://www.trackmyopt.com/blog/real-id-domestic-flights-international-students",
         images: [
             {
                 url: "/blog/real-id-domestic-flights-international-students.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/real-id-domestic-flights-international-students",
+        canonical: "https://www.trackmyopt.com/blog/real-id-domestic-flights-international-students",
     }
 };
 
@@ -162,7 +162,7 @@ export default function RealIdPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Access the Document Safe

@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "Managing the Silent Struggle of OPT Anxiety",
         description: "The ticking unemployment clock and the H-1B lottery take a severe toll on international students' mental health. Here is how to cope and find support.",
         type: "article",
-        url: "https://trackmyopt.com/blog/opt-anxiety-mental-health-international-students",
+        url: "https://www.trackmyopt.com/blog/opt-anxiety-mental-health-international-students",
         images: [{ url: "/blog/opt-anxiety-mental-health-international-students.jpg", width: 1200, height: 630, alt: "A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/opt-anxiety-mental-health-international-students" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-anxiety-mental-health-international-students" }
 };
 
 export default function OPTAnxietyPage() {
@@ -83,7 +83,7 @@ export default function OPTAnxietyPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Regain Control of Your OPT</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Don't let compliance anxiety rule your life. TrackMyOPT provides the exact calculations and automated reminders you need to sleep soundly at night.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

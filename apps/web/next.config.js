@@ -115,10 +115,50 @@ const nextConfig = {
         destination: '/blog/top-h1b-sponsor-companies-2026',
         permanent: true,
       },
+      {
+        source: '/blog/opt-unemployment-rules-90-day-limit',
+        destination: '/blog/90-day-unemployment-rule-opt',
+        permanent: true,
+      },
+      {
+        source: '/blog/opt-job-relevance-letter-guide',
+        destination: '/blog/opt-job-related-to-degree',
+        permanent: true,
+      },
+      {
+        source: '/blog/answering-sponsorship-questions-interviews',
+        destination: '/blog/how-to-answer-sponsorship-question',
+        permanent: true,
+      },
+      {
+        source: '/blog/h1b-cap-gap-extension-guide',
+        destination: '/blog/h1b-cap-gap-extension',
+        permanent: true,
+      },
+      {
+        source: '/blog/opt-taxes-international-students',
+        destination: '/blog/f1-student-tax-filing-guide-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/h1b-visa-alternatives-opt-expires',
+        destination: '/blog/h1b-alternatives-work-visas',
+        permanent: true,
+      },
+      {
+        source: '/blog/h1b-lottery-registration-opt',
+        destination: '/answers/what-is-h1b-lottery',
+        permanent: true,
+      },
+      {
+        source: '/blog/fall-out-of-f1-status-reinstatement-options',
+        destination: '/blog/fall-out-of-f1-status-options',
+        permanent: true,
+      },
 
       // ── Old search URL → answers ─────────────────────────────────────────────
-      // /search was indexed by Google from schema.org SearchAction (including
-      // literal ?q={search_term_string}). The site uses /answers.
+      // /search was indexed from the site's former SearchAction markup
+      // (including literal ?q={search_term_string}). The site uses /answers.
       {
         source: '/search',
         destination: '/answers',
@@ -133,6 +173,16 @@ const nextConfig = {
       },
       {
         source: '/signup',
+        destination: '/login',
+        permanent: true,
+      },
+      {
+        source: '/register',
+        destination: '/login',
+        permanent: true,
+      },
+      {
+        source: '/auth/sign-up',
         destination: '/login',
         permanent: true,
       },

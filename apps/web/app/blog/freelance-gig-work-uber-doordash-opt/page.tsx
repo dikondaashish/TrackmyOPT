@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "Freelancing and Gig Work on OPT: What's Legal?",
         description: "Can you drive for Uber, deliver for DoorDash, or freelance on Upwork while on OPT? The answer depends entirely on your major and which OPT you are on.",
         type: "article",
-        url: "https://trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt",
+        url: "https://www.trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt",
         images: [{ url: "/blog/freelance-gig-work-uber-doordash-opt.jpg", width: 1200, height: 630, alt: "Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt" }
 };
 
 export default function FreelanceGigWorkPage() {
@@ -85,7 +85,7 @@ export default function FreelanceGigWorkPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Freelance Safely</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">If you are doing 1099 contractor work on your 12-month OPT, you need bulletproof documentation. TrackMyOPT provides secure cloud storage for your invoices, contracts, and proof of degree relevance, so you are always ready for an RFE.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT Work</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT Work</Link>
                 </div>
             </div>
             <div className="mt-16">

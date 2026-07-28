@@ -369,7 +369,7 @@ export default function FormI9GuidePage() {
                 <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
                     Never miss an I-9 re-verification deadline again. TrackMyOPT automatically alerts you when your EAD is expiring, when you need a STEM OPT extension, and when your employer needs to complete Section 3.
                 </p>
-                <Link href="/auth/sign-up" className="inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors">
+                <Link href="/login" className="inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors">
                     Get Free OPT Alerts <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

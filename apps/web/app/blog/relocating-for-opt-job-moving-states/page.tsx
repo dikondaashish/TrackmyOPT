@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "The Complete Relocation Checklist for OPT Workers",
         description: "Moving from your college town to a new city for your OPT job? Do not forget the mandatory SEVIS address update. Here is the full checklist.",
         type: "article",
-        url: "https://trackmyopt.com/blog/relocating-for-opt-job-moving-states",
+        url: "https://www.trackmyopt.com/blog/relocating-for-opt-job-moving-states",
         images: [{ url: "/blog/relocating-for-opt-job-moving-states.jpg", width: 1200, height: 630, alt: "Moving boxes with a laptop showing apartment listings and a US map with a route drawn" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/relocating-for-opt-job-moving-states" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/relocating-for-opt-job-moving-states" }
 };
 
 export default function RelocatingPage() {
@@ -76,7 +76,7 @@ export default function RelocatingPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Move with Confidence</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">TrackMyOPT makes sure you never miss an immigration deadline during your relocation. Automated alerts, document storage, and compliance tracking—all in one place.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

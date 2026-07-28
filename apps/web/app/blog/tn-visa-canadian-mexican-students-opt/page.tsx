@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "The TN Visa Advantage: Escaping the H-1B Lottery",
         description: "Are you a Canadian or Mexican citizen on OPT? You have a secret weapon. Learn how to transition from F-1 to TN status and skip the H-1B lottery.",
         type: "article",
-        url: "https://trackmyopt.com/blog/tn-visa-canadian-mexican-students-opt",
+        url: "https://www.trackmyopt.com/blog/tn-visa-canadian-mexican-students-opt",
         images: [
             {
                 url: "/blog/tn-visa-canadian-mexican-students-opt.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/tn-visa-canadian-mexican-students-opt",
+        canonical: "https://www.trackmyopt.com/blog/tn-visa-canadian-mexican-students-opt",
     }
 };
 
@@ -180,7 +180,7 @@ export default function TnVisaPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Free Account

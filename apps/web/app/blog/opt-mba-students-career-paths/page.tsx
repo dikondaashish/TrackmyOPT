@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "The International MBA's Guide to OPT",
         description: "You paid a premium for your MBA. Here is how international students can maximize their OPT to secure high-paying US roles and H-1B sponsorship.",
         type: "article",
-        url: "https://trackmyopt.com/blog/opt-mba-students-career-paths",
+        url: "https://www.trackmyopt.com/blog/opt-mba-students-career-paths",
         images: [{ url: "/blog/opt-mba-students-career-paths.jpg", width: 1200, height: 630, alt: "Laptop showing a business presentation, next to a sketchbook and an EAD card" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/opt-mba-students-career-paths" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-mba-students-career-paths" }
 };
 
 export default function MBAOPTPage() {
@@ -77,7 +77,7 @@ export default function MBAOPTPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Focus on the Offer, We Handle the Paperwork</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">MBA recruiting is a full-time job. Let TrackMyOPT automate your OPT compliance and unemployment tracking so you can focus on landing that six-figure offer.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your OPT</Link>
                 </div>
             </div>
             <div className="mt-16">

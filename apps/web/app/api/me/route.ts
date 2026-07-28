@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
       // Record extension session (JWT means it's from extension)
       after(async () => {
         try {
-          await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://trackmyopt.com'}/api/user/sessions`, {
+          await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://www.trackmyopt.com'}/api/user/sessions`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "The End of 'Duration of Status' (D/S): Complete Guide for OPT Students",
         description: "DHS has finalized a rule ending 'Duration of Status' for F-1 students. Visas will now be capped at 4 years, and the OPT grace period is reduced to 30 days. Here is what you need to know.",
         type: "article",
-        url: "https://trackmyopt.com/blog/end-of-duration-of-status-f1-visa-rule",
+        url: "https://www.trackmyopt.com/blog/end-of-duration-of-status-f1-visa-rule",
         images: [
             {
                 url: "/blog/dhs-visa-rule.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/end-of-duration-of-status-f1-visa-rule",
+        canonical: "https://www.trackmyopt.com/blog/end-of-duration-of-status-f1-visa-rule",
     }
 };
 
@@ -415,7 +415,7 @@ export default function DurationOfStatusRulePage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Sign Up for Free

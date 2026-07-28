@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "The OPT Impact of Changing Your Major as an F-1 Student",
         description: "Switching to a STEM major can unlock 24 extra months of OPT, but doing it wrong can violate your SEVIS status. Learn the exact process for changing your major.",
         type: "article",
-        url: "https://trackmyopt.com/blog/changing-majors-f1-student-opt-impact",
+        url: "https://www.trackmyopt.com/blog/changing-majors-f1-student-opt-impact",
         images: [
             {
                 url: "/blog/changing-majors-f1-student-opt-impact.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/changing-majors-f1-student-opt-impact",
+        canonical: "https://www.trackmyopt.com/blog/changing-majors-f1-student-opt-impact",
     }
 };
 
@@ -150,7 +150,7 @@ export default function ChangingMajorsPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Access the Document Safe

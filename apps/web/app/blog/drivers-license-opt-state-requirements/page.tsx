@@ -11,10 +11,10 @@ export const metadata: Metadata = {
         title: "How to Get a US Driver's License on OPT (2026 Guide)",
         description: "Every state has different DMV requirements for F-1 students. Learn what documents to bring and how to get a REAL ID-compliant license.",
         type: "article",
-        url: "https://trackmyopt.com/blog/drivers-license-opt-state-requirements",
+        url: "https://www.trackmyopt.com/blog/drivers-license-opt-state-requirements",
         images: [{ url: "/blog/drivers-license-opt-state-requirements.jpg", width: 1200, height: 630, alt: "US driver's license with REAL ID gold star next to an I-20 and passport" }],
     },
-    alternates: { canonical: "https://trackmyopt.com/blog/drivers-license-opt-state-requirements" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/drivers-license-opt-state-requirements" }
 };
 
 export default function DriversLicensePage() {
@@ -85,7 +85,7 @@ export default function DriversLicensePage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Never Miss an Expiration Date</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">Your license, EAD, and I-20 all have different expiration dates. TrackMyOPT helps you track all of them with automated reminders and a secure document vault.</p>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/register" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your Documents</Link>
+                    <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">Start Tracking Your Documents</Link>
                 </div>
             </div>
             <div className="mt-16">

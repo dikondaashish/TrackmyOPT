@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "Dropping a Class? Why You Must Talk to Your DSO First",
         description: "If you drop a class and fall below a full-time course load, your SEVIS record will be terminated and your OPT eligibility destroyed. Read this before you hit 'Withdraw'.",
         type: "article",
-        url: "https://trackmyopt.com/blog/withdrawing-from-classes-f1-visa",
+        url: "https://www.trackmyopt.com/blog/withdrawing-from-classes-f1-visa",
         images: [
             {
                 url: "/blog/withdrawing-from-classes-f1-visa.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/withdrawing-from-classes-f1-visa",
+        canonical: "https://www.trackmyopt.com/blog/withdrawing-from-classes-f1-visa",
     }
 };
 
@@ -170,7 +170,7 @@ export default function WithdrawingClassesPage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Your TrackMyOPT Account

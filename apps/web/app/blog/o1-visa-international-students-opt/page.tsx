@@ -11,7 +11,7 @@ export const metadata: Metadata = {
         title: "O-1 Visa for International Students: Can You Qualify After OPT?",
         description: "The O-1 visa has no lottery, no prevailing wage requirements, and no cap. Discover the 8 criteria for the O-1 visa and how F-1 students can build a profile to qualify.",
         type: "article",
-        url: "https://trackmyopt.com/blog/o1-visa-international-students-opt",
+        url: "https://www.trackmyopt.com/blog/o1-visa-international-students-opt",
         images: [
             {
                 url: "/blog/o1-visa-international-students.png",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         ],
     },
     alternates: {
-        canonical: "https://trackmyopt.com/blog/o1-visa-international-students-opt",
+        canonical: "https://www.trackmyopt.com/blog/o1-visa-international-students-opt",
     }
 };
 
@@ -220,7 +220,7 @@ export default function O1VisaGuidePage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
-                        href="/register"
+                        href="/login"
                         className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
                     >
                         Create Free Account
