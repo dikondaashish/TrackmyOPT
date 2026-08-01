@@ -8,6 +8,7 @@ export const metadata: Metadata = {
         canonical: "https://www.trackmyopt.com/features/resume-ai",
     },
     openGraph: {
+        type: "website",
         title: "AI Resume Builder for F-1 Students on OPT | TrackMyOPT",
         description:
             "ATS-optimized resumes tailored for H-1B sponsorship and STEM OPT roles. Stop getting filtered out by automated screening.",
