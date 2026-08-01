@@ -133,6 +133,22 @@ export function isBenignWebkitMessageHandlersError(message: string): boolean {
   );
 }
 
+/**
+ * Some SEO/browser tools inject a one-line probe that assumes an `og:type`
+ * meta tag exists. Its page-URL-only stack frame is not TrackMyOPT bundle code.
+ */
+export function isBenignInjectedOpenGraphProbeError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("document.queryselector") &&
+    lower.includes("meta[property=") &&
+    lower.includes("og:type") &&
+    lower.includes(".content") &&
+    (lower.includes("null is not an object") ||
+      lower.includes("cannot read properties of null"))
+  );
+}
+
 export function shouldDropExceptionEvent(
   properties: Record<string, unknown> | undefined
 ): boolean {
@@ -142,7 +158,8 @@ export function shouldDropExceptionEvent(
     isBenignWebSocketError(text) ||
     isBenignAdSenseNetworkError(properties) ||
     isOpaqueCrossOriginScriptError(properties) ||
-    isBenignWebkitMessageHandlersError(text)
+    isBenignWebkitMessageHandlersError(text) ||
+    isBenignInjectedOpenGraphProbeError(text)
   );
 }
 

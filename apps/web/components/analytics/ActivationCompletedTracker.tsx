@@ -23,6 +23,8 @@ export function ActivationCompletedTracker() {
 
   useEffect(() => {
     let cancelled = false;
+    let requestInFlight = false;
+    let activeController: AbortController | null = null;
 
     const alreadyCaptured = () => {
       try {
@@ -33,55 +35,75 @@ export function ActivationCompletedTracker() {
     };
 
     const tryCapture = async () => {
-      if (cancelled || trackedRef.current || alreadyCaptured()) return;
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user || cancelled) return;
-
-      const caseRes = await fetch("/api/case-status", {
-        credentials: "include",
-        cache: "no-store",
-      });
-
-      let hasReceipt = false;
-      let hasSuccessfulCheck = false;
-      if (caseRes.ok) {
-        const caseJson = await caseRes.json().catch(() => null);
-        const cases: Array<{
-          receipt_number?: string;
-          current_status?: string | null;
-          last_checked_at?: string | null;
-        }> = caseJson?.cases?.length
-          ? caseJson.cases
-          : caseJson?.data
-            ? [caseJson.data]
-            : [];
-        const primary = cases.find((c) => c.receipt_number) ?? cases[0] ?? null;
-        hasReceipt = Boolean(primary?.receipt_number);
-        hasSuccessfulCheck = hasSuccessfulCaseCheck(primary);
-      }
-
       if (
         cancelled ||
+        requestInFlight ||
         trackedRef.current ||
-        alreadyCaptured() ||
-        !isActivatedUser({ hasReceipt, hasSuccessfulCheck })
+        alreadyCaptured()
       ) {
         return;
       }
 
-      trackedRef.current = true;
+      requestInFlight = true;
+      const controller = new AbortController();
+      activeController = controller;
+
       try {
-        localStorage.setItem(ACTIVATION_CAPTURED_KEY, "1");
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user || cancelled) return;
+
+        const caseRes = await fetch("/api/case-status", {
+          credentials: "include",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        let hasReceipt = false;
+        let hasSuccessfulCheck = false;
+        if (caseRes.ok) {
+          const caseJson = await caseRes.json().catch(() => null);
+          const cases: Array<{
+            receipt_number?: string;
+            current_status?: string | null;
+            last_checked_at?: string | null;
+          }> = caseJson?.cases?.length
+            ? caseJson.cases
+            : caseJson?.data
+              ? [caseJson.data]
+              : [];
+          const primary = cases.find((c) => c.receipt_number) ?? cases[0] ?? null;
+          hasReceipt = Boolean(primary?.receipt_number);
+          hasSuccessfulCheck = hasSuccessfulCaseCheck(primary);
+        }
+
+        if (
+          cancelled ||
+          trackedRef.current ||
+          alreadyCaptured() ||
+          !isActivatedUser({ hasReceipt, hasSuccessfulCheck })
+        ) {
+          return;
+        }
+
+        trackedRef.current = true;
+        try {
+          localStorage.setItem(ACTIVATION_CAPTURED_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+        captureActivationCompleted({
+          days_since_signup: daysSinceSignupDate(user.created_at?.slice(0, 10)),
+          within_24h: isWithinActivationWindow(user.created_at),
+        });
       } catch {
-        /* ignore */
+        // This is a best-effort analytics probe. Offline transitions, aborted
+        // navigations, and privacy tools must not surface as product errors.
+      } finally {
+        if (activeController === controller) activeController = null;
+        requestInFlight = false;
       }
-      captureActivationCompleted({
-        days_since_signup: daysSinceSignupDate(user.created_at?.slice(0, 10)),
-        within_24h: isWithinActivationWindow(user.created_at),
-      });
     };
 
     void tryCapture();
@@ -95,6 +117,7 @@ export function ActivationCompletedTracker() {
 
     return () => {
       cancelled = true;
+      activeController?.abort();
       window.clearInterval(pollId);
       window.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onVisible);

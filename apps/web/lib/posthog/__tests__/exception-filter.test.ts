@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractExceptionMessages,
   isBenignAdSenseNetworkError,
+  isBenignInjectedOpenGraphProbeError,
   isBenignReactDomTeardownError,
   isBenignWebkitMessageHandlersError,
   isBenignWebSocketUnavailableError,
@@ -169,6 +170,32 @@ describe("shouldDropExceptionEvent", () => {
         ],
       })
     ).toBe(true);
+  });
+
+  it("drops an injected script probing a missing og:type tag", () => {
+    const message =
+      `null is not an object (evaluating 'document.querySelector("meta[property='og:type']").content')`;
+
+    expect(isBenignInjectedOpenGraphProbeError(message)).toBe(true);
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [message],
+        $exception_list: [
+          {
+            value: message,
+            stacktrace: { frames: [{ source: "/features/resume-ai" }] },
+          },
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it("keeps unrelated querySelector failures observable", () => {
+    expect(
+      isBenignInjectedOpenGraphProbeError(
+        `null is not an object (evaluating 'document.querySelector("#checkout").content')`
+      )
+    ).toBe(false);
   });
 
   it("keeps React hydration #418 observable", () => {
