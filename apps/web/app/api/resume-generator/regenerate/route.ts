@@ -1,8 +1,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildRegeneratePrompt } from '@/lib/ai/prompts/regenerate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 import { z } from 'zod';
@@ -105,43 +104,16 @@ export async function POST(req: NextRequest) {
         const { jobDescription, templateId, previousLatex, userFeedback, atsAnalysis } = validation.data;
 
         // 4. Load Template
-        const possiblePaths = [
-            path.join(process.cwd(), 'templates/latex', `${templateId}.tex`),
-            path.join(process.cwd(), 'apps/web/templates/latex', `${templateId}.tex`),
-        ];
-
-        let templateTex = '';
-        for (const p of possiblePaths) {
-            if (fs.existsSync(p)) {
-                templateTex = fs.readFileSync(p, 'utf-8');
-                break;
-            }
-        }
-
-        if (!templateTex) {
-            // Fallback to modern.tex
-            const fallbackPaths = [
-                path.join(process.cwd(), 'templates/latex', 'modern.tex'),
-                path.join(process.cwd(), 'apps/web/templates/latex', 'modern.tex'),
-            ];
-
-            for (const p of fallbackPaths) {
-                if (fs.existsSync(p)) {
-                    templateTex = fs.readFileSync(p, 'utf-8');
-                    break;
-                }
-            }
-
-            if (!templateTex) {
-                console.error(`Template not found. Checked paths: ${possiblePaths.join(', ')}`);
-                return NextResponse.json({ error: 'Template not found' }, { status: 404 });
-            }
+        const template = loadTemplateSource(templateId, normalizeAccentHex(body.accentHex));
+        if (!template) {
+            console.error(`Template not found for id "${templateId}" (and fallback missing).`);
+            return NextResponse.json({ error: 'Template not found' }, { status: 404 });
         }
 
         // 5. Build Prompt
         const prompt = buildRegeneratePrompt(
             jobDescription,
-            templateTex,
+            template.tex,
             previousLatex,
             userFeedback,
             atsAnalysis

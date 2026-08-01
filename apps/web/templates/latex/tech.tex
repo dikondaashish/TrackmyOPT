@@ -1,204 +1,173 @@
-\documentclass[10pt, letterpaper]{article}
+%==============================================================================
+%  TrackMyOPT — Tech Focused
+%  Single-column, ATS-safe resume template for US software/infra hiring.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. Uses only core TeX Live packages so the file compiles
+%     standalone on the remote compiler (no project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed:
+%       Contact -> Summary -> Skills -> Experience -> Projects -> Education
+%       -> Certifications
+%   * Body text 10pt, margins 0.6in, Helvetica-class sans face.
+%     Slightly denser than Modern to fit a deeper skills matrix.
+%==============================================================================
+\documentclass[letterpaper,10pt]{article}
 
-% --- Preamble & Packages ---
-\usepackage{ragged2e}
-\usepackage[
-    ignoreheadfoot,
-    top=1.3cm,
-    bottom=1.6cm,
-    left=1.4cm,
-    right=1.4cm,
-    footskip=0.8cm,
-]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\IfFileExists{helvet.sty}{\usepackage[scaled]{helvet}}{\usepackage{lmodern}}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[left=0.6in,right=0.6in,top=0.5in,bottom=0.5in]{geometry}
 \usepackage{titlesec}
 \usepackage{enumitem}
-% FIXED: Task 5 - Remove FontAwesome to prevent ATS glyph corruption
-% \usepackage{fontawesome5}
-% FIXED: Task 7 - Use hidelinks for cleaner visual and better ATS parsing
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
-\usepackage[pscoord]{eso-pic}
-\usepackage{calc}
-\usepackage{bookmark}
-\usepackage{lastpage}
-\usepackage{changepage}
-\usepackage{ifthen}
-\usepackage{needspace}
-\usepackage{iftex}
-\ifPDFTeX
-    \input{glyphtounicode}
-    \pdfgentounicode=1
-    \usepackage[T1]{fontenc}
-    \usepackage[utf8]{inputenc}
-    \usepackage{lmodern}
-\fi
-\usepackage{charter}
 
-% CONTACT INFORMATION
-\def\name{John Doe}
-\def\phone{555-123-4567}
-\def\email{johndoe@example.com}
-\def\LinkedIn{john-doe}
-\def\github{john-doe}
-\def\role{AI Solutions Engineer}
-\def\location{Boston, Massachusetts}
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
+\input{glyphtounicode}
+\pdfgentounicode=1
 
-\definecolor{highlight}{RGB}{61, 90, 128}
+\definecolor{accent}{HTML}{0F766E}
+\definecolor{bodytext}{HTML}{15191C}
+\definecolor{muted}{HTML}{4A4A4A}
+\color{bodytext}
 
-% --- Custom Environments ---
-% \raggedright % Commented out to enable justification
-\AtBeginEnvironment{adjustwidth}{\partopsep0pt}
 \pagestyle{empty}
-\setcounter{secnumdepth}{0}
 \setlength{\parindent}{0pt}
-\setlength{\topskip}{0pt}
-\pagenumbering{gobble}
+\setlength{\parskip}{0pt}
+\raggedright
+\raggedbottom
 
-% BOLD COMMAND
-\newcommand{\namefmt}[1]{{\bfseries #1}}
+%------------------------------------------------------------------
+% Section headings
+%------------------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\color{accent}}{}{0em}{\MakeUppercase}
+  [\vspace{-7pt}{\color{accent}\rule{\linewidth}{0.6pt}}]
+\titlespacing*{\section}{0pt}{8pt}{4pt}
 
-\titleformat{\section}{\needspace{4\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{1pt}\titlerule]
-\titlespacing{\section}{0pt}{0.2cm}{0.1cm}
-\renewcommand\labelitemi{$\vcenter{\hbox{\small$\bullet$}}$}
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\hspace{5pt}\textbar\hspace{5pt}}
 
-\newenvironment{highlights}{
-    \begin{itemize}[topsep=0pt, partopsep=0pt, itemsep=1pt, parsep=1pt, leftmargin=10pt]
-}{
-    \end{itemize}
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
 }
 
-\newenvironment{onecolentry}{
-    \begin{adjustwidth}{0cm}{0cm}
-}{
-    \end{adjustwidth}
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\ \textbar\ \textit{\color{muted}#2}\hfill#3\par
+  \vspace{1pt}%
 }
 
-% Replaced twocolentry environment with a command for ATS compatibility
-\newcommand{\resumeEntry}[2]{
-    \noindent \textbf{#2} \hfill #1 \par
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
 }
 
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent\textbf{#1:}\ #2\par\vspace{1.5pt}}
 
-% --- Resume Content ---
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=13pt,itemsep=1pt,parsep=0pt,topsep=2pt,
+                   partopsep=0pt,label=\textbullet]}
+  {\end{itemize}}
+
+%------------------------------------------------------------------
+% CONTACT INFORMATION
+%------------------------------------------------------------------
+\def\name{Marcus Feld}
+\def\role{Backend / Infrastructure Engineer}
+\def\phone{(512) 555-0192}
+\def\location{Austin, TX}
+\def\email{marcus.feld@example.com}
+\def\LinkedIn{marcusfeld}
+\def\github{mfeld}
+
 \begin{document}
 
+%-----------  HEADER  ---------------------------------------------
 \begin{center}
-    {\Huge\namefmt{\name}} \\[4pt]
-    {\large\color{highlight}\role} \\[4pt]
-    \small
-    \phone \quad$|$\quad
-    \location \quad$|$\quad
-    \href{mailto:\email}{\email} \quad$|$\quad
-    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
-    \href{https://github.com/\github}{github.com/\github}
+  {\LARGE\bfseries\color{bodytext}\name}\\[3pt]
+  {\large\color{accent}\role}\\[5pt]
+  {\small
+    \phone\csep
+    \location\csep
+    \href{mailto:\email}{\email}\csep
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn}\csep
+    \href{https://github.com/\github}{github.com/\github}}
 \end{center}
-\vspace{-8pt}
-{\color{highlight}\hrule height 1.5pt}
-\vspace{6pt}
+\vspace{3pt}
+{\color{accent}\rule{\linewidth}{1.2pt}}
 
-% --- Professional Summary ---
-\section{Professional Summary}
-\begin{onecolentry}
-Results-driven \textbf{AI Solutions Engineer} with hands-on experience building production-grade AI systems, cloud integrations, and automation workflows. Adept at translating business requirements into scalable technical solutions across SaaS, fintech, and enterprise platforms. Strong background in Python, API development, and cross-team collaboration within fast-paced startup environments.
-\end{onecolentry}
+%-----------  SUMMARY  --------------------------------------------
+\section{Summary}
+Infrastructure engineer with 5 years running production systems at container
+scale. Cut cloud spend 34\% while doubling request volume, and owns the Kubernetes
+platform serving 180 microservices. Deep in Go, Rust, and observability tooling.
 
-% --- Education ---
-\section{Education}
-\resumeEntry{Aug. 2022 – May. 2024}{Example University — Master’s in Computer Science}
-\begin{onecolentry}
-Focus: Artificial Intelligence, Distributed Systems, Cloud Computing
-\end{onecolentry}
+%-----------  SKILLS  ---------------------------------------------
+\section{Skills}
+\rSkill{Languages}{Go, Rust, Python, Bash, SQL}
+\rSkill{Orchestration}{Kubernetes, Docker, Nomad, Helm, ArgoCD, Istio}
+\rSkill{Cloud}{AWS (EKS, EC2, S3, RDS, IAM), GCP (GKE, BigQuery), Cloudflare}
+\rSkill{Data}{PostgreSQL, Redis, Kafka, ClickHouse, Elasticsearch}
+\rSkill{IaC \& CI/CD}{Terraform, Pulumi, GitHub Actions, Jenkins, Ansible}
+\rSkill{Observability}{Prometheus, Grafana, OpenTelemetry, Loki, PagerDuty}
+\rSkill{Practices}{SRE, SLO design, Chaos testing, Capacity planning, Zero-downtime deploys}
 
-\resumeEntry{Aug. 2018 – Jul. 2022}{Sample Institute of Technology — Bachelor of Computer Applications}
-\begin{onecolentry}
-Focus: Software Engineering, Databases, Web Technologies, Operating Systems
-\end{onecolentry}
-
-% --- Technical Skills ---
-\section{Technical Skills}
-\begin{onecolentry}
-\textbf{Languages:} Python, JavaScript, Java, SQL, Go \\
-\textbf{AI/ML:} LangChain, OpenAI API, TensorFlow, Scikit-learn \\
-\textbf{Cloud Platforms:} AWS, GCP, Azure, Docker, Kubernetes \\
-\textbf{Integration:} REST APIs, GraphQL, Webhooks, ETL Pipelines \\
-\textbf{Tools:} GitHub, Jira, Confluence, Postman, Figma \\
-\textbf{Soft Skills:} Technical Communication, Client Enablement, Solution Architecture, Documentation
-\end{onecolentry}
-
-% --- Experience ---
+%-----------  EXPERIENCE  -----------------------------------------
 \section{Experience}
-\resumeEntry{Jan. 2024 – Present}{AI Solutions Engineer — Example AI Labs (Remote)}
-\begin{onecolentry}
-\begin{highlights}
-    \item Designed and deployed AI-powered workflows for enterprise SaaS customers.
-    \item Integrated large language models into production systems using REST and GraphQL APIs.
-    \item Developed proof-of-concept demos supporting pre-sales and customer onboarding.
-    \item Collaborated with product and customer success teams to ensure smooth deployments.
-    \item Delivered technical walkthroughs and post-deployment support sessions.
-\end{highlights}
-\end{onecolentry}
 
-\resumeEntry{Jun. 2023 – Dec. 2023}{Integration Engineer — SampleCloud Technologies (Remote)}
-\begin{onecolentry}
-\begin{highlights}
-    \item Built data integration pipelines across multi-cloud environments.
-    \item Automated onboarding workflows, reducing setup time for new clients.
-    \item Monitored and optimized system reliability across production environments.
-    \item Authored internal documentation and integration best practices.
-\end{highlights}
-\end{onecolentry}
+\rRole{Senior Infrastructure Engineer}{Developer Tools Company}{Austin, TX}{Apr 2022 -- Present}
+\begin{rBullets}
+  \item Owns the multi-tenant Kubernetes platform hosting 180 microservices across 4 regions at 99.99\% availability.
+  \item Reduced cloud spend 34\% (\$41K/month) through rightsizing, spot fleets, and a custom bin-packing scheduler, while request volume doubled.
+  \item Built an OpenTelemetry pipeline ingesting 2.4B spans/day; cut mean incident diagnosis time from 35 to 8 minutes.
+  \item Automated zero-downtime cluster upgrades, eliminating 12 hours of planned maintenance per quarter.
+\end{rBullets}
 
-\resumeEntry{Aug. 2021 – May 2023}{Software Engineer — DemoSoft Solutions (Hybrid)}
-\begin{onecolentry}
-\begin{highlights}
-    \item Developed scalable backend services supporting high-volume user traffic.
-    \item Integrated analytics and reporting dashboards for business stakeholders.
-    \item Collaborated with cross-functional teams on secure cloud deployments.
-    \item Participated in client-facing issue resolution and technical discussions.
-\end{highlights}
-\end{onecolentry}
+\rRole{Site Reliability Engineer}{Streaming Media Startup}{Remote}{Jun 2020 -- Mar 2022}
+\begin{rBullets}
+  \item Migrated 60 services from EC2 to EKS with no customer-facing downtime, cutting deploy time from 25 minutes to 90 seconds.
+  \item Defined SLOs and error budgets across 8 teams, reducing sev-1 incidents 55\% year over year.
+  \item Wrote a Rust log shipper that replaced Fluentd, dropping per-node memory use from 900MB to 120MB.
+\end{rBullets}
 
-% --- Projects ---
+%-----------  PROJECTS  -------------------------------------------
 \section{Projects}
 
-\resumeEntry{}{\textbf{AI Support Agent Platform} — Enterprise Prototype}
-\begin{onecolentry}
-\begin{highlights}
-    \item Built an AI-powered customer support agent using LangChain and GPT APIs.
-    \item Integrated structured data sources for real-time query resolution.
-    \item Implemented intent classification and workflow routing logic.
-    \item Deployed containerized services using Docker and cloud-native tooling.
-\end{highlights}
-\end{onecolentry}
+\rProject{kubecost-lite}{Go, Kubernetes, Prometheus}{github.com/mfeld/kubecost-lite}
+\begin{rBullets}
+  \item Per-namespace Kubernetes cost attribution exporter; 1.4K GitHub stars, packaged as a Helm chart.
+\end{rBullets}
 
-\resumeEntry{}{\textbf{Cloud Data Integrator} — Integration Framework}
-\begin{onecolentry}
-\begin{highlights}
-    \item Designed a reusable framework for syncing enterprise data systems.
-    \item Automated ETL pipelines using Python microservices.
-    \item Built monitoring dashboards for data validation and observability.
-    \item Delivered technical documentation and onboarding guides.
-\end{highlights}
-\end{onecolentry}
+\rProject{tfdrift}{Rust, Terraform}{2023}
+\begin{rBullets}
+  \item Detects Terraform state drift across 200+ workspaces in under 40 seconds; runs nightly in CI.
+\end{rBullets}
 
-\resumeEntry{}{\textbf{AI Demo Toolkit} — Internal Enablement Tool}
-\begin{onecolentry}
-\begin{highlights}
-    \item Created a toolkit for rapidly deploying customized AI demos.
-    \item Integrated CRM and ticketing systems for end-to-end workflows.
-    \item Enabled configurable deployments within minutes for sales engineers.
-\end{highlights}
-\end{onecolentry}
+%-----------  EDUCATION  ------------------------------------------
+\section{Education}
+\rEdu{B.S. in Computer Science}{Texas A\&M University}{College Station, TX}{May 2020}
 
-% --- Certificates ---
-\section{Certificates}
-\begin{onecolentry}
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-    \item AWS Certified Solutions Architect
-    \item Machine Learning Specialization
-    \item API Design and Integration
-    \item Advanced Python Programming
-    \item Cloud Engineering Fundamentals
-\end{itemize}
-\end{onecolentry}
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item Certified Kubernetes Administrator, CNCF (2023)
+  \item AWS Certified DevOps Engineer -- Professional (2022)
+  \item HashiCorp Certified: Terraform Associate (2021)
+\end{rBullets}
 
 \end{document}

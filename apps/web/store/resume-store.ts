@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { extractJobTitle, isLikelyFilename, normalizeRoleTitle } from '@/lib/resume/extract-job-title';
 import type { AtsAnalysis } from '@/lib/resume/ats-analysis-types';
+import type { TemplateColor } from '@/lib/documents/templates';
 
 export type { AtsAnalysis };
 
@@ -20,7 +21,7 @@ interface ResumeState {
     jobTitle: string | null;
     applicationId: string | null;
     selectedTemplateId: string | null;
-    selectedColor: { name: string; class: string; ring: string } | null;
+    selectedColor: TemplateColor | null;
     generatedLatex: string;
     compiledPdfUrl: string | null;
     atsAnalysis: AtsAnalysis | null;
@@ -31,7 +32,7 @@ interface ResumeState {
     setJobDescription: (text: string, title?: string) => void;
     setApplicationId: (id: string | null) => void;
     setSelectedTemplateId: (id: string) => void;
-    setSelectedColor: (color: { name: string; class: string; ring: string } | null) => void;
+    setSelectedColor: (color: TemplateColor | null) => void;
     setGeneratedLatex: (latex: string) => void;
     setCompiledPdfUrl: (url: string) => void;
     setAtsAnalysis: (analysis: AtsAnalysis | null) => void;
@@ -78,7 +79,7 @@ export const useResumeStore = create<ResumeState>()(
                 }),
             setApplicationId: (id: string | null) => set({ applicationId: id }),
             setSelectedTemplateId: (id: string) => set({ selectedTemplateId: id }),
-            setSelectedColor: (color: { name: string; class: string; ring: string } | null) => set({ selectedColor: color }),
+            setSelectedColor: (color: TemplateColor | null) => set({ selectedColor: color }),
             setGeneratedLatex: (latex: string) => set({ generatedLatex: latex }),
             setCompiledPdfUrl: (url: string) => set({ compiledPdfUrl: url }),
             setAtsAnalysis: (analysis: AtsAnalysis | null) => set({ atsAnalysis: analysis }),

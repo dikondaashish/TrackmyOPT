@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TemplatePreviewModal } from "./TemplatePreviewModal";
+import { TemplatePdfPreview } from "./TemplatePdfPreview";
 import { useResumeStore } from "@/store/resume-store";
 import { RESUME_TEMPLATES, Template, TemplateColor } from "@/lib/documents/templates";
 
@@ -128,19 +129,14 @@ export default function TemplateSelectionPage() {
                                 : "border-gray-200 dark:border-gray-800"
                                 }`}
                         >
-                            {/* Preview Area */}
-                            <div className={`h-48 bg-gradient-to-br ${template.previewGradient} relative group-hover:scale-105 transition-transform duration-500`}>
-                                {/* Template Preview Placeholder */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-24 h-32 bg-white/90 dark:bg-gray-900/90 rounded shadow-lg p-2 transform group-hover:-translate-y-2 transition-transform duration-300">
-                                        <div className="h-3 w-16 bg-gray-300 dark:bg-gray-700 rounded mb-2" />
-                                        <div className="h-2 w-20 bg-gray-200 dark:bg-gray-800 rounded mb-1" />
-                                        <div className="h-2 w-18 bg-gray-200 dark:bg-gray-800 rounded mb-1" />
-                                        <div className="h-2 w-20 bg-gray-200 dark:bg-gray-800 rounded mb-3" />
-                                        <div className="h-2 w-16 bg-gray-300 dark:bg-gray-700 rounded mb-1" />
-                                        <div className="h-2 w-20 bg-gray-200 dark:bg-gray-800 rounded mb-1" />
-                                        <div className="h-2 w-18 bg-gray-200 dark:bg-gray-800 rounded" />
-                                    </div>
+                            {/* Preview Area — the real compiled template, page 1 */}
+                            <div className="relative bg-gray-100 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 p-3">
+                                <div className="shadow-md ring-1 ring-black/10 overflow-hidden">
+                                    <TemplatePdfPreview
+                                        templateId={template.id}
+                                        maxPages={1}
+                                        compact
+                                    />
                                 </div>
 
                                 {/* Hover Overlay with Preview Button */}
@@ -154,16 +150,10 @@ export default function TemplateSelectionPage() {
                                     </Button>
                                 </div>
 
-                                {/* Premium Badge */}
-                                {template.atsRating === "safe" ? (
-                                    <div className="absolute top-2 left-2 px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded-full shadow-md z-10">
-                                        ATS-Safe
-                                    </div>
-                                ) : (
-                                    <div className="absolute top-2 left-2 px-2 py-1 bg-amber-600 text-white text-xs font-semibold rounded-full shadow-md z-10">
-                                        Design
-                                    </div>
-                                )}
+                                {/* Badges */}
+                                <div className="absolute top-2 left-2 px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded-full shadow-md z-10">
+                                    ATS-Safe
+                                </div>
                                 {template.isPremium && (
                                     <div className="absolute top-2 right-2 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full flex items-center gap-1 shadow-md z-10">
                                         <Crown className="w-3 h-3" />
@@ -173,7 +163,7 @@ export default function TemplateSelectionPage() {
 
                                 {/* Selected Check */}
                                 {selectedTemplateId === template.id && (
-                                    <div className="absolute top-2 left-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-200 z-10">
+                                    <div className="absolute bottom-2 right-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-200 z-10">
                                         <Check className="w-5 h-5 text-white" />
                                     </div>
                                 )}
@@ -181,23 +171,26 @@ export default function TemplateSelectionPage() {
 
                             {/* Template Info */}
                             <div className="p-5 relative bg-white dark:bg-gray-900">
-                                <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center justify-between gap-2 mb-1">
                                     <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                         {template.name}
                                     </h3>
-                                    <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400 font-medium border border-gray-200 dark:border-gray-700">
+                                    <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400 font-medium border border-gray-200 dark:border-gray-700 shrink-0">
                                         {template.category}
                                     </span>
                                 </div>
+                                <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-2">
+                                    {template.bestFor}
+                                </p>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                                     {template.description}
                                 </p>
 
                                 {/* Color Dots Preview */}
                                 <div className="mt-4 flex gap-1.5">
-                                    {template.colors.map((color, idx) => (
+                                    {template.colors.map((color) => (
                                         <div
-                                            key={idx}
+                                            key={color.hex}
                                             className={`w-3 h-3 rounded-full ${color.class}`}
                                             title={color.name}
                                         />

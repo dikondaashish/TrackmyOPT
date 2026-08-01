@@ -1,249 +1,165 @@
-%-------------------------
-% Resume in Latex
-% Author : TrackMyOPT
-% License : MIT
-%------------------------
+%==============================================================================
+%  TrackMyOPT — Professional
+%  Single-column, ATS-safe resume template for US tech hiring.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. Uses only core TeX Live packages so the file compiles
+%     standalone on the remote compiler (no project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed:
+%       Contact -> Summary -> Skills -> Experience -> Projects -> Education
+%       -> Certifications
+%   * Body text 10pt, margins 0.7in, Georgia-class serif face (Charter).
+%==============================================================================
+\documentclass[letterpaper,10pt]{article}
 
-\documentclass[letterpaper,11pt]{article}
-
-\usepackage{latexsym}
-\usepackage[empty]{fullpage}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\IfFileExists{charter.sty}{\usepackage{charter}}{\usepackage{lmodern}}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[left=0.7in,right=0.7in,top=0.6in,bottom=0.6in]{geometry}
 \usepackage{titlesec}
-\usepackage{marvosym}
-\usepackage[usenames,dvipsnames]{color}
-\usepackage{verbatim}
 \usepackage{enumitem}
-% FIXED: Task 7 - Use hidelinks for cleaner visual and better ATS parsing
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
-\usepackage{fancyhdr}
+
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
 \input{glyphtounicode}
 \pdfgentounicode=1
 
-% FIXED: Task 5 - Remove FontAwesome to prevent ATS glyph corruption
-% \usepackage{fontawesome5}
+\definecolor{accent}{HTML}{2F3E46}
+\definecolor{bodytext}{HTML}{111111}
+\definecolor{muted}{HTML}{4A4A4A}
+\color{bodytext}
 
-% fixed width
-\usepackage[scale=0.90,lf]{FiraMono}
-
-% light-grey
-\definecolor{light-grey}{gray}{0.83}
-\definecolor{dark-grey}{gray}{0.3}
-\definecolor{text-grey}{gray}{.08}
-
-\DeclareRobustCommand{\ebseries}{\fontseries{eb}\selectfont}
-\DeclareTextFontCommand{\texteb}{\ebseries}
-
-% custom underilne
-\usepackage{contour}
-\usepackage[normalem]{ulem}
-\renewcommand{\ULdepth}{1.8pt}
-\contourlength{0.8pt}
-\newcommand{\myuline}[1]{%
-  \uline{\phantom{#1}}%
-  \llap{\contour{white}{#1}}%
-}
-
-
-% custom font: helvetica-style
-\usepackage{tgheros}
-\renewcommand*\familydefault{\sfdefault} 
-%% Only if the base font of the document is to be sans serif
-\usepackage[T1]{fontenc}
-
-
-\pagestyle{fancy}
-\fancyhf{} % clear all header and footer fields
-\fancyfoot{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
-
-% Adjust margins
-\addtolength{\oddsidemargin}{-0.5in}
-\addtolength{\evensidemargin}{0in}
-\addtolength{\textwidth}{1in}
-\addtolength{\topmargin}{-.5in}
-\addtolength{\textheight}{1.0in}
-
-\urlstyle{same}
-
-% CONTACT INFORMATION
-\def\name{Harshibar}
-\def\phone{555.555.5555}
-\def\email{hello@email.com}
-\def\LinkedIn{harshibar}
-\def\github{harshibar}
-\def\role{Software Engineer}
-\def\location{San Francisco, CA}
-
-\definecolor{highlight}{RGB}{61, 90, 128}
-
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\raggedright
 \raggedbottom
-% \raggedright % Commented out to enable justification
-\setlength{\tabcolsep}{0in}
 
-% Sections formatting - serif
-% \titleformat{\section}{
-%   \vspace{2pt} \scshape \raggedright\large % header section
-% }{}{0em}{}[\color{black} \titlerule \vspace{-5pt}]
+%------------------------------------------------------------------
+% Section headings
+%------------------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\color{accent}}{}{0em}{\MakeUppercase}
+  [\vspace{-7pt}{\color{accent}\rule{\linewidth}{0.8pt}}]
+\titlespacing*{\section}{0pt}{10pt}{5pt}
 
-% sans serif sections
-\titleformat {\section}{
-    \bfseries \vspace{2pt} \large % header section
-}{}{0em}{}[\color{light-grey} {\titlerule[2pt]} \vspace{-4pt}]
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\hspace{5pt}\textbar\hspace{5pt}}
 
-% only for pdflatex
-% Ensure that generate pdf is machine readable/ATS parsable
-% \pdfgentounicode=1
-
-%-------------------------
-% Custom commands
-\newcommand{\resumeItem}[1]{
-  \item\small{
-    {#1 \vspace{-1pt}}
-  }
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
 }
 
-\newcommand{\resumeSubheading}[4]{
-  \vspace{-1pt}\item
-    \textbf{#1} \hfill {\color{dark-grey}\small #2}\vspace{1pt}\par
-    \textit{#3} \hfill {\color{dark-grey} \small #4}\\\vspace{-4pt}
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\ \textbar\ \textit{\color{muted}#2}\hfill#3\par
+  \vspace{1pt}%
 }
 
-\newcommand{\resumeSubSubheading}[2]{
-    \item
-    \textit{\small#1} \hfill \textit{\small #2} \\
-    \vspace{-7pt}
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
 }
 
-\newcommand{\resumeProjectHeading}[2]{
-    \item
-    #1 \hfill {\color{dark-grey}} \\
-    \vspace{-4pt}
-}
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent\textbf{#1:}\ #2\par\vspace{2pt}}
 
-\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=13pt,itemsep=2pt,parsep=0pt,topsep=2pt,
+                   partopsep=0pt,label=\textbullet]}
+  {\end{itemize}}
 
-\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
-
-% CHANGED default leftmargin  0.15 in
-\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0in, label={}]}
-\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
-\newcommand{\resumeItemListStart}{\begin{itemize}}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{0pt}}
-
-\color{text-grey}
-
-%-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%------------------------------------------------------------------
+% CONTACT INFORMATION
+%------------------------------------------------------------------
+\def\name{Daniel Okafor}
+\def\role{Senior Software Engineer}
+\def\phone{(206) 555-0173}
+\def\location{Seattle, WA}
+\def\email{daniel.okafor@example.com}
+\def\LinkedIn{danielokafor}
+\def\github{dokafor}
 
 \begin{document}
 
+%-----------  HEADER  ---------------------------------------------
 \begin{center}
-    {\Huge\namefmt{\name}} \\[4pt]
-    {\large\color{highlight}\role} \\[4pt]
-    \small
-    \phone \quad$|$\quad
-    \location \quad$|$\quad
-    \href{mailto:\email}{\email} \quad$|$\quad
-    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
-    \href{https://github.com/\github}{github.com/\github}
+  {\LARGE\bfseries\color{bodytext}\name}\\[3pt]
+  {\large\color{accent}\role}\\[5pt]
+  {\small
+    \phone\csep
+    \location\csep
+    \href{mailto:\email}{\email}\csep
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn}\csep
+    \href{https://github.com/\github}{github.com/\github}}
 \end{center}
-\vspace{-8pt}
-{\color{highlight}\hrule height 1.5pt}
-\vspace{6pt}
+\vspace{3pt}
+{\color{accent}\rule{\linewidth}{1.2pt}}
 
-%-----------EXPERIENCE-----------
-\section{EXPERIENCE}
-  \resumeSubHeadingListStart
+%-----------  SUMMARY  --------------------------------------------
+\section{Summary}
+Senior software engineer with 8 years designing distributed backend systems that
+serve tens of millions of users. Led the platform migration that cut checkout
+latency 60\% at a Fortune 500 retailer, and grew a 6-engineer team through two
+promotion cycles. Strong in Java, Go, and AWS.
 
-    \resumeSubheading
-      {YouTube}{Aug. 2019 – Present}
-      {Creator (\href{https://www.youtube.com/c/harshibar}{\myuline {@harshibar}})}{San Francisco, CA}
-      \resumeItemListStart
-        \resumeItem{Grew channel to \textbf{60k subscribers in 1.5 years}; created 80+ videos on tech and productivity}
-        \resumeItem{Conducted A/B testing on titles and thumbnails; \textbf{increased video impressions by 2.5M} in 3 months}
-         \resumeItem{Designed a Notion workflow to streamline video production and roadmapping; boosted productivity by 20\%}
-        \resumeItem{\textbf{Partnered with brands like Skillshare and Squarespace} to expand their outreach via sponsorships}
-        \resumeItem{\textbf{Highlights}:
-            \href{https://www.youtube.com/watch?v=HhWUjp5pD0g}{\myuline {The Problem with Productivity Apps}}, \href{https://www.youtube.com/watch?v=ms4cWMsOITs}{\myuline {Obsidian App Review}},
-            \href{https://www.youtube.com/watch?v=PkDbkyIR44w}{\myuline {Not-So-Minimal Desk Setup}}}
-      \resumeItemListEnd
+%-----------  SKILLS  ---------------------------------------------
+\section{Skills}
+\rSkill{Languages}{Java, Go, Python, SQL, TypeScript}
+\rSkill{Distributed Systems}{Kafka, gRPC, Kubernetes, Envoy, Cassandra, DynamoDB}
+\rSkill{Cloud \& Platform}{AWS (EKS, Aurora, SQS, CloudFront), Terraform, Helm, ArgoCD}
+\rSkill{Observability}{Datadog, OpenTelemetry, Prometheus, Grafana}
+\rSkill{Leadership}{Technical design review, Mentorship, Incident command, Roadmapping}
 
-    \resumeSubheading
-      {Google Verily}{Aug. 2018 – Sep. 2019}
-      {Software Engineer}{San Francisco, CA}
-      \resumeItemListStart
-        \resumeItem{\textbf{Led front-end development} of a dashboard to process 50k blood samples and detect early-stage cancer}
-        \resumeItem{Rebuilt a Quality Control product with input from 20 cross-functional stakeholders, \textbf{saving \$1M annually}}
-        \resumeItem{Spearheaded product development of a new lab workflow tool, leading to a 40\% increase in efficiency; \\ shadowed 10 core users, iterated on design docs, and implemented the solution with one engineer}
+%-----------  EXPERIENCE  -----------------------------------------
+\section{Experience}
 
-    \resumeItemListEnd
+\rRole{Senior Software Engineer}{National Retail Platform}{Seattle, WA}{Jan 2021 -- Present}
+\begin{rBullets}
+  \item Led a 6-engineer team migrating the monolithic checkout service to Kubernetes microservices, reducing p99 latency from 2.1s to 840ms across 30M monthly orders.
+  \item Introduced an event-sourced inventory ledger on Kafka that eliminated oversell incidents, saving an estimated \$4.2M in annual chargebacks.
+  \item Established the org-wide design review process now used by 40+ engineers, cutting post-launch rollback rate from 12\% to 3\%.
+  \item Owned the 24/7 on-call rotation for tier-1 services and drove MTTR down from 47 minutes to 11 minutes.
+\end{rBullets}
 
-    \resumeSubheading
-      {Amazon}{May 2017 – Aug. 2017}
-      {Software Engineering Intern}{Seattle, WA}
-      \resumeItemListStart
-        \resumeItem{Worked on the Search Customer Experience Team; \textbf{received a return offer} for a full-time position}
-        \resumeItem{\textbf{Shipped a new feature to 2M+ users} to improve the search experience for movie series-related queries}
-        \resumeItem{Built a back-end database service in Java and implemented a front-end UI to support future changes}
-      \resumeItemListEnd
+\rRole{Software Engineer}{Logistics SaaS Company}{Portland, OR}{Aug 2017 -- Dec 2020}
+\begin{rBullets}
+  \item Designed a route optimization service in Go handling 500K daily shipments, improving on-time delivery 18\%.
+  \item Replaced nightly batch ETL with streaming ingestion, giving operations teams near real-time visibility instead of 12-hour-stale data.
+  \item Cut CI pipeline duration from 38 minutes to 9 minutes by parallelizing test suites and caching build layers.
+\end{rBullets}
 
-  \resumeSubHeadingListEnd
+%-----------  PROJECTS  -------------------------------------------
+\section{Projects}
 
+\rProject{Kafka Replay Toolkit}{Go, Kafka, Docker}{github.com/dokafor/kreplay}
+\begin{rBullets}
+  \item CLI for deterministic replay of Kafka partitions during incident investigation; adopted internally by 4 teams.
+\end{rBullets}
 
-%-----------PROJECTS-----------
+%-----------  EDUCATION  ------------------------------------------
+\section{Education}
+\rEdu{M.S. in Computer Science}{University of Washington}{Seattle, WA}{Jun 2017}
+\rEdu{B.S. in Computer Engineering}{Oregon State University}{Corvallis, OR}{Jun 2015}
 
-\section{PROJECTS}
-    \resumeSubHeadingListStart
-      \resumeProjectHeading
-          {\textbf{Hyku Consulting}} {Sep. 2019 – Mar. 2021}
-          \resumeItemListStart
-            \resumeItem{Mentored 15 students towards acceptance at top US boarding schools; achieved \textbf{100\% success rate}}
-            \resumeItem{Designed a \textbf{collaborative learning ecosystem} for students and parents with Trello, Miro, and Google Suite}
-          \resumeItemListEnd
-          
-        \resumeProjectHeading
-          {\textbf{Minimal Icon Pack}}{Sep. 2020 – Nov. 2020}
-          \resumeItemListStart
-            \resumeItem{Designed and released 100+ minimal iOS and Android icons from scratch using Procreate and Figma}
-            \resumeItem{Marketed the product and design process on {\href{https://www.youtube.com/watch?v=Ju32r7QJCzk}{\myuline {YouTube}}}; accumulated over \textbf{\$250 in sales} on {\href{https://gumroad.com/l/icons-by-harshibar}{\myuline {Gumroad}}}}
-          \resumeItemListEnd
-          
-      \resumeProjectHeading
-         {\textbf{CommonIntern}}{Sep. 2019 – May 2020}
-          \resumeItemListStart
-            \resumeItem{Built a Python script to automatically apply to jobs on Glassdoor using BeautifulSoup and Selenium}
-            \resumeItem{\textbf{500 stars on \href{https://github.com/harshibar/common-intern}{\myuline {GitHub}}}; featured on {\href{https://hackaday.com/2020/05/30/job-application-script-automates-the-boring-stuff-with-python}{\myuline {Hackaday}}}; made the front page of {\href {https://www.reddit.com/r/Python/comments/gpaegj/i_was_tired_of_opening_100s_of_tabs_for/?utm_source=share}{\myuline {r/python}}} and {\href {https://www.reddit.com/r/programming/comments/dcmbzx/i_was_tired_of_opening_100s_of_tabs_for/}{\myuline {r/programming}}}}
-          \resumeItemListEnd
-          
-    \resumeSubHeadingListEnd
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item AWS Certified Solutions Architect -- Professional (2023)
+  \item Certified Kubernetes Administrator, CNCF (2022)
+\end{rBullets}
 
-
-
-%-----------EDUCATION-----------
-\section {EDUCATION}
-  \resumeSubHeadingListStart
-    \resumeSubheading
-      {Wellesley College}{Aug. 2014 – May 2018}
-      {Bachelor of Arts in Computer Science and Pre-Med}{Wellesley, MA}
-      	\resumeItemListStart
-    	\resumeItem {Completed advanced coursework in Data Structures, Algorithms, Databases, Computer Systems, and Machine Learning.}
-        \resumeItem {Conducted research at the MIT Graybiel Lab as a published author and analyzed urban microbe spread at the MIT Media Lab.}
-        \resumeItemListEnd
-  \resumeSubHeadingListEnd
-
-
-%
-%-----------PROGRAMMING SKILLS-----------
-\section{SKILLS}
- \begin{itemize}[leftmargin=0in, label={}]
-    \small{\item{
-     \textbf{Languages} {: Python, JavaScript (React.js), HTML/CSS, SQL (PostgreSQL, MySQL)}\vspace{2pt} \\
-     \textbf{Tools}     {: Figma, Notion, Jira, Trello, Miro, Google Analytics, GitHub, DaVinci Resolve, OBS}
-    }}
- \end{itemize}
-
-
-%-------------------------------------------
 \end{document}

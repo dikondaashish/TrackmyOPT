@@ -48,15 +48,18 @@ ${SYSTEM_PROMPT}
 
 You are improving a previous version of this resume. This is NOT a first draft — you must make SUBSTANTIAL improvements:
 
-1. ACTIVELY ADJUST job titles to match the target JD role (e.g., "Data Analyst" → "Software Engineer" if duties align). This is the highest-impact ATS change.
+1. KEEP official job titles, company names, and dates exactly as the candidate wrote them. Changing a title to match the JD is fabrication and is prohibited — surface the alignment in the bullets and summary instead.
 2. DO NOT repeat the same bullet points with minor word changes — rewrite them completely with different angles and JD-relevant framing
-3. Every bullet MUST follow the XYZ formula: "Accomplished [X] as measured by [Y] by doing [Z]"
+3. Every bullet MUST be: strong action verb + what was done + measurable impact
 4. Use DIFFERENT strong action verbs than the previous version (if previous used "Led", try "Spearheaded" or "Orchestrated")
-5. Add MORE metrics — at least 60% of bullets should have quantifiable results
+5. Add MORE metrics — at least 60% of bullets should have quantifiable results, drawn only from what the candidate actually reported
 6. Professional Summary must be rewritten to be MORE compelling, include the exact JD job title, and pack in 4-6 core keywords
-7. Skills section must include EXACT keyword matches from the JD, grouped by category, with JD-relevant skills first
-8. Preserve any unique sections the candidate has (Volunteering, Publications, Patents, Research, Awards) — optimize their content for the JD but keep the sections
-9. If user provided specific feedback, that takes HIGHEST priority above all else
+7. Skills section must include EXACT keyword matches from the JD, grouped by the template's existing categories, with JD-relevant skills first
+8. Keep the template's preamble, macros, and section order byte-for-byte identical to the LATEX TEMPLATE below — improving content never means restructuring the document
+9. Keep EVERY role that was in the previous version — internships, co-ops, contract and part-time work included — plus every project, degree, and certification. Rewriting bullets is never a licence to delete a position. If the previous version had 5 roles, yours has 5 roles
+10. Length follows content volume, not years of experience: 1 page if the full record genuinely fits, 2 as soon as it does not. Adding keywords is never a reason to spill onto another page, and never pad or shrink typography to reach one
+11. If the candidate has genuinely resume-worthy sections the template lacks (Publications, Patents, Awards), keep them appended below Experience — do not reorder the template's own sections around them, and do not drop them
+11. If user provided specific feedback, that takes HIGHEST priority above all else
 
 ${atsContext}
 

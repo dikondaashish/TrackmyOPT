@@ -1,179 +1,182 @@
-%-------------------------
-% Resume in Latex
-% Author : Audric Serador
-% Inspired by: https://github.com/sb2nov/resume
-% License : MIT
-%------------------------
-
+%==============================================================================
+%  TrackMyOPT — Executive Brief
+%  Single-column, ATS-safe resume template for engineering leadership roles.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. Uses only core TeX Live packages so the file compiles
+%     standalone on the remote compiler (no project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed:
+%       Contact -> Summary -> Skills -> Experience -> Projects -> Education
+%       -> Certifications
+%   * Body text 11pt, margins 0.75in, Georgia-class serif face (Charter).
+%     Airier than Professional; sized for 10+ year careers across two pages.
+%==============================================================================
 \documentclass[letterpaper,11pt]{article}
 
-\usepackage{latexsym}
-\usepackage[empty]{fullpage}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\IfFileExists{charter.sty}{\usepackage{charter}}{\usepackage{lmodern}}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[left=0.75in,right=0.75in,top=0.65in,bottom=0.65in]{geometry}
 \usepackage{titlesec}
-\usepackage{marvosym}
-\usepackage[usenames,dvipsnames]{color}
-\usepackage{verbatim}
 \usepackage{enumitem}
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
-\usepackage{fancyhdr}
-\usepackage[english]{babel}
-\usepackage{tabularx}
-\usepackage{lmodern}
+
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
 \input{glyphtounicode}
-
-\pagestyle{fancy}
-\fancyhf{} % clear all header and footer fields
-\fancyfoot{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
-
-% Adjust margins
-\addtolength{\oddsidemargin}{-0.5in}
-\addtolength{\evensidemargin}{-0.5in}
-\addtolength{\textwidth}{1in}
-\addtolength{\topmargin}{-.5in}
-\addtolength{\textheight}{1.0in}
-
-\urlstyle{same}
-
-% FIXED: Task 3 - Defined namefmt for bolding
-\newcommand{\namefmt}[1]{{\bfseries #1}}
-
-% CONTACT INFORMATION
-\def\name{First Last}
-\def\phone{123-456-7890}
-\def\email{x@x.com}
-\def\LinkedIn{firstlast}
-\def\github{firstlast}
-\def\role{Executive Leader}
-\def\location{Location}
-
-\definecolor{highlight}{RGB}{61, 90, 128}
-
-\raggedbottom
-% \raggedright % Commented out to enable justification
-\setlength{\tabcolsep}{0in}
-
-% Sections formatting
-\titleformat{\section}{
-  \vspace{-4pt}\scshape\large
-}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
 \pdfgentounicode=1
 
-%-------------------------
-% Custom commands
-\newcommand{\resumeItem}[1]{
-  \item\small{
-    {#1 \vspace{-2pt}}
-  }
+\definecolor{accent}{HTML}{1B365D}
+\definecolor{bodytext}{HTML}{111111}
+\definecolor{muted}{HTML}{4A4A4A}
+\color{bodytext}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\raggedright
+\raggedbottom
+
+%------------------------------------------------------------------
+% Section headings
+%------------------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\color{accent}}{}{0em}{\MakeUppercase}
+  [\vspace{-7pt}{\color{accent}\rule{\linewidth}{1pt}}]
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\hspace{5pt}\textbar\hspace{5pt}}
+
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \vspace{4pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{2pt}%
 }
 
-\newcommand{\resumeSubheading}[4]{
-  \vspace{-1pt}\item
-    \textbf{#1} \hfill #2 \par
-    \textit{\small#3} \hfill \textit{\small #4} \\
-    \vspace{-4pt}
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \vspace{4pt}%
+  \noindent\textbf{#1}\ \textbar\ \textit{\color{muted}#2}\hfill#3\par
+  \vspace{2pt}%
 }
 
-\newcommand{\resumeSubSubheading}[2]{
-    \item
-    \textit{\small#1} \hfill \textit{\small #2} \\
-    \vspace{-4pt}
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \vspace{4pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{2pt}%
 }
 
-\newcommand{\resumeProjectHeading}[2]{
-    \item
-    \textbf{\small #1} \hfill \small #2 \\
-    \vspace{-4pt}
-}
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent\textbf{#1:}\ #2\par\vspace{3pt}}
 
-\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=14pt,itemsep=3pt,parsep=0pt,topsep=3pt,
+                   partopsep=0pt,label=\textbullet]}
+  {\end{itemize}}
 
-\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
-
-\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
-\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
-\newcommand{\resumeItemListStart}{\begin{itemize}}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
-
-%-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%------------------------------------------------------------------
+% CONTACT INFORMATION
+%------------------------------------------------------------------
+\def\name{Alicia Moreno}
+\def\role{Director of Engineering}
+\def\phone{(917) 555-0126}
+\def\location{New York, NY}
+\def\email{alicia.moreno@example.com}
+\def\LinkedIn{aliciamoreno}
+\def\github{amoreno}
 
 \begin{document}
 
+%-----------  HEADER  ---------------------------------------------
 \begin{center}
-    {\Huge\namefmt{\name}} \\[4pt]
-    {\large\color{highlight}\role} \\[4pt]
-    \small
-    \phone \quad$|$\quad
-    \location \quad$|$\quad
-    \href{mailto:\email}{\email} \quad$|$\quad
-    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
-    \href{https://github.com/\github}{github.com/\github}
+  {\LARGE\bfseries\color{bodytext}\name}\\[4pt]
+  {\large\color{accent}\role}\\[6pt]
+  {\small
+    \phone\csep
+    \location\csep
+    \href{mailto:\email}{\email}\csep
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn}\csep
+    \href{https://github.com/\github}{github.com/\github}}
 \end{center}
-\vspace{-8pt}
-{\color{highlight}\hrule height 1.5pt}
-\vspace{6pt}
+\vspace{4pt}
+{\color{accent}\rule{\linewidth}{1.4pt}}
 
+%-----------  SUMMARY  --------------------------------------------
+\section{Summary}
+Engineering leader with 12 years of experience scaling platform organizations
+from 8 to 70 engineers. Delivered a payments rearchitecture that unlocked \$120M
+in annual transaction volume and reduced infrastructure cost per transaction
+61\%. Hires, develops, and retains senior engineers; three direct reports
+promoted to staff or manager in the last two years.
 
-%-----------EDUCATION-----------
-\section{Education}
-  \resumeSubHeadingListStart
-    \resumeSubheading
-      {University Name}{Location}
-      {Bachelor of Arts in Computer Science}{Aug. 2018 – May. 2022}
-  \resumeSubHeadingListEnd
+%-----------  SKILLS  ---------------------------------------------
+\section{Skills}
+\rSkill{Leadership}{Org design, Hiring and performance management, Mentorship, Executive communication}
+\rSkill{Strategy}{Technical roadmapping, Build vs. buy analysis, Budget ownership, Vendor negotiation}
+\rSkill{Technical}{Distributed systems, Event-driven architecture, API platform design, Cloud cost governance}
+\rSkill{Stack}{Java, Go, Python, Kubernetes, Kafka, AWS, PostgreSQL, Terraform}
+\rSkill{Process}{Agile at scale, SLO and incident programs, Design review, Compliance (SOC 2, PCI DSS)}
 
-
-%-----------EXPERIENCE-----------
+%-----------  EXPERIENCE  -----------------------------------------
 \section{Experience}
-  \resumeSubHeadingListStart
 
-    \resumeSubheading
-      {Company Name}{Location}
-      {Role Title}{Date Range}
-      \resumeItemListStart
-        \resumeItem{Achievement 1: Action + Context + Result.}
-        \resumeItem{Achievement 2: Action + Context + Result.}
-      \resumeItemListStart
+\rRole{Director of Engineering, Platform}{Global Fintech Company}{New York, NY}{Feb 2021 -- Present}
+\begin{rBullets}
+  \item Scaled the platform organization from 22 to 70 engineers across 7 teams while holding voluntary attrition under 6\%.
+  \item Sponsored the payments rearchitecture that unlocked \$120M in annual transaction volume and cut cost per transaction 61\%.
+  \item Owned a \$14M annual engineering budget; renegotiated cloud and vendor contracts for \$2.6M in recurring savings.
+  \item Instituted a company-wide incident and SLO program that reduced customer-impacting sev-1 events 68\% in 18 months.
+  \item Partnered with Product and Compliance to achieve SOC 2 Type II and PCI DSS Level 1 certification on schedule.
+\end{rBullets}
 
-    \resumeSubheading
-      {Company Name}{Location}
-      {Role Title}{Date Range}
-      \resumeItemListStart
-        \resumeItem{Achievement 1: Action + Context + Result.}
-        \resumeItem{Achievement 2: Action + Context + Result.}
-      \resumeItemListStart
+\rRole{Senior Engineering Manager}{Enterprise SaaS Company}{New York, NY}{Mar 2017 -- Jan 2021}
+\begin{rBullets}
+  \item Managed 3 teams (24 engineers) delivering the core API platform used by 900 enterprise customers.
+  \item Drove the monolith-to-services decomposition, improving deploy frequency from biweekly to 40+ times per week.
+  \item Built the engineering career ladder and calibration process adopted across a 200-person organization.
+  \item Recruited 31 engineers, raising the senior-and-above ratio from 35\% to 58\%.
+\end{rBullets}
 
-  \resumeSubHeadingListEnd
+\rRole{Engineering Manager}{Cloud Storage Startup}{Boston, MA}{Jun 2014 -- Feb 2017}
+\begin{rBullets}
+  \item Grew the founding backend team from 4 to 14 engineers through Series B.
+  \item Led the storage tiering project that reduced hot-storage cost 44\% at 8PB scale.
+  \item Introduced on-call, runbooks, and postmortems, taking uptime from 99.5\% to 99.95\%.
+\end{rBullets}
 
+\rRole{Senior Software Engineer}{Enterprise Infrastructure Vendor}{Boston, MA}{Jul 2012 -- May 2014}
+\begin{rBullets}
+  \item Designed the replication layer for a distributed block store deployed at 40+ enterprise customers.
+  \item Led the migration to automated integration testing, cutting release qualification from 3 weeks to 4 days.
+\end{rBullets}
 
-%-----------PROJECTS-----------
+%-----------  PROJECTS  -------------------------------------------
 \section{Projects}
-    \resumeSubHeadingListStart
-      \resumeProjectHeading
-          {\textbf{Project Name} $|$ \emph{React, Node.js, PostgreSQL}}{Date}
-          \resumeItemListStart
-            \resumeItem{Developed a full-stack application...}
-            \resumeItem{Implemented...}
-          \resumeItemListEnd
-    \resumeSubHeadingListEnd
 
+\rProject{Engineering Levels Framework}{Internal, open-sourced}{github.com/amoreno/levels}
+\begin{rBullets}
+  \item Published the career ladder and calibration rubric used at two companies; adopted by 15+ external teams.
+\end{rBullets}
 
-%-----------SKILLS-----------
-\section{Technical Skills}
- \begin{itemize}[leftmargin=0.15in, label={}]
-    \small{\item{
-     \textbf{Languages}{: Java, Python, C/C++, SQL (Postgres), JavaScript, HTML/CSS, R} \\
-     \textbf{Frameworks}{: React, Node.js, Flask, JUnit, WordPress, Material-UI, FastAPI} \\
-     \textbf{Developer Tools}{: Git, Docker, TravisCI, Google Cloud Platform, VS Code, Visual Studio} \\
-     \textbf{Libraries}{: pandas, NumPy, Matplotlib}
-    }}
- \end{itemize}
+%-----------  EDUCATION  ------------------------------------------
+\section{Education}
+\rEdu{M.S. in Computer Science}{Carnegie Mellon University}{Pittsburgh, PA}{May 2012}
+\rEdu{B.S. in Electrical Engineering}{Boston University}{Boston, MA}{May 2010}
 
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item AWS Certified Solutions Architect -- Professional (2022)
+  \item Certified Kubernetes Administrator, CNCF (2021)
+\end{rBullets}
 
-%-------------------------------------------
 \end{document}

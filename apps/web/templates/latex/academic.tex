@@ -1,180 +1,177 @@
-%-------------------------
-% Resume in Latex
-% Author : Vidushi Wahal
-%------------------------
+%==============================================================================
+%  TrackMyOPT — Research & Academic
+%  Single-column, ATS-safe resume template for research engineer / PhD-track
+%  applicants targeting US industry research and applied-science roles.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. Uses only core TeX Live packages so the file compiles
+%     standalone on the remote compiler (no project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed:
+%       Contact -> Summary -> Skills -> Experience -> Projects -> Education
+%       -> Publications -> Certifications
+%     Publications is this template's one declared extra section; it sits after
+%     Education because industry recruiters scan Experience first.
+%   * Body text 10pt, margins 0.65in, Georgia-class serif face (Charter).
+%==============================================================================
+\documentclass[letterpaper,10pt]{article}
 
-\documentclass[letterpaper,11pt]{article}
-
-\usepackage{latexsym}
-\usepackage[empty]{fullpage}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\IfFileExists{charter.sty}{\usepackage{charter}}{\usepackage{lmodern}}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[left=0.65in,right=0.65in,top=0.55in,bottom=0.55in]{geometry}
 \usepackage{titlesec}
-\usepackage{marvosym}
-\usepackage[usenames,dvipsnames]{color}
-\usepackage{verbatim}
 \usepackage{enumitem}
-% FIXED: Task 7 - Use hidelinks for cleaner visual and better ATS parsing
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
-\usepackage[svgnames]{xcolor}
-\usepackage{fancyhdr}
-\usepackage{anyfontsize}
-\RequirePackage{csquotes}
 
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
 \input{glyphtounicode}
 \pdfgentounicode=1
-\usepackage{charter}
 
+\definecolor{accent}{HTML}{1A1A1A}
+\definecolor{bodytext}{HTML}{111111}
+\definecolor{muted}{HTML}{4A4A4A}
+\color{bodytext}
 
-\pagestyle{fancy}
-\fancyhf{} % clear all header and footer fields
-\fancyfoot{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
-
-% Adjust margins
-\addtolength{\oddsidemargin}{-0.375in}
-\addtolength{\evensidemargin}{-0.375in}
-\addtolength{\textwidth}{1in}
-\addtolength{\topmargin}{-.5in}
-\addtolength{\textheight}{1.0in}
-
-\urlstyle{same}
-
-% CONTACT INFORMATION
-\def\name{Vidushi Wahal}
-\def\phone{+91-9811405837}
-\def\email{vidushi22@gmail.com}
-\def\LinkedIn{vidushi-wahal}
-\def\github{vidushi-wahal}
-\def\role{Senior QA Engineer}
-\def\location{Gurgaon, Haryana}
-
-\definecolor{highlight}{RGB}{61, 90, 128}
-
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\raggedright
 \raggedbottom
-% \raggedright % Commented out to enable justification
-\setlength{\tabcolsep}{0in}
 
-% Sections formatting
-\titleformat{\section}{
-  \vspace{-4pt}\scshape\large
-}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+%------------------------------------------------------------------
+% Section headings
+%------------------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\color{accent}}{}{0em}{\MakeUppercase}
+  [\vspace{-7pt}{\color{accent}\rule{\linewidth}{0.6pt}}]
+\titlespacing*{\section}{0pt}{9pt}{4pt}
 
-%-------------------------
-% Custom commands
-\newcommand{\resumeItem}[1]{
-  \item\small{#1\vspace{-1pt}}
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\hspace{5pt}\textbar\hspace{5pt}}
+
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
 }
 
-\newcommand{\resumeSubheading}[4]{
-  \vspace{-1pt}\item
-    \textbf{#1} \hfill #2 \\
-    \textit{\small#3} \hfill \textit{\small #4} \\
-    \vspace{-5pt}
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\ \textbar\ \textit{\color{muted}#2}\hfill#3\par
+  \vspace{1pt}%
 }
 
-\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-4pt}}
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
+}
 
-\renewcommand{\labelitemii}{$\circ$}
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent\textbf{#1:}\ #2\par\vspace{2pt}}
 
-\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*]}
-\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
-\newcommand{\resumeItemListStart}{\begin{itemize}}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=13pt,itemsep=1.5pt,parsep=0pt,topsep=2pt,
+                   partopsep=0pt,label=\textbullet]}
+  {\end{itemize}}
 
-%-------------------------------------------
-%%%%%%  CV STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%------------------------------------------------------------------
+% CONTACT INFORMATION
+%------------------------------------------------------------------
+\def\name{Wei Lin Chen}
+\def\role{Research Scientist, Machine Learning}
+\def\phone{(650) 555-0184}
+\def\location{Palo Alto, CA}
+\def\email{weilin.chen@example.com}
+\def\LinkedIn{weilinchen}
+\def\github{wlchen}
 
 \begin{document}
 
+%-----------  HEADER  ---------------------------------------------
 \begin{center}
-    {\Huge\namefmt{\name}} \\[4pt]
-    {\large\color{highlight}\role} \\[4pt]
-    \small
-    \phone \quad$|$\quad
-    \location \quad$|$\quad
-    \href{mailto:\email}{\email} \quad$|$\quad
-    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
-    \href{https://github.com/\github}{github.com/\github}
+  {\LARGE\bfseries\color{bodytext}\name}\\[3pt]
+  {\large\color{accent}\role}\\[5pt]
+  {\small
+    \phone\csep
+    \location\csep
+    \href{mailto:\email}{\email}\csep
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn}\csep
+    \href{https://github.com/\github}{github.com/\github}}
 \end{center}
-\vspace{-8pt}
-{\color{highlight}\hrule height 1.5pt}
-\vspace{6pt}
+\vspace{3pt}
+{\color{accent}\rule{\linewidth}{1.2pt}}
 
+%-----------  SUMMARY  --------------------------------------------
+\section{Summary}
+Machine learning research scientist with a PhD and 6 years turning research into
+shipped product. First-author work at NeurIPS and ICML on efficient inference;
+the resulting distillation method cut serving cost 47\% for a model used by 30M
+users. Comfortable owning a problem end to end, from literature review to
+production rollout.
 
-%-----------Professional Summary-----------------
-\section{Professional Summary}
- \resumeItemListStart
-      \resumeItem{Over 6 years of diverse experience in Information Technology with emphasis on Software Quality Assurance (Automation and Manual Testing) for various domains like insurance, e-commerce, ERP.}
-      \resumeItem{Involved in all phases of the SDLC and STLC, including requirements gathering, risk analysis, test planning, test estimation, scheduling, test execution, defect tracking, and reporting. End to end test delivery experience starting from initiation through to final test delivery using Agile methodology.}
-      \resumeItem{Experienced in testing methodologies like functional, non-functional, integration, regression, system, user acceptance testing (UAT), and risk based testing.}
-      \resumeItem{Specialized in designing Automation Frameworks for Functional testing and Regression testing activities in Codedui C\# and Selenium (C\#/Java), along with SOAPUI for API testing.}
-      \resumeItem{Experienced in testing and analyzing tools like Google Cloud Platform, Microsoft Test Manager, Emulators, Simulators for mobile testing.}
- \resumeItemListEnd
+%-----------  SKILLS  ---------------------------------------------
+\section{Skills}
+\rSkill{Research}{Model compression, Distillation, Efficient inference, Representation learning, Evaluation design}
+\rSkill{Languages}{Python, C++, CUDA, SQL}
+\rSkill{Frameworks}{PyTorch, JAX, TensorFlow, Hugging Face Transformers, Triton}
+\rSkill{Infrastructure}{Ray, Kubernetes, AWS (SageMaker, EC2), Slurm, Weights \& Biases}
+\rSkill{Methods}{Distributed training, Mixed precision, Quantization, A/B testing, Statistical analysis}
 
-
-%-----------EXPERIENCE-----------------
+%-----------  EXPERIENCE  -----------------------------------------
 \section{Experience}
-  \resumeSubHeadingListStart
 
-    \resumeSubheading
-      {G4S Technologies}{Gurgaon, Haryana}
-      {Senior QA Engineer }{Oct. 2016 – Present}
-     
-      \resumeItemListStart
-      \resumeItem{Currently working on Javelin, the G4S End To End ERP Business Application.}
-      \resumeItem{Lead the testing strategy and approach, ensuring end-to-end application testing along with daily regression and reporting to key stakeholders for weekly production releases.}
-      \resumeItem{Collaborate closely with BA and PFOs to understand requirements, leading to the creation of comprehensive Test Scenarios and Test Cases.}
-      \resumeItem{Utilize SOAP UI and Selenium with Java and MongoDB for web applications.}
-      \resumeItem{Received the Silver Award (2018) and a Bronze award (2018) for ensuring quality product delivery and for contribution in all version deliverables, along with multiple awards for day-night support for international releases in 2019.}
-      \resumeItemListEnd
+\rRole{Research Scientist}{Applied AI Lab, Large Technology Company}{Palo Alto, CA}{Sep 2021 -- Present}
+\begin{rBullets}
+  \item Developed a layer-wise distillation method that reduced inference cost 47\% at equal accuracy on a ranking model serving 30M monthly users.
+  \item Published 4 peer-reviewed papers (NeurIPS, ICML, EMNLP) and shipped 2 of the methods into production systems.
+  \item Led a 5-person cross-functional effort to build the internal evaluation harness now used by 12 modeling teams.
+  \item Cut distributed training time 3.2x by migrating to JAX with sharded data parallelism across 256 TPU cores.
+\end{rBullets}
 
-    \resumeSubheading
-      {On Demand Agility Software Solutions}{Gurgaon, Haryana}
-      {Senior Software Engineer}{Jun. 2014 – Oct. 2016}
-      \resumeItemListStart
-       \resumeItem{Worked on the e-commerce projects for www.horizonhobby.com and www.forcerc.com.}
-       \resumeItem{Designed the Automation framework by evaluating different approaches for the e-commerce project, including automated reporting.}
-       \resumeItem{Managed a team of 3 to ensure all development tasks met quality criteria through test planning, test execution, quality assurance, and issue tracking.}
-       \resumeItem{Created automated test cases using CodedUI and C\# for HorizonHobby.com and Selenium with C\# for ForceRC.com.}
-       \resumeItem{Performed testing of the e-commerce website on mobile using BrowserStack as an emulator.}
-       \resumeItem{Conducted security testing using cross-site scripting techniques.}
-       \resumeItem{Provided training on frameworks, CodedUI, and C\# language for automation of test cases to new QA members and freshers.}
-      \resumeItemListEnd
-    \resumeSubheading
-      {Infogain India Pvt. Ltd.}{Noida, Uttar Pradesh}
-      {Software Engineer}{Jan. 2013 – Jun. 2014}   
-      \resumeItemListStart
-        \resumeItem{Focused on the Decision Point (a Mitchell Product) insurance project.}
-        \resumeItem{Created scenario-based automated test cases using Coded UI with C\#.}
-        \resumeItem{Automated legacy manual test assets and improved the automation framework, actively participating in daily code reviews and weekly Test Impact Analysis.}
-        \resumeItem{Conducted Regression Testing and failure analysis, reporting results via MTM.}
-        \resumeItem{Performed white box testing by writing Unit and Integration test cases using the Telerik JustMock framework, along with Code Coverage and Code Metrics analysis.}
-      \resumeItemListEnd
+\rRole{Applied Scientist}{E-Commerce Search Team}{Seattle, WA}{Jul 2019 -- Aug 2021}
+\begin{rBullets}
+  \item Built a query-understanding model that improved search relevance 9\% NDCG and drove a 2.3\% lift in conversion.
+  \item Designed the offline-to-online evaluation pipeline that reduced failed A/B launches from 40\% to 12\%.
+  \item Mentored 3 PhD interns; 2 papers accepted and both converted to full-time offers.
+\end{rBullets}
 
-  \resumeSubHeadingListEnd
+%-----------  PROJECTS  -------------------------------------------
+\section{Projects}
 
-%--------PROGRAMMING SKILLS------------
-\section{Programming Skills}
- \resumeSubHeadingListStart
-   \item{\textbf{Languages}{: C\#, Java, Javascript, SQL, Groovy}}
-     \item{\textbf{Testing Tools}{: CodedUI, MTM(Microsoft Test Manager), TFS, Visual Studio, Selenium, SOAPUI, Google Cloud Console, JIRA, TestNG, QTest, MongoDB}}
-      \item{\textbf{Mocking Framework}{: Telerik Mock}}
- \resumeSubHeadingListEnd
+\rProject{slimkit}{Python, PyTorch}{github.com/wlchen/slimkit}
+\begin{rBullets}
+  \item Open-source model compression toolkit implementing 6 distillation and quantization methods; 2.1K GitHub stars.
+\end{rBullets}
 
-%-----------EDUCATION-----------------
+%-----------  EDUCATION  ------------------------------------------
 \section{Education}
-  \resumeSubHeadingListStart
-    \resumeSubheading
-      {Apeejay College Of Engineering}{Gurgaon, Haryana}
-      {Bachelor of Technology in IT;  Percentage: 67}{Aug. 2008 – Dec. 2012}
-    \resumeSubheading
-      {Holy Child Auxilium}{Vasant Vihar, Delhi}
-      {AISSCE (10+2) ; Percentage: 73}{Apr. 2007 – May. 2008}
-    \resumeSubheading
-      {Holy Child Auxilium}{Vasant Vihar, Delhi}
-      {AISSE (10); Percentage: 87}{Apr. 2005 – May. 2006}
-  \resumeSubHeadingListEnd
+\rEdu{Ph.D. in Computer Science}{Stanford University}{Stanford, CA}{Jun 2019}
+\rEdu{B.S. in Mathematics and Computer Science}{University of Illinois Urbana-Champaign}{Urbana, IL}{May 2014}
 
-%-------------------------------------------
+%-----------  PUBLICATIONS  ---------------------------------------
+\section{Publications}
+\begin{rBullets}
+  \item \textbf{Chen, W.L.}, Alvarez, R., Park, S. ``Layer-Wise Distillation for Efficient Ranking Models.'' NeurIPS 2023.
+  \item \textbf{Chen, W.L.}, Nakamura, T. ``Revisiting Quantization Error in Sparse Transformers.'' ICML 2023.
+  \item Park, S., \textbf{Chen, W.L.} ``Calibrated Offline Evaluation for Search Ranking.'' EMNLP 2022.
+  \item \textbf{Chen, W.L.}, Duarte, M., Alvarez, R. ``Representation Collapse Under Aggressive Pruning.'' NeurIPS 2021.
+\end{rBullets}
+
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item NVIDIA Deep Learning Institute -- Fundamentals of Accelerated Computing with CUDA (2022)
+\end{rBullets}
+
 \end{document}

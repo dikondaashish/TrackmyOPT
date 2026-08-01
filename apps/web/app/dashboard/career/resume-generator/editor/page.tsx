@@ -63,7 +63,7 @@ export default function ResumeEditorPage() {
 
     // Store
     const {
-        resumeText, jobDescription, selectedTemplateId, jobTitle, applicationId,
+        resumeText, jobDescription, selectedTemplateId, selectedColor, jobTitle, applicationId,
         generatedLatex, compiledPdfUrl, atsAnalysis,
         setResumeText, setJobDescription, setSelectedTemplateId,
         setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis, setApplicationId,
@@ -456,7 +456,9 @@ export default function ResumeEditorPage() {
                 body: JSON.stringify({
                     resumeText: resume,
                     jobDescription: job,
-                    templateId: template
+                    templateId: template,
+                    // Accent chosen on the template selection page, if any.
+                    ...(selectedColor?.hex ? { accentHex: selectedColor.hex } : {})
                 })
             });
 

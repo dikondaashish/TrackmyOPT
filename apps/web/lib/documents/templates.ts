@@ -1,123 +1,168 @@
 export type TemplateColor = {
     name: string;
+    /** Tailwind swatch class for the picker dot. */
     class: string;
     ring: string;
+    /** Accent hex applied to the template's \definecolor{accent} rule. */
+    hex: string;
 };
 
-export type AtsRating = "safe" | "design";
+/**
+ * Every shipped template is single-column with no tables, graphics, or text
+ * boxes, so all of them parse cleanly in Workday/Greenhouse/Taleo.
+ */
+export type AtsRating = "safe";
 
 export interface Template {
     id: string;
     name: string;
     description: string;
-    previewImage: string;
-    previewGradient: string;
+    /** Who this template is actually for — shown on the card. */
+    bestFor: string;
     latexFile: string;
     tags: string[];
     colors: TemplateColor[];
     category: string;
     isPremium: boolean;
-    /** ATS-safe templates parse reliably in Workday/Greenhouse. */
     atsRating: AtsRating;
+    /** Typeface family the compiled PDF uses. */
+    typeface: string;
+    /** Body size + page margins, surfaced in the quick view. */
+    typography: string;
 }
+
+/**
+ * Section order is identical across every template and matches what US tech
+ * recruiters scan for:
+ *   Contact -> Summary -> Skills -> Experience -> Projects -> Education
+ *   -> Certifications
+ * (Research & Academic additionally declares Publications after Education.)
+ */
+export const RESUME_TEMPLATE_SECTION_ORDER = [
+    "Summary",
+    "Skills",
+    "Experience",
+    "Projects",
+    "Education",
+    "Certifications",
+] as const;
 
 export const RESUME_TEMPLATES: Template[] = [
     {
+        id: "modern",
+        name: "Modern Minimalist",
+        description:
+            "Clean Helvetica layout with a single accent rule. The safest default for most software roles.",
+        bestFor: "0–6 years experience · Software engineering",
+        latexFile: "modern.tex",
+        tags: ["ATS-Safe", "Software", "Default"],
+        category: "General",
+        isPremium: false,
+        atsRating: "safe",
+        typeface: "Helvetica",
+        typography: "10pt body · 0.65in margins",
+        colors: [
+            { name: "Navy", class: "bg-[#1F4E79]", ring: "ring-[#1F4E79]", hex: "1F4E79" },
+            { name: "Slate", class: "bg-[#334155]", ring: "ring-[#334155]", hex: "334155" },
+            { name: "Teal", class: "bg-[#0F766E]", ring: "ring-[#0F766E]", hex: "0F766E" },
+        ],
+    },
+    {
         id: "tech",
         name: "Tech Focused",
-        description: "Highlights technical skills and projects. Optimized for software engineering roles.",
-        previewImage: "/templates/tech-preview.png",
-        previewGradient: "from-indigo-500 to-violet-500",
+        description:
+            "Slightly denser than Modern to fit a deeper skills matrix. Built for infrastructure and backend resumes.",
+        bestFor: "3–8 years experience · Backend, infra, SRE",
         latexFile: "tech.tex",
-        tags: ["Engineering", "Developer", "Startups"],
+        tags: ["ATS-Safe", "Backend", "Infrastructure"],
         category: "Technical",
         isPremium: true,
         atsRating: "safe",
+        typeface: "Helvetica",
+        typography: "10pt body · 0.6in margins",
         colors: [
-            { name: "Dark", class: "bg-neutral-900", ring: "ring-neutral-900" },
-            { name: "Cyan", class: "bg-cyan-600", ring: "ring-cyan-600" }
-        ]
+            { name: "Teal", class: "bg-[#0F766E]", ring: "ring-[#0F766E]", hex: "0F766E" },
+            { name: "Indigo", class: "bg-[#3730A3]", ring: "ring-[#3730A3]", hex: "3730A3" },
+            { name: "Graphite", class: "bg-[#1F2937]", ring: "ring-[#1F2937]", hex: "1F2937" },
+        ],
     },
     {
         id: "professional",
-        name: "Professional Executive",
-        description: "Traditional layout with a touch of modern typography. Ideal for senior roles.",
-        previewImage: "/templates/professional-preview.png",
-        previewGradient: "from-gray-600 to-gray-800",
+        name: "Professional",
+        description:
+            "Charter serif with restrained charcoal rules. Reads as senior without looking dated.",
+        bestFor: "5–12 years experience · Senior IC roles",
         latexFile: "professional.tex",
-        tags: ["Executive", "Finance", "Standard"],
+        tags: ["ATS-Safe", "Senior", "Serif"],
         category: "Professional",
         isPremium: true,
         atsRating: "safe",
+        typeface: "Charter (Georgia-class serif)",
+        typography: "10pt body · 0.7in margins",
         colors: [
-            { name: "Navy", class: "bg-indigo-900", ring: "ring-indigo-900" },
-            { name: "Charcoal", class: "bg-gray-800", ring: "ring-gray-800" },
-            { name: "Burgundy", class: "bg-red-900", ring: "ring-red-900" },
-        ]
-    },
-    {
-        id: "modern",
-        name: "Modern Minimalist",
-        description: "Clean, ATS-friendly design focusing on readability. Perfect for tech and corporate roles.",
-        previewImage: "/templates/modern-preview.png",
-        previewGradient: "from-blue-500 to-cyan-500",
-        latexFile: "modern.tex",
-        tags: ["ATS-Friendly", "Tech", "Corporate"],
-        category: "General",
-        isPremium: false,
-        atsRating: "design",
-        colors: [
-            { name: "Slate", class: "bg-slate-900", ring: "ring-slate-900" },
-            { name: "Blue", class: "bg-blue-600", ring: "ring-blue-600" },
-            { name: "Emerald", class: "bg-emerald-600", ring: "ring-emerald-600" },
-        ]
-    },
-    {
-        id: "academic",
-        name: "Academic CV",
-        description: "Dense, detailed layout optimized for publications and research experience.",
-        previewImage: "/templates/academic-preview.png",
-        previewGradient: "from-emerald-500 to-teal-500",
-        latexFile: "academic.tex",
-        tags: ["Academic", "Research", "Education"],
-        category: "Academic",
-        isPremium: false,
-        atsRating: "design",
-        colors: [
-            { name: "Default", class: "bg-gray-900", ring: "ring-gray-900" }
-        ]
+            { name: "Charcoal", class: "bg-[#2F3E46]", ring: "ring-[#2F3E46]", hex: "2F3E46" },
+            { name: "Navy", class: "bg-[#1B365D]", ring: "ring-[#1B365D]", hex: "1B365D" },
+            { name: "Burgundy", class: "bg-[#7A2E2E]", ring: "ring-[#7A2E2E]", hex: "7A2E2E" },
+        ],
     },
     {
         id: "executive",
         name: "Executive Brief",
-        description: "Concise and impactful. Designed for leadership positions requiring quick scanning.",
-        previewImage: "/templates/executive-preview.png",
-        previewGradient: "from-amber-500 to-orange-500",
+        description:
+            "Airier spacing at 11pt so a dense leadership record stays readable however long it runs.",
+        bestFor: "Manager, Director, VP · Large role histories",
         latexFile: "executive.tex",
-        tags: ["Management", "Leadership", "Brief"],
+        tags: ["ATS-Safe", "Leadership", "Roomy"],
         category: "Executive",
         isPremium: true,
         atsRating: "safe",
+        typeface: "Charter (Georgia-class serif)",
+        typography: "11pt body · 0.75in margins",
         colors: [
-            { name: "Royal", class: "bg-blue-800", ring: "ring-blue-800" },
-            { name: "Gold", class: "bg-yellow-600", ring: "ring-yellow-600" }
-        ]
+            { name: "Navy", class: "bg-[#1B365D]", ring: "ring-[#1B365D]", hex: "1B365D" },
+            { name: "Charcoal", class: "bg-[#2F3E46]", ring: "ring-[#2F3E46]", hex: "2F3E46" },
+        ],
+    },
+    {
+        id: "academic",
+        name: "Research & Academic",
+        description:
+            "Adds a Publications section after Education. Sized for PhD and applied-science applicants targeting industry.",
+        bestFor: "Research scientist · Applied ML · PhD candidates",
+        latexFile: "academic.tex",
+        tags: ["ATS-Safe", "Research", "Publications"],
+        category: "Research",
+        isPremium: false,
+        atsRating: "safe",
+        typeface: "Charter (Georgia-class serif)",
+        typography: "10pt body · 0.65in margins",
+        colors: [
+            { name: "Black", class: "bg-[#1A1A1A]", ring: "ring-[#1A1A1A]", hex: "1A1A1A" },
+            { name: "Navy", class: "bg-[#1B365D]", ring: "ring-[#1B365D]", hex: "1B365D" },
+        ],
     },
     {
         id: "creative",
-        name: "Creative Portfolio",
-        description: "Two-column layout designed to showcase skills and experience with flair.",
-        previewImage: "/templates/creative-preview.png",
-        previewGradient: "from-purple-500 to-pink-500",
+        name: "Creative Clean",
+        description:
+            "Heavier accent rules for product and design-adjacent engineers. Still strictly single-column — two-column resumes get scrambled by ATS parsers.",
+        bestFor: "0–5 years experience · Frontend, product engineering",
         latexFile: "creative.tex",
-        tags: ["Creative", "Design", "Marketing"],
+        tags: ["ATS-Safe", "Frontend", "Product"],
         category: "Creative",
         isPremium: true,
-        atsRating: "design",
+        atsRating: "safe",
+        typeface: "Helvetica",
+        typography: "10pt body · 0.65in margins",
         colors: [
-            { name: "Black", class: "bg-black", ring: "ring-black" },
-            { name: "Purple", class: "bg-purple-600", ring: "ring-purple-600" },
-            { name: "Teal", class: "bg-teal-600", ring: "ring-teal-600" },
-        ]
-    }
+            { name: "Violet", class: "bg-[#6D28D9]", ring: "ring-[#6D28D9]", hex: "6D28D9" },
+            { name: "Magenta", class: "bg-[#A21CAF]", ring: "ring-[#A21CAF]", hex: "A21CAF" },
+            { name: "Emerald", class: "bg-[#047857]", ring: "ring-[#047857]", hex: "047857" },
+        ],
+    },
 ];
+
+export function getTemplateById(id: string | null | undefined): Template | undefined {
+    if (!id) return undefined;
+    return RESUME_TEMPLATES.find((t) => t.id === id);
+}

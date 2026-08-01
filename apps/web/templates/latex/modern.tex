@@ -1,104 +1,171 @@
-\documentclass[10pt]{article}
+%==============================================================================
+%  TrackMyOPT — Modern Minimalist
+%  Single-column, ATS-safe resume template for US tech hiring.
+%
+%  CONTRACT (do not break):
+%   * Self-contained. Uses only core TeX Live packages so the file compiles
+%     standalone on the remote compiler (no project-local .sty is uploaded).
+%   * Single column. No tabular, no multicol, no images, no text boxes.
+%   * Section order is fixed:
+%       Contact -> Summary -> Skills -> Experience -> Projects -> Education
+%       -> Certifications
+%   * Body text 10pt, margins 0.65in, Helvetica-class sans face.
+%==============================================================================
+\documentclass[letterpaper,10pt]{article}
+
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\IfFileExists{helvet.sty}{\usepackage[scaled]{helvet}}{\usepackage{lmodern}}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[left=0.65in,right=0.65in,top=0.55in,bottom=0.55in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
 
-%====================
-% OFFICIAL PUBLIC OVERLEAF TEMPLATE
-% https://www.overleaf.com/latex/templates/data-science-tech-resume-template/zcdmpfxrzjhv
-% 
-%====================
-%
-% Resume template for data scientists, a complement to data-science-tech-cover-letter-template:
-% https://www.overleaf.com/latex/templates/data-science-tech-cover-letter-template/gbrcqktbsfxf
-%
-% Files:        resume.tex: Main file
-%               _header.tex: header code
-%               TLCresume.sty: style file containing formatting details
-%               section/objective: https://www.indeed.com/career-advice/resumes-cover-letters/resume-objective-examples
-%               section/skills: table of skills
-%               section/experience: projects or roles
-%               section/education: schools and stuff
-%               section/activities: optional, could comment out in resume.tex.
-%
-% Editor:       https://github.com/TimmyChan 
-%               https://www.linkedin.com/in/timmy-l-chan/
-%               
-% Last Updated: March 24th, 2022
-%
-%====================
+% ATS: emit a Unicode-mapped text layer so parsers extract clean text.
+\input{glyphtounicode}
+\pdfgentounicode=1
 
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{bodytext}{HTML}{1A1A1A}
+\definecolor{muted}{HTML}{4A4A4A}
+\color{bodytext}
 
-\usepackage{TLCresume}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\raggedright
+\raggedbottom
 
-%====================
+%------------------------------------------------------------------
+% Section headings
+%------------------------------------------------------------------
+\titleformat{\section}
+  {\large\bfseries\color{accent}}{}{0em}{\MakeUppercase}
+  [\vspace{-7pt}{\color{accent}\rule{\linewidth}{0.6pt}}]
+\titlespacing*{\section}{0pt}{9pt}{4pt}
+
+%------------------------------------------------------------------
+% Shared macro vocabulary (identical across all TrackMyOPT templates)
+%------------------------------------------------------------------
+\newcommand{\csep}{\hspace{5pt}\textbar\hspace{5pt}}
+
+% \rRole{Job Title}{Company}{Location}{Dates}
+\newcommand{\rRole}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
+}
+
+% \rProject{Name}{Tech stack}{Dates or link}
+\newcommand{\rProject}[3]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\ \textbar\ \textit{\color{muted}#2}\hfill#3\par
+  \vspace{1pt}%
+}
+
+% \rEdu{Degree}{Institution}{Location}{Dates}
+\newcommand{\rEdu}[4]{%
+  \vspace{3pt}%
+  \noindent\textbf{#1}\hfill\textbf{#4}\par
+  \noindent\textit{\color{muted}#2}\hfill\textit{\color{muted}#3}\par
+  \vspace{1pt}%
+}
+
+% \rSkill{Category}{Comma-separated items}
+\newcommand{\rSkill}[2]{\noindent\textbf{#1:}\ #2\par\vspace{2pt}}
+
+\newenvironment{rBullets}
+  {\begin{itemize}[leftmargin=13pt,itemsep=1.5pt,parsep=0pt,topsep=2pt,
+                   partopsep=0pt,label=\textbullet]}
+  {\end{itemize}}
+
+%------------------------------------------------------------------
 % CONTACT INFORMATION
-%====================
-\def\name{Your Name} % Name Here
-\def\phone{(xxx) xxx-xxxx}
-\def\location{City, State}
-\def\email{yourname@email.com}
-\def\LinkedIn{linkedin-username} % linkedin.com/in/______
-\def\github{github-username} % github username
-\def\role{Target Job Title} % JOB TITLE
-\def\portfoliourl{https://portfolio.com}
-\def\portfolioname{Portfolio}
-
-%====================
-% Header: Contact
-%====================
+%------------------------------------------------------------------
+\def\name{Priya Raghavan}
+\def\role{Software Engineer}
+\def\phone{(415) 555-0148}
+\def\location{San Francisco, CA}
+\def\email{priya.raghavan@example.com}
+\def\LinkedIn{priya-raghavan}
+\def\github{praghavan}
 
 \begin{document}
-\pagestyle{empty}
 
+%-----------  HEADER  ---------------------------------------------
 \begin{center}
-    {\Huge\namefmt{\name}} \\[4pt]
-    {\large\color{highlight}\role} \\[4pt]
-    \small
-    \phone \quad$|$\quad
-    \location \quad$|$\quad
-    \href{mailto:\email}{\email} \quad$|$\quad
-    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn} \quad$|$\quad
-    \href{https://github.com/\github}{github.com/\github} \quad$|$\quad
-    \href{\portfoliourl}{\portfolioname}
+  {\LARGE\bfseries\color{bodytext}\name}\\[3pt]
+  {\large\color{accent}\role}\\[5pt]
+  {\small
+    \phone\csep
+    \location\csep
+    \href{mailto:\email}{\email}\csep
+    \href{https://linkedin.com/in/\LinkedIn}{linkedin.com/in/\LinkedIn}\csep
+    \href{https://github.com/\github}{github.com/\github}}
 \end{center}
-\vspace{-8pt}
-{\color{highlight}\hrule height 1.5pt}
-\vspace{6pt}
+\vspace{3pt}
+{\color{accent}\rule{\linewidth}{1.2pt}}
 
+%-----------  SUMMARY  --------------------------------------------
 \section{Summary}
-Results-oriented professional with experience in [Key Skills]. Proven track record of delivering high-quality solutions for [Industry/Domain].
+Software engineer with 4 years building high-traffic web services in Python and
+TypeScript. Shipped payment and search features used by 2M+ monthly users, and
+cut infrastructure cost 28\% by rearchitecting the data ingestion path. Looking
+for backend-leaning product engineering work at scale.
 
+%-----------  SKILLS  ---------------------------------------------
 \section{Skills}
-\begin{zitemize}
-\item \textbf{Languages:} Java, Python, C++, SQL, JavaScript
-\item \textbf{Tools:} Git, Docker, Kubernetes, AWS, Jenkins
-\item \textbf{Frameworks:} React, Angular, Spring Boot, Django
-\end{zitemize}
+\rSkill{Languages}{Python, TypeScript, Go, SQL, Java}
+\rSkill{Backend}{Django, FastAPI, Node.js, gRPC, PostgreSQL, Redis, Kafka}
+\rSkill{Frontend}{React, Next.js, TailwindCSS, Jest}
+\rSkill{Cloud \& Tooling}{AWS (ECS, Lambda, RDS, S3), Docker, Terraform, GitHub Actions, Datadog}
+\rSkill{Practices}{Distributed systems, API design, CI/CD, Agile, Code review}
 
+%-----------  EXPERIENCE  -----------------------------------------
 \section{Experience}
 
-\subsection{{Senior Software Engineer} \hfill {Jan. 2020 – Present}}
-\subtext{Tech Company Inc. \hfill San Francisco, CA}
-\begin{zitemize}
-\item Led the development of a microservices-based architecture, improving system scalability by 40\%.
-\item Optimized database queries, reducing API response time by 50\%.
-\item Mentored junior developers and conducted code reviews to ensure high code quality.
-\end{zitemize}
+\rRole{Software Engineer II}{Stripe-scale Payments Startup}{San Francisco, CA}{Mar 2023 -- Present}
+\begin{rBullets}
+  \item Rebuilt the settlement reconciliation service in Go, cutting nightly batch runtime from 4.5 hours to 22 minutes and eliminating a recurring on-call page.
+  \item Designed and shipped an idempotent refunds API handling 40K requests/day with 99.98\% success rate across three payment processors.
+  \item Reduced AWS spend 28\% (\$18K/month) by moving ingestion from always-on EC2 to event-driven Lambda with S3 partitioning.
+  \item Mentored 2 junior engineers through their first production launches; both promoted within a year.
+\end{rBullets}
 
-\subsection{{Software Engineer} \hfill {Jun. 2018 – Dec. 2019}}
-\subtext{Startup LLC. \hfill New York, NY}
-\begin{zitemize}
-\item Developed and maintained features for a high-traffic e-commerce platform.
-\item integrated third-party payment gateways, increasing transaction reliability.
-\end{zitemize}
+\rRole{Software Engineer}{Retail Analytics Company}{Austin, TX}{Jul 2021 -- Feb 2023}
+\begin{rBullets}
+  \item Built a React and TypeScript merchant dashboard adopted by 1,200 stores, lifting weekly active usage 35\%.
+  \item Migrated 60+ REST endpoints to a typed gRPC layer, dropping p95 latency from 480ms to 140ms.
+  \item Added contract tests and CI gating that reduced production regressions 45\% quarter over quarter.
+\end{rBullets}
 
-\section{Education}
-\subsection{{Bachelor of Science in Computer Science} \hfill {May 2018}}
-\subtext{University of Technology \hfill City, State}
-
+%-----------  PROJECTS  -------------------------------------------
 \section{Projects}
-\subsection{{Project Name} \hfill {Link}}
-\begin{zitemize}
-\item Description of the project and technologies used.
-\end{zitemize}
+
+\rProject{Ledgerlite}{Go, PostgreSQL, Docker}{github.com/praghavan/ledgerlite}
+\begin{rBullets}
+  \item Open-source double-entry accounting engine; 900+ GitHub stars and used by 3 fintech startups in production.
+  \item Sustains 12K writes/second on a single node through batched WAL commits.
+\end{rBullets}
+
+\rProject{Transit Delay Predictor}{Python, scikit-learn, FastAPI}{2022}
+\begin{rBullets}
+  \item Trained a gradient-boosted model on 5 years of BART data predicting delays within 3 minutes, 87\% of the time.
+\end{rBullets}
+
+%-----------  EDUCATION  ------------------------------------------
+\section{Education}
+\rEdu{B.S. in Computer Science}{University of Texas at Austin}{Austin, TX}{May 2021}
+
+%-----------  CERTIFICATIONS  -------------------------------------
+\section{Certifications}
+\begin{rBullets}
+  \item AWS Certified Solutions Architect -- Associate (2024)
+  \item HashiCorp Certified: Terraform Associate (2023)
+\end{rBullets}
 
 \end{document}
