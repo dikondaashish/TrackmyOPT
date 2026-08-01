@@ -15,10 +15,12 @@ assert.equal(WIDGET_TOKENS.dark.accent, '#5eead4');
 
 const themeCss = buildWidgetThemeCss('.tmo-widget-theme-scope');
 assert.match(themeCss, /\.tmo-widget-theme-scope/);
-assert.match(themeCss, /@media \(prefers-color-scheme: dark\)/);
+// Whitespace after the colon is a formatting detail of the generator, not
+// something the widget depends on.
+assert.match(themeCss, /@media \(prefers-color-scheme:\s*dark\)/);
 assert.match(themeCss, /--tmo-widget-surface:#ffffff/);
 assert.match(themeCss, /--tmo-widget-surface:#161b22/);
-assert.match(themeCss, /prefers-reduced-motion: reduce/);
+assert.match(themeCss, /prefers-reduced-motion:\s*reduce/);
 assert.equal(isDarkCssColor('rgb(9, 13, 20)'), true);
 assert.equal(isDarkCssColor('rgba(255, 255, 255, 0)'), false);
 assert.equal(isDarkCssColor('#f8fafc'), false);

@@ -1,54 +1,46 @@
+import { COLORS, SHADOW, type ThemeName } from './design/tokens';
+import { buildThemeCss } from './design/theme-css';
+
+/**
+ * Widget-shaped view of the shared design tokens.
+ *
+ * The values used to be duplicated here and in popup.css. They now derive from
+ * src/design/tokens.ts, so the widget and the popup cannot drift apart. The
+ * key names are kept for the ~178 inline `cssText` call sites that reference
+ * `--tmo-widget-*`; new code should use the primitives in src/design instead.
+ */
+function widgetPalette(theme: ThemeName) {
+  const c = COLORS[theme];
+  return {
+    background: c.bg,
+    surface: c.surface,
+    surface2: c.surfaceRaised,
+    border: c.border,
+    ink: c.ink,
+    muted: c.inkMuted,
+    accent: c.accent,
+    accentStrong: c.accentStrong,
+    focus: c.focusRing,
+    shadow: SHADOW[theme]['3'],
+    overlay: c.overlay,
+    successSurface: c.successSurface,
+    successBorder: c.successBorder,
+    successInk: c.successInk,
+    warningSurface: c.warningSurface,
+    warningBorder: c.warningBorder,
+    warningInk: c.warningInk,
+    dangerSurface: c.dangerSurface,
+    dangerBorder: c.dangerBorder,
+    dangerInk: c.dangerInk,
+    infoSurface: c.infoSurface,
+    infoBorder: c.infoBorder,
+    infoInk: c.infoInk,
+  };
+}
+
 export const WIDGET_TOKENS = {
-  light: {
-    background: '#f6f8fb',
-    surface: '#ffffff',
-    surface2: '#f1f4f9',
-    border: '#e7eaf0',
-    ink: '#0f172a',
-    muted: '#64748b',
-    accent: '#2563eb',
-    accentStrong: '#1e40af',
-    focus: 'rgba(37,99,235,0.35)',
-    shadow: '0 10px 28px rgba(15,23,42,0.18)',
-    overlay: 'rgba(15,23,42,0.48)',
-    successSurface: '#f0fdf4',
-    successBorder: '#bbf7d0',
-    successInk: '#166534',
-    warningSurface: '#fffbeb',
-    warningBorder: '#fde68a',
-    warningInk: '#92400e',
-    dangerSurface: '#fef2f2',
-    dangerBorder: '#fecaca',
-    dangerInk: '#991b1b',
-    infoSurface: '#eff6ff',
-    infoBorder: '#dbeafe',
-    infoInk: '#1e40af',
-  },
-  dark: {
-    background: '#0d1016',
-    surface: '#161b22',
-    surface2: '#1c222c',
-    border: '#262d3a',
-    ink: '#e6eaf2',
-    muted: '#8b95a7',
-    accent: '#5eead4',
-    accentStrong: '#93c5fd',
-    focus: 'rgba(94,234,212,0.38)',
-    shadow: '0 12px 34px rgba(0,0,0,0.48)',
-    overlay: 'rgba(2,6,23,0.72)',
-    successSurface: '#102a22',
-    successBorder: '#215c45',
-    successInk: '#86efac',
-    warningSurface: '#30250f',
-    warningBorder: '#6b4f16',
-    warningInk: '#fde68a',
-    dangerSurface: '#341719',
-    dangerBorder: '#713437',
-    dangerInk: '#fca5a5',
-    infoSurface: '#152641',
-    infoBorder: '#294b75',
-    infoInk: '#93c5fd',
-  },
+  light: widgetPalette('light'),
+  dark: widgetPalette('dark'),
 } as const;
 
 type WidgetTheme = keyof typeof WIDGET_TOKENS;
@@ -86,14 +78,23 @@ function tokenDeclarations(theme: WidgetTheme): string {
     .join(';');
 }
 
+/**
+ * Widget stylesheet.
+ *
+ * Emits the full canonical token set (`--tmo-color-*`, `--tmo-space-*`,
+ * `--tmo-text-*`, …) as well as the `--tmo-widget-*` names the existing inline
+ * styles use. Without the canonical set, a `var(--tmo-color-accent)` written
+ * inside the widget would silently fail to resolve.
+ */
 export function buildWidgetThemeCss(scopeSelector: string): string {
   const scope = scopeSelector.trim() || '.tmo-widget-theme-scope';
-  return `
-${scope}{${tokenDeclarations('light')};color-scheme:light;color:var(--tmo-widget-ink)}
-@media (prefers-color-scheme: dark){${scope}{${tokenDeclarations('dark')};color-scheme:dark}}
-${scope}[data-tmo-theme="dark"]{${tokenDeclarations('dark')};color-scheme:dark}
-@media (prefers-reduced-motion: reduce){${scope},${scope} *{scroll-behavior:auto!important;animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
-`;
+  return [
+    buildThemeCss({ scope, legacyAliases: true, baseRules: true }),
+    // Widget-specific names layered on top of the canonical tokens.
+    `${scope}{${tokenDeclarations('light')};color:var(--tmo-widget-ink)}`,
+    `@media (prefers-color-scheme: dark){${scope}:not([data-tmo-theme="light"]){${tokenDeclarations('dark')}}}`,
+    `${scope}[data-tmo-theme="dark"]{${tokenDeclarations('dark')}}`,
+  ].join('\n');
 }
 
 /** True for opaque CSS colors whose perceived luminance is dark. */

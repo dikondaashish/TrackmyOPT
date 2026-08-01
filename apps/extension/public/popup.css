@@ -1,17 +1,16 @@
+/*
+ * Semantic tokens (colour, spacing, type, radius, shadow, motion) come from
+ * tokens.css, generated from src/design/tokens.ts. Only the brand ramp — which
+ * is a palette, not a semantic scale — lives here.
+ */
 :root {
-  color-scheme: light dark;
-
-  /* TrackMyOPT brand */
-  --tmo-navy: #0f172a;
-  --tmo-blue-950: #172554;
-  --tmo-blue-900: #1e3a8a;
-  --tmo-blue-800: #1e40af;
-  --tmo-blue-700: #1d4ed8;
-  --tmo-blue-600: #2563eb;
   --tmo-blue-500: #3b82f6;
+  --tmo-blue-600: #2563eb;
+  --tmo-blue-700: #1d4ed8;
+  --tmo-blue-800: #1e40af;
+  --tmo-blue-900: #1e3a8a;
   --tmo-sky-500: #0ea5e9;
   --tmo-teal-300: #5eead4;
-  --tmo-teal-400: #2dd4bf;
   --tmo-gradient-brand: linear-gradient(
     135deg,
     var(--tmo-blue-900) 0%,
@@ -24,62 +23,6 @@
     var(--tmo-blue-600) 50%,
     var(--tmo-sky-500) 100%
   );
-
-  /* Semantic surface tokens (light) */
-  --bg: #f6f8fb;
-  --surface: #ffffff;
-  --surface-2: #f1f4f9;
-  --border: #e7eaf0;
-  --ink: #0f172a;
-  --muted: #64748b;
-  --accent: var(--tmo-blue-600);
-
-  /* Quiet status surfaces shared by every popup tool page. */
-  --tool-blue-surface: #eff6ff;
-  --tool-blue-border: #bfdbfe;
-  --tool-blue-ink: #1e40af;
-  --tool-green-surface: #f0fdf4;
-  --tool-green-border: #bbf7d0;
-  --tool-green-ink: #166534;
-  --tool-orange-surface: #fff7ed;
-  --tool-orange-border: #fed7aa;
-  --tool-orange-ink: #9a3412;
-  --tool-red-surface: #fef2f2;
-  --tool-red-border: #fecaca;
-  --tool-red-ink: #991b1b;
-  --tool-neutral-surface: var(--surface);
-  --tool-neutral-border: var(--border);
-
-  --radius-lg: 16px;
-  --radius-md: 13px;
-  --radius-sm: 10px;
-  --shadow-card: 0 10px 24px rgba(15, 23, 42, 0.10);
-}
-
-/* Dark tokens */
-body.dark-mode {
-  --bg: #0d1016;
-  --surface: #161b22;
-  --surface-2: #1c222c;
-  --border: #262d3a;
-  --ink: #e6eaf2;
-  --muted: #8b95a7;
-  --accent: var(--tmo-teal-300);
-  --shadow-card: 0 10px 26px rgba(0, 0, 0, 0.45);
-  --tool-blue-surface: #152641;
-  --tool-blue-border: #294b75;
-  --tool-blue-ink: #93c5fd;
-  --tool-green-surface: #102a22;
-  --tool-green-border: #215c45;
-  --tool-green-ink: #86efac;
-  --tool-orange-surface: #30250f;
-  --tool-orange-border: #6b4f16;
-  --tool-orange-ink: #fdba74;
-  --tool-red-surface: #341719;
-  --tool-red-border: #713437;
-  --tool-red-ink: #fca5a5;
-  --tool-neutral-surface: var(--surface);
-  --tool-neutral-border: var(--border);
 }
 
 * {

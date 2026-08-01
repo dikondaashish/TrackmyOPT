@@ -6,6 +6,11 @@
  * site / all sites. Auto-adds job to TrackMyOPT on application-success pages.
  */
 
+import { RESUME_TEMPLATES_FOR_PANEL } from './agent/panel-templates';
+import { hardenInteractiveElements, ensureWidgetAnnouncer } from './design/a11y';
+
+/** Set once the widget mounts; announces status to screen readers. */
+let announceWidgetStatus: (message: string) => void = () => {};
 import {
   isCareerPage,
   isKnownJobBoardOrAts,
@@ -366,7 +371,9 @@ function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
   save.type = 'button';
   save.textContent = 'Review and use for this application';
   save.style.cssText =
-    'min-height:34px;padding:6px 8px;border:0;border-radius:7px;background:var(--tmo-widget-accent);color:#fff;font:inherit;font-size:11px;font-weight:800;cursor:pointer;';
+    // on-accent, not white: the dark-theme accent is a light teal, against
+    // which white text is unreadable.
+    'min-height:34px;padding:6px 8px;border:0;border-radius:7px;background:var(--tmo-widget-accent);color:var(--tmo-color-on-accent);font:inherit;font-size:11px;font-weight:800;cursor:pointer;';
   const status = document.createElement('p');
   status.setAttribute('role', 'status');
   status.style.cssText =
@@ -969,7 +976,7 @@ function paintPrefillCoverage(
     const percent = document.createElement('strong');
     percent.textContent = `${scan.requiredPercent}%`;
     percent.style.cssText =
-      `font-size:12px;color:${scan.unansweredRequired === 0 ? '#047857' : '#b45309'};`;
+      `font-size:12px;color:${scan.unansweredRequired === 0 ? 'var(--tmo-color-success-ink)' : 'var(--tmo-color-warning-ink)'};`;
     scanHeader.append(scanTitle, percent);
     line.appendChild(scanHeader);
 
@@ -1032,7 +1039,7 @@ function paintPrefillCoverage(
             : 'Optional';
         state.style.cssText =
           `flex:0 0 auto;font-weight:800;color:${
-            field.filled ? '#047857' : field.required ? '#b45309' : 'var(--tmo-widget-muted)'
+            field.filled ? 'var(--tmo-color-success-ink)' : field.required ? 'var(--tmo-color-warning-ink)' : 'var(--tmo-widget-muted)'
           };`;
         item.append(label, state);
         list.appendChild(item);
@@ -1055,7 +1062,7 @@ function paintPrefillCoverage(
     jump.type = 'button';
     jump.textContent = 'Jump to first';
     jump.style.cssText =
-      'padding:0;border:0;background:transparent;color:#b45309;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
+      'padding:0;border:0;background:transparent;color:var(--tmo-color-warning-ink);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
     jump.addEventListener('click', () => {
       jumpToPrefillField(result.firstSkippedSelector || '');
     });
@@ -2280,7 +2287,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     navy: '#1e3a8a',
     deepBlue: '#1e40af',
     primary: '#2563eb',
-    dot: '#dbeafe',
+    dot: 'var(--tmo-color-info-border)',
   } as const;
 
   const tab = document.createElement('div');
@@ -2562,7 +2569,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   artifactStaleBanner.className = ARTIFACT_STALE_BANNER_CLASS;
   artifactStaleBanner.setAttribute('role', 'alert');
   artifactStaleBanner.style.cssText =
-    'display:none;padding:10px 12px;border-top:1px solid #f59e0b;background:#fffbeb;color:#92400e;font-size:11.5px;line-height:1.45;';
+    'display:none;padding:10px 12px;border-top:1px solid #f59e0b;background:var(--tmo-color-warning-surface);color:var(--tmo-color-warning-ink);font-size:11.5px;line-height:1.45;';
   const artifactStaleCopy = document.createElement('div');
   artifactStaleCopy.textContent =
     'Resume link expired — fields filled earlier may be stale';
@@ -2571,7 +2578,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   artifactStaleAction.type = 'button';
   artifactStaleAction.textContent = 'Regenerate and re-check filled fields';
   artifactStaleAction.style.cssText =
-    'margin-top:5px;padding:0;border:0;background:transparent;color:#92400e;font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
+    'margin-top:5px;padding:0;border:0;background:transparent;color:var(--tmo-color-warning-ink);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
   artifactStaleAction.addEventListener('click', () => {
     regenerationRecheckPending = true;
     const prior = lastResumeGenerationRequest;
@@ -2602,7 +2609,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   const artifactInactiveFallback = document.createElement('div');
   artifactInactiveFallback.className = ARTIFACT_INACTIVE_FALLBACK_CLASS;
   artifactInactiveFallback.style.cssText =
-    'display:none;padding:10px 12px;border-top:1px solid #f59e0b;background:#fffbeb;color:#92400e;font-size:11.5px;font-weight:800;line-height:1.45;';
+    'display:none;padding:10px 12px;border-top:1px solid #f59e0b;background:var(--tmo-color-warning-surface);color:var(--tmo-color-warning-ink);font-size:11.5px;font-weight:800;line-height:1.45;';
 
   const rowDivider = () => {
     const d = document.createElement('div');
@@ -2618,7 +2625,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     guidedHost.setAttribute('role', 'status');
     guidedHost.setAttribute('aria-live', 'polite');
     guidedHost.style.cssText =
-      'display:none;align-items:center;gap:7px;padding:8px 11px;border-top:1px solid var(--tmo-widget-border);background:#eff6ff;color:#1e3a8a;font-size:10.5px;line-height:1.35;';
+      'display:none;align-items:center;gap:7px;padding:8px 11px;border-top:1px solid var(--tmo-widget-border);background:var(--tmo-color-info-surface);color:#1e3a8a;font-size:10.5px;line-height:1.35;';
     const copy = document.createElement('span');
     copy.className = 'tmo-guided-status-copy';
     copy.style.flex = '1';
@@ -2628,7 +2635,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     stop.type = 'button';
     stop.textContent = 'Stop';
     stop.style.cssText =
-      'padding:5px 7px;border:1px solid #b91c1c;border-radius:6px;background:#fff;color:#b91c1c;font:inherit;font-weight:800;cursor:pointer;';
+      'padding:5px 7px;border:1px solid var(--tmo-color-danger-ink);border-radius:6px;background:var(--tmo-color-surface);color:var(--tmo-color-danger-ink);font:inherit;font-weight:800;cursor:pointer;';
     stop.addEventListener('click', () => void stopGuidedAutopilot());
     guidedHost.append(copy, stop);
     toolsPanel.appendChild(guidedHost);
@@ -3429,14 +3436,8 @@ type SavedResumeOption = {
   updatedAt?: string | null;
 };
 
-const SIDE_PANEL_TEMPLATES = [
-  { id: 'professional', name: 'Professional Executive', hint: 'ATS-safe · traditional' },
-  { id: 'tech', name: 'Tech Focused', hint: 'ATS-safe · engineering' },
-  { id: 'modern', name: 'Modern Minimalist', hint: 'Clean · versatile' },
-  { id: 'academic', name: 'Academic CV', hint: 'Research · education' },
-  { id: 'executive', name: 'Executive Brief', hint: 'Leadership · concise' },
-  { id: 'creative', name: 'Creative Portfolio', hint: 'Design · marketing' },
-] as const;
+// Single source shared with the side panel. See agent/panel-templates.ts.
+const SIDE_PANEL_TEMPLATES = RESUME_TEMPLATES_FOR_PANEL;
 
 function modalFieldLabel(text: string, htmlFor: string): HTMLLabelElement {
   const label = document.createElement('label');
@@ -4067,7 +4068,7 @@ function openResumeChooser(card: HTMLElement, job: JobInfo, analyzedMissingKeywo
       body.textContent = '';
       if (chrome.runtime.lastError || !response?.ok) {
         const message = document.createElement('p');
-        message.style.cssText = 'margin:0 0 12px;color:#b91c1c;font-size:13px;line-height:1.5;';
+        message.style.cssText = 'margin:0 0 12px;color:var(--tmo-color-danger-ink);font-size:13px;line-height:1.5;';
         message.textContent = response?.error === 'not_signed_in'
           ? 'Sign in to TrackMyOPT in the extension before generating a resume.'
           : 'We could not load your saved resumes. Please try again.';
@@ -4229,10 +4230,10 @@ function addResumePanelDismiss(panel: HTMLElement): void {
 function renderResumeError(panel: HTMLElement, message: string): void {
   panel.textContent = '';
   const row = document.createElement('div');
-  row.style.cssText = 'display:flex;gap:6px;align-items:flex-start;color:#b91c1c;font-size:12px;';
+  row.style.cssText = 'display:flex;gap:6px;align-items:flex-start;color:var(--tmo-color-danger-ink);font-size:12px;';
   const ic = document.createElement('span');
   ic.style.cssText = 'display:flex;flex-shrink:0;margin-top:1px;';
-  ic.innerHTML = icon('alertTriangle', 14, '#b91c1c');
+  ic.innerHTML = icon('alertTriangle', 14, 'var(--tmo-color-danger-ink)');
   const t = document.createElement('span');
   t.textContent = message;
   row.appendChild(ic);
@@ -4270,7 +4271,7 @@ function renderResumeResult(
   panel.textContent = '';
   const head = document.createElement('div');
   head.style.cssText =
-    'display:flex;align-items:center;gap:6px;font-weight:800;color:#065f46;margin-bottom:8px;font-size:12.5px;';
+    'display:flex;align-items:center;gap:6px;font-weight:800;color:var(--tmo-color-success-ink);margin-bottom:8px;font-size:12.5px;';
   const hi = document.createElement('span');
   hi.style.cssText = 'display:flex;';
   hi.innerHTML = icon('checkCircle', 15, '#059669');
@@ -4283,7 +4284,7 @@ function renderResumeResult(
   if (regenerationRecheckPending) {
     const recheckNote = document.createElement('div');
     recheckNote.style.cssText =
-      'margin:0 0 10px;padding:8px 9px;border:1px solid #f59e0b;border-radius:8px;background:#fffbeb;color:#92400e;font-size:11.5px;line-height:1.45;';
+      'margin:0 0 10px;padding:8px 9px;border:1px solid #f59e0b;border-radius:8px;background:var(--tmo-color-warning-surface);color:var(--tmo-color-warning-ink);font-size:11.5px;line-height:1.45;';
     recheckNote.textContent =
       'Resume link refreshed. Fields filled earlier were not cleared or refilled; review them against this resume before submitting.';
     panel.appendChild(recheckNote);
@@ -4615,7 +4616,7 @@ function logoSvgFallback(): SVGSVGElement {
     'd',
     'M4 14c2.5-1 5-4 6-7 1 3 3.5 6 6 7-2 1.5-4 2.5-6 2.5S6 15.5 4 14z'
   );
-  path.setAttribute('fill', '#14532d');
+  path.setAttribute('fill', 'var(--tmo-color-success-ink)');
   path.setAttribute('opacity', '0.9');
   svg.appendChild(path);
   return svg;
@@ -4632,7 +4633,7 @@ function showMessage(message: string, isError: boolean) {
     padding: 12px 20px;
     font-size: 14px;
     color: #fff;
-    background: ${isError ? '#dc2626' : '#059669'};
+    background: ${isError ? 'var(--tmo-color-danger-ink)' : '#059669'};
     border-radius: 8px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.2);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -4717,6 +4718,20 @@ async function injectOrRefreshButton() {
   // browsers retain the maximum-z-index fallback.
   widget.setAttribute('popover', 'manual');
   document.body.appendChild(widget);
+
+  // The widget is built imperatively from styled divs, most of which carry a
+  // click handler but no role or tabindex. Retrofit them so the whole surface
+  // is keyboard-operable, and re-run on mutation because panels render lazily.
+  hardenInteractiveElements(widget);
+  announceWidgetStatus = ensureWidgetAnnouncer(widget);
+  const a11yObserver = new MutationObserver(() => hardenInteractiveElements(widget));
+  a11yObserver.observe(widget, { childList: true, subtree: true });
+  // Screen readers get no signal that a panel appeared over the page.
+  announceWidgetStatus(
+    job.role_title
+      ? `TrackMyOPT detected a job posting: ${job.role_title}. Press Tab to reach its actions.`
+      : 'TrackMyOPT detected a job posting on this page. Press Tab to reach its actions.'
+  );
   try {
     widget.showPopover?.();
   } catch {
@@ -5158,6 +5173,20 @@ function initFullJobAssistMode() {
 // Cross-origin ATS frames receive prefill through the background relay. They
 // never render their own side panel; only the top-level document owns the UI.
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  // The side panel asks the page for its job context on open and on tab switch.
+  // Only the top frame answers, so an iframe cannot shadow the real posting.
+  if (message?.type === 'TMO_GET_JOB_CONTEXT') {
+    if (window.top !== window.self) return false;
+    const job = getJobInfo();
+    const description = scrapeJobDescription();
+    sendResponse({
+      roleTitle: job?.role_title ?? '',
+      companyName: job?.company_name ?? '',
+      jobUrl: job?.job_url ?? window.location.href,
+      jobDescription: description,
+    });
+    return false;
+  }
   if (message?.type === 'CLEAR_RESUME_AUTOFILL_ARTIFACT') {
     generatedResumeArtifactForCurrentJob = null;
     artifactBackedFieldsFilled = false;

@@ -35,10 +35,37 @@ if (fs.existsSync(publicDir)) {
   copyRecursive(publicDir, distDir);
 }
 
+// Generate dist/tokens.css from the design tokens. Keeping this in the build
+// means a colour or scale can only be changed in src/design/tokens.ts — the
+// popup stylesheet can never drift from the widget's tokens again.
+function emitTokensCss() {
+  const bundled = esbuild.buildSync({
+    entryPoints: [path.join(__dirname, 'src/design/tokens-css-entry.ts')],
+    bundle: true,
+    platform: 'node',
+    format: 'cjs',
+    write: false,
+    logLevel: 'silent',
+  });
+  const moduleShim = { exports: {} };
+  new Function('module', 'exports', bundled.outputFiles[0].text)(
+    moduleShim,
+    moduleShim.exports
+  );
+  const css = moduleShim.exports.css;
+  if (typeof css !== 'string' || css.length === 0) {
+    throw new Error('tokens-css-entry produced no CSS');
+  }
+  fs.writeFileSync(path.join(distDir, 'tokens.css'), css);
+}
+
+emitTokensCss();
+
 const buildOptions = {
   entryPoints: [
     'src/background.ts',
     'src/popup.ts',
+    'src/sidepanel.ts',
     'src/content.ts',
     'src/content-job-portal.ts',
     'src/easy-apply-fill.ts',

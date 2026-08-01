@@ -14,6 +14,8 @@ import {
   type SnapshotExtractionHandoff,
 } from './resume-generation-result';
 import { compileLatexWithSingleRepair } from './compile-latex-with-repair';
+import { RunRegistry, RunSession, RunCancelledError } from './agent/run-session';
+import { RUN_PORT_NAME, type RunCommand } from './agent/run-protocol';
 import type {
   BasicContactProfile,
   GeneratedCoverLetterAttachment,
@@ -202,6 +204,12 @@ chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
 // Internal message listener (from popup and content scripts)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg.type === 'OPEN_SIDE_PANEL') {
+    // Must run in the same turn as the originating user gesture.
+    const opened = openSidePanelForTab(_sender.tab?.id, _sender.tab?.windowId);
+    sendResponse({ ok: opened });
+    return false;
+  }
   if (msg.type === 'BEGIN_AUTH') {
     beginAuth().then(()=>sendResponse({ok:true})).catch(e=>sendResponse({ok:false, err:String(e)}));
     return true;
@@ -1091,7 +1099,10 @@ async function generateTailoredResume(input: {
   outputFilename: string;
   focusKeywords?: string[];
   baselineScore?: number;
-}): Promise<GenerateResumeResult> {
+}, run?: RunSession): Promise<GenerateResumeResult> {
+  // When a run session is supplied the pipeline reports each step and honours
+  // cancellation; without one it behaves exactly as before.
+  const signal = run?.signal;
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
   const {
@@ -1114,18 +1125,22 @@ async function generateTailoredResume(input: {
   const auth = { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` };
 
   // 1. User-selected saved resume
+  run?.step('load_resume', 'active');
   const baseUrl = new URL(`${WEBSITE_URL}/api/resume-generator/base-resume`);
   if (resumeId !== '__latest__') {
     baseUrl.searchParams.set('resumeId', resumeId);
   }
   const baseRes = await fetch(baseUrl.toString(), {
     method: 'GET',
+    signal,
     headers: auth,
   });
   if (baseRes.status === 404) return { ok: false, error: 'no_base_resume' };
   if (!baseRes.ok) return { ok: false, error: 'base_failed' };
   const base = (await baseRes.json()) as { content?: string; filename?: string };
   if (!base.content) return { ok: false, error: 'no_base_resume' };
+  run?.step('load_resume', 'done', base.filename);
+  run?.throwIfCancelled();
 
   // Reuse the in-widget analysis score when the user followed Analyze →
   // Generate. A direct Generate click has no prior score in page memory, so
@@ -1133,9 +1148,11 @@ async function generateTailoredResume(input: {
   let baselineScore = buildScoreComparison(undefined, input.baselineScore)?.generated;
   let scoreError: GenerateResumeResult['scoreError'];
   if (baselineScore === undefined) {
+    run?.step('baseline_score', 'active');
     try {
       const baselineRes = await fetch(`${WEBSITE_URL}/api/resume-generator/analyze-gap`, {
         method: 'POST',
+        signal,
         headers: auth,
         body: JSON.stringify({
           resumeText: base.content,
@@ -1154,11 +1171,21 @@ async function generateTailoredResume(input: {
     } catch {
       // Tailoring remains available even if the optional baseline comparison fails.
     }
+    run?.step(
+      'baseline_score',
+      baselineScore === undefined ? 'skipped' : 'done',
+      baselineScore === undefined ? 'unavailable' : `${baselineScore}/100`
+    );
+  } else {
+    run?.step('baseline_score', 'done', `${baselineScore}/100`);
   }
+  run?.throwIfCancelled();
 
   // 2. Tailored LaTeX
+  run?.step('tailor', 'active');
   const genRes = await fetch(`${WEBSITE_URL}/api/resume-generator/generate`, {
     method: 'POST',
+    signal,
     headers: auth,
     body: JSON.stringify({
       resumeText: base.content,
@@ -1174,6 +1201,9 @@ async function generateTailoredResume(input: {
   if (!genRes.ok) return { ok: false, error: 'generate_failed' };
   const gen = (await genRes.json()) as { latex?: string };
   if (!gen.latex) return { ok: false, error: 'generate_failed' };
+  run?.step('tailor', 'done');
+  run?.throwIfCancelled();
+  run?.step('compile', 'active');
 
   // 3. Compile to PDF — with one AI repair-and-retry on failure. Some Gemini
   //    LaTeX has syntax errors the compiler rejects; fix-latex repairs them and
@@ -1181,6 +1211,7 @@ async function generateTailoredResume(input: {
   const compile = async (latexCode: string): Promise<{ pdf?: ArrayBuffer; error?: string }> => {
     const r = await fetch(`${WEBSITE_URL}/api/resume-generator/compile`, {
       method: 'POST',
+      signal,
       headers: auth,
       body: JSON.stringify({ latexCode }),
     });
@@ -1196,8 +1227,13 @@ async function generateTailoredResume(input: {
     initialLatex: gen.latex,
     compile,
     repair: async (latexCode, errorMessage) => {
+      // The first compile failed; surface the repair rather than leaving the
+      // user on a stalled "Compiling" step.
+      run?.step('compile', 'failed');
+      run?.step('repair', 'active');
       const fixRes = await fetch(`${WEBSITE_URL}/api/resume-generator/fix-latex`, {
         method: 'POST',
+        signal,
         headers: auth,
         body: JSON.stringify({ latexCode, errorMessage }),
       });
@@ -1208,7 +1244,14 @@ async function generateTailoredResume(input: {
       return undefined;
     },
   });
-  if (!compiled.pdf) return { ok: false, error: 'compile_failed' };
+  if (!compiled.pdf) {
+    run?.step(compiled.repaired ? 'repair' : 'compile', 'failed');
+    return { ok: false, error: 'compile_failed' };
+  }
+  if (compiled.repaired) run?.step('repair', 'done', 'formatting fixed');
+  run?.step('compile', 'done');
+  run?.throwIfCancelled();
+  run?.step('extract', 'active');
   const latex = compiled.finalLatex;
 
   // Extract a structured snapshot only after the exact, possibly repaired,
@@ -1218,6 +1261,7 @@ async function generateTailoredResume(input: {
   try {
     const snapshotRes = await fetch(`${WEBSITE_URL}/api/resume-generator/autofill-snapshot`, {
       method: 'POST',
+      signal,
       headers: auth,
       body: JSON.stringify({ finalLatex: latex, sourceResumeId: resumeId }),
     });
@@ -1236,6 +1280,13 @@ async function generateTailoredResume(input: {
   } catch {
     snapshotExtraction = { structuredFieldsAvailable: false };
   }
+  run?.step(
+    'extract',
+    snapshotExtraction?.structuredFieldsAvailable ? 'done' : 'skipped',
+    snapshotExtraction?.structuredFieldsAvailable ? 'fields ready' : 'not available'
+  );
+  run?.throwIfCancelled();
+  run?.step('package', 'active');
 
   const pdfBase64 = arrayBufferToBase64(compiled.pdf);
   let artifact: GeneratedResumeArtifactV1 | undefined;
@@ -1280,6 +1331,7 @@ async function generateTailoredResume(input: {
     try {
       const scanRes = await fetch(`${WEBSITE_URL}/api/resume-generator/scan`, {
         method: 'POST',
+        signal,
         headers: auth,
         body: JSON.stringify({
           latexCode: latex,
@@ -1306,6 +1358,7 @@ async function generateTailoredResume(input: {
   try {
     const handoffRes = await fetch(`${WEBSITE_URL}/api/resume-generator/extension-handoff`, {
       method: 'POST',
+      signal,
       headers: auth,
       body: JSON.stringify({
         latex,
@@ -1328,6 +1381,7 @@ async function generateTailoredResume(input: {
     // PDF download remains available even if the optional editor handoff fails.
   }
 
+  run?.step('package', 'done');
   return buildGeneratedResumeResult({
     pdfBase64,
     editorUrl,
@@ -1337,6 +1391,88 @@ async function generateTailoredResume(input: {
     artifact,
   }, snapshotExtraction);
 }
+
+/**
+ * Long-running agent work runs over a port rather than a single sendMessage, so
+ * the UI can show which step is executing and stop it mid-flight. The port also
+ * acts as a liveness signal: if the UI disconnects, the run is cancelled rather
+ * than burning quota on a result nobody will see.
+ */
+const runRegistry = new RunRegistry();
+
+/**
+ * Side panel availability. Chrome 114+ only, so every call is guarded — an
+ * older Chrome keeps the popup and simply never sees the panel.
+ */
+if (chrome.sidePanel?.setPanelBehavior) {
+  chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: false })
+    .catch(() => {
+      // Non-fatal: the popup remains the primary entry point.
+    });
+}
+
+/**
+ * Opening the side panel must happen inside a user-gesture turn, so the widget
+ * sends this message straight from its click handler.
+ */
+function openSidePanelForTab(tabId: number | undefined, windowId: number | undefined): boolean {
+  if (!chrome.sidePanel?.open) return false;
+  try {
+    if (tabId !== undefined) void chrome.sidePanel.open({ tabId });
+    else if (windowId !== undefined) void chrome.sidePanel.open({ windowId });
+    else return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== RUN_PORT_NAME) return;
+
+  let activeRunId: string | null = null;
+
+  port.onMessage.addListener(async (raw) => {
+    const command = raw as RunCommand;
+    if (!command || typeof command !== 'object') return;
+
+    if (command.type === 'cancel') {
+      runRegistry.cancel(command.runId);
+      return;
+    }
+    if (command.type !== 'start' || command.kind !== 'resume') return;
+
+    activeRunId = command.runId;
+    const session = runRegistry.create(command.runId, (event) => {
+      try {
+        port.postMessage(event);
+      } catch {
+        // Port closed mid-run; cancellation is handled by onDisconnect.
+      }
+    });
+
+    session.setState('preparing');
+    try {
+      const result = await generateTailoredResume(
+        command.input as Parameters<typeof generateTailoredResume>[0],
+        session
+      );
+      if (session.state === 'cancelled') return;
+      if (result.ok) session.succeed(result);
+      else session.fail(result.error ?? 'unknown');
+    } catch (error) {
+      if (session.state === 'cancelled' || error instanceof RunCancelledError) return;
+      session.fail(error instanceof Error && error.name === 'AbortError' ? 'cancelled' : 'unknown');
+    } finally {
+      runRegistry.finish(command.runId);
+    }
+  });
+
+  port.onDisconnect.addListener(() => {
+    if (activeRunId) runRegistry.cancel(activeRunId);
+  });
+});
 
 // External message listener (from web app)
 chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {

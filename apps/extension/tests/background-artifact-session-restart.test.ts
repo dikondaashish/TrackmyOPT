@@ -121,6 +121,8 @@ function createWorkerHarness(input: {
         },
       },
       onMessageExternal: event,
+      // Long-running agent runs connect over a port (see agent/run-protocol).
+      onConnect: event,
       setUninstallURL() {},
       getManifest: () => ({ version: '0.1.11' }),
       getURL: (path: string) => `chrome-extension://test/${path}`,
