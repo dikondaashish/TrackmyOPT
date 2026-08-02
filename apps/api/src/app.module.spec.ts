@@ -31,10 +31,11 @@ describe('AppModule environment validation', () => {
 
     const result = appConfigValidationSchema.validate(config);
     expect(result.error).toBeUndefined();
-    expect(result.value.USCIS_API_BASE_URL).toBe(
+    const value = result.value as typeof completeConfig;
+    expect(value.USCIS_API_BASE_URL).toBe(
       'https://api.uscis.gov/case-status',
     );
-    expect(result.value.USCIS_TOKEN_URL).toBe(
+    expect(value.USCIS_TOKEN_URL).toBe(
       'https://api.uscis.gov/oauth/accesstoken',
     );
   });
