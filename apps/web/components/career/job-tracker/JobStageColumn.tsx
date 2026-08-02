@@ -12,9 +12,18 @@ interface JobStageColumnProps {
     applications: JobApplication[];
     onCardClick: (app: JobApplication) => void;
     onDelete?: () => void;
+    onArchiveApplication?: (id: string) => void;
+    onDeleteApplication?: (id: string) => void | Promise<void>;
 }
 
-export function JobStageColumn({ column, applications, onCardClick, onDelete }: JobStageColumnProps) {
+export function JobStageColumn({
+    column,
+    applications,
+    onCardClick,
+    onDelete,
+    onArchiveApplication,
+    onDeleteApplication,
+}: JobStageColumnProps) {
     const { setNodeRef, isOver } = useDroppable({
         id: column.id,
     });
@@ -67,6 +76,8 @@ export function JobStageColumn({ column, applications, onCardClick, onDelete }: 
                                 key={app.id}
                                 application={app as any}
                                 onClick={() => onCardClick(app)}
+                                onArchive={onArchiveApplication}
+                                onDelete={onDeleteApplication}
                             />
                         ))}
                     </div>

@@ -45,6 +45,7 @@ import {
     clearAllFollowups,
     deleteJobStage,
     deleteApplication,
+    archiveApplication,
 } from "@/app/dashboard/career/job-tracker/actions";
 import {
     searchApplications,
@@ -170,12 +171,18 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
         router.refresh();
     };
 
-    const handleArchive = (id: string) => {
-        setApplications(prev => prev.map(a =>
-            a.id === id ? { ...a, is_archived: true } as any : a
-        ));
-        setSelectedApp(null);
-        router.refresh();
+    const handleArchive = async (id: string) => {
+        try {
+            await archiveApplication(id);
+            setApplications(prev => prev.map(a =>
+                a.id === id ? { ...a, is_archived: true } as any : a
+            ));
+            setSelectedApp(null);
+            router.refresh();
+        } catch (err) {
+            console.error(err);
+            router.refresh();
+        }
     };
 
     const handleStageChange = async (appId: string, newStage: string) => {
@@ -238,7 +245,8 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 5,
+                // Avoid treating a 3-dots click as a drag (overlay then sticks).
+                distance: 12,
             },
         }),
         useSensor(KeyboardSensor, {
@@ -374,6 +382,10 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
         });
     };
 
+    const handleDragCancel = () => {
+        setActiveId(null);
+    };
+
     // ... rest of component
 
 
@@ -468,6 +480,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
                     onDragStart={handleDragStart}
                     onDragOver={handleDragOver}
                     onDragEnd={handleDragEnd}
+                    onDragCancel={handleDragCancel}
                 >
                     <div className="overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory md:snap-none">
                         <div className="flex gap-4 min-w-[200px] px-1">
@@ -480,6 +493,8 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
                                         applications={applicationColumns.get(col.id) || []}
                                         onCardClick={setSelectedApp}
                                         onDelete={customStage ? () => handleDeleteStage(customStage) : undefined}
+                                        onArchiveApplication={handleArchive}
+                                        onDeleteApplication={handleDelete}
                                     />
                                 );
                             })}
@@ -506,9 +521,9 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
                         </div>
                     </div>
 
-                    <DragOverlay dropAnimation={dropAnimation}>
+                    <DragOverlay dropAnimation={dropAnimation} zIndex={200}>
                         {activeApplication ? (
-                            <div className="transform rotate-3 cursor-grabbing w-[300px]">
+                            <div className="cursor-grabbing w-[300px] pointer-events-none">
                                 <JobApplicationCard application={activeApplication as any} onClick={() => { }} />
                             </div>
                         ) : null}

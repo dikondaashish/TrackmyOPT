@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { JobApplication } from "@/lib/career/job-tracker/types";
-import { ExternalLink, Calendar, MapPin, MoreHorizontal } from "lucide-react";
+import { MapPin, MoreHorizontal, Archive, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
@@ -14,28 +15,55 @@ interface JobApplicationCardProps {
         is_archived?: boolean;
     };
     onClick: () => void;
+    onArchive?: (id: string) => void;
+    onDelete?: (id: string) => void | Promise<void>;
 }
 
-export function JobApplicationCard({ application, onClick }: JobApplicationCardProps) {
+export function JobApplicationCard({
+    application,
+    onClick,
+    onArchive,
+    onDelete,
+}: JobApplicationCardProps) {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
     const {
         attributes,
         listeners,
         setNodeRef,
         transform,
         transition,
-        isDragging
+        isDragging,
     } = useSortable({
         id: application.id,
         data: {
             type: "JobCard",
-            application
-        }
+            application,
+        },
     });
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
     };
+
+    useEffect(() => {
+        if (!menuOpen) return;
+        const onPointerDown = (event: PointerEvent) => {
+            if (!menuRef.current?.contains(event.target as Node)) {
+                setMenuOpen(false);
+            }
+        };
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setMenuOpen(false);
+        };
+        document.addEventListener("pointerdown", onPointerDown);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("pointerdown", onPointerDown);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [menuOpen]);
 
     return (
         <div
@@ -47,15 +75,13 @@ export function JobApplicationCard({ application, onClick }: JobApplicationCardP
             className={cn(
                 "group relative bg-white dark:bg-gray-800 rounded-lg p-4 transition-all duration-200 cursor-grab active:cursor-grabbing",
                 "border border-gray-200 dark:border-gray-700",
-                "hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900", // Subtle hover
-                // Dragging state
+                "hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900",
                 isDragging && "opacity-50 shadow-xl rotate-2 scale-105 ring-2 ring-blue-500 z-50",
-                // Archived state
-                application.is_archived && "opacity-50 grayscale"
+                application.is_archived && "opacity-50 grayscale",
+                menuOpen && "ring-2 ring-blue-400 border-blue-300 dark:border-blue-700 z-20"
             )}
         >
             <div className="flex gap-4">
-                {/* Left: Boxed Logo */}
                 <div className="shrink-0">
                     <div className="w-12 h-12 rounded-lg border border-gray-100 dark:border-gray-700 p-1 bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden">
                         <CompanyLogo
@@ -67,7 +93,6 @@ export function JobApplicationCard({ application, onClick }: JobApplicationCardP
                     </div>
                 </div>
 
-                {/* Right: Content */}
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-[15px] leading-tight truncate">
                         {application.role_title}
@@ -87,15 +112,83 @@ export function JobApplicationCard({ application, onClick }: JobApplicationCardP
                     </div>
                 </div>
 
-                {/* Top Right Actions (Hidden by default, show on hover) */}
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2">
-                    <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400">
+                <div
+                    ref={menuRef}
+                    className={cn(
+                        "absolute top-2 right-2 transition-opacity",
+                        menuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"
+                    )}
+                >
+                    <button
+                        type="button"
+                        aria-label="Application actions"
+                        aria-expanded={menuOpen}
+                        aria-haspopup="menu"
+                        className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                        onPointerDown={(event) => {
+                            // Keep dnd-kit from treating this as a drag start.
+                            event.stopPropagation();
+                        }}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            setMenuOpen((open) => !open);
+                        }}
+                    >
                         <MoreHorizontal className="w-4 h-4" />
                     </button>
+
+                    {menuOpen && (
+                        <div
+                            role="menu"
+                            className="absolute right-0 top-full mt-1 z-50 min-w-[160px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg p-1"
+                        >
+                            {onArchive && (
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    onPointerDown={(event) => event.stopPropagation()}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        setMenuOpen(false);
+                                        onArchive(application.id);
+                                    }}
+                                >
+                                    <Archive className="w-4 h-4" />
+                                    Archive
+                                </button>
+                            )}
+                            {onDelete && (
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
+                                    onPointerDown={(event) => event.stopPropagation()}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        setMenuOpen(false);
+                                        if (
+                                            !confirm(
+                                                `Are you sure you want to delete ${application.company_name} - ${application.role_title}? This action cannot be undone.`
+                                            )
+                                        ) {
+                                            return;
+                                        }
+                                        void onDelete(application.id);
+                                    }}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Footer Meta */}
             <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
                     Added {getRelativeDate(application.applied_at || application.created_at)}
