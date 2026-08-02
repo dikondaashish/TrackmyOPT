@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
     ArrowLeft,
@@ -49,13 +49,16 @@ interface SavedResume {
 export default function HistoryPage() {
     const router = useRouter();
     const { toast } = useToast();
-    // const supabase = createClientComponentClient(); -> Removed, using imported singleton
-
+    const loadMoreRef = useRef<HTMLDivElement | null>(null);
+    const userIdRef = useRef<string | null>(null);
 
     const { 
         resumes, 
-        isLoading: isStoreLoading, 
-        fetchResumes, 
+        isLoading: isStoreLoading,
+        isLoadingMore,
+        fetchResumes,
+        fetchMoreResumes,
+        hasMore,
         search, 
         setSearch, 
         deleteResumeOptimistic,
@@ -65,7 +68,6 @@ export default function HistoryPage() {
     } = useResumeHistoryStore();
 
     const [error, setError] = useState("");
-    const [deleteId, setDeleteId] = useState<string | null>(null);
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [isSlowLoad, setIsSlowLoad] = useState(false);
     const [localSearch, setLocalSearch] = useState(search);
@@ -73,7 +75,7 @@ export default function HistoryPage() {
 
     useEffect(() => {
         setSearch(debouncedSearch);
-    }, [debouncedSearch]);
+    }, [debouncedSearch, setSearch]);
 
     useEffect(() => {
         handleFetch();
@@ -84,6 +86,7 @@ export default function HistoryPage() {
         try {
             const { data: { user }, error: authError } = await supabase.auth.getUser();
             if (authError || !user) {
+                userIdRef.current = null;
                 if (authError?.message?.includes("storage")) {
                     setError("Storage access blocked. Please check your browser's site data/cookie settings.");
                 } else {
@@ -91,18 +94,35 @@ export default function HistoryPage() {
                 }
                 return;
             }
+            userIdRef.current = user.id;
             await fetchResumes(user.id);
         } catch (err: any) {
             setError(err.message || "Failed to load resumes.");
         }
     };
 
-    // Effect to auto-select/preview the most recent resume if available
+    const loadMore = useCallback(() => {
+        const userId = userIdRef.current;
+        if (!userId || !hasMore() || isStoreLoading || isLoadingMore) return;
+        void fetchMoreResumes(userId);
+    }, [fetchMoreResumes, hasMore, isLoadingMore, isStoreLoading]);
+
     useEffect(() => {
-        if (!isStoreLoading && resumes.length > 0 && !loadingId) {
-            // Logic for visual cues can go here
-        }
-    }, [isStoreLoading, resumes]);
+        const node = loadMoreRef.current;
+        if (!node) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((entry) => entry.isIntersecting)) {
+                    loadMore();
+                }
+            },
+            { root: null, rootMargin: "240px 0px", threshold: 0 },
+        );
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [loadMore, resumes.length]);
 
 
     const handleDelete = async (id: string) => {
@@ -384,6 +404,11 @@ export default function HistoryPage() {
                         )}
                     </div>
                 ) : (
+                    <>
+                    <div className="mb-4 text-sm text-gray-500 dark:text-slate-400">
+                        Showing {resumes.length}
+                        {totalCount > resumes.length ? ` of ${totalCount}` : ''} saved resume{totalCount === 1 ? '' : 's'}
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {resumes.map((resume, index) => (
                             <div key={resume.id} className={`group bg-white dark:bg-slate-800/60 rounded-xl border ${index === 0 ? 'border-blue-500 shadow-md ring-1 ring-blue-500/20' : 'border-gray-200 dark:border-slate-600'} hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-all duration-200 overflow-hidden`}>
@@ -512,6 +537,19 @@ export default function HistoryPage() {
                             </div>
                         ))}
                     </div>
+                    <div ref={loadMoreRef} className="py-8 flex flex-col items-center justify-center gap-2">
+                        {isLoadingMore ? (
+                            <>
+                                <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                                <p className="text-sm text-gray-500">Loading more resumes…</p>
+                            </>
+                        ) : hasMore() ? (
+                            <p className="text-sm text-gray-400">Scroll for more</p>
+                        ) : resumes.length > 0 ? (
+                            <p className="text-sm text-gray-400">You&apos;ve reached the end</p>
+                        ) : null}
+                    </div>
+                    </>
                 )}
             </div>
         </div>
