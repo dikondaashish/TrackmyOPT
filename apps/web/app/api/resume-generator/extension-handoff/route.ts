@@ -4,12 +4,17 @@
  * The generated LaTeX is stored server-side under a random, user-scoped key.
  * The URL contains only that opaque key; the editor still requires the same
  * signed-in user before it can read and consume the payload.
+ *
+ * When possible we also upsert a resumes row so Job Tracker can show the
+ * tailored resume even if the user never opens the editor.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth/getUserId';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
+import { buildResumePdfFilename } from '@/lib/resume/build-resume-filename';
+import { ATS_PASS_SCORE } from '@/lib/resume/ats-analysis-types';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +24,69 @@ const MAX_HANDOFF_AGE_MS = 24 * 60 * 60 * 1000;
 
 export async function OPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
+}
+
+async function persistGeneratedResume(input: {
+  userId: string;
+  latex: string;
+  resumeText: string;
+  jobDescription: string;
+  jobTitle: string | null;
+  templateId: string;
+  applicationId: string | null;
+  atsScore: number | null;
+}) {
+  const supabase = getSupabaseAdminClient();
+  const filename = buildResumePdfFilename({
+    latex: input.latex,
+    jobDescription: input.jobDescription,
+    jobTitle: input.jobTitle,
+    templateId: input.templateId,
+  });
+  const structuredData: Record<string, unknown> = {
+    latexCode: input.latex,
+    jobDescription: input.jobDescription,
+    jobTitle: input.jobTitle,
+    templateId: input.templateId,
+    type: 'generated',
+    resumeStatus:
+      typeof input.atsScore === 'number' && input.atsScore >= ATS_PASS_SCORE ? 'ready' : 'draft',
+    atsScore: input.atsScore,
+    ...(input.applicationId ? { applicationId: input.applicationId } : {}),
+  };
+
+  if (input.applicationId) {
+    const { data: existingRows } = await supabase
+      .from('resumes')
+      .select('id')
+      .eq('user_id', input.userId)
+      .contains('structured_data', { applicationId: input.applicationId })
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (existingRows?.[0]?.id) {
+      await supabase
+        .from('resumes')
+        .update({
+          filename,
+          content: input.resumeText,
+          structured_data: structuredData,
+          is_parsed: true,
+        })
+        .eq('id', existingRows[0].id)
+        .eq('user_id', input.userId);
+      return;
+    }
+  }
+
+  await supabase.from('resumes').insert({
+    user_id: input.userId,
+    filename,
+    content: input.resumeText,
+    structured_data: structuredData,
+    is_parsed: true,
+    created_at: new Date().toISOString(),
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -33,6 +101,14 @@ export async function POST(req: NextRequest) {
   const resumeText = typeof body?.resumeText === 'string' ? body.resumeText : '';
   const jobDescription = typeof body?.jobDescription === 'string' ? body.jobDescription : '';
   const templateId = typeof body?.templateId === 'string' ? body.templateId.slice(0, 50) : '';
+  const applicationId =
+    typeof body?.applicationId === 'string' && body.applicationId.trim()
+      ? body.applicationId.trim().slice(0, 80)
+      : null;
+  const atsScore =
+    typeof body?.atsScore === 'number' && Number.isFinite(body.atsScore)
+      ? body.atsScore
+      : null;
 
   if (!latex.trim() || !resumeText.trim() || !jobDescription.trim() || !templateId) {
     return NextResponse.json(
@@ -41,13 +117,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const jobTitle = typeof body?.jobTitle === 'string' ? body.jobTitle.slice(0, 300) : null;
   const payload = {
     latex,
     resumeText,
     resumeFilename: typeof body?.resumeFilename === 'string' ? body.resumeFilename.slice(0, 240) : 'resume',
     jobDescription,
-    jobTitle: typeof body?.jobTitle === 'string' ? body.jobTitle.slice(0, 300) : null,
+    jobTitle,
     templateId,
+    applicationId,
+    atsScore,
   };
   if (JSON.stringify(payload).length > MAX_PAYLOAD_CHARS) {
     return NextResponse.json(
@@ -67,6 +146,22 @@ export async function POST(req: NextRequest) {
       { ok: false, error: 'Could not prepare the editor' },
       { status: 500, headers: cors }
     );
+  }
+
+  // Best-effort: Job Tracker should see this resume without requiring editor open.
+  try {
+    await persistGeneratedResume({
+      userId,
+      latex,
+      resumeText,
+      jobDescription,
+      jobTitle,
+      templateId,
+      applicationId,
+      atsScore,
+    });
+  } catch (persistError) {
+    console.error('extension-handoff resume persist failed:', persistError);
   }
 
   return NextResponse.json({ ok: true, handoffId }, { headers: cors });

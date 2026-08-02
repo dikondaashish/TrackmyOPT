@@ -152,6 +152,31 @@ type LastResumeGenerationRequest = {
 let generatedResumeArtifactForCurrentJob: GeneratedResumeArtifactV1 | null = null;
 let artifactBackedFieldsFilled = false;
 let artifactStaleReason: ArtifactInvalidReason | null = null;
+/** Tracker application ids for jobs saved (or already saved) this session. */
+const trackerApplicationIdByJobKey = new Map<string, string>();
+
+function rememberTrackerApplicationId(job: JobInfo, applicationId?: string): void {
+  const id = applicationId?.trim();
+  if (!id) return;
+  trackerApplicationIdByJobKey.set(
+    jobMemoryKey({
+      jobUrl: job.job_url || window.location.href,
+      companyName: job.company_name || '',
+      roleTitle: job.role_title || '',
+    }),
+    id,
+  );
+}
+
+function trackerApplicationIdFor(job: JobInfo): string | undefined {
+  return trackerApplicationIdByJobKey.get(
+    jobMemoryKey({
+      jobUrl: job.job_url || window.location.href,
+      companyName: job.company_name || '',
+      roleTitle: job.role_title || '',
+    }),
+  );
+}
 let artifactExpiryTimer: number | null = null;
 let lastResumeGenerationRequest: LastResumeGenerationRequest | null = null;
 let regenerationRecheckPending = false;
@@ -847,6 +872,8 @@ async function executeResolvedPrefill(
         stoppedReason: resolved.reason,
       };
     }
+    // Profile-only: never attach a resume file when nothing was generated
+    // for this job (or the artifact no longer matches).
     prefill = {
       profileFallback: resolved.profileFallback,
       autofillSkills: false,
@@ -1544,9 +1571,10 @@ function tryAutoAddWithJob(job: JobInfo) {
         job: buildJobSaveSnapshot(job, scrapeJobDescription()),
         autoAdd: true,
       },
-      (response: { ok?: boolean; error?: string } | undefined) => {
+      (response: { ok?: boolean; error?: string; id?: string } | undefined) => {
         if (chrome.runtime.lastError) return;
         if (response?.ok) {
+          rememberTrackerApplicationId(job, response.id);
           chrome.storage.session.set({
             [SESSION_KEYS.LAST_AUTO_ADDED]: { job_url: job.job_url, at: Date.now() },
           });
@@ -3142,7 +3170,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         job: buildJobSaveSnapshot(job, scrapeJobDescription()),
         status,
       },
-      (response: { ok?: boolean; error?: string } | undefined) => {
+      (response: { ok?: boolean; error?: string; id?: string } | undefined) => {
         saveBtn.disabled = false;
         if (chrome.runtime.lastError) {
           if (label) label.textContent = prev;
@@ -3155,6 +3183,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
           return;
         }
         if (response?.ok) {
+          rememberTrackerApplicationId(job, response.id);
           markJobSaved(status === 'Applied' ? 'Applied' : 'Wishlist');
           void showPostSaveSuggestionOnce();
           showMessage(status === 'Applied' ? 'Application added to Job Tracker!' : 'Job saved to your Wishlist!', false);
@@ -3196,6 +3225,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
       (res: {
         ok?: boolean;
         saved?: boolean;
+        id?: string;
         status?: 'Applied' | 'Wishlist';
         duplicateApplication?: DuplicateApplicationNotice;
       } | undefined) => {
@@ -3203,6 +3233,7 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
           duplicateApplication = res.duplicateApplication;
         }
         if (!chrome.runtime.lastError && res?.ok && res.saved) {
+          rememberTrackerApplicationId(job, res.id);
           markJobSaved(res.status === 'Wishlist' ? 'Wishlist' : 'Applied');
           return;
         }
@@ -4495,6 +4526,7 @@ function openResumePanel(
       outputFilename: generatedResumeFilename(job),
       focusKeywords,
       baselineScore,
+      applicationId: trackerApplicationIdFor(job),
     },
     (
       res: {
@@ -5196,8 +5228,22 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       roleTitle: job?.role_title ?? '',
       companyName: job?.company_name ?? '',
       jobUrl: job?.job_url ?? window.location.href,
+      pageUrl: window.location.href,
+      applicationId: job ? trackerApplicationIdFor(job) : undefined,
       jobDescription: description,
     });
+    return false;
+  }
+  if (message?.type === 'GENERATED_RESUME_ARTIFACT_READY') {
+    if (window.top !== window.self) return false;
+    const root = document.getElementById(WIDGET_ROOT_ID);
+    const prefillButton = root?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
+    const fallbackHost = root?.querySelector<HTMLElement>(`.${ARTIFACT_INACTIVE_FALLBACK_CLASS}`);
+    const job = getJobInfo();
+    if (job && prefillButton && fallbackHost) {
+      void reconcileArtifactAvailabilityOnWidgetMount(job, prefillButton, fallbackHost);
+    }
+    sendResponse({ ok: true });
     return false;
   }
   if (message?.type === 'CLEAR_RESUME_AUTOFILL_ARTIFACT') {

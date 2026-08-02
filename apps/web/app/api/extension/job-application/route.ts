@@ -6,6 +6,10 @@ import { captureServerEvent } from '@/lib/posthog-server';
 import rateLimit from '@/lib/auth/rate-limit';
 import { normalizeJobSnapshot } from '@/lib/career/job-tracker/job-snapshot';
 import { findSimilarApplication } from '@/lib/career/job-tracker/application-match';
+import {
+  findResumeToAttachOnJobSave,
+  type LinkedResumeCandidate,
+} from '@/lib/career/job-tracker/linked-resume';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +26,65 @@ const getAdminClient = () =>
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+
+/**
+ * Common extension flow is generate → prefill → apply → save. Stamp the
+ * matching unlinked generated resume with this applicationId so Job Tracker
+ * shows it without relying only on fuzzy JD matching at read time.
+ */
+async function attachMatchingResume(input: {
+  userId: string;
+  applicationId: string;
+  companyName: string;
+  roleTitle: string;
+  jobDescription: string | null;
+}) {
+  try {
+    const supabase = getAdminClient();
+    const { data: rows, error } = await supabase
+      .from('resumes')
+      .select('id, filename, created_at, structured_data')
+      .eq('user_id', input.userId)
+      .order('created_at', { ascending: false })
+      .limit(40);
+
+    if (error || !rows?.length) return;
+
+    const resumes: LinkedResumeCandidate[] = rows.map((row) => ({
+      id: row.id as string,
+      filename: (row.filename as string) || 'resume.pdf',
+      created_at: (row.created_at as string) || new Date(0).toISOString(),
+      structuredData:
+        row.structured_data && typeof row.structured_data === 'object'
+          ? (row.structured_data as LinkedResumeCandidate['structuredData'])
+          : null,
+    }));
+
+    const match = findResumeToAttachOnJobSave(resumes, {
+      id: input.applicationId,
+      company_name: input.companyName,
+      role_title: input.roleTitle,
+      job_description: input.jobDescription,
+    });
+    if (!match || match.matchReason === 'application_id') return;
+
+    const source = resumes.find((resume) => resume.id === match.id);
+    if (!source?.structuredData) return;
+
+    await supabase
+      .from('resumes')
+      .update({
+        structured_data: {
+          ...source.structuredData,
+          applicationId: input.applicationId,
+        },
+      })
+      .eq('id', match.id)
+      .eq('user_id', input.userId);
+  } catch (err) {
+    console.error('attachMatchingResume failed:', err);
+  }
+}
 
 /**
  * GET /api/extension/job-application?job_url=<url>
@@ -48,11 +111,16 @@ export async function GET(req: NextRequest) {
     }
 
     const supabase = getAdminClient();
-    let exactApplication: { status: string; applied_at: string | null; created_at: string } | null = null;
+    let exactApplication: {
+      id: string;
+      status: string;
+      applied_at: string | null;
+      created_at: string;
+    } | null = null;
     if (jobUrl) {
       const { data, error } = await supabase
         .from('job_applications')
-        .select('status, applied_at, created_at')
+        .select('id, status, applied_at, created_at')
         .eq('user_id', userId)
         .eq('job_url', jobUrl)
         .order('created_at', { ascending: false })
@@ -91,6 +159,7 @@ export async function GET(req: NextRequest) {
       {
         saved: !!exactApplication,
         ...(exactApplication ? {
+          id: exactApplication.id,
           status: exactApplication.status,
           saved_at: exactApplication.applied_at || exactApplication.created_at || null,
         } : {}),
@@ -192,8 +261,34 @@ export async function POST(req: NextRequest) {
       if (error.code === '23505') {
         // The partial unique index makes concurrent clicks/tabs atomic. Treat
         // the conflict as idempotent success so the widget paints Saved/View.
+        let existingId: string | null = null;
+        if (job_url) {
+          const { data: existing } = await supabase
+            .from('job_applications')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('job_url', String(job_url).trim())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          existingId = existing?.id ?? null;
+        }
+        if (existingId) {
+          await attachMatchingResume({
+            userId,
+            applicationId: existingId,
+            companyName: String(company_name).trim(),
+            roleTitle: String(role_title).trim(),
+            jobDescription: snapshot.jobDescription,
+          });
+        }
         return NextResponse.json(
-          { ok: true, already_saved: true, message: 'This job is already in your tracker.' },
+          {
+            ok: true,
+            already_saved: true,
+            ...(existingId ? { id: existingId } : {}),
+            message: 'This job is already in your tracker.',
+          },
           { headers: corsHeaders }
         );
       } else if (error.code === '23503') {
@@ -212,6 +307,14 @@ export async function POST(req: NextRequest) {
       has_job_url: !!job_url,
       has_salary_text: !!snapshot.salaryText,
       has_job_description: !!snapshot.jobDescription,
+    });
+
+    await attachMatchingResume({
+      userId,
+      applicationId: data.id,
+      companyName: String(company_name).trim(),
+      roleTitle: String(role_title).trim(),
+      jobDescription: snapshot.jobDescription,
     });
 
     return NextResponse.json(

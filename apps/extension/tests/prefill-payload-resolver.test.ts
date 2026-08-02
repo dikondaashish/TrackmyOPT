@@ -119,6 +119,20 @@ test('artifact prefill can be disabled without removing profile-only prefill', a
   assert.equal(rejected, false);
 });
 
+test('missing generated resume stays profile-only with no resume attachment', async () => {
+  const response = await resolveV1PrefillPayload({
+    artifact: null,
+    request,
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+
+  assert.equal(response.ok, true);
+  if (!response.ok) return;
+  assert.equal(response.source, 'profile_only');
+  assert.equal(response.reason, 'missing');
+  assert.equal('resume' in response, false);
+});
+
 test('cover letter is relayed only when its independent flag is enabled', async () => {
   const artifact = await validArtifact();
   artifact.coverLetter = {

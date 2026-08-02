@@ -84,6 +84,24 @@ async function cacheCurrentGeneratedResumeArtifact(
 ): Promise<void> {
   currentGeneratedResumeArtifact = artifact;
   await replaceActiveGeneratedResumeArtifact(artifact);
+  await notifyTabsGeneratedResumeReady();
+}
+
+/** Tell open job-page widgets that a tailored resume is ready for prefill attach. */
+async function notifyTabsGeneratedResumeReady(): Promise<void> {
+  try {
+    const tabs = await chrome.tabs.query({});
+    await Promise.all(
+      tabs.map((tab) => {
+        if (tab.id === undefined) return Promise.resolve();
+        return chrome.tabs
+          .sendMessage(tab.id, { type: 'GENERATED_RESUME_ARTIFACT_READY' })
+          .catch(() => undefined);
+      }),
+    );
+  } catch {
+    // Widget refresh is best-effort; prefill still resolves from session store.
+  }
 }
 
 async function readCurrentGeneratedResumeArtifact(): Promise<GeneratedResumeArtifactV1 | null> {
@@ -430,6 +448,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         ? msg.focusKeywords.map((keyword: unknown) => String(keyword ?? '')).filter(Boolean)
         : [],
       baselineScore: typeof msg.baselineScore === 'number' ? msg.baselineScore : undefined,
+      applicationId:
+        typeof msg.applicationId === 'string' && msg.applicationId.trim()
+          ? msg.applicationId.trim()
+          : undefined,
+      resumeText: typeof msg.resumeText === 'string' ? msg.resumeText : undefined,
     }))
       .then((res) => sendResponse(res))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
@@ -744,6 +767,7 @@ interface CheckJobSavedResult {
   ok: boolean;
   error?: string;
   saved?: boolean;
+  id?: string;
   status?: 'Applied' | 'Wishlist';
   savedAt?: string | null;
   duplicateApplication?: DuplicateApplicationNotice;
@@ -796,6 +820,7 @@ async function checkJobSaved(input: {
   if (!res.ok) return { ok: false, error: 'lookup_failed' };
   const data = (await res.json()) as {
     saved?: boolean;
+    id?: string;
     status?: string;
     saved_at?: string | null;
     duplicate_application?: DuplicateApplicationNotice;
@@ -803,6 +828,7 @@ async function checkJobSaved(input: {
   return {
     ok: true,
     saved: !!data.saved,
+    id: typeof data.id === 'string' ? data.id : undefined,
     status: data.status === 'Wishlist' ? 'Wishlist' : data.status === 'Applied' ? 'Applied' : undefined,
     savedAt: data.saved_at ?? null,
     duplicateApplication: data.duplicate_application,
@@ -1185,6 +1211,7 @@ async function generateTailoredResume(input: {
   outputFilename: string;
   focusKeywords?: string[];
   baselineScore?: number;
+  applicationId?: string;
   /**
    * Raw resume text pasted directly into the side panel. Takes priority over
    * resumeId when present — the caller only needs to supply one of the two.
@@ -1205,6 +1232,7 @@ async function generateTailoredResume(input: {
     jobUrl,
     jobKey,
     outputFilename,
+    applicationId,
   } = input;
   const focusKeywords = [...new Set((input.focusKeywords ?? [])
     .map((keyword) => keyword.replace(/\s+/g, ' ').trim().slice(0, 80))
@@ -1466,12 +1494,15 @@ async function generateTailoredResume(input: {
           ? (companyName ? `${roleTitle} at ${companyName}` : roleTitle)
           : companyName,
         templateId,
+        applicationId: applicationId || undefined,
+        atsScore: generatedScore ?? null,
       }),
     });
     const handoff = (await handoffRes.json().catch(() => ({}))) as { handoffId?: string };
     if (handoffRes.ok && handoff.handoffId) {
       const editor = new URL(`${WEBSITE_URL}/dashboard/career/resume-generator/editor`);
       editor.searchParams.set('handoffId', handoff.handoffId);
+      if (applicationId) editor.searchParams.set('applicationId', applicationId);
       editorUrl = editor.toString();
     }
   } catch {
@@ -1713,7 +1744,11 @@ async function handleAddJobToTracker(
       message,
     });
   }
-  return { ok: true, status };
+  return {
+    ok: true,
+    id: typeof (data as { id?: string }).id === 'string' ? (data as { id: string }).id : undefined,
+    status,
+  };
 }
 
 async function beginAuth(){

@@ -631,6 +631,7 @@ export default function ResumeEditorPage() {
                     jobDescription?: string;
                     jobTitle?: string | null;
                     templateId?: string;
+                    applicationId?: string | null;
                 };
                 if (!payload.latex || !payload.resumeText || !payload.jobDescription) {
                     throw new Error("Generated resume data is incomplete");
@@ -642,6 +643,7 @@ export default function ResumeEditorPage() {
                 setResumeText(payload.resumeText, payload.resumeFilename || "resume");
                 setJobDescription(payload.jobDescription, payload.jobTitle || undefined);
                 if (payload.templateId) setSelectedTemplateId(payload.templateId);
+                if (payload.applicationId) setApplicationId(payload.applicationId);
                 setAtsAnalysis(null);
                 setIsStreamingEnabled(false);
                 updateText(payload.latex, true);

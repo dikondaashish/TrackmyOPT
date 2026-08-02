@@ -21,9 +21,11 @@
  *  4. Custom dropdowns are selected only when exactly one high-confidence
  *     saved value matches. Ambiguous or unsupported controls remain for review.
  *  5. No timers/delays for evasion, no loop. One open form, once.
- *  6. A resume PDF is attached only when the caller explicitly provides the
- *     job-scoped PDF, the input is confidently labeled Resume/CV, and the user
- *     has not already selected a file.
+ *  6. A resume PDF is attached only when the caller provides the
+ *     job-scoped *generated* PDF for this posting. Never invent or upload a
+ *     base/saved resume. If nothing was generated, leave the file input alone.
+ *     Also require a confidently labeled Resume/CV input with no file already
+ *     selected by the user.
  *
  * The JWT never reaches this code: it asks the background worker for the
  * resolved profile; the token stays in the background.

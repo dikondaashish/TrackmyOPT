@@ -35,7 +35,10 @@ interface JobContext {
     roleTitle: string;
     companyName: string;
     jobUrl: string;
+    /** Live page URL — must match what Prefill uses for artifact matching. */
+    pageUrl: string;
     jobDescription: string;
+    applicationId?: string;
 }
 
 interface SavedResumeOption {
@@ -453,9 +456,17 @@ function startRun(input: StartRunInput, slot: HTMLElement, trigger: HTMLButtonEl
             jobDescription: input.jobDescription.trim(),
             companyName: jobContext.companyName,
             roleTitle: jobContext.roleTitle,
-            jobUrl: jobContext.jobUrl,
-            jobKey: '',
-            outputFilename: 'resume',
+            // Prefer the live page URL so Prefill on this tab can attach the PDF.
+            jobUrl: jobContext.pageUrl || jobContext.jobUrl,
+            jobKey: [
+                jobContext.pageUrl || jobContext.jobUrl,
+                jobContext.companyName,
+                jobContext.roleTitle,
+            ].join('|'),
+            outputFilename: 'TrackMyOPT-resume.pdf',
+            ...(jobContext.applicationId
+                ? { applicationId: jobContext.applicationId }
+                : {}),
             ...(input.resumeSource === 'paste'
                 ? { resumeText: input.resumeText.trim(), resumeId: '' }
                 : { resumeId: input.resumeId }),
@@ -534,7 +545,7 @@ function requestJobContext(): void {
             // recognised as a job posting at all (a role, company, or URL).
             const context = response as JobContext | undefined;
             const hasJobContext = Boolean(
-                context && (context.roleTitle || context.companyName || context.jobUrl)
+                context && (context.roleTitle || context.companyName || context.jobUrl || context.pageUrl)
             );
             if (chrome.runtime.lastError || !hasJobContext) {
                 renderEmpty(
@@ -542,7 +553,10 @@ function requestJobContext(): void {
                 );
                 return;
             }
-            renderJob(context!);
+            renderJob({
+                ...context!,
+                pageUrl: context!.pageUrl || context!.jobUrl,
+            });
         });
     });
 }

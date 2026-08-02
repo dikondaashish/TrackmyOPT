@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { OfferDetailsSection } from "./OfferDetailsSection";
 import { supabase } from "@/lib/supabaseClient";
 import { useResumeStore } from "@/store/resume-store";
+import { findLinkedResumeForApplication } from "@/lib/career/job-tracker/linked-resume";
 
 interface LinkedResume {
     id: string;
@@ -22,6 +23,7 @@ interface LinkedResume {
     atsScore: number | null;
     resumeStatus: string | null;
     created_at: string;
+    matchReason?: "application_id" | "job_details";
 }
 
 interface ExtendedJobApplication extends JobApplication {
@@ -90,25 +92,21 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user || cancelled) return;
 
-                const response = await fetch(`/api/proxy/resume/list?userId=${user.id}&limit=50`);
+                const response = await fetch(`/api/proxy/resume/list?userId=${user.id}&limit=100`);
                 if (!response.ok || cancelled) return;
 
                 const data = await response.json();
                 const resumes = Array.isArray(data) ? data : (data.data || []);
 
-                const match = resumes.find(
-                    (r: { structuredData?: { applicationId?: string } }) =>
-                        r.structuredData?.applicationId === application!.id
-                );
+                const match = findLinkedResumeForApplication(resumes, {
+                    id: application!.id,
+                    company_name: application!.company_name,
+                    role_title: application!.role_title,
+                    job_description: application!.job_description,
+                });
 
                 if (match && !cancelled) {
-                    setLinkedResume({
-                        id: match.id,
-                        filename: match.filename,
-                        atsScore: match.structuredData?.atsScore ?? match.structuredData?.atsAnalysis?.score ?? null,
-                        resumeStatus: match.structuredData?.resumeStatus ?? null,
-                        created_at: match.created_at,
-                    });
+                    setLinkedResume(match);
                 } else if (!cancelled) {
                     setLinkedResume(null);
                 }
@@ -331,6 +329,11 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={linkedResume.filename}>
                                         {linkedResume.filename}
                                     </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        {linkedResume.matchReason === "job_details"
+                                            ? "Matched from this job’s role and description"
+                                            : "Linked when this resume was generated for this application"}
+                                    </p>
                                     {linkedResume.atsScore != null && (
                                         <p className="text-xs text-gray-600 dark:text-gray-400">
                                             ATS score: <span className="font-semibold">{linkedResume.atsScore}%</span>
@@ -340,10 +343,10 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                         variant="ghost"
                                         size="sm"
                                         className="w-full h-8 text-xs gap-1.5"
-                                        onClick={() => router.push("/dashboard/career/history")}
+                                        onClick={() => router.push("/dashboard/career/saved-resumes")}
                                     >
                                         <Download className="w-3.5 h-3.5" />
-                                        View in resume history
+                                        View in saved resumes
                                     </Button>
                                 </div>
                             )}
