@@ -19,6 +19,16 @@ import { TemplatePdfPreview } from "./TemplatePdfPreview";
 import { useResumeStore } from "@/store/resume-store";
 import { RESUME_TEMPLATES, Template, TemplateColor } from "@/lib/documents/templates";
 
+/** Soft tint behind the card copy only — never applied to the resume preview. */
+const TEMPLATE_INFO_BG: Record<string, string> = {
+    modern: "bg-sky-50 dark:bg-sky-950/40",
+    tech: "bg-teal-50 dark:bg-teal-950/40",
+    professional: "bg-stone-50 dark:bg-stone-900/50",
+    executive: "bg-indigo-50 dark:bg-indigo-950/40",
+    academic: "bg-amber-50 dark:bg-amber-950/30",
+    creative: "bg-violet-50 dark:bg-violet-950/40",
+};
+
 
 export default function TemplateSelectionPage() {
     const router = useRouter();
@@ -169,20 +179,22 @@ export default function TemplateSelectionPage() {
                                 )}
                             </div>
 
-                            {/* Template Info */}
-                            <div className="p-5 relative bg-white dark:bg-gray-900 min-w-0">
+                            {/* Template Info — light tint only on this copy block */}
+                            <div
+                                className={`p-5 relative min-w-0 ${TEMPLATE_INFO_BG[template.id] ?? "bg-slate-50 dark:bg-slate-900/50"}`}
+                            >
                                 <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
                                     <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                                         {template.name}
                                     </h3>
-                                    <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400 font-medium border border-gray-200 dark:border-gray-700 shrink-0">
+                                    <span className="text-xs px-2.5 py-1 bg-white/80 dark:bg-gray-800/80 rounded-full text-gray-600 dark:text-gray-400 font-medium border border-gray-200/80 dark:border-gray-700 shrink-0">
                                         {template.category}
                                     </span>
                                 </div>
                                 <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-2 truncate">
                                     {template.bestFor}
                                 </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                                     {template.description}
                                 </p>
 
@@ -191,7 +203,7 @@ export default function TemplateSelectionPage() {
                                     {template.colors.map((color) => (
                                         <div
                                             key={color.hex}
-                                            className={`w-3 h-3 rounded-full ${color.class}`}
+                                            className={`w-3 h-3 rounded-full ring-1 ring-black/5 ${color.class}`}
                                             title={color.name}
                                         />
                                     ))}
