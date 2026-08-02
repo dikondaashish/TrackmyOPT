@@ -3072,7 +3072,20 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   // Opens an explicit saved-resume/template chooser, then generates in the
   // widget with a live countdown and Download / Edit LaTeX actions.
   resumeBtn.addEventListener('click', () => {
-    openResumeChooser(card, job);
+    // Prefer the side panel: it hosts the run so it survives navigation, which
+    // the in-widget flow cannot. chrome.sidePanel.open() must be called during
+    // a user gesture, and the gesture may not survive the message round trip to
+    // the service worker, so the in-widget chooser stays as the fallback and
+    // remains the behaviour on Chrome < 114.
+    try {
+      chrome.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' }, (response) => {
+        if (chrome.runtime.lastError || !response?.ok) {
+          openResumeChooser(card, job);
+        }
+      });
+    } catch {
+      openResumeChooser(card, job);
+    }
   });
 
   aiBtn.addEventListener('click', () => {
