@@ -428,15 +428,18 @@ function getFileInputLabel(input: HTMLInputElement): string {
     '[data-test-form-element], .jobs-document-upload, .application-field, .field, .form-field, .form-group, [class*="resume"], [class*="Resume"]'
   );
   if (field?.textContent) parts.push(field.textContent.slice(0, 300));
-  // Greenhouse / custom ATS "Add Resume*" + Select menus often leave the
-  // hidden file input unlabeled; the nearby heading is the real signal.
-  let sibling: Element | null = input.previousElementSibling;
-  for (let i = 0; i < 4 && sibling; i += 1, sibling = sibling.previousElementSibling) {
-    parts.push(sibling.textContent?.slice(0, 120) || '');
-  }
-  const parent = input.parentElement;
-  if (parent?.previousElementSibling?.textContent) {
-    parts.push(parent.previousElementSibling.textContent.slice(0, 120));
+
+  // Nearby heading fallback only when this input still has no document-type
+  // signal. Walking every previous sibling mixes "Resume" into a following
+  // "Cover letter" input and blocks cover-letter attach.
+  const preliminary = parts.join(' ').replace(/\s+/g, ' ').trim();
+  if (!/\b(resume|résumé|curriculum\s+vitae|\bcv\b|cover\s*letter|letter\s*of\s*interest)\b/i.test(preliminary)) {
+    const parent = input.parentElement;
+    if (parent?.previousElementSibling?.textContent) {
+      parts.push(parent.previousElementSibling.textContent.slice(0, 120));
+    }
+    const immediate = input.previousElementSibling;
+    if (immediate?.textContent) parts.push(immediate.textContent.slice(0, 120));
   }
   return parts.join(' ').replace(/\s+/g, ' ').trim();
 }

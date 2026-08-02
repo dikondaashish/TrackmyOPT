@@ -9,14 +9,27 @@ describe('artifact fallback after content-script recreation', () => {
     document.body.textContent = '';
   });
 
-  it('renders the documented fallback instead of a blank state when memory is lost', () => {
-    // A recreated content script must explain a missing background artifact
-    // even when no page-scoped session marker survived the navigation.
+  it('stays hidden when no resume was expected for this job yet', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
     const rendered = renderInactiveArtifactFallback({
       host,
       artifactAvailable: false,
+      wasExpected: false,
+    });
+
+    expect(rendered).toBe(false);
+    expect(host.textContent).toBe('');
+    expect(host.hasAttribute('role')).toBe(false);
+  });
+
+  it('renders the documented fallback when a resume was expected but is gone', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const rendered = renderInactiveArtifactFallback({
+      host,
+      artifactAvailable: false,
+      wasExpected: true,
     });
 
     expect(rendered).toBe(true);
@@ -33,6 +46,7 @@ describe('artifact fallback after content-script recreation', () => {
     expect(renderInactiveArtifactFallback({
       host,
       artifactAvailable: true,
+      wasExpected: true,
     })).toBe(false);
     expect(host.textContent).toBe('');
   });
