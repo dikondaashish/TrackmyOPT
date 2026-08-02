@@ -1099,6 +1099,11 @@ async function generateTailoredResume(input: {
   outputFilename: string;
   focusKeywords?: string[];
   baselineScore?: number;
+  /**
+   * Raw resume text pasted directly into the side panel. Takes priority over
+   * resumeId when present — the caller only needs to supply one of the two.
+   */
+  resumeText?: string;
 }, run?: RunSession): Promise<GenerateResumeResult> {
   // When a run session is supplied the pipeline reports each step and honours
   // cancellation; without one it behaves exactly as before.
@@ -1118,26 +1123,32 @@ async function generateTailoredResume(input: {
   const focusKeywords = [...new Set((input.focusKeywords ?? [])
     .map((keyword) => keyword.replace(/\s+/g, ' ').trim().slice(0, 80))
     .filter(Boolean))].slice(0, 12);
+  const pastedResumeText = input.resumeText?.trim();
   if (!jobDescription.trim()) return { ok: false, error: 'no_job_description' };
-  if (!resumeId.trim()) return { ok: false, error: 'no_base_resume' };
+  if (!pastedResumeText && !resumeId.trim()) return { ok: false, error: 'no_base_resume' };
   if (!templateId.trim()) return { ok: false, error: 'no_template' };
 
   const auth = { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` };
 
-  // 1. User-selected saved resume
+  // 1. Pasted text, or the user-selected saved resume
   run?.step('load_resume', 'active');
-  const baseUrl = new URL(`${WEBSITE_URL}/api/resume-generator/base-resume`);
-  if (resumeId !== '__latest__') {
-    baseUrl.searchParams.set('resumeId', resumeId);
+  let base: { content?: string; filename?: string };
+  if (pastedResumeText) {
+    base = { content: pastedResumeText, filename: 'Pasted resume' };
+  } else {
+    const baseUrl = new URL(`${WEBSITE_URL}/api/resume-generator/base-resume`);
+    if (resumeId !== '__latest__') {
+      baseUrl.searchParams.set('resumeId', resumeId);
+    }
+    const baseRes = await fetch(baseUrl.toString(), {
+      method: 'GET',
+      signal,
+      headers: auth,
+    });
+    if (baseRes.status === 404) return { ok: false, error: 'no_base_resume' };
+    if (!baseRes.ok) return { ok: false, error: 'base_failed' };
+    base = (await baseRes.json()) as { content?: string; filename?: string };
   }
-  const baseRes = await fetch(baseUrl.toString(), {
-    method: 'GET',
-    signal,
-    headers: auth,
-  });
-  if (baseRes.status === 404) return { ok: false, error: 'no_base_resume' };
-  if (!baseRes.ok) return { ok: false, error: 'base_failed' };
-  const base = (await baseRes.json()) as { content?: string; filename?: string };
   if (!base.content) return { ok: false, error: 'no_base_resume' };
   run?.step('load_resume', 'done', base.filename);
   run?.throwIfCancelled();

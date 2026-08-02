@@ -6,11 +6,17 @@
  * and gets real width for progress, approvals, and results, so agent runs live
  * here instead.
  *
+ * Data flow mirrors the widget's proven resume chooser (openResumeChooser in
+ * content-job-portal.ts): job description box -> resume source -> template ->
+ * generate. The one addition over the widget is a "paste resume text" option
+ * alongside the saved-resume dropdown, so a user does not need a saved resume
+ * on file to use the panel.
+ *
  * Built entirely from the design primitives — no bespoke CSS.
  */
 
 import {
-    banner, button, card, heading, row, stack, text, liveRegion,
+    banner, button, card, field, heading, row, select, stack, text, textarea, liveRegion,
 } from './design/primitives';
 import { ensureThemeStyle } from './design/theme-css';
 import { runConsole, type RunConsoleHandle } from './agent/run-console';
@@ -23,6 +29,14 @@ interface JobContext {
     jobUrl: string;
     jobDescription: string;
 }
+
+interface SavedResumeOption {
+    id: string;
+    filename: string;
+    updatedAt?: string | null;
+}
+
+type ResumeSource = 'saved' | 'paste';
 
 const client = new AgentRunClient();
 let console_: RunConsoleHandle | null = null;
@@ -56,34 +70,97 @@ function renderJob(context: JobContext): void {
     const container = shell();
     jobContext = context;
 
-    const templateSelect = document.createElement('select');
-    templateSelect.id = 'tmo-panel-template';
-    templateSelect.style.cssText =
-        'width:100%;min-height:var(--tmo-min-target);padding:var(--tmo-space-1\\.5) var(--tmo-space-2);' +
-        'font-family:var(--tmo-font-sans);font-size:var(--tmo-text-md);color:var(--tmo-color-ink);' +
-        'background:var(--tmo-color-surface);border:1px solid var(--tmo-color-border);' +
-        'border-radius:var(--tmo-radius-sm)';
-    for (const template of RESUME_TEMPLATES_FOR_PANEL) {
-        const option = document.createElement('option');
-        option.value = template.id;
-        option.textContent = `${template.name} — ${template.hint}`;
-        templateSelect.appendChild(option);
+    /* ---- job description: editable, pre-filled from the detected posting --- */
+    const jdBox = textarea({
+        rows: 7,
+        placeholder: 'Paste the job description here',
+        value: context.jobDescription,
+        attrs: { 'aria-label': 'Job description' },
+    });
+    const jdCount = text({
+        text: `${context.jobDescription.length.toLocaleString()} characters`,
+        size: 'xs',
+        tone: 'muted',
+    });
+    jdBox.addEventListener('input', () => {
+        jdCount.textContent = `${jdBox.value.length.toLocaleString()} characters`;
+        updateGenerateEnabled();
+    });
+
+    /* ---- resume source: saved dropdown, or paste ---------------------------- */
+    const savedSelect = select({ options: [{ value: '', label: 'Loading your saved resumes…' }] });
+    savedSelect.disabled = true;
+    const pasteBox = textarea({
+        rows: 8,
+        placeholder: 'Paste your resume text here',
+        attrs: { 'aria-label': 'Resume text' },
+    });
+
+    const savedBlock = stack({ gap: '1', children: [field({ label: 'Saved résumé', control: savedSelect })] });
+    const pasteBlock = stack({ gap: '1', children: [field({ label: 'Resume text', control: pasteBox })] });
+    pasteBlock.style.display = 'none';
+
+    let resumeSource: ResumeSource = 'saved';
+    const savedToggle = button({
+        label: 'Use saved résumé',
+        variant: 'primary',
+        size: 'sm',
+        attrs: { 'aria-pressed': 'true' },
+        onClick: () => setResumeSource('saved'),
+    });
+    const pasteToggle = button({
+        label: 'Paste résumé text',
+        variant: 'secondary',
+        size: 'sm',
+        attrs: { 'aria-pressed': 'false' },
+        onClick: () => setResumeSource('paste'),
+    });
+
+    function setResumeSource(next: ResumeSource): void {
+        resumeSource = next;
+        savedBlock.style.display = next === 'saved' ? '' : 'none';
+        pasteBlock.style.display = next === 'paste' ? '' : 'none';
+        savedToggle.setAttribute('aria-pressed', String(next === 'saved'));
+        pasteToggle.setAttribute('aria-pressed', String(next === 'paste'));
+        // button() has no variant setter; re-derive the visual state via class-free
+        // background swap so the pressed control reads as selected.
+        savedToggle.style.background = next === 'saved' ? 'var(--tmo-color-accent)' : 'var(--tmo-color-surface)';
+        savedToggle.style.color = next === 'saved' ? 'var(--tmo-color-on-accent)' : 'var(--tmo-color-ink)';
+        pasteToggle.style.background = next === 'paste' ? 'var(--tmo-color-accent)' : 'var(--tmo-color-surface)';
+        pasteToggle.style.color = next === 'paste' ? 'var(--tmo-color-on-accent)' : 'var(--tmo-color-ink)';
+        updateGenerateEnabled();
     }
 
-    const templateLabel = document.createElement('label');
-    templateLabel.setAttribute('for', templateSelect.id);
-    templateLabel.textContent = 'Template';
-    templateLabel.style.cssText =
-        'font-size:var(--tmo-text-sm);font-weight:var(--tmo-weight-medium)';
+    pasteBox.addEventListener('input', updateGenerateEnabled);
+    savedSelect.addEventListener('change', updateGenerateEnabled);
 
+    /* ---- template ------------------------------------------------------------ */
+    const templateSelect = select({
+        options: RESUME_TEMPLATES_FOR_PANEL.map((t) => ({ value: t.id, label: `${t.name} — ${t.hint}` })),
+    });
+
+    /* ---- generate -------------------------------------------------------------- */
     const runSlot = stack({ gap: '3' });
-
     const tailorButton = button({
         label: 'Tailor résumé for this job',
         variant: 'primary',
         fullWidth: true,
-        onClick: () => startRun(templateSelect.value, runSlot, tailorButton),
+        disabled: true,
+        onClick: () => startRun({
+            templateId: templateSelect.value,
+            jobDescription: jdBox.value,
+            resumeSource,
+            resumeId: savedSelect.value,
+            resumeText: pasteBox.value,
+        }, runSlot, tailorButton),
     });
+
+    function updateGenerateEnabled(): void {
+        const hasJd = jdBox.value.trim().length > 0;
+        const hasResume =
+            resumeSource === 'saved' ? Boolean(savedSelect.value) : pasteBox.value.trim().length > 0;
+        tailorButton.disabled = !(hasJd && hasResume);
+    }
 
     container.replaceChildren(
         stack({
@@ -94,7 +171,7 @@ function renderJob(context: JobContext): void {
                     children: [
                         heading(1, context.roleTitle || 'This job', { size: 'xl' }),
                         text({
-                            text: context.companyName || new URL(context.jobUrl || 'https://example.com').hostname,
+                            text: context.companyName || safeHostname(context.jobUrl),
                             size: 'sm',
                             tone: 'muted',
                         }),
@@ -102,33 +179,115 @@ function renderJob(context: JobContext): void {
                 }),
                 card({
                     padding: '3',
-                    label: 'Tailor résumé',
+                    label: 'Job description',
                     children: [
                         stack({
-                            gap: '3',
+                            gap: '1',
                             children: [
-                                stack({ gap: '1', children: [templateLabel, templateSelect] }),
-                                tailorButton,
+                                field({ label: 'Job description', control: jdBox }),
+                                jdCount,
                             ],
                         }),
                     ],
                 }),
+                card({
+                    padding: '3',
+                    label: 'Résumé',
+                    children: [
+                        stack({
+                            gap: '3',
+                            children: [
+                                row({ gap: '2', children: [savedToggle, pasteToggle] }),
+                                savedBlock,
+                                pasteBlock,
+                            ],
+                        }),
+                    ],
+                }),
+                card({
+                    padding: '3',
+                    label: 'Template',
+                    children: [field({ label: 'Template', control: templateSelect })],
+                }),
+                tailorButton,
                 runSlot,
             ],
         })
+    );
+
+    loadSavedResumes(savedSelect, updateGenerateEnabled);
+}
+
+function safeHostname(url: string): string {
+    try {
+        return new URL(url).hostname;
+    } catch {
+        return '';
+    }
+}
+
+/* --------------------------------------------------------------- resumes */
+
+function loadSavedResumes(savedSelect: HTMLSelectElement, onLoaded: () => void): void {
+    chrome.runtime.sendMessage(
+        { type: 'LIST_SAVED_RESUMES' },
+        (response: { ok?: boolean; error?: string; resumes?: SavedResumeOption[] } | undefined) => {
+            const resumes = response?.ok ? response.resumes ?? [] : [];
+            savedSelect.disabled = false;
+            savedSelect.replaceChildren();
+
+            if (chrome.runtime.lastError || !response?.ok) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent =
+                    response?.error === 'not_signed_in'
+                        ? 'Sign in to TrackMyOPT to load your résumés'
+                        : 'Could not load saved résumés';
+                savedSelect.appendChild(option);
+                savedSelect.disabled = true;
+                onLoaded();
+                return;
+            }
+
+            if (resumes.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No saved résumés — paste your résumé text instead';
+                savedSelect.appendChild(option);
+                savedSelect.disabled = true;
+                onLoaded();
+                return;
+            }
+
+            for (const resume of resumes) {
+                const option = document.createElement('option');
+                option.value = resume.id;
+                option.textContent = resume.filename;
+                savedSelect.appendChild(option);
+            }
+            onLoaded();
+        }
     );
 }
 
 /* --------------------------------------------------------------- agent run */
 
-function startRun(templateId: string, slot: HTMLElement, trigger: HTMLButtonElement): void {
+interface StartRunInput {
+    templateId: string;
+    jobDescription: string;
+    resumeSource: ResumeSource;
+    resumeId: string;
+    resumeText: string;
+}
+
+function startRun(input: StartRunInput, slot: HTMLElement, trigger: HTMLButtonElement): void {
     if (!jobContext) return;
 
     console_?.destroy();
     const handle = runConsole({
         title: 'Tailoring résumé',
         onCancel: () => client.cancel(),
-        onRetry: () => startRun(templateId, slot, trigger),
+        onRetry: () => startRun(input, slot, trigger),
     });
     console_ = handle;
     slot.replaceChildren(handle.node);
@@ -137,14 +296,16 @@ function startRun(templateId: string, slot: HTMLElement, trigger: HTMLButtonElem
     client.start(
         'resume',
         {
-            templateId,
-            resumeId: '__latest__',
-            jobDescription: jobContext.jobDescription,
+            templateId: input.templateId,
+            jobDescription: input.jobDescription.trim(),
             companyName: jobContext.companyName,
             roleTitle: jobContext.roleTitle,
             jobUrl: jobContext.jobUrl,
             jobKey: '',
             outputFilename: 'resume',
+            ...(input.resumeSource === 'paste'
+                ? { resumeText: input.resumeText.trim(), resumeId: '' }
+                : { resumeId: input.resumeId }),
         },
         {
             onState: (state, steps) => {
@@ -214,13 +375,21 @@ function requestJobContext(): void {
             return;
         }
         chrome.tabs.sendMessage(tabId, { type: 'TMO_GET_JOB_CONTEXT' }, (response) => {
-            if (chrome.runtime.lastError || !response?.jobDescription) {
+            // A job description is no longer required to render the form — the
+            // job description box is editable, so the user can paste one in.
+            // What still gates rendering is being on a page the content script
+            // recognised as a job posting at all (a role, company, or URL).
+            const context = response as JobContext | undefined;
+            const hasJobContext = Boolean(
+                context && (context.roleTitle || context.companyName || context.jobUrl)
+            );
+            if (chrome.runtime.lastError || !hasJobContext) {
                 renderEmpty(
                     'No job posting detected on this page. Open a job listing and reopen this panel.'
                 );
                 return;
             }
-            renderJob(response as JobContext);
+            renderJob(context!);
         });
     });
 }
