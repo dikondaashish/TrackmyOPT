@@ -133,6 +133,32 @@ test('missing generated resume stays profile-only with no resume attachment', as
   assert.equal('resume' in response, false);
 });
 
+test('peek resolve does not discard a mismatched artifact', async () => {
+  const artifact = await validArtifact();
+  let discarded = false;
+  const response = await resolveV1PrefillPayload({
+    artifact,
+    request: {
+      ...request,
+      jobContext: {
+        ...request.jobContext,
+        jobUrl: 'https://company-b.wd5.myworkdayjobs.com/jobs/job-b',
+      },
+    },
+    discardRejectedArtifact: false,
+    onArtifactRejected: () => {
+      discarded = true;
+    },
+    fetchProfileFallback: async () => ({ ok: true, profile: fallback }),
+  });
+
+  assert.equal(response.ok, true);
+  if (!response.ok) return;
+  assert.equal(response.source, 'profile_only');
+  assert.equal(response.reason, 'job_changed');
+  assert.equal(discarded, false);
+});
+
 test('cover letter is relayed only when its independent flag is enabled', async () => {
   const artifact = await validArtifact();
   artifact.coverLetter = {

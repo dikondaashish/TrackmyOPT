@@ -46,7 +46,7 @@ function readExpectation(
 
 export function rememberArtifactExpectedForSession(
   storage: SessionStorageLike,
-  artifact: GeneratedResumeArtifactV1,
+  artifact: Pick<GeneratedResumeArtifactV1, 'job'> | GeneratedResumeArtifactV1,
 ): void {
   try {
     storage.setItem(ARTIFACT_EXPECTED_SESSION_KEY, JSON.stringify({
@@ -57,6 +57,17 @@ export function rememberArtifactExpectedForSession(
     } satisfies ArtifactExpectation));
   } catch {
     // The marker is best-effort and contains job identity only, never resume data.
+  }
+}
+
+export function rememberArtifactExpectationFromJob(
+  storage: SessionStorageLike,
+  job: ArtifactExpectation,
+): void {
+  try {
+    storage.setItem(ARTIFACT_EXPECTED_SESSION_KEY, JSON.stringify(job));
+  } catch {
+    // Best-effort page marker only.
   }
 }
 
@@ -89,13 +100,17 @@ export function artifactExpectedForSession(
   );
 }
 
+/**
+ * Show the "no longer active" warning only when a generated resume was expected
+ * for this job but the resolver no longer has a matching artifact. Never show it
+ * just because the user has not generated yet.
+ */
 export function renderInactiveArtifactFallback(input: {
   host: HTMLElement;
   artifactAvailable: boolean;
+  wasExpected?: boolean;
 }): boolean {
-  // Mount reconciliation always asks the authoritative background resolver.
-  // A missing marker must never turn an unavailable artifact into a silent UI.
-  const visible = !input.artifactAvailable;
+  const visible = Boolean(input.wasExpected) && !input.artifactAvailable;
   input.host.textContent = visible ? INACTIVE_ARTIFACT_FALLBACK_MESSAGE : '';
   input.host.style.display = visible ? 'block' : 'none';
   if (visible) input.host.setAttribute('role', 'alert');

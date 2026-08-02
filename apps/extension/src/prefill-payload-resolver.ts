@@ -22,11 +22,17 @@ export async function resolveV1PrefillPayload(input: {
   request: V1PrefillPayloadRequest;
   fetchProfileFallback: () => Promise<ProfileFallbackResult>;
   featureFlags?: Readonly<AutofillFeatureFlags>;
+  /**
+   * When false, a rejected artifact is left in place (UI peek / mount reconcile).
+   * Prefill execution keeps the default true so a different job cannot reuse it.
+   */
+  discardRejectedArtifact?: boolean;
   onArtifactRejected?: (
     reason: 'expired' | 'job_changed' | 'invalid',
   ) => void | Promise<void>;
 }): Promise<V1PrefillPayloadResponse> {
   const featureFlags = input.featureFlags ?? AUTOFILL_FEATURE_FLAGS;
+  const discardRejectedArtifact = input.discardRejectedArtifact !== false;
   let reason:
     | 'missing'
     | 'expired'
@@ -62,6 +68,7 @@ export async function resolveV1PrefillPayload(input: {
   }
 
   if (
+    discardRejectedArtifact &&
     reason &&
     reason !== 'missing' &&
     reason !== 'feature_disabled'

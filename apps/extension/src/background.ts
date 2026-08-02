@@ -89,14 +89,24 @@ async function cacheCurrentGeneratedResumeArtifact(
 
 /** Tell open job-page widgets that a tailored resume is ready for prefill attach. */
 async function notifyTabsGeneratedResumeReady(): Promise<void> {
+  const artifact = currentGeneratedResumeArtifact;
+  const payload = {
+    type: 'GENERATED_RESUME_ARTIFACT_READY' as const,
+    job: artifact
+      ? {
+          sourceUrl: artifact.job.sourceUrl,
+          companyName: artifact.job.companyName,
+          roleTitle: artifact.job.roleTitle,
+          requisitionId: artifact.job.requisitionId,
+        }
+      : undefined,
+  };
   try {
     const tabs = await chrome.tabs.query({});
     await Promise.all(
       tabs.map((tab) => {
         if (tab.id === undefined) return Promise.resolve();
-        return chrome.tabs
-          .sendMessage(tab.id, { type: 'GENERATED_RESUME_ARTIFACT_READY' })
-          .catch(() => undefined);
+        return chrome.tabs.sendMessage(tab.id, payload).catch(() => undefined);
       }),
     );
   } catch {
@@ -335,7 +345,9 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         roleTitle: String(msg.request?.jobContext?.roleTitle ?? ''),
       },
     };
-    resolveCurrentV1PrefillPayload(request)
+    resolveCurrentV1PrefillPayload(request, {
+      discardRejectedArtifact: msg.discardRejectedArtifact !== false,
+    })
       .then((response) => {
         sendResponse(response);
       })
@@ -622,12 +634,14 @@ function sanitizeBasicContactProfile(value: unknown): BasicContactProfile | unde
 }
 
 async function resolveCurrentV1PrefillPayload(
-  request: V1PrefillPayloadRequest
+  request: V1PrefillPayloadRequest,
+  options?: { discardRejectedArtifact?: boolean }
 ): Promise<V1PrefillPayloadResponse> {
   const artifact = await readCurrentGeneratedResumeArtifact();
   const response = await resolveV1PrefillPayload({
     artifact,
     request,
+    discardRejectedArtifact: options?.discardRejectedArtifact,
     onArtifactRejected: clearCurrentGeneratedResumeArtifact,
     fetchProfileFallback: async () => {
       const result = await getAutofillProfile();

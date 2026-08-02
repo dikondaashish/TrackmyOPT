@@ -326,15 +326,23 @@ export function artifactMatchesJobContext(
   artifact: GeneratedResumeArtifactV1,
   context: JobContextIdentity
 ): boolean {
-  return (
-    jobUrlsReferToSameJob(
+  if (
+    !jobUrlsReferToSameJob(
       artifact.job.sourceUrl,
       context.jobUrl,
       artifact.job.requisitionId,
-    ) &&
-    normalizeJobIdentityText(artifact.job.companyName) ===
-      normalizeJobIdentityText(context.companyName) &&
-    normalizeJobIdentityText(artifact.job.roleTitle) ===
-      normalizeJobIdentityText(context.roleTitle)
-  );
+    )
+  ) {
+    return false;
+  }
+
+  const contextCompany = normalizeJobIdentityText(context.companyName);
+  const contextRole = normalizeJobIdentityText(context.roleTitle);
+  const artifactCompany = normalizeJobIdentityText(artifact.job.companyName);
+  const artifactRole = normalizeJobIdentityText(artifact.job.roleTitle);
+  // Incomplete DOM parses during SPA transitions should not invalidate a
+  // resume generated moments ago for this same posting URL.
+  if (contextCompany && contextCompany !== artifactCompany) return false;
+  if (contextRole && contextRole !== artifactRole) return false;
+  return true;
 }

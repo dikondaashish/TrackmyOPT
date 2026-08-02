@@ -63,7 +63,9 @@ import {
 import {
   clearArtifactExpectedForSession,
   rememberArtifactExpectedForSession,
+  rememberArtifactExpectationFromJob,
   renderInactiveArtifactFallback,
+  artifactExpectedForSession,
 } from './artifact-fallback-ui';
 import {
   resolveArtifactLifecycle,
@@ -752,19 +754,32 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
   fallbackHost: HTMLElement,
 ): Promise<void> {
   const context = jobContextFor(job);
-  // A newly injected content script never trusts its empty module cache. Ask
-  // the background owner on every mount, including when the page marker was
-  // lost or parsed identity is temporarily incomplete.
+  const storage = currentSessionStorage();
+  // Peek only — never discard a fresh side-panel generate because the page
+  // parser briefly disagrees about company/role text.
   const resolved = (await chrome.runtime.sendMessage({
     type: 'RESOLVE_V1_PREFILL_PAYLOAD',
+    discardRejectedArtifact: false,
     request: { now: new Date().toISOString(), jobContext: context },
   }).catch(() => null)) as V1PrefillPayloadResponse | null;
   const artifactAvailable = Boolean(
     resolved?.ok && resolved.source === 'generated_resume',
   );
+  const wasExpected = Boolean(
+    storage && artifactExpectedForSession(storage, context),
+  );
+  if (artifactAvailable && storage) {
+    // Keep the page marker in sync so later mounts know a resume belonged here.
+    rememberArtifactExpectationFromJob(storage, {
+      sourceUrl: context.jobUrl,
+      companyName: context.companyName,
+      roleTitle: context.roleTitle,
+    });
+  }
   renderInactiveArtifactFallback({
     host: fallbackHost,
     artifactAvailable,
+    wasExpected,
   });
   const label = prefillButton.querySelector<HTMLElement>('.tmo-action-label');
   if (artifactAvailable) {
@@ -5240,8 +5255,53 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     const prefillButton = root?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
     const fallbackHost = root?.querySelector<HTMLElement>(`.${ARTIFACT_INACTIVE_FALLBACK_CLASS}`);
     const job = getJobInfo();
+    const readyJob = message.job as
+      | {
+          sourceUrl?: string;
+          companyName?: string;
+          roleTitle?: string;
+          requisitionId?: string;
+        }
+      | undefined;
+    const storage = currentSessionStorage();
+    if (
+      storage &&
+      readyJob &&
+      typeof readyJob.sourceUrl === 'string' &&
+      typeof readyJob.companyName === 'string' &&
+      typeof readyJob.roleTitle === 'string'
+    ) {
+      rememberArtifactExpectationFromJob(storage, {
+        sourceUrl: readyJob.sourceUrl,
+        companyName: readyJob.companyName,
+        roleTitle: readyJob.roleTitle,
+        requisitionId:
+          typeof readyJob.requisitionId === 'string'
+            ? readyJob.requisitionId
+            : undefined,
+      });
+    }
     if (job && prefillButton && fallbackHost) {
       void reconcileArtifactAvailabilityOnWidgetMount(job, prefillButton, fallbackHost);
+    } else if (prefillButton && fallbackHost && readyJob?.sourceUrl) {
+      // Widget job parse may be empty mid-SPA; still clear the false inactive banner
+      // when the background just published a resume for this page URL.
+      const sameJob = jobUrlsReferToSameJob(
+        readyJob.sourceUrl,
+        window.location.href,
+        typeof readyJob.requisitionId === 'string' ? readyJob.requisitionId : undefined,
+      );
+      if (sameJob) {
+        renderInactiveArtifactFallback({
+          host: fallbackHost,
+          artifactAvailable: true,
+          wasExpected: true,
+        });
+        const label = prefillButton.querySelector<HTMLElement>('.tmo-action-label');
+        if (label) label.textContent = 'Prefill application + resume';
+        prefillButton.title =
+          'Prefill profile fields and attach the custom resume generated for this job';
+      }
     }
     sendResponse({ ok: true });
     return false;

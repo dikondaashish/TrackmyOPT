@@ -24,11 +24,26 @@ function host() {
   };
 }
 
-test('mount fallback is visible for a missing artifact even without a session marker', () => {
+test('mount fallback stays hidden when no resume was expected yet', () => {
   const fallbackHost = host();
   const visible = renderInactiveArtifactFallback({
     host: fallbackHost as unknown as HTMLElement,
     artifactAvailable: false,
+    wasExpected: false,
+  });
+
+  assert.equal(visible, false);
+  assert.equal(fallbackHost.textContent, '');
+  assert.equal(fallbackHost.style.display, 'none');
+  assert.equal(fallbackHost.hasAttribute('role'), false);
+});
+
+test('mount fallback warns only when a resume was expected but is gone', () => {
+  const fallbackHost = host();
+  const visible = renderInactiveArtifactFallback({
+    host: fallbackHost as unknown as HTMLElement,
+    artifactAvailable: false,
+    wasExpected: true,
   });
 
   assert.equal(visible, true);
@@ -42,6 +57,7 @@ test('mount fallback is suppressed when the background resolver has an artifact'
   const visible = renderInactiveArtifactFallback({
     host: fallbackHost as unknown as HTMLElement,
     artifactAvailable: true,
+    wasExpected: true,
   });
 
   assert.equal(visible, false);
@@ -50,7 +66,7 @@ test('mount fallback is suppressed when the background resolver has an artifact'
   assert.equal(fallbackHost.hasAttribute('role'), false);
 });
 
-test('every widget mount calls the background resolver without marker-gated early return', () => {
+test('widget mount peeks the resolver without discarding a rejected artifact', () => {
   const source = readFileSync('src/content-job-portal.ts', 'utf8');
   const block = source.slice(
     source.indexOf('async function reconcileArtifactAvailabilityOnWidgetMount'),
@@ -58,6 +74,6 @@ test('every widget mount calls the background resolver without marker-gated earl
   );
 
   assert.match(block, /RESOLVE_V1_PREFILL_PAYLOAD/);
-  assert.doesNotMatch(block, /artifactExpectedForSession/);
-  assert.doesNotMatch(block, /if \(!storage[^)]*\) return/);
+  assert.match(block, /discardRejectedArtifact:\s*false/);
+  assert.match(block, /artifactExpectedForSession/);
 });
