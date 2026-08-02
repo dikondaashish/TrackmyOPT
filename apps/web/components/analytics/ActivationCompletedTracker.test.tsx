@@ -64,12 +64,12 @@ describe('ActivationCompletedTracker', () => {
   });
 
   it('coalesces overlapping focus checks into one request', async () => {
-    let resolveFetch!: (value: typeof activeCaseResponse) => void;
+    let resolveFetch!: (value: Response) => void;
     vi.mocked(fetch).mockImplementation(
       () =>
-        new Promise((resolve) => {
+        new Promise<Response>((resolve) => {
           resolveFetch = resolve;
-        }) as Promise<Response>
+        })
     );
 
     render(<ActivationCompletedTracker />);
@@ -84,7 +84,7 @@ describe('ActivationCompletedTracker', () => {
     expect(fetch).toHaveBeenCalledOnce();
 
     await act(async () => {
-      resolveFetch(activeCaseResponse);
+      resolveFetch(activeCaseResponse as unknown as Response);
     });
   });
 
