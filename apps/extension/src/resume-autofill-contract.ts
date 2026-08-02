@@ -326,23 +326,13 @@ export function artifactMatchesJobContext(
   artifact: GeneratedResumeArtifactV1,
   context: JobContextIdentity
 ): boolean {
-  if (
-    !jobUrlsReferToSameJob(
-      artifact.job.sourceUrl,
-      context.jobUrl,
-      artifact.job.requisitionId,
-    )
-  ) {
-    return false;
-  }
-
-  const contextCompany = normalizeJobIdentityText(context.companyName);
-  const contextRole = normalizeJobIdentityText(context.roleTitle);
-  const artifactCompany = normalizeJobIdentityText(artifact.job.companyName);
-  const artifactRole = normalizeJobIdentityText(artifact.job.roleTitle);
-  // Incomplete DOM parses during SPA transitions should not invalidate a
-  // resume generated moments ago for this same posting URL.
-  if (contextCompany && contextCompany !== artifactCompany) return false;
-  if (contextRole && contextRole !== artifactRole) return false;
-  return true;
+  // Same posting URL / requisition is the source of truth. Company and role
+  // text often drifts between the side-panel scrape and the widget scrape
+  // ("Inc." vs "Inc", en-dash vs hyphen, truncated titles) and must not block
+  // Prefill from attaching the PDF that was just generated for this page.
+  return jobUrlsReferToSameJob(
+    artifact.job.sourceUrl,
+    context.jobUrl,
+    artifact.job.requisitionId,
+  );
 }

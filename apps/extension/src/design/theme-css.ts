@@ -177,7 +177,29 @@ export function buildThemeCss(options: ThemeCssOptions = {}): string {
             `${scope} :focus-visible{outline:2px solid var(--tmo-color-accent);outline-offset:2px;border-radius:var(--tmo-radius-xs)}`,
             `@media (prefers-reduced-motion:reduce){${scope},${scope} *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}`,
             // Forced-colors (Windows high contrast): let the OS palette win.
-            `@media (forced-colors:active){${scope} *{forced-color-adjust:auto}}`
+            `@media (forced-colors:active){${scope} *{forced-color-adjust:auto}}`,
+            // Design-system buttons. Skins live in CSS so :hover/:active can
+            // override them — inline background would win over class hover.
+            `${scope} .tmo-ds-btn{` +
+              'display:inline-flex;align-items:center;justify-content:center;' +
+              'line-height:1;cursor:pointer;' +
+              'transition:background-color var(--tmo-motion-fast) var(--tmo-motion-ease),' +
+              'border-color var(--tmo-motion-fast) var(--tmo-motion-ease),' +
+              'box-shadow var(--tmo-motion-fast) var(--tmo-motion-ease),' +
+              'opacity var(--tmo-motion-fast) var(--tmo-motion-ease),' +
+              'transform var(--tmo-motion-fast) var(--tmo-motion-ease)' +
+            '}',
+            `${scope} .tmo-ds-btn:disabled,${scope} .tmo-ds-btn[aria-busy="true"]{opacity:0.55;cursor:not-allowed}`,
+            `${scope} .tmo-ds-btn--primary{background:var(--tmo-color-accent);border-color:var(--tmo-color-accent);color:var(--tmo-color-on-accent)}`,
+            `${scope} .tmo-ds-btn--primary:not(:disabled):not([aria-busy="true"]):hover{background:var(--tmo-color-accent-strong);border-color:var(--tmo-color-accent-strong);box-shadow:var(--tmo-shadow-2)}`,
+            `${scope} .tmo-ds-btn--primary:not(:disabled):not([aria-busy="true"]):active{transform:translateY(1px);box-shadow:none}`,
+            `${scope} .tmo-ds-btn--secondary{background:var(--tmo-color-surface);border-color:var(--tmo-color-border);color:var(--tmo-color-ink)}`,
+            `${scope} .tmo-ds-btn--secondary:not(:disabled):not([aria-busy="true"]):hover{background:var(--tmo-color-surface-raised);border-color:var(--tmo-color-border-strong)}`,
+            `${scope} .tmo-ds-btn--secondary:not(:disabled):not([aria-busy="true"]):active{transform:translateY(1px)}`,
+            `${scope} .tmo-ds-btn--danger{background:var(--tmo-color-danger-surface);border-color:var(--tmo-color-danger-border);color:var(--tmo-color-danger-ink)}`,
+            `${scope} .tmo-ds-btn--danger:not(:disabled):not([aria-busy="true"]):hover{filter:brightness(0.96);box-shadow:var(--tmo-shadow-1)}`,
+            `${scope} .tmo-ds-btn--ghost{background:transparent;border-color:transparent;color:var(--tmo-color-ink)}`,
+            `${scope} .tmo-ds-btn--ghost:not(:disabled):not([aria-busy="true"]):hover{background:var(--tmo-color-surface-raised)}`,
         );
     }
 

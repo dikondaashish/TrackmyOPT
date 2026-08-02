@@ -163,19 +163,6 @@ export interface ButtonOptions {
     attrs?: Attrs;
 }
 
-function buttonSkin(variant: ButtonVariant): string {
-    switch (variant) {
-        case 'primary':
-            return `background:${v('color-accent')};border:1px solid ${v('color-accent')};color:${v('color-on-accent')}`;
-        case 'danger':
-            return `background:${v('color-danger-surface')};border:1px solid ${v('color-danger-border')};color:${v('color-danger-ink')}`;
-        case 'ghost':
-            return `background:transparent;border:1px solid transparent;color:${v('color-ink')}`;
-        default:
-            return `background:${v('color-surface')};border:1px solid ${v('color-border')};color:${v('color-ink')}`;
-    }
-}
-
 export function button(options: ButtonOptions): HTMLButtonElement {
     const {
         label, variant = 'secondary', size = 'md', type = 'button',
@@ -184,13 +171,22 @@ export function button(options: ButtonOptions): HTMLButtonElement {
 
     const padding = size === 'sm' ? `${space('1')} ${space('2')}` : `${space('2')} ${space('3')}`;
     const fontSize = size === 'sm' ? 'text-sm' : 'text-md';
+    const existingClass =
+        typeof attrs?.class === 'string' ? attrs.class :
+        typeof attrs?.className === 'string' ? attrs.className :
+        '';
+    const { class: _classAttr, className: _classNameAttr, ...restAttrs } = (attrs ?? {}) as Attrs & {
+        class?: string;
+        className?: string;
+    };
 
     const node = el('button', {
+        class: ['tmo-ds-btn', `tmo-ds-btn--${variant}`, existingClass].filter(Boolean).join(' '),
         attrs: {
             type,
             disabled: disabled || loading || undefined,
             'aria-busy': loading ? 'true' : undefined,
-            ...attrs,
+            ...restAttrs,
         },
         style: [
             'display:inline-flex;align-items:center;justify-content:center',
@@ -199,10 +195,9 @@ export function button(options: ButtonOptions): HTMLButtonElement {
             `padding:${padding}`,
             `font-family:${v('font-sans')};font-size:${v(fontSize)};font-weight:${v('weight-medium')};line-height:1`,
             `border-radius:${v('radius-sm')}`,
-            buttonSkin(variant),
-            `transition:opacity ${v('motion-fast')} ${v('motion-ease')},background ${v('motion-fast')} ${v('motion-ease')}`,
+            'border:1px solid transparent',
             fullWidth ? 'width:100%' : '',
-            disabled || loading ? 'opacity:0.55;cursor:not-allowed' : 'cursor:pointer',
+            disabled || loading ? 'cursor:not-allowed' : 'cursor:pointer',
         ].filter(Boolean).join(';'),
     });
 
@@ -231,21 +226,30 @@ export interface IconButtonOptions extends Omit<ButtonOptions, 'label' | 'icon' 
 
 export function iconButton(options: IconButtonOptions): HTMLButtonElement {
     const { label, icon, variant = 'ghost', size = 'md', disabled, loading, onClick, attrs } = options;
+    const existingClass =
+        typeof attrs?.class === 'string' ? attrs.class :
+        typeof attrs?.className === 'string' ? attrs.className :
+        '';
+    const { class: _classAttr, className: _classNameAttr, ...restAttrs } = (attrs ?? {}) as Attrs & {
+        class?: string;
+        className?: string;
+    };
     const node = el('button', {
+        class: ['tmo-ds-btn', `tmo-ds-btn--${variant}`, existingClass].filter(Boolean).join(' '),
         attrs: {
             type: 'button',
             'aria-label': label,
             title: label,
             disabled: disabled || loading || undefined,
             'aria-busy': loading ? 'true' : undefined,
-            ...attrs,
+            ...restAttrs,
         },
         style: [
             'display:inline-flex;align-items:center;justify-content:center',
             `width:${v('min-target')};height:${v('min-target')}`,
-            `border-radius:${v('radius-sm')}`,
-            buttonSkin(variant),
-            disabled || loading ? 'opacity:0.55;cursor:not-allowed' : 'cursor:pointer',
+            'border-radius:var(--tmo-radius-sm)',
+            'border:1px solid transparent',
+            disabled || loading ? 'cursor:not-allowed' : 'cursor:pointer',
         ].join(';'),
     });
     const wrap = el('span', { attrs: { 'aria-hidden': 'true' }, style: 'display:inline-flex' });

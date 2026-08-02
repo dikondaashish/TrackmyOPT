@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
 import { X, Calendar, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText, Download, BadgeDollarSign } from "lucide-react";
@@ -16,6 +17,8 @@ import { OfferDetailsSection } from "./OfferDetailsSection";
 import { supabase } from "@/lib/supabaseClient";
 import { useResumeStore } from "@/store/resume-store";
 import { findLinkedResumeForApplication } from "@/lib/career/job-tracker/linked-resume";
+import { getPortalRoot } from "@/lib/portal-root";
+import { CompanyLogo } from "./CompanyLogo";
 
 interface LinkedResume {
     id: string;
@@ -41,7 +44,7 @@ interface ApplicationDrawerProps {
     followups?: JobFollowup[];
     onDelete?: (id: string) => void | Promise<void>;
     onUpdate?: (app: JobApplication) => void;
-    onArchive?: (id: string) => void;
+    onArchive?: (id: string) => void | Promise<void>;
 }
 
 export function ApplicationDrawer({ application, onClose, interviews = [], followups = [], onDelete, onUpdate, onArchive }: ApplicationDrawerProps) {
@@ -123,6 +126,15 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
         };
     }, [application]);
 
+    useEffect(() => {
+        if (!application) return;
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [application, onClose]);
+
     if (!application) return null;
 
     const handleSavePrimary = async () => {
@@ -172,9 +184,10 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
 
     const handleArchive = async () => {
         try {
-            await archiveApplication(application.id);
             if (onArchive) {
-                onArchive(application.id);
+                await Promise.resolve(onArchive(application.id));
+            } else {
+                await archiveApplication(application.id);
             }
             onClose();
         } catch (e) {
@@ -227,52 +240,78 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex justify-end pointer-events-none">
+    return createPortal(
+        <div className="fixed inset-0 z-[80] flex justify-end">
             {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/20 backdrop-blur-sm pointer-events-auto"
+            <button
+                type="button"
+                aria-label="Close application details"
+                className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
                 onClick={onClose}
             />
 
-            {/* Drawer Panel */}
-            <div className="relative w-full max-w-xl bg-white dark:bg-gray-900 shadow-2xl h-full flex flex-col pointer-events-auto border-l border-gray-200 dark:border-gray-800 animate-in slide-in-from-right duration-300">
-
+            {/* Drawer Panel — above dashboard header so the title is never clipped */}
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="application-drawer-title"
+                className="relative z-[81] flex h-full w-full max-w-xl flex-col border-l border-gray-200 bg-white shadow-2xl animate-in slide-in-from-right duration-300 dark:border-gray-800 dark:bg-gray-900"
+            >
                 {/* Header */}
-                <div className="flex items-start justify-between p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
-                    <div className="min-w-0 pr-2">
-                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1 truncate">
-                            {application.company_name}
-                        </h2>
-                        <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 truncate">
+                <div className="flex shrink-0 items-start gap-3 border-b border-gray-100 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 dark:border-gray-800">
+                    <div className="mt-0.5 h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-950">
+                        <CompanyLogo
+                            companyName={application.company_name}
+                            jobUrl={application.job_url}
+                            size="md"
+                            className="h-full w-full object-contain"
+                        />
+                    </div>
+                    <div className="min-w-0 flex-1 pt-0.5">
+                        <h2
+                            id="application-drawer-title"
+                            className="truncate text-lg font-semibold tracking-tight text-gray-900 dark:text-white sm:text-xl"
+                        >
                             {application.role_title}
+                        </h2>
+                        <p className="mt-0.5 truncate text-sm text-gray-500 dark:text-gray-400">
+                            {application.company_name}
                         </p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="max-md:min-h-11 max-md:min-w-11 shrink-0">
-                        <X className="w-5 h-5" />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={onClose}
+                        aria-label="Close"
+                        className="h-10 w-10 shrink-0 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
+                    >
+                        <X className="h-5 w-5" />
                     </Button>
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8">
+                <div className="min-h-0 flex-1 space-y-7 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
 
                     {/* Status & Links */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-4 rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-950/40">
                         <div className="space-y-2">
-                            <Label>Status</Label>
+                            <Label htmlFor="application-status">Status</Label>
                             <select
-                                className="w-full h-10 px-3 bg-white dark:bg-gray-800 border rounded-md"
+                                id="application-status"
+                                className="h-10 w-full rounded-md border border-input bg-white px-3 dark:bg-gray-900"
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as JobStage)}
                             >
                                 {JOB_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                         </div>
-                        <div className="space-y-4">
+
+                        <div className="space-y-3">
                             {application.location && (
-                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                                    <MapPin className="w-4 h-4 text-gray-400" />
-                                    {application.location}
+                                <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                                    <span className="break-words">{application.location}</span>
                                 </div>
                             )}
                             {application.salary_text && (
@@ -285,72 +324,75 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                 </div>
                             )}
                             {application.job_url && (
-                                <a href={application.job_url} target="_blank" className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
-                                    <ExternalLink className="w-4 h-4" />
-                                    View Job Post
+                                <a href={application.job_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                                    <ExternalLink className="h-4 w-4" />
+                                    View job post
                                 </a>
                             )}
-                            <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400 gap-2 h-9"
-                                onClick={() => {
-                                    if (application.job_description) {
-                                        setJobDescription(application.job_description, application.role_title);
-                                    }
-                                    setApplicationId(application.id);
-                                    router.push(buildResumeGeneratorUrl(application));
-                                }}
-                            >
-                                <FileText className="w-4 h-4" />
-                                {linkedResume ? "Update tailored resume" : "Tailor Resume with AI"}
-                            </Button>
-
-                            {loadingLinkedResume && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Checking for linked resume…</p>
-                            )}
-
-                            {linkedResume && (
-                                <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 space-y-2">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <span className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
-                                            Linked resume
-                                        </span>
-                                        {linkedResume.resumeStatus === "ready" ? (
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
-                                                Ready to apply
-                                            </span>
-                                        ) : (
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
-                                                Draft
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={linkedResume.filename}>
-                                        {linkedResume.filename}
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {linkedResume.matchReason === "job_details"
-                                            ? "Matched from this job’s role and description"
-                                            : "Linked when this resume was generated for this application"}
-                                    </p>
-                                    {linkedResume.atsScore != null && (
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                                            ATS score: <span className="font-semibold">{linkedResume.atsScore}%</span>
-                                        </p>
-                                    )}
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="w-full h-8 text-xs gap-1.5"
-                                        onClick={() => router.push("/dashboard/career/saved-resumes")}
-                                    >
-                                        <Download className="w-3.5 h-3.5" />
-                                        View in saved resumes
-                                    </Button>
-                                </div>
-                            )}
                         </div>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-10 w-full gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                            onClick={() => {
+                                if (application.job_description) {
+                                    setJobDescription(application.job_description, application.role_title);
+                                }
+                                setApplicationId(application.id);
+                                router.push(buildResumeGeneratorUrl(application));
+                            }}
+                        >
+                            <FileText className="h-4 w-4" />
+                            {linkedResume ? "Update tailored resume" : "Tailor resume with AI"}
+                        </Button>
+
+                        {loadingLinkedResume && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Checking for linked resume…</p>
+                        )}
+
+                        {linkedResume && (
+                            <div className="space-y-2 rounded-lg border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-800 dark:bg-emerald-900/10">
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
+                                        Linked resume
+                                    </span>
+                                    {linkedResume.resumeStatus === "ready" ? (
+                                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                            Ready to apply
+                                        </span>
+                                    ) : (
+                                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                                            Draft
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="truncate text-sm font-medium text-gray-900 dark:text-white" title={linkedResume.filename}>
+                                    {linkedResume.filename}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {linkedResume.matchReason === "job_details"
+                                        ? "Matched from this job’s role and description"
+                                        : "Linked when this resume was generated for this application"}
+                                </p>
+                                {linkedResume.atsScore != null && (
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                                        ATS score: <span className="font-semibold">{linkedResume.atsScore}%</span>
+                                    </p>
+                                )}
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-full gap-1.5 text-xs"
+                                    onClick={() => router.push("/dashboard/career/saved-resumes")}
+                                >
+                                    <Download className="h-3.5 w-3.5" />
+                                    View in saved resumes
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
                     {application.job_description && (
@@ -521,34 +563,41 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                     </div>
                 </div>
 
-                <div className="p-6 border-t border-gray-100 dark:border-gray-800 flex justify-between">
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={handleArchive}
-                            className="text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                        >
-                            <Archive className="w-4 h-4 mr-2" />
-                            Archive
+                <div className="shrink-0 space-y-3 border-t border-gray-100 bg-white px-4 py-4 dark:border-gray-800 dark:bg-gray-900 sm:px-6">
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
+                        <Button type="button" variant="outline" onClick={onClose} className="sm:min-w-[96px]">
+                            Cancel
                         </Button>
                         <Button
                             type="button"
-                            variant="destructive"
-                            onClick={handleDelete}
-                            className="bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 dark:bg-red-700 dark:text-white dark:hover:bg-red-600"
+                            onClick={handleSavePrimary}
+                            disabled={updating}
+                            className="bg-emerald-600 hover:bg-emerald-700 sm:min-w-[140px]"
                         >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
+                            {updating ? "Saving…" : "Save changes"}
                         </Button>
                     </div>
-                    <div className="flex gap-3">
-                        <Button variant="outline" onClick={onClose}>Cancel</Button>
-                        <Button onClick={handleSavePrimary} disabled={updating} className="bg-emerald-600 hover:bg-emerald-700">
-                            {updating ? "Saving..." : "Save Changes"}
-                        </Button>
+                    <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+                        <button
+                            type="button"
+                            onClick={handleArchive}
+                            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                        >
+                            <Archive className="h-4 w-4" />
+                            Archive
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        getPortalRoot()
     );
 }

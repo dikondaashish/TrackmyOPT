@@ -91,4 +91,42 @@ describe('generated resume attachment DOM boundary', () => {
     expect(attachGeneratedResume(form, attachment)).toBe('unsupported');
     expect(resume.files).toHaveLength(0);
   });
+
+  it('attaches to a single unlabeled PDF file input near Add Resume', () => {
+    installDataTransfer();
+    const form = document.createElement('form');
+    form.innerHTML = [
+      '<div class="form-field">',
+      '<label>Add Resume*</label>',
+      '<button type="button">Select</button>',
+      '<input id="resume-file" type="file" accept=".pdf,.doc,.docx" style="display:none">',
+      '</div>',
+    ].join('');
+    const resume = form.querySelector('#resume-file') as HTMLInputElement;
+    Object.defineProperty(resume, 'files', {
+      value: [],
+      writable: true,
+      configurable: true,
+    });
+
+    expect(attachGeneratedResume(form, attachment)).toBe('attached');
+    expect(resume.files).toHaveLength(1);
+    expect(resume.files?.[0]?.name).toBe('TrackMyOPT-resume.pdf');
+  });
+
+  it('attaches when the form has exactly one PDF upload and no resume label', () => {
+    installDataTransfer();
+    const form = document.createElement('form');
+    form.innerHTML =
+      '<input id="upload" type="file" accept="application/pdf">';
+    const resume = form.querySelector('#upload') as HTMLInputElement;
+    Object.defineProperty(resume, 'files', {
+      value: [],
+      writable: true,
+      configurable: true,
+    });
+
+    expect(attachGeneratedResume(form, attachment)).toBe('attached');
+    expect(resume.files).toHaveLength(1);
+  });
 });

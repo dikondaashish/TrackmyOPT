@@ -77,3 +77,13 @@ test('widget mount peeks the resolver without discarding a rejected artifact', (
   assert.match(block, /discardRejectedArtifact:\s*false/);
   assert.match(block, /artifactExpectedForSession/);
 });
+
+test('Prefill resolve also keeps soft-mismatched artifacts instead of wiping them', () => {
+  const source = readFileSync('src/content-job-portal.ts', 'utf8');
+  const start = source.indexOf('async function executeResolvedPrefill');
+  const end = source.indexOf('// Frames receive only the already-resolved', start);
+  const block = source.slice(start, end);
+
+  assert.match(block, /RESOLVE_V1_PREFILL_PAYLOAD/);
+  assert.match(block, /discardRejectedArtifact:\s*false/);
+});

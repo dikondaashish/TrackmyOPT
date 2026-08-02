@@ -65,9 +65,16 @@ test('artifact is valid at 29:59 and invalid at exactly 30:00', () => {
   );
 });
 
-test('URL, company, or role changes invalidate the artifact immediately', () => {
+test('URL changes invalidate the artifact; company/role scrape drift does not', () => {
+  assert.deepEqual(
+    validateArtifactForPrefill(
+      artifact(),
+      { ...jobContext, jobUrl: `${jobContext.jobUrl}/apply` },
+      Date.parse('2026-07-16T12:01:00.000Z')
+    ),
+    { valid: false, reason: 'job_changed' }
+  );
   for (const changedContext of [
-    { ...jobContext, jobUrl: `${jobContext.jobUrl}/apply` },
     { ...jobContext, companyName: 'Company B' },
     { ...jobContext, roleTitle: 'Platform Engineer' },
   ]) {
@@ -77,7 +84,7 @@ test('URL, company, or role changes invalidate the artifact immediately', () => 
         changedContext,
         Date.parse('2026-07-16T12:01:00.000Z')
       ),
-      { valid: false, reason: 'job_changed' }
+      { valid: true }
     );
   }
 });

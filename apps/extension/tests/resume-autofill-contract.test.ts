@@ -113,11 +113,12 @@ test('real Workday listing and apply URLs resolve to the same requisition identi
     companyName: 'Interpublic',
     roleTitle: 'Analyst, Business Analytics',
   }), true);
+  // Company/role scrape drift must not block Prefill on the same requisition.
   assert.equal(artifactMatchesJobContext(artifact, {
     jobUrl: REAL_WORKDAY_APPLY_URL,
     companyName: 'Different company',
     roleTitle: 'Analyst, Business Analytics',
-  }), false);
+  }), true);
 
   assert.equal(
     artifactMatchesJobContext(artifact, {
@@ -172,9 +173,10 @@ test('real iCIMS listing and application URLs resolve to the same job identity',
     companyName: 'Crum & Forster',
     roleTitle: 'Reporting & Data Call Analyst - Hybrid',
   }), false);
+  // Same iCIMS job id wins over company-name scrape noise.
   assert.equal(artifactMatchesJobContext(artifact, {
     jobUrl: REAL_ICIMS_APPLY_URL,
     companyName: 'Different company',
     roleTitle: 'Reporting & Data Call Analyst - Hybrid',
-  }), false);
+  }), true);
 });

@@ -410,7 +410,14 @@ function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement, value: strin
 }
 
 function getFileInputLabel(input: HTMLInputElement): string {
-  const parts = [getLabelText(input)];
+  const parts = [
+    getLabelText(input),
+    input.getAttribute('aria-label') || '',
+    input.getAttribute('name') || '',
+    input.id || '',
+    input.getAttribute('data-automation-id') || '',
+    input.getAttribute('data-testid') || '',
+  ];
   const describedBy = input.getAttribute('aria-describedby');
   if (describedBy) {
     for (const id of describedBy.split(/\s+/)) {
@@ -418,9 +425,19 @@ function getFileInputLabel(input: HTMLInputElement): string {
     }
   }
   const field = input.closest<HTMLElement>(
-    '[data-test-form-element], .jobs-document-upload, .application-field, .field, .form-field'
+    '[data-test-form-element], .jobs-document-upload, .application-field, .field, .form-field, .form-group, [class*="resume"], [class*="Resume"]'
   );
   if (field?.textContent) parts.push(field.textContent.slice(0, 300));
+  // Greenhouse / custom ATS "Add Resume*" + Select menus often leave the
+  // hidden file input unlabeled; the nearby heading is the real signal.
+  let sibling: Element | null = input.previousElementSibling;
+  for (let i = 0; i < 4 && sibling; i += 1, sibling = sibling.previousElementSibling) {
+    parts.push(sibling.textContent?.slice(0, 120) || '');
+  }
+  const parent = input.parentElement;
+  if (parent?.previousElementSibling?.textContent) {
+    parts.push(parent.previousElementSibling.textContent.slice(0, 120));
+  }
   return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
 
@@ -444,6 +461,27 @@ function pdfBase64ToFile(pdfBase64: string, filename: string): File | null {
   }
 }
 
+function tryAttachPdfToInput(
+  input: HTMLInputElement,
+  file: File,
+  onAttached?: (input: HTMLInputElement) => void,
+): ResumeAttachmentResult {
+  if (input.disabled) return 'unsupported';
+  if (input.files && input.files.length > 0) return 'already_present';
+  if (!acceptsPdf(input)) return 'unsupported';
+  try {
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    input.files = transfer.files;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    onAttached?.(input);
+    return 'attached';
+  } catch {
+    return 'unsupported';
+  }
+}
+
 /** Attach only to a confidently identified, currently empty Resume/CV input. */
 export function attachGeneratedResume(
   container: HTMLElement,
@@ -456,28 +494,30 @@ export function attachGeneratedResume(
 
   const inputs = queryAllDeep<HTMLInputElement>(container, 'input[type="file"]');
   let sawResumeInput = false;
+  let lastSoftFailure: ResumeAttachmentResult = 'not_found';
   for (const input of inputs) {
     const label = getFileInputLabel(input);
     if (!RESUME_FILE_FIELD_RE.test(label) || NON_RESUME_FILE_FIELD_RE.test(label)) continue;
     sawResumeInput = true;
-    if (input.disabled) continue;
-    if (input.files && input.files.length > 0) return 'already_present';
-    if (!acceptsPdf(input)) continue;
+    const result = tryAttachPdfToInput(input, file, onAttached);
+    if (result === 'attached' || result === 'already_present') return result;
+    lastSoftFailure = result;
+  }
 
-    try {
-      const transfer = new DataTransfer();
-      transfer.items.add(file);
-      input.files = transfer.files;
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-      onAttached?.(input);
-      return 'attached';
-    } catch {
-      return 'unsupported';
+  // Fallback for portals with a single unlabeled PDF upload (common when the
+  // visible control is "Select → File" and the real input is aria-hidden).
+  if (!sawResumeInput) {
+    const pdfCandidates = inputs.filter((input) => {
+      if (input.disabled || !acceptsPdf(input)) return false;
+      const label = getFileInputLabel(input);
+      return !NON_RESUME_FILE_FIELD_RE.test(label);
+    });
+    if (pdfCandidates.length === 1) {
+      return tryAttachPdfToInput(pdfCandidates[0]!, file, onAttached);
     }
   }
 
-  return sawResumeInput ? 'unsupported' : 'not_found';
+  return sawResumeInput ? lastSoftFailure : 'not_found';
 }
 
 export function attachGeneratedCoverLetter(

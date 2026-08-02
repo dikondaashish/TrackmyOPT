@@ -168,12 +168,11 @@ function renderJob(context: JobContext): void {
         pasteBlock.style.display = next === 'paste' ? '' : 'none';
         savedToggle.setAttribute('aria-pressed', String(next === 'saved'));
         pasteToggle.setAttribute('aria-pressed', String(next === 'paste'));
-        // button() has no variant setter; re-derive the visual state via class-free
-        // background swap so the pressed control reads as selected.
-        savedToggle.style.background = next === 'saved' ? 'var(--tmo-color-accent)' : 'var(--tmo-color-surface)';
-        savedToggle.style.color = next === 'saved' ? 'var(--tmo-color-on-accent)' : 'var(--tmo-color-ink)';
-        pasteToggle.style.background = next === 'paste' ? 'var(--tmo-color-accent)' : 'var(--tmo-color-surface)';
-        pasteToggle.style.color = next === 'paste' ? 'var(--tmo-color-on-accent)' : 'var(--tmo-color-ink)';
+        // Swap variant classes so CSS hover still works (inline bg would block it).
+        savedToggle.classList.toggle('tmo-ds-btn--primary', next === 'saved');
+        savedToggle.classList.toggle('tmo-ds-btn--secondary', next !== 'saved');
+        pasteToggle.classList.toggle('tmo-ds-btn--primary', next === 'paste');
+        pasteToggle.classList.toggle('tmo-ds-btn--secondary', next !== 'paste');
         updateGenerateEnabled();
     }
 

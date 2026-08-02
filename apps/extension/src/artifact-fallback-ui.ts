@@ -1,6 +1,5 @@
 import {
   jobUrlsReferToSameJob,
-  normalizeJobIdentityText,
   type GeneratedResumeArtifactV1,
   type JobContextIdentity,
 } from './resume-autofill-contract';
@@ -87,16 +86,11 @@ export function artifactExpectedForSession(
 ): boolean {
   const expectation = readExpectation(storage);
   if (!expectation) return false;
-  return (
-    jobUrlsReferToSameJob(
-      expectation.sourceUrl,
-      jobContext.jobUrl,
-      expectation.requisitionId,
-    ) &&
-    normalizeJobIdentityText(expectation.companyName) ===
-      normalizeJobIdentityText(jobContext.companyName) &&
-    normalizeJobIdentityText(expectation.roleTitle) ===
-      normalizeJobIdentityText(jobContext.roleTitle)
+  // Match by posting identity only — same rule as artifactMatchesJobContext.
+  return jobUrlsReferToSameJob(
+    expectation.sourceUrl,
+    jobContext.jobUrl,
+    expectation.requisitionId,
   );
 }
 

@@ -30,7 +30,13 @@ import { openFeedbackModal } from './feedback';
 import { icon } from './icons';
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
 import {
+  buildWorkdayCxsJobUrl,
   chooseJobDescriptionCandidate,
+  deriveJobListingUrl,
+  extractWorkdayJobDescriptionFromCxs,
+  jobDescriptionCacheKey,
+  looksLikeRealJobPostingText,
+  shouldFetchListingJobDescription,
   type JobDescriptionCandidate,
 } from './job-description';
 import { classifySponsorship, type SponsorshipResult } from './sponsorship-signal';
@@ -786,6 +792,12 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
     if (label) label.textContent = 'Prefill application + resume';
     prefillButton.title =
       'Prefill profile fields and attach the custom resume generated for this job';
+    // Side-panel generate does not push PDF bytes into this tab. Force Continuous
+    // (or the next Prefill click) to re-resolve so the file input gets attached.
+    previousContinuousSignature = '';
+    if (currentAutofillPreferences.mode === 'continuous') {
+      scheduleContinuousPrefill();
+    }
   } else {
     if (label) label.textContent = 'Prefill application';
     prefillButton.title = 'Prefill available profile fields for this application';
@@ -830,6 +842,9 @@ async function executeResolvedPrefill(
 ): Promise<PrefillExecutionResult> {
   const resolved = (await chrome.runtime.sendMessage({
     type: 'RESOLVE_V1_PREFILL_PAYLOAD',
+    // Soft mismatches used to wipe a fresh side-panel generate before attach.
+    // Only truly expired/invalid artifacts should be discarded on Prefill.
+    discardRejectedArtifact: false,
     request: {
       now: new Date().toISOString(),
       jobContext: jobContextFor(job),
@@ -3404,8 +3419,11 @@ function ensureSpinKeyframes(): void {
   document.head.appendChild(style);
 }
 
-/** Best-effort job-description text from the current page. */
-function scrapeJobDescription(): string {
+/** Best-effort job-description text from a document (page or fetched listing). */
+function scrapeJobDescriptionFromDocument(
+  doc: Document,
+  source: JobDescriptionCandidate['source'] = 'specific',
+): JobDescriptionCandidate[] {
   const candidates: JobDescriptionCandidate[] = [];
   const selectors = [
     '[data-testid*="jobDescription" i]',
@@ -3416,49 +3434,194 @@ function scrapeJobDescription(): string {
     'main',
     'article',
   ];
-  // iCIMS and several ATS products render the real posting in an iframe while
-  // the top document contains only branding/footer chrome. Same-origin job
-  // documents must therefore be considered before the outer page.
-  for (const frame of Array.from(document.querySelectorAll<HTMLIFrameElement>('iframe'))) {
-    try {
-      const frameDocument = frame.contentDocument;
-      const frameText = frameDocument?.body?.innerText || '';
-      if (frameText) candidates.push({ source: 'frame', text: frameText });
-      if (frameDocument) {
-        for (const selector of selectors) {
-          for (const element of Array.from(frameDocument.querySelectorAll<HTMLElement>(selector))) {
-            if (element.innerText) candidates.push({ source: 'frame', text: element.innerText });
+  const root = doc.documentElement;
+  if (!root) return candidates;
+
+  if (source !== 'listing') {
+    for (const frame of Array.from(doc.querySelectorAll<HTMLIFrameElement>('iframe'))) {
+      try {
+        const frameDocument = frame.contentDocument;
+        const frameText = frameDocument?.body?.innerText || '';
+        if (frameText) candidates.push({ source: 'frame', text: frameText });
+        if (frameDocument) {
+          for (const selector of selectors) {
+            for (const element of Array.from(frameDocument.querySelectorAll<HTMLElement>(selector))) {
+              if (element.innerText) candidates.push({ source: 'frame', text: element.innerText });
+            }
           }
         }
+      } catch {
+        /* cross-origin frame; child-frame prefill remains isolated */
       }
-    } catch {
-      /* cross-origin frame; child-frame prefill remains isolated */
     }
   }
 
   for (const selector of selectors) {
-    for (const element of Array.from(document.querySelectorAll<HTMLElement>(selector))) {
+    for (const element of Array.from(doc.querySelectorAll<HTMLElement>(selector))) {
       if (element.closest(`#${WIDGET_ROOT_ID}, #tmo-resume-chooser, #tmo-application-status-dialog`)) continue;
-      if (element.innerText) candidates.push({ source: 'specific', text: element.innerText });
+      if (element.innerText) candidates.push({ source, text: element.innerText });
     }
   }
 
-  // Last resort: collect top-level page children while explicitly excluding
-  // every TrackMyOPT-owned surface so our card/modal is never sent as the JD.
-  const outerText = Array.from(document.body?.children || [])
-    .filter((element) => ![
-      WIDGET_ROOT_ID,
-      'tmo-resume-chooser',
-      'tmo-application-status-dialog',
-      'tmo-easy-apply-toast',
-    ].includes(element.id))
-    .filter((element) => !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(element.tagName))
-    .map((element) => (element as HTMLElement).innerText || '')
-    .filter(Boolean)
-    .join('\n\n');
-  if (outerText) candidates.push({ source: 'outer', text: outerText });
+  const body = doc.body;
+  if (body) {
+    const outerText = Array.from(body.children || [])
+      .filter((element) => ![
+        WIDGET_ROOT_ID,
+        'tmo-resume-chooser',
+        'tmo-application-status-dialog',
+        'tmo-easy-apply-toast',
+      ].includes(element.id))
+      .filter((element) => !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(element.tagName))
+      .map((element) => (element as HTMLElement).innerText || '')
+      .filter(Boolean)
+      .join('\n\n');
+    if (outerText) {
+      candidates.push({
+        source: source === 'listing' ? 'listing' : 'outer',
+        text: outerText,
+      });
+    }
+  }
 
-  return chooseJobDescriptionCandidate(candidates);
+  return candidates;
+}
+
+/** Sync scrape of the open document only (no network). */
+function scrapeJobDescription(): string {
+  return chooseJobDescriptionCandidate(scrapeJobDescriptionFromDocument(document));
+}
+
+const listingJobDescriptionCache = new Map<string, string>();
+const JD_SESSION_CACHE_KEY = 'tmo_jd_listing_cache_v1';
+
+function readSessionJdCache(key: string): string {
+  try {
+    const raw = sessionStorage.getItem(JD_SESSION_CACHE_KEY);
+    if (!raw) return '';
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    const value = parsed[key];
+    return typeof value === 'string' ? value : '';
+  } catch {
+    return '';
+  }
+}
+
+function writeSessionJdCache(key: string, text: string): void {
+  if (!text || text.length < 200) return;
+  try {
+    const raw = sessionStorage.getItem(JD_SESSION_CACHE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+    parsed[key] = text.slice(0, 15_000);
+    // Cap entries so sessionStorage stays small across a long apply binge.
+    const keys = Object.keys(parsed);
+    if (keys.length > 20) {
+      for (const stale of keys.slice(0, keys.length - 20)) delete parsed[stale];
+    }
+    sessionStorage.setItem(JD_SESSION_CACHE_KEY, JSON.stringify(parsed));
+  } catch {
+    // Best-effort only.
+  }
+}
+
+function rememberJobDescription(pageUrl: string, text: string): void {
+  if (!looksLikeRealJobPostingText(text)) return;
+  const key = jobDescriptionCacheKey(pageUrl);
+  listingJobDescriptionCache.set(key, text);
+  writeSessionJdCache(key, text);
+}
+
+async function fetchWorkdayCxsJobDescription(pageUrl: string): Promise<string> {
+  const cxsUrl = buildWorkdayCxsJobUrl(pageUrl);
+  if (!cxsUrl) return '';
+  try {
+    const response = await fetch(cxsUrl, {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return '';
+    const payload = (await response.json().catch(() => null)) as unknown;
+    return extractWorkdayJobDescriptionFromCxs(payload);
+  } catch {
+    return '';
+  }
+}
+
+async function fetchListingJobDescription(listingUrl: string): Promise<string> {
+  const cached = listingJobDescriptionCache.get(listingUrl);
+  if (cached) return cached;
+  const sessionCached = readSessionJdCache(listingUrl);
+  if (sessionCached) {
+    listingJobDescriptionCache.set(listingUrl, sessionCached);
+    return sessionCached;
+  }
+  try {
+    const response = await fetch(listingUrl, {
+      credentials: 'include',
+      headers: { Accept: 'text/html' },
+    });
+    if (!response.ok) return '';
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const text = chooseJobDescriptionCandidate(
+      scrapeJobDescriptionFromDocument(doc, 'listing'),
+    );
+    if (text) {
+      listingJobDescriptionCache.set(listingUrl, text);
+      writeSessionJdCache(listingUrl, text);
+    }
+    return text;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Prefer the real posting when the user is on an apply form (Workday, Jobvite,
+ * Greenhouse, Lever, Ashby, iCIMS, …). Order:
+ * 1) session/memory cache from the listing visit
+ * 2) Workday CXS JSON (SPA-safe)
+ * 3) HTML fetch of the sibling listing URL
+ * 4) on-page scrape
+ */
+async function resolveJobDescription(pageUrl: string = window.location.href): Promise<string> {
+  const scraped = scrapeJobDescription();
+  const cacheKey = jobDescriptionCacheKey(pageUrl);
+  rememberJobDescription(pageUrl, scraped);
+
+  const cached =
+    listingJobDescriptionCache.get(cacheKey) || readSessionJdCache(cacheKey);
+  if (cached && looksLikeRealJobPostingText(cached)) {
+    if (!looksLikeRealJobPostingText(scraped) || cached.length > scraped.length) {
+      return cached;
+    }
+  }
+
+  if (!shouldFetchListingJobDescription(pageUrl, scraped)) {
+    return scraped;
+  }
+
+  const workdayText = await fetchWorkdayCxsJobDescription(pageUrl);
+  if (workdayText && looksLikeRealJobPostingText(workdayText)) {
+    rememberJobDescription(pageUrl, workdayText);
+    return workdayText.slice(0, 15_000);
+  }
+
+  const listingUrl = deriveJobListingUrl(pageUrl) || cacheKey;
+  const listingText = listingUrl
+    ? await fetchListingJobDescription(listingUrl)
+    : '';
+  if (listingText) {
+    rememberJobDescription(pageUrl, listingText);
+  }
+
+  return (
+    chooseJobDescriptionCandidate([
+      ...(workdayText ? [{ source: 'listing' as const, text: workdayText }] : []),
+      ...(listingText ? [{ source: 'listing' as const, text: listingText }] : []),
+      { source: 'outer', text: scraped },
+    ]) || scraped
+  );
 }
 
 function downloadGeneratedPdf(base64: string, filename: string): void {
@@ -3884,8 +4047,18 @@ function renderAiResult(
 function openAiAnalysis(card: HTMLElement, job: JobInfo): void {
   document.getElementById('tmo-ai-analysis')?.remove();
   // Capture the posting text before mounting our modal so our own UI can never
-  // leak into the analyzed job description.
-  const jobDescription = scrapeJobDescription();
+  // leak into the analyzed job description. On apply routes, resolve the
+  // sibling listing page so we score against the real JD.
+  void resolveJobDescription().then((jobDescription) => {
+    openAiAnalysisWithDescription(card, job, jobDescription);
+  });
+}
+
+function openAiAnalysisWithDescription(
+  card: HTMLElement,
+  job: JobInfo,
+  jobDescription: string,
+): void {
   const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
   const overlay = document.createElement('div');
@@ -4019,9 +4192,19 @@ function openAiAnalysis(card: HTMLElement, job: JobInfo): void {
 /** Explicit resume/template chooser displayed before any generation starts. */
 function openResumeChooser(card: HTMLElement, job: JobInfo, analyzedMissingKeywords: string[] = []): void {
   document.getElementById('tmo-resume-chooser')?.remove();
+  void resolveJobDescription().then((jobDescription) => {
+    openResumeChooserWithDescription(card, job, analyzedMissingKeywords, jobDescription);
+  });
+}
+
+function openResumeChooserWithDescription(
+  card: HTMLElement,
+  job: JobInfo,
+  analyzedMissingKeywords: string[],
+  jobDescription: string,
+): void {
   // Capture before mounting TrackMyOPT's modal so extension UI can never enter
   // the job-description payload or preview.
-  const jobDescription = scrapeJobDescription();
   const focusKeywords = [...new Set(analyzedMissingKeywords.map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 12);
   const returnFocusTo = document.activeElement instanceof HTMLElement
     ? document.activeElement
@@ -5238,16 +5421,17 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === 'TMO_GET_JOB_CONTEXT') {
     if (window.top !== window.self) return false;
     const job = getJobInfo();
-    const description = scrapeJobDescription();
-    sendResponse({
-      roleTitle: job?.role_title ?? '',
-      companyName: job?.company_name ?? '',
-      jobUrl: job?.job_url ?? window.location.href,
-      pageUrl: window.location.href,
-      applicationId: job ? trackerApplicationIdFor(job) : undefined,
-      jobDescription: description,
+    void resolveJobDescription(window.location.href).then((description) => {
+      sendResponse({
+        roleTitle: job?.role_title ?? '',
+        companyName: job?.company_name ?? '',
+        jobUrl: job?.job_url ?? window.location.href,
+        pageUrl: window.location.href,
+        applicationId: job ? trackerApplicationIdFor(job) : undefined,
+        jobDescription: description,
+      });
     });
-    return false;
+    return true;
   }
   if (message?.type === 'GENERATED_RESUME_ARTIFACT_READY') {
     if (window.top !== window.self) return false;
@@ -5282,7 +5466,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       });
     }
     if (job && prefillButton && fallbackHost) {
-      void reconcileArtifactAvailabilityOnWidgetMount(job, prefillButton, fallbackHost);
+      void reconcileArtifactAvailabilityOnWidgetMount(job, prefillButton, fallbackHost)
+        .then(() => {
+          // Side-panel "Done" should attach the PDF to Add Resume without requiring
+          // another Prefill click.
+          return executeResolvedPrefill(job, currentAutofillPreferences.mode);
+        })
+        .catch(() => undefined);
     } else if (prefillButton && fallbackHost && readyJob?.sourceUrl) {
       // Widget job parse may be empty mid-SPA; still clear the false inactive banner
       // when the background just published a resume for this page URL.
@@ -5301,6 +5491,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         if (label) label.textContent = 'Prefill application + resume';
         prefillButton.title =
           'Prefill profile fields and attach the custom resume generated for this job';
+        previousContinuousSignature = '';
+        if (currentAutofillPreferences.mode === 'continuous') {
+          scheduleContinuousPrefill();
+        }
       }
     }
     sendResponse({ ok: true });

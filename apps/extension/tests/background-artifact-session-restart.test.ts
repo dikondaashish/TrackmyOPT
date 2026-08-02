@@ -301,8 +301,13 @@ test('Workday artifact survives a real background worker restart through session
     request: {
       now: new Date(Date.parse(generated.artifact.generatedAt) + 60_000).toISOString(),
       jobContext: {
-        jobUrl: REAL_WORKDAY_APPLY_URL,
-        companyName: 'Another Company',
+        // Different requisition — company-name drift alone must no longer wipe
+        // a resume generated for this same posting.
+        jobUrl: REAL_WORKDAY_APPLY_URL.replace(
+          '6a58623b68d16a30e2412e0f',
+          'different-requisition',
+        ),
+        companyName: LIVE_COMPANY,
         roleTitle: LIVE_ROLE,
       },
     },

@@ -62,6 +62,8 @@ for (const alias of [
 
 assert.match(CSS, /:focus-visible\{outline:2px solid/, 'focus must always be visible');
 assert.match(CSS, /@media \(prefers-reduced-motion:reduce\)/);
+assert.match(CSS, /\.tmo-ds-btn--primary:not\(:disabled\).*?:hover/, 'primary buttons must have hover styles');
+assert.match(CSS, /\.tmo-ds-btn--secondary:not\(:disabled\).*?:hover/, 'secondary buttons must have hover styles');
 
 // --- scales -----------------------------------------------------------------
 
