@@ -128,8 +128,9 @@ export function TemplatePdfPreview({
 
             canvas.width = viewport.width;
             canvas.height = viewport.height;
-            canvas.style.width = `${cssWidth}px`;
-            canvas.style.height = `${(meta.height * scale)}px`;
+            canvas.style.width = "100%";
+            canvas.style.height = "auto";
+            canvas.style.maxWidth = `${cssWidth}px`;
 
             const ctx = canvas.getContext("2d");
             if (!ctx) continue;
