@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
-import { FREE_ATS_SCAN_LIMIT } from "@/lib/usage-limit";
+import { FREE_ATS_SCAN_LIMIT, PRO_ATS_SCAN_LIMIT } from "@/lib/usage-limit";
 import {
   FREE_COVER_LETTERS_MONTHLY_LIMIT,
   FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
@@ -8,9 +8,11 @@ import {
 import {
   DEDICATED_PLAN_CARD_FEATURES,
   FREE_ATS_SCAN_LIMIT_DISPLAY,
+  PRO_ATS_SCAN_LIMIT_DISPLAY,
   FREE_COVER_LETTER_LIMIT_DISPLAY,
   FREE_SCREENING_DRAFT_LIMIT_DISPLAY,
   FREE_PLAN_CARD_FEATURES,
+  LANDING_PRO_FEATURES,
   PLAN_COMPARISON_FEATURES,
   PRO_PLAN_CARD_FEATURES,
   getPlanBullets,
@@ -69,6 +71,30 @@ describe("plan-features", () => {
     expect(
       FREE_PLAN_CARD_FEATURES.some((f) => /5 Jobs|100 Companies/i.test(f.text))
     ).toBe(false);
+  });
+
+  it("Pro ATS scan cap is stated as a real number, never as Unlimited", () => {
+    // The server caps Pro/Dedicated ATS scans at PRO_ATS_SCAN_LIMIT (10,000/mo).
+    // Advertising it as "Unlimited" is a factual overclaim a customer could
+    // point to in a billing dispute. Every surface must show the real number
+    // and stay in sync with the server-enforced constant.
+    expect(PRO_ATS_SCAN_LIMIT_DISPLAY).toBe(PRO_ATS_SCAN_LIMIT);
+
+    const ats = PLAN_COMPARISON_FEATURES.flatMap((c) => c.features).find(
+      (r) => r.name === "ATS Resume Scanner"
+    );
+    expect(ats?.pro).toBe(`${PRO_ATS_SCAN_LIMIT.toLocaleString("en-US")}/mo`);
+    expect(ats?.dedicated).toBe(`${PRO_ATS_SCAN_LIMIT.toLocaleString("en-US")}/mo`);
+
+    const blob = JSON.stringify([
+      ...PRO_PLAN_CARD_FEATURES,
+      ...LANDING_PRO_FEATURES,
+      ...getPlanBullets("pro"),
+    ]).toLowerCase();
+    // Scoped to a few chars after "ats scanner" — an unbounded `.*` here would
+    // also match the unrelated, genuinely-uncapped "H-1B Sponsors (Unlimited)"
+    // line elsewhere in the same JSON blob.
+    expect(blob).not.toMatch(/ats scanner.{0,15}unlimited/);
   });
 
   it("marks daily auto-checks as Pro-only", () => {

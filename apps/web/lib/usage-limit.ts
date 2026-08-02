@@ -8,7 +8,9 @@ export const DEDICATED_RESUME_LIMIT = 1000;
 
 const FREE_ATS_SCAN_LIMIT = 3;
 export { FREE_ATS_SCAN_LIMIT };
-const PRO_ATS_SCAN_LIMIT = 10_000;
+// Exported so pricing copy can be tested against the real cap instead of
+// claiming "Unlimited" — see plan-features.test.ts.
+export const PRO_ATS_SCAN_LIMIT = 10_000;
 
 /** Pure limit resolver — plan_tier only (no premium_status override). */
 export function resolveResumeLimitForTier(tier: string | null | undefined): number {

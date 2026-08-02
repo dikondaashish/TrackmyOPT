@@ -293,7 +293,7 @@ export default function PremiumWorthItPage() {
                                 "Daily USCIS case status auto-checks with instant email notifications",
                                 "Daily 9AM email reminders for all upcoming deadlines",
                                 "Secure encrypted document vault with expiry reminders",
-                                "Unlimited AI resume generation and ATS scanning",
+                                "500 AI resume generations and 10,000 ATS scans per month",
                                 "Unlimited job application tracking",
                                 "Full H-1B sponsor database with approval rate data",
                                 "STEM OPT I-983 training plan tracking and E-Verify verification",

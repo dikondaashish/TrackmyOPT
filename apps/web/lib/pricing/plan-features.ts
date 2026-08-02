@@ -1,12 +1,21 @@
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
 
 /**
- * Free ATS scan display cap — must match `FREE_ATS_SCAN_LIMIT` in usage-limit.ts.
- * Do not import usage-limit here (server-only cookies); keep this number in sync via test.
+ * Free/Pro ATS scan display caps — must match FREE_ATS_SCAN_LIMIT and
+ * PRO_ATS_SCAN_LIMIT in usage-limit.ts. Do not import usage-limit here
+ * (server-only cookies); keep these numbers in sync via test.
+ *
+ * Pro is a real 10,000/mo cap, not unlimited — no plan surface should say
+ * "Unlimited" for it. See plan-features.test.ts.
  */
 export const FREE_ATS_SCAN_LIMIT_DISPLAY = 3;
+export const PRO_ATS_SCAN_LIMIT_DISPLAY = 10_000;
 export const FREE_SCREENING_DRAFT_LIMIT_DISPLAY = 5;
 export const FREE_COVER_LETTER_LIMIT_DISPLAY = 1;
+
+function formatMonthlyLimit(limit: number): string {
+  return `${limit.toLocaleString("en-US")}/mo`;
+}
 
 /**
  * Single source of truth for Free / Pro / Dedicated plan features.
@@ -104,8 +113,8 @@ export const PLAN_COMPARISON_FEATURES: ComparisonCategory[] = [
       {
         name: "ATS Resume Scanner",
         free: `${FREE_ATS_SCAN_LIMIT_DISPLAY}/mo`,
-        pro: "Unlimited",
-        dedicated: "Unlimited",
+        pro: formatMonthlyLimit(PRO_ATS_SCAN_LIMIT_DISPLAY),
+        dedicated: formatMonthlyLimit(PRO_ATS_SCAN_LIMIT_DISPLAY),
       },
       { name: "Saved Resumes Library", free: true, pro: true, dedicated: true },
     ],
@@ -200,7 +209,7 @@ export const PRO_PLAN_CARD_FEATURES: PlanCardFeature[] = [
   { text: "Higher Daily AI Draft + Cover-Letter Access", included: true, isHeader: false },
   { text: "H-1B Sponsors (Unlimited + Analytics)", included: true, isHeader: false },
   { text: "Resume Generator (500/mo)", included: true, isHeader: false },
-  { text: "ATS Scanner (Unlimited)", included: true, isHeader: false },
+  { text: `ATS Scanner (${formatMonthlyLimit(PRO_ATS_SCAN_LIMIT_DISPLAY)})`, included: true, isHeader: false },
   { text: "Document Vault + Expiry Reminders", included: true, isHeader: false },
 ];
 
@@ -296,7 +305,7 @@ export const LANDING_PRO_FEATURES: LandingPlanFeature[] = [
   { label: "Guided Autopilot (Never Submits)", included: true },
   { label: "Higher Daily AI Draft + Cover-Letter Access", included: true },
   { label: "Resume Generator (500/mo)", included: true },
-  { label: "ATS Scanner (Unlimited)", included: true },
+  { label: `ATS Scanner (${formatMonthlyLimit(PRO_ATS_SCAN_LIMIT_DISPLAY)})`, included: true },
 ];
 
 export const LANDING_DEDICATED_FEATURES: LandingPlanFeature[] = [

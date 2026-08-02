@@ -5,6 +5,11 @@ import { Check, X, ArrowRight, Shield } from "lucide-react";
 import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
 import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
 import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
+import { PRO_ATS_SCAN_LIMIT_DISPLAY } from "@/lib/pricing/plan-features";
+
+// Pro's ATS scan cap is real (10,000/mo), so this copy must never say
+// "Unlimited" — see plan-features.test.ts for the regression guard.
+const proAtsScanLabel = `${PRO_ATS_SCAN_LIMIT_DISPLAY.toLocaleString("en-US")}/month`;
 
 export function PricingComparison() {
     const showDedicated = shouldShowDedicatedPlanForSale();
@@ -59,8 +64,8 @@ export function PricingComparison() {
                                 { feature: "USCIS Case Status Monitoring", free: "Manual check", pro: "Daily auto-check + status change email alerts" },
                                 { feature: "Deadline Reminders", free: "Basic in-app", pro: "Daily 9AM email + push notifications" },
                                 { feature: "H-1B Sponsor Database", free: "25 companies", pro: "Unlimited + approval rate data" },
-                                { feature: "AI Resume Generator", free: "5/month", pro: "500/month + unlimited ATS scans" },
-                                { feature: "ATS Resume Scanner", free: "3/month", pro: "Unlimited" },
+                                { feature: "AI Resume Generator", free: "5/month", pro: `500/month + ${proAtsScanLabel} ATS scans` },
+                                { feature: "ATS Resume Scanner", free: "3/month", pro: proAtsScanLabel },
                                 { feature: "Job Application Tracker", free: true, pro: true },
                                 { feature: "Document Vault", free: false, pro: "Encrypted storage + expiry reminders" },
                                 { feature: "STEM OPT Extension Planner", free: "Basic calculator", pro: "Full I-983 tracking + E-Verify check" },
