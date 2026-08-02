@@ -175,6 +175,70 @@ void (async () => {
 
     client.cancel();
     assert.equal((posted.at(-1) as { type: string }).type, 'cancel');
+
+    // start() begins a keepalive interval (see KEEPALIVE_INTERVAL_MS in
+    // run-protocol.ts); this test's synthetic 'done' event skips the 'state'
+    // transition that would normally clear it, so disconnect() must be called
+    // explicitly here or the interval leaks and keeps the test process alive.
+    client.disconnect();
+}
+
+/**
+ * Regression test for the real failure this session hit: a long "Tailoring
+ * with AI" step (Gemini, with a model fallback retry) outlasted Chrome's
+ * ~30s idle timeout for MV3 service workers, which killed the background
+ * script and surfaced as "Lost connection to the extension" even though
+ * nothing was actually wrong with the network or the run. Any traffic on the
+ * open port resets that timer, so the client must keep sending one.
+ */
+{
+    let originalSetInterval: typeof setInterval;
+    let originalClearInterval: typeof clearInterval;
+    let intervalCallback: (() => void) | null = null;
+    let intervalMs: number | undefined;
+    let cleared = false;
+
+    originalSetInterval = global.setInterval;
+    originalClearInterval = global.clearInterval;
+    // @ts-expect-error — test stub, signature narrowed to what run-client.ts calls
+    global.setInterval = (fn: () => void, ms: number) => {
+        intervalCallback = fn;
+        intervalMs = ms;
+        return 1 as unknown as ReturnType<typeof setInterval>;
+    };
+    // @ts-expect-error — test stub
+    global.clearInterval = () => {
+        cleared = true;
+    };
+
+    try {
+        const posted: unknown[] = [];
+        const port = {
+            postMessage: (m: unknown) => void posted.push(m),
+            disconnect: () => {},
+            onMessage: { addListener: () => {} },
+            onDisconnect: { addListener: () => {} },
+        };
+
+        const client = new AgentRunClient({ connect: () => port });
+        client.start('resume', {}, {});
+
+        assert.equal(intervalMs, 15_000, 'keepalive must fire comfortably under the ~30s SW idle ceiling');
+        assert.ok(intervalCallback, 'no keepalive interval was started');
+
+        posted.length = 0;
+        intervalCallback!();
+        assert.deepEqual(posted, [{ type: 'keepalive' }]);
+
+        assert.equal(cleared, false);
+        client.disconnect();
+        assert.equal(cleared, true, 'disconnect() must clear the keepalive interval');
+    } finally {
+        global.setInterval = originalSetInterval;
+        global.clearInterval = originalClearInterval;
+    }
+
+    console.log('agent-run: keepalive prevents service-worker eviction mid-run');
 }
 
 /* ------------------------------------------------------------------- copy */

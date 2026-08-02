@@ -1437,6 +1437,10 @@ chrome.runtime.onConnect.addListener((port) => {
     const command = raw as RunCommand;
     if (!command || typeof command !== 'object') return;
 
+    // No-op: receiving any message on the port is what resets Chrome's
+    // service-worker idle timer. See the KEEPALIVE_INTERVAL_MS doc comment.
+    if (command.type === 'keepalive') return;
+
     if (command.type === 'cancel') {
       runRegistry.cancel(command.runId);
       return;

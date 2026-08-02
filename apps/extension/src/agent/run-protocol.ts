@@ -102,7 +102,21 @@ export type RunCommand =
     | { type: 'start'; runId: string; kind: 'resume'; input: Record<string, unknown> }
     | { type: 'cancel'; runId: string }
     | { type: 'approve'; runId: string; approvalId: string }
-    | { type: 'reject'; runId: string; approvalId: string };
+    | { type: 'reject'; runId: string; approvalId: string }
+    /**
+     * Sent every KEEPALIVE_INTERVAL_MS while a run is in flight. The résumé
+     * pipeline's longest step (tailoring, with a model fallback retry) can run
+     * well past Chrome's ~30s service-worker idle timeout; without traffic on
+     * the port, Chrome kills the background script mid-request and the run
+     * surfaces as a generic "Lost connection to the extension" failure that
+     * has nothing to do with the network or the user's auth. Any message on
+     * an open port resets that idle timer, so the payload here is never read —
+     * receiving it is the entire point.
+     */
+    | { type: 'keepalive' };
+
+/** Send a keepalive at least this often. Comfortably under the ~30s ceiling. */
+export const KEEPALIVE_INTERVAL_MS = 15_000;
 
 /** background -> UI. */
 export type RunEvent =
