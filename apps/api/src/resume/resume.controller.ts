@@ -111,6 +111,25 @@ export class ResumeController {
     }
   }
 
+  @Delete('by-filename')
+  async deleteResumesByFilename(
+    @Headers('x-trackmyopt-user-id') trustedUserId: string | undefined,
+    @Query('filename') filename: string | undefined,
+  ) {
+    try {
+      const userId = this.requireTrustedUserId(trustedUserId);
+      if (!filename?.trim()) {
+        throw new HttpException('filename is required', HttpStatus.BAD_REQUEST);
+      }
+      return await this.resumeService.deleteResumesByFilename(userId, filename);
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Delete(':id')
   async deleteResume(
     @Headers('x-trackmyopt-user-id') trustedUserId: string | undefined,
@@ -123,7 +142,11 @@ export class ResumeController {
       if (error instanceof HttpException) throw error;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      throw new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+      const status =
+        errorMessage === 'Resume not found'
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new HttpException(errorMessage, status);
     }
   }
 }

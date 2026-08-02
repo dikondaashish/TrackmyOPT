@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createClient } from '@/lib/supabase/server';
 
-import { GET, POST } from './route';
+import { DELETE, GET, POST } from './route';
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
@@ -105,5 +105,30 @@ describe('resume API proxy ownership boundary', () => {
     expect(response.status).toBe(200);
     await expect(response.text()).resolves.toBe('streamed resume response');
     expect(arrayBuffer).not.toHaveBeenCalled();
+  });
+
+  it('allowlists delete-by-filename and forwards the trusted user header', async () => {
+    const request = new NextRequest(
+      `https://www.trackmyopt.com/api/proxy/resume/by-filename?filename=${encodeURIComponent('resume.pdf')}&userId=${attackerSuppliedUserId}`,
+      { method: 'DELETE' },
+    );
+
+    const response = await DELETE(request, {
+      params: Promise.resolve({ path: ['resume', 'by-filename'] }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/resume/by-filename?filename=resume.pdf'),
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+    expect(fetch).toHaveBeenCalledWith(
+      expect.not.stringContaining('userId='),
+      expect.anything(),
+    );
+    const [, options] = vi.mocked(fetch).mock.calls[0];
+    expect(new Headers(options?.headers).get('x-trackmyopt-user-id')).toBe(
+      authenticatedUserId,
+    );
   });
 });

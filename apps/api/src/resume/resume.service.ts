@@ -239,14 +239,33 @@ export class ResumeService {
   }
 
   async deleteResume(id: string, userId: string) {
-    const { error } = await this.supabase
+    const { data, error } = await this.supabase
       .from('resumes')
       .delete()
       .eq('id', id)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .select('id');
 
     if (error) throw new Error(error.message);
-    return { success: true };
+    if (!data?.length) {
+      throw new Error('Resume not found');
+    }
+    return { success: true, deleted: 1 };
+  }
+
+  async deleteResumesByFilename(userId: string, filename: string) {
+    const trimmed = filename.trim();
+    if (!trimmed) throw new Error('Filename is required');
+
+    const { data, error } = await this.supabase
+      .from('resumes')
+      .delete()
+      .eq('user_id', userId)
+      .eq('filename', trimmed)
+      .select('id');
+
+    if (error) throw new Error(error.message);
+    return { success: true, deleted: data?.length ?? 0 };
   }
 
   async getDownloadUrl(userId: string, s3Key: string) {

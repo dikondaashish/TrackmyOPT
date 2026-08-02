@@ -58,7 +58,10 @@ export default function HistoryPage() {
         fetchResumes, 
         search, 
         setSearch, 
-        deleteResumeOptimistic 
+        deleteResumeOptimistic,
+        deleteFilenameOptimistic,
+        restoreResumes,
+        totalCount,
     } = useResumeHistoryStore();
 
     const [error, setError] = useState("");
@@ -103,32 +106,92 @@ export default function HistoryPage() {
 
 
     const handleDelete = async (id: string) => {
+        const target = resumes.find((r) => r.id === id);
         const previousResumes = [...resumes];
+        const previousTotal = totalCount;
+        const sameNameOnPage = target
+            ? resumes.filter((r) => r.filename === target.filename).length
+            : 1;
+
         deleteResumeOptimistic(id);
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            if (!user) {
+                restoreResumes(previousResumes, previousTotal);
+                throw new Error('Please log in again to delete resumes.');
+            }
 
             const response = await fetch(`/api/proxy/resume/${id}?userId=${user.id}`, {
-                method: "DELETE",
+                method: 'DELETE',
+                cache: 'no-store',
             });
 
-            if (!response.ok) throw new Error("Failed to delete resume");
+            if (!response.ok) throw new Error('Failed to delete resume');
 
+            const remainingSameName = Math.max(0, sameNameOnPage - 1);
             toast({
-                title: "Resume Deleted",
-                description: "The resume has been removed from your profile.",
+                title: 'Resume Deleted',
+                description:
+                    remainingSameName > 0
+                        ? `This version was removed. ${remainingSameName} more with the same filename ${remainingSameName === 1 ? 'is' : 'are'} still saved — use “Delete all copies” to clear them.`
+                        : 'The resume has been removed from your profile.',
             });
         } catch (error) {
-            console.error("Delete error:", error);
-            // Rollback is implicitly handled if we refetch, but for now we skip complex rollback logic
+            console.error('Delete error:', error);
+            restoreResumes(previousResumes, previousTotal);
             toast({
-                title: "Delete Failed",
-                description: "Could not delete the resume. It might have been restored.",
-                variant: "destructive",
+                title: 'Delete Failed',
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : 'Could not delete the resume. Please try again.',
+                variant: 'destructive',
             });
-            handleFetch(); // Refetch to sync state
+        }
+    };
+
+    const handleDeleteAllCopies = async (filename: string) => {
+        const previousResumes = [...resumes];
+        const previousTotal = totalCount;
+        const removedOnPage = resumes.filter((r) => r.filename === filename).length;
+        deleteFilenameOptimistic(filename);
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                restoreResumes(previousResumes, previousTotal);
+                throw new Error('Please log in again to delete resumes.');
+            }
+
+            const response = await fetch(
+                `/api/proxy/resume/by-filename?filename=${encodeURIComponent(filename)}&userId=${user.id}`,
+                { method: 'DELETE', cache: 'no-store' },
+            );
+
+            if (!response.ok) throw new Error('Failed to delete resume copies');
+
+            const result = (await response.json().catch(() => null)) as {
+                deleted?: number;
+            } | null;
+            const deleted = result?.deleted ?? removedOnPage;
+
+            toast({
+                title: 'Copies Deleted',
+                description: `Removed ${deleted} saved resume${deleted === 1 ? '' : 's'} named “${filename}”.`,
+            });
+            await fetchResumes(user.id);
+        } catch (error) {
+            console.error('Delete-all error:', error);
+            restoreResumes(previousResumes, previousTotal);
+            toast({
+                title: 'Delete Failed',
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : 'Could not delete those resumes. Please try again.',
+                variant: 'destructive',
+            });
         }
     };
 
@@ -339,7 +402,7 @@ export default function HistoryPage() {
                                                     )}
                                                 </h3>
                                                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5" title={new Date(resume.created_at).toLocaleString()}>
-                                                    Created {format(new Date(resume.created_at), "MMM d, yyyy")}
+                                                    Created {format(new Date(resume.created_at), "MMM d, yyyy · h:mm a")}
                                                 </p>
                                             </div>
                                         </div>
@@ -349,6 +412,13 @@ export default function HistoryPage() {
                                             <span>✓</span>
                                             <span>Parsed</span>
                                         </div>
+                                        {resumes.filter((r) => r.filename === resume.filename).length > 1 && (
+                                            <div className="ml-2 flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                                                <span>
+                                                    {resumes.filter((r) => r.filename === resume.filename).length} copies
+                                                </span>
+                                            </div>
+                                        )}
                                         {/* Generated Badge */}
                                         {(resume.structuredData?.latexCode || resume.structuredData?.generatedLatex) && (
                                             <div className="ml-2 flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
@@ -411,14 +481,29 @@ export default function HistoryPage() {
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogTitle>Delete this resume version?</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete this resume from your saved list.
+                                                        Removes the copy created{' '}
+                                                        {format(new Date(resume.created_at), 'MMM d, yyyy · h:mm a')}
+                                                        {' '}({resume.filename}).
+                                                        {resumes.filter((r) => r.filename === resume.filename).length > 1
+                                                            ? ' Other copies with the same filename will stay until you delete them or use “Delete all copies”.'
+                                                            : ' This cannot be undone.'}
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
-                                                <AlertDialogFooter>
+                                                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDelete(resume.id)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                                                    {resumes.filter((r) => r.filename === resume.filename).length > 1 && (
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDeleteAllCopies(resume.filename)}
+                                                            className="bg-amber-600 hover:bg-amber-700"
+                                                        >
+                                                            Delete all copies
+                                                        </AlertDialogAction>
+                                                    )}
+                                                    <AlertDialogAction onClick={() => handleDelete(resume.id)} className="bg-red-600 hover:bg-red-700">
+                                                        Delete this version
+                                                    </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                         </AlertDialog>

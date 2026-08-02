@@ -32,7 +32,7 @@ function isProxyAllowed(path: string, method: string): boolean {
     );
   }
   if (m === 'DELETE') {
-    return RESUME_BY_ID_PATH.test(path);
+    return path === 'resume/by-filename' || RESUME_BY_ID_PATH.test(path);
   }
   return false;
 }

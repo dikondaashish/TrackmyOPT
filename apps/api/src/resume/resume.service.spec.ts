@@ -37,4 +37,26 @@ describe('ResumeService ownership enforcement', () => {
     expect(query.eq).toHaveBeenCalledWith('id', 'resume-1');
     expect(query.eq).toHaveBeenCalledWith('user_id', 'user-1');
   });
+
+  it('rejects delete when no owned row was removed', async () => {
+    const select = jest.fn().mockResolvedValue({ data: [], error: null });
+    const eqUser = jest.fn().mockReturnValue({ select });
+    const eqId = jest.fn().mockReturnValue({ eq: eqUser });
+    const del = jest.fn().mockReturnValue({ eq: eqId });
+    const service = Object.create(
+      ResumeService.prototype,
+    ) as ResumeServiceWithMocks;
+    service.supabase = {
+      from: jest.fn().mockReturnValue({ delete: del }),
+    };
+
+    await expect(
+      (
+        service.deleteResume as unknown as (
+          id: string,
+          userId: string,
+        ) => Promise<unknown>
+      )('resume-1', 'user-1'),
+    ).rejects.toThrow('Resume not found');
+  });
 });
