@@ -51,7 +51,8 @@ export function bullRedisOptions(opts: {
   const shared = {
     connectTimeout: 10_000,
     maxRetriesPerRequest: 3,
-    enableOfflineQueue: false,
+    // Keep offline queue on — Bull issues commands during boot before the
+    // socket is writable; enableOfflineQueue:false crashes the process.
     retryStrategy(times: number) {
       if (times > 5) return null;
       return Math.min(times * 200, 2000);
