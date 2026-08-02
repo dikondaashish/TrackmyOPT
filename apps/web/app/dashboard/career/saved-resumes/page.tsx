@@ -154,7 +154,7 @@ export default function HistoryPage() {
                 title: 'Resume Deleted',
                 description:
                     remainingSameName > 0
-                        ? `This version was removed. ${remainingSameName} more with the same filename ${remainingSameName === 1 ? 'is' : 'are'} still saved — use “Delete all copies” to clear them.`
+                        ? `${remainingSameName} more with the same filename remain. Use “Delete all copies” to clear them.`
                         : 'The resume has been removed from your profile.',
             });
         } catch (error) {
