@@ -6,6 +6,10 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
+  // Render/Docker health checks need a reachable bind before Redis/queue work settles.
+  const port = Number(process.env.PORT) || 3000;
+  logger.log(`Bootstrapping NestJS on 0.0.0.0:${port}`);
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: true,
   });
@@ -45,9 +49,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  logger.log(`Server listening on port ${port}`);
+  // Explicit 0.0.0.0 — omitting host can leave Docker containers unreachable to Render probes.
+  await app.listen(port, '0.0.0.0');
+  logger.log(`Server listening on 0.0.0.0:${port}`);
 }
 bootstrap().catch((err) => {
   const logger = new Logger('Bootstrap');

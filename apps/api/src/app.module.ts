@@ -42,25 +42,59 @@ export const appConfigValidationSchema = Joi.object({
   CRON_SECRET: Joi.string().min(8).optional(),
 });
 
+/** Fail fast on bad Redis instead of hanging Render health checks for ~15m. */
+export function bullRedisOptions(opts: {
+  url?: string;
+  host?: string;
+  port?: number;
+}): Bull.QueueOptions {
+  const shared = {
+    connectTimeout: 10_000,
+    maxRetriesPerRequest: 3,
+    enableOfflineQueue: false,
+    retryStrategy(times: number) {
+      if (times > 5) return null;
+      return Math.min(times * 200, 2000);
+    },
+  };
+
+  if (opts.url) {
+    const parsed = new URL(opts.url);
+    return {
+      redis: {
+        ...shared,
+        host: parsed.hostname,
+        port: Number(parsed.port || 6379),
+        username: parsed.username || undefined,
+        password: parsed.password
+          ? decodeURIComponent(parsed.password)
+          : undefined,
+        tls: parsed.protocol === 'rediss:' ? {} : undefined,
+      },
+    };
+  }
+
+  return {
+    redis: {
+      ...shared,
+      host: opts.host || 'localhost',
+      port: opts.port || 6379,
+    },
+  };
+}
+
 const runtimeImports =
   process.env.NODE_ENV === 'test'
     ? []
     : [
         BullModule.forRootAsync({
           imports: [ConfigModule],
-          useFactory: (configService: ConfigService): Bull.QueueOptions => {
-            const url = configService.get<string>('REDIS_URL');
-            if (url) {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              return { redis: { url } as any }; // Production (Render/Upstash)
-            }
-            return {
-              redis: {
-                host: configService.get<string>('REDIS_HOST') || 'localhost',
-                port: configService.get<number>('REDIS_PORT') || 6379,
-              },
-            };
-          },
+          useFactory: (configService: ConfigService): Bull.QueueOptions =>
+            bullRedisOptions({
+              url: configService.get<string>('REDIS_URL'),
+              host: configService.get<string>('REDIS_HOST'),
+              port: configService.get<number>('REDIS_PORT'),
+            }),
           inject: [ConfigService],
         }),
         OcrModule,

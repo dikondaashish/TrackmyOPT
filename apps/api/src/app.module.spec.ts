@@ -1,4 +1,4 @@
-import { appConfigValidationSchema } from './app.module';
+import { appConfigValidationSchema, bullRedisOptions } from './app.module';
 
 const completeConfig = {
   NODE_ENV: 'production',
@@ -56,5 +56,35 @@ describe('AppModule environment validation', () => {
     delete config[key as keyof typeof config];
 
     expect(appConfigValidationSchema.validate(config).error).toBeDefined();
+  });
+});
+
+describe('bullRedisOptions', () => {
+  it('parses REDIS_URL into host/port with a finite retry strategy', () => {
+    const options = bullRedisOptions({
+      url: 'redis://:secret%40pw@red-abc:6379',
+    });
+    const redis = options.redis as {
+      host: string;
+      port: number;
+      password?: string;
+      connectTimeout: number;
+      retryStrategy: (times: number) => number | null;
+    };
+
+    expect(redis.host).toBe('red-abc');
+    expect(redis.port).toBe(6379);
+    expect(redis.password).toBe('secret@pw');
+    expect(redis.connectTimeout).toBe(10_000);
+    expect(redis.retryStrategy(6)).toBeNull();
+  });
+
+  it('enables TLS for rediss:// URLs', () => {
+    const options = bullRedisOptions({
+      url: 'rediss://default:token@upstash.example:6379',
+    });
+    const redis = options.redis as { tls?: object };
+
+    expect(redis.tls).toEqual({});
   });
 });
