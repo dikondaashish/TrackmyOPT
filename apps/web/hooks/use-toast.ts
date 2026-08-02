@@ -5,8 +5,8 @@
 
 import * as React from "react"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 5000
+const TOAST_LIMIT = 3
+const TOAST_AUTO_DISMISS_MS = 6_000
 
 type ToastProps = {
     id?: string
@@ -48,19 +48,19 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-const addToRemoveQueue = (toastId: string) => {
-    if (toastTimeouts.has(toastId)) {
-        return
-    }
+function clearToastTimeout(toastId: string) {
+    const timeout = toastTimeouts.get(toastId)
+    if (!timeout) return
+    clearTimeout(timeout)
+    toastTimeouts.delete(toastId)
+}
 
+const scheduleAutoDismiss = (toastId: string) => {
+    clearToastTimeout(toastId)
     const timeout = setTimeout(() => {
         toastTimeouts.delete(toastId)
-        dispatch({
-            type: "REMOVE_TOAST",
-            toastId,
-        })
-    }, TOAST_REMOVE_DELAY)
-
+        dispatch({ type: "REMOVE_TOAST", toastId })
+    }, TOAST_AUTO_DISMISS_MS)
     toastTimeouts.set(toastId, timeout)
 }
 
@@ -82,28 +82,19 @@ export const reducer = (state: State, action: Action): State => {
 
         case "DISMISS_TOAST": {
             const { toastId } = action
-
-            // ! Side effects ! - This could be extracted into a dismissToast() action,
-            // but I'll keep it here for simplicity
+            // Custom (non-Radix) toasts have no exit animation owner — remove
+            // immediately so the close button feels instant.
             if (toastId) {
-                addToRemoveQueue(toastId)
-            } else {
-                state.toasts.forEach((toast) => {
-                    addToRemoveQueue(toast.id!)
-                })
+                clearToastTimeout(toastId)
+                return {
+                    ...state,
+                    toasts: state.toasts.filter((t) => t.id !== toastId),
+                }
             }
-
-            return {
-                ...state,
-                toasts: state.toasts.map((t) =>
-                    t.id === toastId || toastId === undefined
-                        ? {
-                            ...t,
-                            open: false,
-                        }
-                        : t
-                ),
-            }
+            state.toasts.forEach((toast) => {
+                if (toast.id) clearToastTimeout(toast.id)
+            })
+            return { ...state, toasts: [] }
         }
         case "REMOVE_TOAST":
             if (action.toastId === undefined) {
@@ -112,6 +103,7 @@ export const reducer = (state: State, action: Action): State => {
                     toasts: [],
                 }
             }
+            clearToastTimeout(action.toastId)
             return {
                 ...state,
                 toasts: state.toasts.filter((t) => t.id !== action.toastId),
@@ -157,6 +149,7 @@ function toast({ ...props }: ToastProps) {
             },
         },
     })
+    scheduleAutoDismiss(id)
 
     return {
         id,

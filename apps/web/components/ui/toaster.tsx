@@ -16,17 +16,25 @@ export function Toaster() {
     return (
         <ToastProvider>
             <ToastViewport>
-                {toasts.map(function ({ id, title, description, action, ...props }) {
+                {toasts.map(function ({ id, title, description, action, open, onOpenChange, ...props }) {
                     return (
                         <Toast key={id} {...props}>
-                            <div className="grid min-w-0 flex-1 gap-1">
+                            <div className="grid min-w-0 flex-1 gap-1 pr-2">
                                 {title && <ToastTitle>{title}</ToastTitle>}
                                 {description && (
                                     <ToastDescription>{description}</ToastDescription>
                                 )}
                             </div>
                             {action}
-                            <ToastClose onClick={() => dismiss(id)} />
+                            <ToastClose
+                                type="button"
+                                aria-label="Close notification"
+                                onClick={(event) => {
+                                    event.preventDefault()
+                                    event.stopPropagation()
+                                    dismiss(id)
+                                }}
+                            />
                         </Toast>
                     )
                 })}
