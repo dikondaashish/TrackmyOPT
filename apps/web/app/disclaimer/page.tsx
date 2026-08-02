@@ -64,7 +64,10 @@ export default function DisclaimerPage() {
 
       <h2>8. Dedicated plan support</h2>
       <p>
-        The Dedicated plan currently includes higher product quotas and priority email support from TrackMyOPT. It does not include immigration attorney sessions or legal advice. For legal questions, consult a licensed immigration attorney, your DSO, or official USCIS sources. See <Link href="/terms">Terms of Service</Link> and <Link href="/refund-policy">Refund Policy</Link>.
+        The Dedicated plan includes higher product quotas, priority email support, and help scheduling a consultation with a licensed immigration attorney. To use it, email us from the address on your account; we reply with available appointment times, and you book the slot that suits you.
+      </p>
+      <p>
+        <strong>TrackMyOPT is not a law firm and does not provide legal or immigration advice.</strong> Any advice given during a consultation comes from the attorney, who is solely responsible for it. TrackMyOPT arranges the appointment only; it is not a party to your relationship with the attorney and does not supervise, review, or guarantee the advice given. Attorney availability is not guaranteed for a specific date or time. For legal questions outside a scheduled consultation, consult a licensed immigration attorney, your DSO, or official USCIS sources. See <Link href="/terms">Terms of Service</Link> and <Link href="/refund-policy">Refund Policy</Link>.
       </p>
 
       <h2>9. Urgent matters</h2>

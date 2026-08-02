@@ -53,7 +53,7 @@ const faqSchema = {
             name: "How much does TrackMyOPT Premium cost?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "TrackMyOPT Pro is $4.99/month, or about $4.17/mo when billed yearly (save vs paying monthly). Each account may use one 7-day Pro trial, one time only; after that, new Pro checkouts bill without an additional trial. Dedicated is no longer offered to new customers.",
+                text: "TrackMyOPT Pro is $4.99/month, or about $4.17/mo when billed yearly (save vs paying monthly). Each account may use one 7-day Pro trial, one time only; after that, new Pro checkouts bill without an additional trial. Dedicated adds a higher resume quota, priority email support, and help scheduling an immigration attorney consultation; it has no free trial but includes a 3-day money-back guarantee on the first paid month.",
             },
         },
     ],

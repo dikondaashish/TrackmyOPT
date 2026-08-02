@@ -95,7 +95,10 @@ export const LANDING_PLAN_COPY = {
     buttonLabel: `Start ${PRO_TRIAL_DAYS}-Day Free Trial`,
   },
   dedicated: {
-    description: "Pro + higher resume quota and priority email support.",
+    // Attorney wording stays narrow: we schedule the consultation, the
+    // attorney advises. See /disclaimer §8 and plan-features.test.ts.
+    description:
+      "Pro + higher resume quota, priority email support, and help scheduling an immigration attorney consultation.",
     users: "Priority support · 3-day money-back",
     buttonLabel: "Get Dedicated Support",
   },

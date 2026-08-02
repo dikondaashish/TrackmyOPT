@@ -79,12 +79,23 @@ describe("plan-features", () => {
     expect(auto?.pro).toBe(true);
   });
 
-  it("Dedicated is quotas + priority support, not attorney claims", () => {
+  it("Dedicated advertises attorney scheduling only, never legal advice", () => {
     const blob = JSON.stringify([
       ...DEDICATED_PLAN_CARD_FEATURES,
       ...getPlanBullets("dedicated"),
     ]).toLowerCase();
     expect(blob).toMatch(/priority email support/);
-    expect(blob).not.toMatch(/attorney|24\/7|1-on-1/);
+
+    // The attorney benefit is real but narrow: we send appointment slots and
+    // the subscriber books one. Any mention of an attorney must stay tied to
+    // scheduling — TrackMyOPT is not a law firm and provides no legal advice.
+    if (blob.includes("attorney")) {
+      expect(blob).toMatch(/attorney consultation scheduling/);
+    }
+
+    // Claims we do not deliver, and which would make the plan misleading.
+    expect(blob).not.toMatch(/legal advice|immigration advice/);
+    expect(blob).not.toMatch(/24\/7|1-on-1|unlimited/);
+    expect(blob).not.toMatch(/guaranteed|guarantee[d]? (?:appointment|slot|outcome)/);
   });
 });

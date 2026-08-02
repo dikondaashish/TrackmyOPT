@@ -8,9 +8,9 @@ import {
 import { resolveCheckoutResumeUrl } from "@/lib/billing/checkout-recovery";
 
 describe("Phase 6 Dedicated + win-back", () => {
-  it("keeps Dedicated closed for new purchases", () => {
-    expect(DEDICATED_OPEN_FOR_NEW_PURCHASES).toBe(false);
-    expect(shouldShowDedicatedPlanForSale()).toBe(false);
+  it("offers Dedicated for new purchases now that attorney scheduling is delivered", () => {
+    expect(DEDICATED_OPEN_FOR_NEW_PURCHASES).toBe(true);
+    expect(shouldShowDedicatedPlanForSale()).toBe(true);
   });
 
   it("subscription-ended CTA pushes annual Pro auto-check reopen", () => {
@@ -30,14 +30,18 @@ describe("Phase 6 Dedicated + win-back", () => {
     expect(html).toMatch(/getting used/i);
   });
 
-  it("checkout recovery never resumes Dedicated while closed", () => {
+  it("checkout recovery resumes Dedicated while it is open for sale", () => {
     const result = resolveCheckoutResumeUrl({
       appBaseUrl: "https://www.trackmyopt.com",
       planId: "dedicated",
       billingInterval: "year",
       stripeSession: null,
     });
-    expect(result.url).toContain("planId=pro");
-    expect(result.url).not.toContain("planId=dedicated");
+    // An abandoned Dedicated checkout should resume as Dedicated. It is
+    // downgraded to Pro only while DEDICATED_OPEN_FOR_NEW_PURCHASES is false,
+    // so this assertion tracks the flag rather than hardcoding a plan.
+    expect(result.url).toContain(
+      DEDICATED_OPEN_FOR_NEW_PURCHASES ? "planId=dedicated" : "planId=pro"
+    );
   });
 });

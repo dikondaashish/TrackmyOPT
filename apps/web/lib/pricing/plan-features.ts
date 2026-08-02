@@ -134,6 +134,15 @@ export const PLAN_COMPARISON_FEATURES: ComparisonCategory[] = [
       { name: "Higher resume quota (1000/mo)", free: false, pro: false, dedicated: true },
       { name: "Priority email support", free: false, pro: false, dedicated: true },
       { name: "Personalized support plan", free: false, pro: false, dedicated: true },
+      // Scheduling help only. TrackMyOPT is not a law firm and gives no legal
+      // advice — /disclaimer §8 describes the arrangement in full. Keep this
+      // wording narrow; plan-features.test.ts blocks stronger claims.
+      {
+        name: "Immigration attorney consultation scheduling",
+        free: false,
+        pro: false,
+        dedicated: true,
+      },
     ],
   },
 ];
