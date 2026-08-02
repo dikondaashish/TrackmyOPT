@@ -22,6 +22,14 @@ import { ensureThemeStyle } from './design/theme-css';
 import { runConsole, type RunConsoleHandle } from './agent/run-console';
 import { AgentRunClient } from './agent/run-client';
 import { RESUME_TEMPLATES_FOR_PANEL } from './agent/panel-templates';
+import { WEBSITE_URL } from './config';
+import {
+    arrayBufferToBase64,
+    describeOversizedResumeFile,
+    describeUnsupportedResumeFile,
+    isResumeFileSizeAllowed,
+    isSupportedResumeFileName,
+} from './resume-file-upload';
 
 interface JobContext {
     roleTitle: string;
@@ -96,8 +104,43 @@ function renderJob(context: JobContext): void {
         attrs: { 'aria-label': 'Resume text' },
     });
 
+    /* ---- upload: same website endpoint as the dashboard, no client-side --- */
+    /* ---- PDF/DOCX parsing or OCR duplicated in the extension --------------- */
+    const uploadInput = document.createElement('input');
+    uploadInput.type = 'file';
+    uploadInput.accept = '.pdf,.docx,.txt';
+    uploadInput.style.display = 'none';
+    const uploadStatus = stack({ gap: '1' });
+    const uploadButton = button({
+        label: 'Upload PDF / DOCX / TXT',
+        variant: 'secondary',
+        size: 'sm',
+        onClick: () => uploadInput.click(),
+    });
+    uploadInput.addEventListener('change', () => {
+        const file = uploadInput.files?.[0];
+        uploadInput.value = ''; // allow re-selecting the same file after a fix
+        if (!file) return;
+        handleResumeFileUpload(file, uploadStatus, pasteBox, () => {
+            setResumeSource('paste');
+            updateGenerateEnabled();
+        });
+    });
+
     const savedBlock = stack({ gap: '1', children: [field({ label: 'Saved résumé', control: savedSelect })] });
-    const pasteBlock = stack({ gap: '1', children: [field({ label: 'Resume text', control: pasteBox })] });
+    const pasteBlock = stack({
+        gap: '2',
+        children: [
+            field({ label: 'Resume text', control: pasteBox }),
+            row({
+                gap: '2',
+                align: 'center',
+                children: [uploadButton, text({ text: 'or upload a file · max 10MB', size: 'xs', tone: 'muted' })],
+            }),
+            uploadStatus,
+            uploadInput,
+        ],
+    });
     pasteBlock.style.display = 'none';
 
     let resumeSource: ResumeSource = 'saved';
@@ -268,6 +311,116 @@ function loadSavedResumes(savedSelect: HTMLSelectElement, onLoaded: () => void):
             onLoaded();
         }
     );
+}
+
+/* ------------------------------------------------------------- resume file */
+
+interface UploadResumeFileResponse {
+    success?: boolean;
+    error?: string;
+    message?: string;
+    text?: string;
+    filename?: string;
+    canOcr?: boolean;
+}
+
+/**
+ * Uploads a résumé file for text extraction. The extraction itself happens
+ * server-side via the same endpoint the website's dashboard uses — this
+ * function only validates, reads, and relays the bytes; background.ts holds
+ * the Bearer token and does the actual fetch.
+ */
+function handleResumeFileUpload(
+    file: File,
+    statusSlot: HTMLElement,
+    pasteBox: HTMLTextAreaElement,
+    onExtracted: () => void
+): void {
+    statusSlot.replaceChildren();
+
+    if (!isSupportedResumeFileName(file.name)) {
+        statusSlot.appendChild(
+            text({ text: describeUnsupportedResumeFile(file.name), size: 'xs', tone: 'danger' })
+        );
+        return;
+    }
+    if (!isResumeFileSizeAllowed(file.size)) {
+        statusSlot.appendChild(
+            text({ text: describeOversizedResumeFile(file.size), size: 'xs', tone: 'danger' })
+        );
+        return;
+    }
+
+    statusSlot.appendChild(text({ text: `Reading ${file.name}…`, size: 'xs', tone: 'muted' }));
+
+    file.arrayBuffer()
+        .then((buffer) => {
+            const fileBase64 = arrayBufferToBase64(buffer);
+            return new Promise<UploadResumeFileResponse>((resolve) => {
+                chrome.runtime.sendMessage(
+                    { type: 'UPLOAD_RESUME_FILE', filename: file.name, fileType: file.type, fileBase64 },
+                    (response: UploadResumeFileResponse | undefined) => resolve(response ?? {})
+                );
+            });
+        })
+        .then((response) => {
+            statusSlot.replaceChildren();
+
+            if (response.success && response.text) {
+                pasteBox.value = response.text;
+                statusSlot.appendChild(
+                    text({
+                        text: `Extracted ${response.text.length.toLocaleString()} characters from ${response.filename || file.name}.`,
+                        size: 'xs',
+                        tone: 'success',
+                    })
+                );
+                onExtracted();
+                return;
+            }
+
+            if (response.canOcr) {
+                // Scanned PDF: the extension does not run OCR itself — that
+                // path (AWS Textract) goes through a separate, security-
+                // hardened proxy that also serves resume save/download and
+                // was deliberately left untouched for this feature.
+                statusSlot.appendChild(
+                    stack({
+                        gap: '1',
+                        children: [
+                            text({
+                                text: "This looks like a scanned PDF. OCR isn't available from the extension yet.",
+                                size: 'xs',
+                                tone: 'warning',
+                            }),
+                            button({
+                                label: 'Open TrackMyOPT to finish this file',
+                                variant: 'secondary',
+                                size: 'sm',
+                                onClick: () =>
+                                    chrome.tabs.create({
+                                        url: `${WEBSITE_URL}/dashboard/career/resume-generator`,
+                                    }),
+                            }),
+                        ],
+                    })
+                );
+                return;
+            }
+
+            statusSlot.appendChild(
+                text({
+                    text: response.message || 'Could not read that file. Try pasting your resume text instead.',
+                    size: 'xs',
+                    tone: 'danger',
+                })
+            );
+        })
+        .catch(() => {
+            statusSlot.replaceChildren(
+                text({ text: 'Upload failed. Try pasting your resume text instead.', size: 'xs', tone: 'danger' })
+            );
+        });
 }
 
 /* --------------------------------------------------------------- agent run */

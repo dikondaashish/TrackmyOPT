@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
 import { normalizeResumeText, prepareResumeText } from '@/lib/resume/resume-text-limits';
+import { getUserId } from '@/lib/auth/getUserId';
 
 const corsHeaders = corsHeadersConfiguredWebApp();
 
@@ -15,25 +14,16 @@ export const runtime = 'nodejs';
 /**
  * POST /api/resume-generator/upload
  * Routes PDF parsing to backend API (Render) which has proper Node.js environment
+ *
+ * Auth via getUserId (cookie OR extension Bearer token), matching every other
+ * resume-generator route — this one was cookie-only until the Chrome extension
+ * needed to call it for the side panel's upload option.
  */
 export async function POST(req: NextRequest) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value;
-                    },
-                },
-            }
-        );
+        const userId = await getUserId(req);
 
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !user) {
+        if (!userId) {
             return NextResponse.json(
                 { success: false, error: 'Unauthorized' },
                 { status: 401, headers: corsHeaders }

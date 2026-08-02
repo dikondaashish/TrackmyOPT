@@ -403,6 +403,16 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
   }
+  if (msg.type === 'UPLOAD_RESUME_FILE') {
+    uploadResumeFile({
+      filename: String(msg.filename ?? ''),
+      fileType: String(msg.fileType ?? ''),
+      fileBase64: String(msg.fileBase64 ?? ''),
+    })
+      .then((res) => sendResponse(res))
+      .catch(() => sendResponse({ success: false, error: 'error' }));
+    return true;
+  }
   if (msg.type === 'GENERATE_RESUME') {
     // Orchestrate selected resume -> tailored LaTeX -> compiled PDF. Bearer
     // stays in the background; the page receives only the result and an opaque
@@ -947,6 +957,82 @@ function arrayBufferToBase64(buf: ArrayBuffer): string {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
   }
   return btoa(binary);
+}
+
+/** base64 -> Uint8Array, the inverse of arrayBufferToBase64. */
+function base64ToUint8Array(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+interface UploadResumeFileResult {
+  success: boolean;
+  error?: string;
+  message?: string;
+  text?: string;
+  filename?: string;
+  canOcr?: boolean;
+}
+
+/**
+ * Extracts text from a résumé file (PDF/DOCX/TXT) using the exact same
+ * endpoint and backend parsing the website's own upload flow uses — no
+ * PDF/DOCX/OCR parsing is duplicated in the extension. The Bearer token never
+ * leaves the background script; the panel only ever sees the extracted text.
+ *
+ * Scanned PDFs with no extractable text come back with canOcr: true. OCR
+ * itself (AWS Textract) is not wired up for the extension yet — that path
+ * goes through a separate, security-hardened proxy shared with resume
+ * save/download that was deliberately left untouched here. The panel tells
+ * the user to open the web app or paste the text manually in that case.
+ */
+async function uploadResumeFile(input: {
+  filename: string;
+  fileType: string;
+  fileBase64: string;
+}): Promise<UploadResumeFileResult> {
+  const bearer = await getExtensionBearerToken();
+  if (!bearer) return { success: false, error: 'not_signed_in' };
+
+  const bytes = base64ToUint8Array(input.fileBase64);
+  const formData = new FormData();
+  formData.append(
+    'file',
+    new Blob([bytes], { type: input.fileType || 'application/octet-stream' }),
+    input.filename || 'resume'
+  );
+
+  let response: Response;
+  try {
+    response = await fetch(`${WEBSITE_URL}/api/resume-generator/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${bearer}` },
+      body: formData,
+    });
+  } catch {
+    return { success: false, error: 'network' };
+  }
+
+  const data = (await response.json().catch(() => ({}))) as {
+    success?: boolean;
+    error?: string;
+    message?: string;
+    text?: string;
+    filename?: string;
+    can_ocr?: boolean;
+  };
+
+  if (data.success && data.text) {
+    return { success: true, text: data.text, filename: data.filename };
+  }
+  return {
+    success: false,
+    error: data.error || 'upload_failed',
+    message: data.message,
+    canOcr: data.can_ocr === true,
+  };
 }
 
 async function requestScreeningDraft(input: Record<string, unknown>) {
