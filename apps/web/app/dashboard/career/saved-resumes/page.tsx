@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { format } from "date-fns";
+import { ResumeInfoButton, ResumeInfoDrawer, type ResumeInfoSource } from "@/components/career/ResumeInfoDrawer";
 
 interface SavedResume {
     id: string;
@@ -71,6 +72,7 @@ export default function HistoryPage() {
     const [loadingId, setLoadingId] = useState<string | null>(null);
     const [isSlowLoad, setIsSlowLoad] = useState(false);
     const [localSearch, setLocalSearch] = useState(search);
+    const [infoResume, setInfoResume] = useState<ResumeInfoSource | null>(null);
     const debouncedSearch = useDebounce(localSearch, 500);
 
     useEffect(() => {
@@ -485,6 +487,8 @@ export default function HistoryPage() {
                                             )}
                                         </Button>
 
+                                        <ResumeInfoButton onClick={() => setInfoResume(resume)} />
+
                                         {resume.file_path && (
                                             <button
                                                 onClick={() => handleDownload(resume)}
@@ -552,6 +556,14 @@ export default function HistoryPage() {
                     </>
                 )}
             </div>
+
+            <ResumeInfoDrawer
+                resume={infoResume}
+                open={Boolean(infoResume)}
+                onOpenChange={(open) => {
+                    if (!open) setInfoResume(null);
+                }}
+            />
         </div>
     );
 }
