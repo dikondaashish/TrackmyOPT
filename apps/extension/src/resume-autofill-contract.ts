@@ -1,3 +1,9 @@
+import {
+  atsJobIdentitiesMatch,
+  extractAtsJobIdentity,
+  sameHostApplyRouteMatch,
+} from './ats-job-identity';
+
 export interface ResumeDateValue {
   originalText: string;
   year?: number;
@@ -319,7 +325,23 @@ export function jobUrlsReferToSameJob(
     ].map(normalizeRequisitionId);
     return contextIds.some((identifier) => artifactIds.has(identifier));
   }
-  return normalizeJobUrl(artifactUrl) === normalizeJobUrl(contextUrl);
+
+  // Every other ATS: reduce both URLs to {platform, tenant, jobId} so the
+  // posting and its apply route resolve to one job. Without this, clicking
+  // Apply on Lever/Ashby/Workable/Greenhouse/SmartRecruiters/etc. changed the
+  // URL and the freshly generated resume was rejected as a different job.
+  const artifactAtsIdentity = extractAtsJobIdentity(artifactUrl);
+  const contextAtsIdentity = extractAtsJobIdentity(contextUrl);
+  if (artifactAtsIdentity && contextAtsIdentity) {
+    return atsJobIdentitiesMatch(artifactAtsIdentity, contextAtsIdentity);
+  }
+  // A recognised posting must not fall through to path comparison against an
+  // unrecognised URL — that is a genuinely different destination.
+  if (artifactAtsIdentity || contextAtsIdentity) return false;
+
+  if (normalizeJobUrl(artifactUrl) === normalizeJobUrl(contextUrl)) return true;
+  // Unknown ATS: same host, same path once a trailing apply route is removed.
+  return sameHostApplyRouteMatch(artifactUrl, contextUrl);
 }
 
 export function artifactMatchesJobContext(

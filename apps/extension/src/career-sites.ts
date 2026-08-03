@@ -662,3 +662,64 @@ export function isKnownJobBoardOrAts(): boolean {
   }
   return false;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION 8 — JOB-POSTING EVIDENCE
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Does this page's text actually read like a job posting?
+ *
+ * CAREER_PATH_RE deliberately matches broadly — /apply, /application, /join-us,
+ * /talent — because employer career pages use every one of those. On its own
+ * that is far too loose: it also matches university admissions, credit-card
+ * and loan applications, and volunteer sign-up pages. Combined with the weakest
+ * parser (any <h1> plus the domain name), the assistant would mount there and
+ * offer to prefill the applicant's personal details into a form that has
+ * nothing to do with employment.
+ *
+ * So a page that is not a known job board or ATS, and carries no JobPosting
+ * structured data, must corroborate itself with its own copy before the weak
+ * parsers are trusted.
+ *
+ * Categories rather than a keyword count: "requirements" plus "apply now"
+ * describes a university application just as well as a job, so at least one
+ * employment-specific signal is required.
+ */
+const JOB_EVIDENCE_PATTERNS: ReadonlyArray<{
+  category: 'duties' | 'employment' | 'requirements' | 'application';
+  strong: boolean;
+  re: RegExp;
+}> = [
+  // Employment-specific. One of these must be present.
+  { category: 'duties', strong: true, re: /\b(responsibilities|what you'?ll do|what you will do|about (?:the|this) role|role overview|in this role|key duties|job description)\b/i },
+  { category: 'employment', strong: true, re: /\b(full[\s-]?time|part[\s-]?time|internship|contract role|employment type|salary range|compensation range|pay range|base salary|equal opportunit\w+ employer|employee benefits|benefits package)\b/i },
+  // Supporting only — common to many kinds of application.
+  { category: 'requirements', strong: false, re: /\b(qualifications|requirements|what we'?re looking for|minimum qualifications|preferred qualifications|required skills|nice to have)\b/i },
+  { category: 'application', strong: false, re: /\b(apply now|apply for this job|submit your application|easy apply|start your application|application form)\b/i },
+];
+
+/** Which evidence categories this text shows. Exported for testing. */
+export function jobPostingEvidence(text: string): {
+  categories: string[];
+  strong: boolean;
+} {
+  const sample = (text || '').slice(0, 20_000);
+  const categories = new Set<string>();
+  let strong = false;
+  for (const pattern of JOB_EVIDENCE_PATTERNS) {
+    if (!pattern.re.test(sample)) continue;
+    categories.add(pattern.category);
+    if (pattern.strong) strong = true;
+  }
+  return { categories: [...categories], strong };
+}
+
+/**
+ * True when the page corroborates that it is a job posting: at least one
+ * employment-specific signal, plus a second independent category.
+ */
+export function hasJobPostingEvidence(text: string): boolean {
+  const evidence = jobPostingEvidence(text);
+  return evidence.strong && evidence.categories.length >= 2;
+}

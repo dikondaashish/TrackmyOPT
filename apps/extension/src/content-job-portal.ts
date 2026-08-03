@@ -14,6 +14,7 @@ let announceWidgetStatus: (message: string) => void = () => {};
 import {
   isCareerPage,
   isKnownJobBoardOrAts,
+  hasJobPostingEvidence,
   CAREER_PATH_RE,
 } from './career-sites';
 import {
@@ -28,6 +29,15 @@ import {
 } from './easy-apply-engine';
 import { openFeedbackModal } from './feedback';
 import { icon } from './icons';
+import {
+  RESUME_STATUS_ROW_CLASS,
+  createResumeStatusRow,
+  isResumeStatusAttached,
+  paintResumeStatusRow,
+  prefillEntryCopy,
+  resumeStatusAfterPrefill,
+  type ResumeStatusState,
+} from './resume-status-row';
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
 import {
   buildWorkdayCxsJobUrl,
@@ -710,6 +720,9 @@ function markCurrentArtifactInvalid(
     artifactExpiryTimer = null;
   }
   syncArtifactStaleBannerVisibility();
+  // The dedicated stale/inactive banners carry the recovery copy for these
+  // cases; the status row just stops claiming a resume is standing by.
+  syncResumeStatusRows('none');
 }
 
 function scheduleCurrentArtifactExpiry(artifact: GeneratedResumeArtifactV1): void {
@@ -735,6 +748,7 @@ function setCurrentGeneratedArtifact(artifact: GeneratedResumeArtifactV1): void 
   artifactStaleReason = null;
   scheduleCurrentArtifactExpiry(artifact);
   syncArtifactStaleBannerVisibility();
+  syncResumeStatusRows('ready');
   if (currentAutofillPreferences.mode === 'continuous') {
     previousContinuousSignature = '';
     scheduleContinuousPrefill();
@@ -787,20 +801,23 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
     artifactAvailable,
     wasExpected,
   });
-  const label = prefillButton.querySelector<HTMLElement>('.tmo-action-label');
+  // An already-attached row must not be downgraded to "ready" by a later
+  // reconcile — the file really is in the form.
+  if (
+    !isResumeStatusAttached(
+      document.querySelector<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
+    )
+  ) {
+    syncResumeStatusRows(artifactAvailable ? 'ready' : 'none');
+  }
+  paintPrefillButton(prefillButton, artifactAvailable);
   if (artifactAvailable) {
-    if (label) label.textContent = 'Prefill application + resume';
-    prefillButton.title =
-      'Prefill profile fields and attach the custom resume generated for this job';
     // Side-panel generate does not push PDF bytes into this tab. Force Continuous
     // (or the next Prefill click) to re-resolve so the file input gets attached.
     previousContinuousSignature = '';
     if (currentAutofillPreferences.mode === 'continuous') {
       scheduleContinuousPrefill();
     }
-  } else {
-    if (label) label.textContent = 'Prefill application';
-    prefillButton.title = 'Prefill available profile fields for this application';
   }
 }
 
@@ -2148,7 +2165,19 @@ function getJobInfo(): JobInfo | null {
   // We're on the employer's/ATS's own site — its favicon reliably represents
   // the employer, so use it whenever the parser didn't already find an
   // explicit logo (e.g. JSON-LD hiringOrganization.logo).
-  const job = getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob();
+  const structuredJob = getJsonLdJobPosting();
+  // The title/meta and <h1> parsers accept almost anything, and CAREER_PATH_RE
+  // matched us here from a path alone — /apply, /application, /join-us. On an
+  // unknown host with no JobPosting data that combination also describes
+  // university admissions and credit-card or loan applications, where offering
+  // to prefill the applicant's personal details would be plainly wrong. Require
+  // the page's own copy to corroborate that it is a job posting first.
+  const weakParsersAllowed =
+    isKnownJobBoardOrAts() ||
+    hasJobPostingEvidence(document.body?.innerText || '');
+  const job =
+    structuredJob ||
+    (weakParsersAllowed ? getMetaAndTitleJob() || getDomFallbackJob() : null);
   if (job && !isSpecificRoleTitle(cleanRoleCandidate(job.role_title), job.company_name)) {
     const specificRole = findSpecificRoleFromDom(job.company_name);
     if (specificRole) job.role_title = specificRole;
@@ -2599,16 +2628,13 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   toolsPanel.style.cssText =
     'border:1px solid var(--tmo-widget-border);border-radius:12px;overflow:hidden;background:var(--tmo-widget-surface);box-shadow:0 2px 8px rgba(15,23,42,0.05);';
 
-  const prefillBtn = actionBtn(icon('zap', 16, '#fff'), 'Prefill application', {
-    sublabel: 'Auto-fill this application',
+  const initialPrefillCopy = prefillEntryCopy(Boolean(generatedResumeFor(job)));
+  const prefillBtn = actionBtn(icon('zap', 16, '#fff'), initialPrefillCopy.label, {
+    sublabel: initialPrefillCopy.sublabel,
     chip: 'linear-gradient(135deg,#2563eb,#0ea5e9)',
   });
   prefillBtn.classList.add('tmo-prefill-button');
-  if (generatedResumeFor(job)) {
-    const label = prefillBtn.querySelector<HTMLElement>('.tmo-action-label');
-    if (label) label.textContent = 'Prefill application + resume';
-    prefillBtn.title = 'Prefill profile fields and attach the custom resume generated for this job';
-  }
+  prefillBtn.title = initialPrefillCopy.title;
   const prefillResultLine = document.createElement('div');
   prefillResultLine.className = 'tmo-prefill-result-line';
   prefillResultLine.setAttribute('role', 'status');
@@ -2675,6 +2701,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
     return d;
   };
 
+  const resumeStatusRow = createResumeStatusRow();
+  toolsPanel.appendChild(resumeStatusRow);
   toolsPanel.appendChild(prefillBtn);
   toolsPanel.appendChild(prefillResultLine);
   if (AUTOFILL_FEATURE_FLAGS.guidedAutopilot) {
@@ -3103,6 +3131,14 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         hasResume = execution.hasResume;
         const result = execution.result;
         paintPrefillCoverage(prefillResultLine, result);
+        // Report what actually happened to the file, not what was offered:
+        // a resume can be resolved and still not attach when the upload field
+        // is on a later step or already holds a file.
+        const status = resumeStatusAfterPrefill({
+          attachedCount: result.groups.resume.filled,
+          hasResume: execution.hasResume,
+        });
+        paintResumeStatusRow(resumeStatusRow, status.state, status.detail);
         if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
           await mountScreeningQuestionReviews(
             card,
@@ -3118,11 +3154,10 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         prefillBtn.disabled = false;
         prefillBtn.setAttribute('aria-busy', 'false');
         prefillBtn.classList.remove('tmo-is-filling');
-        if (label) {
-          label.textContent = hasResume || generatedResumeFor(job)
-            ? 'Prefill application + resume'
-            : 'Prefill application';
-        }
+        paintPrefillButton(
+          prefillBtn,
+          Boolean(hasResume || generatedResumeFor(job)),
+        );
       }
     })();
   });
@@ -3346,6 +3381,29 @@ function paintSponsorshipPill(host: HTMLElement, result: SponsorshipResult): voi
   host.appendChild(pill);
 }
 
+/** Point a Prefill control at the shared copy for the current resume state. */
+function paintPrefillButton(
+  button: HTMLButtonElement | null | undefined,
+  hasResume: boolean,
+): void {
+  if (!button) return;
+  const copy = prefillEntryCopy(hasResume);
+  const label = button.querySelector<HTMLElement>('.tmo-action-label');
+  if (label) label.textContent = copy.label;
+  const sublabel = button.querySelector<HTMLElement>('.tmo-action-sublabel');
+  if (sublabel) sublabel.textContent = copy.sublabel;
+  button.title = copy.title;
+}
+
+/** Repaint every mounted status row — the widget may be rebuilt mid-flow. */
+function syncResumeStatusRows(state: ResumeStatusState, detail?: string): void {
+  for (const row of Array.from(
+    document.querySelectorAll<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
+  )) {
+    paintResumeStatusRow(row, state, detail);
+  }
+}
+
 /**
  * Action row inside the tools panel: colored icon chip + label + optional
  * sublabel, with a trailing chevron (default) or custom trailing element.
@@ -3392,6 +3450,7 @@ function actionBtn(
   textWrap.appendChild(l);
   if (opts.sublabel) {
     const s = document.createElement('span');
+    s.className = 'tmo-action-sublabel';
     s.textContent = opts.sublabel;
     s.style.cssText = 'display:block;font-size:11px;color:var(--tmo-widget-muted);margin-top:1px;';
     textWrap.appendChild(s);
@@ -4583,18 +4642,10 @@ function renderResumeResult(
   }
 
   const card = panel.parentElement;
-  const prefillLabel = card?.querySelector<HTMLElement>('.tmo-prefill-button .tmo-action-label');
-  if (prefillLabel) {
-    prefillLabel.textContent = artifact
-      ? 'Prefill application + resume'
-      : 'Prefill application';
-  }
-  const prefillButton = card?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
-  if (prefillButton) {
-    prefillButton.title = artifact
-      ? 'Prefill profile fields and attach the custom resume generated for this job'
-      : 'Prefill profile fields';
-  }
+  paintPrefillButton(
+    card?.querySelector<HTMLButtonElement>('.tmo-prefill-button'),
+    Boolean(artifact),
+  );
 
   const dl = resumeMiniBtn(`${icon('fileText', 14, '#fff')}<span>Download</span>`, true);
   dl.title = 'Download the tailored resume as a PDF';
@@ -5487,10 +5538,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           artifactAvailable: true,
           wasExpected: true,
         });
-        const label = prefillButton.querySelector<HTMLElement>('.tmo-action-label');
-        if (label) label.textContent = 'Prefill application + resume';
-        prefillButton.title =
-          'Prefill profile fields and attach the custom resume generated for this job';
+        paintPrefillButton(prefillButton, true);
+        syncResumeStatusRows('ready');
         previousContinuousSignature = '';
         if (currentAutofillPreferences.mode === 'continuous') {
           scheduleContinuousPrefill();

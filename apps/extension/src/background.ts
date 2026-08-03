@@ -81,10 +81,17 @@ async function clearCurrentGeneratedResumeArtifact(): Promise<void> {
 
 async function cacheCurrentGeneratedResumeArtifact(
   artifact: GeneratedResumeArtifactV1,
+  options?: { persist?: boolean; notifyTabs?: boolean },
 ): Promise<void> {
   currentGeneratedResumeArtifact = artifact;
   await replaceActiveGeneratedResumeArtifact(artifact);
-  await notifyTabsGeneratedResumeReady();
+  // An artifact that came *from* storage must not be written straight back.
+  if (options?.persist !== false) await persistGeneratedResumeArtifact(artifact);
+  // GENERATED_RESUME_ARTIFACT_READY means "the user just generated this", and
+  // the page handler responds by running a prefill. Restoring a previously
+  // stored resume must stay silent, or simply opening a job page the user
+  // tailored last week would fill the application without them asking.
+  if (options?.notifyTabs !== false) await notifyTabsGeneratedResumeReady();
 }
 
 /** Tell open job-page widgets that a tailored resume is ready for prefill attach. */
@@ -121,6 +128,65 @@ async function readCurrentGeneratedResumeArtifact(): Promise<GeneratedResumeArti
     currentGeneratedResumeArtifact = stored as GeneratedResumeArtifactV1;
   }
   return currentGeneratedResumeArtifact;
+}
+
+/**
+ * Persist the tailored resume against its posting so it survives the 30-minute
+ * in-page window, a browser restart, and a different device. Best-effort: the
+ * session artifact already works for the current run, so a storage failure must
+ * never fail the generation the user just waited 40 seconds for.
+ */
+async function persistGeneratedResumeArtifact(
+  artifact: GeneratedResumeArtifactV1,
+): Promise<void> {
+  try {
+    const bearer = await getExtensionBearerToken();
+    if (!bearer) return;
+    await fetch(`${WEBSITE_URL}/api/extension/resume-artifact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearer}`,
+      },
+      body: JSON.stringify({ artifact }),
+    });
+  } catch {
+    // Offline or rate-limited; the in-session artifact remains usable.
+  }
+}
+
+/**
+ * Ask the server whether a tailored resume exists for this posting. Called only
+ * when the in-memory/session artifact does not cover the page, which is the
+ * "generated earlier, applying now" case the session store cannot serve.
+ */
+async function fetchStoredArtifactForJob(
+  jobUrl: string,
+): Promise<GeneratedResumeArtifactV1 | null> {
+  if (!jobUrl.trim()) return null;
+  try {
+    const bearer = await getExtensionBearerToken();
+    if (!bearer) return null;
+    const endpoint = new URL(`${WEBSITE_URL}/api/extension/resume-artifact`);
+    endpoint.searchParams.set('jobUrl', jobUrl);
+    const response = await fetch(endpoint.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearer}`,
+      },
+      cache: 'no-store',
+    });
+    if (!response.ok) return null;
+    const body = (await response.json()) as { artifact?: unknown };
+    const artifact = body.artifact;
+    if (!artifact || typeof artifact !== 'object' || Array.isArray(artifact)) {
+      return null;
+    }
+    return artifact as GeneratedResumeArtifactV1;
+  } catch {
+    return null;
+  }
 }
 
 /** True if JWT `exp` is more than 60s in the future (matches popup refresh heuristic). */
@@ -223,8 +289,17 @@ async function getAutofillPlanEntitlements() {
 // ISS-039: refresh token whenever the user focuses the browser/extension —
 // this guarantees that after a logout/switch on the web side, the extension
 // picks up the new identity within seconds rather than up to 10 minutes.
+// Forcing a refresh on every focus change meant one network round trip each
+// time the user alt-tabbed back into Chrome. The point is to notice a web-side
+// login switch within seconds, which a short floor still achieves.
+const FOCUS_REFRESH_MIN_INTERVAL_MS = 60_000;
+let lastFocusTokenRefreshAt = 0;
+
 chrome.windows?.onFocusChanged.addListener(async (windowId) => {
   if (windowId === chrome.windows.WINDOW_ID_NONE) return;
+  const now = Date.now();
+  if (now - lastFocusTokenRefreshAt < FOCUS_REFRESH_MIN_INTERVAL_MS) return;
+  lastFocusTokenRefreshAt = now;
   await getExtensionBearerToken(true);
 });
 
@@ -637,21 +712,50 @@ async function resolveCurrentV1PrefillPayload(
   request: V1PrefillPayloadRequest,
   options?: { discardRejectedArtifact?: boolean }
 ): Promise<V1PrefillPayloadResponse> {
+  const fetchProfileFallback = async () => {
+    const result = await getAutofillProfile();
+    return {
+      ok: result.ok,
+      error: result.error,
+      profile: result.profile as BasicContactProfile | undefined,
+    };
+  };
+
   const artifact = await readCurrentGeneratedResumeArtifact();
   const response = await resolveV1PrefillPayload({
     artifact,
     request,
     discardRejectedArtifact: options?.discardRejectedArtifact,
     onArtifactRejected: clearCurrentGeneratedResumeArtifact,
-    fetchProfileFallback: async () => {
-      const result = await getAutofillProfile();
-      return {
-        ok: result.ok,
-        error: result.error,
-        profile: result.profile as BasicContactProfile | undefined,
-      };
-    },
+    fetchProfileFallback,
   });
+
+  // Nothing in this session covers the page. The user may still have tailored a
+  // resume for this posting earlier — hours ago, or on another device — so ask
+  // storage before falling back to profile-only prefill.
+  if (
+    response.ok &&
+    response.source === 'profile_only' &&
+    response.reason !== 'feature_disabled'
+  ) {
+    const stored = await fetchStoredArtifactForJob(request.jobContext.jobUrl);
+    if (stored) {
+      const restored = await resolveV1PrefillPayload({
+        artifact: stored,
+        request,
+        discardRejectedArtifact: false,
+        fetchProfileFallback,
+      });
+      if (restored.ok && restored.source === 'generated_resume') {
+        await cacheCurrentGeneratedResumeArtifact(stored, {
+          persist: false,
+          notifyTabs: false,
+        });
+        return restored;
+      }
+    }
+  }
+
   return response;
 }
 
@@ -1040,7 +1144,12 @@ async function uploadResumeFile(input: {
   const formData = new FormData();
   formData.append(
     'file',
-    new Blob([bytes], { type: input.fileType || 'application/octet-stream' }),
+    // `bytes.buffer` is typed ArrayBufferLike, which includes SharedArrayBuffer
+    // and is not a BlobPart. base64ToUint8Array always allocates a plain
+    // ArrayBuffer, so slicing to an exact ArrayBuffer is accurate, not a cast.
+    new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer], {
+      type: input.fileType || 'application/octet-stream',
+    }),
     input.filename || 'resume'
   );
 
@@ -1159,6 +1268,7 @@ async function generateCoverLetterForCurrentArtifact(input: {
   }
   artifact.coverLetter = result.attachment;
   await replaceActiveGeneratedResumeArtifact(artifact);
+  await persistGeneratedResumeArtifact(artifact);
   return { ok: true, attachment: result.attachment, draftText: result.draftText || '', limits: result.limits };
 }
 
@@ -1206,6 +1316,7 @@ async function recompileCoverLetterForCurrentArtifact(input: {
   };
   artifact.coverLetter = attachment;
   await replaceActiveGeneratedResumeArtifact(artifact);
+  await persistGeneratedResumeArtifact(artifact);
   return { ok: true, attachment, draftText: input.editedText };
 }
 

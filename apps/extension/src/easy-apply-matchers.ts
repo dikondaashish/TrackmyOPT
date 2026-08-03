@@ -19,6 +19,8 @@ export { SENSITIVE_QUESTION_RE } from './sensitive-question-policy';
 export type FieldKind =
   | 'email'
   | 'phone'
+  | 'phoneCountryCode'
+  | 'phoneDeviceType'
   | 'firstName'
   | 'lastName'
   | 'fullName'
@@ -95,6 +97,28 @@ export function classifyField(labelText: string): FieldKind | null {
   if (dedicatedSkillsSignal && !skillsSignalRemainder) return 'skills';
 
   if (/\b(e-?mail|courriel|correo)\b/.test(t)) return 'email';
+
+  // Phone sub-controls before the general phone rule. Forms routinely split the
+  // number into a dial-code select, a device-type select, and the digits; all
+  // three match /phone/, so without these the country-code and type dropdowns
+  // received the full phone number and silently matched nothing.
+  // A bare "country code" stays an address field — it is usually an ISO list.
+  // Only an explicit dial-code term, or a country code sitting in a phone
+  // context, is treated as the "+1" select.
+  const phoneContext = /\b(phone|telephone|tel|mobile|cell)\b/.test(t);
+  if (
+    /\b(?:dial|isd|std)\s*code\b/.test(t) ||
+    (phoneContext && /\bcode\b/.test(t))
+  ) {
+    return 'phoneCountryCode';
+  }
+  if (
+    /\b(?:phone|telephone|tel|contact)\s*(?:number\s*)?(?:device\s*)?type\b/.test(t) ||
+    /\b(?:device|number)\s*type\b/.test(t)
+  ) {
+    return 'phoneDeviceType';
+  }
+
   if (/\b(phone|telephone|tel|téléphone|telefono|mobile|cell|portable)\b/.test(t)) return 'phone';
   // normalizeFieldSignal splits camelCase, so "LinkedIn" becomes "linked in";
   // tolerate the space/hyphen so human-facing "LinkedIn Profile URL" labels match.

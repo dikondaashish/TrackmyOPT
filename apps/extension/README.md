@@ -201,9 +201,137 @@ empty fields include name, job-application email, phone, country, street
 address, city, state, ZIP/postal code, county/district, LinkedIn, GitHub,
 website, contact, experience, education, and optional skills fields. The
 extension may attach a generated resume and reviewed cover letter only to
-eligible empty PDF inputs. The artifact expires after 30 minutes and is
-invalidated when the normalized job URL, company, or role changes.
+eligible empty PDF inputs.
 Review-required AI screening drafts are limited to non-sensitive questions.
+
+### Which resume belongs to which page
+
+A tailored resume is bound to the posting it was generated for. Identity is
+resolved by `src/ats-job-identity.ts`, which reduces both the posting URL and
+the apply URL to `{platform, tenant, jobId}` so clicking Apply does not look
+like a different job. Dedicated rules cover Workday, iCIMS, Greenhouse (both
+board hosts plus `gh_jid` embeds), Lever, Ashby, Workable, SmartRecruiters,
+Jobvite, Recruitee, Teamtailor, Breezy, Pinpoint, Personio, Eightfold, JazzHR,
+BambooHR, Dover, Comeet, Taleo, SuccessFactors, Oracle Cloud, and Avature. An
+unrecognised board falls back to same-host comparison with any trailing apply
+route removed. Company and role text is never used to match — scraped text
+drifts, and a wrong match would attach another employer's resume.
+
+Two stores back the artifact:
+
+| Store | Lifetime | Purpose |
+| --- | --- | --- |
+| `chrome.storage.session` | 30 minutes, one active artifact | Fast path for the run in progress |
+| `generated_resume_artifacts` (Postgres) | 30 days, per job, 50 per user | "Generate now, apply later", and any signed-in device |
+
+The background worker writes to storage after a successful generation and reads
+from it only when the session artifact does not cover the current page. A
+restored artifact is re-validated against the page before use and is adopted
+silently — it never broadcasts `GENERATED_RESUME_ARTIFACT_READY`, because the
+page handler responds to that message by running a prefill, and reopening an
+old job page must not fill an application on its own.
+
+### Where the assistant is allowed to appear
+
+Three gates, cheapest first:
+
+1. **Manifest match** — the content script loads. The list is broad on purpose
+   (`*://*/careers`, `*://*/apply`, `*://*/join-us`, …) because employer career
+   pages use every one of those paths.
+2. **`shouldUseFullJobAssistMode()`** — decides observer strategy only.
+3. **`getJobInfo()` evidence gate** — decides whether a widget may mount.
+
+The third gate exists because the first two are URL-shaped, and a URL cannot
+tell a job posting from a university admissions page, a credit-card
+application, or a loan application — `/apply` and `/application` match all of
+them. The weakest parsers accept almost anything (`getDomFallbackJob` takes any
+`<h1>` plus the domain name), so on an unknown host with no `JobPosting`
+structured data the page must corroborate itself through
+`hasJobPostingEvidence()`: at least one employment-specific signal
+(responsibilities, full-time, salary range, equal-opportunity employer) plus a
+second independent category. "Requirements" and "Apply now" together describe a
+university application just as well as a job, so they are not sufficient alone.
+
+Known job boards and ATS hosts, and any page carrying `JobPosting` structured
+data, skip the check entirely. When the gate declines, the popup's "Add this job
+to tracker" still injects on demand via `activeTab`.
+
+`tests/job-posting-evidence.test.ts` holds the corpus, including the non-job
+pages that previously mounted a widget.
+
+### Dropdown selection
+
+Native `<select>` and custom comboboxes share one matcher
+(`chooseSmartDropdownOption` in `src/smart-dropdown.ts`). They used to have
+separate rules and the `<select>` path was weaker, so a country list offering
+"United States of America" never matched a profile holding "United States".
+
+Matching is still equality, never fuzz — but it compares against
+deterministically derived *pieces* of an option label, because one answer is
+rendered many ways:
+
+| Rendering | Handled by |
+| --- | --- |
+| `United States of America`, `USA`, `US` | country canonicalization |
+| `United States (US)`, `🇺🇸 United States` | parenthetical strip, punctuation normalize |
+| `US-CA — California` | separator segments |
+| `+1`, `US +1`, `United States (+1)` | `phoneCountryCode` + `src/phone-country-codes.ts` |
+| `New York, NY, United States` | ordered leading-segment run (places only) |
+
+Guards, all covered by `tests/dropdown-option-shapes.test.ts`:
+
+- two options reaching the same score select **nothing** — "Portland, OR" and
+  "Portland, ME" are ambiguous for a profile holding only "Portland";
+- a mid-string substring never matches, so "York" cannot select "New York";
+- for places, only a *leading* run of comma segments counts, so the country tail
+  of "New York, NY, United States" cannot match a country value;
+- dial codes are matched longest-first, so `+1` never selects `+1809`.
+
+The dial code comes from the applicant's phone number when it carries one, and
+from their country otherwise — an Indian number stored by someone living in the
+US still selects `+91`. The applicant's country only breaks ties between options
+sharing a code (`+1` is both the US and Canada); it never vetoes one.
+
+Two field kinds exist purely to stop mis-targeting: `phoneCountryCode` and
+`phoneDeviceType`. Both label as "phone", so before they existed the dial-code
+and device-type selects received the full phone number and matched nothing.
+
+**Documented assumption:** `phoneDeviceType` fills "Mobile". The profile stores
+one personal number given for recruiting, and "Mobile" is the only value in a
+Home/Mobile/Work/Fax list that describes it. It is non-sensitive and visibly
+highlighted, so it is one click to correct. Nothing else in prefill assumes a
+value the user did not supply.
+
+Sensitive dropdowns — veteran status, disability, gender, race/ethnicity, visa,
+sponsorship, work authorization, clearance, compensation, DOB, SSN — are
+**never** classified for ordinary prefill regardless of their options. They are
+answerable only through the reviewed private-answer flow, which requires
+explicit per-application confirmation.
+
+### Telling the user what will happen
+
+`src/resume-status-row.ts` owns both the status row above the Prefill button and
+the copy for every Prefill control. There are three ways to start a prefill —
+the in-page widget, the toolbar popup, and Continuous mode — and they must not
+describe the same action differently.
+
+| State | Row reads | Prefill control reads |
+| --- | --- | --- |
+| `checking` | Checking for a tailored resume… | Prefill this application |
+| `none` | No tailored resume for this job | Prefill this application |
+| `ready` | Tailored resume ready | Prefill application + resume |
+| `attached` | Resume attached to this application | Prefill application + resume |
+
+`attached` is set from the engine's own count of resume fields it filled, not
+from whether a resume was available — a resume can resolve for the posting and
+still not attach when the upload control is on a later step. An `attached` row
+is never downgraded by a later availability re-check.
+
+Two constraints the tests enforce: sublabels stay ≤36 characters so they do not
+wrap in the 320px widget, and both text lines in the row take the tone colour
+rather than `--tmo-widget-muted`, which measures 4.32:1 on the neutral surface —
+below the 4.5:1 AA floor at this size. Worst measured contrast across all
+states in both themes is 6.81:1.
 
 Plan access is intentionally separate from rollout flags:
 

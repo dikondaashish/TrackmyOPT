@@ -3,14 +3,21 @@ import { getStoredCookieConsent } from "@/lib/cookie-consent";
 import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
 import { POSTHOG_SESSION_RECORDING } from "@/lib/posthog/session-replay-privacy";
 
-/** Benign React DOM teardown races (fast navigation, extensions, portal cleanup). */
+/**
+ * Benign React DOM teardown races (fast navigation, extensions, portal cleanup).
+ * Translation widgets and content scripts reparent nodes React owns, so the
+ * commit phase fails on both `removeChild` and `insertBefore`.
+ */
 export function isBenignReactDomTeardownError(message: string): boolean {
   const lower = message.toLowerCase();
+  if (!lower.includes("removechild") && !lower.includes("insertbefore")) {
+    return false;
+  }
   return (
-    lower.includes("removechild") &&
-    (lower.includes("null") ||
-      lower.includes("undefined") ||
-      lower.includes("not an object"))
+    lower.includes("null") ||
+    lower.includes("undefined") ||
+    lower.includes("not an object") ||
+    lower.includes("not a child of this node")
   );
 }
 
@@ -149,6 +156,43 @@ export function isBenignInjectedOpenGraphProbeError(message: string): boolean {
   );
 }
 
+/**
+ * Injected page bridges (Outlook Safe Links, password managers, security
+ * suites) reject with `Object Not Found Matching Id:N, MethodName:x,
+ * ParamCount:y` when their host object is gone. No first-party frames.
+ */
+export function isBenignInjectedBridgeRejection(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("object not found matching id") &&
+    lower.includes("methodname") &&
+    lower.includes("paramcount")
+  );
+}
+
+/** Extension content scripts leak their own globals into page error handlers. */
+export function isBenignExtensionContentScriptError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("contentscriptdata") ||
+    lower.includes("chrome-extension://") ||
+    lower.includes("moz-extension://") ||
+    lower.includes("safari-web-extension://")
+  );
+}
+
+/**
+ * The browser aborts in-flight promises when the user navigates away. This is
+ * the expected teardown path, not a failure users can act on.
+ */
+export function isBenignNavigationAbortError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("browsing context is going away") ||
+    (lower.includes("aborterror") && lower.includes("navigation"))
+  );
+}
+
 export function shouldDropExceptionEvent(
   properties: Record<string, unknown> | undefined
 ): boolean {
@@ -159,7 +203,10 @@ export function shouldDropExceptionEvent(
     isBenignAdSenseNetworkError(properties) ||
     isOpaqueCrossOriginScriptError(properties) ||
     isBenignWebkitMessageHandlersError(text) ||
-    isBenignInjectedOpenGraphProbeError(text)
+    isBenignInjectedOpenGraphProbeError(text) ||
+    isBenignInjectedBridgeRejection(text) ||
+    isBenignExtensionContentScriptError(text) ||
+    isBenignNavigationAbortError(text)
   );
 }
 

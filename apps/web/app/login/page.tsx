@@ -13,6 +13,11 @@ import {
 } from '@/lib/posthog-client';
 
 import { DEFAULT_POST_AUTH_PATH } from "@/lib/auth/post-auth-landing";
+import {
+  safeStorageGet,
+  safeStorageRemove,
+  safeStorageSet,
+} from "@/lib/safe-storage";
 
 type Mode = 'signin' | 'signup';
 
@@ -76,32 +81,31 @@ function LoginPageContent() {
 
   // Load saved email and last used method on mount
   useEffect(() => {
-    const savedEmail = localStorage.getItem('trackmyopt_remember_email');
+    const savedEmail = safeStorageGet('trackmyopt_remember_email');
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberMe(true);
     }
 
-    const savedMethod = localStorage.getItem('trackmyopt_last_method') as 'email' | 'google' | null;
+    const savedMethod = safeStorageGet('trackmyopt_last_method') as 'email' | 'google' | null;
     if (savedMethod) {
       setLastUsedMethod(savedMethod);
     }
   }, []);
 
-  // Countdown timer for OTP
+  // Countdown timer for OTP. The updater only decrements — queueing another
+  // setState from inside it is impure and can trip React's update-depth guard.
   useEffect(() => {
-    if (showOTPModal && countdown > 0) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            setCanResend(true);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
+    if (!showOTPModal || countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [showOTPModal, countdown]);
+
+  // Resend unlocks once the countdown drains.
+  useEffect(() => {
+    if (showOTPModal && countdown === 0) setCanResend(true);
   }, [showOTPModal, countdown]);
 
   // Format countdown as MM:SS
@@ -121,13 +125,12 @@ function LoginPageContent() {
 
   const handleOtpDigitChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '').slice(-1);
-    setOtpDigits((prev) => {
-      const next = [...prev];
-      next[index] = digit;
-      const joined = next.join('');
-      setOtpCode(joined);
-      return next;
-    });
+    // Derive both values up front: a state updater must stay pure, so it cannot
+    // queue setOtpCode from inside setOtpDigits.
+    const next = [...otpDigits];
+    next[index] = digit;
+    setOtpDigits(next);
+    setOtpCode(next.join(''));
 
     if (digit && index < 5) {
       const nextInput = otpInputsRef.current[index + 1];
@@ -157,11 +160,11 @@ function LoginPageContent() {
     }, 60000);
 
     // Save last used method
-    localStorage.setItem('trackmyopt_last_method', 'google');
+    safeStorageSet('trackmyopt_last_method', 'google');
 
     try {
       // Include referral code in the callback URL so the server-side callback can attribute it
-      const refCode = localStorage.getItem('trackmyopt_ref');
+      const refCode = safeStorageGet('trackmyopt_ref');
       let redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
       if (refCode) {
         redirectUrl += `&ref=${encodeURIComponent(refCode)}`;
@@ -185,7 +188,7 @@ function LoginPageContent() {
 
       // Clear referral code from localStorage (will be handled server-side)
       if (refCode) {
-        localStorage.removeItem('trackmyopt_ref');
+        safeStorageRemove('trackmyopt_ref');
       }
 
       // OAuth will redirect automatically, don't set loading to false
@@ -231,13 +234,13 @@ function LoginPageContent() {
 
       // Save email if remember me
       if (rememberMe) {
-        localStorage.setItem('trackmyopt_remember_email', email);
+        safeStorageSet('trackmyopt_remember_email', email);
       } else {
-        localStorage.removeItem('trackmyopt_remember_email');
+        safeStorageRemove('trackmyopt_remember_email');
       }
 
       // Save last used method
-      localStorage.setItem('trackmyopt_last_method', 'email');
+      safeStorageSet('trackmyopt_last_method', 'email');
 
       // Redirect to intended page or dashboard - session is now in cookies
       window.location.href = redirectTo;
@@ -334,7 +337,7 @@ function LoginPageContent() {
 
       if (error) throw error;
 
-      const refCode = localStorage.getItem('trackmyopt_ref');
+      const refCode = safeStorageGet('trackmyopt_ref');
 
       if (data.user) {
         identifyLoginSessionUser(data.user);
@@ -351,7 +354,7 @@ function LoginPageContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code: refCode }),
         }).catch(() => { }); // fire-and-forget
-        localStorage.removeItem('trackmyopt_ref');
+        safeStorageRemove('trackmyopt_ref');
       }
 
       // Redirect to intended page or dashboard
@@ -403,7 +406,7 @@ function LoginPageContent() {
       }
 
       // Capture referral code from localStorage (set by ReferralCapture component)
-      const refCode = localStorage.getItem('trackmyopt_ref');
+      const refCode = safeStorageGet('trackmyopt_ref');
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,

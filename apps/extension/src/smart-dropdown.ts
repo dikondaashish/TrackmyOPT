@@ -2,7 +2,18 @@ export type SmartDropdownMatchKind =
   | 'country'
   | 'state'
   | 'location'
+  | 'phoneCountryCode'
+  | 'phoneDeviceType'
   | 'generic';
+
+/**
+ * Extra facts a match may need beyond the desired string. Today only phone
+ * country-code lists use it: "+1" is shared by the US and Canada, so the
+ * applicant's country is what breaks the tie.
+ */
+export interface SmartDropdownContext {
+  countryName?: string;
+}
 
 export interface SmartDropdownOption {
   value: string;
@@ -82,35 +93,155 @@ function canonical(
   return normalize(value);
 }
 
+/** Separators ATS labels use between an identifier and its human name. */
+const SEGMENT_SPLIT_RE = /[—–\-|/,()\[\]]+/;
+/**
+ * Place lists are the exception: their commas separate a hierarchy, not
+ * synonyms. Splitting on them would let the country tail of
+ * "New York, NY, United States" match a profile country, so only the ordered
+ * leading-run rule may use comma structure for locations.
+ */
+const SEGMENT_SPLIT_NO_COMMA_RE = /[—–\-|/()\[\]]+/;
+
+/**
+ * Deterministic rewrites of one option label into the forms it could equal.
+ *
+ * This is canonicalization, not fuzzy matching: every variant is a complete
+ * piece of the label, so a match is still an exact string equality. Real ATS
+ * lists render the same answer as "United States", "United States (US)", or
+ * "US-CA — California", and comparing only the whole string missed all of them.
+ */
+function labelVariants(text: string, kind: SmartDropdownMatchKind): string[] {
+  const variants = new Set<string>();
+  const whole = canonical(text, kind);
+  if (whole) variants.add(whole);
+
+  // "United States (US)" -> "United States", and the parenthetical "US".
+  const withoutParens = text.replace(/[([][^)\]]*[)\]]/g, ' ');
+  const parenContents = [...text.matchAll(/[([]([^)\]]*)[)\]]/g)].map((m) => m[1]);
+  for (const piece of [withoutParens, ...parenContents]) {
+    const value = canonical(piece, kind);
+    if (value) variants.add(value);
+  }
+
+  // "US-CA — California" -> "US CA" and "California".
+  const splitter =
+    kind === 'location' ? SEGMENT_SPLIT_NO_COMMA_RE : SEGMENT_SPLIT_RE;
+  for (const segment of text.split(splitter)) {
+    const value = canonical(segment, kind);
+    if (value) variants.add(value);
+  }
+  return [...variants];
+}
+
+/**
+ * Location lists render "New York, NY, United States" where the profile holds
+ * "New York, NY". A match is allowed only when the desired value is a complete
+ * leading run of comma-separated segments — never a mid-string substring, so
+ * "York" can never select "New York".
+ */
+function matchesLeadingSegments(text: string, desired: string): boolean {
+  const segments = text.split(',').map((segment) => normalize(segment)).filter(Boolean);
+  for (let count = 1; count <= segments.length; count += 1) {
+    if (segments.slice(0, count).join(' ') === desired) return true;
+  }
+  return false;
+}
+
+/** Every "+<digits>" or bare digit run a country-code option exposes. */
+function dialCodesInLabel(text: string): string[] {
+  const codes = new Set<string>();
+  for (const match of text.matchAll(/\+\s*(\d{1,4})/g)) codes.add(match[1]);
+  const bare = text.trim().match(/^(\d{1,4})$/);
+  if (bare) codes.add(bare[1]);
+  return [...codes];
+}
+
+function phoneCountryCodeScore(
+  option: SmartDropdownOption,
+  desiredDialCode: string,
+  context: SmartDropdownContext
+): number {
+  const haystack = `${option.value} ${option.text}`;
+  if (!dialCodesInLabel(haystack).includes(desiredDialCode)) return 0;
+
+  // The dial code alone is the match. The applicant's country only breaks ties
+  // between options that share a code — "+1" is both the US and Canada — and
+  // must never veto an option, because the code may have come from the phone
+  // number itself: an Indian number stored by someone living in the US should
+  // still select "+91".
+  const desiredCountry = context.countryName
+    ? canonicalCountry(context.countryName)
+    : '';
+  if (desiredCountry && labelVariants(option.text, 'country').includes(desiredCountry)) {
+    return 100;
+  }
+  return 90;
+}
+
 function optionScore(
   option: SmartDropdownOption,
   desiredValue: string,
-  kind: SmartDropdownMatchKind
+  kind: SmartDropdownMatchKind,
+  context: SmartDropdownContext
 ): number {
   if (option.disabled) return 0;
   const text = normalize(option.text);
   if (!text || PLACEHOLDER_RE.test(option.text.trim())) return 0;
+
+  if (kind === 'phoneCountryCode') {
+    return phoneCountryCodeScore(option, desiredValue.replace(/\D/g, ''), context);
+  }
+
   const desired = canonical(desiredValue, kind);
   if (!desired) return 0;
   const value = canonical(option.value, kind);
   const label = canonical(option.text, kind);
+
+  // Whole-string equality stays the strongest signal.
   if (value === desired && label === desired) return 120;
   if (value === desired) return 110;
   if (label === desired) return 100;
+
+  // Then a complete, deterministically derived piece of the label.
+  if (
+    labelVariants(option.text, kind).includes(desired) ||
+    (option.value && labelVariants(option.value, kind).includes(desired))
+  ) {
+    return 90;
+  }
+
+  // Finally, leading segments — place lists only, where the option is the
+  // profile's location plus extra administrative detail.
+  if (
+    (kind === 'location' || kind === 'generic') &&
+    matchesLeadingSegments(option.text, desired)
+  ) {
+    return kind === 'location' ? 80 : 0;
+  }
   return 0;
 }
 
 /**
- * Return one exact, high-confidence option. Partial/fuzzy matches deliberately
- * return null so TrackMyOPT never guesses a dropdown answer.
+ * Return one high-confidence option, or null.
+ *
+ * Every match is an exact equality against the option label or a complete,
+ * deterministically derived piece of it — TrackMyOPT still never guesses. Two
+ * options reaching the same score is treated as ambiguous and selects nothing,
+ * which is why a "+1" list containing both the US and Canada needs the
+ * applicant's country in `context` before either can win.
  */
 export function chooseSmartDropdownOption<T extends SmartDropdownOption>(
   options: T[],
   desiredValue: string,
-  kind: SmartDropdownMatchKind = 'generic'
+  kind: SmartDropdownMatchKind = 'generic',
+  context: SmartDropdownContext = {}
 ): T | null {
   const ranked = options
-    .map((option) => ({ option, score: optionScore(option, desiredValue, kind) }))
+    .map((option) => ({
+      option,
+      score: optionScore(option, desiredValue, kind, context),
+    }))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score);
   if (ranked.length === 0) return null;
@@ -292,7 +423,8 @@ export async function selectSmartDropdown(
   desiredValue: string,
   kind: SmartDropdownMatchKind = 'generic',
   customMatcher?: (candidate: string, desired: string) => boolean,
-  timeoutMs = 1_000
+  timeoutMs = 1_000,
+  context: SmartDropdownContext = {}
 ): Promise<SmartDropdownSelectionResult> {
   if (!isCustomDropdownControl(control) || !visible(control)) {
     return { outcome: 'unsupported' };
@@ -332,7 +464,12 @@ export async function selectSmartDropdown(
       );
     if (matching.length === 1) selectedIndex = matching[0].index;
   } else {
-    const selected = chooseSmartDropdownOption(candidates, desiredValue, kind);
+    const selected = chooseSmartDropdownOption(
+      candidates,
+      desiredValue,
+      kind,
+      context
+    );
     if (selected) selectedIndex = candidates.indexOf(selected);
   }
   if (selectedIndex < 0) {

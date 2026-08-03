@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { safeStorageGet, safeStorageSet } from "@/lib/safe-storage";
 
 /**
  * Captures ?ref= query param from the URL, stores it in localStorage,
@@ -22,11 +23,11 @@ export function ReferralCapture() {
     if (!sanitized) return;
 
     // Don't overwrite an existing referral (first touch attribution)
-    const existing = localStorage.getItem("trackmyopt_ref");
-    if (existing) return;
+    if (safeStorageGet("trackmyopt_ref")) return;
 
-    // Store for later use during signup
-    localStorage.setItem("trackmyopt_ref", sanitized);
+    // Store for later use during signup. Attribution is best-effort — when
+    // storage is unavailable the click below is still tracked.
+    safeStorageSet("trackmyopt_ref", sanitized);
 
     // Track the click (fire-and-forget)
     fetch("/api/referral/track", {

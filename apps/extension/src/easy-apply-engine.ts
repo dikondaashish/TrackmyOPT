@@ -59,11 +59,14 @@ import {
 import { scanApplicationFields } from './application-field-scan';
 import {
   CUSTOM_DROPDOWN_SELECTOR,
+  chooseSmartDropdownOption,
   customDropdownHasValue,
   isCustomDropdownControl,
   selectSmartDropdown,
+  type SmartDropdownContext,
   type SmartDropdownMatchKind,
 } from './smart-dropdown';
+import { resolveDialCode } from './phone-country-codes';
 
 export type { PrefillCoverageResult } from './prefill-coverage';
 
@@ -235,9 +238,18 @@ function isComboboxLike(el: HTMLElement): boolean {
 }
 
 function dropdownMatchKind(kind: FieldKind): SmartDropdownMatchKind {
-  if (kind === 'country' || kind === 'state' || kind === 'location') {
+  if (
+    kind === 'country' ||
+    kind === 'state' ||
+    kind === 'location' ||
+    kind === 'phoneCountryCode' ||
+    kind === 'phoneDeviceType'
+  ) {
     return kind;
   }
+  // City lists commonly render "Austin, TX, United States"; the location rules
+  // let a profile city match that leading segment.
+  if (kind === 'city') return 'location';
   return 'generic';
 }
 
@@ -293,6 +305,14 @@ function valueForKind(kind: FieldKind, p: AutofillProfile): string {
       return p.fullName || [p.firstName, p.lastName].filter(Boolean).join(' ');
     case 'phone':
       return p.phone;
+    case 'phoneCountryCode':
+      return resolveDialCode({ phone: p.phone, country: p.country }) ?? '';
+    case 'phoneDeviceType':
+      // The profile stores exactly one personal number the applicant gave for
+      // recruiting, so "Mobile" is the only option in a Home/Mobile/Work/Fax
+      // list it can describe. Non-sensitive and visibly highlighted, so a user
+      // who keeps a landline there can correct it in one click.
+      return 'Mobile';
     case 'country':
       return p.country;
     case 'streetAddress':
@@ -333,35 +353,35 @@ const US_STATE_NAMES: Record<string, string> = {
   WI: 'Wisconsin', WY: 'Wyoming', DC: 'District of Columbia',
 };
 
-function normalizeOptionValue(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-}
-
+/**
+ * Native <select> and custom combobox now share one matcher.
+ *
+ * They previously had separate rules, and the <select> path was the weaker of
+ * the two: it knew only exact equality plus US state code/name, so an ordinary
+ * country list offering "United States of America" never matched a profile
+ * holding "United States". Any option-shape rule added for comboboxes silently
+ * skipped native selects until this delegated.
+ */
 function matchingSelectValue(
   select: HTMLSelectElement,
   kind: FieldKind,
   profileValue: string,
+  context: SmartDropdownContext = {},
 ): string | null {
-  const candidates = new Set([normalizeOptionValue(profileValue)]);
-  if (kind === 'state') {
-    const stateCode = profileValue.trim().toUpperCase();
-    const stateName = US_STATE_NAMES[stateCode];
-    if (stateName) candidates.add(normalizeOptionValue(stateName));
-    for (const [code, name] of Object.entries(US_STATE_NAMES)) {
-      if (normalizeOptionValue(name) === normalizeOptionValue(profileValue)) {
-        candidates.add(normalizeOptionValue(code));
-      }
-    }
-  }
-
-  for (const option of Array.from(select.options)) {
-    if (option.disabled || !option.value) continue;
-    if (
-      candidates.has(normalizeOptionValue(option.value)) ||
-      candidates.has(normalizeOptionValue(option.textContent || ''))
-    ) return option.value;
-  }
-  return null;
+  const candidates = Array.from(select.options)
+    .filter((option) => !option.disabled && option.value)
+    .map((option) => ({
+      value: option.value,
+      text: option.textContent || '',
+      option,
+    }));
+  const chosen = chooseSmartDropdownOption(
+    candidates,
+    profileValue,
+    dropdownMatchKind(kind),
+    context,
+  );
+  return chosen ? chosen.option.value : null;
 }
 
 function isFillableSelect(el: HTMLElement): el is HTMLSelectElement {
@@ -952,6 +972,9 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   }
 
   const profile = buildContactAutofillProfile(snapshot, resp.profile);
+  // "+1" is shared by the US and Canada, so a dial-code list that also names
+  // countries needs the applicant's country to resolve to one option.
+  const dropdownContext: SmartDropdownContext = { countryName: profile.country };
   const controls = queryAllDeep<HTMLElement>(
     container,
     APPLICATION_CONTROL_SELECTOR
@@ -980,7 +1003,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       setNativeValue(el, value);
       changed = true;
     } else if (isFillableSelect(el)) {
-      const selectValue = matchingSelectValue(el, kind, value);
+      const selectValue = matchingSelectValue(el, kind, value, dropdownContext);
       if (!selectValue) continue; // never guess a dropdown option
       setNativeSelectValue(el, selectValue);
       changed = true;
@@ -988,7 +1011,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       const selection = await selectSmartDropdown(
         el,
         value,
-        dropdownMatchKind(kind)
+        dropdownMatchKind(kind),
+        undefined,
+        undefined,
+        dropdownContext
       );
       changed = selection.outcome === 'selected';
     } else {

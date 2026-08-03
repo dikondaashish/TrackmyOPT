@@ -9,6 +9,8 @@ import {
   type AutofillPreferences,
 } from './autofill-preferences';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+import { prefillEntryCopy } from './resume-status-row';
+import type { V1PrefillPayloadResponse } from './resume-autofill-contract';
 import {
   FREE_AUTOFILL_PLAN_ENTITLEMENTS,
   resolveAutofillPlanEntitlements,
@@ -208,11 +210,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         </span>
         <span class="arr">${icon('chevronRight', 16)}</span>
       </button>
-      <button class="act" id="prefill-easy-apply-btn" type="button" title="Prefill the open job application form — you review and submit">
+      <button class="act" id="prefill-easy-apply-btn" type="button" title="${escapeHtml(prefillEntryCopy(false).title)}">
         <span class="aic">${icon('checkCircle', 16)}</span>
         <span class="atxt">
-          <span class="at">Prefill this application</span>
-          <span class="as">Fill the form — you review &amp; submit</span>
+          <span class="at">${escapeHtml(prefillEntryCopy(false).label)}</span>
+          <span class="as">${escapeHtml(prefillEntryCopy(false).sublabel)}</span>
         </span>
         <span class="arr">${icon('chevronRight', 16)}</span>
       </button>
@@ -315,8 +317,9 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   });
 
   // Manual job-detect trigger: inject the job-portal content script into the
-  // current tab on demand (activeTab). Covers career pages not in the static
-  // matches list now that the broad URL wildcards were removed.
+  // current tab on demand (activeTab). Covers career pages the manifest's
+  // static matches miss, and is the fallback whenever the page does not
+  // corroborate itself as a job posting (see hasJobPostingEvidence).
   const scanBtn = root.querySelector<HTMLButtonElement>('#scan-page-btn');
   scanBtn?.addEventListener('click', async () => {
     try {
@@ -338,7 +341,45 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
   // the engine toasts if it can't find a fillable form.
   const prefillBtn = root.querySelector<HTMLButtonElement>('#prefill-easy-apply-btn');
   const prefillLabel = prefillBtn?.querySelector<HTMLElement>('.at');
-  const prefillLabelText = prefillLabel?.textContent || 'Prefill this application';
+  const prefillSublabel = prefillBtn?.querySelector<HTMLElement>('.as');
+  let prefillLabelText = prefillLabel?.textContent || prefillEntryCopy(false).label;
+
+  /**
+   * Say up front whether this click will attach a tailored resume.
+   *
+   * The popup previously described the action identically whether or not a
+   * resume existed for the page, so the one entry point most users reach for
+   * gave no clue that a résumé was involved at all. Resolving here also warms
+   * the artifact, so the click itself has nothing left to fetch.
+   */
+  const paintPrefillResumeState = async (): Promise<void> => {
+    if (!prefillBtn || !prefillLabel) return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const url = tab?.url ?? '';
+    if (!/^https?:\/\//i.test(url)) return;
+
+    const resolved = (await chrome.runtime
+      .sendMessage({
+        type: 'RESOLVE_V1_PREFILL_PAYLOAD',
+        // Peek only — opening the popup must never invalidate a resume.
+        discardRejectedArtifact: false,
+        request: {
+          now: new Date().toISOString(),
+          jobContext: { jobUrl: url, companyName: '', roleTitle: '' },
+        },
+      })
+      .catch(() => null)) as V1PrefillPayloadResponse | null;
+
+    const copy = prefillEntryCopy(
+      Boolean(resolved?.ok && resolved.source === 'generated_resume'),
+    );
+    prefillLabel.textContent = copy.label;
+    prefillLabelText = copy.label;
+    if (prefillSublabel) prefillSublabel.textContent = copy.sublabel;
+    prefillBtn.title = copy.title;
+  };
+  void paintPrefillResumeState();
+
   prefillBtn?.addEventListener('click', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const url = tab?.url ?? '';

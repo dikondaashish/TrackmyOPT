@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   extractExceptionMessages,
   isBenignAdSenseNetworkError,
+  isBenignExtensionContentScriptError,
+  isBenignInjectedBridgeRejection,
   isBenignInjectedOpenGraphProbeError,
+  isBenignNavigationAbortError,
   isBenignReactDomTeardownError,
   isBenignWebkitMessageHandlersError,
   isBenignWebSocketUnavailableError,
@@ -204,6 +207,52 @@ describe("shouldDropExceptionEvent", () => {
         $exception_values: [
           "Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]=",
         ],
+      })
+    ).toBe(false);
+  });
+
+  it("drops insertBefore teardown races alongside removeChild", () => {
+    const message =
+      "NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node.";
+
+    expect(isBenignReactDomTeardownError(message)).toBe(true);
+    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+  });
+
+  it("drops injected page-bridge rejections", () => {
+    const message =
+      "Non-Error promise rejection captured with value: Object Not Found Matching Id:5, MethodName:update, ParamCount:4";
+
+    expect(isBenignInjectedBridgeRejection(message)).toBe(true);
+    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+  });
+
+  it("drops extension content-script globals", () => {
+    const message =
+      "'TypeError' captured as exception with message: 'undefined is not an object (evaluating 'contentScriptData.init_ts')'";
+
+    expect(isBenignExtensionContentScriptError(message)).toBe(true);
+    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+  });
+
+  it("drops promise aborts caused by navigating away", () => {
+    const message =
+      "AbortError: Promise was rejected because the browsing context is going away";
+
+    expect(isBenignNavigationAbortError(message)).toBe(true);
+    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+  });
+
+  it("keeps genuine aborts and unrelated rejections observable", () => {
+    expect(
+      isBenignNavigationAbortError("AbortError: The user aborted a request.")
+    ).toBe(false);
+    expect(
+      isBenignInjectedBridgeRejection("Object Not Found in case status response")
+    ).toBe(false);
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: ["RangeError: Maximum call stack size exceeded."],
       })
     ).toBe(false);
   });

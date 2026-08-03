@@ -65,14 +65,30 @@ test('artifact is valid at 29:59 and invalid at exactly 30:00', () => {
   );
 });
 
-test('URL changes invalidate the artifact; company/role scrape drift does not', () => {
+test('a different posting invalidates the artifact; apply routes and scrape drift do not', () => {
+  // A genuinely different posting must never reuse this resume.
+  for (const differentJobUrl of [
+    'https://company-a.wd5.myworkdayjobs.com/jobs/job-b',
+    'https://company-b.wd5.myworkdayjobs.com/jobs/job-a',
+  ]) {
+    assert.deepEqual(
+      validateArtifactForPrefill(
+        artifact(),
+        { ...jobContext, jobUrl: differentJobUrl },
+        Date.parse('2026-07-16T12:01:00.000Z')
+      ),
+      { valid: false, reason: 'job_changed' }
+    );
+  }
+  // Clicking Apply on the same posting keeps the artifact usable — this is the
+  // moment the user actually needs the tailored PDF attached.
   assert.deepEqual(
     validateArtifactForPrefill(
       artifact(),
       { ...jobContext, jobUrl: `${jobContext.jobUrl}/apply` },
       Date.parse('2026-07-16T12:01:00.000Z')
     ),
-    { valid: false, reason: 'job_changed' }
+    { valid: true }
   );
   for (const changedContext of [
     { ...jobContext, companyName: 'Company B' },
