@@ -24,6 +24,7 @@ import {
   captureOnboardingStepViewed,
   captureOnboardingStepCompleted,
   captureOnboardingSkipped,
+  captureOnboardingCompleted,
   type OnboardingWizardStep,
 } from "@/lib/posthog-client";
 import { useOnboardingReceiptVariant } from "@/hooks/useOnboardingReceiptVariant";
@@ -225,6 +226,22 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(buildOnboardingFlagsBody(skipped)),
     });
+
+    if (response.ok) {
+      // Terminal funnel event. Reported here rather than in the three exit
+      // paths that call this so it fires from all of them, exactly once (each
+      // caller is already behind markOnboardingTrackedOnce), and only once the
+      // flags have actually persisted — a failed save is not a completion.
+      // `skipped` separates "finished the wizard" from "dismissed it", mirroring
+      // the flags we just wrote.
+      captureOnboardingCompleted({
+        skipped,
+        status,
+        is_stem_eligible: isStemEligible,
+        degree_level: degreeLevel,
+      });
+    }
+
     return response.ok;
   };
 
