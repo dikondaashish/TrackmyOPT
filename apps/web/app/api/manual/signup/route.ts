@@ -20,7 +20,7 @@ import {
 } from "@/lib/auth/api-rate-limit";
 import { z } from "zod";
 import { validateRequest, emailSchema, passwordSchema, sanitizeString } from "@/lib/validation";
-import { sendFreeWelcomeEmail } from "@/lib/notifications/transactional-emails";
+import { sendFreeWelcomeEmail } from "@/lib/notifications/transactional/onboarding";
 
 // SECURITY: Custom signup schema with all required fields
 const signupRequestSchema = z.object({

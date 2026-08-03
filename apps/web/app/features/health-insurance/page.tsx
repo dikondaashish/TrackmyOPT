@@ -7,7 +7,6 @@ import Link from "next/link";
 import {
     ArrowRight,
     AlertTriangle,
-    BadgeDollarSign,
     Calendar,
     CheckCircle2,
     Clock,
@@ -19,9 +18,7 @@ import {
     Shield,
     ShieldCheck,
     Stethoscope,
-    UserCheck,
 } from "lucide-react";
-import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";

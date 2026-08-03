@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, X, FileSpreadsheet, CalendarOff, AlertTriangle, Bell, ShieldCheck, Zap, Shield } from "lucide-react";
+import { Check, X, FileSpreadsheet, AlertTriangle, Zap, Shield } from "lucide-react";
 
 const comparisonData = [
     {

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import posthog from "posthog-js";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 import {
   captureNpsDismissed,
   captureNpsSubmitted,

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Star, Quote, Building2, MapPin, ArrowRight, Trophy, Sparkles, MessageCircle, Send } from "lucide-react";
+import { Star, Building2, ArrowRight, Trophy, Send } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";

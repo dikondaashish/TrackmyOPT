@@ -7,7 +7,7 @@ import {
   addDays,
   daysBetween,
   getFilingWindow,
-} from "@/lib/immigration/optCalculations";
+} from "@/lib/immigration/opt-calculations";
 
 interface Deadline {
   id: string;

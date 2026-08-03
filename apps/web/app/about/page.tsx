@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { Users, Heart, Target, Zap, Clock, Building2, GraduationCap, ArrowRight, Star } from "lucide-react";
+import { Users, Heart, Target, Zap, Clock, GraduationCap } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";

@@ -10,7 +10,7 @@ import {
   getPlanFromSubscription,
   listValidCustomerSubscriptions,
   pickBestSubscription,
-} from '@/lib/premium/stripeSubscriptionSync';
+} from '@/lib/premium/stripe-subscription-sync';
 
 function trialPayload(proFreeTrialConsumed: boolean | null | undefined) {
   const consumed = proFreeTrialConsumed === true;

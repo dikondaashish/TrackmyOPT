@@ -12,7 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import rateLimit from '@/lib/auth/rate-limit';

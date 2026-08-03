@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import {

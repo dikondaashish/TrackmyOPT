@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatOptDateForDisplay } from "@/lib/immigration/employmentTracking";
+import { formatOptDateForDisplay } from "@/lib/immigration/employment-tracking";
 
 interface EmploymentSetupModalProps {
   open: boolean;

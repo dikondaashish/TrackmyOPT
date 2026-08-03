@@ -18,7 +18,7 @@ import {
     FileText,
 } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { useResumeStore } from "@/store/resume-store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptimizationFeedbackModal } from "./components/OptimizationFeedbackModal";
@@ -28,9 +28,9 @@ import { DownloadGateModal } from "./components/DownloadGateModal";
 import { PdfSelectablePreview } from "./components/PdfSelectablePreview";
 import { GeneratingOverlay } from "./components/GeneratingOverlay";
 import { LatexToolbar, EditorViewMode } from "./components/LatexToolbar";
-import { useEditorHistory } from "@/hooks/use-editor-history";
-import { useStreamingEffect } from "@/hooks/use-streaming-effect";
-import { supabase } from "@/lib/supabaseClient";
+import { useEditorHistory } from "@/hooks/useEditorHistory";
+import { useStreamingEffect } from "@/hooks/useStreamingEffect";
+import { supabase } from "@/lib/supabase/client";
 import { Save } from "lucide-react";
 import { buildResumePdfFilename, extractNameFromLatex } from "@/lib/resume/build-resume-filename";
 import { latexToPlainText } from "@/lib/resume/latex-to-plain-text";

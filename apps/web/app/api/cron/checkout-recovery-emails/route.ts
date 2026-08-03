@@ -16,13 +16,11 @@ import {
   findCheckoutAbandoners,
   resolveCheckoutResumeUrl,
 } from "@/lib/billing/checkout-recovery";
-import {
-  getAppBaseUrl,
-  sendCheckoutRecoveryEmail,
-} from "@/lib/notifications/transactional-emails";
+import { getAppBaseUrl } from "@/lib/notifications/transactional/queue";
+import { sendCheckoutRecoveryEmail } from "@/lib/notifications/transactional/reengagement";
 import { captureServerEvent, normalizePlanTier } from "@/lib/posthog-server";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
-import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
+import { requireLiveStripeKeyInProduction } from "@/lib/stripe/require-live-key-in-production";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;

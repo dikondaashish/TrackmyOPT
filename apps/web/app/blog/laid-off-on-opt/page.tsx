@@ -7,7 +7,6 @@ import {
   Clock,
   ExternalLink,
   Briefcase,
-  FileText,
   ShieldCheck,
 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";

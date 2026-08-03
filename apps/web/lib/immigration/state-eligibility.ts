@@ -26,7 +26,7 @@ export const FPL_2026 = {
     }
 };
 
-export type EligibilityStatus =
+type EligibilityStatus =
     | 'ELIGIBLE'           // Eligible for state program with residency
     | 'POSSIBLY_ELIGIBLE'  // May qualify - worth applying
     | 'UNDER_19_ONLY'      // Only if under 19
@@ -36,9 +36,9 @@ export type EligibilityStatus =
     | 'EMERGENCY_ONLY'     // Emergency Medicaid only
     | 'NOT_ELIGIBLE';      // No state coverage available
 
-export type StateTier = 'TIER_1' | 'TIER_2' | 'TIER_3';
+type StateTier = 'TIER_1' | 'TIER_2' | 'TIER_3';
 
-export interface StateEligibilityConfig {
+interface StateEligibilityConfig {
     programName: string;
     programLink: string;
     tier: StateTier;
@@ -353,7 +353,7 @@ function getStateMedicaidLink(stateCode: string): string {
 }
 
 // Get state configuration
-export function getStateConfig(stateCode: string): StateEligibilityConfig {
+function getStateConfig(stateCode: string): StateEligibilityConfig {
     // Check Tier 1 states first
     if (TIER_1_STATES[stateCode]) {
         return TIER_1_STATES[stateCode];
@@ -389,7 +389,7 @@ export function calculateAge(dob: string): number {
 }
 
 // Main eligibility calculator
-export interface EligibilityParams {
+interface EligibilityParams {
     stateCode: string;
     age: number;
     annualIncome: number;
@@ -397,7 +397,7 @@ export interface EligibilityParams {
     visaType: string;
 }
 
-export interface EligibilityResult {
+interface EligibilityResult {
     status: EligibilityStatus;
     stateConfig: StateEligibilityConfig;
     stateName: string;

@@ -56,28 +56,3 @@ export function safeSerializeJsonLd(schema: unknown): string {
     return "";
   }
 }
-
-/**
- * Serialize an array of JSON-LD schemas. Schemas that fail serialization
- * are silently dropped rather than crashing the page.
- */
-export function safeSerializeJsonLdArray(
-  schemas: unknown[]
-): { key: string; content: string }[] {
-  const results: { key: string; content: string }[] = [];
-  for (let i = 0; i < schemas.length; i++) {
-    const content = safeSerializeJsonLd(schemas[i]);
-    if (content) {
-      results.push({ key: `schema-${i}`, content });
-    }
-  }
-  return results;
-}
-
-/**
- * Safe wrapper for .toLowerCase() on a JSON-LD field value.
- * Returns empty string if the value is not a string.
- */
-export function safeToLowerCase(value: unknown): string {
-  return typeof value === "string" ? value.toLowerCase() : "";
-}

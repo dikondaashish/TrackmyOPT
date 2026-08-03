@@ -22,21 +22,21 @@ function formatMonthlyLimit(limit: number): string {
  * Used by pricing modal, settings, landing page, and comparison tables.
  */
 
-export type PlanFeatureValue = boolean | string;
+type PlanFeatureValue = boolean | string;
 
-export type ComparisonFeatureRow = {
+type ComparisonFeatureRow = {
   name: string;
   free: PlanFeatureValue;
   pro: PlanFeatureValue;
   dedicated: PlanFeatureValue;
 };
 
-export type ComparisonCategory = {
+type ComparisonCategory = {
   category: string;
   features: ComparisonFeatureRow[];
 };
 
-export type PlanCardFeature = {
+type PlanCardFeature = {
   text: string;
   included: boolean;
   isHeader: boolean;
@@ -221,25 +221,25 @@ export const DEDICATED_PLAN_CARD_FEATURES: PlanCardFeature[] = [
 ];
 
 /** Settings subscription page plan card bullets. */
-export const FREE_PLAN_BULLETS: string[] = FREE_PLAN_CARD_FEATURES.filter(
+const FREE_PLAN_BULLETS: string[] = FREE_PLAN_CARD_FEATURES.filter(
   (f) => !f.isHeader
 ).map((f) => f.text);
 
-export const PRO_PLAN_BULLETS: string[] = [
+const PRO_PLAN_BULLETS: string[] = [
   "Everything in Free",
   ...PRO_PLAN_CARD_FEATURES.filter((f) => !f.isHeader && !f.text.startsWith("Everything")).map(
     (f) => f.text
   ),
 ];
 
-export const DEDICATED_PLAN_BULLETS: string[] = [
+const DEDICATED_PLAN_BULLETS: string[] = [
   "Everything in Pro",
   ...DEDICATED_PLAN_CARD_FEATURES.filter(
     (f) => !f.isHeader && !f.text.startsWith("Everything")
   ).map((f) => f.text),
 ];
 
-export type LandingPlanFeature = {
+type LandingPlanFeature = {
   label: string;
   included: boolean;
   isHeader?: boolean;

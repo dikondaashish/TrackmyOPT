@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, Baby, AlertTriangle, Lightbulb, CheckCircle2, CirclePause } from "lucide-react";
-import { calculateEligibility, type EligibilityStatus } from "@/lib/immigration/state-eligibility";
+import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, AlertTriangle, Lightbulb, CheckCircle2, CirclePause } from "lucide-react";
+import { calculateEligibility } from "@/lib/immigration/state-eligibility";
 import {
   getInsuranceResultsPayload,
   type InsuranceResultsPayload,

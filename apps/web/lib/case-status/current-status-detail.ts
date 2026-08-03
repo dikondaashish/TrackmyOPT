@@ -8,7 +8,7 @@ import {
   sanitizeUscisDescription,
 } from "@/lib/case-status/uscis-status-text";
 
-export type CurrentStatusDetail = {
+type CurrentStatusDetail = {
   title: string;
   description: string | null;
   date: string | null;

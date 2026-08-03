@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { getUserId } from '@/lib/auth/getUserId';
-import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
+import { getUserId } from '@/lib/auth/get-user-id';
+import { requireLiveStripeKeyInProduction } from '@/lib/stripe/require-live-key-in-production';
 
 function getStripe(): Stripe {
   if (!process.env.STRIPE_SECRET_KEY) {

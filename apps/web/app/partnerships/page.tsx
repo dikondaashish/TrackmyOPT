@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Building2, GraduationCap, Megaphone, Users, Clock, Shield, BarChart3, Headphones, FileCheck, Check, ArrowRight, Quote, ChevronDown, Send, CheckCircle } from "lucide-react";
+import { Building2, GraduationCap, Megaphone, Users, Clock, Shield, BarChart3, Headphones, FileCheck, Check, Quote, ChevronDown, Send, CheckCircle } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
@@ -402,7 +402,7 @@ function ContactPartnership() {
             if (!res.ok) throw new Error("Failed to submit inquiry");
             
             setIsSubmitted(true);
-        } catch (err) {
+        } catch (_err) {
             setError("Something went wrong. Please try again.");
         } finally {
             setIsSubmitting(false);

@@ -23,14 +23,14 @@ export interface ReadinessInput {
     pdfParseOk?: boolean | null;
 }
 
-export interface ReadinessCheck {
+interface ReadinessCheck {
     id: string;
     label: string;
     passed: boolean;
     detail?: string;
 }
 
-export interface ApplyReadinessResult {
+interface ApplyReadinessResult {
     checks: ReadinessCheck[];
     ready: boolean;
     score: number;

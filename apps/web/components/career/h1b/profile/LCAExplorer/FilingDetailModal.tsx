@@ -1,7 +1,7 @@
 "use client";
 
 import { Database } from "@/types/supabase";
-import { X, Calendar, MapPin, Building2, Briefcase, DollarSign, Scale, User, FileCheck, Users } from "lucide-react";
+import { X, MapPin, Building2, Briefcase, DollarSign, Scale, User, FileCheck, Users } from "lucide-react";
 
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
 

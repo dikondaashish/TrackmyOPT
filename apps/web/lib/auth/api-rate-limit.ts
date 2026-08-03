@@ -34,7 +34,7 @@ export interface RateLimitConfig {
     name: string;
 }
 
-export interface RateLimitResult {
+interface RateLimitResult {
     success: boolean;
     limit: number;
     remaining: number;
@@ -56,25 +56,6 @@ export const AUTH_RATE_LIMIT: RateLimitConfig = {
     limit: 5,           // 5 attempts
     windowSeconds: 900, // per 15 minutes
     name: 'auth',
-};
-
-/**
- * SECURITY: Moderate limits for general API usage
- */
-export const API_RATE_LIMIT: RateLimitConfig = {
-    limit: 100,        // 100 requests
-    windowSeconds: 60, // per minute
-    name: 'api',
-};
-
-/**
- * SECURITY: Stricter limits for external API calls (USCIS)
- * Prevents abuse of third-party rate limits
- */
-export const USCIS_RATE_LIMIT: RateLimitConfig = {
-    limit: 10,          // 10 requests
-    windowSeconds: 3600, // per hour
-    name: 'uscis',
 };
 
 /**
@@ -136,7 +117,7 @@ function developmentBypassResult(config: RateLimitConfig): RateLimitResult {
  * Extract client IP from request
  * SECURITY: Uses X-Forwarded-For for proxied requests (Vercel, Cloudflare)
  */
-export function getClientIP(request: NextRequest): string {
+function getClientIP(request: NextRequest): string {
     // Vercel provides cf-connecting-ip or x-forwarded-for
     const forwardedFor = request.headers.get('x-forwarded-for');
     const cfIP = request.headers.get('cf-connecting-ip');
@@ -265,34 +246,4 @@ export function addRateLimitHeaders(
     response.headers.set('X-RateLimit-Remaining', String(result.remaining));
     response.headers.set('X-RateLimit-Reset', String(result.reset));
     return response;
-}
-
-// ============================================================================
-// MIDDLEWARE HELPER
-// ============================================================================
-
-/**
- * Rate limit middleware wrapper for API routes
- * 
- * Usage:
- * ```ts
- * export async function POST(req: NextRequest) {
- *   const rateLimitResult = await withRateLimit(req, AUTH_RATE_LIMIT);
- *   if (!rateLimitResult.success) {
- *     return rateLimitResponse(rateLimitResult);
- *   }
- *   // Continue with request handling...
- * }
- * ```
- */
-export async function withRateLimit(
-    request: NextRequest,
-    config: RateLimitConfig,
-    userId?: string
-): Promise<RateLimitResult> {
-    // Use user ID if provided, otherwise use IP
-    if (userId) {
-        return checkRateLimitByUser(userId, config);
-    }
-    return checkRateLimitByIP(request, config);
 }

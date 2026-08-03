@@ -7,7 +7,7 @@ export const CHECKOUT_RECOVERY_MIN_AGE_MS = 2 * 60 * 60 * 1000;
 /** Stop nudging abandoners older than this (stale intent). */
 export const CHECKOUT_RECOVERY_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 
-export type CheckoutAbandoner = {
+type CheckoutAbandoner = {
   userId: string;
   email: string;
   firstName: string | null;

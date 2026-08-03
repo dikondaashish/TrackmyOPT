@@ -8,12 +8,12 @@ import {
   daysBetween,
   getFilingWindow,
   type EmploymentSpan as CalculationEmploymentSpan,
-} from "@/lib/immigration/optCalculations";
+} from "@/lib/immigration/opt-calculations";
 import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
 import {
   isEmploymentTrackingIncomplete,
   shouldShowUnemploymentComplianceNumbers,
-} from "@/lib/immigration/employmentTracking";
+} from "@/lib/immigration/employment-tracking";
 
 interface MetricCardProps {
   title: string;

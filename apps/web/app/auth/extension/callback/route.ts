@@ -34,14 +34,14 @@ export async function GET(req: NextRequest) {
           set(name: string, value: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value, ...options });
-            } catch (error) {
+            } catch (_error) {
               // Ignore cookie errors in this context
             }
           },
           remove(name: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value: '', ...options });
-            } catch (error) {
+            } catch (_error) {
               // Ignore cookie errors in this context
             }
           },

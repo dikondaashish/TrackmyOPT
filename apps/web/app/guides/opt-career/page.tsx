@@ -5,10 +5,9 @@ import {
     Clock, ArrowRight, CheckCircle2, AlertTriangle, Briefcase, BookOpen,
     GraduationCap, Search, FileText, Users, DollarSign, TrendingUp,
     Shield, XCircle, Wrench, Globe, Award, Target, ChevronRight,
-    Building2, Scale, Lightbulb, MessageSquare, Star,
+    Building2, Lightbulb, MessageSquare, Star,
 } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
-import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export const metadata: Metadata = {
     title: "OPT Career Guide: From Job Search to H-1B Sponsorship | TrackMyOPT",

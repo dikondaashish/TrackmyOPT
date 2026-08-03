@@ -18,7 +18,7 @@ function getSecretKey() {
 /**
  * JWT payload structure
  */
-export interface JWTPayload {
+interface JWTPayload {
   userId: string;
   email: string;
   exp?: number;
@@ -31,7 +31,7 @@ export interface JWTPayload {
 /**
  * Decoded JWT token result
  */
-export interface DecodedToken {
+interface DecodedToken {
   sub: string;
   email: string;
   userId: string;
@@ -116,16 +116,5 @@ export async function verifyToken(token: string): Promise<DecodedToken | null> {
     console.error('JWT verification failed:', error);
     return null;
   }
-}
-
-/**
- * Create a token response for the extension
- */
-export function createTokenResponse(token: string, expiresInSeconds: number = 300) {
-  return {
-    access_token: token,
-    token_type: 'Bearer',
-    expires_in: expiresInSeconds,
-  };
 }
 

@@ -14,7 +14,7 @@ import {
     STRENGTH_OPTIONS,
     SORT_OPTIONS,
     US_STATES,
-} from "@/lib/career/h1b/filterSponsors";
+} from "@/lib/career/h1b/filter-sponsors";
 
 interface H1BSponsorSearchFiltersProps {
     filters: FilterOptions;

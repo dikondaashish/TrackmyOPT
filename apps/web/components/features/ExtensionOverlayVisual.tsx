@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Building2, MapPin, Search, Menu, MessageSquare, Bell, UserCircle, Briefcase, ChevronRight, X, MousePointer2 } from "lucide-react";
+import { CheckCircle2, X, MousePointer2 } from "lucide-react";
 import Image from "next/image";
 
 export function ExtensionOverlayVisual() {

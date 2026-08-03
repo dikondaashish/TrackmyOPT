@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** PostHog group type for B2B2C university / campus partner attribution. */
 export const UNIVERSITY_PARTNER_GROUP_TYPE = "university_partner";
 
-export type UniversityPartnerRecord = {
+type UniversityPartnerRecord = {
   code: string;
   name: string;
   clicks: number;

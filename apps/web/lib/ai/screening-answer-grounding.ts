@@ -1,6 +1,6 @@
 import type { ScreeningQuestionDraftRequest } from './screening-answer-contract';
 
-export type ScreeningDraftGroundingValidation =
+type ScreeningDraftGroundingValidation =
   | { valid: true }
   | { valid: false; reason: 'insufficient_context' | 'sensitive' };
 

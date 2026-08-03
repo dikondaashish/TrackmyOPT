@@ -244,7 +244,7 @@ function dispatchAnalyticsConsentChange(accepted: boolean): void {
 }
 
 /** Apply stored banner choice to PostHog (client-only). */
-export function applyPostHogConsentFromStorage(): void {
+function applyPostHogConsentFromStorage(): void {
   if (!isPostHogReady()) return;
   const consent = getStoredCookieConsent();
   if (consent === "accepted") {

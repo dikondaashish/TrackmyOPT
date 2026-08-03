@@ -8,11 +8,11 @@ import {
     Scale, DollarSign, Lock
 } from "lucide-react";
 import { Database } from "@/types/supabase";
-import type { H1BSponsor } from "@/lib/mock/h1bSponsors";
-import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
+import type { H1BSponsor } from "@/lib/mock/h1b-sponsors";
+import { calculateSponsorScore } from "@/lib/career/h1b/sponsor-score";
 import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
 import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";
-import { getLogoUrl, handleLogoError } from "@/lib/documents/imageUtils";
+import { getLogoUrl, handleLogoError } from "@/lib/documents/image-utils";
 import { Button } from "@/components/ui/button";
 import { captureUpgradePromptShown } from "@/lib/posthog-client";
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
@@ -228,7 +228,7 @@ export default function CompanyProfilePage() {
                                             }}
                                         />
                                     );
-                                } catch (e) {
+                                } catch (_e) {
                                     return null;
                                 }
                             })()}

@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   captureActivationCompleted: vi.fn(),
 }));
 
-vi.mock('@/lib/supabaseClient', () => ({
+vi.mock('@/lib/supabase/client', () => ({
   supabase: {
     auth: {
       getUser: mocks.getUser,

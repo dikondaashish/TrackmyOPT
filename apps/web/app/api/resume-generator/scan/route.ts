@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { buildAtsScanPrompt } from '@/lib/ai/prompts/ats-scan';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { latexToPlainText } from '@/lib/resume/latex-to-plain-text';
 import { computeKeywordPlacement } from '@/lib/resume/keyword-placement';
 import { checkAtsScanLimit, trackAtsScan } from '@/lib/usage-limit';
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         let aiAnalysis;
         try {
             aiAnalysis = JSON.parse(jsonString);
-        } catch (e) {
+        } catch (_e) {
             console.error("Failed to parse AI output:", text);
             // Fallback empty structure
             aiAnalysis = {

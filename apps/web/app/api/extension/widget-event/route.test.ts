@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   getUserId: vi.fn(),
 }));
 
-vi.mock('@/lib/auth/getUserId', () => ({
+vi.mock('@/lib/auth/get-user-id', () => ({
   getUserId: mocks.getUserId,
 }));
 vi.mock('@/lib/auth/rate-limit', () => ({

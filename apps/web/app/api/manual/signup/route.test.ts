@@ -42,7 +42,7 @@ vi.mock('@/lib/auth/api-rate-limit', async (importOriginal) => {
     checkRateLimitByAccount: mocks.checkRateLimitByAccount,
   };
 });
-vi.mock('@/lib/notifications/transactional-emails', () => ({
+vi.mock('@/lib/notifications/transactional/lifecycle', () => ({
   sendFreeWelcomeEmail: vi.fn(),
 }));
 

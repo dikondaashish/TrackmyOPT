@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { Suspense } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { DashboardContent } from "@/components/dashboard/widgets/DashboardContent";
 
@@ -21,13 +20,13 @@ export default async function DashboardPage() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (error) {
+          } catch (_error) {
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options });
-          } catch (error) {
+          } catch (_error) {
           }
         },
       },

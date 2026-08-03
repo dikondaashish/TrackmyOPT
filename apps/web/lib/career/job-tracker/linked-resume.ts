@@ -17,7 +17,7 @@ export type LinkedResumeCandidate = {
   } | null;
 };
 
-export type LinkedResumeMatch = {
+type LinkedResumeMatch = {
   id: string;
   filename: string;
   atsScore: number | null;
@@ -26,7 +26,7 @@ export type LinkedResumeMatch = {
   matchReason: 'application_id' | 'job_details';
 };
 
-export type JobForResumeLink = {
+type JobForResumeLink = {
   id: string;
   company_name: string;
   role_title: string;

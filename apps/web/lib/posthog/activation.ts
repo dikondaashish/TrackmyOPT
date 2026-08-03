@@ -51,7 +51,7 @@ export function isWithinActivationWindow(
 }
 
 /** Person property for PostHog — Phase 4 (onboarding does not gate activation). */
-export type ActivationState =
+type ActivationState =
   | "no_receipt"
   | "receipt_pending_status"
   | "activated";

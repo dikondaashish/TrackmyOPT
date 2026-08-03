@@ -32,7 +32,7 @@ export interface StoredArtifactCandidate {
   expires_at: string;
 }
 
-export interface ArtifactJobContext {
+interface ArtifactJobContext {
   jobUrl: string;
   companyName?: string;
   roleTitle?: string;
@@ -112,7 +112,7 @@ export function overflowArtifactIds(
     .map((candidate) => candidate.id);
 }
 
-export interface GeneratedResumeArtifactRow {
+interface GeneratedResumeArtifactRow {
   user_id: string;
   source_url: string;
   ats_platform: string | null;

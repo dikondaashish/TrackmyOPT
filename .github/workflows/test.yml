@@ -58,6 +58,11 @@ jobs:
           JWT_SIGNING_SECRET: 'ci-placeholder-must-be-at-least-32-chars-long'
           SUPABASE_SERVICE_ROLE_KEY: 'ci-placeholder-service-role-key'
 
+      - name: Extension typecheck
+        # esbuild strips types without checking them, so the extension build
+        # alone cannot catch a type error. This step is the only TS gate here.
+        run: pnpm --filter extension run typecheck
+
       - name: Extension tests
         run: pnpm --filter extension run test
 

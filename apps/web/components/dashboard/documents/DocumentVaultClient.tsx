@@ -131,7 +131,7 @@ export function DocumentVaultClient() {
         const data = await res.json();
         setNotificationEmail(data.email || '');
       }
-    } catch (error) {
+    } catch (_error) {
     }
   }
 
@@ -201,7 +201,7 @@ export function DocumentVaultClient() {
       } else {
         setShowPasscodeVerify(true);
       }
-    } catch (error) {
+    } catch (_error) {
       setHasPasscode(false);
       setShowPasscodeSetup(true);
     }
@@ -218,7 +218,7 @@ export function DocumentVaultClient() {
       const res = await fetch(`/api/documents?${params}`);
       const data = await res.json();
       setDocuments(data.documents || []);
-    } catch (error) {
+    } catch (_error) {
       setDocuments([]);
     } finally {
       setLoading(false);

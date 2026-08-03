@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { CheckCircle2, Circle, Briefcase, Calendar, UserPlus, FileText } from "lucide-react";
+import { CheckCircle2, Briefcase, Calendar, UserPlus, FileText } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { User } from "@supabase/supabase-js";
 
@@ -89,7 +89,7 @@ export function RecentActivityLog({ user, optStatus, employmentSpans }: RecentAc
       </div>
 
       <div className="relative border-l border-gray-200 dark:border-gray-800 ml-3 space-y-6">
-        {events.slice(0, 6).map((event, index) => (
+        {events.slice(0, 6).map((event, _index) => (
           <div key={event.id} className="relative pl-6">
             {/* Timeline Dot */}
             <span className={`absolute -left-[13px] top-1 flex h-6 w-6 items-center justify-center rounded-full bg-background ring-4 ring-background ${event.isPast ? 'bg-gray-100 dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900 opacity-50'}`}>

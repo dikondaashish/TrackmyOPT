@@ -1,4 +1,4 @@
-export type IncomeBucket =
+type IncomeBucket =
   | "0_1000"
   | "1001_2000"
   | "2001_4000"

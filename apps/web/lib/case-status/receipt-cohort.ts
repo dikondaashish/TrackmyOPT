@@ -8,7 +8,7 @@
 
 import { assertNearbyScanEnabled } from "@/lib/uscis/nearby-scan";
 
-export type ParsedReceipt = { prefix: string; serial: number };
+type ParsedReceipt = { prefix: string; serial: number };
 
 const RECEIPT_PATTERN = /^([A-Z]{3})(\d{10})$/;
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Lightbulb, X, ChevronRight, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
-import { addDays, daysBetween } from "@/lib/immigration/optCalculations";
+import { addDays, daysBetween } from "@/lib/immigration/opt-calculations";
 
 interface Tip {
   id: string;

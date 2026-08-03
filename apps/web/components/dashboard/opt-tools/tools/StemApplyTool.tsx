@@ -9,7 +9,7 @@ import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { TickingClock, TickingClockCompact } from "../TickingClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
-import { addDays, daysBetween } from "@/lib/immigration/optCalculations";
+import { addDays, daysBetween } from "@/lib/immigration/opt-calculations";
 
 export function StemApplyTool() {
   const router = useRouter();

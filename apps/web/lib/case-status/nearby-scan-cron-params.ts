@@ -1,12 +1,12 @@
 import { DEFAULT_COHORT_RANGE, MAX_COHORT_RANGE } from "./receipt-cohort";
 
-export const DEFAULT_CENTERS_PER_RUN = 5;
-export const MIN_CENTERS_PER_RUN = 1;
-export const MAX_CENTERS_PER_RUN = 20;
+const DEFAULT_CENTERS_PER_RUN = 5;
+const MIN_CENTERS_PER_RUN = 1;
+const MAX_CENTERS_PER_RUN = 20;
 
-export const MIN_SCAN_RANGE = 1;
+const MIN_SCAN_RANGE = 1;
 
-export type NearbyScanCronParams = {
+type NearbyScanCronParams = {
   centers: number;
   range: number;
 };

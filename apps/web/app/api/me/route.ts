@@ -5,7 +5,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
-import { sendFreeWelcomeEmail } from '@/lib/notifications/transactional-emails';
+import { sendFreeWelcomeEmail } from '@/lib/notifications/transactional/onboarding';
 
 export const dynamic = 'force-dynamic';
 

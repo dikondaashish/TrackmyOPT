@@ -168,15 +168,7 @@ export function emailTextList(
   return `<${tag} class="tmo-force-light-text" style="margin:0 0 20px 0;padding-left:20px;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${lis}</${tag}>`;
 }
 
-/** @deprecated Prefer emailBrandHeaderWithLogo — subtitle belongs in body (dark-mode safe). */
-export function emailBrandHeader(opts: { title: string; subtitle?: string; accentBottom?: string }): string {
-  const lead = opts.subtitle
-    ? emailTextLead(opts.subtitle)
-    : "";
-  return `${emailBrandHeaderWithLogo({ title: opts.title, accentBottom: opts.accentBottom })}${lead ? `<div style="padding:16px 24px 0 24px;background:${EMAIL.bgCard};">${lead}</div>` : ""}`;
-}
-
-export function getEmailLogoUrl(): string {
+function getEmailLogoUrl(): string {
   return (
     process.env.EMAIL_LOGO_URL ||
     process.env.NEXT_PUBLIC_EMAIL_LOGO_URL ||

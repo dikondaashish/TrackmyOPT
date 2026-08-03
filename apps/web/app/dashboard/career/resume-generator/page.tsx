@@ -28,10 +28,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 import { useResumeStore } from "@/store/resume-store";
 import { extractJobTitle } from "@/lib/resume/extract-job-title";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
 import { ResumeUsageStats } from "@/components/dashboard/resume/ResumeUsageStats";
 import { PricingModal } from "@/components/pricing/PricingModal";
@@ -314,7 +314,7 @@ export default function ResumeGeneratorPage() {
             } else {
                 setErrors(prev => ({ ...prev, [type]: result.message || result.error }));
             }
-        } catch (error) {
+        } catch (_error) {
             setErrors(prev => ({ ...prev, [type]: "Upload failed. Please try again." }));
         } finally {
             setUploading(false);
@@ -356,7 +356,7 @@ export default function ResumeGeneratorPage() {
             } else {
                 setErrors(prev => ({ ...prev, [type]: result.error }));
             }
-        } catch (error) {
+        } catch (_error) {
             setErrors(prev => ({ ...prev, [type]: "URL processing failed. Please try again." }));
         } finally {
             setProcessing(false);
@@ -418,7 +418,7 @@ export default function ResumeGeneratorPage() {
                 setOcr(prev => ({ ...prev, running: false }));
                 setErrors(prev => ({ ...prev, [type]: result.message || result.error || "OCR failed" }));
             }
-        } catch (error) {
+        } catch (_error) {
             setOcr(prev => ({ ...prev, running: false }));
             setErrors(prev => ({ ...prev, [type]: "OCR failed. Please paste text manually." }));
         }

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
-import { getUserId } from "@/lib/auth/getUserId";
-import { applyStripeCheckoutSession } from "@/lib/premium/applyStripeCheckoutSession";
+import { getUserId } from "@/lib/auth/get-user-id";
+import { applyStripeCheckoutSession } from "@/lib/premium/apply-stripe-checkout-session";
 import { sanitizeError } from "@/lib/secure-logger";
-import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
+import { requireLiveStripeKeyInProduction } from "@/lib/stripe/require-live-key-in-production";
 import { billingInsertId } from "@/lib/posthog/billing-analytics";
 import {
   captureServerEvent,

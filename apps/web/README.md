@@ -35,7 +35,7 @@ web/
 │       └── callback/      # OAuth callback handler
 ├── lib/                   # Shared utilities
 │   ├── env.ts            # Environment validation (Zod)
-│   ├── supabaseClient.ts # Supabase client
+│   ├── supabase/client.ts # Supabase browser client
 │   └── jwt.ts            # JWT minting/verification (jose)
 └── public/               # Static assets
 ```
@@ -88,10 +88,10 @@ import { env } from '@/lib/env';
 console.log(env.NEXT_PUBLIC_SUPABASE_URL);
 ```
 
-#### Supabase Client (`lib/supabaseClient.ts`)
+#### Supabase Client (`lib/supabase/client.ts`)
 Pre-configured Supabase client for client-side usage:
 ```typescript
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase/client';
 await supabase.auth.signIn({ email, password });
 ```
 

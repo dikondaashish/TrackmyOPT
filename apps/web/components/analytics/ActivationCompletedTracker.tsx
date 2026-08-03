@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 import { captureActivationCompleted } from "@/lib/posthog-client";
 import {
   daysSinceSignupDate,

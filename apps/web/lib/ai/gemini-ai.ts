@@ -17,7 +17,7 @@ const GAP_ANALYSIS_PRIMARY_MODEL = 'gemini-3.5-flash';
 const GAP_ANALYSIS_FALLBACK_MODEL = 'gemini-3.1-flash-lite';
 
 // Document types we support
-export type DocumentType =
+type DocumentType =
   | 'passport'
   | 'visa'
   | 'i20'
@@ -28,7 +28,7 @@ export type DocumentType =
   | 'receipt_notice'
   | 'other';
 
-export interface DocumentAnalysis {
+interface DocumentAnalysis {
   documentType: DocumentType;
   confidence: number;
   extractedText: string;
@@ -183,23 +183,9 @@ Respond with ONLY valid JSON (no markdown, no extra text):
 Analyze the document now:`;
 
 /**
- * Extract specific field from analysis result
- */
-export function getField(analysis: DocumentAnalysis, fieldName: string): string | null {
-  return analysis.extractedFields[fieldName] || null;
-}
-
-/**
- * Check if document has expiry date
- */
-export function hasExpiryDate(analysis: DocumentAnalysis): boolean {
-  return !!analysis.expiryDate;
-}
-
-/**
  * Calculate days until expiry
  */
-export function getDaysUntilExpiry(expiryDate: string): number {
+function getDaysUntilExpiry(expiryDate: string): number {
   const expiry = new Date(expiryDate);
   const today = new Date();
   const diffTime = expiry.getTime() - today.getTime();
@@ -241,7 +227,7 @@ export function normalizeText(text: string): string {
 // RESUME ENHANCEMENT CAPABILITIES
 // ==========================================
 
-export interface AtsGapAnalysis {
+interface AtsGapAnalysis {
   matchScore: number;
   missingKeywords: string[];
   foundKeywords: string[];
@@ -249,7 +235,7 @@ export interface AtsGapAnalysis {
   recommendations: string[];
 }
 
-export interface BulletRewrite {
+interface BulletRewrite {
   original: string;
   improved: string;
   reasoning: string;
@@ -381,47 +367,5 @@ Output JSON ONLY (no markdown fences):
       gapAnalysis: 'AI Analysis Failed',
       recommendations: []
     };
-  }
-}
-
-/**
- * Generate a Professional Executive Summary
- */
-export async function generateExecutiveSummary(resumeText: string, jobTitle: string): Promise<string> {
-  try {
-    const prompt = `
-Write a powerful 3-sentence professional summary for a "${jobTitle}" role.
-
-Rules:
-- Sentence 1: "[X] years of experience in [domain] with expertise in [3-4 core skills from the resume]"
-- Sentence 2: Highlight the candidate's most impressive quantified achievement relevant to the role
-- Sentence 3: Bridge their background to the target role, mentioning 2-3 more relevant skills
-- Include the exact job title "${jobTitle}" in the first sentence
-- Use confident, active language — no "seeking" or "looking for opportunities"
-- Keep it under 60 words total
-
-RESUME:
-${resumeText.substring(0, 5000)}
-
-Return ONLY the summary text, no quotes or formatting.
-`;
-
-    let result;
-    try {
-      result = await ai.models.generateContent({
-        model: PRIMARY_MODEL,
-        contents: prompt,
-      });
-    } catch {
-      result = await ai.models.generateContent({
-        model: FALLBACK_MODEL,
-        contents: prompt,
-      });
-    }
-    return (result.text || '').trim();
-
-  } catch (error) {
-    console.error('❌ Summary Gen Error:', error);
-    return '';
   }
 }

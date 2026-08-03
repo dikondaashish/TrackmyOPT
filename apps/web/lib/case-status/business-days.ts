@@ -68,12 +68,12 @@ function parseIsoDate(iso: string): Date {
   return new Date(`${iso}T12:00:00.000Z`);
 }
 
-export function isWeekend(d: Date): boolean {
+function isWeekend(d: Date): boolean {
   const day = d.getUTCDay();
   return day === 0 || day === 6;
 }
 
-export function isBusinessDay(d: Date): boolean {
+function isBusinessDay(d: Date): boolean {
   return !isWeekend(d) && !FEDERAL_HOLIDAYS.has(toIsoDate(d));
 }
 

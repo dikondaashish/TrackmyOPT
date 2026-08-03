@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, TrendingDown, Users, Clock } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { ReactNode } from "react";
 
 interface Stat {

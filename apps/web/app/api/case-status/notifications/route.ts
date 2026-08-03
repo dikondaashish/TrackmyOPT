@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
 import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
 
@@ -126,7 +126,7 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-export async function OPTIONS(req: NextRequest) {
+export async function OPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
 

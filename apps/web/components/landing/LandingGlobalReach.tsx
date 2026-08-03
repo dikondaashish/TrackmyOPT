@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { GlobalTalentGlobe } from "@/components/features/GlobalTalentGlobe";
-import { ArrowRight, Users, Globe2, MessageSquare } from "lucide-react";
+import { ArrowRight, Globe2 } from "lucide-react";
 import Link from "next/link";
 
 export function LandingGlobalReach() {

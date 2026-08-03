@@ -6,7 +6,6 @@ import {
   ExternalLink,
   BookOpen,
   HelpCircle,
-  Download,
   ChevronRight,
   Search,
   Building2,

@@ -4,7 +4,7 @@ export const RESUME_TEXT_MAX_CHARS = 25_000;
 /** Max job description text accepted by generate/regenerate APIs. */
 export const JOB_DESCRIPTION_MAX_CHARS = 15_000;
 
-export type PreparedResumeText = {
+type PreparedResumeText = {
   text: string;
   truncated: boolean;
   originalLength: number;

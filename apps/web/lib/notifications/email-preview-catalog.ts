@@ -32,10 +32,7 @@ import {
   getDailyReminderSubject,
   renderDailyReminderEmailHtml,
 } from "./templates/daily-reminder-html";
-import {
-  getTransactionalEmailPreviews,
-  type EmailPreviewItem,
-} from "./transactional-emails";
+import { getTransactionalEmailPreviews, type EmailPreviewItem } from "./transactional/previews";
 
 export type { EmailPreviewItem };
 

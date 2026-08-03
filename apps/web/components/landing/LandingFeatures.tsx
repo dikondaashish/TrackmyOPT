@@ -1,19 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
-    Clock,
     Briefcase,
-    ShieldCheck,
-    BellRing,
     FileSearch,
-    GraduationCap,
     ArrowRight,
     LayoutDashboard,
     FileText
 } from "lucide-react";
 import Link from "next/link";
-import { ParallaxImage } from "@/components/animations/parallax-image";
+import { ParallaxImage } from "@/components/animations/ParallaxImage";
 
 export function LandingFeatures() {
     return (

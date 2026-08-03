@@ -19,28 +19,32 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
-import { applyStripeCheckoutSession } from '@/lib/premium/applyStripeCheckoutSession';
-import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
+import { applyStripeCheckoutSession } from '@/lib/premium/apply-stripe-checkout-session';
+import { requireLiveStripeKeyInProduction } from '@/lib/stripe/require-live-key-in-production';
 import {
   cancelOtherCustomerSubscriptions,
   getPlanFromSubscription,
   reconcileCustomerBilling,
   subscriptionHasPendingUpdate,
   syncProfileFromSubscription,
-} from '@/lib/premium/stripeSubscriptionSync';
+} from '@/lib/premium/stripe-subscription-sync';
 import {
-  resolveUserById,
-  resolveUserForStripeCustomer,
   sendPaymentFailedEmail,
   sendRefundAcknowledgmentEmail,
   sendSubscriptionEndedEmail,
   sendUnusedCancelWinbackEmail,
-  sendTrialEndingEmail,
-  sendTrialStartedEmail,
   sendCancellationConfirmedEmail,
   sendSubscriptionReceiptEmail,
-} from '@/lib/notifications/transactional-emails';
-import { recordBillingConsentEvent } from '@/lib/billing/recordBillingConsent';
+} from '@/lib/notifications/transactional/billing';
+import {
+  sendTrialEndingEmail,
+  sendTrialStartedEmail,
+} from '@/lib/notifications/transactional/trials';
+import {
+  resolveUserById,
+  resolveUserForStripeCustomer,
+} from '@/lib/notifications/transactional/stripe-users';
+import { recordBillingConsentEvent } from '@/lib/billing/record-billing-consent';
 import {
   captureServerEvent,
   normalizeBillingInterval,

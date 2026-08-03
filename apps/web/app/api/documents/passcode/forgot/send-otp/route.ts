@@ -36,7 +36,7 @@ function maskEmail(email: string): string {
   return `${maskedLocal}@${domain}`;
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

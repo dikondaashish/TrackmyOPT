@@ -525,7 +525,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS(req: NextRequest) {
+export async function OPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
 

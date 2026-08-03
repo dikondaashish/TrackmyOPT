@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { isWebPushConfigured } from '@/lib/notifications/web-push';
 
 export const dynamic = 'force-dynamic';
@@ -90,7 +90,7 @@ export async function DELETE(req: NextRequest) {
       .eq('endpoint', endpoint);
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 });
   }
 }

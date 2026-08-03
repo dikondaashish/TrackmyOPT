@@ -18,7 +18,6 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar, Bell, Video, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CompanyLogo } from "./CompanyLogo";
 
 interface JobTrackerCalendarViewProps {
     applications: JobApplication[];

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { captureCaseStatusSummaryViewed } from "@/lib/posthog-client";
 import { isPendingStatus } from "@/lib/posthog/uscis-status-category";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 
 type CaseStatusPageViewTrackerProps = {
   isInitialLoadComplete: boolean;

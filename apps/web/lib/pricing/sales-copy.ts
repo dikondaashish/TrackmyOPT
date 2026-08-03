@@ -5,7 +5,7 @@
 import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
 import { isDedicatedOpenForNewPurchases } from "@/lib/pricing/dedicated-availability";
 
-export const PRICING_SOCIAL_PROOF =
+const PRICING_SOCIAL_PROOF =
   "Join 2,500+ international students who trust TrackMyOPT";
 
 export const PRICING_VALUE_ANCHOR =

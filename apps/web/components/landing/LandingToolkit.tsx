@@ -1,8 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { HeartPulse, FileText, ArrowRight, Gift, Shield } from "lucide-react";
-import Link from "next/link";
 
 export function LandingToolkit() {
     return (

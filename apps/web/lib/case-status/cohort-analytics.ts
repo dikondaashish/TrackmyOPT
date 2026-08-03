@@ -26,9 +26,9 @@ export function excludeQuarantinedCases(cases: CohortCase[]): CohortCase[] {
   return cases.filter((c) => c.quarantined !== true);
 }
 
-export type DistributionItem = { label: string; count: number; pct: number };
+type DistributionItem = { label: string; count: number; pct: number };
 
-export type CohortAnalytics = {
+type CohortAnalytics = {
   totalValid: number;
   totalScanned: number;
   totalRequested: number;
@@ -98,7 +98,7 @@ function buildDistribution(
     .sort((a, b) => b.count - a.count);
 }
 
-export type CohortInput = {
+type CohortInput = {
   cases: CohortCase[];
   totalRequested: number;
 };

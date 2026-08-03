@@ -49,7 +49,7 @@ vi.mock('@/lib/auth/jwt', () => ({
   verifyToken: mocks.verifyToken,
 }));
 
-vi.mock('@/lib/notifications/transactional-emails', () => ({
+vi.mock('@/lib/notifications/transactional/lifecycle', () => ({
   sendFreeWelcomeEmail: vi.fn(),
 }));
 

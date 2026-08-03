@@ -1,7 +1,7 @@
 import { resolveJobTitle } from "./extract-job-title";
 
 /** Sanitize a string for use in a download filename segment. */
-export function toFilenameSegment(value: string): string {
+function toFilenameSegment(value: string): string {
     return value
         .trim()
         .replace(/[^a-zA-Z0-9]+/g, "_")

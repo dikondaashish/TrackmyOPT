@@ -2,7 +2,7 @@
  * Inline SVG icons for HTML emails (Lucide-style, matches product UI).
  */
 
-export type EmailIconName =
+type EmailIconName =
   | "calendar"
   | "clock"
   | "timer"

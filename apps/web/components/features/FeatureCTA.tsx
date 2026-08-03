@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Shield, Zap, Clock } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, Clock } from "lucide-react";
 import { ReactNode } from "react";
 
 interface FeatureCTAProps {

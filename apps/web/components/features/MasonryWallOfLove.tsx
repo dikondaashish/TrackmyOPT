@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Twitter, Quote, Linkedin, Star, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import { Twitter, Quote, Linkedin } from "lucide-react";
 
 interface Testimonial {
     type: "twitter" | "linkedin" | "quote" | "stat";

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase/client';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 import { LoginPostHogIdentify } from '@/components/analytics/LoginPostHogIdentify';
 import {

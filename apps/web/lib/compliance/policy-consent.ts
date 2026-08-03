@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { LegalPolicyType } from "@/lib/legal/legal-config";
 
-export type PolicyVersionRow = {
+type PolicyVersionRow = {
   policy_type: string;
   current_version: string;
   requires_consent: boolean;
@@ -9,12 +8,12 @@ export type PolicyVersionRow = {
   effective_date: string | null;
 };
 
-export type PolicyConsentRow = {
+type PolicyConsentRow = {
   policy_type: string;
   policy_version: string;
 };
 
-export type PolicyNeedingConsent = {
+type PolicyNeedingConsent = {
   type: string;
   version: string;
   changeSummary: string | null;
@@ -88,5 +87,3 @@ export const POLICY_CONSENT_LINKS = [
   { label: "Disclaimer", href: "/disclaimer" },
   { label: "Security", href: "/security" },
 ] as const;
-
-export type ConsentablePolicyType = LegalPolicyType;

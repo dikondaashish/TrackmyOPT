@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Briefcase, BookOpen, MapPin } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, Briefcase, BookOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 

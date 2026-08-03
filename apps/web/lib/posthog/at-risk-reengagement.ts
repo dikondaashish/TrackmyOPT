@@ -1,15 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const AT_RISK_REENGAGEMENT_EMAIL_TYPE = "at_risk_reengagement";
+const AT_RISK_REENGAGEMENT_EMAIL_TYPE = "at_risk_reengagement";
 
 /** Max sends per invocation — drain across weekly cron runs. */
 export const AT_RISK_REENGAGEMENT_DEFAULT_BATCH = 25;
 
 /** Mirrors PostHog cohort 396175: signed up in 90d, no activity in 14d. */
-export const AT_RISK_SIGNUP_WINDOW_DAYS = 90;
-export const AT_RISK_INACTIVITY_DAYS = 14;
+const AT_RISK_SIGNUP_WINDOW_DAYS = 90;
+const AT_RISK_INACTIVITY_DAYS = 14;
 
-export type AtRiskReengagementCandidate = {
+type AtRiskReengagementCandidate = {
   userId: string;
   email: string;
   firstName: string | null;

@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { CreditCard, Loader2, Check, Zap, Shield, Star, Crown } from 'lucide-react';
+import { Loader2, Check, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
 import { getPlanBullets } from '@/lib/pricing/plan-features';
 import { shouldShowDedicatedPlanForSale } from '@/lib/pricing/sales-copy';
 import { PRO_TRIAL_DAYS } from '@/lib/legal/legal-config';
-import type { PromoCheckoutMode } from '@/lib/premium/promoCheckoutTypes';
-import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/formatMonthlyEquivalentFromYearly';
-import { SubscriptionUsage } from './SubscriptionUsage';
+import type { PromoCheckoutMode } from '@/lib/premium/promo-checkout-types';
+import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/format-monthly-equivalent-from-yearly';
 import { BillingHistory } from './BillingHistory';
 import { SubscriptionFAQ } from './SubscriptionFAQ';
 import { PlanComparisonModal } from './PlanComparisonModal';

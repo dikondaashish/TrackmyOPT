@@ -4,13 +4,10 @@ import Link from "next/link";
 import { 
   Calendar, 
   Briefcase, 
-  MapPin, 
   FileText, 
   Upload, 
   Bell,
-  Calculator,
-  Shield
-} from "lucide-react";
+  Calculator} from "lucide-react";
 
 interface QuickAction {
   id: string;

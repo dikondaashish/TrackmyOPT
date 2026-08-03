@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldCheck, BrainCircuit, BellRing, Terminal, Activity, CheckCircle2, Cpu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { BrainCircuit, BellRing, Terminal, Activity, Cpu } from "lucide-react";
 
 export function LandingEngine() {
     return (

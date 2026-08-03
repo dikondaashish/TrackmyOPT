@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Clock, AlertTriangle, CheckCircle2, Timer, Zap, Coffee, Rocket, FileText, Upload, CheckSquare, Circle } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle2, Timer, Zap, Rocket, FileText, CheckSquare, Circle } from "lucide-react";
 
 interface TickingClockProps {
   targetDate: Date;

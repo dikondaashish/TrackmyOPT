@@ -1,9 +1,7 @@
 "use client";
 
-import { GlassyFeatureTags } from "@/components/landing/glassy-feature-tags";
-import { AnimatedRoadmap } from "@/components/landing/animated-roadmap";
-import { MoveRight } from "lucide-react";
-import Link from "next/link";
+import { GlassyFeatureTags } from "@/components/landing/GlassyFeatureTags";
+import { AnimatedRoadmap } from "@/components/landing/AnimatedRoadmap";
 
 export function LandingValueGrid() {
     return (

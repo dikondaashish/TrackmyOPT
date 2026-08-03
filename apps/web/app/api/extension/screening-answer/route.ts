@@ -7,7 +7,7 @@ import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
 import { buildScreeningAnswerPrompt } from '@/lib/ai/prompts/screening-answer';
 import { validateScreeningDraftGrounding } from '@/lib/ai/screening-answer-grounding';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 import { ResumeAutofillSnapshotV1Schema } from '@/lib/resume/autofill-schema';
 import { AUTOFILL_FEATURE_FLAGS } from '../../../../../extension/src/autofill-feature-flags';

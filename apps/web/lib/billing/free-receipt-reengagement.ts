@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const FREE_RECEIPT_REENGAGEMENT_EMAIL_TYPE = "free_receipt_reengagement";
+const FREE_RECEIPT_REENGAGEMENT_EMAIL_TYPE = "free_receipt_reengagement";
 
 /** Max sends per invocation — drain the list across manual runs without hammering SMTP. */
 export const FREE_RECEIPT_REENGAGEMENT_DEFAULT_BATCH = 25;
 
-export type FreeReceiptReengagementCandidate = {
+type FreeReceiptReengagementCandidate = {
   userId: string;
   email: string;
   firstName: string | null;

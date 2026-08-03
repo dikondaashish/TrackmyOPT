@@ -10,7 +10,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { getSmtpFromHeader, sendMailWithRetry } from './email-smtp';
-import { sendPremiumWelcomeQueuedEmail } from './transactional-emails';
+import { sendPremiumWelcomeQueuedEmail } from './transactional/onboarding';
 import {
   EMAIL,
   emailBrandHeaderWithLogo,

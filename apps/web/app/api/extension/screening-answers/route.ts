@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { SavedScreeningAnswerWriteSchema } from '@/lib/ai/saved-screening-answer-schema';
 import {

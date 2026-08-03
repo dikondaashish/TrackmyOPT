@@ -25,32 +25,36 @@ vi.mock('stripe', () => ({
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({})),
 }));
-vi.mock('@/lib/stripe/requireLiveKeyInProduction', () => ({
+vi.mock('@/lib/stripe/require-live-key-in-production', () => ({
   requireLiveStripeKeyInProduction: vi.fn(),
 }));
-vi.mock('@/lib/premium/applyStripeCheckoutSession', () => ({
+vi.mock('@/lib/premium/apply-stripe-checkout-session', () => ({
   applyStripeCheckoutSession: mocks.applyStripeCheckoutSession,
 }));
-vi.mock('@/lib/premium/stripeSubscriptionSync', () => ({
+vi.mock('@/lib/premium/stripe-subscription-sync', () => ({
   cancelOtherCustomerSubscriptions: vi.fn(),
   getPlanFromSubscription: vi.fn(() => 'pro'),
   reconcileCustomerBilling: mocks.reconcileCustomerBilling,
   subscriptionHasPendingUpdate: vi.fn(() => false),
   syncProfileFromSubscription: vi.fn(),
 }));
-vi.mock('@/lib/notifications/transactional-emails', () => ({
-  resolveUserById: vi.fn(),
-  resolveUserForStripeCustomer: mocks.resolveUserForStripeCustomer,
+vi.mock('@/lib/notifications/transactional/billing', () => ({
   sendPaymentFailedEmail: vi.fn(),
   sendRefundAcknowledgmentEmail: vi.fn(),
   sendSubscriptionEndedEmail: vi.fn(),
   sendUnusedCancelWinbackEmail: vi.fn(),
-  sendTrialEndingEmail: vi.fn(),
-  sendTrialStartedEmail: vi.fn(),
   sendCancellationConfirmedEmail: vi.fn(),
   sendSubscriptionReceiptEmail: vi.fn(),
 }));
-vi.mock('@/lib/billing/recordBillingConsent', () => ({
+vi.mock('@/lib/notifications/transactional/trials', () => ({
+  sendTrialEndingEmail: vi.fn(),
+  sendTrialStartedEmail: vi.fn(),
+}));
+vi.mock('@/lib/notifications/transactional/stripe-users', () => ({
+  resolveUserById: vi.fn(),
+  resolveUserForStripeCustomer: mocks.resolveUserForStripeCustomer,
+}));
+vi.mock('@/lib/billing/record-billing-consent', () => ({
   recordBillingConsentEvent: vi.fn(),
 }));
 vi.mock('@/lib/posthog-server', () => ({

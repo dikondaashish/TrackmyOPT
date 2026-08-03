@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
-import { glossaryData, getAllTermsForSchema } from "../../data/glossaryData";
+import { glossaryData, getAllTermsForSchema } from "../../data/glossary-data";
 
 export const metadata: Metadata = {
     title: "Immigration Glossary: F-1 Visa Terms Explained | TrackMyOPT",

@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, Briefcase, Plus } from "lucide-react";
-import { formatOptDateForDisplay } from "@/lib/immigration/employmentTracking";
+import { formatOptDateForDisplay } from "@/lib/immigration/employment-tracking";
 
 interface EmploymentIncompleteCalloutProps {
   optStartDate: string;

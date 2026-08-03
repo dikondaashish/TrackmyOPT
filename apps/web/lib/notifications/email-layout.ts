@@ -53,11 +53,6 @@ ${emailCardClose()}
 ${emailOuterClose()}`;
 }
 
-export function emailGreetingHtml(firstName: string | null): string {
-  const trimmed = firstName?.trim();
-  return trimmed ? `Hi ${trimmed},` : "Hi,";
-}
-
 export function emailInfoCallout(innerHtml: string): string {
   return `<div class="tmo-force-info-box" style="margin:0 0 20px 0;padding:16px 18px;background:${EMAIL.infoBg};border:1px solid ${EMAIL.infoBorder};border-radius:10px;">
 ${innerHtml}

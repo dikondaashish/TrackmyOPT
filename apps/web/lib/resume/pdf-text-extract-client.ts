@@ -3,7 +3,7 @@
  * Uses pdfjs-dist legacy build for browser compatibility.
  */
 
-export interface PdfParseResult {
+interface PdfParseResult {
     ok: boolean;
     charCount: number;
     containsName: boolean;

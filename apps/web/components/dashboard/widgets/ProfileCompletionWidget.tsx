@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, ChevronRight, GraduationCap, Briefcase, Calendar } from "lucide-react";
+import { ChevronRight, GraduationCap, Briefcase, Calendar } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

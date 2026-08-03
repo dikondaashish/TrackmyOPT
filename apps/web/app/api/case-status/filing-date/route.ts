@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { getUserId } from "@/lib/auth/getUserId";
+import { getUserId } from "@/lib/auth/get-user-id";
 import { normalizeFilingDateToIso } from "@/lib/case-status/filing-date";
 
 export const dynamic = "force-dynamic";

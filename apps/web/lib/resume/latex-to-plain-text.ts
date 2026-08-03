@@ -67,7 +67,7 @@ export function latexToPlainText(latex: string): string {
         .join("\n");
 }
 
-export interface ResumeSections {
+interface ResumeSections {
     summary: string;
     skills: string;
     experience: string;

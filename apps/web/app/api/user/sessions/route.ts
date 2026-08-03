@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
 

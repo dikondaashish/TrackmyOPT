@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, FileText, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Briefcase, Banknote, ClipboardList } from "lucide-react";
+import { Shield, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Briefcase, Banknote, ClipboardList } from "lucide-react";
 import { useState } from "react";
 
 // Fuel deal popup content

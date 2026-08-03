@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { User, Briefcase, GraduationCap } from "lucide-react";
-import Image from "next/image";
 
 export function MentorshipMap() {
     return (

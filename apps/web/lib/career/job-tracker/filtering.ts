@@ -1,4 +1,4 @@
-import { JobApplication, JobFollowup, JobStage } from "./types";
+import { JobApplication, JobStage } from "./types";
 
 // ============================================================================
 // FILTER TYPES
@@ -12,7 +12,7 @@ export type SortOption =
 
 export type FollowupFilterOption = "all" | "today" | "week" | "overdue";
 
-export interface FilterCriteria {
+interface FilterCriteria {
     search?: string;
     status?: JobStage | "all";
     followupFilter?: FollowupFilterOption;
@@ -132,50 +132,6 @@ export function sortApplications(
         default:
             return sorted;
     }
-}
-
-// ============================================================================
-// FOLLOWUP CATEGORIZATION
-// ============================================================================
-
-export interface CategorizedFollowups {
-    dueToday: JobFollowup[];
-    dueThisWeek: JobFollowup[];
-    overdue: JobFollowup[];
-}
-
-/**
- * Categorize followups by urgency
- */
-export function categorizeFollowups(followups: JobFollowup[]): CategorizedFollowups {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const weekFromNow = new Date(today);
-    weekFromNow.setDate(weekFromNow.getDate() + 7);
-
-    const result: CategorizedFollowups = {
-        dueToday: [],
-        dueThisWeek: [],
-        overdue: []
-    };
-
-    followups
-        .filter(fp => fp.status === "pending")
-        .forEach(fp => {
-            const fpDate = new Date(fp.followup_at);
-            fpDate.setHours(0, 0, 0, 0);
-
-            if (fpDate.getTime() === today.getTime()) {
-                result.dueToday.push(fp);
-            } else if (fpDate > today && fpDate <= weekFromNow) {
-                result.dueThisWeek.push(fp);
-            } else if (fpDate < today) {
-                result.overdue.push(fp);
-            }
-        });
-
-    return result;
 }
 
 // ============================================================================

@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, AlertTriangle, CheckCircle, BarChart3, Search, Bell, Settings, PieChart, Download } from "lucide-react";
-import { useState } from "react";
+import { Users, AlertTriangle, BarChart3, Search, Bell, Settings, PieChart, Download } from "lucide-react";
 
 export function UniversityDashboardPreview() {
     return (

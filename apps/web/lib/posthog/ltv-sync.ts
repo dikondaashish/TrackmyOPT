@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { identifyServerUser } from "@/lib/posthog-server";
 
-export type UserLtvSnapshot = {
+type UserLtvSnapshot = {
   userId: string;
   lifetimeRevenueCents: number;
   lifetimePaymentCount: number;
@@ -19,7 +19,7 @@ function toDateOnly(iso: string | null | undefined): string | null {
 }
 
 /** Aggregate succeeded payments for one user from Supabase. */
-export async function computeUserLtv(
+async function computeUserLtv(
   supabase: SupabaseClient,
   userId: string
 ): Promise<UserLtvSnapshot | null> {

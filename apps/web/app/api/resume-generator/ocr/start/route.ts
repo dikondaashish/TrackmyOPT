@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { textractService } from '@/lib/aws/textract';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { createClient } from '@supabase/supabase-js';
 
 // CORS headers — restrict to first-party origin; in-app users post via cookie auth

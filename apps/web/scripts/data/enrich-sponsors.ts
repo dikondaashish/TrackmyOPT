@@ -32,7 +32,7 @@ try {
     const fileContent = fs.readFileSync(SUSPICIOUS_ADDR_PATH, 'utf-8');
     suspiciousData = JSON.parse(fileContent);
     console.log(`Loaded ${Object.keys(suspiciousData).length} suspicious address clusters.`);
-} catch (e) {
+} catch (_e) {
     console.warn("Could not load suspicious_addresses.json.");
 }
 

@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
     ArrowRight,
     Bell,
-    CheckCircle2,
     Clock,
     Eye,
     FileSearch,

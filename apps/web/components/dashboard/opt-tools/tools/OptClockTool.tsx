@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Clock, Timer, FileText, Info, Lightbulb, ChevronRight, Target, ChevronDown, ChevronUp, CheckCircle2, History } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Plus, Trash2, Save, Briefcase, Timer, FileText, Lightbulb, ChevronRight, Target, ChevronDown, ChevronUp, CheckCircle2, History } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DateInput } from "../DateInput";
 import { ResultCard, ProgressBar } from "../ResultCard";
@@ -14,7 +14,7 @@ import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
 import {
   isEmploymentTrackingIncomplete,
   shouldShowUnemploymentComplianceNumbers,
-} from "@/lib/immigration/employmentTracking";
+} from "@/lib/immigration/employment-tracking";
 
 interface EmploymentSpan {
   id: string;

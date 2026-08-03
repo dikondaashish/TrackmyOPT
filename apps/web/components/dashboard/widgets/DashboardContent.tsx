@@ -16,7 +16,7 @@ import {
 } from "./DashboardWidgets";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardNextStepCard } from "./DashboardNextStepCard";
-import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/optCalculations";
+import { calculateUnemploymentDays, type EmploymentSpan as CalculationEmploymentSpan } from "@/lib/immigration/opt-calculations";
 
 const WidgetSkeleton = () => (
   <div className="rounded-lg border bg-card p-6 space-y-4 min-h-[180px]">

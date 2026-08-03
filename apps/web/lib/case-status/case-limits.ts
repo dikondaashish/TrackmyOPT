@@ -1,6 +1,6 @@
 /** Per-plan limits for tracked USCIS cases. */
 
-export const CASE_TRACKING_LIMITS = {
+const CASE_TRACKING_LIMITS = {
   free: 1,
   pro: 8,
 } as const;

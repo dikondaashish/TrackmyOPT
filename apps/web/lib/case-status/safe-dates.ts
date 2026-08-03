@@ -104,19 +104,6 @@ export function formatDisplayDateTime(
   });
 }
 
-/** Safe long date for UI (invalid → em dash). */
-export function formatDisplayDateLong(
-  value: string | null | undefined
-): string {
-  const date = parseValidDate(value);
-  if (!date) return "—";
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 /** Safe month+year for UI (invalid → em dash). */
 export function formatDisplayMonthYear(
   value: string | null | undefined

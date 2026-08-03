@@ -1,7 +1,7 @@
 import { PostHog } from "posthog-node";
 
 /** Supports server-only and public env names used across deploy configs. */
-export function resolvePostHogApiKey(): string | undefined {
+function resolvePostHogApiKey(): string | undefined {
   return (
     process.env.POSTHOG_PROJECT_API_KEY?.trim() ||
     process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN?.trim() ||
@@ -10,14 +10,9 @@ export function resolvePostHogApiKey(): string | undefined {
   );
 }
 
-/** True when server-side PostHog capture can run (API key present). */
-export function isPostHogServerConfigured(): boolean {
-  return Boolean(resolvePostHogApiKey());
-}
-
 // Creates a fresh client per call — required because we always call shutdown()
 // after each event to ensure flush in serverless / edge environments.
-export function getPostHogClient(): PostHog | null {
+function getPostHogClient(): PostHog | null {
   const apiKey = resolvePostHogApiKey();
   if (!apiKey) return null;
 
@@ -55,7 +50,7 @@ function withServerDefaults(
 /**
  * Run PostHog work safely — analytics must never break product flows.
  */
-export async function withPostHogClient(
+async function withPostHogClient(
   fn: (client: PostHog) => void | Promise<void>
 ): Promise<void> {
   const client = getPostHogClient();

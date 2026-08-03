@@ -7,20 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import dynamic from "next/dynamic";
 import { JargonTooltip } from "@/components/ui/jargon-tooltip";
 import { EmploymentHistoryLog } from "./EmploymentHistoryLog";
 import { EmploymentSetupModal } from "./EmploymentSetupModal";
 import { OptDatesStatusSummary } from "./OptDatesStatusSummary";
 import { OptDatesSetupChecklist } from "./OptDatesSetupChecklist";
-import { getEmploymentSetupAck } from "@/lib/immigration/employmentTracking";
+import { getEmploymentSetupAck } from "@/lib/immigration/employment-tracking";
 import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
 import {
   areOptDatesEqual,
   buildOptDatesStatusSnapshot,
   type OptDatesFormData,
-} from "@/lib/immigration/optDatesPageUtils";
+} from "@/lib/immigration/opt-dates-page-utils";
 import {
   OptEmailRemindersPanel,
   type ToolEmails,
@@ -473,7 +473,7 @@ export function OptDatesSection() {
         }
       } else {
       }
-    } catch (err) {
+    } catch (_err) {
     } finally {
       setIsLoading(false);
     }
@@ -626,7 +626,7 @@ export function OptDatesSection() {
           variant: "destructive",
         });
       }
-    } catch (err) {
+    } catch (_err) {
       toast({
         title: "Error",
         description: "An unexpected error occurred.",

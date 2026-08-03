@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, BookOpen, Briefcase, GraduationCap, DollarSign, Calendar } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle2, Briefcase, GraduationCap } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {

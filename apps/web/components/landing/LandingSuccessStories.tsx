@@ -1,4 +1,4 @@
-import AnimatedCardStack from "@/components/animations/animate-card-animation";
+import AnimatedCardStack from "@/components/animations/AnimatedCardStack";
 
 export function LandingSuccessStories() {
     return (

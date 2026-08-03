@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getUserId } from '@/lib/auth/getUserId';
-import { calculateUnemploymentDays, type EmploymentSpan } from '@/lib/immigration/optCalculations';
+import { getUserId } from '@/lib/auth/get-user-id';
+import { calculateUnemploymentDays, type EmploymentSpan } from '@/lib/immigration/opt-calculations';
 
 // UUID v4 pattern for safe userId validation before use in DB queries
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

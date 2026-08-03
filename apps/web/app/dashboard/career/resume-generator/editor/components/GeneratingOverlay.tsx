@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, FileSearch, Target, Cpu, Zap, BarChart3, Layout, CheckCircle2 } from "lucide-react";
+import { Sparkles, FileSearch, Target, Cpu, Zap, BarChart3, Layout } from "lucide-react";
 
 const STAGES = [
     { text: "Analyzing your resume", icon: FileSearch },

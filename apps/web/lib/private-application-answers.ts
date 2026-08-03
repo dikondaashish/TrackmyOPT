@@ -52,7 +52,7 @@ export function normalizeJobPortalHostname(value: string): string | null {
   }
 }
 
-export const DefaultJobPortalLoginSchema = z
+const DefaultJobPortalLoginSchema = z
   .object({
     email: z.string().trim().email().max(254),
     password: z.string().min(8).max(256),
@@ -199,7 +199,7 @@ type LegacyPrivateApplicationAnswers = z.infer<
   typeof LegacyPrivateApplicationAnswersSchema
 >;
 export type LegacyJobPortalLogin = z.infer<typeof LegacyJobPortalLoginSchema>;
-export type PrivateApplicationAnswersRead = PrivateApplicationAnswers & {
+type PrivateApplicationAnswersRead = PrivateApplicationAnswers & {
   /**
    * Decrypted v1 entries are exposed only to the website migration UI. The
    * extension ignores them until the user explicitly saves one as the default.

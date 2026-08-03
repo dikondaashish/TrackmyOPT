@@ -7,11 +7,11 @@ export const AI_ITEM_REGENERATION_LIMIT = 3;
 export const FREE_SCREENING_DRAFTS_MONTHLY_LIMIT = 5;
 export const FREE_COVER_LETTERS_MONTHLY_LIMIT = 1;
 
-export type AiGenerationFeature = 'screening_answer' | 'cover_letter';
-export type AiGenerationPlanTier = 'free' | 'pro' | 'dedicated';
-export type AiGenerationQuotaPeriod = 'day' | 'month';
+type AiGenerationFeature = 'screening_answer' | 'cover_letter';
+type AiGenerationPlanTier = 'free' | 'pro' | 'dedicated';
+type AiGenerationQuotaPeriod = 'day' | 'month';
 
-export type AiGenerationLimitError =
+type AiGenerationLimitError =
   | 'ai_daily_limit_reached'
   | 'ai_monthly_limit_reached'
   | 'ai_item_regeneration_limit_reached'
@@ -42,7 +42,7 @@ export interface AiGenerationQuotaRpcClient {
   ): PromiseLike<QuotaRpcResult>;
 }
 
-export interface AiGenerationLimitDependencies {
+interface AiGenerationLimitDependencies {
   client?: AiGenerationQuotaRpcClient;
   now?: Date;
   feature: AiGenerationFeature;
@@ -68,7 +68,7 @@ export function nextAiGenerationResetAt(now: Date = new Date()): string {
   return reset.toISOString();
 }
 
-export function nextMonthlyAiGenerationResetAt(
+function nextMonthlyAiGenerationResetAt(
   now: Date = new Date(),
 ): string {
   return new Date(

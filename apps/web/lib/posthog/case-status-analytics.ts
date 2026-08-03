@@ -5,8 +5,8 @@ import {
   normalizeStatusCategory,
 } from "@/lib/posthog/uscis-status-category";
 
-export type CaseCheckTrigger = "manual" | "cron" | "initial" | "unknown";
-export type CaseCheckSource = "api" | "cron";
+type CaseCheckTrigger = "manual" | "cron" | "initial" | "unknown";
+type CaseCheckSource = "api" | "cron";
 
 export function resolveCaseCheckTrigger(req: Request): CaseCheckTrigger {
   const explicit = req.headers.get("X-Check-Trigger");

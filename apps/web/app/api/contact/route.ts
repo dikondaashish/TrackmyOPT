@@ -6,7 +6,7 @@ import { z } from "zod";
 import {
   sendContactReceivedEmail,
   sendInternalContactFormNotification,
-} from "@/lib/notifications/transactional-emails";
+} from "@/lib/notifications/transactional/internal";
 import rateLimit from "@/lib/auth/rate-limit";
 
 // 5 contact submissions per hour per IP

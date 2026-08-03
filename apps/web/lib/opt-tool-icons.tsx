@@ -19,17 +19,3 @@ export const OPT_TOOL_ICONS_BY_SLUG: Record<
   "stem-apply": GraduationCap,
   "stem-clock": Timer,
 };
-
-export function OptToolIcon({
-  tool,
-  className,
-}: {
-  tool: OptToolIconKey | keyof typeof OPT_TOOL_ICONS_BY_SLUG;
-  className?: string;
-}) {
-  const Icon =
-    tool in OPT_TOOL_ICONS
-      ? OPT_TOOL_ICONS[tool as OptToolIconKey]
-      : OPT_TOOL_ICONS_BY_SLUG[tool as keyof typeof OPT_TOOL_ICONS_BY_SLUG];
-  return <Icon className={className} />;
-}

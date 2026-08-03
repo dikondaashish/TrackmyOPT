@@ -11,7 +11,7 @@ import { RESUME_TEMPLATES } from './templates';
  */
 const TEMPLATE_ROOTS = ['templates/latex', 'apps/web/templates/latex'];
 
-export const FALLBACK_TEMPLATE_ID = 'modern';
+const FALLBACK_TEMPLATE_ID = 'modern';
 
 export function isKnownTemplateId(templateId: string): boolean {
     return RESUME_TEMPLATES.some((t) => t.id === templateId);
@@ -30,7 +30,7 @@ function readTemplateFile(templateId: string): string | null {
     return null;
 }
 
-export type LoadedTemplate = {
+type LoadedTemplate = {
     /** The id whose source was actually loaded (may be the fallback). */
     id: string;
     tex: string;

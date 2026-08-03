@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Target } from "lucide-react";
 
-export interface GapAnalysisResult {
+interface GapAnalysisResult {
     matchScore: number;
     missingKeywords: string[];
     foundKeywords: string[];

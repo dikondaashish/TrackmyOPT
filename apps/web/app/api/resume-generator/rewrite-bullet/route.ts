@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rewriteBulletPoints } from '@/lib/ai/gemini-ai';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 
 // CORS headers
 const corsHeaders = {

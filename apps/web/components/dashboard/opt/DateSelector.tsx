@@ -57,7 +57,7 @@ export function DateSelector() {
           }
         }
       }
-    } catch (err) {
+    } catch (_err) {
       // Ignore errors
     } finally {
       setIsLoading(false);

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageSquare, ThumbsUp, CheckCircle2, MoreHorizontal } from "lucide-react";
+import { MessageSquare, ThumbsUp, CheckCircle2 } from "lucide-react";
 
 export function DiscussionThreadPreview() {
     return (

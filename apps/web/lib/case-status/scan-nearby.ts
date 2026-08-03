@@ -10,11 +10,11 @@ import { parseReceipt } from "@/lib/case-status/receipt-cohort";
 import { assertNearbyScanEnabled } from "@/lib/uscis/nearby-scan";
 
 /** Max receipts scanned per background invocation (USCIS is 10 TPS / 400k/day). */
-export const SCAN_BATCH_LIMIT = 20;
+const SCAN_BATCH_LIMIT = 20;
 /** Delay between USCIS calls to stay well under rate limits. */
 const SCAN_DELAY_MS = 150;
 /** Re-scan a cached receipt only after this many ms (1 day). */
-export const RESCAN_AFTER_MS = 24 * 60 * 60 * 1000;
+const RESCAN_AFTER_MS = 24 * 60 * 60 * 1000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -34,7 +34,7 @@ function latestHistDate(
   return latestRaw;
 }
 
-export type ScanResult = { scanned: number; valid: number; invalid: number };
+type ScanResult = { scanned: number; valid: number; invalid: number };
 
 /**
  * Scan up to SCAN_BATCH_LIMIT of the provided receipts that are not already

@@ -54,6 +54,3 @@ export const ROADMAP_PHASES = [
     ],
   },
 ] as const;
-
-export type RoadmapPhase = (typeof ROADMAP_PHASES)[number];
-export type RoadmapStatus = "shipped" | "in_progress" | "planned";

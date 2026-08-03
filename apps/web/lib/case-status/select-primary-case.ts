@@ -1,4 +1,4 @@
-export type CaseWithPrimary = {
+type CaseWithPrimary = {
   id: string;
   is_primary?: boolean | null;
   created_at?: string | null;

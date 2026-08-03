@@ -7,7 +7,7 @@ export class UnsafeUrlError extends Error {}
 export class ResponseTooLargeError extends Error {}
 export class SafeFetchTimeoutError extends Error {}
 
-export type SafeFetchResponse = {
+type SafeFetchResponse = {
   status: number;
   statusText: string;
   headers: Headers;
@@ -109,7 +109,7 @@ export function isPrivateOrReservedIp(rawAddress: string): boolean {
   return true;
 }
 
-export async function resolvePublicHttpsUrl(
+async function resolvePublicHttpsUrl(
   rawUrl: string,
 ): Promise<ResolvedPublicUrl> {
   let parsed: URL;

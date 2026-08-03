@@ -14,7 +14,7 @@ export class NearbyScanDisabledError extends Error {
 }
 
 /** Reads env only at call time; accepts explicit "true" (case-insensitive). */
-export function isNearbyScanEnabled(): boolean {
+function isNearbyScanEnabled(): boolean {
   return process.env.NEARBY_SCAN_ENABLED?.trim().toLowerCase() === "true";
 }
 

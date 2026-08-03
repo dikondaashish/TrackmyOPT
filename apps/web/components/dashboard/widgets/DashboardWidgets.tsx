@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Settings, Eye, EyeOff, GripVertical, X, ChevronDown, ChevronUp } from "lucide-react";
 
-export interface WidgetConfig {
+interface WidgetConfig {
   id: string;
   label: string;
   visible: boolean;

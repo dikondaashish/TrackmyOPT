@@ -4,22 +4,16 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { LandingTrustedUniversities } from "./LandingTrustedUniversities";
 import { ResumeEditorMockup } from "./ResumeEditorMockup";
 import { GuestPreviewModal } from "./GuestPreviewModal";
 import { MagneticButton } from "@/components/ui/magnetic-button";
-import { ParallaxImage } from "@/components/animations/parallax-image";
 import {
-    Clock,
     Calendar,
     Bell,
     CheckCircle,
     ArrowRight,
-    ChevronDown,
     Shield,
     Sparkles,
-    Building2,
-    FileText,
     LayoutDashboard,
     Briefcase,
     FileCheck,
@@ -29,9 +23,6 @@ import {
     Download,
     Eye,
     Lock,
-    Loader2,
-    Code,
-    Check,
     Send,
     GripVertical,
     type LucideIcon,
@@ -437,7 +428,7 @@ const CrmMockup = () => {
                         </div>
 
                         <AnimatePresence mode="popLayout">
-                            {columns[column.id].map((card, cardIndex) => (
+                            {columns[column.id].map((card, _cardIndex) => (
                                 <motion.div
                                     key={card.id}
                                     className={`bg-white dark:bg-zinc-800 p-3 rounded-lg border shadow-sm cursor-grab active:cursor-grabbing select-none ${draggingCard === card.id
