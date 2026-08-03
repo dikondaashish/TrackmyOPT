@@ -7,6 +7,7 @@ import { pickPrimaryCase } from '@/lib/case-status/select-primary-case';
 import { withNormalizedStatusHistory } from '@/lib/case-status/normalize-status-history';
 import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
 import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
+import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
 import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 import type { Database } from '@/types/supabase';
 
@@ -123,37 +124,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+
+    // `label`, `case_type` and `set_primary` previously reached the database
+    // unchecked; the schema bounds them. The receipt rules are unchanged — the
+    // same 3-letters-plus-10-digits pattern, still uppercased and trimmed — so
+    // the analytics below keep reporting the same two failure codes.
+    const validation = validateRequest(body, caseStatusRequestSchema);
+    if (!validation.success) {
+      const rawReceipt = (body as { receipt_number?: unknown } | null)?.receipt_number;
+      const receiptMissing = typeof rawReceipt !== 'string' || rawReceipt.trim() === '';
+
+      await captureServerEvent(userId, 'receipt_validation_failed', {
+        ...(receiptMissing
+          ? {}
+          : { receipt_prefix: getReceiptPrefix(rawReceipt.toUpperCase().trim()) }),
+        validation_error_code: receiptMissing ? 'missing_receipt' : 'invalid_format',
+      });
+
+      return NextResponse.json(
+        {
+          ok: false,
+          error: receiptMissing
+            ? 'Receipt number is required'
+            : validation.error,
+        },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
     const {
-      receipt_number,
-      notifications_enabled = true,
-      label = null,
-      case_type = 'I-765',
-      set_primary = false,
-    } = body;
-
-    if (!receipt_number || typeof receipt_number !== 'string') {
-      await captureServerEvent(userId, 'receipt_validation_failed', {
-        validation_error_code: 'missing_receipt',
-      });
-      return NextResponse.json(
-        { ok: false, error: 'Receipt number is required' },
-        { status: 400, headers: corsHeaders }
-      );
-    }
-
-    const normalizedReceipt = receipt_number.toUpperCase().trim();
-    const receiptPattern = /^[A-Z]{3}\d{10}$/;
-    if (!receiptPattern.test(normalizedReceipt)) {
-      await captureServerEvent(userId, 'receipt_validation_failed', {
-        receipt_prefix: getReceiptPrefix(normalizedReceipt),
-        validation_error_code: 'invalid_format',
-      });
-      return NextResponse.json(
-        { ok: false, error: 'Invalid receipt number format' },
-        { status: 400, headers: corsHeaders }
-      );
-    }
+      receipt_number: normalizedReceipt,
+      notifications_enabled,
+      label,
+      case_type,
+      set_primary,
+    } = validation.data;
 
     const supabaseAdmin = await getSupabaseAdmin();
     const { isPremium, planTier, firstName } = await getUserPremium(supabaseAdmin, userId);

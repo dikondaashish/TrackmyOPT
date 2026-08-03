@@ -13,6 +13,10 @@ import {
   sendNotificationPreferencesSavedEmail,
 } from '@/lib/notifications/email-service';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
+import {
+  emailNotificationRequestSchema,
+  validateRequest,
+} from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,23 +86,16 @@ export async function GET() {
 // POST - Update user's notification email
 export async function POST(request: Request) {
   try {
-    const { email, toolType } = await request.json();
+    const body = await request.json().catch(() => null);
 
-    if (!email || typeof email !== 'string') {
-      return NextResponse.json(
-        { error: 'Valid email is required' },
-        { status: 400 }
-      );
+    // Replaces a hand-rolled `/^[^\s@]+@[^\s@]+\.[^\s@]+$/` check that accepted
+    // unbounded input. The schema also caps length (RFC 5321), lowercases and
+    // trims, and bounds `toolType`, which reached the database unvalidated.
+    const validation = validateRequest(body, emailNotificationRequestSchema);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
-    }
+    const { email, toolType } = validation.data;
 
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -145,8 +142,8 @@ export async function POST(request: Request) {
     /** First time ever setting notification email (not an address change). */
     const isFirstTimeSettingNotificationEmail = Boolean(email && !previousEmail);
     /** Tool-specific welcome (case-status, documents, …) — omit on generic Settings save */
-    const explicitToolType =
-      typeof toolType === 'string' && toolType.trim().length > 0 ? toolType.trim() : null;
+    // Already trimmed to a non-empty string or null by the schema.
+    const explicitToolType = toolType;
 
     // Use upsert to handle both create and update cases
     const { error: upsertError } = await supabase

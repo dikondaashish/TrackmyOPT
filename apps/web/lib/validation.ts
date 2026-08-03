@@ -47,15 +47,23 @@ export const uuidSchema = z
 /**
  * SECURITY: USCIS Receipt Number validation
  * Format: 3 letters + 10 digits (e.g., IOE1234567890)
+ *
+ * Normalises *before* matching. A trailing `.transform(toUpperCase)` would run
+ * after the regex had already rejected the input, so `ioe1234567890` — which
+ * callers do send, and which the routes accept — would fail.
  */
 export const receiptNumberSchema = z
     .string()
-    .length(13, 'Receipt number must be exactly 13 characters')
-    .regex(
-        /^[A-Z]{3}[0-9]{10}$/,
-        'Invalid receipt number format. Expected: 3 letters + 10 digits (e.g., IOE1234567890)'
-    )
-    .transform((rn) => rn.toUpperCase());
+    .transform((rn) => rn.toUpperCase().trim())
+    .pipe(
+        z
+            .string()
+            .length(13, 'Receipt number must be exactly 13 characters')
+            .regex(
+                /^[A-Z]{3}[0-9]{10}$/,
+                'Invalid receipt number format. Expected: 3 letters + 10 digits (e.g., IOE1234567890)'
+            )
+    );
 
 /**
  * SECURITY: Date validation (ISO 8601 format)
@@ -106,16 +114,39 @@ export const signupRequestSchema = z.object({
 export type SignupRequest = z.infer<typeof signupRequestSchema>;
 
 /**
- * Case status request schema
+ * Case status request schema — `POST /api/case-status`.
+ *
+ * Covers every field the route reads. `label`, `case_type` and `set_primary`
+ * previously reached the database with no validation at all.
+ *
+ * Deliberately NOT `.strict()`: callers send extra keys the route ignores
+ * (SettingsSection posts `auto_check_frequency` and `notify_on_change`), and
+ * rejecting those would turn a silent no-op into a 400.
  */
 export const caseStatusRequestSchema = z.object({
     receipt_number: receiptNumberSchema,
     notifications_enabled: z.boolean().optional().default(true),
+    label: z.string().max(100, 'Label too long').nullable().optional().default(null),
+    case_type: z.string().max(20, 'Case type too long').optional().default('I-765'),
+    set_primary: z.boolean().optional().default(false),
 });
 export type CaseStatusRequest = z.infer<typeof caseStatusRequestSchema>;
 
 /**
- * OPT dates request schema
+ * OPT dates request schema.
+ *
+ * ⚠️ NOT wired to `POST /api/opt/calculator`, and it does not currently match
+ * that route's contract. Do not connect it without reconciling all three:
+ *
+ *   1. Format — this expects ISO `YYYY-MM-DD`; the route receives US
+ *      `M/D/YYYY` and pads single digits itself, so `1/5/2026` is valid today
+ *      and would be rejected here.
+ *   2. Cardinality — this requires `program_end_date`; the route accepts any
+ *      one date ("at least one date is required") and also takes a
+ *      `_lastModifiedField` hint this schema does not model.
+ *   3. Clients — the route is called from five Chrome-extension modules as
+ *      well as the dashboard. Extensions update on Google's schedule, not
+ *      ours, so tightening the contract can 400 versions already installed.
  */
 export const optDatesRequestSchema = z.object({
     program_end_date: dateSchema,
@@ -128,11 +159,23 @@ export const optDatesRequestSchema = z.object({
 export type OptDatesRequest = z.infer<typeof optDatesRequestSchema>;
 
 /**
- * Email notification request schema
+ * Email notification request schema — `POST /api/user/notification-email`.
+ *
+ * `toolType` is camelCase to match what the route and its callers actually
+ * send, and stays a free string: the route accepts any non-empty value and
+ * persists it, so an enum here would silently drop unlisted tools.
  */
 export const emailNotificationRequestSchema = z.object({
     email: emailSchema,
-    tool_type: z.enum(['case-status', 'documents', 'opt-apply']).optional(),
+    toolType: z
+        .string()
+        .max(50, 'Tool type too long')
+        .nullable()
+        .optional()
+        .transform((value) => {
+            const trimmed = value?.trim();
+            return trimmed ? trimmed : null;
+        }),
 });
 export type EmailNotificationRequest = z.infer<typeof emailNotificationRequestSchema>;
 
