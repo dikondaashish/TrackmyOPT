@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-export const SAVED_QUESTION_MAX_LENGTH = 2_000;
-export const SAVED_ANSWER_MAX_LENGTH = 8_000;
+const SAVED_QUESTION_MAX_LENGTH = 2_000;
+const SAVED_ANSWER_MAX_LENGTH = 8_000;
 
-export const SavedScreeningAnswerSourceSchema = z.enum([
+const SavedScreeningAnswerSourceSchema = z.enum([
   'user_edited_ai_draft',
   'user_written',
 ]);

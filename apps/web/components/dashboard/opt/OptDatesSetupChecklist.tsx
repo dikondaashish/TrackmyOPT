@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CheckCircle2, Circle, ListChecks } from "lucide-react";
-import type { OptDatesStatusSnapshot } from "@/lib/immigration/optDatesPageUtils";
+import type { OptDatesStatusSnapshot } from "@/lib/immigration/opt-dates-page-utils";
 import { cn } from "@/lib/utils";
 
 interface OptDatesSetupChecklistProps {

@@ -11,7 +11,6 @@ import {
     Edit2,
     Trash2,
     Check,
-    X,
     Award,
     Briefcase,
 } from "lucide-react";

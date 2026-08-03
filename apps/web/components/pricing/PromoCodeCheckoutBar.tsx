@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
+import type { PromoCheckoutMode } from "@/lib/premium/promo-checkout-types";
 
 export type { PromoCheckoutMode };
 

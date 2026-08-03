@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const WELCOME_FREE_RESEND_EMAIL_TYPE = "welcome_free_resend";
+const WELCOME_FREE_RESEND_EMAIL_TYPE = "welcome_free_resend";
 
 /** Max sends per invocation — drain across manual runs without hammering SMTP. */
 export const WELCOME_FREE_RESEND_DEFAULT_BATCH = 25;
 
-export type WelcomeFreeResendCandidate = {
+type WelcomeFreeResendCandidate = {
   userId: string;
   email: string;
   firstName: string | null;

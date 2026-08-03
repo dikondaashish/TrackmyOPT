@@ -7,7 +7,7 @@ export const STATUS_CHANGE_WEDGE_MAX_AGE_DAYS = 14;
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-export function getStatusChangeAgeDays(iso: string, now = new Date()): number | null {
+function getStatusChangeAgeDays(iso: string, now = new Date()): number | null {
   const changed = new Date(iso);
   const changedAt = changed.getTime();
   if (Number.isNaN(changedAt)) return null;
@@ -22,7 +22,7 @@ export function isStatusChangeWithinWedgeWindow(
   return days !== null && days <= STATUS_CHANGE_WEDGE_MAX_AGE_DAYS;
 }
 
-export type FreeChangeWedgeFields = {
+type FreeChangeWedgeFields = {
   status_last_changed_at?: string | null;
   last_change_alert_suppressed?: boolean | null;
   last_status_viewed_at?: string | null;

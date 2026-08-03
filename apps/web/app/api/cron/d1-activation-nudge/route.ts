@@ -13,7 +13,7 @@ import {
   D1_ACTIVATION_NUDGE_DEFAULT_BATCH,
   findD1ActivationNudgeCandidates,
 } from "@/lib/billing/d1-activation-nudge";
-import { sendD1ActivationNudgeEmail } from "@/lib/notifications/transactional-emails";
+import { sendD1ActivationNudgeEmail } from "@/lib/notifications/transactional/reengagement";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 
 export const dynamic = "force-dynamic";

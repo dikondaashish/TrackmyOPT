@@ -5,7 +5,7 @@ import { consumeAiGeneration } from '@/lib/ai-generation-limits';
 import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
 import { buildCoverLetterPrompt } from '@/lib/ai/prompts/cover-letter';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 import {
   GenerateCoverLetterRequestSchema,

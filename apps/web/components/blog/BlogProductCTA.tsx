@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Bell, Clock, Shield } from "lucide-react";
 import { captureClientEvent } from "@/lib/posthog-client";
 
-export type BlogProductCtaVariant = "case-status" | "opt-timeline" | "unemployment";
+type BlogProductCtaVariant = "case-status" | "opt-timeline" | "unemployment";
 
 const VARIANTS: Record<
   BlogProductCtaVariant,

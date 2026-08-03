@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildCheckoutRecoveryEmailBodies,
-  buildPaymentFailedEmailBodies,
-} from "@/lib/notifications/transactional-emails";
+import { buildCheckoutRecoveryEmailBodies } from "@/lib/notifications/transactional/reengagement";
+import { buildPaymentFailedEmailBodies } from "@/lib/notifications/transactional/billing";
 
 describe("Phase 5 payment recovery emails", () => {
   it("payment-failed CTA prefers portal update URL", () => {

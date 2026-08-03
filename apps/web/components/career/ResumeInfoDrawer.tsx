@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { Info, Loader2, X } from "lucide-react";
 import { getPortalRoot } from "@/lib/portal-root";
 import { getTemplateById } from "@/lib/documents/templates";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 
 export type ResumeInfoSource = {
   id: string;

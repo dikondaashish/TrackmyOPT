@@ -23,7 +23,7 @@ import {
   AT_RISK_REENGAGEMENT_DEFAULT_BATCH,
   findAtRiskReengagementCandidates,
 } from "@/lib/posthog/at-risk-reengagement";
-import { sendAtRiskReengagementEmail } from "@/lib/notifications/transactional-emails";
+import { sendAtRiskReengagementEmail } from "@/lib/notifications/transactional/reengagement";
 import { captureServerEvent, normalizePlanTier } from "@/lib/posthog-server";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 

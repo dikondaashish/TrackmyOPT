@@ -1,6 +1,6 @@
 import type { StatusExplainerCategory } from "@/lib/uscis/status-explainer";
 
-export type StatusNextStep = {
+type StatusNextStep = {
   label: string;
   href: string;
   description?: string;

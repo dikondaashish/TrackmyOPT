@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { LogOut, Settings, HelpCircle, ChevronDown, ShieldCheck } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { signOutWithAnalytics } from "@/lib/auth/signOutWithAnalytics";
+import { signOutWithAnalytics } from "@/lib/auth/sign-out-with-analytics";
 import { requestOpenPrivacyChoices } from "@/lib/cookie-consent";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";

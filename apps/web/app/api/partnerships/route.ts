@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import rateLimit from "@/lib/auth/rate-limit";
-import { sendInternalPartnershipNotification } from "@/lib/notifications/transactional-emails";
+import { sendInternalPartnershipNotification } from "@/lib/notifications/transactional/internal";
 
 const partnershipLimiter = rateLimit({ interval: 3_600_000, name: 'partnerships' });
 

@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, TrendingUp, Building2, CheckCircle2, BarChart3 } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, BarChart3 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
-import { AuthorBio } from "@/components/blog/AuthorBio";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {

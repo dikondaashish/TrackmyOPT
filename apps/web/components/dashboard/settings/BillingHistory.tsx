@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Download, AlertCircle, FileText } from 'lucide-react';
+import { Download, AlertCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Invoice {

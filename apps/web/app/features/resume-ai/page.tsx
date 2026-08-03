@@ -2,9 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CanonicalURL } from "@/components/CanonicalURL";
-import Link from "next/link";
 import {
-    ArrowRight,
     FileText,
     Sparkles,
     CheckCircle2,
@@ -19,7 +17,6 @@ import {
     TrendingUp,
     AlertTriangle
 } from "lucide-react";
-import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";
@@ -28,7 +25,7 @@ import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
 import { ResumeScanner } from "@/components/features/ResumeScanner";
 import { ResumeComparisonSlider } from "@/components/features/ResumeComparisonSlider";
-import { H2, Lead, P } from "@/components/ui/typography";
+import { H2, Lead } from "@/components/ui/typography";
 
 // How It Works Steps
 function HowItWorks() {

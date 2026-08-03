@@ -6,7 +6,7 @@ import { normalizeStatusHistory } from "@/lib/case-status/normalize-status-histo
 export type ToolType = "opt-apply" | "opt-clock" | "stem-apply" | "stem-clock";
 export type Trend = "faster" | "slower" | "stable";
 
-export type CommunityStatsBlock = {
+type CommunityStatsBlock = {
   mainStat: { value: number; label: string; unit: string };
   secondaryStat: { value: number; label: string };
   trend: Trend;

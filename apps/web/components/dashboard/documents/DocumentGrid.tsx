@@ -54,7 +54,7 @@ export function DocumentGrid({
       const blob = await res.blob();
 
       triggerBrowserDownload(blob, doc.filename || 'document');
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to download document. Please try again.');
     }
   }

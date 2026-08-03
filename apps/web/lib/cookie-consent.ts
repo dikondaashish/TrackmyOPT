@@ -8,7 +8,7 @@ import {
 
 export const COOKIE_CONSENT_KEY = "trackmyopt_cookie_consent";
 export const COOKIE_CONSENT_TIMESTAMP_KEY = "trackmyopt_cookie_consent_ts";
-export const COOKIE_CONSENT_EXPIRY_DAYS = 365;
+const COOKIE_CONSENT_EXPIRY_DAYS = 365;
 export const OPEN_PRIVACY_CHOICES_EVENT = "trackmyopt:open-privacy-choices";
 
 export type CookieConsentStatus = "accepted" | "declined" | null;

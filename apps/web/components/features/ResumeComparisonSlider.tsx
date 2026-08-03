@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion"; // Fix imports
+import { useState, useRef } from "react";
+import { motion, PanInfo } from "framer-motion"; // Fix imports
 import { ChevronsLeftRight, FileX, FileCheck2 } from "lucide-react";
 
 export function ResumeComparisonSlider() {

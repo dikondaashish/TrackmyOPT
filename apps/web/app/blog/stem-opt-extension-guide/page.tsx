@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Shield, FileText, Briefcase } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Shield } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";

@@ -175,7 +175,7 @@ export function StemClockTool() {
       } else {
         alert('Failed to save. Please try again.');
       }
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);

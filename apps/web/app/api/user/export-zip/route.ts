@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
           const arrayBuffer = await s3Response.arrayBuffer();
           const fileName = doc.filename || doc.file_name || doc.original_filename || `document_${doc.id}`;
           documentsFolder?.file(fileName, arrayBuffer);
-        } catch (err) {
+        } catch (_err) {
           // Continue with other documents
         }
       }
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
         'Content-Disposition': `attachment; filename="trackmyopt-export-${new Date().toISOString().split('T')[0]}.zip"`,
       },
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: 'Failed to export data' },
       { status: 500 }

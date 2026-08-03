@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Shield, Check, Lock, Bell, AlertTriangle, FileCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Shield, Check, Lock, Bell, FileCheck } from "lucide-react";
 
 export function ComplianceShield() {
     return (

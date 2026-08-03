@@ -10,7 +10,6 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createHash } from 'crypto';
@@ -130,52 +129,6 @@ export async function deleteFromS3(key: string): Promise<void> {
 }
 
 /**
- * Check if a file exists in S3
- * @param key - S3 key
- * @returns true if exists
- */
-export async function fileExistsInS3(key: string): Promise<boolean> {
-  try {
-    const command = new HeadObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-    });
-
-    await s3Client.send(command);
-    return true;
-  } catch (error: any) {
-    if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-      return false;
-    }
-    throw error;
-  }
-}
-
-/**
- * Get file metadata from S3
- * @param key - S3 key
- * @returns File size and content type
- */
-export async function getFileMetadata(key: string): Promise<{ size: number; contentType: string }> {
-  try {
-    const command = new HeadObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-    });
-
-    const response = await s3Client.send(command);
-
-    return {
-      size: response.ContentLength || 0,
-      contentType: response.ContentType || 'application/octet-stream',
-    };
-  } catch (error) {
-    console.error('❌ Error getting file metadata:', error);
-    throw new Error('Failed to get file metadata');
-  }
-}
-
-/**
  * Validate file type for document uploads
  * @param contentType - MIME type
  * @returns true if valid
@@ -192,22 +145,5 @@ export function isValidDocumentType(contentType: string): boolean {
   ];
 
   return validTypes.includes(contentType.toLowerCase());
-}
-
-/**
- * Get file extension from MIME type
- */
-export function getFileExtension(contentType: string): string {
-  const extensions: Record<string, string> = {
-    'application/pdf': 'pdf',
-    'image/jpeg': 'jpg',
-    'image/jpg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'application/msword': 'doc',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
-  };
-
-  return extensions[contentType.toLowerCase()] || 'bin';
 }
 

@@ -1,14 +1,12 @@
 /** I-765 case progress stepper helpers (biometrics often waived for OPT). */
 
-export const I765_CASE_STEPS = [
+const I765_CASE_STEPS = [
   { id: 1, name: "Received", shortName: "Received", key: "received" as const },
   { id: 2, name: "Biometrics", shortName: "Biometrics", key: "biometrics" as const },
   { id: 3, name: "Active Review", shortName: "Review", key: "review" as const },
   { id: 4, name: "Decision", shortName: "Decision", key: "decision" as const },
   { id: 5, name: "Card Produced", shortName: "Card", key: "card" as const },
 ] as const;
-
-export type I765StepKey = (typeof I765_CASE_STEPS)[number]["key"];
 
 export function mentionsBiometrics(status: string): boolean {
   const lower = status.trim().toLowerCase();

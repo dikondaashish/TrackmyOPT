@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, BookOpen } from "lucide-react";
-import { glossaryData, getAllTermsForSchema } from "../../../data/glossaryData";
+import { glossaryData, getAllTermsForSchema } from "../../../data/glossary-data";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 interface PageProps {

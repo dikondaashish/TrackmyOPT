@@ -2,12 +2,12 @@ import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { textractService } from '@/lib/aws/textract';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { createClient } from '@supabase/supabase-js';
 
 import { GET } from './route';
 
-vi.mock('@/lib/auth/getUserId', () => ({ getUserId: vi.fn() }));
+vi.mock('@/lib/auth/get-user-id', () => ({ getUserId: vi.fn() }));
 vi.mock('@/lib/aws/textract', () => ({
   textractService: { getDocumentTextDetection: vi.fn() },
 }));

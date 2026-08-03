@@ -4,7 +4,7 @@
  * Apply `data-ph-no-capture` / `ph-no-capture` to block entire regions from replay.
  */
 
-export const POSTHOG_MASK_TEXT_SELECTOR = [
+const POSTHOG_MASK_TEXT_SELECTOR = [
   "[data-ph-mask]",
   ".ph-mask",
   "[data-sensitive]",
@@ -12,7 +12,7 @@ export const POSTHOG_MASK_TEXT_SELECTOR = [
   ".receipt-number-display",
 ].join(", ");
 
-export const POSTHOG_BLOCK_SELECTOR = [
+const POSTHOG_BLOCK_SELECTOR = [
   "[data-ph-no-capture]",
   ".ph-no-capture",
   "[data-document-vault]",

@@ -9,7 +9,7 @@ import {
 import { hasAnalyticsConsent } from "@/lib/cookie-consent";
 import { isPendingStatus } from "@/lib/posthog/uscis-status-category";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 
 const DASHBOARD_VIEWED_SESSION_KEY = "tmo:dashboard_viewed_captured";
 

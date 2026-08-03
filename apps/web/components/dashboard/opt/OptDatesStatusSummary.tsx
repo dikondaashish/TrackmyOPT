@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, Calendar, FileText } from "lucide-react";
-import type { OptDatesStatusSnapshot } from "@/lib/immigration/optDatesPageUtils";
+import type { OptDatesStatusSnapshot } from "@/lib/immigration/opt-dates-page-utils";
 import { cn } from "@/lib/utils";
 
 interface OptDatesStatusSummaryProps {

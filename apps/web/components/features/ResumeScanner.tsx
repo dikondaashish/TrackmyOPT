@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, CheckCircle2, AlertCircle, Scan, Sparkles } from "lucide-react";
+import { FileText, CheckCircle2, AlertCircle, Scan } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function ResumeScanner() {

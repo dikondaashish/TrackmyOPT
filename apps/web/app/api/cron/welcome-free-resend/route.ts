@@ -24,7 +24,7 @@ import {
   findWelcomeFreeResendCandidates,
   WELCOME_FREE_RESEND_DEFAULT_BATCH,
 } from "@/lib/billing/welcome-free-resend";
-import { sendWelcomeFreeResendEmail } from "@/lib/notifications/transactional-emails";
+import { sendWelcomeFreeResendEmail } from "@/lib/notifications/transactional/onboarding";
 import { captureServerEvent, normalizePlanTier } from "@/lib/posthog-server";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 

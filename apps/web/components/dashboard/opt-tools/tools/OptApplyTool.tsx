@@ -9,7 +9,7 @@ import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { TickingClock, TickingClockCompact } from "../TickingClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
-import { daysBetween, getFilingWindow } from "@/lib/immigration/optCalculations";
+import { daysBetween, getFilingWindow } from "@/lib/immigration/opt-calculations";
 
 interface CalculatedDates {
   earliestFile: Date;

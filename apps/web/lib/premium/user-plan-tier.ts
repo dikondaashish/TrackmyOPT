@@ -2,9 +2,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
-export type ActivePlanTier = 'free' | 'pro' | 'dedicated';
+type ActivePlanTier = 'free' | 'pro' | 'dedicated';
 
-export interface PlanProfileRow {
+interface PlanProfileRow {
   premium_status?: boolean | null;
   plan_tier?: string | null;
   subscription_expires_at?: string | null;

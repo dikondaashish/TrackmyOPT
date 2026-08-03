@@ -8,19 +8,15 @@ import {
     ArrowRight,
     AlertTriangle,
     BadgeDollarSign,
-    Ban,
     CalendarCheck,
     CheckCircle2,
     CircleDollarSign,
     ClipboardList,
     FileText,
-    HelpCircle,
     Receipt,
     Scale,
     Shield,
-    XCircle,
 } from "lucide-react";
-import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";

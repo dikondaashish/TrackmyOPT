@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Loader2,
@@ -15,7 +15,6 @@ import {
   Sparkles,
   AlertCircle,
   LayoutDashboard,
-  UserRound,
   BadgeCheck,
   type LucideIcon,
 } from "lucide-react";

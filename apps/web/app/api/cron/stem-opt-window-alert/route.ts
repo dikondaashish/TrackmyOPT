@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
-import { sendStemOptWindowEmail } from "@/lib/notifications/transactional-emails";
+import { sendStemOptWindowEmail } from "@/lib/notifications/transactional/alerts";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 
 export const dynamic = "force-dynamic";

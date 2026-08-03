@@ -45,7 +45,7 @@ const createTransporter = () => {
 
 let transporter: nodemailer.Transporter | null = null;
 
-export const getTransporter = () => {
+const getTransporter = () => {
   if (!transporter) {
     transporter = createTransporter();
   }

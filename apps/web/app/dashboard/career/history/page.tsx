@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase/client";
+import { useToast } from "@/hooks/useToast";
 import { useResumeStore } from "@/store/resume-store";
 
 import {

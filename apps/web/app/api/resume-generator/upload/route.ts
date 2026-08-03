@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
 import { normalizeResumeText, prepareResumeText } from '@/lib/resume/resume-text-limits';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 
 const corsHeaders = corsHeadersConfiguredWebApp();
 

@@ -5,7 +5,7 @@ export const NPS_MIN_ACCOUNT_AGE_DAYS = 14;
 export const NPS_COOLDOWN_DAYS = 90;
 export const NPS_SHOW_DELAY_MS = 30_000;
 
-export type NpsCategory = "detractor" | "passive" | "promoter";
+type NpsCategory = "detractor" | "passive" | "promoter";
 
 export function resolveNpsCategory(score: number): NpsCategory {
   if (score <= 6) return "detractor";

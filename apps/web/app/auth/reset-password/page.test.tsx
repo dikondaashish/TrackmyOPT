@@ -7,7 +7,7 @@ const authMocks = vi.hoisted(() => ({
   updateUser: vi.fn(),
 }));
 
-vi.mock('@/lib/supabaseClient', () => ({
+vi.mock('@/lib/supabase/client', () => ({
   supabase: {
     auth: authMocks,
   },

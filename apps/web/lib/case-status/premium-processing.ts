@@ -17,7 +17,7 @@ export const PP_CONTACT = {
   hours: "Mon–Fri, 8am–8pm ET (automated info available 24/7)",
 } as const;
 
-export type PpClock = {
+type PpClock = {
   ppStart: string;
   deadline: string;
   daysRemaining: number;
@@ -48,7 +48,7 @@ function historyEntries(
 }
 
 /** Earliest PP-related date from USCIS status history (does not use manual override). */
-export function detectPpStartFromHistory(
+function detectPpStartFromHistory(
   history: CaseStatusHistoryEntry[] | unknown,
   currentStatus?: string | null
 ): string | null {

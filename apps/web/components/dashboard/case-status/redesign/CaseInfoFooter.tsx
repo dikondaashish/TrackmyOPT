@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { getServiceCenterLabel, formatDaysAgoLabel, formatStatusLabel } from "@/lib/case-status/case-status-display";
+import { getServiceCenterLabel, formatStatusLabel } from "@/lib/case-status/case-status-display";
 import { daysSinceEpochMs, formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 import { CASE_STATUS_DISCLAIMER } from "@/lib/legal/legal-config";
-import { cn } from "@/lib/utils";
 import { useClientDate } from "@/hooks/useClientDate";
 
 interface CaseInfoFooterProps {

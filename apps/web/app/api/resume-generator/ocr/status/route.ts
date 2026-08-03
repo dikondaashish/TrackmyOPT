@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { textractService } from '@/lib/aws/textract';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { createClient } from '@supabase/supabase-js';
 
 // CORS headers — restrict to first-party

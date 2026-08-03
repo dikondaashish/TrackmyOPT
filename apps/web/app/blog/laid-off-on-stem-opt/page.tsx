@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
-  FileText,
   ShieldCheck,
   Calendar,
 } from "lucide-react";

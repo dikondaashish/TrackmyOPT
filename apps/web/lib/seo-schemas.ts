@@ -1,55 +1,80 @@
 // Comprehensive SEO Structured Data for TrackMyOPT
 // This file contains all JSON-LD schemas for AI models, search engines, and crawlers
+//
+// Node identity: schemas reference each other by `@id` (e.g. every Service names
+// the Organization as its `provider`). Those references only resolve if the
+// Organization / WebSite / SoftwareApplication nodes are actually emitted, which
+// is why `siteIdentityGraph` is rendered site-wide from `app/layout.tsx`.
+// `lib/seo-schemas.test.ts` fails the build if a reference is left dangling.
 
 import { safeSerializeJsonLd } from "./safe-json-ld";
+
+/** Canonical origin. Every `@id` and asset URL below is built from this. */
+export const SITE_URL = "https://www.trackmyopt.com";
+
+/** Stable identifier for a node in the site-wide schema graph. */
+const nodeId = (fragment: string) => `${SITE_URL}/#${fragment}`;
+
+// Real files under `public/`. The space in the logo directory must stay
+// percent-encoded — a raw space makes the URL unparseable for crawlers.
+const LOGO_URL = `${SITE_URL}/TrackMyOPT%20Logo/Favicon.png`;
+const SCREENSHOT_URL = `${SITE_URL}/og-image.png`;
 
 export const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "@id": "https://www.trackmyopt.com/#organization",
+    "@id": nodeId("organization"),
     name: "TrackMyOPT",
-    url: "https://www.trackmyopt.com",
+    alternateName: "Track My OPT",
+    url: SITE_URL,
     logo: {
         "@type": "ImageObject",
-        url: "https://www.trackmyopt.com/logo.png",
+        url: LOGO_URL,
         width: 512,
         height: 512,
+        caption: "TrackMyOPT logo",
     },
+    image: LOGO_URL,
     description:
         "TrackMyOPT is the #1 comprehensive platform for F-1 international students on OPT and STEM OPT in the United States. We help students track immigration deadlines, manage unemployment days, monitor USCIS case status, and find H-1B sponsors.",
-    foundingDate: "2024",
+    foundingDate: "2025",
     sameAs: [
         "https://twitter.com/trackmyopt",
         "https://linkedin.com/company/trackmyopt",
+        "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm",
     ],
     contactPoint: {
         "@type": "ContactPoint",
         contactType: "customer support",
         email: "support@trackmyopt.com",
+        availableLanguage: "English",
     },
 };
 
 export const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": "https://www.trackmyopt.com/#website",
+    "@id": nodeId("website"),
     name: "TrackMyOPT",
-    url: "https://www.trackmyopt.com",
+    alternateName: "Track My OPT",
+    url: SITE_URL,
+    inLanguage: "en-US",
     description:
         "Track your OPT timeline, unemployment days, USCIS case status, and find H-1B sponsors. The complete toolkit for international students in the United States.",
     publisher: {
-        "@id": "https://www.trackmyopt.com/#organization",
+        "@id": nodeId("organization"),
     },
 };
 
 export const softwareApplicationSchema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "@id": "https://www.trackmyopt.com/#application",
+    "@id": nodeId("application"),
     name: "TrackMyOPT",
+    url: SITE_URL,
     applicationCategory: "BusinessApplication",
     applicationSubCategory: "Immigration Management Software",
-    operatingSystem: "Web Browser",
+    operatingSystem: "Web Browser, Chrome Extension",
     offers: [
         {
             "@type": "Offer",
@@ -84,11 +109,31 @@ export const softwareApplicationSchema = {
         "Email alerts before deadlines",
         "Dark mode support",
     ],
-    screenshot: "https://www.trackmyopt.com/dashboard-screenshot.png",
+    screenshot: SCREENSHOT_URL,
     softwareVersion: "2.0",
     author: {
-        "@id": "https://www.trackmyopt.com/#organization",
+        "@id": nodeId("organization"),
     },
+    publisher: {
+        "@id": nodeId("organization"),
+    },
+    isPartOf: {
+        "@id": nodeId("website"),
+    },
+};
+
+/**
+ * The three nodes that identify the site itself. They are rendered once, from
+ * the root layout, so that every page carries them and every `@id` reference in
+ * the page-level schemas below resolves to a real node.
+ */
+export const siteIdentityGraph = {
+    "@context": "https://schema.org",
+    "@graph": [
+        organizationSchema,
+        websiteSchema,
+        softwareApplicationSchema,
+    ].map(({ "@context": _context, ...node }) => node),
 };
 
 // FAQ Schema for Featured Snippets
@@ -602,25 +647,29 @@ export const knowledgeGraphSchema = {
     ],
 };
 
-// Combine all schemas including AEO schemas
+/**
+ * Page-level schemas rendered on the landing page, on top of the site-wide
+ * `siteIdentityGraph` that the root layout emits. Declared here rather than in
+ * the page so the test can check the complete rendered set for dangling `@id`s.
+ */
+export const landingPageSchemas = [
+    faqSchema,
+    breadcrumbSchema,
+    ...serviceSchemas,
+    ...howToSchemas,
+    // AEO schemas for AI models
+    speakableSchema,
+    definedTermSetSchema,
+    articleSchema,
+    knowledgeGraphSchema,
+];
+
+/** Everything the site can emit — identity nodes plus every page-level schema. */
 export function getAllSchemas() {
-    return [
-        organizationSchema,
-        websiteSchema,
-        softwareApplicationSchema,
-        faqSchema,
-        ...howToSchemas,
-        breadcrumbSchema,
-        ...serviceSchemas,
-        // AEO Schemas
-        speakableSchema,
-        definedTermSetSchema,
-        articleSchema,
-        knowledgeGraphSchema,
-    ];
+    return [...siteIdentityGraph["@graph"], ...landingPageSchemas];
 }
 
-// Get schemas as script tags — uses safe serializer (try/catch + @context guard)
+/** Ready-to-render script payloads (try/catch + `@context` guard on each). */
 export function getSchemaScripts() {
     return getAllSchemas()
         .map((schema, index) => {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { Search, X, Filter, ChevronDown, Archive } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, X, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

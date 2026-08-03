@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
-import { ThemeProvider } from '@/components/layout/theme-provider';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Toaster } from '@/components/ui/toaster';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
+import { siteIdentityGraph } from '@/lib/seo-schemas';
 import { PORTAL_ROOT_ID } from '@/lib/portal-root';
 
 export const metadata: Metadata = {
@@ -42,9 +43,9 @@ export const metadata: Metadata = {
     siteName: 'TrackMyOPT',
     images: [
       {
-        url: '/og-image.png', // We should ensure this exists later
-        width: 1200,
-        height: 630,
+        url: '/og-image.png',
+        width: 1376,
+        height: 768,
         alt: 'TrackMyOPT Dashboard Preview',
       },
     ],
@@ -105,52 +106,16 @@ export default function RootLayout({
           <Toaster />
         </ThemeProvider>
         <div id={PORTAL_ROOT_ID} />
+        {/*
+          Site-wide identity graph (Organization / WebSite / SoftwareApplication).
+          Rendered on every page from the single definition in lib/seo-schemas.ts,
+          so the `@id` references used by the page-level schemas — Service
+          `provider`, Article `publisher`, WebPage `about` — all resolve.
+        */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeSerializeJsonLd({
-              "@context": "https://schema.org",
-              "@graph": [
-              {
-                "@type": "Organization",
-                "name": "TrackMyOPT",
-                "alternateName": "Track My OPT",
-                "url": "https://www.trackmyopt.com",
-                "logo": "https://www.trackmyopt.com/logo.png",
-                "description": "The #1 OPT timeline tracker and H-1B sponsor finder for F-1 international students in the United States.",
-                "foundingDate": "2025",
-                "contactPoint": {
-                  "@type": "ContactPoint",
-                  "email": "support@trackmyopt.com",
-                  "contactType": "customer service",
-                  "availableLanguage": "English"
-                },
-                "sameAs": [
-                  "https://twitter.com/trackmyopt",
-                  "https://linkedin.com/company/trackmyopt",
-                  "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm"
-                ]
-              },
-              {
-                "@type": "WebSite",
-                "name": "TrackMyOPT",
-                "alternateName": "Track My OPT",
-                "url": "https://www.trackmyopt.com"
-              },
-              {
-                "@type": "SoftwareApplication",
-                "name": "TrackMyOPT",
-                "applicationCategory": "UtilitiesApplication",
-                "operatingSystem": "Web, Chrome Extension",
-                "url": "https://www.trackmyopt.com",
-                "offers": {
-                  "@type": "Offer",
-                  "price": "0",
-                  "priceCurrency": "USD"
-                }
-              }
-              ],
-            })
+            __html: safeSerializeJsonLd(siteIdentityGraph) ?? '',
           }}
         />
       </body>

@@ -19,7 +19,7 @@ import {
   pickBestSubscription,
   reconcileCustomerBilling,
   syncProfileFromSubscription,
-} from "../lib/premium/stripeSubscriptionSync";
+} from "../lib/premium/stripe-subscription-sync";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, AlertTriangle, Bell, Clock, CheckCircle, Info, ChevronRight } from "lucide-react";
+import { X, AlertTriangle, Clock, CheckCircle, Info, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { addDaysIso, parseValidDate, startOfLocalDayMs } from "@/lib/case-status/safe-dates";
 

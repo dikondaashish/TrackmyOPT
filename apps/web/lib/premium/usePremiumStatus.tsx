@@ -19,7 +19,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
-export interface PremiumStatusValue {
+interface PremiumStatusValue {
     /** null = unknown/loading, true/false once resolved. */
     isPremium: boolean | null;
     isLoading: boolean;

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Crown, Menu, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface HeaderProps {
     userEmail?: string;

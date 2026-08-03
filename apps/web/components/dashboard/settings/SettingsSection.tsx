@@ -1,109 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { triggerBrowserDownload } from "@/lib/browser-download";
 import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   User,
-  Mail,
   Bell,
-  Moon,
-  Sun,
   Shield,
   Loader2,
   Check,
   AlertCircle,
-  LogOut,
-  Trash2,
-  Key,
-  Globe,
   Lock,
-  Palette,
   Download,
   Chrome,
-  Link2,
-  Clock,
-  RefreshCw,
-  Smartphone,
   Database,
-  Eye,
-  EyeOff,
-  Unlink,
-  Activity,
-  History,
-  ShieldCheck,
-  CreditCard,
-  ChevronDown,
-  ChevronUp,
-  HelpCircle,
-  GraduationCap,
-  CheckCircle2,
-  ArrowRight
-} from "lucide-react";
-import { SubscriptionSettings } from "./SubscriptionSettings";
-import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
-
-const STEM_KEYWORDS = [
-  'computer', 'software', 'engineering', 'math', 'science', 'technology', 
-  'cyber', 'data', 'information', 'analytics', 'statistics', 'physics', 
-  'chemistry', 'biology', 'robotics', 'artificial intelligence', 'ai', 
-  'quantitative', 'quant', 'actuarial', 'biomedical', 'bioengineering', 
-  'mechatronics', 'automation', 'econometrics', 'informatics'
-];
-
-const COMMON_MAJORS = [
-  "Computer Science", "Software Engineering", "Computer Engineering", 
-  "Information Technology", "Information Systems", "Data Science", 
-  "Data Analytics", "Business Analytics", "Cybersecurity", 
-  "Artificial Intelligence", "Machine Learning", "Electrical Engineering", 
-  "Mechanical Engineering", "Civil Engineering", "Industrial Engineering", 
-  "Biomedical Engineering", "Aerospace Engineering", "Chemical Engineering", 
-  "Mathematics", "Applied Mathematics", "Statistics", "Physics", 
-  "Chemistry", "Biology", "Biotechnology", "Business Administration", 
-  "Finance", "Accounting", "Marketing", "Economics", "Psychology", 
-  "Nursing", "Communications", "Graphic Design", "Architecture"
-];
-
-// Tab types
-type SettingsTab = 'profile' | 'security' | 'documents' | 'notifications' | 'privacy' | 'extension' | 'subscription';
-
-interface UserProfile {
-  email: string;
-  fullName: string;
-  timezone: string;
-  notificationEmail: string;
-  authProvider?: string;
-  degreeLevel: string | null;
-  majorName: string | null;
-  isStemEligible: boolean;
-}
-
-interface PremiumStatus {
-  isPremium: boolean;
-  planName?: string;
-  expiresAt?: string;
-}
-
-interface CaseStatusSettings {
-  receiptNumber: string;
-  autoCheckFrequency: 'hourly' | 'daily' | 'weekly' | 'manual';
-  notifyOnChange: boolean;
-}
-
-interface DocumentSettings {
-  hasPasscode: boolean;
-  autoLockTimeout: number; // in minutes
-  lockoutDuration: number; // in minutes - lockout after 3 failed attempts
-}
-
-interface ExtensionStatus {
-  isConnected: boolean;
-  lastSyncTime: string | null;
-  version?: string;
-}
+  CreditCard} from "lucide-react";
+import { useDocumentPasscode } from "./useDocumentPasscode";
+import { useDataExport } from "./useDataExport";
+import { ProfileTab } from "./tabs/ProfileTab";
+import { SecurityTab } from "./tabs/SecurityTab";
+import { SubscriptionTab } from "./tabs/SubscriptionTab";
+import { DocumentsTab } from "./tabs/DocumentsTab";
+import { NotificationsTab } from "./tabs/NotificationsTab";
+import { PrivacyTab } from "./tabs/PrivacyTab";
+import { ExtensionTab } from "./tabs/ExtensionTab";
+import type {
+  SettingsTab,
+  UserProfile,
+  PremiumStatus,
+  CaseStatusSettings,
+  ExtensionStatus,
+} from "./settings-types";
 
 export function SettingsSection() {
   // Get URL search params to handle tab query parameter
@@ -134,15 +60,7 @@ export function SettingsSection() {
   });
 
   const [showMajorDropdown, setShowMajorDropdown] = useState(false);
-  const filteredMajors = profile.majorName 
-    ? COMMON_MAJORS.filter(m => m.toLowerCase().includes(profile.majorName!.toLowerCase()))
-    : COMMON_MAJORS;
 
-  const checkStemEligibility = (major: string | null) => {
-    if (!major) return false;
-    const lowerMajor = major.toLowerCase();
-    return STEM_KEYWORDS.some(keyword => lowerMajor.includes(keyword));
-  };
 
   // Premium status
   const [premium, setPremium] = useState<PremiumStatus>({ isPremium: false });
@@ -185,25 +103,6 @@ export function SettingsSection() {
     notifyOnChange: true,
   });
 
-  // Document Vault Settings
-  const [docSettings, setDocSettings] = useState<DocumentSettings>({
-    hasPasscode: false,
-    autoLockTimeout: 5,
-    lockoutDuration: 10, // Default 10 minutes
-  });
-  const [showPasscodeChange, setShowPasscodeChange] = useState(false);
-  const [currentPasscode, setCurrentPasscode] = useState('');
-  const [newPasscode, setNewPasscode] = useState('');
-  const [confirmPasscode, setConfirmPasscode] = useState('');
-  const [showPasscodes, setShowPasscodes] = useState(false);
-
-  // OTP verification state for passcode change
-  const [showOtpInput, setShowOtpInput] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [otpEmail, setOtpEmail] = useState('');
-  const [otpCountdown, setOtpCountdown] = useState(0);
-  const [sendingOtp, setSendingOtp] = useState(false);
-  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   // Extension Status
   const [extensionStatus, setExtensionStatus] = useState<ExtensionStatus>({
@@ -211,16 +110,78 @@ export function SettingsSection() {
     lastSyncTime: null,
   });
 
-  // Data Export
-  const [isExporting, setIsExporting] = useState(false);
-
-  // ZIP Export with OTP verification
-  const [showZipExportOtp, setShowZipExportOtp] = useState(false);
-  const [zipExportOtp, setZipExportOtp] = useState('');
-  const [zipExportOtpSending, setZipExportOtpSending] = useState(false);
-  const [zipExportOtpVerifying, setZipExportOtpVerifying] = useState(false);
-  const [zipExportCountdown, setZipExportCountdown] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const {
+    docSettings,
+    showPasscodeChange,
+    setShowPasscodeChange,
+    currentPasscode,
+    setCurrentPasscode,
+    newPasscode,
+    setNewPasscode,
+    confirmPasscode,
+    setConfirmPasscode,
+    showPasscodes,
+    setShowPasscodes,
+    showOtpInput,
+    setShowOtpInput,
+    otp,
+    setOtp,
+    otpEmail,
+    otpCountdown,
+    setOtpCountdown,
+    sendingOtp,
+    verifyingOtp,
+    loadDocumentSettings,
+    handleChangePasscode,
+    handleVerifyOtp,
+    handleResendOtp,
+    handleAutoLockChange,
+    handleLockoutDurationChange,
+  } = useDocumentPasscode({ setSuccess, setError });
+
+  const {
+    isExporting,
+    showZipExportOtp,
+    setShowZipExportOtp,
+    zipExportOtp,
+    setZipExportOtp,
+    zipExportOtpSending,
+    zipExportOtpVerifying,
+    zipExportCountdown,
+    handleExportData,
+    handleZipExportClick,
+    handleZipExportVerify,
+    handleResendZipOtp,
+  } = useDataExport({
+    premium,
+    profile,
+    caseSettings,
+    setSuccess,
+    setError,
+    setShowUpgradeModal,
+  });
+
+  const handleManageSubscription = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/premium/portal', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Failed to redirect');
+      }
+    } catch (error) {
+      console.error('Portal Error:', error);
+      setError('Failed to load subscription portal');
+      setIsLoading(false);
+    }
+  };
   const [hasReferralAccess, setHasReferralAccess] = useState(false);
 
   // Update active tab when URL param changes
@@ -294,21 +255,6 @@ export function SettingsSection() {
     }
   };
 
-  const loadDocumentSettings = async () => {
-    try {
-      const res = await fetch('/api/documents/passcode/status', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setDocSettings({
-          hasPasscode: data.hasPasscode || false,
-          autoLockTimeout: data.autoLockTimeout || 5,
-          lockoutDuration: data.lockoutDuration || 10,
-        });
-      }
-    } catch {
-      // Silently fail
-    }
-  };
 
   // Load tool email reminders (synced with OPT Dates page)
   const loadToolEmails = async () => {
@@ -799,299 +745,7 @@ export function SettingsSection() {
     }
   };
 
-  // Change Document Passcode - Step 1: Send OTP
-  const handleChangePasscode = async () => {
-    if (newPasscode !== confirmPasscode) {
-      setError('Passcodes do not match');
-      return;
-    }
-    // Passcode must be exactly 6 digits
-    if (!/^\d{6}$/.test(newPasscode)) {
-      setError('Passcode must be exactly 6 digits');
-      return;
-    }
 
-    try {
-      setSendingOtp(true);
-      setError(null);
-
-      // Send OTP to user's email
-      const res = await fetch('/api/documents/passcode/send-otp', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentPasscode: docSettings.hasPasscode ? currentPasscode : undefined,
-          newPasscode,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setOtpEmail(data.email);
-        setShowOtpInput(true);
-        setOtpCountdown(600); // 10 minutes
-        setSuccess(`OTP sent to ${data.email}`);
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        throw new Error(data.error || 'Failed to send OTP');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send OTP');
-    } finally {
-      setSendingOtp(false);
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch('/api/premium/portal', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'Failed to redirect');
-      }
-    } catch (error) {
-      console.error('Portal Error:', error);
-      setError('Failed to load subscription portal');
-      setIsLoading(false);
-    }
-  };
-
-  // Change Document Passcode - Step 2: Verify OTP
-  const handleVerifyOtp = async () => {
-    if (!/^\d{6}$/.test(otp)) {
-      setError('OTP must be 6 digits');
-      return;
-    }
-
-    try {
-      setVerifyingOtp(true);
-      setError(null);
-
-      const res = await fetch('/api/documents/passcode/verify-otp', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          otp,
-          newPasscode,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setSuccess('Passcode changed successfully!');
-        // Reset all states
-        setShowPasscodeChange(false);
-        setShowOtpInput(false);
-        setCurrentPasscode('');
-        setNewPasscode('');
-        setConfirmPasscode('');
-        setOtp('');
-        setOtpEmail('');
-        setOtpCountdown(0);
-        setDocSettings(prev => ({ ...prev, hasPasscode: true }));
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        throw new Error(data.error || 'Failed to verify OTP');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to verify OTP');
-    } finally {
-      setVerifyingOtp(false);
-    }
-  };
-
-  // Resend OTP
-  const handleResendOtp = async () => {
-    await handleChangePasscode();
-  };
-
-  // OTP countdown timer
-  useEffect(() => {
-    if (otpCountdown > 0) {
-      const timer = setTimeout(() => setOtpCountdown(otpCountdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [otpCountdown]);
-
-  // Update Auto-lock Timeout
-  const handleAutoLockChange = async (timeout: number) => {
-    try {
-      setDocSettings(prev => ({ ...prev, autoLockTimeout: timeout }));
-
-      const res = await fetch('/api/documents/passcode/status', {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ autoLockTimeout: timeout }),
-      });
-
-      if (res.ok) {
-        setSuccess('Auto-lock timeout updated!');
-        setTimeout(() => setSuccess(null), 2000);
-      } else {
-        throw new Error('Failed to update');
-      }
-    } catch {
-      setError('Failed to update auto-lock timeout');
-      // Revert on error
-      loadDocumentSettings();
-    }
-  };
-
-  // Update Lockout Duration (after 3 failed attempts)
-  const handleLockoutDurationChange = async (duration: number) => {
-    try {
-      setDocSettings(prev => ({ ...prev, lockoutDuration: duration }));
-
-      const res = await fetch('/api/documents/passcode/status', {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lockoutDuration: duration }),
-      });
-
-      if (res.ok) {
-        setSuccess('Lockout duration updated!');
-        setTimeout(() => setSuccess(null), 2000);
-      } else {
-        throw new Error('Failed to update');
-      }
-    } catch {
-      setError('Failed to update lockout duration');
-      // Revert on error
-      loadDocumentSettings();
-    }
-  };
-
-  // Export User Data
-  const handleExportData = async (format: 'json' | 'csv') => {
-    try {
-      setIsExporting(true);
-
-      const res = await fetch(`/api/user/export?format=${format}`, { credentials: 'include' });
-
-      if (res.ok) {
-        const blob = await res.blob();
-        triggerBrowserDownload(
-          blob,
-          `trackmyopt-data-${new Date().toISOString().split('T')[0]}.${format}`
-        );
-        setSuccess('Data exported successfully!');
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        throw new Error('Export failed');
-      }
-    } catch {
-      // If API doesn't exist, create mock export
-      const mockData = {
-        profile,
-        caseSettings,
-        exportedAt: new Date().toISOString(),
-      };
-      const blob = new Blob([JSON.stringify(mockData, null, 2)], { type: 'application/json' });
-      triggerBrowserDownload(
-        blob,
-        `trackmyopt-data-${new Date().toISOString().split('T')[0]}.json`
-      );
-      setSuccess('Data exported!');
-      setTimeout(() => setSuccess(null), 3000);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  // ZIP Export countdown timer
-  useEffect(() => {
-    if (zipExportCountdown > 0) {
-      const timer = setTimeout(() => setZipExportCountdown(prev => prev - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [zipExportCountdown]);
-
-  // Handle ZIP Export click - check if Pro, then send OTP
-  const handleZipExportClick = async () => {
-    if (!premium.isPremium) {
-      setShowUpgradeModal(true);
-      return;
-    }
-
-    // Send OTP for verification
-    setZipExportOtpSending(true);
-    try {
-      const res = await fetch('/api/user/send-export-otp', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (res.ok) {
-        setShowZipExportOtp(true);
-        setZipExportCountdown(60);
-        setSuccess('Verification code sent to your email!');
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to send OTP');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send verification code');
-    } finally {
-      setZipExportOtpSending(false);
-    }
-  };
-
-  // Verify OTP and download ZIP
-  const handleZipExportVerify = async () => {
-    if (zipExportOtp.length !== 6) {
-      setError('Please enter the 6-digit code');
-      return;
-    }
-
-    setZipExportOtpVerifying(true);
-    try {
-      const res = await fetch('/api/user/export-zip', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp: zipExportOtp }),
-      });
-
-      if (res.ok) {
-        const blob = await res.blob();
-        triggerBrowserDownload(
-          blob,
-          `trackmyopt-export-${new Date().toISOString().split('T')[0]}.zip`
-        );
-
-        setShowZipExportOtp(false);
-        setZipExportOtp('');
-        setSuccess('Data exported successfully!');
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        const data = await res.json();
-        throw new Error(data.error || 'Verification failed');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Export failed');
-    } finally {
-      setZipExportOtpVerifying(false);
-    }
-  };
-
-  // Resend ZIP export OTP
-  const handleResendZipOtp = async () => {
-    if (zipExportCountdown > 0) return;
-    await handleZipExportClick();
-  };
 
   // Disconnect Extension
   const handleDisconnectExtension = async () => {
@@ -1122,15 +776,6 @@ export function SettingsSection() {
     }
   };
 
-  const timezones = [
-    { value: "America/New_York", label: "Eastern Time (ET)" },
-    { value: "America/Chicago", label: "Central Time (CT)" },
-    { value: "America/Denver", label: "Mountain Time (MT)" },
-    { value: "America/Los_Angeles", label: "Pacific Time (PT)" },
-    { value: "America/Anchorage", label: "Alaska Time (AKT)" },
-    { value: "Pacific/Honolulu", label: "Hawaii Time (HT)" },
-    { value: "UTC", label: "UTC" },
-  ];
 
   // Tab configuration - Updated with all new tabs
   // Documents tab only visible for premium users
@@ -1153,19 +798,6 @@ export function SettingsSection() {
     );
   }
 
-  // Toggle Switch Component
-  const Toggle = ({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) => (
-    <button
-      onClick={onToggle}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-        }`}
-    >
-      <span
-        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${enabled ? 'translate-x-5' : ''
-          }`}
-      />
-    </button>
-  );
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -1223,1280 +855,124 @@ export function SettingsSection() {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <div className="p-4 sm:p-6 lg:p-8">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-8 text-center sm:text-left">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
-                {profile.fullName ? profile.fullName.charAt(0).toUpperCase() : profile.email.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  {profile.fullName || 'Your Name'}
-                </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{profile.email}</p>
-              </div>
-            </div>
-
-            <div className="space-y-6 max-w-xl">
-              {/* Full Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Full Name
-                </label>
-                <Input
-                  type="text"
-                  value={profile.fullName}
-                  onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                  placeholder="Enter your full name"
-                  className="h-11"
-                />
-              </div>
-
-              {/* Email (Read Only) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address
-                </label>
-                <Input
-                  type="email"
-                  value={profile.email}
-                  disabled
-                  className="h-11 bg-gray-50 dark:bg-gray-900 cursor-not-allowed"
-                />
-                <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
-              </div>
-
-              {/* Timezone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    Timezone
-                  </div>
-                </label>
-                <select
-                  value={profile.timezone}
-                  onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
-                  className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {timezones.map((tz) => (
-                    <option key={tz.value} value={tz.value}>
-                      {tz.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">Education Profile</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Please check the <strong>CIP Code</strong> on your Form I-20 to confirm official STEM OPT eligibility with DHS.</p>
-
-                <div className="space-y-6">
-                  {/* Degree Level */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4" />
-                        Degree Level
-                      </div>
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {['Associate', "Bachelor's", "Master's", 'Doctorate'].map((level) => (
-                        <button
-                          key={level}
-                          onClick={() => setProfile({ ...profile, degreeLevel: level })}
-                          className={`p-2 rounded-lg border text-sm font-medium transition-colors ${
-                            profile.degreeLevel === level
-                              ? 'bg-blue-600 text-white border-blue-600'
-                              : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
-                          }`}
-                        >
-                          {level}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Major */}
-                  <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Major / Course Name
-                    </label>
-                    <Input
-                      type="text"
-                      value={profile.majorName || ''}
-                      onChange={(e) => {
-                        const newMajor = e.target.value;
-                        setProfile({
-                          ...profile,
-                          majorName: newMajor,
-                          isStemEligible: checkStemEligibility(newMajor)
-                        });
-                        setShowMajorDropdown(true);
-                      }}
-                      onFocus={() => setShowMajorDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowMajorDropdown(false), 200)}
-                      placeholder="e.g. Computer Science"
-                      className="h-11"
-                    />
-
-                    {showMajorDropdown && filteredMajors.length > 0 && (
-                      <ul className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                        {filteredMajors.map((major) => (
-                          <li 
-                            key={major}
-                            className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-900 dark:text-gray-100 transition-colors"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => {
-                              setProfile({
-                                ...profile,
-                                majorName: major,
-                                isStemEligible: checkStemEligibility(major)
-                              });
-                              setShowMajorDropdown(false);
-                            }}
-                          >
-                            {major}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    {/* STEM Status indicator */}
-                    {(profile.majorName || '').length > 2 && (
-                      <div className="mt-3">
-                        <div className={`p-3 rounded-lg flex items-center justify-between transition-colors ${
-                          profile.isStemEligible 
-                            ? 'bg-emerald-50 border border-emerald-200 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800/50 dark:text-emerald-300' 
-                            : 'bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-300'
-                        }`}>
-                          <div className="flex items-center gap-2">
-                            {profile.isStemEligible ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                            ) : (
-                              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                            )}
-                            <span className="text-sm font-medium">
-                              {profile.isStemEligible ? 'STEM Extension Eligible' : 'Non-STEM Program'}
-                            </span>
-                          </div>
-                          
-                          {/* Force toggle toggle */}
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs opacity-70">Force override:</span>
-                            <button 
-                              onClick={() => setProfile({...profile, isStemEligible: !profile.isStemEligible})}
-                              className={`text-xs px-2 py-1 rounded transition-colors ${
-                                profile.isStemEligible 
-                                  ? 'bg-emerald-200 text-emerald-900 hover:bg-emerald-300 dark:bg-emerald-800 dark:text-emerald-100'
-                                  : 'bg-amber-200 text-amber-900 hover:bg-amber-300 dark:bg-amber-800 dark:text-amber-100'
-                              }`}
-                            >
-                              {profile.isStemEligible ? 'Disable' : 'Enable'}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <Button
-                  onClick={handleSaveProfile}
-                  disabled={isSaving}
-                  className="bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 h-11 px-6"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Save Changes
-                </Button>
-              </div>
-
-              {/* Appearance Section (Moved from separate tab) */}
-              <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Appearance</h3>
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                      {darkMode ? (
-                        <Moon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                      ) : (
-                        <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Dark Mode</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {darkMode ? 'Currently using dark theme' : 'Currently using light theme'}
-                      </p>
-                    </div>
-                  </div>
-                  <Toggle enabled={darkMode} onToggle={handleDarkModeToggle} />
-                </div>
-              </div>
-
-              {/* Referral Program Access (shown only for users with a referral code) */}
-              {hasReferralAccess && (
-                <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Referral Program</h3>
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Referral Stats</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        View clicks, signups, and premium conversions for your referral code.
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => window.location.href = "/dashboard/referrals"}
-                      className="h-10"
-                    >
-                      View Referral Stats
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-            </div>
-          </div>
+          <ProfileTab
+            darkMode={darkMode}
+            handleDarkModeToggle={handleDarkModeToggle}
+            handleSaveProfile={handleSaveProfile}
+            hasReferralAccess={hasReferralAccess}
+            isSaving={isSaving}
+            profile={profile}
+            setProfile={setProfile}
+            setShowMajorDropdown={setShowMajorDropdown}
+            showMajorDropdown={showMajorDropdown}
+          />
         )}
 
         {/* Security Tab */}
         {activeTab === 'security' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Password & Security</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your password and security settings</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Password Reset */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Password</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Reset your password via email
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={handlePasswordReset}
-                      disabled={isChangingPassword}
-                      className="h-10"
-                    >
-                      {isChangingPassword ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Key className="w-4 h-4 mr-2" />
-                      )}
-                      Reset Password
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Sign Out */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Sign Out</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Sign out of your account on this device
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={handleSignOut}
-                      className="h-10"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Delete Account */}
-                <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800/50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-red-600 dark:text-red-400">Delete Account</p>
-                      <p className="text-sm text-red-500/80 dark:text-red-400/70 mt-1">
-                        Permanently delete your account and all data
-                      </p>
-                    </div>
-                    {!showDeleteConfirm && (
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowDeleteConfirm(true)}
-                        className="h-10 text-red-600 border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </Button>
-                    )}
-                  </div>
-
-                  {/* Delete Confirmation Warning */}
-                  {showDeleteConfirm && (
-                    <div className="mt-4 p-4 bg-red-100 dark:bg-red-900/30 rounded-lg border border-red-300 dark:border-red-700">
-                      <div className="flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold text-red-700 dark:text-red-300 mb-2">
-                            Warning: This action is permanent!
-                          </p>
-                          <ul className="text-sm text-red-600 dark:text-red-400 space-y-1 mb-4">
-                            <li>• All your data will be permanently deleted</li>
-                            <li>• You will NOT be able to create a new account with this email</li>
-                            <li>• This email address will be permanently blocked from our platform</li>
-                            <li>• This action cannot be undone</li>
-                          </ul>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setShowDeleteConfirm(false)}
-                              disabled={isDeleting}
-                              className="bg-white dark:bg-gray-800"
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              size="sm"
-                              className="bg-red-600 hover:bg-red-700 text-white"
-                              onClick={handleDeleteAccount}
-                              disabled={isDeleting}
-                            >
-                              {isDeleting ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                  Deleting...
-                                </>
-                              ) : (
-                                'Yes, Delete My Account'
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          <SecurityTab
+            handleDeleteAccount={handleDeleteAccount}
+            handlePasswordReset={handlePasswordReset}
+            handleSignOut={handleSignOut}
+            isChangingPassword={isChangingPassword}
+            isDeleting={isDeleting}
+            setShowDeleteConfirm={setShowDeleteConfirm}
+            showDeleteConfirm={showDeleteConfirm}
+          />
         )}
 
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-2xl space-y-8">
-
-              {/* Preferences Section - Combined with Notification Email */}
-              <div className="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preferences</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Manage how you receive updates from TrackMyOPT</p>
-                  </div>
-                </div>
-
-                {/* Email Notifications Toggle */}
-                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Receive important updates, tips, and promotional offers via email</p>
-                  </div>
-                  <Toggle enabled={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />
-                </div>
-
-                {/* Notification Email */}
-                <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
-                  <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">Notification Email</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Email address for receiving notifications</p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Input
-                      type="email"
-                      value={profile.notificationEmail}
-                      onChange={(e) => setProfile({ ...profile, notificationEmail: e.target.value })}
-                      placeholder="Email for notifications"
-                      className="flex-1 h-11"
-                    />
-                    <Button
-                      onClick={handleSaveNotificationEmail}
-                      disabled={isSaving}
-                      className="h-11 px-6 bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800"
-                    >
-                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Daily Reminders (4 Tools) - Premium Feature */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Daily Reminders (9:00 AM ET)</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Email reminders for each OPT tracking tool</p>
-                    </div>
-                  </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                    PRO
-                  </span>
-                </div>
-
-                {/* Blur overlay for non-premium */}
-                {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
-                    <Button
-                      onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
-                    >
-                      Upgrade to Pro
-                    </Button>
-                  </div>
-                )}
-
-                <div className={`space-y-3 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
-                  {([
-                    { key: 'opt_apply' as const, label: 'OPT Apply Dates', icon: 'opt_apply' as OptToolIconKey, description: 'OPT filing deadline reminders' },
-                    { key: 'opt_clock' as const, label: 'OPT Clock Tracker', icon: 'opt_clock' as OptToolIconKey, description: 'Unemployment days tracking alerts' },
-                    { key: 'stem_apply' as const, label: 'STEM Apply Dates', icon: 'stem_apply' as OptToolIconKey, description: 'STEM extension deadline reminders' },
-                    { key: 'stem_clock' as const, label: 'STEM Clock Tracker', icon: 'stem_clock' as OptToolIconKey, description: 'STEM unemployment tracking alerts' },
-                  ]).map((tool) => {
-                    const ToolIcon = OPT_TOOL_ICONS[tool.icon];
-                    return (
-                    <div key={tool.key} className="p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700">
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                        <div className="flex items-center gap-3 w-full sm:w-auto">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-200/80 dark:bg-gray-800">
-                            <ToolIcon className="h-4 w-4 text-gray-700 dark:text-gray-300" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-gray-100">{tool.label}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{tool.description}</p>
-                          </div>
-                        </div>
-                        {toolEmails[tool.key as keyof typeof toolEmails] ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
-                              {toolEmails[tool.key as keyof typeof toolEmails]}
-                            </span>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setToolEmails(prev => ({ ...prev, [tool.key]: '' }))}
-                              className="h-8 px-2"
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteToolEmail(tool.key)}
-                              className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="email"
-                              value={toolEmails[tool.key as keyof typeof toolEmails] || ''}
-                              onChange={(e) => setToolEmails(prev => ({ ...prev, [tool.key]: e.target.value }))}
-                              placeholder="Enter email"
-                              className="w-48 h-9 text-sm"
-                            />
-                            <Button
-                              size="sm"
-                              onClick={() => handleSaveToolEmail(tool.key)}
-                              disabled={isSaving}
-                              className="h-9"
-                            >
-                              {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Case Status Notifications - Premium Feature */}
-              {/* Synced with Case Status page via /api/user/notification-email */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                      <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Case Status Notifications</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when your USCIS case status changes</p>
-                    </div>
-                  </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                    PRO
-                  </span>
-                </div>
-
-                {/* Blur overlay for non-premium */}
-                {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
-                    <Button
-                      onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
-                    >
-                      Upgrade to Pro
-                    </Button>
-                  </div>
-                )}
-
-                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                    <div className="w-full sm:w-auto text-center sm:text-left mb-2 sm:mb-0">
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Case Status Alerts</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive email when your case status updates</p>
-                    </div>
-                    {sharedNotificationEmail && editingSharedEmail !== 'case' ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
-                          {sharedNotificationEmail}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => startEditingSharedEmail('case')}
-                          className="h-8 px-2"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleDeleteSharedEmail}
-                          disabled={isSaving}
-                          className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="email"
-                          value={editingSharedEmail === 'case' ? tempEmail : tempEmail}
-                          onChange={(e) => setTempEmail(e.target.value)}
-                          placeholder="Enter email"
-                          className="w-48 h-9 text-sm"
-                        />
-                        <Button
-                          size="sm"
-                          onClick={handleSaveSharedEmail}
-                          disabled={isSaving}
-                          className="h-9"
-                        >
-                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
-                        </Button>
-                        {editingSharedEmail === 'case' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => { setEditingSharedEmail(null); setTempEmail(''); }}
-                            className="h-9"
-                          >
-                            Cancel
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Document Vault Expiry Reminder - Premium Feature */}
-              {/* Synced with Documents page via /api/user/notification-email (same email as Case Status) */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                      <Lock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">Document Vault Expiry Reminder</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Get alerts before your documents expire</p>
-                    </div>
-                  </div>
-                  <span className="px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                    PRO
-                  </span>
-                </div>
-
-                {/* Blur overlay for non-premium */}
-                {!premium.isPremium && (
-                  <div className="absolute inset-0 top-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
-                    <Button
-                      onClick={() => window.location.href = '/premium/checkout?planId=pro&interval=year'}
-                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 text-base font-semibold shadow-lg"
-                    >
-                      Upgrade to Pro
-                    </Button>
-                  </div>
-                )}
-
-                <div className={`p-4 rounded-xl border bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 ${!premium.isPremium ? 'filter blur-[2px] pointer-events-none' : ''}`}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Document Expiry Reminders</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive alerts 30, 14, and 7 days before expiry</p>
-                    </div>
-                    {sharedNotificationEmail && editingSharedEmail !== 'document' ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
-                          {sharedNotificationEmail}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => startEditingSharedEmail('document')}
-                          className="h-8 px-2"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleDeleteSharedEmail}
-                          disabled={isSaving}
-                          className="h-8 px-2 text-red-600 border-red-300 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="email"
-                          value={editingSharedEmail === 'document' ? tempEmail : tempEmail}
-                          onChange={(e) => setTempEmail(e.target.value)}
-                          placeholder="Enter email"
-                          className="w-48 h-9 text-sm"
-                        />
-                        <Button
-                          size="sm"
-                          onClick={handleSaveSharedEmail}
-                          disabled={isSaving}
-                          className="h-9"
-                        >
-                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
-                        </Button>
-                        {editingSharedEmail === 'document' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => { setEditingSharedEmail(null); setTempEmail(''); }}
-                            className="h-9"
-                          >
-                            Cancel
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
+          <NotificationsTab
+            editingSharedEmail={editingSharedEmail}
+            emailNotifications={emailNotifications}
+            handleDeleteSharedEmail={handleDeleteSharedEmail}
+            handleDeleteToolEmail={handleDeleteToolEmail}
+            handleSaveNotificationEmail={handleSaveNotificationEmail}
+            handleSaveSharedEmail={handleSaveSharedEmail}
+            handleSaveToolEmail={handleSaveToolEmail}
+            isSaving={isSaving}
+            premium={premium}
+            profile={profile}
+            setEditingSharedEmail={setEditingSharedEmail}
+            setEmailNotifications={setEmailNotifications}
+            setProfile={setProfile}
+            setTempEmail={setTempEmail}
+            setToolEmails={setToolEmails}
+            sharedNotificationEmail={sharedNotificationEmail}
+            startEditingSharedEmail={startEditingSharedEmail}
+            tempEmail={tempEmail}
+            toolEmails={toolEmails}
+          />
         )}
 
         {/* Documents Tab */}
         {activeTab === 'documents' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Document Vault Settings</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your document vault security</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Passcode Status */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docSettings.hasPasscode ? 'bg-green-100 dark:bg-green-900/50' : 'bg-yellow-100 dark:bg-yellow-900/50'}`}>
-                        {docSettings.hasPasscode ? (
-                          <ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {docSettings.hasPasscode ? 'Passcode Protected' : 'No Passcode Set'}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {docSettings.hasPasscode ? 'Your documents are secured' : 'Set a passcode to protect your documents'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowPasscodeChange(!showPasscodeChange)}
-                      className="h-10"
-                    >
-                      {docSettings.hasPasscode ? 'Change' : 'Set Passcode'}
-                    </Button>
-                  </div>
-
-                  {showPasscodeChange && (
-                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-                      {docSettings.hasPasscode && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Current Passcode (6 digits)
-                          </label>
-                          <div className="relative">
-                            <Input
-                              type={showPasscodes ? 'text' : 'password'}
-                              value={currentPasscode}
-                              onChange={(e) => setCurrentPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                              placeholder="Enter 6-digit passcode"
-                              className="h-11 pr-10 font-mono tracking-widest"
-                              maxLength={6}
-                              inputMode="numeric"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPasscodes(!showPasscodes)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                            >
-                              {showPasscodes ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          New Passcode (6 digits)
-                        </label>
-                        <Input
-                          type={showPasscodes ? 'text' : 'password'}
-                          value={newPasscode}
-                          onChange={(e) => setNewPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                          placeholder="Enter 6-digit passcode"
-                          className="h-11 font-mono tracking-widest"
-                          maxLength={6}
-                          inputMode="numeric"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">{newPasscode.length}/6 digits</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Confirm Passcode
-                        </label>
-                        <Input
-                          type={showPasscodes ? 'text' : 'password'}
-                          value={confirmPasscode}
-                          onChange={(e) => setConfirmPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                          placeholder="Re-enter 6-digit passcode"
-                          className="h-11 font-mono tracking-widest"
-                          maxLength={6}
-                          inputMode="numeric"
-                        />
-                      </div>
-                      {/* OTP Verification Section */}
-                      {showOtpInput ? (
-                        <div className="space-y-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
-                          <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
-                            <Mail className="w-5 h-5" />
-                            <p className="text-sm font-medium">
-                              OTP sent to {otpEmail}
-                            </p>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Enter 6-digit OTP
-                            </label>
-                            <Input
-                              type="text"
-                              value={otp}
-                              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                              placeholder="Enter OTP"
-                              className="h-11 font-mono tracking-widest text-center text-lg"
-                              maxLength={6}
-                              inputMode="numeric"
-                              autoFocus
-                            />
-                            {otpCountdown > 0 && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                Expires in {Math.floor(otpCountdown / 60)}:{(otpCountdown % 60).toString().padStart(2, '0')}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={handleVerifyOtp}
-                              disabled={verifyingOtp || otp.length !== 6}
-                              className="bg-indigo-600 hover:bg-indigo-700"
-                            >
-                              {verifyingOtp ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
-                              Verify & Change Passcode
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={handleResendOtp}
-                              disabled={sendingOtp || otpCountdown > 540}
-                            >
-                              {sendingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setShowOtpInput(false);
-                                setOtp('');
-                                setOtpCountdown(0);
-                              }}
-                            >
-                              Back
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleChangePasscode}
-                            disabled={sendingOtp || newPasscode.length !== 6 || confirmPasscode.length !== 6}
-                            className="bg-indigo-600 hover:bg-indigo-700"
-                          >
-                            {sendingOtp ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
-                            Send OTP & Save
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setShowPasscodeChange(false);
-                              setCurrentPasscode('');
-                              setNewPasscode('');
-                              setConfirmPasscode('');
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Auto-lock Timeout */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Auto-lock Timeout
-                    </div>
-                  </label>
-                  <select
-                    value={docSettings.autoLockTimeout}
-                    onChange={(e) => handleAutoLockChange(parseInt(e.target.value))}
-                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value={5}>5 minutes</option>
-                    <option value={15}>15 minutes</option>
-                    <option value={30}>30 minutes</option>
-                    <option value={60}>1 hour</option>
-                    <option value={0}>Never (not recommended)</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">Vault will lock after this period of inactivity</p>
-                </div>
-
-                {/* Lockout Duration - After 3 Failed Attempts */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
-                      Failed Attempts Lockout
-                    </div>
-                  </label>
-                  <select
-                    value={docSettings.lockoutDuration}
-                    onChange={(e) => handleLockoutDurationChange(parseInt(e.target.value))}
-                    className="w-full h-11 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value={1}>1 minute</option>
-                    <option value={2}>2 minutes</option>
-                    <option value={3}>3 minutes</option>
-                    <option value={5}>5 minutes</option>
-                    <option value={10}>10 minutes (default)</option>
-                    <option value={15}>15 minutes</option>
-                    <option value={30}>30 minutes</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    You have 3 attempts before a {docSettings.lockoutDuration} minute{docSettings.lockoutDuration > 1 ? 's' : ''} lockout
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DocumentsTab
+            confirmPasscode={confirmPasscode}
+            currentPasscode={currentPasscode}
+            docSettings={docSettings}
+            handleAutoLockChange={handleAutoLockChange}
+            handleChangePasscode={handleChangePasscode}
+            handleLockoutDurationChange={handleLockoutDurationChange}
+            handleResendOtp={handleResendOtp}
+            handleVerifyOtp={handleVerifyOtp}
+            newPasscode={newPasscode}
+            otp={otp}
+            otpCountdown={otpCountdown}
+            otpEmail={otpEmail}
+            sendingOtp={sendingOtp}
+            setConfirmPasscode={setConfirmPasscode}
+            setCurrentPasscode={setCurrentPasscode}
+            setNewPasscode={setNewPasscode}
+            setOtp={setOtp}
+            setOtpCountdown={setOtpCountdown}
+            setShowOtpInput={setShowOtpInput}
+            setShowPasscodeChange={setShowPasscodeChange}
+            setShowPasscodes={setShowPasscodes}
+            showOtpInput={showOtpInput}
+            showPasscodeChange={showPasscodeChange}
+            showPasscodes={showPasscodes}
+            verifyingOtp={verifyingOtp}
+          />
         )}
 
         {/* Privacy Tab */}
         {activeTab === 'privacy' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                  <Database className="w-6 h-6 text-teal-600 dark:text-teal-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Data & Privacy</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your data and privacy settings</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Export Data */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">Export Your Data</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Download all your data in a portable format</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleExportData('json')}
-                      disabled={isExporting}
-                      className="h-10 w-full sm:w-auto"
-                    >
-                      {isExporting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
-                      Export as JSON
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleExportData('csv')}
-                      disabled={isExporting}
-                      className="h-10 w-full sm:w-auto"
-                    >
-                      Export as CSV
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={handleZipExportClick}
-                      disabled={zipExportOtpSending || showZipExportOtp}
-                      className="h-10 relative w-full sm:w-auto"
-                    >
-                      {zipExportOtpSending ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Download className="w-4 h-4 mr-2" />
-                      )}
-                      Export as ZIP
-                      <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md">
-                        PRO
-                      </span>
-                    </Button>
-                  </div>
-
-                  {/* ZIP Export OTP Verification */}
-                  {showZipExportOtp && (
-                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">
-                        Enter the 6-digit code sent to your email to verify and download your data.
-                      </p>
-                      <div className="flex gap-3 items-center">
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          maxLength={6}
-                          value={zipExportOtp}
-                          onChange={(e) => setZipExportOtp(e.target.value.replace(/\D/g, ''))}
-                          placeholder="Enter 6-digit code"
-                          className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-center text-lg font-mono tracking-widest"
-                        />
-                        <Button
-                          onClick={handleZipExportVerify}
-                          disabled={zipExportOtpVerifying || zipExportOtp.length !== 6}
-                          className="h-10 bg-blue-600 hover:bg-blue-700"
-                        >
-                          {zipExportOtpVerifying ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            'Verify & Download'
-                          )}
-                        </Button>
-                      </div>
-                      <div className="flex justify-between items-center mt-3">
-                        <button
-                          onClick={handleResendZipOtp}
-                          disabled={zipExportCountdown > 0}
-                          className={`text-sm ${zipExportCountdown > 0 ? 'text-gray-400' : 'text-blue-600 hover:underline'}`}
-                        >
-                          {zipExportCountdown > 0 ? `Resend in ${zipExportCountdown}s` : 'Resend code'}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowZipExportOtp(false);
-                            setZipExportOtp('');
-                          }}
-                          className="text-sm text-gray-500 hover:text-gray-700"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-                    <span className="font-medium">ZIP export (Pro):</span> Includes your profile data, OPT dates, case status, and all uploaded documents.
-                  </p>
-                </div>
-
-                {/* Data Retention */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center gap-3 mb-2">
-                    <History className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Data Retention</p>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                    We retain your data as long as your account is active. You can request deletion at any time.
-                  </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      Data protected with HTTPS (TLS) and access controls
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      We never sell your personal information
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      See Privacy Policy for your rights and choices
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Privacy Links */}
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
-                  <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
-                  <a href="mailto:privacy@trackmyopt.com" className="text-blue-600 dark:text-blue-400 hover:underline">Contact Privacy Team</a>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PrivacyTab
+            handleExportData={handleExportData}
+            handleResendZipOtp={handleResendZipOtp}
+            handleZipExportClick={handleZipExportClick}
+            handleZipExportVerify={handleZipExportVerify}
+            isExporting={isExporting}
+            setShowZipExportOtp={setShowZipExportOtp}
+            setZipExportOtp={setZipExportOtp}
+            showZipExportOtp={showZipExportOtp}
+            zipExportCountdown={zipExportCountdown}
+            zipExportOtp={zipExportOtp}
+            zipExportOtpSending={zipExportOtpSending}
+            zipExportOtpVerifying={zipExportOtpVerifying}
+          />
         )}
 
         {/* Extension Tab */}
         {activeTab === 'extension' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                  <Chrome className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Chrome Extension</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your browser extension connection</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <Link
-                  href="/dashboard/extension"
-                  className="group flex min-h-24 items-center gap-4 rounded-xl border border-blue-200 bg-blue-50/60 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-blue-900 dark:bg-blue-950/20 dark:hover:border-blue-800 dark:hover:bg-blue-950/30"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
-                    <Chrome className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                      Set up Chrome Job Prefill
-                    </h3>
-                    <p className="mt-1 text-sm leading-5 text-gray-600 dark:text-gray-300">
-                      Add or edit the contact, address, visa, work preference,
-                      and optional DEI data used by the extension.
-                    </p>
-                  </div>
-                  <ArrowRight className="h-5 w-5 shrink-0 text-blue-600 transition-transform duration-200 group-hover:translate-x-0.5 dark:text-blue-400" />
-                </Link>
-
-                {/* Connection Status */}
-                <div className={`p-4 rounded-xl border ${extensionStatus.isConnected ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'}`}>
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${extensionStatus.isConnected ? 'bg-green-100 dark:bg-green-900/50' : 'bg-gray-200 dark:bg-gray-700'}`}>
-                        {extensionStatus.isConnected ? (
-                          <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <Unlink className="w-5 h-5 text-gray-500" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                          {extensionStatus.isConnected ? 'Extension Connected' : 'Not Connected'}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {extensionStatus.isConnected
-                            ? `Version ${extensionStatus.version || 'Unknown'}`
-                            : 'Install the Chrome extension to sync'}
-                        </p>
-                      </div>
-                    </div>
-                    {extensionStatus.isConnected ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/20 text-green-700 dark:text-green-400 text-xs font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        Active
-                      </span>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        onClick={() => window.open('https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb', '_blank')}
-                        className="h-10"
-                      >
-                        Install Extension
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {extensionStatus.isConnected && (
-                  <>
-                    {/* Last Sync */}
-                    <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">Last Sync</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {extensionStatus.lastSyncTime
-                              ? new Date(extensionStatus.lastSyncTime).toLocaleString()
-                              : 'Never synced'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Disconnect */}
-                    <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800/50">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-red-600 dark:text-red-400">Disconnect Extension</p>
-                          <p className="text-sm text-red-500/80 dark:text-red-400/70">
-                            Remove the connection between this account and the extension
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          onClick={handleDisconnectExtension}
-                          className="h-10 text-red-600 border-red-300 hover:bg-red-50 dark:border-red-800"
-                        >
-                          <Unlink className="w-4 h-4 mr-2" />
-                          Disconnect
-                        </Button>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Linked Accounts Section */}
-                <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                    <Link2 className="w-4 h-4" />
-                    Linked Accounts
-                  </h3>
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                          <svg className="w-5 h-5" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">Google Account</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {profile.email}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full">
-                        Connected
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Recent Activity */}
-                <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                    <Activity className="w-4 h-4" />
-                    Recent Login Activity
-                  </h3>
-                  <div className="space-y-3">
-                    {recentLogins.map((login, index) => (
-                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Smartphone className="w-5 h-5 text-gray-500" />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{login.device}</p>
-                            <p className="text-xs text-gray-500">{login.location}</p>
-                          </div>
-                        </div>
-                        <span className="text-xs text-gray-500">{login.time}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ExtensionTab
+            extensionStatus={extensionStatus}
+            handleDisconnectExtension={handleDisconnectExtension}
+            profile={profile}
+            recentLogins={recentLogins}
+          />
         )}
 
         {/* Subscription Tab */}
         {activeTab === 'subscription' && (
-          <div className="p-6 sm:p-8">
-            <div className="max-w-6xl">
-              <SubscriptionSettings
-                premium={premium}
-                isLoading={isLoading}
-                onManage={handleManageSubscription}
-                userEmail={profile.email}
-              />
-            </div>
-          </div>
+          <SubscriptionTab
+            handleManageSubscription={handleManageSubscription}
+            isLoading={isLoading}
+            premium={premium}
+            profile={profile}
+          />
         )}
 
 

@@ -1,6 +1,6 @@
 /** Session-scoped insurance finder answers for the results page (kept out of URLs). */
 
-export const INSURANCE_RESULTS_SESSION_KEY = "trackmyopt_insurance_results_v1";
+const INSURANCE_RESULTS_SESSION_KEY = "trackmyopt_insurance_results_v1";
 
 export type InsuranceResultsPayload = {
   state: string;

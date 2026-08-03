@@ -8,7 +8,7 @@ import path from "path";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import type { Database } from "@/types/supabase";
-import { cancelStripeSubscriptionsForCustomer } from "../lib/premium/cancelStripeSubscriptionsForCustomer";
+import { cancelStripeSubscriptionsForCustomer } from "../lib/premium/cancel-stripe-subscriptions-for-customer";
 
 type AdminSupabase = SupabaseClient<Database>;
 

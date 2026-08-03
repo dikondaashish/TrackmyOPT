@@ -1,6 +1,6 @@
 "use client";
 
-import { PricingModule, PricingPlan } from "@/components/pricing/pricing-module";
+import { PricingModule, PricingPlan } from "@/components/pricing/PricingModule";
 import {
     LANDING_DEDICATED_FEATURES,
     LANDING_FREE_FEATURES,

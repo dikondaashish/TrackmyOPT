@@ -1,5 +1,4 @@
 
-import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
     Undo,
@@ -9,19 +8,15 @@ import {
     Underline,
     List,
     ListOrdered,
-    Image as ImageIcon,
     Table as TableIcon,
     Sigma,
-    Type,
     Heading1,
     Heading2,
     Eye,
     Code,
     Columns,
     Search,
-    Settings,
-    MoreHorizontal
-} from 'lucide-react';
+    Settings} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";

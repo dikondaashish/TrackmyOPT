@@ -8,16 +8,8 @@ import {
     Briefcase,
     CheckCircle2,
     Clock,
-    Calendar,
-    Bell,
     BarChart3,
-    Plus,
-    MoreHorizontal,
-    Building2,
-    TrendingUp,
-    AlertTriangle,
-    XCircle
-} from "lucide-react";
+    TrendingUp} from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";

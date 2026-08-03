@@ -45,13 +45,13 @@ export async function GET(req: NextRequest) {
           set(name: string, value: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value, ...options });
-            } catch (error) {
+            } catch (_error) {
             }
           },
           remove(name: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value: '', ...options });
-            } catch (error) {
+            } catch (_error) {
             }
           },
         },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeAtsGap } from '@/lib/ai/gemini-ai';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { checkAtsScanLimit, trackAtsScan } from '@/lib/usage-limit';
 

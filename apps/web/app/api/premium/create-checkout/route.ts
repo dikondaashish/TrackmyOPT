@@ -8,10 +8,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
-import { getUserId } from "@/lib/auth/getUserId";
+import { getUserId } from "@/lib/auth/get-user-id";
 import { sanitizeError, secureLog } from "@/lib/secure-logger";
-import { requireLiveStripeKeyInProduction } from "@/lib/stripe/requireLiveKeyInProduction";
-import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/proFreeTrialFromStripe";
+import { requireLiveStripeKeyInProduction } from "@/lib/stripe/require-live-key-in-production";
+import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/pro-free-trial-from-stripe";
 import {
   downgradeDedicatedSubscriptionToPro,
   getPlanFromSubscription,
@@ -19,9 +19,9 @@ import {
   listValidCustomerSubscriptions,
   pickBestSubscription,
   upgradeProSubscriptionToDedicated,
-} from "@/lib/premium/stripeSubscriptionSync";
-import type { CreateCheckoutResponse } from "@/lib/premium/checkoutResponseTypes";
-import { recordBillingConsentEvent } from "@/lib/billing/recordBillingConsent";
+} from "@/lib/premium/stripe-subscription-sync";
+import type { CreateCheckoutResponse } from "@/lib/premium/checkout-response-types";
+import { recordBillingConsentEvent } from "@/lib/billing/record-billing-consent";
 import { getRequestAuditFromHeaders } from "@/lib/billing/request-audit";
 import { LEGAL_POLICY_VERSIONS, PRO_TRIAL_DAYS } from "@/lib/billing/legal-config";
 import type { BillingInterval, PaidPlanId } from "@/lib/billing/legal-config";
@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
       try {
         await stripe.customers.retrieve(customerId);
         secureLog.log(`Verified existing Stripe customer: ${customerId}`);
-      } catch (retrieveError: unknown) {
+      } catch (_retrieveError: unknown) {
         secureLog.log(`Customer ${customerId} not found in Stripe, creating new one...`);
         customerId = null;
       }

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Database } from "@/types/supabase";
-import { TrendingUp, DollarSign, Clock, PieChart, Briefcase, Scale } from "lucide-react";
+import { DollarSign, Clock, PieChart, Briefcase, Scale } from "lucide-react";
 
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
 
@@ -227,7 +227,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                     </div>
 
                     <div className="space-y-4">
-                        {stats.topRoles.map(([role, count]: [string, number], i: number) => (
+                        {stats.topRoles.map(([role, count]: [string, number], _i: number) => (
                             <div key={role} className="flex items-center justify-between group">
                                 <div className="flex-1 min-w-0 pr-4">
                                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={role}>
@@ -279,7 +279,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                         <h3 className="font-semibold text-gray-900 dark:text-white">Legal Representation</h3>
                     </div>
                     <div className="space-y-4">
-                        {stats.topLawFirms.map(([firm, count], i) => (
+                        {stats.topLawFirms.map(([firm, count], _i) => (
                             <div key={firm} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-900/50 rounded-xl transition-colors">
                                 <span className="text-sm font-medium text-gray-900 dark:text-white truncate flex-1 pr-4">{firm}</span>
                                 <span className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-lg font-semibold">

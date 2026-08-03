@@ -233,7 +233,7 @@ export function ToolsGrid() {
             }
           }
         );
-      } catch (err) {
+      } catch (_err) {
         setLoadingTool(null);
         setToast({ message: "Error opening extension", type: "error" });
       }

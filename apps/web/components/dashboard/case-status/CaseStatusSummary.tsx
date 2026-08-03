@@ -66,7 +66,7 @@ export function CaseStatusSummary() {
       } else {
         setError("Unable to refresh status");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to refresh");
     } finally {
       setIsRefreshing(false);

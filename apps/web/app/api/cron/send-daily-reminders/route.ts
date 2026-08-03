@@ -33,7 +33,7 @@ import {
   getFilingWindow,
   daysBetween,
   type EmploymentSpan,
-} from '@/lib/immigration/optCalculations';
+} from '@/lib/immigration/opt-calculations';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time
@@ -307,7 +307,7 @@ export async function GET(req: NextRequest) {
 
 /**
  * Calculate active tools and their reminder messages.
- * Uses the SHARED calculator from lib/immigration/optCalculations.ts so emails
+ * Uses the SHARED calculator from lib/immigration/opt-calculations.ts so emails
  * always agree with the in-app dashboard numbers (ISS-002, ISS-003).
  */
 function calculateActiveTools(

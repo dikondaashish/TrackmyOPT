@@ -4,7 +4,7 @@ import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
 import {
   buildSubscriptionEndedEmailBodies,
   buildUnusedCancelWinbackEmailBodies,
-} from "@/lib/notifications/transactional-emails";
+} from "@/lib/notifications/transactional/billing";
 import { resolveCheckoutResumeUrl } from "@/lib/billing/checkout-recovery";
 
 describe("Phase 6 Dedicated + win-back", () => {

@@ -8,14 +8,8 @@
 
 import { RESUME_TEMPLATES_FOR_PANEL } from './agent/panel-templates';
 import { hardenInteractiveElements, ensureWidgetAnnouncer } from './design/a11y';
-
-/** Set once the widget mounts; announces status to screen readers. */
-let announceWidgetStatus: (message: string) => void = () => {};
 import {
   isCareerPage,
-  isKnownJobBoardOrAts,
-  hasJobPostingEvidence,
-  CAREER_PATH_RE,
 } from './career-sites';
 import {
   runPrefill,
@@ -39,16 +33,6 @@ import {
   type ResumeStatusState,
 } from './resume-status-row';
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
-import {
-  buildWorkdayCxsJobUrl,
-  chooseJobDescriptionCandidate,
-  deriveJobListingUrl,
-  extractWorkdayJobDescriptionFromCxs,
-  jobDescriptionCacheKey,
-  looksLikeRealJobPostingText,
-  shouldFetchListingJobDescription,
-  type JobDescriptionCandidate,
-} from './job-description';
 import { classifySponsorship, type SponsorshipResult } from './sponsorship-signal';
 import { buildJobSaveSnapshot } from './job-save-snapshot';
 import {
@@ -135,26 +119,58 @@ import {
   createPrivateApprovalBinding,
   type PrivateApprovalBinding,
 } from './private-approval-session';
+import {
+  JobInfo,
+  getJobInfo,
+  isHttpDocument,
+  isLinkedInJobSurface,
+  shouldUseFullJobAssistMode,
+} from './job-posting-scrape';
+import {
+  DefaultView,
+  clearSessionCollapsedOverride,
+  clearWidgetDismissedUrl,
+  currentSessionStorage,
+  getDefaultViewPref,
+  hideForAllSites,
+  hideForThisSite,
+  hideForThisVisit,
+  isWidgetSuppressed,
+  readSessionCollapsedOverride,
+  readWidgetDismissedUrl,
+  readWidgetPosition,
+  saveWidgetPosition,
+  setCollapsedPref,
+  setDefaultViewPref,
+} from './widget-preferences';
+import {
+  ARTIFACT_INACTIVE_FALLBACK_CLASS,
+  ARTIFACT_STALE_BANNER_CLASS,
+  RESUME_PANEL_CLASS,
+  WIDGET_ROOT_ID,
+  WIDGET_THEME_SCOPE_CLASS,
+  WIDGET_THEME_STYLE_ID,
+} from './widget-dom-ids';
+import {
+  resolveJobDescription,
+  scrapeJobDescription,
+} from './job-description-scrape';
+
+/** Set once the widget mounts; announces status to screen readers. */
+let announceWidgetStatus: (message: string) => void = () => {};
+
 
 const SESSION_KEYS = {
   LAST_JOB_CONTEXT: 'tmo_last_job_context',
   LAST_AUTO_ADDED: 'tmo_last_auto_added',
 } as const;
 
-const WIDGET_ROOT_ID = 'tmo-job-tracker-widget';
-const WIDGET_DISMISSED_URL_KEY = 'tmo_job_widget_dismissed_url';
-const WIDGET_POS_KEY = 'tmo_job_widget_pos';
-const WIDGET_COLLAPSED_KEY = 'tmo_job_widget_collapsed';
-// chrome.storage.local: { all?: boolean; domains?: string[] } — persists across visits.
-const WIDGET_HIDE_KEY = 'tmo_widget_hidden';
-const WIDGET_HIDE_SESSION_KEY = 'tmo_job_widget_hide_session';
-const POST_SAVE_SUGGESTION_SEEN_KEY = 'tmo_post_save_suggestions_seen_v1';
-const WIDGET_THEME_STYLE_ID = 'tmo-widget-theme-tokens';
-const WIDGET_THEME_SCOPE_CLASS = 'tmo-widget-theme-scope';
-const ARTIFACT_STALE_BANNER_CLASS = 'tmo-artifact-stale-banner';
-const ARTIFACT_INACTIVE_FALLBACK_CLASS = 'tmo-artifact-inactive-fallback';
 
-type WidgetHideConfig = { all?: boolean; domains?: string[] };
+// chrome.storage.local: { all?: boolean; domains?: string[] } — persists across visits.
+
+
+const POST_SAVE_SUGGESTION_SEEN_KEY = 'tmo_post_save_suggestions_seen_v1';
+
 
 type LastResumeGenerationRequest = {
   job: JobInfo;
@@ -615,13 +631,6 @@ function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
   return section;
 }
 
-function currentSessionStorage(): Storage | null {
-  try {
-    return window.sessionStorage;
-  } catch {
-    return null;
-  }
-}
 
 function ensureWidgetThemeStyles(): void {
   if (document.getElementById(WIDGET_THEME_STYLE_ID)) return;
@@ -1344,207 +1353,31 @@ function isWidgetInteractionInFlight(): boolean {
   return !!widget?.querySelector('.' + RESUME_PANEL_CLASS);
 }
 
-async function getHideConfig(): Promise<WidgetHideConfig> {
-  try {
-    const s = await chrome.storage.local.get(WIDGET_HIDE_KEY);
-    return (s[WIDGET_HIDE_KEY] as WidgetHideConfig) || {};
-  } catch {
-    return {};
-  }
-}
 
 /** True when the widget should stay hidden here (this-visit / this-site / all-sites). */
-async function isWidgetSuppressed(): Promise<boolean> {
-  try {
-    if (sessionStorage.getItem(WIDGET_HIDE_SESSION_KEY) === '1') return true;
-  } catch {
-    /* ignore */
-  }
-  const cfg = await getHideConfig();
-  if (cfg.all) return true;
-  if (Array.isArray(cfg.domains) && cfg.domains.includes(location.hostname)) return true;
-  return false;
-}
 
-function hideForThisVisit() {
-  try {
-    sessionStorage.setItem(WIDGET_HIDE_SESSION_KEY, '1');
-  } catch {
-    /* ignore */
-  }
-}
-
-async function hideForThisSite() {
-  const cfg = await getHideConfig();
-  const domains = new Set(cfg.domains || []);
-  domains.add(location.hostname);
-  try {
-    await chrome.storage.local.set({ [WIDGET_HIDE_KEY]: { ...cfg, domains: [...domains] } });
-  } catch {
-    /* ignore */
-  }
-}
-
-async function hideForAllSites() {
-  const cfg = await getHideConfig();
-  try {
-    await chrome.storage.local.set({ [WIDGET_HIDE_KEY]: { ...cfg, all: true } });
-  } catch {
-    /* ignore */
-  }
-}
 
 /**
  * Explicit per-session collapse override (set only once the user manually
  * toggles collapse/expand on THIS origin, this tab). null = no override yet,
  * so the widget should fall back to the persisted default-view setting.
  */
-function readSessionCollapsedOverride(): boolean | null {
-  try {
-    const v = sessionStorage.getItem(WIDGET_COLLAPSED_KEY);
-    if (v === '1') return true;
-    if (v === '0') return false;
-    return null;
-  } catch {
-    return null;
-  }
-}
 
-function setCollapsedPref(collapsed: boolean) {
-  try {
-    sessionStorage.setItem(WIDGET_COLLAPSED_KEY, collapsed ? '1' : '0');
-  } catch {
-    /* ignore */
-  }
-}
 
-function clearSessionCollapsedOverride() {
-  try {
-    sessionStorage.removeItem(WIDGET_COLLAPSED_KEY);
-  } catch {
-    /* ignore */
-  }
-}
-
-type DefaultView = 'expanded' | 'minimized';
 // chrome.storage.local: 'expanded' | 'minimized' — persists across sites/visits,
 // set from the widget's Settings panel.
-const WIDGET_DEFAULT_VIEW_KEY = 'tmo_widget_default_view';
 
-async function getDefaultViewPref(): Promise<DefaultView> {
-  try {
-    const s = await chrome.storage.local.get(WIDGET_DEFAULT_VIEW_KEY);
-    return s[WIDGET_DEFAULT_VIEW_KEY] === 'minimized' ? 'minimized' : 'expanded';
-  } catch {
-    return 'expanded';
-  }
-}
-
-async function setDefaultViewPref(view: DefaultView): Promise<void> {
-  try {
-    await chrome.storage.local.set({ [WIDGET_DEFAULT_VIEW_KEY]: view });
-  } catch {
-    /* ignore */
-  }
-}
 
 const AUTO_ADD_DEBOUNCE_MS = 15000; // don't auto-add same job twice within 15 min
 const JOB_CONTEXT_MAX_AGE_MS = 30 * 60 * 1000; // use stored context up to 30 min old
 
-interface JobInfo {
-  company_name: string;
-  role_title: string;
-  job_url: string;
-  location?: string;
-  /** Normalized display-only compensation from JobPosting JSON-LD or visible
-   * job-page text. Omitted when the source page does not publish compensation. */
-  salary_text?: string;
-  /** Plain-text posting snapshot captured before the user leaves the job page. */
-  job_description?: string;
-  /** Employer logo — from JSON-LD hiringOrganization.logo when present, else the
-   * current site's own favicon (we're already on the employer's domain, so its
-   * favicon reliably IS the employer's mark). Display-only; never sent to our API. */
-  company_logo_url?: string;
-}
-
-function formatSalaryAmount(value: unknown): string | null {
-  const number = typeof value === 'number'
-    ? value
-    : Number(String(value ?? '').replace(/[^\d.]/g, ''));
-  if (!Number.isFinite(number) || number <= 0) return null;
-  return Math.round(number).toLocaleString('en-US');
-}
-
-function normalizeSalaryUnit(value: unknown): string {
-  const unit = String(value ?? '').trim().toLowerCase();
-  if (/hour|hr/.test(unit)) return 'hour';
-  if (/month|mo/.test(unit)) return 'month';
-  if (/week|wk/.test(unit)) return 'week';
-  if (/day/.test(unit)) return 'day';
-  return 'year';
-}
-
-function salaryTextFromJobPosting(obj: Record<string, unknown>): string | undefined {
-  const base = obj.baseSalary as Record<string, unknown> | string | number | undefined;
-  if (typeof base === 'string') return salaryTextFromVisibleText(base);
-  if (typeof base === 'number') {
-    const amount = formatSalaryAmount(base);
-    return amount ? `$${amount} USD / year` : undefined;
-  }
-  if (!base || typeof base !== 'object') return undefined;
-
-  const currency = String(base.currency || 'USD').toUpperCase();
-  const rawValue = base.value as Record<string, unknown> | string | number | undefined;
-  if (rawValue && typeof rawValue === 'object') {
-    const min = formatSalaryAmount(rawValue.minValue);
-    const max = formatSalaryAmount(rawValue.maxValue);
-    const exact = formatSalaryAmount(rawValue.value);
-    const unit = normalizeSalaryUnit(rawValue.unitText || base.unitText);
-    if (min && max) return `$${min} - $${max} ${currency} / ${unit}`;
-    if (exact) return `$${exact} ${currency} / ${unit}`;
-  }
-  const amount = formatSalaryAmount(rawValue);
-  return amount ? `$${amount} ${currency} / ${normalizeSalaryUnit(base.unitText)}` : undefined;
-}
-
-function salaryTextFromVisibleText(text: string): string | undefined {
-  const compact = String(text || '').replace(/\s+/g, ' ').trim();
-  const range = compact.match(
-    /(?:USD\s*)?\$\s*([\d,]+(?:\.\d{1,2})?)\s*(?:-|–|—|to)\s*(?:USD\s*)?\$\s*([\d,]+(?:\.\d{1,2})?)/i,
-  );
-  if (!range) return undefined;
-  const min = formatSalaryAmount(range[1]);
-  const max = formatSalaryAmount(range[2]);
-  if (!min || !max) return undefined;
-  const unitMatch = compact.match(/(?:\/|per\s+)(yr|year|hour|hr|month|mo|week|wk|day)s?\b/i);
-  return `$${min} - $${max} USD / ${normalizeSalaryUnit(unitMatch?.[1])}`;
-}
-
-function isHttpDocument(): boolean {
-  return location.protocol === 'http:' || location.protocol === 'https:';
-}
-
-function hasJobPostingJsonLdSnippet(): boolean {
-  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
-  for (let i = 0; i < scripts.length; i++) {
-    const t = scripts[i].textContent || '';
-    if (/JobPosting/i.test(t) && /hiringOrganization|title/i.test(t)) return true;
-  }
-  return false;
-}
 
 /**
  * Known job boards and ATS portals render jobs via SPAs, so they get the full
  * MutationObserver + retry loop. Generic career pages (company /careers paths,
  * career subdomains) use a lighter timed-retry approach.
  */
-function shouldUseFullJobAssistMode(): boolean {
-  if (isKnownJobBoardOrAts()) return true;
-  if (hasJobPostingJsonLdSnippet()) return true;
-  const pathAndSearch = location.pathname + (location.search || '');
-  if (CAREER_PATH_RE.test(pathAndSearch)) return true;
-  return false;
-}
+
 
 // Phrases that indicate "application submitted" success (case-insensitive)
 const APPLICATION_SUCCESS_PATTERNS = [
@@ -1635,425 +1468,19 @@ function tryAutoAddWithJob(job: JobInfo) {
 
 // --- Generic parser: works on any career page ---
 
-function collectJsonLdObjects(data: unknown, out: Record<string, unknown>[]): void {
-  if (!data || typeof data !== 'object') return;
-  const obj = data as Record<string, unknown>;
-  if (Array.isArray(data)) {
-    for (let i = 0; i < data.length; i++) collectJsonLdObjects(data[i], out);
-    return;
-  }
-  out.push(obj);
-  if (obj['@graph'] && Array.isArray(obj['@graph'])) {
-    for (let i = 0; i < obj['@graph'].length; i++) collectJsonLdObjects(obj['@graph'][i], out);
-  }
-}
-
-function typesIncludeJobPosting(types: unknown): boolean {
-  if (types === 'JobPosting') return true;
-  if (Array.isArray(types)) {
-    return types.some((t) => t === 'JobPosting' || (typeof t === 'string' && /JobPosting/i.test(t)));
-  }
-  return typeof types === 'string' && /JobPosting/i.test(types);
-}
-
-function jobPostingFromLdObject(obj: Record<string, unknown>): JobInfo | null {
-  const types = obj['@type'];
-  if (!typesIncludeJobPosting(types)) return null;
-  const title = (obj.title as string)?.trim();
-  const hiringOrg = obj.hiringOrganization as Record<string, unknown> | string | undefined;
-  let company = '';
-  let companyLogo = '';
-  if (typeof hiringOrg === 'string') company = hiringOrg.trim();
-  else if (hiringOrg && typeof hiringOrg === 'object') {
-    company = ((hiringOrg.name as string) || (hiringOrg.legalName as string) || '').trim();
-    // schema.org Organization.logo is either a plain URL string or an ImageObject { url }.
-    const logo = hiringOrg.logo as string | Record<string, unknown> | undefined;
-    if (typeof logo === 'string') companyLogo = logo.trim();
-    else if (logo && typeof logo === 'object') companyLogo = ((logo.url as string) || '').trim();
-  }
-  const jobLoc = obj.jobLocation as Record<string, unknown> | Record<string, unknown>[] | undefined;
-  let location = '';
-  if (Array.isArray(jobLoc) && jobLoc.length > 0) {
-    const first = jobLoc[0] as Record<string, unknown>;
-    location =
-      ((first.address as Record<string, unknown>)?.addressLocality as string) ||
-      (first.name as string) ||
-      '';
-  } else if (jobLoc && typeof jobLoc === 'object' && !Array.isArray(jobLoc)) {
-    const addr = (jobLoc as Record<string, unknown>).address as Record<string, unknown> | undefined;
-    location =
-      (addr?.addressLocality as string) || ((jobLoc as Record<string, unknown>).name as string) || '';
-  }
-  if (title && company) {
-    return {
-      company_name: company,
-      role_title: title,
-      job_url: window.location.href,
-      location: location?.trim() || undefined,
-      salary_text: salaryTextFromJobPosting(obj),
-      company_logo_url: companyLogo || undefined,
-    };
-  }
-  return null;
-}
-
-function getJsonLdJobPosting(sourceDocument: Document = document): JobInfo | null {
-  try {
-    const scripts = sourceDocument.querySelectorAll('script[type="application/ld+json"]');
-    for (let i = 0; i < scripts.length; i++) {
-      const script = scripts[i];
-      const text = script.textContent?.trim();
-      if (!text) continue;
-      let data: unknown;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        continue;
-      }
-      const flat: Record<string, unknown>[] = [];
-      collectJsonLdObjects(data, flat);
-      for (let j = 0; j < flat.length; j++) {
-        const parsed = jobPostingFromLdObject(flat[j]);
-        if (parsed) return parsed;
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return null;
-}
-
-function getCompanyFromDomain(hostname: string): string {
-  // careers.company.com, jobs.company.com, company.com/careers
-  const parts = hostname.replace(/^www\./, '').split('.');
-  if (parts.length >= 2) {
-    const base = parts[parts.length - 2]; // "company" from careers.company.com
-    if (base && !['careers', 'jobs', 'job', 'recruiting', 'talent', 'hire', 'apply'].includes(base.toLowerCase())) {
-      return base.charAt(0).toUpperCase() + base.slice(1).toLowerCase();
-    }
-  }
-  if (parts.length >= 1 && parts[0]) {
-    const first = parts[0].toLowerCase();
-    if (!['www', 'careers', 'jobs', 'job', 'recruiting', 'talent', 'hire', 'apply', 'career'].includes(first)) {
-      return first.charAt(0).toUpperCase() + first.slice(1);
-    }
-  }
-  return '';
-}
-
-function parseTitleAndCompany(title: string): { role_title: string; company_name: string } | null {
-  const t = title.trim();
-  if (!t || t.length < 3) return null;
-  // "Job Title | Company", "Job Title at Company", "Company - Job Title", "Company: Job Title"
-  const at = t.split(/\s+at\s+/i);
-  if (at.length === 2) return { role_title: at[0].trim(), company_name: at[1].trim() };
-  const pipe = t.split(/\s*\|\s*/);
-  if (pipe.length === 2) return { role_title: pipe[0].trim(), company_name: pipe[1].trim() };
-  const dash = t.split(/\s*-\s*/);
-  if (dash.length === 2) {
-    const a = dash[0].trim();
-    const b = dash[1].trim();
-    if (a.length > 0 && b.length > 0) return { role_title: b, company_name: a };
-  }
-  const colon = t.split(/\s*:\s*/);
-  if (colon.length === 2) return { role_title: colon[1].trim(), company_name: colon[0].trim() };
-  return null;
-}
-
-function getMetaAndTitleJob(): JobInfo | null {
-  const url = window.location.href;
-  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content')?.trim();
-  const twitterTitle = document.querySelector('meta[name="twitter:title"]')?.getAttribute('content')?.trim();
-  const title = document.title?.trim();
-  const desc = document.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() ||
-    document.querySelector('meta[property="og:description"]')?.getAttribute('content')?.trim();
-  const candidate = ogTitle || twitterTitle || title;
-  if (!candidate) return null;
-  const parsed = parseTitleAndCompany(candidate);
-  if (parsed && parsed.role_title.length >= 2 && parsed.company_name.length >= 1) {
-    return {
-      company_name: parsed.company_name,
-      role_title: parsed.role_title,
-      job_url: url,
-      location: undefined,
-    };
-  }
-  // Use full title as role_title and company from domain
-  const companyFromDomain = getCompanyFromDomain(window.location.hostname);
-  if (companyFromDomain && candidate.length >= 3) {
-    return {
-      company_name: companyFromDomain,
-      role_title: candidate,
-      job_url: url,
-      location: undefined,
-    };
-  }
-  return null;
-}
-
-function getDomFallbackJob(): JobInfo | null {
-  const url = window.location.href;
-  const heading =
-    document.querySelector('h1') ||
-    document.querySelector('[class*="job-title"]') ||
-    document.querySelector('h2[class*="title"]');
-  const role_title = heading?.textContent?.trim();
-  if (!role_title || role_title.length < 2) return null;
-  const companyFromDomain = getCompanyFromDomain(window.location.hostname);
-  if (!companyFromDomain) return null;
-  return {
-    company_name: companyFromDomain,
-    role_title,
-    job_url: url,
-    location: undefined,
-  };
-}
-
-const GENERIC_CAREER_HEADING_RE = /^(career(s)?|career opportunities|job(s)?|job opportunities|job openings|current openings|open positions|employment opportunities|join (our|the) team|work with us|search jobs)$/i;
-
-function cleanRoleCandidate(value: string | null | undefined): string {
-  return (value || '').replace(/\s+/g, ' ').trim();
-}
-
-function isSpecificRoleTitle(value: string, companyName: string): boolean {
-  if (value.length < 3 || value.length > 160) return false;
-  if (GENERIC_CAREER_HEADING_RE.test(value)) return false;
-  if (value.toLowerCase() === companyName.trim().toLowerCase()) return false;
-  if (/^(apply|apply now|job details|position details|description|overview)$/i.test(value)) return false;
-  return true;
-}
 
 /**
  * Recover the selected role when a generic careers-page title was parsed.
  * Ordered selectors favor explicit ATS job-title signals before headings so a
  * page-wide "Career Opportunities" heading cannot mask the actual role.
  */
-function findSpecificRoleFromDom(companyName: string): string | null {
-  const selectors = [
-    '[data-automation-id="jobPostingHeader"]',
-    '[data-testid*="job-title" i]',
-    '[data-testid*="jobTitle" i]',
-    '[itemprop="title"]',
-    '[id*="job-title" i]',
-    '[class*="job-title" i]',
-    '[class*="jobTitle" i]',
-    '[class*="job_title" i]',
-    '.iCIMS_JobHeader',
-    '.iCIMS_JobTitle',
-    '[class*="iCIMS" i] [class*="jobTitle" i]',
-    '.posting-headline h1',
-    '.posting-headline h2',
-    '[aria-current="true"] [class*="title" i]',
-    '[aria-selected="true"] [class*="title" i]',
-    'main h1',
-  ];
 
-  const seen = new Set<Element>();
-  for (const selector of selectors) {
-    let elements: Element[] = [];
-    try {
-      elements = Array.from(document.querySelectorAll(selector));
-    } catch {
-      continue;
-    }
-    for (const element of elements) {
-      if (seen.has(element)) continue;
-      seen.add(element);
-      const candidate = cleanRoleCandidate(element.textContent);
-      if (isSpecificRoleTitle(candidate, companyName)) return candidate;
-    }
-  }
-  return null;
-}
 
 // --- Site-specific parsers (higher accuracy when available) ---
 
-function isLinkedInJobSurface(): boolean {
-  const path = window.location.pathname;
-  const q = window.location.search || '';
-  if (/^\/jobs(\/|$)/i.test(path)) return true;
-  if (/[?&]currentJobId=\d+/i.test(q)) return true;
-  if (/^\/job\//i.test(path)) return true;
-  return false;
-}
 
 /** Right-hand job pane on LinkedIn search / collections (SPA loads content after idle). */
-function linkedInJobDetailsRoots(): Element[] {
-  const selectors = [
-    '.jobs-search__job-details--wrapper',
-    '.jobs-search__job-details',
-    '.jobs-search__job-details--container',
-    '[class*="jobs-search-job-details"]',
-    '[class*="job-details-reader"]',
-    '.jobs-details',
-    'div.scaffold-layout__list-detail-inner',
-    '.scaffold-layout__list-detail',
-    '[data-testid="job-search-details"]',
-    'aside[class*="job-details"]',
-    'div[class*="jobs-details"]',
-  ];
-  const seen = new Set<Element>();
-  const out: Element[] = [];
-  for (let i = 0; i < selectors.length; i++) {
-    const el = document.querySelector(selectors[i]);
-    if (el && !seen.has(el)) {
-      seen.add(el);
-      out.push(el);
-    }
-  }
-  return out;
-}
 
-function pickLinkedInTitleCompanyLocation(
-  root: Document | Element
-): { role_title: string; company_name: string; location?: string } | null {
-  const titleSelectors = [
-    '[data-testid="jobsearch-JobInfoHeader-title"]',
-    '.job-details-jobs-unified-top-card__job-title',
-    '.jobs-details-top-card__job-title',
-    '.jobs-details-top-card__title',
-    '.jobs-unified-top-card__job-title',
-    'h1[class*="job-details-jobs-unified-top-card"]',
-    'h1[class*="jobs-unified-top-card"]',
-    'h1[class*="job-title"]',
-    'div[class*="job-details-jobs-unified-top-card"] h1',
-    'div[class*="jobs-unified-top-card"] h1',
-    '.jobs-search__job-details--container h1',
-    'article[data-job-id] h1',
-    'h1.t-24',
-    'h1[class*="t-24"]',
-    'h1',
-  ];
-
-  const companySelectors = [
-    '.job-details-jobs-unified-top-card__company-name a',
-    '.job-details-jobs-unified-top-card__company-name',
-    '.jobs-unified-top-card__company-name a',
-    '.jobs-unified-top-card__company-name',
-    '.jobs-details-top-card__company-name',
-    'a[data-tracking-control-name="public_jobs_topcard-org-name"]',
-    'a[href*="linkedin.com/company/"]',
-    'div[class*="top-card"] a[href*="/company/"]',
-    'span[class*="jobs-unified-top-card__company-name"] a',
-  ];
-
-  const locationSelectors = [
-    '.job-details-jobs-unified-top-card__bullet',
-    '.jobs-unified-top-card__bullet',
-    '.jobs-details-top-card__primary-description-container',
-    'span[class*="bullet"]',
-  ];
-
-  let titleEl: Element | null = null;
-  for (let i = 0; i < titleSelectors.length; i++) {
-    const el = root.querySelector(titleSelectors[i]);
-    const t = el?.textContent?.trim();
-    if (t && t.length > 1 && t.length < 500 && !/^jobs$/i.test(t) && !/^linkedin$/i.test(t)) {
-      titleEl = el;
-      break;
-    }
-  }
-
-  let companyEl: Element | null = null;
-  for (let i = 0; i < companySelectors.length; i++) {
-    const el = root.querySelector(companySelectors[i]);
-    const t = el?.textContent?.trim();
-    if (t && t.length > 1 && t.length < 200) {
-      companyEl = el;
-      break;
-    }
-  }
-
-  let locationEl: Element | null = null;
-  for (let i = 0; i < locationSelectors.length; i++) {
-    const el = root.querySelector(locationSelectors[i]);
-    if (el?.textContent?.trim()) {
-      locationEl = el;
-      break;
-    }
-  }
-
-  const role_title = titleEl?.textContent?.trim();
-  const company_name = companyEl?.textContent?.trim();
-  if (!role_title || !company_name) return null;
-  const location = locationEl?.textContent?.trim();
-  return { role_title, company_name, location: location || undefined };
-}
-
-function getLinkedInJobInfo(): JobInfo | null {
-  const url = window.location.href;
-  if (!url.includes('linkedin.com') || !isLinkedInJobSurface()) return null;
-
-  const tryOgMeta = (): JobInfo | null => {
-    const og = document.querySelector('meta[property="og:title"]')?.getAttribute('content')?.trim();
-    if (!og) return null;
-    const parsed = parseTitleAndCompany(og);
-    if (parsed && parsed.role_title.length >= 2 && parsed.company_name.length >= 1) {
-      return {
-        company_name: parsed.company_name,
-        role_title: parsed.role_title,
-        job_url: url,
-        location: undefined,
-      };
-    }
-    return null;
-  };
-
-  // 1) Prefer the job-details pane (search-results + currentJobId loads here, not in main).
-  const roots = linkedInJobDetailsRoots();
-  for (let r = 0; r < roots.length; r++) {
-    const picked = pickLinkedInTitleCompanyLocation(roots[r]);
-    if (picked) {
-      return {
-        company_name: picked.company_name,
-        role_title: picked.role_title,
-        job_url: url,
-        location: picked.location,
-      };
-    }
-  }
-
-  // 2) Whole document (older / simpler layouts).
-  const docPick = pickLinkedInTitleCompanyLocation(document);
-  if (docPick) {
-    return {
-      company_name: docPick.company_name,
-      role_title: docPick.role_title,
-      job_url: url,
-      location: docPick.location,
-    };
-  }
-
-  return tryOgMeta() || getJsonLdJobPosting() || null;
-}
-
-function getIndeedJobInfo(): JobInfo | null {
-  const url = window.location.href;
-  const looksLikeJob =
-    url.includes('viewjob') ||
-    url.includes('jk=') ||
-    url.includes('vjk=') ||
-    /\/jobs\/view\//i.test(url) ||
-    /\/rc\/clk/i.test(url);
-  if (!url.includes('indeed.com') || !looksLikeJob) return null;
-  const titleEl =
-    document.querySelector('h1.jobsearch-JobInfoHeader-title') ||
-    document.querySelector('[data-testid="jobsearch-JobInfoHeader-title"]') ||
-    document.querySelector('h1');
-  const companyEl =
-    document.querySelector('[data-testid="inlineHeader-companyName"]') ||
-    document.querySelector('.jobsearch-InlineCompanyRating-companyHeader') ||
-    document.querySelector('div[data-tn-component="jobHeader"] a');
-  const locationEl =
-    document.querySelector('[data-testid="jobsearch-Location"]') ||
-    document.querySelector('.jobsearch-JobInfoHeader-subtitle') ||
-    document.querySelector('[class*="location"]');
-  const role_title = titleEl?.textContent?.trim();
-  const company_name = companyEl?.textContent?.trim();
-  const location = locationEl?.textContent?.trim();
-  if (!role_title || !company_name) return null;
-  return { company_name, role_title, job_url: url, location: location || undefined };
-}
 
 /**
  * Fallback employer logo: the CURRENT SITE's own favicon. Only meaningful on
@@ -2061,177 +1488,14 @@ function getIndeedJobInfo(): JobInfo | null {
  * page, etc.) — NOT on third-party job boards like LinkedIn/Indeed, where the
  * favicon is the board's icon, not the employer's.
  */
-function getPageFaviconUrl(): string | undefined {
-  try {
-    const link =
-      document.querySelector<HTMLLinkElement>('link[rel~="icon" i]') ||
-      document.querySelector<HTMLLinkElement>('link[rel="shortcut icon" i]') ||
-      document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon" i]');
-    if (link?.href) return link.href;
-    return `${location.origin}/favicon.ico`;
-  } catch {
-    return undefined;
-  }
-}
+
 
 /**
  * iCIMS branded portals keep the real job DOM inside #icims_content_iframe.
  * The top frame still exposes a stable /jobs/<id>/<slug>/job URL and a real
  * document title, while og:title remains a generic careers-page title.
  */
-function getICimsJobInfo(): JobInfo | null {
-  if (!window.location.hostname.endsWith('.icims.com')) return null;
-  if (!/^\/jobs\/\d+\/[^/]+\/job\/?$/i.test(window.location.pathname)) return null;
 
-  const pageTitle = cleanRoleCandidate(document.title);
-  let titleAndLocation = pageTitle.split(/\s+\|\s+Careers at\s+/i)[0]?.trim() || '';
-  let locationText: string | undefined;
-
-  const lastIn = titleAndLocation.toLowerCase().lastIndexOf(' in ');
-  if (lastIn > 2) {
-    const possibleLocation = titleAndLocation.slice(lastIn + 4).trim();
-    if (/^(remote|hybrid|on-site)\b/i.test(possibleLocation) || possibleLocation.includes(',')) {
-      locationText = possibleLocation;
-      titleAndLocation = titleAndLocation.slice(0, lastIn).trim();
-    }
-  }
-
-  if (!isSpecificRoleTitle(titleAndLocation, '')) {
-    const slug = window.location.pathname.match(/^\/jobs\/\d+\/([^/]+)\/job/i)?.[1] || '';
-    titleAndLocation = slug
-      .split('-')
-      .filter(Boolean)
-      .map((word) => word.length <= 2 ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }
-  if (!titleAndLocation) return null;
-
-  const logo = document.querySelector<HTMLImageElement>(
-    'header img[alt*="Logo" i], [role="banner"] img[alt*="Logo" i], img[alt*="Insurance Logo" i]'
-  );
-  const companyFromLogo = cleanRoleCandidate(logo?.alt).replace(/\s+logo(?:\s*\([^)]*\))?$/i, '');
-  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || '';
-  const companyFromOg = ogTitle.split('|').map((part) => part.trim()).filter(Boolean).pop() || '';
-  const companyName = companyFromLogo || companyFromOg || getCompanyFromDomain(window.location.hostname);
-  if (!companyName) return null;
-
-  // iCIMS commonly renders the actual posting inside a same-origin iframe.
-  // Read structured/visible data from that document when available, while
-  // keeping the stable top-frame job URL.
-  let iframeDocument: Document | null = null;
-  for (const frame of Array.from(document.querySelectorAll('iframe'))) {
-    try {
-      if (frame.contentDocument?.body) {
-        iframeDocument = frame.contentDocument;
-        break;
-      }
-    } catch {
-      /* cross-origin frame; ignore */
-    }
-  }
-  const iframeText = iframeDocument?.body?.innerText || '';
-  const structured = iframeDocument ? getJsonLdJobPosting(iframeDocument) : null;
-  const salaryText = structured?.salary_text || salaryTextFromVisibleText(iframeText);
-
-  return {
-    company_name: structured?.company_name || companyName,
-    role_title: titleAndLocation,
-    job_url: window.location.href,
-    location: structured?.location || locationText,
-    salary_text: salaryText,
-    company_logo_url: structured?.company_logo_url || logo?.src || undefined,
-  };
-}
-
-function getJobInfo(): JobInfo | null {
-  const host = window.location.hostname;
-  const addVisibleSalary = (job: JobInfo | null): JobInfo | null => {
-    if (job && !job.salary_text) {
-      job.salary_text = salaryTextFromVisibleText(document.body?.innerText || '');
-    }
-    return job;
-  };
-  if (host.includes('linkedin.com')) {
-    return addVisibleSalary(getLinkedInJobInfo() || getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob());
-  }
-  if (host.includes('indeed.com')) {
-    return addVisibleSalary(getIndeedJobInfo() || getJsonLdJobPosting() || getMetaAndTitleJob() || getDomFallbackJob());
-  }
-  if (host.endsWith('.icims.com')) {
-    const icimsJob = getICimsJobInfo();
-    if (icimsJob) return addVisibleSalary(icimsJob);
-  }
-
-  // We're on the employer's/ATS's own site — its favicon reliably represents
-  // the employer, so use it whenever the parser didn't already find an
-  // explicit logo (e.g. JSON-LD hiringOrganization.logo).
-  const structuredJob = getJsonLdJobPosting();
-  // The title/meta and <h1> parsers accept almost anything, and CAREER_PATH_RE
-  // matched us here from a path alone — /apply, /application, /join-us. On an
-  // unknown host with no JobPosting data that combination also describes
-  // university admissions and credit-card or loan applications, where offering
-  // to prefill the applicant's personal details would be plainly wrong. Require
-  // the page's own copy to corroborate that it is a job posting first.
-  const weakParsersAllowed =
-    isKnownJobBoardOrAts() ||
-    hasJobPostingEvidence(document.body?.innerText || '');
-  const job =
-    structuredJob ||
-    (weakParsersAllowed ? getMetaAndTitleJob() || getDomFallbackJob() : null);
-  if (job && !isSpecificRoleTitle(cleanRoleCandidate(job.role_title), job.company_name)) {
-    const specificRole = findSpecificRoleFromDom(job.company_name);
-    if (specificRole) job.role_title = specificRole;
-    else return null; // Career landing/list page, not a specific job posting.
-  }
-  if (job && !job.company_logo_url) {
-    job.company_logo_url = getPageFaviconUrl();
-  }
-  return addVisibleSalary(job);
-}
-
-function readWidgetDismissedUrl(): string | null {
-  try {
-    return sessionStorage.getItem(WIDGET_DISMISSED_URL_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function setWidgetDismissedUrl(url: string) {
-  try {
-    sessionStorage.setItem(WIDGET_DISMISSED_URL_KEY, url);
-  } catch {
-    /* ignore */
-  }
-}
-
-function clearWidgetDismissedUrl() {
-  try {
-    sessionStorage.removeItem(WIDGET_DISMISSED_URL_KEY);
-  } catch {
-    /* ignore */
-  }
-}
-
-function readWidgetPosition(): { top: number } | null {
-  try {
-    const raw = sessionStorage.getItem(WIDGET_POS_KEY);
-    if (!raw) return null;
-    const p = JSON.parse(raw) as { top?: number };
-    if (typeof p.top !== 'number') return null;
-    return { top: p.top };
-  } catch {
-    return null;
-  }
-}
-
-function saveWidgetPosition(top: number) {
-  try {
-    sessionStorage.setItem(WIDGET_POS_KEY, JSON.stringify({ top }));
-  } catch {
-    /* ignore */
-  }
-}
 
 /**
  * Vertical-only drag. The widget stays PINNED to the right edge (right:0) and
@@ -3468,7 +2732,6 @@ function actionBtn(
 
 // ── Generate custom resume (in-widget) ──────────────────────────────────────
 
-const RESUME_PANEL_CLASS = 'tmo-resume-panel';
 
 function ensureSpinKeyframes(): void {
   if (document.getElementById('tmo-spin-style')) return;
@@ -3479,161 +2742,10 @@ function ensureSpinKeyframes(): void {
 }
 
 /** Best-effort job-description text from a document (page or fetched listing). */
-function scrapeJobDescriptionFromDocument(
-  doc: Document,
-  source: JobDescriptionCandidate['source'] = 'specific',
-): JobDescriptionCandidate[] {
-  const candidates: JobDescriptionCandidate[] = [];
-  const selectors = [
-    '[data-testid*="jobDescription" i]',
-    '[class*="job-description" i]',
-    '[class*="jobDescription" i]',
-    '[id*="job-description" i]',
-    '[class*="description" i]',
-    'main',
-    'article',
-  ];
-  const root = doc.documentElement;
-  if (!root) return candidates;
 
-  if (source !== 'listing') {
-    for (const frame of Array.from(doc.querySelectorAll<HTMLIFrameElement>('iframe'))) {
-      try {
-        const frameDocument = frame.contentDocument;
-        const frameText = frameDocument?.body?.innerText || '';
-        if (frameText) candidates.push({ source: 'frame', text: frameText });
-        if (frameDocument) {
-          for (const selector of selectors) {
-            for (const element of Array.from(frameDocument.querySelectorAll<HTMLElement>(selector))) {
-              if (element.innerText) candidates.push({ source: 'frame', text: element.innerText });
-            }
-          }
-        }
-      } catch {
-        /* cross-origin frame; child-frame prefill remains isolated */
-      }
-    }
-  }
-
-  for (const selector of selectors) {
-    for (const element of Array.from(doc.querySelectorAll<HTMLElement>(selector))) {
-      if (element.closest(`#${WIDGET_ROOT_ID}, #tmo-resume-chooser, #tmo-application-status-dialog`)) continue;
-      if (element.innerText) candidates.push({ source, text: element.innerText });
-    }
-  }
-
-  const body = doc.body;
-  if (body) {
-    const outerText = Array.from(body.children || [])
-      .filter((element) => ![
-        WIDGET_ROOT_ID,
-        'tmo-resume-chooser',
-        'tmo-application-status-dialog',
-        'tmo-easy-apply-toast',
-      ].includes(element.id))
-      .filter((element) => !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(element.tagName))
-      .map((element) => (element as HTMLElement).innerText || '')
-      .filter(Boolean)
-      .join('\n\n');
-    if (outerText) {
-      candidates.push({
-        source: source === 'listing' ? 'listing' : 'outer',
-        text: outerText,
-      });
-    }
-  }
-
-  return candidates;
-}
 
 /** Sync scrape of the open document only (no network). */
-function scrapeJobDescription(): string {
-  return chooseJobDescriptionCandidate(scrapeJobDescriptionFromDocument(document));
-}
 
-const listingJobDescriptionCache = new Map<string, string>();
-const JD_SESSION_CACHE_KEY = 'tmo_jd_listing_cache_v1';
-
-function readSessionJdCache(key: string): string {
-  try {
-    const raw = sessionStorage.getItem(JD_SESSION_CACHE_KEY);
-    if (!raw) return '';
-    const parsed = JSON.parse(raw) as Record<string, string>;
-    const value = parsed[key];
-    return typeof value === 'string' ? value : '';
-  } catch {
-    return '';
-  }
-}
-
-function writeSessionJdCache(key: string, text: string): void {
-  if (!text || text.length < 200) return;
-  try {
-    const raw = sessionStorage.getItem(JD_SESSION_CACHE_KEY);
-    const parsed = raw ? (JSON.parse(raw) as Record<string, string>) : {};
-    parsed[key] = text.slice(0, 15_000);
-    // Cap entries so sessionStorage stays small across a long apply binge.
-    const keys = Object.keys(parsed);
-    if (keys.length > 20) {
-      for (const stale of keys.slice(0, keys.length - 20)) delete parsed[stale];
-    }
-    sessionStorage.setItem(JD_SESSION_CACHE_KEY, JSON.stringify(parsed));
-  } catch {
-    // Best-effort only.
-  }
-}
-
-function rememberJobDescription(pageUrl: string, text: string): void {
-  if (!looksLikeRealJobPostingText(text)) return;
-  const key = jobDescriptionCacheKey(pageUrl);
-  listingJobDescriptionCache.set(key, text);
-  writeSessionJdCache(key, text);
-}
-
-async function fetchWorkdayCxsJobDescription(pageUrl: string): Promise<string> {
-  const cxsUrl = buildWorkdayCxsJobUrl(pageUrl);
-  if (!cxsUrl) return '';
-  try {
-    const response = await fetch(cxsUrl, {
-      credentials: 'include',
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) return '';
-    const payload = (await response.json().catch(() => null)) as unknown;
-    return extractWorkdayJobDescriptionFromCxs(payload);
-  } catch {
-    return '';
-  }
-}
-
-async function fetchListingJobDescription(listingUrl: string): Promise<string> {
-  const cached = listingJobDescriptionCache.get(listingUrl);
-  if (cached) return cached;
-  const sessionCached = readSessionJdCache(listingUrl);
-  if (sessionCached) {
-    listingJobDescriptionCache.set(listingUrl, sessionCached);
-    return sessionCached;
-  }
-  try {
-    const response = await fetch(listingUrl, {
-      credentials: 'include',
-      headers: { Accept: 'text/html' },
-    });
-    if (!response.ok) return '';
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const text = chooseJobDescriptionCandidate(
-      scrapeJobDescriptionFromDocument(doc, 'listing'),
-    );
-    if (text) {
-      listingJobDescriptionCache.set(listingUrl, text);
-      writeSessionJdCache(listingUrl, text);
-    }
-    return text;
-  } catch {
-    return '';
-  }
-}
 
 /**
  * Prefer the real posting when the user is on an apply form (Workday, Jobvite,
@@ -3643,45 +2755,7 @@ async function fetchListingJobDescription(listingUrl: string): Promise<string> {
  * 3) HTML fetch of the sibling listing URL
  * 4) on-page scrape
  */
-async function resolveJobDescription(pageUrl: string = window.location.href): Promise<string> {
-  const scraped = scrapeJobDescription();
-  const cacheKey = jobDescriptionCacheKey(pageUrl);
-  rememberJobDescription(pageUrl, scraped);
 
-  const cached =
-    listingJobDescriptionCache.get(cacheKey) || readSessionJdCache(cacheKey);
-  if (cached && looksLikeRealJobPostingText(cached)) {
-    if (!looksLikeRealJobPostingText(scraped) || cached.length > scraped.length) {
-      return cached;
-    }
-  }
-
-  if (!shouldFetchListingJobDescription(pageUrl, scraped)) {
-    return scraped;
-  }
-
-  const workdayText = await fetchWorkdayCxsJobDescription(pageUrl);
-  if (workdayText && looksLikeRealJobPostingText(workdayText)) {
-    rememberJobDescription(pageUrl, workdayText);
-    return workdayText.slice(0, 15_000);
-  }
-
-  const listingUrl = deriveJobListingUrl(pageUrl) || cacheKey;
-  const listingText = listingUrl
-    ? await fetchListingJobDescription(listingUrl)
-    : '';
-  if (listingText) {
-    rememberJobDescription(pageUrl, listingText);
-  }
-
-  return (
-    chooseJobDescriptionCandidate([
-      ...(workdayText ? [{ source: 'listing' as const, text: workdayText }] : []),
-      ...(listingText ? [{ source: 'listing' as const, text: listingText }] : []),
-      { source: 'outer', text: scraped },
-    ]) || scraped
-  );
-}
 
 function downloadGeneratedPdf(base64: string, filename: string): void {
   const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));

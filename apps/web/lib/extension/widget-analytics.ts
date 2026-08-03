@@ -1,4 +1,4 @@
-export const EXTENSION_WIDGET_EVENTS = [
+const EXTENSION_WIDGET_EVENTS = [
   'extension_widget_shown',
   'extension_widget_sponsorship_classified',
   'extension_widget_job_saved',
@@ -9,7 +9,7 @@ export const EXTENSION_WIDGET_EVENTS = [
   'extension_widget_guided_navigation',
 ] as const;
 
-export type ExtensionWidgetEvent = (typeof EXTENSION_WIDGET_EVENTS)[number];
+type ExtensionWidgetEvent = (typeof EXTENSION_WIDGET_EVENTS)[number];
 
 const EVENT_SET = new Set<string>(EXTENSION_WIDGET_EVENTS);
 const EVENT_KEYS: Record<ExtensionWidgetEvent, readonly string[]> = {

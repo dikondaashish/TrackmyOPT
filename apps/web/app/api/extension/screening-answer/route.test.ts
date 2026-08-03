@@ -2,14 +2,14 @@ import { NextRequest } from 'next/server';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { consumeAiGeneration } from '@/lib/ai-generation-limits';
 import { generateGroundedText } from '@/lib/ai/generate-grounded-text';
 import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 
 import { POST } from './route';
 
-vi.mock('@/lib/auth/getUserId', () => ({
+vi.mock('@/lib/auth/get-user-id', () => ({
   getUserId: vi.fn(),
 }));
 vi.mock('@/lib/ai-generation-limits', () => ({

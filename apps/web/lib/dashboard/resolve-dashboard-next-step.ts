@@ -12,14 +12,14 @@ export type DashboardNextStepAction =
   | "view_case_status"
   | "pro_manage";
 
-export type DashboardNextStepInput = {
+type DashboardNextStepInput = {
   isPremium: boolean;
   hasReceipt: boolean;
   lastCheckedAt: string | null;
   currentStatus: string | null;
 };
 
-export type ResolvedDashboardNextStep = {
+type ResolvedDashboardNextStep = {
   state: DashboardNextStepState;
   action: DashboardNextStepAction;
   href: string;

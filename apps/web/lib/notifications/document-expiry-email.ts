@@ -14,7 +14,7 @@ import {
   emailWarningNote,
 } from "./email-layout";
 
-export interface DocumentExpiryReminderInput {
+interface DocumentExpiryReminderInput {
   filename: string;
   expiry_date: string;
   document_type: string;

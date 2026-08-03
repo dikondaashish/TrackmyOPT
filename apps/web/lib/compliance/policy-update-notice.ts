@@ -5,7 +5,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { COMPANY, LEGAL_CONTACT, LEGAL_VERSION_ID } from "@/lib/legal/legal-config";
-import { getAppBaseUrl } from "@/lib/notifications/transactional-emails";
+import { getAppBaseUrl } from "@/lib/notifications/transactional/queue";
 import {
   EMAIL,
   emailBrandHeaderWithLogo,
@@ -23,7 +23,7 @@ import { emailInfoCallout } from "@/lib/notifications/email-layout";
 import { getSmtpFromHeader, sendMailWithRetry } from "@/lib/notifications/email-smtp";
 
 export const POLICY_UPDATE_NOTICE_TYPE = "policy_update_2026_05_31" as const;
-export const POLICY_UPDATE_NOTICE_TEMPLATE = "policy_update_notice_2026_05_31" as const;
+const POLICY_UPDATE_NOTICE_TEMPLATE = "policy_update_notice_2026_05_31" as const;
 export const POLICY_UPDATE_NOTICE_SUBJECT = "TrackMyOPT policy update";
 
 const INVALID_EMAIL_DOMAINS = [
@@ -54,7 +54,7 @@ export function recipientShowsBillingUnchangedNotice(planTier: string | null | u
   return planTier?.toLowerCase() === "pro";
 }
 
-export type RecipientExclusionReason =
+type RecipientExclusionReason =
   | "invalid_email"
   | "invalid_domain"
   | "test_account"
@@ -71,7 +71,7 @@ export type PolicyNoticeAuthRow = {
   planTier: string | null;
 };
 
-export type PolicyNoticeDryRunStats = {
+type PolicyNoticeDryRunStats = {
   activeAuthUsers: number;
   usersWithProfiles: number;
   authOnlyUsers: number;
@@ -88,7 +88,7 @@ export type PolicyNoticeDryRunStats = {
   withoutBillingUnchangedNotice: number;
 };
 
-export type RecipientFilterResult = {
+type RecipientFilterResult = {
   eligible: PolicyNoticeRecipient[];
   excluded: { reason: RecipientExclusionReason; count: number }[];
   stats: PolicyNoticeDryRunStats;
@@ -431,7 +431,7 @@ async function fetchAuthUsersById(
  * All active auth.users with valid email; profile optional (first name only).
  * Legal notice uses auth account email as source of truth.
  */
-export async function fetchActiveAuthUsersForPolicyNotice(
+async function fetchActiveAuthUsersForPolicyNotice(
   supabase: SupabaseClient
 ): Promise<PolicyNoticeAuthRow[]> {
   const [profiles, authById] = await Promise.all([
@@ -537,7 +537,7 @@ export async function loadAlreadySentNoticeEmails(
   return sent;
 }
 
-export type SendPolicyNoticeResult =
+type SendPolicyNoticeResult =
   | { status: "sent"; providerMessageId: string }
   | { status: "skipped"; reason: string }
   | { status: "failed"; error: string };

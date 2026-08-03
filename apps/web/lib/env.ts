@@ -42,7 +42,7 @@ const clientEnvSchema = z.object({
     NEXT_PUBLIC_USCIS_MOCK: z.enum(['true', 'false']).optional(),
 });
 
-export type ClientEnv = z.infer<typeof clientEnvSchema>;
+type ClientEnv = z.infer<typeof clientEnvSchema>;
 
 function readClientEnv(): ClientEnv {
     const parsed = clientEnvSchema.safeParse({
@@ -177,7 +177,7 @@ const serverEnvSchema = clientEnvSchema.extend({
     NODE_ENV: z.enum(['development', 'test', 'production']).optional(),
 });
 
-export type ServerEnv = z.infer<typeof serverEnvSchema>;
+type ServerEnv = z.infer<typeof serverEnvSchema>;
 
 let cachedServerEnv: ServerEnv | null = null;
 

@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
-    ArrowRight,
     Search,
     Building2,
     Shield,
@@ -13,7 +12,6 @@ import {
     TrendingUp,
     Scale,
     MapPin,
-    Users,
     BadgeCheck,
     ExternalLink,
     XCircle,

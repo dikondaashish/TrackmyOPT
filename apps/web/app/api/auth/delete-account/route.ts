@@ -3,7 +3,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import Stripe from 'stripe';
-import { cancelStripeSubscriptionsForCustomer } from '@/lib/premium/cancelStripeSubscriptionsForCustomer';
+import { cancelStripeSubscriptionsForCustomer } from '@/lib/premium/cancel-stripe-subscriptions-for-customer';
 import { logIdPrefix, sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';

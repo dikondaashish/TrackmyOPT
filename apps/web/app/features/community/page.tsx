@@ -2,16 +2,12 @@
 
 import { motion } from "framer-motion";
 import { CanonicalURL } from "@/components/CanonicalURL";
-import Link from "next/link";
 import {
     Users,
     MessageSquare,
     Globe,
     Award,
-    Sparkles,
-    ArrowRight,
     CheckCircle2,
-    Search,
     UserCheck,
     HeartHandshake,
     Lightbulb
@@ -24,7 +20,7 @@ import { FeatureTestimonial } from "@/components/features/FeatureTestimonial";
 import { FeatureCTA } from "@/components/features/FeatureCTA";
 import { MentorshipMap } from "@/components/features/MentorshipMap";
 import { DiscussionThreadPreview } from "@/components/features/DiscussionThreadPreview";
-import { H2, Lead, P } from "@/components/ui/typography";
+import { H2, P } from "@/components/ui/typography";
 
 export default function CommunityPage() {
     return (

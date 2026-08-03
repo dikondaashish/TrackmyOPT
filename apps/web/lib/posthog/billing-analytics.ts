@@ -5,7 +5,7 @@ export function billingInsertId(event: string, id: string): string {
   return `${event}:${id}`;
 }
 
-export type PaymentSucceededCapture = PostHogEventProperties & {
+type PaymentSucceededCapture = PostHogEventProperties & {
   $insert_id: string;
   plan_tier: string;
   interval?: string;
@@ -42,7 +42,7 @@ export const NORTH_STAR_FUNNEL_EVENTS = [
   "subscription_started",
 ] as const;
 
-export type NorthStarFunnelEvent = (typeof NORTH_STAR_FUNNEL_EVENTS)[number];
+type NorthStarFunnelEvent = (typeof NORTH_STAR_FUNNEL_EVENTS)[number];
 
 export function isNorthStarFunnelEvent(event: string): event is NorthStarFunnelEvent {
   return (NORTH_STAR_FUNNEL_EVENTS as readonly string[]).includes(event);

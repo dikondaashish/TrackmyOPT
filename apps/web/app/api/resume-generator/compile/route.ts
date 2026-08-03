@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { captureServerEvent } from '@/lib/posthog-server';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 
 // CORS headers (restricted to same-origin; extension uses Bearer auth)
 const corsHeaders = {

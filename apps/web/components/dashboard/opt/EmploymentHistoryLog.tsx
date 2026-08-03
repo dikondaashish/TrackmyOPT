@@ -8,8 +8,8 @@ import {
   clearEmploymentSetupAck,
   isEmploymentTrackingIncomplete,
   shouldShowUnemploymentComplianceNumbers,
-} from "@/lib/immigration/employmentTracking";
-import { parseOptDateInput } from "@/lib/immigration/optDatesPageUtils";
+} from "@/lib/immigration/employment-tracking";
+import { parseOptDateInput } from "@/lib/immigration/opt-dates-page-utils";
 
 interface EmploymentSpan {
   id: string;
@@ -628,7 +628,7 @@ export function EmploymentHistoryLog({
         </div>
       ) : (
         <div className="divide-y divide-border">
-          {displayedSpans.map((span, index) => (
+          {displayedSpans.map((span, _index) => (
             <div
               key={span.id}
               className="p-4 hover:bg-muted/30 transition-colors"

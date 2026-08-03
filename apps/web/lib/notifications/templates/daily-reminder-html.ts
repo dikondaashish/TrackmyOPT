@@ -1,7 +1,6 @@
 import {
   EMAIL,
   emailBrandHeaderWithLogo,
-  emailCardOpen,
   emailFooter,
   emailOuterClose,
   emailOuterOpen,

@@ -64,7 +64,7 @@ The web app boots at `http://localhost:3000`.
 | `pnpm build` | Production build of `apps/web` |
 | `pnpm lint` | ESLint for `apps/api` (Nest) + `apps/web` |
 | `pnpm lint:fix` | ESLint autofix on `apps/web` |
-| `pnpm typecheck` | `tsc --noEmit` for `apps/web` |
+| `pnpm typecheck` | `tsc --noEmit` for `apps/web` + `apps/extension` |
 | `pnpm test` | Vitest unit tests |
 | `pnpm test:e2e` | Playwright e2e tests |
 | `pnpm format` | Prettier write |
@@ -102,7 +102,7 @@ Validation lives in [`apps/web/lib/env.ts`](./apps/web/lib/env.ts) using zod sch
 
 | Decision | File / location |
 |---|---|
-| Phase-aware OPT/STEM unemployment math (90 + cumulative 150) | [`apps/web/lib/immigration/optCalculations.ts`](./apps/web/lib/immigration/optCalculations.ts) + tests |
+| Phase-aware OPT/STEM unemployment math (90 + cumulative 150) | [`apps/web/lib/immigration/opt-calculations.ts`](./apps/web/lib/immigration/opt-calculations.ts) + tests |
 | Stripe self-heal (premium status reconciles with Stripe even after DB drift) | [`apps/web/app/api/premium/status/route.ts`](./apps/web/app/api/premium/status/route.ts) |
 | Webhook idempotency + 5xx-on-error so Stripe retries | [`apps/web/app/api/premium/webhook/route.ts`](./apps/web/app/api/premium/webhook/route.ts) |
 | USCIS mock cannot run in production | [`apps/web/app/api/case-status/check/route.ts`](./apps/web/app/api/case-status/check/route.ts) |
@@ -122,7 +122,7 @@ pnpm test:coverage      # coverage report
 pnpm test:e2e           # Playwright (requires browsers installed)
 ```
 
-Critical tests live in [`apps/web/lib/immigration/__tests__/optCalculations.test.ts`](./apps/web/lib/immigration/__tests__/optCalculations.test.ts) and cover the entire OPT/STEM compliance model. **Do not change `calculateUnemploymentDays` without rerunning these.**
+Critical tests live in [`apps/web/lib/immigration/__tests__/opt-calculations.test.ts`](./apps/web/lib/immigration/__tests__/opt-calculations.test.ts) and cover the entire OPT/STEM compliance model. **Do not change `calculateUnemploymentDays` without rerunning these.**
 
 ---
 

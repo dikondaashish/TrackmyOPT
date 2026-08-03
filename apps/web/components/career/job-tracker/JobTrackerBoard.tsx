@@ -22,11 +22,10 @@ import {
     defaultDropAnimationSideEffects,
     DropAnimation,
     CollisionDetection,
-    UniqueIdentifier,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { CustomStage, JobApplication, JobStage } from "@/lib/career/job-tracker/types";
-import { JOB_STAGES, KANBAN_COLUMNS } from "@/lib/career/job-tracker/constants";
+import { KANBAN_COLUMNS } from "@/lib/career/job-tracker/constants";
 import { JobStageColumn } from "./JobStageColumn";
 import { JobApplicationCard } from "./JobApplicationCard";
 import { JobTrackerStatsRow } from "./JobTrackerStatsRow";
@@ -43,7 +42,6 @@ import {
     updateApplicationStatus,
     clearApplicationFollowup,
     clearAllFollowups,
-    deleteJobStage,
     deleteApplication,
     archiveApplication,
 } from "@/app/dashboard/career/job-tracker/actions";
@@ -196,7 +194,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
 
         try {
             await updateApplicationStatus(appId, newStage);
-        } catch (err) {
+        } catch (_err) {
             // Revert on failure
             setApplications(prev => prev.map(a =>
                 a.id === appId ? { ...a, status: app.status } : a
@@ -223,7 +221,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
 
         try {
             await clearApplicationFollowup(appId);
-        } catch (err) {
+        } catch (_err) {
             router.refresh(); // Revert on error by re-fetching
         }
     };
@@ -236,7 +234,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
 
         try {
             await clearAllFollowups();
-        } catch (err) {
+        } catch (_err) {
             router.refresh();
         }
     };
@@ -366,7 +364,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
         if (originalStatus && activeApp.status !== originalStatus) {
             try {
                 await updateApplicationStatus(activeAppId, activeApp.status as JobStage);
-            } catch (err) {
+            } catch (_err) {
                 // Revert on failure
                 setApplications(prev => prev.map(a =>
                     a.id === activeAppId ? { ...a, status: originalStatus } : a

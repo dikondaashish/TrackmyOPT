@@ -7,7 +7,7 @@ export const D1_ACTIVATION_NUDGE_DELAY_HOURS = 24;
 
 export const D1_ACTIVATION_NUDGE_DEFAULT_BATCH = 50;
 
-export type D1ActivationNudgeCandidate = {
+type D1ActivationNudgeCandidate = {
   userId: string;
   email: string;
   firstName: string | null;

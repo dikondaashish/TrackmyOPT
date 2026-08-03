@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export type CaseState = "urgent" | "actionNeeded" | "inProgress" | "pending" | "approved";
 
-export interface CaseTab {
+interface CaseTab {
   id: string;
   receiptNumber: string;
   formType?: string | null;

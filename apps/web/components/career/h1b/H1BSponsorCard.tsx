@@ -2,10 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Star, Check, AlertTriangle } from "lucide-react";
-import Link from "next/link";
-import { H1BSponsor } from "@/lib/mock/h1bSponsors";
-import { calculateSponsorScore } from "@/lib/career/h1b/sponsorScore";
-import { getLogoUrl, handleLogoError } from "@/lib/documents/imageUtils";
+import { H1BSponsor } from "@/lib/mock/h1b-sponsors";
+import { calculateSponsorScore } from "@/lib/career/h1b/sponsor-score";
+import { getLogoUrl, handleLogoError } from "@/lib/documents/image-utils";
 
 interface H1BSponsorCardProps {
     sponsor: H1BSponsor;
@@ -78,7 +77,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                                             }}
                                         />
                                     );
-                                } catch (e) {
+                                } catch (_e) {
                                     return null;
                                 }
                             })()}

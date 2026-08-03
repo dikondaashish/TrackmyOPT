@@ -10,7 +10,7 @@
  * 3. MetaDefender API (cloud-based, paid)
  */
 
-export interface VirusScanResult {
+interface VirusScanResult {
   safe: boolean;
   threat?: string;
   scanTime: number;

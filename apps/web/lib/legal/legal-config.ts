@@ -5,7 +5,7 @@
 
 export const LEGAL_EFFECTIVE_DATE = 'May 31, 2026';
 export const LEGAL_VERSION_ID = '2026-05-31';
-export const PRIVACY_CHOICES_EFFECTIVE_DATE = 'July 26, 2026';
+const PRIVACY_CHOICES_EFFECTIVE_DATE = 'July 26, 2026';
 export const PRIVACY_CHOICES_VERSION_ID = '2026-07-26';
 
 export const COMPANY = {
@@ -181,18 +181,18 @@ export const PLAN_DISPLAY_PRICES = {
 export const PRO_TRIAL_DAYS = 7;
 export const DEDICATED_MONEY_BACK_DAYS = 3;
 
-export function formatUsd(amount: number): string {
+function formatUsd(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   }).format(amount);
 }
 
-export function getBillingFrequencyLabel(interval: BillingInterval): string {
+function getBillingFrequencyLabel(interval: BillingInterval): string {
   return interval === 'year' ? 'every year' : 'every month';
 }
 
-export function getPlanBillingSummary(
+function getPlanBillingSummary(
   planId: PaidPlanId,
   interval: BillingInterval,
   options?: { includeProTrial?: boolean }

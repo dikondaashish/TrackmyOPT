@@ -2,7 +2,7 @@ import { normalizeStatusCategory } from "@/lib/posthog/uscis-status-category";
 
 export type StatusExplainerCategory = ReturnType<typeof normalizeStatusCategory>;
 
-export type StatusExplainerContent = {
+type StatusExplainerContent = {
   category: StatusExplainerCategory;
   title: string;
   meaning: string;

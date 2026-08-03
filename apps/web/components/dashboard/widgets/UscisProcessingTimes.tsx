@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
-import { Clock, ExternalLink, Info, AlertCircle } from "lucide-react";
+import { Clock, ExternalLink } from "lucide-react";
 
 export function UscisProcessingTimes() {
   // Hardcoded estimates for standard I-765 (OPT/STEM OPT) processing based on typical USCIS data.

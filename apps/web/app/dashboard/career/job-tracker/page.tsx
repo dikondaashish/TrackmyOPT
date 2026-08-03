@@ -1,7 +1,5 @@
 import { getApplications, getUserPlanTier, getCustomStages } from "./actions";
 import { JobTrackerBoard } from "@/components/career/job-tracker/JobTrackerBoard";
-import { ArrowLeft, ClipboardList } from "lucide-react";
-import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 

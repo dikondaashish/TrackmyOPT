@@ -22,7 +22,7 @@ import {
   findFreeReceiptReengagementCandidates,
   FREE_RECEIPT_REENGAGEMENT_DEFAULT_BATCH,
 } from "@/lib/billing/free-receipt-reengagement";
-import { sendFreeReceiptReengagementEmail } from "@/lib/notifications/transactional-emails";
+import { sendFreeReceiptReengagementEmail } from "@/lib/notifications/transactional/reengagement";
 import { captureServerEvent, normalizePlanTier } from "@/lib/posthog-server";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 

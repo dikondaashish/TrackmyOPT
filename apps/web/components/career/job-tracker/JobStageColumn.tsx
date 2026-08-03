@@ -2,7 +2,7 @@
 
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { JobApplication, JobStage, KanbanColumn } from "@/lib/career/job-tracker/types";
+import { JobApplication, KanbanColumn } from "@/lib/career/job-tracker/types";
 import { JobApplicationCard } from "./JobApplicationCard";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";

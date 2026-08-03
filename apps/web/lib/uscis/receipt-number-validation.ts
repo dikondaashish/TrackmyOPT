@@ -9,11 +9,11 @@ export const VALID_USCIS_RECEIPT_PREFIXES = [
   "YSC",
 ] as const;
 
-export type ReceiptValidationResult =
+type ReceiptValidationResult =
   | { valid: true; normalized: string }
   | { valid: false; error: string };
 
-export type ReceiptValidationOptions = {
+type ReceiptValidationOptions = {
   /** When true, prefix must be in VALID_USCIS_RECEIPT_PREFIXES (onboarding wizard). */
   strictPrefix?: boolean;
 };

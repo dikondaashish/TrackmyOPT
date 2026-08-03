@@ -10,11 +10,11 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/notifications/email-service';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
-import { addDays, getFilingWindow } from '@/lib/immigration/optCalculations';
+import { addDays, getFilingWindow } from '@/lib/immigration/opt-calculations';
 
 export const dynamic = 'force-dynamic';
 

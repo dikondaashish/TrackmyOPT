@@ -3,8 +3,8 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { getUserId } from '@/lib/auth/getUserId';
-import { requireLiveStripeKeyInProduction } from '@/lib/stripe/requireLiveKeyInProduction';
+import { getUserId } from '@/lib/auth/get-user-id';
+import { requireLiveStripeKeyInProduction } from '@/lib/stripe/require-live-key-in-production';
 
 export const dynamic = 'force-dynamic';
 

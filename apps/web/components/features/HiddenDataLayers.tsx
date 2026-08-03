@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, TrendingDown, Eye, FileSearch, ShieldAlert } from "lucide-react";
+import { AlertTriangle, Eye, FileSearch, ShieldAlert } from "lucide-react";
 
 export function HiddenDataLayers() {
     return (

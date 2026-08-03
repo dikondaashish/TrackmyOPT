@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { buildFixSyntaxPrompt } from '@/lib/ai/prompts/fix-syntax';
 import rateLimit from '@/lib/auth/rate-limit';
-import { getUserId } from '@/lib/auth/getUserId';
+import { getUserId } from '@/lib/auth/get-user-id';
 
 // Rate Limiter: 10 requests per minute per user
 const limiter = rateLimit({

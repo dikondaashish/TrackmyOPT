@@ -13,13 +13,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendMailWithRetry } from "@/lib/notifications/email-smtp";
+import { buildWelcomeFreeEmailBodies } from "@/lib/notifications/transactional/onboarding";
 import {
-  buildWelcomeFreeEmailBodies,
   buildCheckoutRecoveryEmailBodies,
   buildFreeReceiptReengagementEmailBodies,
   buildAtRiskReengagementEmailBodies,
-  getTransactionalEmailFromHeader,
-} from "@/lib/notifications/transactional-emails";
+} from "@/lib/notifications/transactional/reengagement";
+import { getTransactionalEmailFromHeader } from "@/lib/notifications/transactional/queue";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;

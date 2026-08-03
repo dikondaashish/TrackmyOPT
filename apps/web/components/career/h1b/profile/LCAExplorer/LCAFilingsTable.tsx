@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Database } from "@/types/supabase";
-import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, Lightbulb } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Lightbulb } from "lucide-react";
 import { FilingDetailModal } from "./FilingDetailModal";
 
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];

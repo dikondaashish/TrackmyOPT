@@ -113,7 +113,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
 
       const blob = await res.blob();
       triggerBrowserDownload(blob, document.filename || 'document');
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to download document. Please try again.');
     }
   }
@@ -138,7 +138,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
       if (onUpdate) {
         onUpdate({ ...document, expiryDate: expiryDate || null });
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to save expiry date');
     } finally {
       setSavingExpiry(false);
@@ -178,7 +178,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
       if (onUpdate) {
         onUpdate({ ...document, documentType: newType, category: newType });
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to save document type');
     } finally {
       setSavingType(false);

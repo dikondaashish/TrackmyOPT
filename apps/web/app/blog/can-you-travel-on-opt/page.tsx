@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Plane, CheckCircle2, Clock, ArrowRight, BookOpen, AlertTriangle, FileText, Globe } from "lucide-react";
+import { CheckCircle2, Clock, ArrowRight, BookOpen, AlertTriangle, Globe } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 

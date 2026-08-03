@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldCheck, Lightbulb } from "lucide-react";
+import { ArrowRight, Clock, ExternalLink, ShieldCheck, Lightbulb } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";

@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { PromoCodeCheckoutBar } from "@/components/pricing/PromoCodeCheckoutBar";
-import type { PromoCheckoutMode } from "@/lib/premium/promoCheckoutTypes";
-import { buildPromoCheckoutBody } from "@/lib/premium/checkoutPromoPayload";
-import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/formatMonthlyEquivalentFromYearly";
+import type { PromoCheckoutMode } from "@/lib/premium/promo-checkout-types";
+import { buildPromoCheckoutBody } from "@/lib/premium/checkout-promo-payload";
+import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/format-monthly-equivalent-from-yearly";
 import { getPlanCardFeatures } from "@/lib/pricing/plan-features";
 import {
   PLAN_SALES_META,

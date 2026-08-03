@@ -15,13 +15,13 @@ import {
 } from "recharts";
 import { Shield } from "lucide-react";
 import Link from "next/link";
-import type { EmploymentSpan } from "@/lib/immigration/optCalculations";
+import type { EmploymentSpan } from "@/lib/immigration/opt-calculations";
 import {
   buildOptDistributionData,
   buildWeeklyUnemploymentTrend,
 } from "@/lib/dashboard/chart-data";
 
-export interface ChartsSectionProps {
+interface ChartsSectionProps {
   unemploymentDays?: number;
   maxUnemploymentDays?: number;
   optStartDate?: string | null;

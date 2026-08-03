@@ -10,7 +10,7 @@ export type CaseStatusRecord = {
   [key: string]: unknown;
 };
 
-export type SaveReceiptAndPollResult =
+type SaveReceiptAndPollResult =
   | { ok: true; data: CaseStatusRecord; statusResolved: boolean }
   | { ok: false; error: string; code?: string };
 

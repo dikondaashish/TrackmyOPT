@@ -1,5 +1,5 @@
 import type { ToolReminderDetail } from '../../email-service';
-import { emailChecklistItem, emailIcon, emailSectionHeading } from '../../email-icons';
+import { emailChecklistItem, emailSectionHeading } from '../../email-icons';
 
 function getUrgencyConfig(daysLeft: number, totalDays: number): {
   emoji: string;

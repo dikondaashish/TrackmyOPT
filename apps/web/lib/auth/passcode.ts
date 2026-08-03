@@ -103,15 +103,6 @@ export function checkLockoutStatus(
 }
 
 /**
- * Calculate new lockout timestamp
- * @returns Date 10 minutes from now
- */
-export function calculateLockoutExpiry(): Date {
-  const now = new Date();
-  return new Date(now.getTime() + LOCKOUT_DURATION_MS);
-}
-
-/**
  * Get remaining attempts before lockout
  * @param failedAttempts - Current failed attempts
  * @returns Number of attempts remaining
@@ -119,24 +110,5 @@ export function calculateLockoutExpiry(): Date {
 export function getRemainingAttempts(failedAttempts: number): number {
   const remaining = MAX_FAILED_ATTEMPTS - failedAttempts;
   return Math.max(0, remaining);
-}
-
-/**
- * Generate a secure random 6-digit passcode
- * Useful for testing or temporary passcodes
- * @returns 6-digit passcode string
- */
-export function generateRandomPasscode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-/**
- * Sanitize passcode input
- * Remove non-digit characters
- * @param input - Raw input
- * @returns Sanitized passcode
- */
-export function sanitizePasscode(input: string): string {
-  return input.replace(/\D/g, '').substring(0, 6);
 }
 

@@ -6,9 +6,9 @@ Immigration-compliance calculators and types. **The most safety-critical module 
 
 | File | Purpose |
 |---|---|
-| `optCalculations.ts` | Single source of truth for OPT/STEM filing windows and the **phase-aware** unemployment calculator |
+| `opt-calculations.ts` | Single source of truth for OPT/STEM filing windows and the **phase-aware** unemployment calculator |
 | `uscis-checker.ts` | OAuth + HTTP client for the live USCIS Case Status API (`api.uscis.gov`) plus the dev-only mock |
-| `__tests__/optCalculations.test.ts` | Locked-down tests for all 10 STEM 150-day scenarios |
+| `__tests__/opt-calculations.test.ts` | Locked-down tests for all 10 STEM 150-day scenarios |
 
 ## Public API
 
@@ -21,7 +21,7 @@ import {
     CUMULATIVE_STEM_CAP,
     type EmploymentSpan,
     type UnemploymentBreakdown,
-} from '@/lib/immigration/optCalculations';
+} from '@/lib/immigration/opt-calculations';
 
 const result = calculateUnemploymentDays(
     opt_start_date,
@@ -45,7 +45,7 @@ const result = calculateUnemploymentDays(
 
 ## Adding new compliance rules
 
-1. Add a pure function to `optCalculations.ts`.
-2. Cover it with at least 3 cases in `__tests__/optCalculations.test.ts` (happy path, edge case, boundary).
+1. Add a pure function to `opt-calculations.ts`.
+2. Cover it with at least 3 cases in `__tests__/opt-calculations.test.ts` (happy path, edge case, boundary).
 3. Cite the regulation in the JSDoc (`8 CFR § 214.2(f)(...)`).
 4. Update this README and `apps/web/ARCHITECTURE.md`.

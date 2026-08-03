@@ -29,7 +29,7 @@ export function AddColumnModal({ isOpen, onClose }: AddColumnModalProps) {
             await createJobStage({ title: name, color });
             onClose();
             // Router refresh handles the UI update
-        } catch (error) {
+        } catch (_error) {
             alert("Failed to create column. Please try again.");
         } finally {
             setIsLoading(false);

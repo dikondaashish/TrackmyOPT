@@ -44,36 +44,6 @@ interface CountdownCardProps {
   deadline: string;
 }
 
-export function CountdownCard({ days, label, deadline }: CountdownCardProps) {
-  const getStatus = () => {
-    if (days <= 7) return 'critical';
-    if (days <= 30) return 'warning';
-    return 'ok';
-  };
-
-  const statusColors = {
-    ok: 'from-green-500 to-emerald-600',
-    warning: 'from-amber-500 to-orange-500',
-    critical: 'from-red-500 to-rose-600',
-  };
-
-  const status = getStatus();
-
-  return (
-    <div className={`
-      p-6 rounded-2xl bg-gradient-to-br ${statusColors[status]} text-white text-center
-      shadow-lg
-    `}>
-      <p className="text-sm font-medium opacity-90 mb-2">{label}</p>
-      <div className="flex items-baseline justify-center gap-2">
-        <span className="text-5xl font-bold">{days}</span>
-        <span className="text-xl opacity-80">days</span>
-      </div>
-      <p className="text-sm opacity-80 mt-2">{deadline}</p>
-    </div>
-  );
-}
-
 interface ProgressBarProps {
   used: number;
   max: number;

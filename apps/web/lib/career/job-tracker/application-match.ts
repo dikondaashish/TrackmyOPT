@@ -1,4 +1,4 @@
-export interface ApplicationMatchCandidate {
+interface ApplicationMatchCandidate {
   id?: string;
   company_name: string;
   role_title: string;
@@ -8,7 +8,7 @@ export interface ApplicationMatchCandidate {
   created_at?: string | null;
 }
 
-export interface SimilarApplication {
+interface SimilarApplication {
   roleTitle: string;
   companyName: string;
   appliedAt: string | null;

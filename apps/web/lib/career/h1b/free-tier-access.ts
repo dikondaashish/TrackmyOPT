@@ -9,7 +9,7 @@ export function isPremiumH1bProfile(profile: {
 }
 
 /** Top-N sponsor ids by approval volume (matches list API ordering). */
-export async function fetchFreeTierSponsorIds(
+async function fetchFreeTierSponsorIds(
   supabase: SupabaseClient
 ): Promise<Set<string>> {
   const { data, error } = await supabase

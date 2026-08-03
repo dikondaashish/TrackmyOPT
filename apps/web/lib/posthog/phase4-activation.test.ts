@@ -4,7 +4,7 @@ import { safeInternalRedirectTarget } from "@/lib/auth/safe-oauth-redirect";
 import {
   buildD1ActivationNudgeEmailBodies,
   buildFreeReceiptReengagementEmailBodies,
-} from "@/lib/notifications/transactional-emails";
+} from "@/lib/notifications/transactional/reengagement";
 
 describe("Phase 4 post-auth landing", () => {
   it("defaults to case status after auth", () => {

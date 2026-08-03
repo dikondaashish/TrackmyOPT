@@ -1,7 +1,7 @@
 import {
   calculateUnemploymentDays,
   type EmploymentSpan,
-} from "@/lib/immigration/optCalculations";
+} from "@/lib/immigration/opt-calculations";
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -10,14 +10,14 @@ function toUTCDate(dateLike: string | Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
 
-export interface OptDistributionSlice {
+interface OptDistributionSlice {
   name: string;
   value: number;
   color: string;
   [key: string]: string | number;
 }
 
-export interface WeeklyUnemploymentPoint {
+interface WeeklyUnemploymentPoint {
   day: string;
   days: number;
 }

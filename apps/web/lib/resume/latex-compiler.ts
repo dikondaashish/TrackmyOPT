@@ -7,7 +7,7 @@
  * ever uploaded alongside it.
  */
 
-export type CompileResult =
+type CompileResult =
     | { ok: true; pdf: ArrayBuffer; compiler: string }
     | { ok: false; error: string };
 

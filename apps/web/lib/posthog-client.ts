@@ -6,7 +6,7 @@ import { billingInsertId } from "@/lib/posthog/billing-analytics";
 /** Dispatched when the user accepts/declines analytics cookies (see posthog-browser). */
 export const ANALYTICS_CONSENT_CHANGE_EVENT = "trackmyopt:analytics-consent";
 
-export type TrackMyOptPersonProperties = {
+type TrackMyOptPersonProperties = {
   plan_tier?: string | null;
   premium_status?: boolean;
   onboarding_completed?: boolean;
@@ -121,7 +121,7 @@ export function captureInsurancePlanClicked(properties: {
   captureClientEvent("insurance_plan_clicked", properties);
 }
 
-export type OnboardingCompletedProperties = {
+type OnboardingCompletedProperties = {
   skipped: boolean;
   status: string | null;
   is_stem_eligible: boolean;
@@ -179,7 +179,7 @@ export function captureOnboardingReceiptPromptShown(): void {
   });
 }
 
-export type OnboardingReceiptSkippedProperties = {
+type OnboardingReceiptSkippedProperties = {
   receipt_prefix: string | null;
   skip_reason?: "explicit_skip" | "wizard_dismissed";
 };
@@ -237,7 +237,7 @@ export function setNpsLastShownPersonProperty(isoTimestamp: string): void {
   posthog.people.set({ nps_last_shown: isoTimestamp });
 }
 
-export type CaseStatusCheckCompletedClientProperties = {
+type CaseStatusCheckCompletedClientProperties = {
   trigger: "manual" | "initial" | "cron" | "unknown";
   receipt_prefix?: string | null;
 };
@@ -292,7 +292,7 @@ export function associateUniversityPartnerGroup(
   }
 }
 
-export type UpgradePromptTrigger =
+type UpgradePromptTrigger =
   | "status_change_wedge"
   | "second_manual_refresh"
   | "stale_status"
@@ -301,7 +301,7 @@ export type UpgradePromptTrigger =
   | "ats_limit"
   | "pricing_modal";
 
-export type UpgradePromptShownProperties = {
+type UpgradePromptShownProperties = {
   trigger?: UpgradePromptTrigger;
   source?: string;
   plan_suggested?: "pro" | "dedicated";
@@ -318,7 +318,7 @@ export function captureUpgradePromptShown(
   });
 }
 
-export type CheckoutStartedProperties = {
+type CheckoutStartedProperties = {
   trigger: UpgradePromptTrigger;
   source?: string;
 };
@@ -359,7 +359,7 @@ export async function captureSignOut(source: SignOutSource): Promise<void> {
   }
 }
 
-export type DashboardViewedProperties = {
+type DashboardViewedProperties = {
   has_receipt: boolean;
   has_status: boolean;
   is_pending: boolean;
@@ -385,7 +385,7 @@ export type DashboardNextStepAction =
   | "view_case_status"
   | "pro_manage";
 
-export type DashboardNextStepShownProperties = {
+type DashboardNextStepShownProperties = {
   state: DashboardNextStepState;
   status_category?: string;
 };
@@ -400,7 +400,7 @@ export function captureDashboardNextStepShown(
   });
 }
 
-export type DashboardNextStepClickedProperties = {
+type DashboardNextStepClickedProperties = {
   action: DashboardNextStepAction;
 };
 
@@ -414,7 +414,7 @@ export function captureDashboardNextStepClicked(
   });
 }
 
-export type CaseStatusSummaryViewedProperties = DashboardViewedProperties;
+type CaseStatusSummaryViewedProperties = DashboardViewedProperties;
 
 export function captureCaseStatusSummaryViewed(
   properties: CaseStatusSummaryViewedProperties
@@ -422,14 +422,14 @@ export function captureCaseStatusSummaryViewed(
   captureClientEvent("case_status_summary_viewed", properties);
 }
 
-export type ErrorBoundaryArea =
+type ErrorBoundaryArea =
   | "global"
   | "dashboard"
   | "case_status"
   | "billing"
   | "unknown";
 
-export type ErrorBoundaryTriggeredProperties = {
+type ErrorBoundaryTriggeredProperties = {
   route: string;
   component_area: ErrorBoundaryArea;
   /** Case-status panel id when caught by CaseStatusPanelErrorBoundary. */

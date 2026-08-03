@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { ResumePromoBanner } from "@/components/promo/ResumePromoBanner";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { PremiumStatusProvider, usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { PolicyUpdateConsentModal } from "@/components/compliance/PolicyUpdateConsentModal";

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Calendar, Briefcase } from "lucide-react";
-import { AuthorBio } from "@/components/blog/AuthorBio";import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { Clock, ArrowRight, Calendar } from "lucide-react";
+import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
     title: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)",

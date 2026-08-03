@@ -7,7 +7,7 @@ import { renderOptApply } from './pages/opt-apply.js';
 import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
 import { renderStemClock } from './pages/stem-clock.js';
-import { getCurrentPage, setCurrentPage, getLastPage, getPageData } from './navigation.js';
+import { setCurrentPage, getLastPage, getPageData } from './navigation.js';
 
 /**
  * Returns true if a JWT string has more than 60 seconds of validity remaining.

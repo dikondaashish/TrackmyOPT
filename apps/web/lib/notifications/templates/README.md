@@ -57,4 +57,4 @@ await transporter.sendMail({ to, subject, html });
 | `generateStemApplySection` | `partials/stem-apply.ts` | done |
 | `generateStemClockSection` | `partials/stem-clock.ts` | done |
 
-Other transactional templates inside `transactional-emails.ts` (payment failed, refund acknowledged, subscription ended, trial ending) should follow the same pattern in a second PR.
+Other transactional templates inside `transactional/billing.ts` (payment failed, refund acknowledged, subscription ended, trial ending) should follow the same pattern in a second PR.

@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   lastUpsert: null as Record<string, unknown> | null,
 }));
 
-vi.mock("@/lib/auth/getUserId", () => ({
+vi.mock("@/lib/auth/get-user-id", () => ({
   getUserId: mocks.getUserId,
 }));
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { getUserId } from "@/lib/auth/getUserId";
+import { getUserId } from "@/lib/auth/get-user-id";
 import { corsHeadersWebAndExtension } from "@/lib/api/cors-policy";
 import {
   PRIVATE_APPLICATION_ANSWERS_PAYLOAD_VERSION,

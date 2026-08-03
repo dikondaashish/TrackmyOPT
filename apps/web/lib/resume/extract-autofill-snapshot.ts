@@ -11,14 +11,14 @@ import {
 import { latexToPlainText, splitResumeSections } from './latex-to-plain-text';
 
 export const FINAL_LATEX_MAX_CHARS = 250_000;
-export const NORMALIZED_RESUME_MAX_CHARS = 50_000;
+const NORMALIZED_RESUME_MAX_CHARS = 50_000;
 
-export type StructuredSnapshotExtractor = (input: {
+type StructuredSnapshotExtractor = (input: {
   plainText: string;
   sections: ReturnType<typeof splitResumeSections>;
 }) => Promise<unknown>;
 
-export type ExtractAutofillSnapshotResult =
+type ExtractAutofillSnapshotResult =
   | {
       ok: true;
       snapshot: ResumeAutofillSnapshotV1;
@@ -50,7 +50,7 @@ const DATE_JSON_SCHEMA = {
   required: ['originalText', 'precision'],
 } as const;
 
-export const RESUME_AUTOFILL_SNAPSHOT_JSON_SCHEMA = {
+const RESUME_AUTOFILL_SNAPSHOT_JSON_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   properties: {
@@ -282,7 +282,7 @@ function reconcileContact(
   return Object.fromEntries(entries) as ResumeAutofillSnapshotV1['contact'];
 }
 
-export function reconcileSnapshotWithSourceResume(
+function reconcileSnapshotWithSourceResume(
   snapshot: ResumeAutofillSnapshotV1,
   sourceResumeText: string
 ): ResumeAutofillSnapshotV1 {

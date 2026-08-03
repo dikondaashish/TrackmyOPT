@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { CheckCircle2, Circle, Plus, Trash2, Calendar, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, Circle, Plus, Trash2, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Reminder {
   id: string;

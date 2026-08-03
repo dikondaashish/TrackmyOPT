@@ -29,7 +29,7 @@ function decodeHtmlEntities(value: string): string {
 }
 
 /** Convert untrusted posting markup into bounded plain text for persistence. */
-export function normalizeJobSnapshotText(value: unknown, maxLength: number): string | null {
+function normalizeJobSnapshotText(value: unknown, maxLength: number): string | null {
   if (typeof value !== 'string') return null;
   const plainText = decodeHtmlEntities(
     value

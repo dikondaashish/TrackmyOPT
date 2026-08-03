@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, X } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 
 const MARKETING_KEY = "trackmyopt_promo_resume_marketing_v1";
 const DASHBOARD_KEY = "trackmyopt_promo_resume_dashboard_v1";

@@ -1,4 +1,4 @@
-export function getDaysSince(iso: string | null | undefined, now = new Date()): number | null {
+function getDaysSince(iso: string | null | undefined, now = new Date()): number | null {
   if (!iso) return null;
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return null;
@@ -28,25 +28,6 @@ export function getServiceCenterLabel(receiptNumber: string | null | undefined):
     YSC: "Potomac Service Center",
   };
   return centerMap[prefix] ?? "USCIS Service Center";
-}
-
-export function calculateNextAutoCheck(lastCheckedAt: string | null): string {
-  if (!lastCheckedAt) return "Checking soon...";
-  const lastCheck = new Date(lastCheckedAt);
-  const nextCheck = new Date(lastCheck.getTime() + 24 * 60 * 60 * 1000);
-  const now = new Date();
-
-  if (nextCheck <= now) return "Checking soon...";
-
-  const hoursLeft = Math.floor((nextCheck.getTime() - now.getTime()) / (1000 * 60 * 60));
-  const minutesLeft = Math.floor(
-    ((nextCheck.getTime() - now.getTime()) % (1000 * 60 * 60)) / (1000 * 60)
-  );
-
-  if (hoursLeft > 0) {
-    return `Next auto-check in ${hoursLeft}h ${minutesLeft}m`;
-  }
-  return `Next auto-check in ${minutesLeft}m`;
 }
 
 export function formatStatusLabel(

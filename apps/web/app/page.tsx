@@ -18,16 +18,7 @@ const LandingSuccessStories = dynamic(() => import("../components/landing/Landin
 const LandingTestimonials = dynamic(() => import("../components/landing/LandingTestimonials").then(mod => mod.LandingTestimonials));
 const LandingEngine = dynamic(() => import("../components/landing/LandingEngine").then(mod => mod.LandingEngine));
 const LandingToolkit = dynamic(() => import("../components/landing/LandingToolkit").then(mod => mod.LandingToolkit));
-import {
-    faqSchema,
-    breadcrumbSchema,
-    serviceSchemas,
-    howToSchemas,
-    speakableSchema,
-    definedTermSetSchema,
-    articleSchema,
-    knowledgeGraphSchema,
-} from "@/lib/seo-schemas";
+import { landingPageSchemas } from "@/lib/seo-schemas";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 const LandingGlobalReach = dynamic(() => import("../components/landing/LandingGlobalReach").then(mod => mod.LandingGlobalReach));
@@ -38,18 +29,6 @@ export const metadata: Metadata = {
     description: "Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — trusted by 2,500+ F-1 students. Start now.",
 };
 
-// Combine relevant schemas for the landing page
-const landingPageSchemas = [
-    faqSchema,
-    breadcrumbSchema,
-    ...serviceSchemas,
-    ...howToSchemas,
-    // AEO Schemas for AI models
-    speakableSchema,
-    definedTermSetSchema,
-    articleSchema,
-    knowledgeGraphSchema,
-];
 
 export default function LandingPage() {
     return (

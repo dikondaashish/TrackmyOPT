@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { MoreHorizontal, GripVertical, CheckCircle2, Building2, Calendar, DollarSign } from "lucide-react";
+import { MoreHorizontal, GripVertical, Building2, Calendar, DollarSign } from "lucide-react";
 import confetti from "canvas-confetti";
 
 export function TrackerKanbanDemo() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, MapPin, Building2, TrendingUp, Filter, CheckCircle2, MoreHorizontal } from "lucide-react";
+import { Search, MapPin, TrendingUp, Filter, CheckCircle2, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const mockResults = [

@@ -2,25 +2,15 @@
 
 import { motion } from "framer-motion";
 import { CanonicalURL } from "@/components/CanonicalURL";
-import Link from "next/link";
 import {
-    ArrowRight,
     Chrome,
     CheckCircle2,
     Zap,
     Shield,
-    Eye,
     Linkedin,
     Globe,
     Lock,
-    Download,
-    Monitor,
-    Smartphone,
-    Clock,
-    XCircle,
-    TrendingUp
-} from "lucide-react";
-import Image from "next/image";
+    Clock} from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
 import { FeatureServiceSchema } from "@/components/features/FeatureServiceSchema";

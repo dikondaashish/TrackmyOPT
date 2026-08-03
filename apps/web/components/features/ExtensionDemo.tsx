@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Building2, MapPin, Bookmark, Bell, Chrome, ExternalLink, MoreHorizontal, MessageSquare } from "lucide-react";
+import { CheckCircle2, Building2, MapPin, Bookmark, Chrome, ExternalLink, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 
 export function ExtensionDemo() {

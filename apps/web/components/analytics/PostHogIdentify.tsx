@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 import { identifyTrackMyOptUser, associateUniversityPartnerGroup } from "@/lib/posthog-client";
 import { normalizePartnerGroupKey } from "@/lib/posthog/university-partner-groups";
 import {
