@@ -37,7 +37,7 @@ export const organizationSchema = {
     image: LOGO_URL,
     description:
         "TrackMyOPT is the #1 comprehensive platform for F-1 international students on OPT and STEM OPT in the United States. We help students track immigration deadlines, manage unemployment days, monitor USCIS case status, and find H-1B sponsors.",
-    foundingDate: "2025",
+    foundingDate: "2024",
     sameAs: [
         "https://twitter.com/trackmyopt",
         "https://linkedin.com/company/trackmyopt",
