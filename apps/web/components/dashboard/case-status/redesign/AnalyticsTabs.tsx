@@ -8,8 +8,12 @@ import { PredictionPanel } from "@/components/dashboard/case-status/redesign/Pre
 import { ProcessingTimeTrend } from "@/components/dashboard/case-status/redesign/ProcessingTimeTrend";
 import { ProcessingTimeDistribution } from "@/components/dashboard/case-status/redesign/ProcessingTimeDistribution";
 import { SimilarFilingCard } from "@/components/dashboard/case-status/redesign/SimilarFilingCard";
+import { CommunitySummaryCard } from "@/components/dashboard/case-status/redesign/CommunitySummaryCard";
+import { JourneyStagesCard } from "@/components/dashboard/case-status/redesign/JourneyStagesCard";
+import { LockedAnalyticsPanel } from "@/components/dashboard/case-status/redesign/LockedAnalyticsPanel";
 import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
-import type { CommunityEstimate } from "@/lib/community-opt/types";
+import type { CommunityEstimate, CommunitySummary } from "@/lib/community-opt/types";
+import type { JourneyPhase, JourneyStages } from "@/lib/community-opt/stages";
 import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
 import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
 import { isoWeekStart } from "@/lib/community-opt/weekly-trend";
@@ -22,7 +26,12 @@ interface AnalyticsTabsProps {
   onUpgrade: () => void;
   cohortSize?: number;
   daysSinceFiled?: number;
+  /** Pro only — the server sends null on free plans. */
   prediction?: CommunityEstimate;
+  /** The headline wait, sent on every plan. */
+  summary?: CommunitySummary | null;
+  stages?: JourneyStages | null;
+  phase?: JourneyPhase;
   heatmap?: Array<{ month: string; buckets: number[] }>;
   weeklyTrend?: WeeklyTrendPoint[];
   histogram?: ProcessingHistogram | null;
@@ -125,10 +134,13 @@ function ProcessingHeatmap({
 }
 
 export function AnalyticsTabs({
-  isPremium: _isPremium,
-  onUpgrade: _onUpgrade,
+  isPremium,
+  onUpgrade,
   daysSinceFiled = 0,
   prediction,
+  summary = null,
+  stages = null,
+  phase = "filed",
   heatmap = [],
   weeklyTrend = [],
   histogram = null,
@@ -138,6 +150,11 @@ export function AnalyticsTabs({
   estimateLoading = false,
 }: AnalyticsTabsProps) {
   const [active, setActive] = useState<TabId>("prediction");
+
+  // Treat an unresolved plan as free: the server has already withheld the Pro
+  // payload, so showing the paid panels here would only render them empty.
+  const isPro = isPremium === true;
+  const upgrade = isPremium === false ? onUpgrade : undefined;
 
   return (
     <div>
@@ -162,19 +179,43 @@ export function AnalyticsTabs({
       <div className="min-h-[200px]">
         {active === "prediction" && (
           <div className="space-y-5">
-            {estimateLoading && !prediction ? (
+            {estimateLoading && !prediction && !summary ? (
               <p className="text-sm text-muted-foreground py-8 text-center">
                 Loading community timeline estimate…
               </p>
-            ) : (
+            ) : isPro ? (
               <PredictionPanel daysSinceFiled={daysSinceFiled} prediction={prediction} />
+            ) : (
+              <CommunitySummaryCard
+                summary={summary}
+                daysSinceFiled={daysSinceFiled}
+              />
             )}
-            <SimilarFilingCard
-              peers={similarFiling}
-              receivedDate={receivedDate}
+
+            <JourneyStagesCard
+              stages={stages}
+              phase={phase}
               premiumProcessing={premiumProcessing}
+              isPro={isPro}
+              onUpgrade={upgrade}
               loading={estimateLoading}
             />
+
+            {isPro ? (
+              <SimilarFilingCard
+                peers={similarFiling}
+                receivedDate={receivedDate}
+                premiumProcessing={premiumProcessing}
+                loading={estimateLoading}
+              />
+            ) : (
+              <LockedAnalyticsPanel
+                title="Cases that filed when you did"
+                description="See what people who filed within days of you actually waited — median, middle 50%, and how many reports it is based on."
+                onUpgrade={upgrade}
+              />
+            )}
+
             <div className="border-t border-border pt-4">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                 Community Reports
@@ -185,7 +226,13 @@ export function AnalyticsTabs({
         )}
 
         {active === "trend" &&
-          (estimateLoading && !weeklyTrend.length ? (
+          (!isPro ? (
+            <LockedAnalyticsPanel
+              title="Is processing speeding up or slowing down?"
+              description="Weekly median wait by filing week, with your own week marked, so you can see which way the queue is moving instead of guessing."
+              onUpgrade={upgrade}
+            />
+          ) : estimateLoading && !weeklyTrend.length ? (
             <p className="text-sm text-muted-foreground py-8 text-center">
               Loading community trend…
             </p>
@@ -198,7 +245,13 @@ export function AnalyticsTabs({
           ))}
 
         {active === "spread" &&
-          (estimateLoading && !histogram ? (
+          (!isPro ? (
+            <LockedAnalyticsPanel
+              title="The full spread, not just the middle"
+              description="Every reported wait binned by week, with your own position marked — including how long the slow tail actually runs."
+              onUpgrade={upgrade}
+            />
+          ) : estimateLoading && !histogram ? (
             <p className="text-sm text-muted-foreground py-8 text-center">
               Loading community distribution…
             </p>
@@ -210,7 +263,16 @@ export function AnalyticsTabs({
             />
           ))}
 
-        {active === "heatmap" && <ProcessingHeatmap rows={heatmap} />}
+        {active === "heatmap" &&
+          (!isPro ? (
+            <LockedAnalyticsPanel
+              title="Does filing month matter?"
+              description="Approvals by filing month and speed bucket, so you can see how the season you filed in compares with the rest of the year."
+              onUpgrade={upgrade}
+            />
+          ) : (
+            <ProcessingHeatmap rows={heatmap} />
+          ))}
       </div>
     </div>
   );

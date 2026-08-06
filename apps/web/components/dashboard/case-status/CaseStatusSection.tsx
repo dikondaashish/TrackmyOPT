@@ -84,8 +84,10 @@ import {
 } from "@/lib/messaging/product-copy";
 import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
 import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
-import type { CommunityEstimate } from "@/lib/community-opt/types";
+import type { CommunityEstimate, CommunitySummary } from "@/lib/community-opt/types";
 import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
+import type { JourneyStages } from "@/lib/community-opt/stages";
+import { deriveJourneyPhase } from "@/lib/community-opt/stages";
 
 const PACKAGING_NOTICE_DISMISS_KEY = "tmo_packaging_notice_dismissed_v1";
 
@@ -134,6 +136,11 @@ export function CaseStatusSection() {
     useState<ProcessingHistogram | null>(null);
   const [communitySimilarFiling, setCommunitySimilarFiling] =
     useState<SimilarFilingPeers | null>(null);
+  const [communitySummary, setCommunitySummary] =
+    useState<CommunitySummary | null>(null);
+  const [communityStages, setCommunityStages] = useState<JourneyStages | null>(
+    null
+  );
   const [communityEstimateLoading, setCommunityEstimateLoading] = useState(false);
   const [trackedCases, setTrackedCases] = useState<CaseStatus[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
@@ -349,6 +356,8 @@ export function CaseStatusSection() {
   useEffect(() => {
     if (!caseStatus?.receipt_number) {
       setCommunityPrediction(null);
+      setCommunitySummary(null);
+      setCommunityStages(null);
       setCommunityHeatmap([]);
       setCommunityWeeklyTrend([]);
       setCommunityHistogram(null);
@@ -383,6 +392,8 @@ export function CaseStatusSection() {
         return res.json() as Promise<{
           ok?: boolean;
           prediction?: CommunityEstimate | null;
+          summary?: CommunitySummary | null;
+          stages?: JourneyStages | null;
           heatmap?: Array<{ month: string; buckets: number[] }>;
           weeklyTrend?: WeeklyTrendPoint[];
           histogram?: ProcessingHistogram | null;
@@ -392,6 +403,8 @@ export function CaseStatusSection() {
       .then((body) => {
         if (!body || controller.signal.aborted) return;
         setCommunityPrediction(body.prediction ?? null);
+        setCommunitySummary(body.summary ?? null);
+        setCommunityStages(body.stages ?? null);
         setCommunityHeatmap(body.heatmap ?? []);
         setCommunityWeeklyTrend(body.weeklyTrend ?? []);
         setCommunityHistogram(body.histogram ?? null);
@@ -400,6 +413,8 @@ export function CaseStatusSection() {
       .catch(() => {
         if (!controller.signal.aborted) {
           setCommunityPrediction(null);
+          setCommunitySummary(null);
+          setCommunityStages(null);
           setCommunityHeatmap([]);
           setCommunityWeeklyTrend([]);
           setCommunityHistogram(null);
@@ -1124,6 +1139,9 @@ export function CaseStatusSection() {
                     : 0
                 }
                 prediction={communityPrediction ?? undefined}
+                summary={communitySummary}
+                stages={communityStages}
+                phase={deriveJourneyPhase(caseStatus.current_status)}
                 heatmap={communityHeatmap}
                 weeklyTrend={communityWeeklyTrend}
                 histogram={communityHistogram}

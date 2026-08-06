@@ -5,6 +5,12 @@ import { inferCaseKind, serviceCenterFromReceipt } from "./centers";
 import { fetchAllTimelines } from "./get-estimate";
 import { dedupeByExternalId } from "./ingest";
 import { buildSimilarFilingPeers } from "./similar-filing";
+import {
+  buildJourneyStages,
+  deriveJourneyPhase,
+  redactStagesForFree,
+  type StageRow,
+} from "./stages";
 import type { CleanedCommunityCase } from "./types";
 import {
   buildEstimateFromSamples,
@@ -196,21 +202,22 @@ describe("timeline paging", () => {
       from: () => ({
         select: () => ({
           eq: () => ({
-            not: () => ({
-              range: (from: number, to: number) => {
-                requests += 1;
-                const end = Math.min(to + 1, from + maxRows, totalRows);
-                const data = Array.from({ length: Math.max(0, end - from) }, (_, i) => ({
-                  days_to_approval: 40 + ((from + i) % 10),
-                  approve_date: null,
-                  init_date: "2026-01-05",
-                  service_center: null,
-                  premium_processing: false,
-                  case_kind: "initial_opt",
-                }));
-                return Promise.resolve({ data, error: null });
-              },
-            }),
+            range: (from: number, to: number) => {
+              requests += 1;
+              const end = Math.min(to + 1, from + maxRows, totalRows);
+              const data = Array.from({ length: Math.max(0, end - from) }, (_, i) => ({
+                days_to_approval: 40 + ((from + i) % 10),
+                approve_date: null,
+                init_date: "2026-01-05",
+                biometrics_date: null,
+                card_produce_date: null,
+                delivered_date: null,
+                service_center: null,
+                premium_processing: false,
+                case_kind: "initial_opt",
+              }));
+              return Promise.resolve({ data, error: null });
+            },
           }),
         }),
       }),
@@ -559,5 +566,131 @@ describe("similar filing peers", () => {
     );
     expect(peers!.basis).toBe("seasonal");
     expect(peers!.medianDays).toBe(100);
+  });
+});
+
+describe("journey stages", () => {
+  const NOW = Date.parse("2026-08-05T00:00:00Z");
+  const DAY = 86_400_000;
+
+  function iso(daysAgo: number): string {
+    return new Date(NOW - daysAgo * DAY).toISOString().slice(0, 10);
+  }
+
+  function row(over: Partial<StageRow> = {}): StageRow {
+    return {
+      init_date: null,
+      biometrics_date: null,
+      approve_date: null,
+      card_produce_date: null,
+      delivered_date: null,
+      premium_processing: false,
+      ...over,
+    };
+  }
+
+  /** Filed long enough ago to be settled, with biometrics `gap` days later. */
+  function biometricsRow(gap: number, filedDaysAgo = 200): StageRow {
+    return row({
+      init_date: iso(filedDaysAgo),
+      biometrics_date: iso(filedDaysAgo - gap),
+    });
+  }
+
+  it("summarises biometrics from rows that have no approval yet", () => {
+    // These rows would be dropped by any approval-duration filter — they are
+    // the bulk of the biometrics evidence.
+    const rows = Array.from({ length: 20 }, (_, i) => biometricsRow(18 + (i % 9)));
+    const stages = buildJourneyStages(rows, {
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(stages.biometrics).not.toBeNull();
+    expect(stages.biometrics!.medianDays).toBe(22);
+    expect(stages.biometrics!.sampleSize).toBe(20);
+    expect(stages.biometrics!.p25Days).toBeLessThan(stages.biometrics!.medianDays);
+  });
+
+  it("excludes filings too recent to have reached the milestone", () => {
+    // 20 settled rows plus 20 filed three days ago whose only visible
+    // biometrics are the instant ones — the median must not move to 2.
+    const settled = Array.from({ length: 20 }, () => biometricsRow(22));
+    const censored = Array.from({ length: 20 }, () => biometricsRow(2, 3));
+    const stages = buildJourneyStages([...settled, ...censored], {
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(stages.biometrics!.medianDays).toBe(22);
+    expect(stages.biometrics!.sampleSize).toBe(20);
+  });
+
+  it("measures card steps from approval, not from filing", () => {
+    const rows = Array.from({ length: 20 }, () =>
+      row({
+        init_date: iso(200),
+        approve_date: iso(100),
+        card_produce_date: iso(94), // 6 days after approval
+        delivered_date: iso(90), // 10 days after approval
+      })
+    );
+    const stages = buildJourneyStages(rows, {
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(stages.cardProduced!.medianDays).toBe(6);
+    expect(stages.cardDelivered!.medianDays).toBe(10);
+  });
+
+  it("keeps premium and regular segments apart", () => {
+    const regular = Array.from({ length: 20 }, () => biometricsRow(30));
+    const premium = Array.from({ length: 20 }, () => ({
+      ...biometricsRow(10),
+      premium_processing: true,
+    }));
+    const all = [...regular, ...premium];
+    expect(
+      buildJourneyStages(all, { premiumProcessing: false, nowMs: NOW })
+        .biometrics!.medianDays
+    ).toBe(30);
+    expect(
+      buildJourneyStages(all, { premiumProcessing: true, nowMs: NOW })
+        .biometrics!.medianDays
+    ).toBe(10);
+  });
+
+  it("returns null for a stage with too few reports", () => {
+    const rows = Array.from({ length: 5 }, () => biometricsRow(22));
+    const stages = buildJourneyStages(rows, {
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(stages.biometrics).toBeNull();
+    expect(stages.cardProduced).toBeNull();
+  });
+
+  it("strips spread and sample size for free plans", () => {
+    const rows = Array.from({ length: 20 }, (_, i) => biometricsRow(18 + (i % 9)));
+    const full = buildJourneyStages(rows, {
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    const free = redactStagesForFree(full);
+    expect(free.biometrics!.medianDays).toBe(full.biometrics!.medianDays);
+    expect(free.biometrics!.p25Days).toBeUndefined();
+    expect(free.biometrics!.p75Days).toBeUndefined();
+    expect(free.biometrics!.sampleSize).toBeUndefined();
+    expect(free.sourceNote).toBe(full.sourceNote);
+  });
+
+  it("separates the post-approval statuses the case switcher merges", () => {
+    expect(deriveJourneyPhase("Case Was Approved")).toBe("approved");
+    expect(deriveJourneyPhase("New Card Is Being Produced")).toBe("card_produced");
+    expect(deriveJourneyPhase("Card Was Mailed To Me")).toBe("card_produced");
+    expect(
+      deriveJourneyPhase("Card Was Delivered To Me By The Post Office")
+    ).toBe("delivered");
+    expect(deriveJourneyPhase("Fingerprint Fee Received")).toBe("biometrics_done");
+    expect(deriveJourneyPhase("Case Was Received")).toBe("filed");
+    expect(deriveJourneyPhase(null)).toBe("filed");
   });
 });

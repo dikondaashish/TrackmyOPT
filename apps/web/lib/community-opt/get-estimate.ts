@@ -17,6 +17,7 @@ import {
   buildSimilarFilingPeers,
   type SimilarFilingPeers,
 } from "./similar-filing";
+import { buildJourneyStages, type JourneyStages, type StageRow } from "./stages";
 import type { CommunityEstimate, CommunityHeatmapRow } from "./types";
 
 export type CommunityEstimateQuery = {
@@ -35,10 +36,11 @@ export type CommunityEstimateResult = {
   weeklyTrend: WeeklyTrendPoint[];
   histogram: ProcessingHistogram | null;
   similarFiling: SimilarFilingPeers | null;
+  stages: JourneyStages | null;
 };
 
 const SELECT_COLUMNS =
-  "days_to_approval, approve_date, init_date, service_center, premium_processing, case_kind";
+  "days_to_approval, approve_date, init_date, biometrics_date, card_produce_date, delivered_date, service_center, premium_processing, case_kind";
 /** PostgREST caps a single response at the project's `max_rows` (1000 by
  *  default), so a plain `.limit()` silently truncates. */
 const PAGE_SIZE = 1000;
@@ -48,6 +50,9 @@ type TimelineRow = {
   days_to_approval: number | null;
   approve_date: string | null;
   init_date: string | null;
+  biometrics_date: string | null;
+  card_produce_date: string | null;
+  delivered_date: string | null;
   service_center: string | null;
   premium_processing: boolean | null;
   case_kind: string;
@@ -60,6 +65,12 @@ type TimelineRow = {
  * in physical order, which groups by the source they were ingested from, so a
  * truncated read would silently compute every estimate from one partner's
  * cases only.
+ *
+ * Rows without an approval duration are kept. They are useless to the estimate,
+ * which filters them out itself, but they are most of the biometrics evidence:
+ * a case reports its fingerprint date long before it reports a decision, so
+ * filtering on `days_to_approval` here would discard the majority of the
+ * sample for the earliest stage of the wait.
  */
 export async function fetchAllTimelines(
   supabase: SupabaseClient,
@@ -72,7 +83,6 @@ export async function fetchAllTimelines(
       .from("community_opt_timelines")
       .select(SELECT_COLUMNS)
       .eq("case_kind", caseKind)
-      .not("days_to_approval", "is", null)
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) break;
@@ -95,6 +105,7 @@ export async function getCommunityEstimate(
     weeklyTrend: [],
     histogram: null,
     similarFiling: null,
+    stages: null,
   };
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -159,5 +170,18 @@ export async function getCommunityEstimate(
     premiumProcessing,
   });
 
-  return { prediction, heatmap, weeklyTrend, histogram, similarFiling };
+  // Stage waits come off the raw rows, not `rows`: a case reports its
+  // biometrics date long before it reports a decision, and TimelineSample
+  // requires an approval duration those rows do not have yet.
+  const stageRows: StageRow[] = data.map((r) => ({
+    init_date: r.init_date,
+    biometrics_date: r.biometrics_date,
+    approve_date: r.approve_date,
+    card_produce_date: r.card_produce_date,
+    delivered_date: r.delivered_date,
+    premium_processing: Boolean(r.premium_processing),
+  }));
+  const stages = buildJourneyStages(stageRows, { premiumProcessing });
+
+  return { prediction, heatmap, weeklyTrend, histogram, similarFiling, stages };
 }

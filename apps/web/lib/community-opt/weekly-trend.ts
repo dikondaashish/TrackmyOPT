@@ -64,6 +64,29 @@ export function parseUtcDate(date: string | null | undefined): number | null {
 }
 
 /**
+ * The date before which a cohort's filings can be trusted as settled.
+ *
+ * A stage only appears in the data once it has happened, so anything anchored
+ * more recently than the cohort's own p75 duration contains only its fastest
+ * cases. Callers pass durations for the stage they are measuring — approval,
+ * biometrics, card production — since each settles on its own timescale, and
+ * `minHorizonDays` floors the horizon so a very fast stage still gets a
+ * sensible buffer. Returns null when there is nothing to measure.
+ */
+export function maturityCutoffMs(
+  sortedDurations: number[],
+  now: number = Date.now(),
+  minHorizonDays: number = MIN_HORIZON_DAYS
+): number | null {
+  if (!sortedDurations.length) return null;
+  const horizonDays = Math.min(
+    MAX_HORIZON_DAYS,
+    Math.max(minHorizonDays, percentile(sortedDurations, 0.75))
+  );
+  return now - horizonDays * DAY_MS;
+}
+
+/**
  * Keep only rows filed long enough ago that their slow cases could have been
  * decided. Applies to any duration analysis, not just the weekly trend: a
  * histogram built without this under-counts its own long tail, because the
@@ -80,13 +103,9 @@ export function filterMatureRows<T extends WeeklyTrendRow>(
     .map((r) => r.days_to_approval)
     .filter(isUsableDuration)
     .sort((a, b) => a - b);
-  if (!durations.length) return [];
 
-  const horizonDays = Math.min(
-    MAX_HORIZON_DAYS,
-    Math.max(MIN_HORIZON_DAYS, percentile(durations, 0.75))
-  );
-  const cutoff = now - horizonDays * DAY_MS;
+  const cutoff = maturityCutoffMs(durations, now);
+  if (cutoff === null) return [];
 
   return rows.filter((row) => {
     const weekMs = parseUtcDate(isoWeekStart(row.init_date));
