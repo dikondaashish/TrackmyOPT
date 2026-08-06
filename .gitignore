@@ -60,6 +60,7 @@ extension/dist/
 # Local documentation (not tracked)
 PROJECT_OVERVIEW.md
 USCIS_API_DEMO_DOCUMENTATION.md
+ANALYSIS.md
 
 # Large / generated data (not tracked)
 ITContractorsUnion-Main/
