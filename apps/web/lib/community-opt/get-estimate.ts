@@ -13,6 +13,10 @@ import {
   filterMatureRows,
   type WeeklyTrendPoint,
 } from "./weekly-trend";
+import {
+  buildSimilarFilingPeers,
+  type SimilarFilingPeers,
+} from "./similar-filing";
 import type { CommunityEstimate, CommunityHeatmapRow } from "./types";
 
 export type CommunityEstimateQuery = {
@@ -30,6 +34,7 @@ export type CommunityEstimateResult = {
   heatmap: CommunityHeatmapRow[];
   weeklyTrend: WeeklyTrendPoint[];
   histogram: ProcessingHistogram | null;
+  similarFiling: SimilarFilingPeers | null;
 };
 
 const SELECT_COLUMNS =
@@ -89,6 +94,7 @@ export async function getCommunityEstimate(
     heatmap: [],
     weeklyTrend: [],
     histogram: null,
+    similarFiling: null,
   };
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -148,6 +154,10 @@ export async function getCommunityEstimate(
       (r) => r.days_to_approval
     )
   );
+  const similarFiling = buildSimilarFilingPeers(rows, {
+    receivedDate: query.receivedDate ?? null,
+    premiumProcessing,
+  });
 
-  return { prediction, heatmap, weeklyTrend, histogram };
+  return { prediction, heatmap, weeklyTrend, histogram, similarFiling };
 }

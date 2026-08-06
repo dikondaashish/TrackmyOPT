@@ -4,6 +4,7 @@ import { cleanPartnerCase, daysBetweenDates } from "./clean";
 import { inferCaseKind, serviceCenterFromReceipt } from "./centers";
 import { fetchAllTimelines } from "./get-estimate";
 import { dedupeByExternalId } from "./ingest";
+import { buildSimilarFilingPeers } from "./similar-filing";
 import type { CleanedCommunityCase } from "./types";
 import {
   buildEstimateFromSamples,
@@ -383,5 +384,142 @@ describe("selectCohort + buildEstimateFromSamples", () => {
     ]);
     expect(estimate!.sourceNote.toLowerCase()).toContain("not affiliated with uscis");
     expect(estimate!.sourceNote.toLowerCase()).toContain("not a guarantee");
+  });
+});
+
+describe("similar filing peers", () => {
+  const NOW = Date.parse("2026-08-05T00:00:00Z");
+
+  function sample(
+    init_date: string,
+    days_to_approval: number,
+    premium = false
+  ): TimelineSample {
+    return {
+      init_date,
+      days_to_approval,
+      approve_date: "2026-06-01",
+      service_center: null,
+      premium_processing: premium,
+      case_kind: "initial_opt",
+    };
+  }
+
+  it("matches peers within ±7d when the sample is large enough", () => {
+    const rows = Array.from({ length: 20 }, (_, i) =>
+      sample(`2026-03-${String(10 + (i % 5)).padStart(2, "0")}`, 40 + (i % 10))
+    );
+    const peers = buildSimilarFilingPeers(rows, {
+      receivedDate: "2026-03-12",
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(peers).not.toBeNull();
+    expect(peers!.basis).toBe("recent");
+    expect(peers!.windowDays).toBe(7);
+    expect(peers!.sampleSize).toBe(20);
+    expect(peers!.medianDays).toBeGreaterThan(0);
+    expect(peers!.sourceNote.toLowerCase()).toContain("uscis");
+  });
+
+  it("reports the observed filing span, not the requested window", () => {
+    // Rows only span Mar 10-14, so a ±7d window must not be advertised as Mar 5-19.
+    const rows = Array.from({ length: 20 }, (_, i) =>
+      sample(`2026-03-${String(10 + (i % 5)).padStart(2, "0")}`, 40 + (i % 10))
+    );
+    const peers = buildSimilarFilingPeers(rows, {
+      receivedDate: "2026-03-12",
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(peers!.windowRange).toEqual(["2026-03-10", "2026-03-14"]);
+  });
+
+  it("widens the window before giving up", () => {
+    // 8 cases within ±7, 20 within ±14 — must expand.
+    const near = Array.from({ length: 8 }, (_, i) =>
+      sample(`2026-03-${String(10 + (i % 3)).padStart(2, "0")}`, 50)
+    );
+    const far = Array.from({ length: 12 }, (_, i) =>
+      sample(`2026-03-${String(20 + (i % 4)).padStart(2, "0")}`, 55)
+    );
+    const peers = buildSimilarFilingPeers([...near, ...far], {
+      receivedDate: "2026-03-12",
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(peers!.windowDays).toBe(14);
+    expect(peers!.sampleSize).toBe(20);
+  });
+
+  it("ignores the opposite premium segment and immature recent weeks", () => {
+    const recent = Array.from({ length: 20 }, () => sample("2026-07-20", 12));
+    const premium = Array.from({ length: 20 }, () =>
+      sample("2026-03-12", 30, true)
+    );
+    expect(
+      buildSimilarFilingPeers([...recent, ...premium], {
+        receivedDate: "2026-03-12",
+        premiumProcessing: false,
+        nowMs: NOW,
+      })
+    ).toBeNull();
+  });
+
+  it("returns null without a filing date", () => {
+    expect(
+      buildSimilarFilingPeers([sample("2026-03-12", 40)], {
+        receivedDate: null,
+        premiumProcessing: false,
+        nowMs: NOW,
+      })
+    ).toBeNull();
+  });
+
+  it("falls back to the same calendar window in earlier years", () => {
+    // The user filed 16 days ago: their own window is entirely immature, and
+    // its handful of fast approvals must not become the answer.
+    const ownWindow = Array.from({ length: 20 }, () => sample("2026-07-20", 10));
+    const lastYear = Array.from({ length: 20 }, (_, i) =>
+      sample(`2025-07-${String(18 + (i % 5)).padStart(2, "0")}`, 100)
+    );
+    const peers = buildSimilarFilingPeers([...ownWindow, ...lastYear], {
+      receivedDate: "2026-07-20",
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(peers!.basis).toBe("seasonal");
+    expect(peers!.windowDays).toBe(7);
+    expect(peers!.sampleSize).toBe(20);
+    expect(peers!.medianDays).toBe(100);
+    expect(peers!.seasonYears).toEqual([2025]);
+  });
+
+  it("prefers a real peer window over the seasonal fallback", () => {
+    const ownWindow = Array.from({ length: 20 }, (_, i) =>
+      sample(`2026-01-${String(8 + (i % 5)).padStart(2, "0")}`, 100)
+    );
+    const lastYear = Array.from({ length: 20 }, (_, i) =>
+      sample(`2025-01-${String(8 + (i % 5)).padStart(2, "0")}`, 160)
+    );
+    const peers = buildSimilarFilingPeers([...ownWindow, ...lastYear], {
+      receivedDate: "2026-01-10",
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(peers!.basis).toBe("recent");
+    expect(peers!.medianDays).toBe(100);
+    expect(peers!.seasonYears).toEqual([2026]);
+  });
+
+  it("does not reach across years when nothing seasonal resolved either", () => {
+    const ownWindow = Array.from({ length: 20 }, () => sample("2026-07-20", 10));
+    expect(
+      buildSimilarFilingPeers(ownWindow, {
+        receivedDate: "2026-07-20",
+        premiumProcessing: false,
+        nowMs: NOW,
+      })
+    ).toBeNull();
   });
 });

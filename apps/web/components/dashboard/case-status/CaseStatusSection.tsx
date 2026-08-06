@@ -85,6 +85,7 @@ import {
 import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
 import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
 import type { CommunityEstimate } from "@/lib/community-opt/types";
+import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
 
 const PACKAGING_NOTICE_DISMISS_KEY = "tmo_packaging_notice_dismissed_v1";
 
@@ -131,6 +132,8 @@ export function CaseStatusSection() {
   >([]);
   const [communityHistogram, setCommunityHistogram] =
     useState<ProcessingHistogram | null>(null);
+  const [communitySimilarFiling, setCommunitySimilarFiling] =
+    useState<SimilarFilingPeers | null>(null);
   const [communityEstimateLoading, setCommunityEstimateLoading] = useState(false);
   const [trackedCases, setTrackedCases] = useState<CaseStatus[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
@@ -349,6 +352,7 @@ export function CaseStatusSection() {
       setCommunityHeatmap([]);
       setCommunityWeeklyTrend([]);
       setCommunityHistogram(null);
+      setCommunitySimilarFiling(null);
       return;
     }
 
@@ -382,6 +386,7 @@ export function CaseStatusSection() {
           heatmap?: Array<{ month: string; buckets: number[] }>;
           weeklyTrend?: WeeklyTrendPoint[];
           histogram?: ProcessingHistogram | null;
+          similarFiling?: SimilarFilingPeers | null;
         }>;
       })
       .then((body) => {
@@ -390,6 +395,7 @@ export function CaseStatusSection() {
         setCommunityHeatmap(body.heatmap ?? []);
         setCommunityWeeklyTrend(body.weeklyTrend ?? []);
         setCommunityHistogram(body.histogram ?? null);
+        setCommunitySimilarFiling(body.similarFiling ?? null);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -397,6 +403,7 @@ export function CaseStatusSection() {
           setCommunityHeatmap([]);
           setCommunityWeeklyTrend([]);
           setCommunityHistogram(null);
+          setCommunitySimilarFiling(null);
         }
       })
       .finally(() => {
@@ -1120,6 +1127,7 @@ export function CaseStatusSection() {
                 heatmap={communityHeatmap}
                 weeklyTrend={communityWeeklyTrend}
                 histogram={communityHistogram}
+                similarFiling={communitySimilarFiling}
                 receivedDate={caseStatus.received_date}
                 premiumProcessing={Boolean(caseStatus.pp_start_date)}
                 estimateLoading={communityEstimateLoading}

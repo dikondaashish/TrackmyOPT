@@ -53,7 +53,9 @@ export function isoWeekStart(date: string | null | undefined): string | null {
   return d.toISOString().slice(0, 10);
 }
 
-function parseUtcDate(date: string | null | undefined): number | null {
+/** Midnight-UTC epoch ms for a leading `YYYY-MM-DD`, or null if unparseable.
+ *  Shared so every duration analysis agrees on what a filing date means. */
+export function parseUtcDate(date: string | null | undefined): number | null {
   if (!date) return null;
   const m = date.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return null;

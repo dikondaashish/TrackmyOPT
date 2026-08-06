@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
         heatmap: result.heatmap,
         weeklyTrend: result.weeklyTrend,
         histogram: result.histogram,
+        similarFiling: result.similarFiling,
       },
       {
         headers: {

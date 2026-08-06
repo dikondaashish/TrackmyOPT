@@ -7,8 +7,10 @@ import { CaseProcessingBenchmarks } from "@/components/dashboard/case-status/Cas
 import { PredictionPanel } from "@/components/dashboard/case-status/redesign/PredictionPanel";
 import { ProcessingTimeTrend } from "@/components/dashboard/case-status/redesign/ProcessingTimeTrend";
 import { ProcessingTimeDistribution } from "@/components/dashboard/case-status/redesign/ProcessingTimeDistribution";
+import { SimilarFilingCard } from "@/components/dashboard/case-status/redesign/SimilarFilingCard";
 import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
 import type { CommunityEstimate } from "@/lib/community-opt/types";
+import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
 import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
 import { isoWeekStart } from "@/lib/community-opt/weekly-trend";
 
@@ -24,6 +26,7 @@ interface AnalyticsTabsProps {
   heatmap?: Array<{ month: string; buckets: number[] }>;
   weeklyTrend?: WeeklyTrendPoint[];
   histogram?: ProcessingHistogram | null;
+  similarFiling?: SimilarFilingPeers | null;
   /** Filing date, used to highlight the user's week in the trend chart. */
   receivedDate?: string | null;
   premiumProcessing?: boolean;
@@ -129,6 +132,7 @@ export function AnalyticsTabs({
   heatmap = [],
   weeklyTrend = [],
   histogram = null,
+  similarFiling = null,
   receivedDate,
   premiumProcessing,
   estimateLoading = false,
@@ -165,6 +169,12 @@ export function AnalyticsTabs({
             ) : (
               <PredictionPanel daysSinceFiled={daysSinceFiled} prediction={prediction} />
             )}
+            <SimilarFilingCard
+              peers={similarFiling}
+              receivedDate={receivedDate}
+              premiumProcessing={premiumProcessing}
+              loading={estimateLoading}
+            />
             <div className="border-t border-border pt-4">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                 Community Reports
