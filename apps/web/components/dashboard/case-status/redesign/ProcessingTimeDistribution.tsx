@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import type { HistogramBin, ProcessingHistogram } from "@/lib/community-opt/estimate";
+import { CHART } from "@/lib/community-opt/chart-theme";
 
 interface ProcessingTimeDistributionProps {
   histogram: ProcessingHistogram | null;
@@ -92,26 +93,31 @@ export function ProcessingTimeDistribution({
 
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={bins} margin={{ top: 4, right: 4, bottom: 0, left: -12 }}>
+          {/* Top margin leaves room for the median reference label, which is
+              drawn above the plot area and is otherwise clipped away. */}
+          <BarChart data={bins} margin={{ top: 18, right: 4, bottom: 0, left: 0 }}>
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="hsl(var(--border))"
+              stroke={CHART.grid}
             />
             <XAxis
               dataKey="label"
-              stroke="hsl(var(--muted-foreground))"
+              stroke={CHART.axis}
               tick={{ fontSize: 10 }}
               interval="preserveStartEnd"
               minTickGap={16}
               tickLine={false}
             />
             <YAxis
-              stroke="hsl(var(--muted-foreground))"
+              stroke={CHART.axis}
               tick={{ fontSize: 10 }}
               allowDecimals={false}
               tickLine={false}
               axisLine={false}
+              // Room for a three-digit count; a narrower axis clips the
+              // leading digits rather than shrinking the label.
+              width={36}
             />
             <Tooltip
               content={<DistributionTooltip total={totalCases} />}
@@ -120,24 +126,34 @@ export function ProcessingTimeDistribution({
             {medianBin && (
               <ReferenceLine
                 x={medianBin.label}
-                stroke="#f59e0b"
+                stroke={CHART.axis}
                 strokeDasharray="4 3"
                 label={{
                   value: `median ${medianDays}d`,
                   position: "top",
                   fontSize: 10,
-                  fill: "#b45309",
+                  fill: CHART.axis,
                 }}
               />
             )}
-            <Bar dataKey="count" radius={[3, 3, 0, 0]} maxBarSize={24}>
-              {bins.map((bin) => (
-                <Cell
-                  key={bin.from}
-                  fill={userBin && bin.from === userBin.from ? "#2563eb" : "#3b82f6"}
-                  fillOpacity={userBin && bin.from !== userBin.from ? 0.55 : 1}
-                />
-              ))}
+            {/* One hue for every bin, with the reader's own bin in the reserved
+                second hue — so the bar that matters is found without hunting. */}
+            <Bar
+              dataKey="count"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={24}
+              isAnimationActive={false}
+            >
+              {bins.map((bin) => {
+                const isUser = userBin && bin.from === userBin.from;
+                return (
+                  <Cell
+                    key={bin.from}
+                    fill={isUser ? CHART.you : CHART.series}
+                    fillOpacity={userBin && !isUser ? 0.45 : 1}
+                  />
+                );
+              })}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -146,7 +162,10 @@ export function ProcessingTimeDistribution({
       <div className="mt-3 space-y-1.5">
         {userBin && (
           <p className="text-xs text-muted-foreground">
-            <span className="inline-block w-2 h-2 rounded-sm bg-blue-600 mr-1.5 align-middle" />
+            <span
+              className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5 align-middle"
+              style={{ background: CHART.you }}
+            />
             You are {daysSinceFiled} days in — {decidedShare}% of reported cases like
             yours were approved by this point.
           </p>
@@ -157,11 +176,11 @@ export function ProcessingTimeDistribution({
             into. Cases do run longer than this; the community data thins out here.
           </p>
         )}
+        {/* Method note only — the compliance notice is stated once for the
+            whole analytics section rather than repeated per chart. */}
         <p className="text-[10px] text-muted-foreground leading-relaxed">
-          Community-reported timelines from partner datasets · 7-day ranges · only filing
-          weeks old enough for their slower cases to have been decided are counted, so the
-          long tail is not undercounted. Not affiliated with USCIS, not an official
-          processing time, and not a prediction of your case.
+          7-day ranges. Only filing weeks old enough for their slower cases to have
+          been decided are counted, so the long tail is not undercounted.
         </p>
       </div>
     </div>

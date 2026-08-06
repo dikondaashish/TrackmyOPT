@@ -65,6 +65,23 @@ export type CommunityEstimate = {
   sourceNote: string;
 };
 
+/**
+ * The headline wait, with nothing that locates a particular case inside it.
+ *
+ * Sent to every plan. The distribution, the user's position in it, and the
+ * time series built on the same rows are the Pro layer; this is the fact
+ * underneath, which is not something to withhold from someone waiting on work
+ * authorization.
+ */
+export type CommunitySummary = {
+  medianDays: number;
+  cohortSize: number;
+  caseKind: CommunityCaseKind;
+  premiumProcessing: boolean;
+  matchLevel: CommunityEstimate["matchLevel"];
+  sourceNote: string;
+};
+
 export type CommunityHeatmapRow = {
   month: string; // YYYY-MM
   buckets: number[]; // 6 buckets matching PredictionPanel

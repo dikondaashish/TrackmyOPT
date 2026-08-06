@@ -53,12 +53,37 @@ export function isoWeekStart(date: string | null | undefined): string | null {
   return d.toISOString().slice(0, 10);
 }
 
-function parseUtcDate(date: string | null | undefined): number | null {
+/** Midnight-UTC epoch ms for a leading `YYYY-MM-DD`, or null if unparseable.
+ *  Shared so every duration analysis agrees on what a filing date means. */
+export function parseUtcDate(date: string | null | undefined): number | null {
   if (!date) return null;
   const m = date.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return null;
   const ms = Date.parse(`${m[1]}-${m[2]}-${m[3]}T00:00:00Z`);
   return Number.isNaN(ms) ? null : ms;
+}
+
+/**
+ * The date before which a cohort's filings can be trusted as settled.
+ *
+ * A stage only appears in the data once it has happened, so anything anchored
+ * more recently than the cohort's own p75 duration contains only its fastest
+ * cases. Callers pass durations for the stage they are measuring — approval,
+ * biometrics, card production — since each settles on its own timescale, and
+ * `minHorizonDays` floors the horizon so a very fast stage still gets a
+ * sensible buffer. Returns null when there is nothing to measure.
+ */
+export function maturityCutoffMs(
+  sortedDurations: number[],
+  now: number = Date.now(),
+  minHorizonDays: number = MIN_HORIZON_DAYS
+): number | null {
+  if (!sortedDurations.length) return null;
+  const horizonDays = Math.min(
+    MAX_HORIZON_DAYS,
+    Math.max(minHorizonDays, percentile(sortedDurations, 0.75))
+  );
+  return now - horizonDays * DAY_MS;
 }
 
 /**
@@ -78,13 +103,9 @@ export function filterMatureRows<T extends WeeklyTrendRow>(
     .map((r) => r.days_to_approval)
     .filter(isUsableDuration)
     .sort((a, b) => a - b);
-  if (!durations.length) return [];
 
-  const horizonDays = Math.min(
-    MAX_HORIZON_DAYS,
-    Math.max(MIN_HORIZON_DAYS, percentile(durations, 0.75))
-  );
-  const cutoff = now - horizonDays * DAY_MS;
+  const cutoff = maturityCutoffMs(durations, now);
+  if (cutoff === null) return [];
 
   return rows.filter((row) => {
     const weekMs = parseUtcDate(isoWeekStart(row.init_date));

@@ -41,6 +41,35 @@
     --sidebar-accent: 240 4.8% 93%;
     --sidebar-accent-foreground: 240 5.9% 10%;
 
+    /* ── Data-viz palette ──────────────────────────────────────────────
+       Whole colours, not HSL triplets, so they can be handed straight to
+       SVG fills. Light and dark are separately chosen steps of the same
+       hues rather than an automatic flip, and both were validated against
+       their own surface for the lightness band, chroma floor, colour-vision
+       separation and contrast.
+
+       `series` carries the data. `you` marks the reader's own case and is
+       the only other hue on any chart — blue↔orange is the widest-separated
+       pair available, so the one mark that must never be missed isn't.  */
+    --chart-series: #2a78d6;
+    --chart-series-soft: #b7d3f6;
+    --chart-you: #eb6834;
+    --chart-you-soft: #fbe2d8;
+    --chart-grid: #e8e8ea;
+    --chart-axis: #8a8a93;
+
+    /* Single-hue sequential ramp for magnitude (heatmap cells). One hue,
+       light→dark: a rainbow would imply good/bad where only "more/fewer"
+       is meant. Ink flips at the step where the fill stops taking dark text. */
+    --chart-seq-1: #eef4fd;
+    --chart-seq-2: #cde2fb;
+    --chart-seq-3: #9ec5f4;
+    --chart-seq-4: #5598e7;
+    --chart-seq-5: #2a78d6;
+    --chart-seq-6: #184f95;
+    --chart-seq-ink-low: #12325c;
+    --chart-seq-ink-high: #ffffff;
+
     --radius: 0.75rem;
   }
 
@@ -81,6 +110,24 @@
     --sidebar-border: 240 3.7% 12%;
     --sidebar-accent: 240 3.7% 12%;
     --sidebar-accent-foreground: 0 0% 98%;
+
+    /* Data-viz palette, stepped for the dark card surface (#121217) — see
+       the light block above. Same hues, re-picked rather than inverted. */
+    --chart-series: #3987e5;
+    --chart-series-soft: #24446e;
+    --chart-you: #d95926;
+    --chart-you-soft: #4a2718;
+    --chart-grid: #26262c;
+    --chart-axis: #7d7d87;
+
+    --chart-seq-1: #1a1c24;
+    --chart-seq-2: #1c3050;
+    --chart-seq-3: #1c5cab;
+    --chart-seq-4: #2a78d6;
+    --chart-seq-5: #5598e7;
+    --chart-seq-6: #9ec5f4;
+    --chart-seq-ink-low: #cfe0f7;
+    --chart-seq-ink-high: #0d1b2e;
   }
 }
 

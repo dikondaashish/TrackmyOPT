@@ -11,6 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
+import { CHART } from "@/lib/community-opt/chart-theme";
 
 interface ProcessingTimeTrendProps {
   points: WeeklyTrendPoint[];
@@ -82,36 +83,52 @@ export function ProcessingTimeTrend({
 
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={points} margin={{ top: 4, right: 4, bottom: 0, left: -12 }}>
+          <BarChart data={points} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="hsl(var(--border))"
+              stroke={CHART.grid}
             />
             <XAxis
               dataKey="label"
-              stroke="hsl(var(--muted-foreground))"
+              stroke={CHART.axis}
               tick={{ fontSize: 10 }}
               interval="preserveStartEnd"
               tickLine={false}
             />
             <YAxis
-              stroke="hsl(var(--muted-foreground))"
+              stroke={CHART.axis}
               tick={{ fontSize: 10 }}
               tickFormatter={(v) => `${v}d`}
               allowDecimals={false}
               tickLine={false}
               axisLine={false}
+              // Wide enough for a three-digit day count plus its "d" suffix;
+              // too narrow and recharts clips the leading digits, so "120d"
+              // silently renders as "0d".
+              width={44}
             />
             <Tooltip
               content={<TrendTooltip />}
               cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
             />
-            <Bar dataKey="medianDays" radius={[3, 3, 0, 0]} maxBarSize={28}>
+            {/* One series, so one hue — the reader's own week takes the second
+                hue rather than a darker shade of the first, which reads as
+                "more" rather than "yours". */}
+            {/* No grow-in animation: the bars start at zero height, which
+                recharts renders as nothing at all, and on a tab that mounts on
+                click that leaves the chart briefly empty. The answer should be
+                on screen the moment the tab is. */}
+            <Bar
+              dataKey="medianDays"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={28}
+              isAnimationActive={false}
+            >
               {points.map((p) => (
                 <Cell
                   key={p.weekStart}
-                  fill={p.weekStart === filedWeekStart ? "#2563eb" : "#10b981"}
+                  fill={p.weekStart === filedWeekStart ? CHART.you : CHART.series}
                 />
               ))}
             </Bar>
@@ -123,8 +140,11 @@ export function ProcessingTimeTrend({
         {filedWeekStart &&
           points.some((p) => p.weekStart === filedWeekStart) && (
             <p className="text-xs text-muted-foreground">
-              <span className="inline-block w-2 h-2 rounded-sm bg-blue-600 mr-1.5 align-middle" />
-              Blue bar is the week you filed.
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5 align-middle"
+                style={{ background: CHART.you }}
+              />
+              The highlighted bar is the week you filed.
             </p>
           )}
         {points.length >= 4 && (
@@ -136,12 +156,12 @@ export function ProcessingTimeTrend({
                 : "Roughly stable across the period shown."}
           </p>
         )}
+        {/* Method note only — the compliance notice is stated once for the
+            whole analytics section rather than repeated per chart. */}
         <p className="text-[10px] text-muted-foreground leading-relaxed">
-          Community-reported timelines from partner datasets · median shown, not average ·
-          weeks with fewer than 5 reported approvals, and weeks too recent for their slower
-          cases to have been decided, are excluded so the trend does not show a false
-          speed-up. Not affiliated with USCIS, not an official processing time, and not a
-          prediction of your case.
+          Median shown, not average. Weeks with fewer than 5 reported approvals, and
+          weeks too recent for their slower cases to have been decided, are excluded
+          so the trend does not show a false speed-up.
         </p>
       </div>
     </div>
