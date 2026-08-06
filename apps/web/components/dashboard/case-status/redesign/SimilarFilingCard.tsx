@@ -141,12 +141,6 @@ export function SimilarFilingCard({
         </div>
       </div>
 
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        Partner community timelines (opt-tracker / opt-pulse)
-        {latest ? "" : " matched by filing date"} — not USCIS case lookups, not
-        sequential receipt scanning, and not a prediction of your outcome.{" "}
-        {peers.sourceNote}.
-      </p>
     </div>
   );
 }

@@ -177,11 +177,6 @@ export function JourneyStagesCard({
           See the full range and how many reports each timing is based on
         </button>
       )}
-
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        Partner timelines (opt-tracker / opt-pulse) — not USCIS case lookups and
-        not a prediction of your outcome. {stages!.sourceNote}.
-      </p>
     </div>
   );
 }

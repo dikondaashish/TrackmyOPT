@@ -72,11 +72,6 @@ export function CommunitySummaryCard({
           )}
         </p>
       )}
-
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        Partner timelines (opt-tracker / opt-pulse) — not USCIS case lookups and
-        not a prediction of your outcome. {summary.sourceNote}.
-      </p>
     </div>
   );
 }
