@@ -1,4 +1,3 @@
-import { addDaysIso } from "@/lib/case-status/safe-dates";
 import { COMMUNITY_REPORTS_MESSAGING } from "@/lib/messaging/product-copy";
 import type {
   CommunityEstimate,
@@ -38,6 +37,17 @@ const DISTRIBUTION_LABELS = [
 /** Shared with product-copy so Estimate / reports never disagree on disclaimer. */
 export const COMMUNITY_ESTIMATE_SOURCE_NOTE =
   COMMUNITY_REPORTS_MESSAGING.sourceNote;
+/** Midnight-UTC epoch ms for a leading `YYYY-MM-DD`, or null if unparseable.
+ *  Deliberately UTC: local-time day arithmetic shifts by a day either side of
+ *  the date line, and every duration here is counted in whole calendar days. */
+function parseUtcDay(date: string | null | undefined): number | null {
+  if (!date) return null;
+  const m = date.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  const ms = Date.parse(`${m[1]}-${m[2]}-${m[3]}T00:00:00Z`);
+  return Number.isNaN(ms) ? null : ms;
+}
+
 /** Linear-interpolated percentile over an ascending-sorted list. */
 export function percentile(sorted: number[], p: number): number {
   if (!sorted.length) return 0;
@@ -210,18 +220,19 @@ export function buildEstimateFromSamples(
           Math.min(99, Math.round((ahead / days.length) * 100))
         );
 
-  const start = opts.receivedDate;
-  const low = addDaysIso(start, Math.max(0, p25Days - opts.daysSinceFiled));
-  const high = addDaysIso(start, Math.max(0, p75Days - opts.daysSinceFiled));
-  // If no filing date, show absolute calendar estimate from "today"
-  const todayIso = new Date(opts.nowMs ?? Date.now()).toISOString().slice(0, 10);
-  const rangeStart =
-    low ?? addDaysIso(todayIso, Math.max(0, p25Days - opts.daysSinceFiled)) ?? todayIso;
-  const rangeEnd =
-    high ?? addDaysIso(todayIso, Math.max(0, p75Days - opts.daysSinceFiled)) ?? todayIso;
-
   const dayMs = 24 * 60 * 60 * 1000;
   const now = opts.nowMs ?? Date.now();
+
+  // A decision lands p25–p75 days after the case was *filed*, so the window is
+  // anchored on the filing date. When that is unknown, infer it from how long
+  // the case has already been pending.
+  const filedMs = parseUtcDay(opts.receivedDate) ?? now - opts.daysSinceFiled * dayMs;
+  // Never quote a decision date in the past: once a case is past p75 it is in
+  // the slow tail, and the honest reading of the window is "any time now".
+  const notBeforeToday = (ms: number): string =>
+    new Date(Math.max(ms, now)).toISOString().slice(0, 10);
+  const rangeStart = notBeforeToday(filedMs + p25Days * dayMs);
+  const rangeEnd = notBeforeToday(filedMs + p75Days * dayMs);
   const approvalsLast24h = samples.filter((s) => {
     if (!s.approve_date) return false;
     const t = Date.parse(`${s.approve_date}T12:00:00Z`);
