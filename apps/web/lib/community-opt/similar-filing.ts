@@ -7,14 +7,16 @@ import {
 import { filterMatureRows, parseUtcDate } from "./weekly-trend";
 
 /**
- * Which cohort the numbers came from.
+ * Which cohort the numbers came from. Each tier is a weaker claim than the one
+ * before it, and the UI has to say which one it is showing.
  *
- * `recent` — partner cases filed within days of the user's own filing date.
- * `seasonal` — partner cases filed at the same point of the calendar in earlier
- * years, used when the user's own filing window is still too new to have
- * resolved. The two are not interchangeable and the UI must say which it shows.
+ * `recent`   — partner cases filed within days of the user's own filing date.
+ * `seasonal` — cases filed at the same point of the calendar in earlier years.
+ * `latest`   — the most recent filing weeks that have finished processing.
+ *              Not the user's peers at all: a current-throughput benchmark,
+ *              used when neither of the above has enough resolved reports.
  */
-export type SimilarFilingBasis = "recent" | "seasonal";
+export type SimilarFilingBasis = "recent" | "seasonal" | "latest";
 
 export type SimilarFilingPeers = {
   basis: SimilarFilingBasis;
@@ -42,6 +44,9 @@ const SEASON_LOOKBACK_YEARS = [1, 2, 3] as const;
 export const MIN_PEER_SAMPLE = 15;
 const DAY_MS = 86_400_000;
 
+/** Inclusive epoch-ms bounds on filing date. */
+type Range = [number, number];
+
 function toIso(ms: number): string {
   return new Date(ms).toISOString().slice(0, 10);
 }
@@ -61,12 +66,10 @@ type Cohort = {
   years: number[];
 };
 
-/** Rows filed within `windowDays` of any anchor, or null if too few. */
-function collect(
-  segment: TimelineSample[],
-  anchors: number[],
-  windowDays: number
-): Cohort | null {
+/** Rows whose filing date falls in any range, or null if too few. */
+function collect(segment: TimelineSample[], ranges: Range[]): Cohort | null {
+  if (!ranges.length) return null;
+
   const days: number[] = [];
   const years = new Set<number>();
   let minMs = Number.POSITIVE_INFINITY;
@@ -76,10 +79,7 @@ function collect(
     if (!isUsableDuration(row.days_to_approval)) continue;
     const filedMs = parseUtcDate(row.init_date);
     if (filedMs === null) continue;
-    const inWindow = anchors.some(
-      (anchor) => Math.abs(filedMs - anchor) / DAY_MS <= windowDays
-    );
-    if (!inWindow) continue;
+    if (!ranges.some(([lo, hi]) => filedMs >= lo && filedMs <= hi)) continue;
 
     days.push(row.days_to_approval);
     years.add(new Date(filedMs).getUTCFullYear());
@@ -96,6 +96,18 @@ function collect(
   };
 }
 
+/** Newest filing date in the pool that has actually resolved. */
+function latestResolvedFiling(segment: TimelineSample[]): number | null {
+  let latest: number | null = null;
+  for (const row of segment) {
+    if (!isUsableDuration(row.days_to_approval)) continue;
+    const ms = parseUtcDate(row.init_date);
+    if (ms === null) continue;
+    if (latest === null || ms > latest) latest = ms;
+  }
+  return latest;
+}
+
 /**
  * Community peers who filed around the user's date.
  *
@@ -104,12 +116,14 @@ function collect(
  * than the cohort's own p75 contains nothing but its fastest approvals, so
  * including it would understate the wait.
  *
- * That filter is why there are two tiers. A pending case is by definition
+ * That filter is why there are three tiers. A pending case is by definition
  * recent, so for the first few months of a wait the user's own filing window is
- * entirely immature and a same-window match returns nothing. Rather than show a
- * permanently empty card, fall back to the same calendar window in earlier
- * years — long since resolved, and the seasonality it captures is the part of
- * filing-date matching that actually carries signal.
+ * entirely immature and a same-window match returns nothing. Falling back to
+ * the same calendar window in earlier years keeps the filing-date claim intact
+ * where the history supports it; failing that, the most recent weeks that have
+ * finished processing at least describe current throughput. Each tier is a
+ * weaker statement than the last, so they are tried in order and the caller is
+ * told which one answered.
  */
 export function buildSimilarFilingPeers(
   rows: TimelineSample[],
@@ -126,23 +140,41 @@ export function buildSimilarFilingPeers(
     rows.filter((r) => r.premium_processing === opts.premiumProcessing),
     opts.nowMs
   );
+  const latestMs = latestResolvedFiling(segment);
 
-  const tiers: Array<{ basis: SimilarFilingBasis; anchors: number[] }> = [
-    { basis: "recent", anchors: [centerMs] },
+  const tiers: Array<{
+    basis: SimilarFilingBasis;
+    ranges: (windowDays: number) => Range[];
+  }> = [
+    {
+      basis: "recent",
+      ranges: (w) => [[centerMs - w * DAY_MS, centerMs + w * DAY_MS]],
+    },
     {
       basis: "seasonal",
-      anchors: SEASON_LOOKBACK_YEARS.map((y) => shiftYears(centerMs, y)),
+      ranges: (w) =>
+        SEASON_LOOKBACK_YEARS.map((y) => {
+          const anchor = shiftYears(centerMs, y);
+          return [anchor - w * DAY_MS, anchor + w * DAY_MS] as Range;
+        }),
+    },
+    {
+      // Trailing span ending at the newest resolved filing, so this never
+      // reaches forward into weeks the maturity filter just excluded.
+      basis: "latest",
+      ranges: (w) =>
+        latestMs === null ? [] : [[latestMs - 2 * w * DAY_MS, latestMs]],
     },
   ];
 
-  for (const { basis, anchors } of tiers) {
+  for (const tier of tiers) {
     for (const windowDays of WINDOWS) {
-      const cohort = collect(segment, anchors, windowDays);
+      const cohort = collect(segment, tier.ranges(windowDays));
       if (!cohort) continue;
 
       const sorted = cohort.days.sort((a, b) => a - b);
       return {
-        basis,
+        basis: tier.basis,
         windowDays,
         sampleSize: sorted.length,
         medianDays: percentile(sorted, 0.5),

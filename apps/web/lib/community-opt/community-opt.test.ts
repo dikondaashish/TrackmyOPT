@@ -522,4 +522,42 @@ describe("similar filing peers", () => {
       })
     ).toBeNull();
   });
+
+  it("falls back to the latest resolved weeks when there is no year of history", () => {
+    // Mirrors the real dataset: dense recent months, nothing a year back.
+    const ownWindow = Array.from({ length: 20 }, () => sample("2026-07-20", 10));
+    const resolved = Array.from({ length: 30 }, (_, i) =>
+      sample(`2026-03-${String(1 + (i % 20)).padStart(2, "0")}`, 90 + (i % 20))
+    );
+    const peers = buildSimilarFilingPeers([...ownWindow, ...resolved], {
+      receivedDate: "2026-07-20",
+      premiumProcessing: false,
+      nowMs: NOW,
+    });
+    expect(peers!.basis).toBe("latest");
+    // Trailing span ends at the newest resolved filing (Mar 20) and reaches
+    // back 2×7d — never forward into the weeks the maturity filter excluded.
+    expect(peers!.windowRange).toEqual(["2026-03-06", "2026-03-20"]);
+    expect(peers!.sampleSize).toBe(20);
+  });
+
+  it("prefers seasonal over the latest-weeks fallback", () => {
+    const ownWindow = Array.from({ length: 20 }, () => sample("2026-07-20", 10));
+    const lastYear = Array.from({ length: 20 }, (_, i) =>
+      sample(`2025-07-${String(18 + (i % 5)).padStart(2, "0")}`, 100)
+    );
+    const recentResolved = Array.from({ length: 30 }, (_, i) =>
+      sample(`2026-03-${String(1 + (i % 20)).padStart(2, "0")}`, 150)
+    );
+    const peers = buildSimilarFilingPeers(
+      [...ownWindow, ...lastYear, ...recentResolved],
+      {
+        receivedDate: "2026-07-20",
+        premiumProcessing: false,
+        nowMs: NOW,
+      }
+    );
+    expect(peers!.basis).toBe("seasonal");
+    expect(peers!.medianDays).toBe(100);
+  });
 });
