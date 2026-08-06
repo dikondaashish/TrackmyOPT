@@ -82,6 +82,9 @@ import {
   CASE_STATUS_MESSAGING,
   PRODUCT_CTAS,
 } from "@/lib/messaging/product-copy";
+import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
+import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
+import type { CommunityEstimate } from "@/lib/community-opt/types";
 
 const PACKAGING_NOTICE_DISMISS_KEY = "tmo_packaging_notice_dismissed_v1";
 
@@ -118,6 +121,17 @@ interface CaseStatus {
 export function CaseStatusSection() {
   const [receiptNumber, setReceiptNumber] = useState("");
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
+  const [communityPrediction, setCommunityPrediction] =
+    useState<CommunityEstimate | null>(null);
+  const [communityHeatmap, setCommunityHeatmap] = useState<
+    Array<{ month: string; buckets: number[] }>
+  >([]);
+  const [communityWeeklyTrend, setCommunityWeeklyTrend] = useState<
+    WeeklyTrendPoint[]
+  >([]);
+  const [communityHistogram, setCommunityHistogram] =
+    useState<ProcessingHistogram | null>(null);
+  const [communityEstimateLoading, setCommunityEstimateLoading] = useState(false);
   const [trackedCases, setTrackedCases] = useState<CaseStatus[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [isAddingCase, setIsAddingCase] = useState(false);
@@ -327,6 +341,77 @@ export function CaseStatusSection() {
       }
     };
   }, [caseStatus?.receipt_number]);
+
+  // Community processing-time estimate (partner timelines — not USCIS API).
+  useEffect(() => {
+    if (!caseStatus?.receipt_number) {
+      setCommunityPrediction(null);
+      setCommunityHeatmap([]);
+      setCommunityWeeklyTrend([]);
+      setCommunityHistogram(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const days =
+      clientNowMs !== null
+        ? daysSinceEpochMs(caseStatus.received_date, clientNowMs)
+        : 0;
+
+    // Prefix only — it is all the service-center lookup needs, and it keeps
+    // full receipt numbers out of request logs.
+    const params = new URLSearchParams({
+      receipt_prefix: caseStatus.receipt_number.slice(0, 3),
+      days: String(days),
+    });
+    if (caseStatus.case_type) params.set("case_type", caseStatus.case_type);
+    if (caseStatus.label) params.set("label", caseStatus.label);
+    if (caseStatus.pp_start_date) params.set("pp_start", caseStatus.pp_start_date);
+    if (caseStatus.received_date) params.set("received", caseStatus.received_date);
+
+    setCommunityEstimateLoading(true);
+    void fetch(`/api/case-status/community-estimate?${params}`, {
+      signal: controller.signal,
+      credentials: "include",
+    })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return res.json() as Promise<{
+          ok?: boolean;
+          prediction?: CommunityEstimate | null;
+          heatmap?: Array<{ month: string; buckets: number[] }>;
+          weeklyTrend?: WeeklyTrendPoint[];
+          histogram?: ProcessingHistogram | null;
+        }>;
+      })
+      .then((body) => {
+        if (!body || controller.signal.aborted) return;
+        setCommunityPrediction(body.prediction ?? null);
+        setCommunityHeatmap(body.heatmap ?? []);
+        setCommunityWeeklyTrend(body.weeklyTrend ?? []);
+        setCommunityHistogram(body.histogram ?? null);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setCommunityPrediction(null);
+          setCommunityHeatmap([]);
+          setCommunityWeeklyTrend([]);
+          setCommunityHistogram(null);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCommunityEstimateLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [
+    caseStatus?.receipt_number,
+    caseStatus?.case_type,
+    caseStatus?.label,
+    caseStatus?.pp_start_date,
+    caseStatus?.received_date,
+    clientNowMs,
+  ]);
 
   const checkPremiumStatus = async () => {
     try {
@@ -1031,6 +1116,13 @@ export function CaseStatusSection() {
                     ? daysSinceEpochMs(caseStatus.received_date, clientNowMs)
                     : 0
                 }
+                prediction={communityPrediction ?? undefined}
+                heatmap={communityHeatmap}
+                weeklyTrend={communityWeeklyTrend}
+                histogram={communityHistogram}
+                receivedDate={caseStatus.received_date}
+                premiumProcessing={Boolean(caseStatus.pp_start_date)}
+                estimateLoading={communityEstimateLoading}
               />
             </CaseStatusPanelErrorBoundary>
           </Card>

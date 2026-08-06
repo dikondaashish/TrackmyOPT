@@ -1505,6 +1505,108 @@ export type Database = {
         }
         Relationships: []
       }
+      community_opt_timelines: {
+        Row: {
+          id: string
+          external_id: string
+          source: string
+          case_kind: string
+          service_center: string | null
+          premium_processing: boolean
+          init_date: string | null
+          biometrics_date: string | null
+          pp_date: string | null
+          approve_date: string | null
+          card_produce_date: string | null
+          delivered_date: string | null
+          nationality: string | null
+          days_to_approval: number | null
+          days_to_produce: number | null
+          days_to_deliver: number | null
+          external_updated_at: string | null
+          ingested_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          external_id: string
+          source: string
+          case_kind: string
+          service_center?: string | null
+          premium_processing?: boolean
+          init_date?: string | null
+          biometrics_date?: string | null
+          pp_date?: string | null
+          approve_date?: string | null
+          card_produce_date?: string | null
+          delivered_date?: string | null
+          nationality?: string | null
+          days_to_approval?: number | null
+          days_to_produce?: number | null
+          days_to_deliver?: number | null
+          external_updated_at?: string | null
+          ingested_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          external_id?: string
+          source?: string
+          case_kind?: string
+          service_center?: string | null
+          premium_processing?: boolean
+          init_date?: string | null
+          biometrics_date?: string | null
+          pp_date?: string | null
+          approve_date?: string | null
+          card_produce_date?: string | null
+          delivered_date?: string | null
+          nationality?: string | null
+          days_to_approval?: number | null
+          days_to_produce?: number | null
+          days_to_deliver?: number | null
+          external_updated_at?: string | null
+          ingested_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      community_opt_ingest_runs: {
+        Row: {
+          id: string
+          started_at: string
+          finished_at: string | null
+          status: string
+          pages_fetched: number
+          rows_upserted: number
+          rows_skipped: number
+          source_total: number | null
+          error_message: string | null
+        }
+        Insert: {
+          id?: string
+          started_at?: string
+          finished_at?: string | null
+          status?: string
+          pages_fetched?: number
+          rows_upserted?: number
+          rows_skipped?: number
+          source_total?: number | null
+          error_message?: string | null
+        }
+        Update: {
+          id?: string
+          started_at?: string
+          finished_at?: string | null
+          status?: string
+          pages_fetched?: number
+          rows_upserted?: number
+          rows_skipped?: number
+          source_total?: number | null
+          error_message?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

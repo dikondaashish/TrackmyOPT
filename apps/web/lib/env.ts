@@ -128,6 +128,12 @@ const serverEnvSchema = clientEnvSchema.extend({
     ADMIN_SECRET: z.string().min(8).optional(),
     EMAIL_LINK_SIGNING_SECRET: z.string().min(16).optional(),
     CHROME_EXTENSION_IDS: z.string().optional(),
+    /** Optional override for partner community OPT timelines API (default opt-tracker.com). */
+    COMMUNITY_OPT_API_BASE: z.string().url().optional(),
+    /** Optional override for opt-pulse Supabase REST base URL. */
+    COMMUNITY_OPT_PULSE_URL: z.string().url().optional(),
+    /** Optional override for opt-pulse publishable key. */
+    COMMUNITY_OPT_PULSE_KEY: z.string().optional(),
 
     // USCIS API
     USCIS_CLIENT_ID: z.string().optional(),

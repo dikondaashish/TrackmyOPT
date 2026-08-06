@@ -8,6 +8,10 @@
       "schedule": "0 14 * * *"
     },
     {
+      "path": "/api/cron/ingest-community-opt",
+      "schedule": "30 15 * * *"
+    },
+    {
       "path": "/api/cron/checkout-recovery-emails",
       "schedule": "0 */4 * * *"
     },
