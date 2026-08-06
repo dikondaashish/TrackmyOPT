@@ -384,4 +384,43 @@ describe("selectCohort + buildEstimateFromSamples", () => {
     expect(estimate!.sourceNote.toLowerCase()).toContain("not affiliated with uscis");
     expect(estimate!.sourceNote.toLowerCase()).toContain("not a guarantee");
   });
+
+  describe("estimated decision range", () => {
+    const NOW = Date.parse("2026-08-05T12:00:00Z");
+
+    /** 41 samples spanning 80–120d, giving p25=90 and p75=110. */
+    function estimateFiledOn(receivedDate: string | null, daysSinceFiled: number) {
+      const rows = Array.from({ length: 41 }, (_, i) => sample(80 + i));
+      return buildEstimateFromSamples(rows, {
+        daysSinceFiled,
+        receivedDate,
+        matchLevel: "pp",
+        caseKind: "initial_opt",
+        serviceCenter: null,
+        premiumProcessing: false,
+        nowMs: NOW,
+      })!;
+    }
+
+    it("counts the window from the filing date, not from today", () => {
+      // Filed 20d ago on 2026-07-16: p25/p75 land 90/110 days after filing.
+      const estimate = estimateFiledOn("2026-07-16", 20);
+      expect(estimate.p25Days).toBe(90);
+      expect(estimate.p75Days).toBe(110);
+      expect(estimate.estimatedDecisionRange).toEqual(["2026-10-14", "2026-11-03"]);
+    });
+
+    it("never quotes a decision date in the past", () => {
+      // Filed 200d ago — already beyond p75, so the window is "any time now"
+      // rather than a date that has been and gone.
+      const estimate = estimateFiledOn("2026-01-17", 200);
+      expect(estimate.estimatedDecisionRange).toEqual(["2026-08-05", "2026-08-05"]);
+    });
+
+    it("infers the filing date from days pending when it is unknown", () => {
+      // 20d pending with no filing date implies 2026-07-16, same as above.
+      const estimate = estimateFiledOn(null, 20);
+      expect(estimate.estimatedDecisionRange).toEqual(["2026-10-14", "2026-11-03"]);
+    });
+  });
 });
