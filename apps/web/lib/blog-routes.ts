@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { researchArticles } from "@/data/blog-series";
 
 /**
  * Blog slugs that 301 to another URL (next.config.js). Omit from sitemap so GSC
@@ -17,9 +18,15 @@ const BLOG_REDIRECT_SLUGS = new Set([
 /** Discover live blog post routes from the app directory. */
 export function getPublicBlogRoutes(): string[] {
     const blogDir = path.join(process.cwd(), "app/blog");
-    return fs
+    const filesystemRoutes = fs
         .readdirSync(blogDir, { withFileTypes: true })
-        .filter((entry) => entry.isDirectory() && !BLOG_REDIRECT_SLUGS.has(entry.name))
+        .filter(
+            (entry) =>
+                entry.isDirectory() &&
+                !entry.name.startsWith("[") &&
+                !BLOG_REDIRECT_SLUGS.has(entry.name),
+        )
         .map((entry) => `/blog/${entry.name}`)
-        .sort();
+    const researchRoutes = researchArticles.map(({ slug }) => `/blog/${slug}`);
+    return [...new Set([...filesystemRoutes, ...researchRoutes])].sort();
 }

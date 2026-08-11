@@ -11,6 +11,8 @@ interface BlogPostSchemaProps {
   author?: string;
   /** Full canonical URL for this blog post (enables url + mainEntityOfPage in schema). */
   canonicalUrl?: string;
+  /** Absolute 1200x630 article image URL. */
+  imageUrl?: string;
   faqItems?: Array<{
     question: string;
     answer: string;
@@ -30,6 +32,7 @@ export function BlogPostSchema({
   modifiedDate,
   author = "Vinay Kumar",
   canonicalUrl,
+  imageUrl = "https://www.trackmyopt.com/og-image.png",
   faqItems = [],
   howToItems = [],
 }: BlogPostSchemaProps) {
@@ -52,7 +55,7 @@ export function BlogPostSchema({
       ? {
           url: canonicalUrl,
           mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
-          image: "https://www.trackmyopt.com/og-image.png",
+          image: imageUrl,
         }
       : {}),
     datePublished: publishedDate,
@@ -110,7 +113,7 @@ export function BlogPostSchema({
           "@type": "HowTo",
           name: safeTitle,
           description: safeDescription,
-          image: "https://www.trackmyopt.com/og-image.png",
+          image: imageUrl,
           step: howToItems.map((item) => ({
             "@type": "HowToStep",
             position: item.step,

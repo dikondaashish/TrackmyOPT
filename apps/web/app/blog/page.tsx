@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Clock, TrendingUp, BookOpen } from "lucide-react";
+import { researchBlogCards } from "@/data/blog-series";
 
 export const metadata: Metadata = {
     title: "OPT & F-1 Visa Blog — Guides for International Students",
@@ -10,6 +11,40 @@ export const metadata: Metadata = {
 };
 
 const blogPosts = [
+    ...researchBlogCards,
+    {
+        slug: "f1-visa-interview-country-of-residence-rule-2026",
+        title: "New F-1 Visa Interview Rule: Apply in Your Country of Nationality or Residence",
+        description: "The July 15, 2026 State Department rule changes where F-1 and OPT students should book visa interviews. Learn the third-country risks and planning steps.",
+        category: "Visa Policy Update",
+        readTime: "9 min read",
+        date: "August 11, 2026",
+        tags: ["F-1 Visa", "Visa Interview", "Travel", "OPT"],
+        featured: true,
+        image: "/blog/f1-visa-interview-country-of-residence-rule-2026.png"
+    },
+    {
+        slug: "august-2026-visa-bulletin-opt-workers",
+        title: "August 2026 Visa Bulletin: EB-2 India Unavailable and EB-1 at Risk",
+        description: "EB-2 India is unavailable for final action and EB-1 India may follow. Understand the impact on OPT workers, I-140 petitions, and I-485 filings.",
+        category: "Green Card Update",
+        readTime: "10 min read",
+        date: "August 11, 2026",
+        tags: ["Visa Bulletin", "EB-2", "Green Card", "India"],
+        featured: true,
+        image: "/blog/august-2026-visa-bulletin-opt-workers.png"
+    },
+    {
+        slug: "f1-visa-social-media-screening-2026",
+        title: "F-1 Visa Social Media Screening in 2026: What Officers Can Review",
+        description: "F-1 visa applicants face online-presence review and are instructed to make social profiles public. Separate confirmed requirements from rumors.",
+        category: "Visa Screening Update",
+        readTime: "9 min read",
+        date: "August 11, 2026",
+        tags: ["F-1 Visa", "Social Media", "DS-160", "Visa Interview"],
+        featured: true,
+        image: "/blog/f1-visa-social-media-screening-2026.png"
+    },
     {
         slug: "uscis-deny-without-rfe-policy-2026",
         title: "USCIS Can Deny Your Case Without an RFE: What Changed August 5, 2026",
@@ -1136,6 +1171,12 @@ function CategoryBadge({ category }: { category: string }) {
     );
 }
 
+function getPostImage(post: (typeof blogPosts)[number]) {
+    return "image" in post && typeof post.image === "string"
+        ? post.image
+        : "/blog/default.jpg";
+}
+
 export default function BlogIndexPage() {
     const featured = blogPosts.filter(p => p.featured);
     const rest = blogPosts.filter(p => !p.featured);
@@ -1185,7 +1226,7 @@ export default function BlogIndexPage() {
                         <article className="flex flex-col h-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-zinc-900 dark:to-zinc-800 rounded-2xl border border-blue-100 dark:border-zinc-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                             <div className="relative w-full h-48 sm:h-56 bg-blue-100 dark:bg-zinc-800">
                                 <Image 
-                                    src={post.image || "/blog/default.jpg"} 
+                                    src={getPostImage(post)}
                                     alt={post.title} 
                                     fill 
                                     className="object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -1230,7 +1271,7 @@ export default function BlogIndexPage() {
                         <article className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:shadow-lg transition-all duration-300 overflow-hidden">
                             <div className="relative w-full h-40 bg-gray-100 dark:bg-zinc-800">
                                 <Image 
-                                    src={post.image || "/blog/default.jpg"} 
+                                    src={getPostImage(post)}
                                     alt={post.title} 
                                     fill 
                                     className="object-cover group-hover:scale-105 transition-transform duration-500" 

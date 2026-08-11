@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Bell, Clock, Shield } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, Clock, FileText, Shield, Users } from "lucide-react";
 import { captureClientEvent } from "@/lib/posthog-client";
 
-type BlogProductCtaVariant = "case-status" | "opt-timeline" | "unemployment";
+export type BlogProductCtaVariant =
+  | "case-status"
+  | "opt-timeline"
+  | "unemployment"
+  | "sponsors"
+  | "resume"
+  | "community";
 
 const VARIANTS: Record<
   BlogProductCtaVariant,
@@ -39,6 +45,30 @@ const VARIANTS: Record<
       "Avoid the 90-day limit — live counter synced to your OPT dates with compliance reminders.",
     href: "/dashboard/opt-tools/opt-clock",
     cta: "Check unemployment days",
+  },
+  sponsors: {
+    icon: BriefcaseBusiness,
+    title: "Research employers with real filing history",
+    description:
+      "Compare H-1B filing history, entry-level signals, common roles, and verified career links before spending hours on an application.",
+    href: "/dashboard/h1b-sponsors",
+    cta: "Search H-1B sponsors",
+  },
+  resume: {
+    icon: FileText,
+    title: "Turn this guidance into a stronger application",
+    description:
+      "Build an ATS-friendly U.S. resume, tailor it to a job description, and keep your search organized alongside your OPT timeline.",
+    href: "/dashboard/resume-builder",
+    cta: "Build my resume",
+  },
+  community: {
+    icon: Users,
+    title: "Plan with community timelines—not rumors",
+    description:
+      "Compare anonymized OPT milestones, record your own case, and keep official USCIS status separate from community planning estimates.",
+    href: "/dashboard/community",
+    cta: "Explore community data",
   },
 };
 
@@ -86,7 +116,15 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
               <>Also see </>
             )}
             <Link
-              href="/features/case-status"
+              href={
+                variant === "sponsors"
+                  ? "/features/sponsors"
+                  : variant === "resume"
+                    ? "/features/resume-ai"
+                    : variant === "community"
+                      ? "/features/community"
+                      : "/features/case-status"
+              }
               className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
               onClick={() =>
                 captureClientEvent("blog_product_cta_clicked", {
@@ -95,7 +133,13 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
                 })
               }
             >
-              USCIS case status tracker features
+              {variant === "sponsors"
+                ? "H-1B sponsor research features"
+                : variant === "resume"
+                  ? "resume and job-search features"
+                  : variant === "community"
+                    ? "community timeline methodology"
+                    : "USCIS case status tracker features"}
             </Link>
           </p>
         </div>
