@@ -11,6 +11,17 @@ export const metadata: Metadata = {
 
 const blogPosts = [
     {
+        slug: "uscis-deny-without-rfe-policy-2026",
+        title: "USCIS Can Deny Your Case Without an RFE: What Changed August 5, 2026",
+        description: "USCIS restored officers' discretion to deny incomplete cases without first sending an RFE or NOID. Learn who is affected and how to file a complete case.",
+        category: "Critical USCIS Update",
+        readTime: "10 min read",
+        date: "August 11, 2026",
+        tags: ["USCIS", "RFE", "Evidence", "OPT"],
+        featured: true,
+        image: "/blog/uscis-deny-without-rfe-policy-2026.png"
+    },
+    {
         slug: "h1b-fy2027-cap-closed-no-second-lottery",
         title: "USCIS Closes FY 2027 H-1B Cap: No Second Lottery & What OPT Students Must Do Next",
         description: "USCIS has officially reached the 85,000 cap for FY 2027 H-1B petitions and announced there will be no second lottery. Discover your backup options if you weren't selected.",
