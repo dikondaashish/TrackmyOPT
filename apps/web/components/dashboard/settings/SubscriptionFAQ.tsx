@@ -1,28 +1,34 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
-import { DEDICATED_MONEY_BACK_DAYS, PRO_TRIAL_DAYS } from '@/lib/billing/legal-config';
+import {
+    DEDICATED_CONSULTATION_MINUTES,
+    DEDICATED_CONSULTATION_WAIT_DAYS,
+    DEDICATED_MONEY_BACK_DAYS,
+    PRO_PAID_INTRO_PRICE,
+    PRO_TRIAL_DAYS,
+} from '@/lib/billing/legal-config';
 
 const faqs = [
     {
         question: "Is this an auto-renewing subscription?",
-        answer: `Yes. Pro renews automatically at the price shown at checkout (monthly or yearly) until you cancel in Settings → Subscription → Cancel subscription (Stripe billing portal). Existing Dedicated subscribers renew the same way until they switch or cancel.`
+        answer: `Yes. Pro and Dedicated renew automatically at the price shown at checkout (monthly or yearly) until you cancel in Settings → Subscription → Cancel subscription (Stripe billing portal).`
     },
     {
         question: "How do I cancel?",
-        answer: "Sign in → Settings → Subscription & Billing → Cancel subscription. Stripe's portal confirms cancellation. We email you your final access date. Cancellation stops future charges only; you keep access through the end of your current paid or trial period."
+        answer: "Sign in → Settings → Subscription & Billing → Cancel subscription. Stripe's portal confirms cancellation. We email you your final access date. Cancellation stops future charges only; you keep access through the end of your current paid or introductory period."
     },
     {
-        question: "What is the Pro free trial?",
-        answer: `Pro includes one ${PRO_TRIAL_DAYS}-day free trial per account (ever). You are not charged if you cancel before the trial ends. After the trial, Pro auto-renews unless you cancel.`
+        question: "Does Pro include a free trial?",
+        answer: `No. Eligible accounts pay $${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first ${PRO_TRIAL_DAYS} days, then Pro renews at the selected monthly or annual price unless canceled. Only that $${PRO_PAID_INTRO_PRICE.toFixed(2)} charge is refundable during the introductory period. Previously granted free trials remain governed by their original checkout terms.`
     },
     {
         question: "What about Dedicated billing?",
-        answer: `Dedicated is no longer offered to new customers. Existing Dedicated subscribers keep access and can switch to Pro in the dashboard (Stripe proration) or manage billing in Settings.`
+        answer: `Dedicated is charged immediately and has a ${DEDICATED_MONEY_BACK_DAYS}-day refund window on the first Dedicated subscription charge. After ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated, the member may request one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial consultation per account with a partnered licensed immigration attorney. Availability, conflict checks, attorney acceptance, and the Dedicated terms apply.`
     },
     {
         question: "Can I get a refund?",
-        answer: `After the Pro trial or any remaining Dedicated ${DEDICATED_MONEY_BACK_DAYS}-day first-month window, we do not refund change-of-mind charges. Exceptions: billing errors, unauthorized/fraudulent charges, or major service failure—contact support@trackmyopt.com.`
+        answer: `For an eligible Pro account, only the $${PRO_PAID_INTRO_PRICE.toFixed(2)} introductory charge is refundable during the first ${PRO_TRIAL_DAYS} days; later recurring charges are not refundable for change of mind. Dedicated has a ${DEDICATED_MONEY_BACK_DAYS}-day guarantee on its first subscription charge.`
     },
     {
         question: "Is my payment secure?",

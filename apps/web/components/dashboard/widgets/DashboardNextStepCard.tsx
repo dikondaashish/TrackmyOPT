@@ -117,7 +117,7 @@ export function DashboardNextStepCard() {
           title: "Don't wait to refresh — get daily Pro auto-checks",
           description:
             "Your receipt is saved. Free includes manual refresh. Pro checks USCIS every morning and emails you when anything changes.",
-          cta: "Start 7-Day Free Trial",
+          cta: "Get Pro",
         };
       case "status_live":
         return {

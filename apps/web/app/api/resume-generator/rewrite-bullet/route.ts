@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const rewrites = await rewriteBulletPoints(resumeText, jobDescription);
+        const rewrites = await rewriteBulletPoints(resumeText, jobDescription, userId);
 
         return NextResponse.json({ rewrites }, { headers: corsHeaders });
 

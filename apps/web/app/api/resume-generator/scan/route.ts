@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 import { buildAtsScanPrompt } from '@/lib/ai/prompts/ats-scan';
+import { generateAiContent } from '@/lib/ai/google-ai';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { latexToPlainText } from '@/lib/resume/latex-to-plain-text';
@@ -11,8 +11,6 @@ import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 export async function OPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     const corsHeaders = corsHeadersWebAndExtension(req);
@@ -74,19 +72,12 @@ export async function POST(req: NextRequest) {
         // 2. AI Deep Analysis
         const prompt = buildAtsScanPrompt(scanResumeText, jobDescription);
 
-        let response;
-        try {
-            response = await ai.models.generateContent({
-                model: 'gemini-3.1-pro-preview',
-                contents: prompt,
-            });
-        } catch (err) {
-            console.warn('[scan] Primary model failed, falling back to gemini-2.5-pro:', err);
-            response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
-                contents: prompt,
-            });
-        }
+        const response = await generateAiContent({
+            task: 'ats_scan',
+            contents: prompt,
+            config: { responseMimeType: 'application/json' },
+            userId,
+        });
         const text = response.text || '';
 
         // Parse JSON response from AI

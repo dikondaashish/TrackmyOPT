@@ -3,8 +3,15 @@
  * ATTORNEY REVIEW REQUIRED before production reliance on this copy.
  */
 
-export const LEGAL_EFFECTIVE_DATE = 'May 31, 2026';
-export const LEGAL_VERSION_ID = '2026-05-31';
+import {
+  DEDICATED_ATTORNEY_BENEFIT,
+  PLAN_LIMITS,
+  PLAN_PRICES,
+  PRO_PAID_INTRO,
+} from '@/lib/pricing/plan-config';
+
+export const LEGAL_EFFECTIVE_DATE = 'August 24, 2026';
+export const LEGAL_VERSION_ID = '2026-08-24';
 const PRIVACY_CHOICES_EFFECTIVE_DATE = 'July 26, 2026';
 export const PRIVACY_CHOICES_VERSION_ID = '2026-07-26';
 
@@ -48,7 +55,7 @@ export const EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE =
   "When you explicitly choose Prefill, Continuous, or Guided Autopilot, the Chrome extension may read the open application form and place eligible information from your dedicated job-portal prefill profile and the active job-scoped generated resume into empty fields. The dedicated profile may include job-application contact information, address, LinkedIn, GitHub, and website details and is separate from your normal TrackMyOPT account profile. A generated resume artifact is kept in extension session storage for up to 30 minutes and is invalidated when the normalized job URL, company, or role changes. Optional AI screening drafts and cover letters send the current job description and the active generated-resume snapshot to our AI provider; drafts require your review and are never generated for sensitive questions. You may optionally save work-authorization, visa, sponsorship, citizenship, annual or hourly compensation, in-person/relocation/start/transportation/accommodation preferences, date-of-birth, sex/gender, race/ethnicity, veteran, disability, and EEO answers in a separate server-side record protected with authenticated encryption. You may also save one default job-portal login in that encrypted record. The same default email address and password are made available for your review across third-party employer and applicant-tracking portals, regardless of hostname. Reusing one login across unrelated portals increases the potential impact if any one portal is compromised. The extension never uses this credential on TrackMyOPT pages, never places it in browser sync storage, and keeps the password masked in its review panel. Because TrackMyOPT's server must decrypt a saved portal password to provide the autofill feature, this credential storage is not end-to-end encryption and should not be used for your TrackMyOPT password or a primary password used for sensitive accounts. Credentials and private answers are never guessed or sent to AI, logs, or analytics. The extension loads saved private data into a review panel, and it cannot use it until you approve it for the current application. Approval is cleared when the application or page changes. When filled, the selected credential or answer is disclosed to the employer or applicant-tracking system operating that page. You can edit or delete saved private data on the Chrome Job Prefill page. Guided Autopilot may click narrowly allowlisted non-submit Next, Continue, or Done controls after required fields are complete, but it stops at Review and never clicks Submit, Apply, Finish, or another final application action. Login credentials never trigger Login, Continue, Next, Create Account, or Submit. The extension does not replace non-empty fields or existing files, fill password-change, security-answer, financial, SSN, date-of-birth, authentication-code, OTP, MFA, PIN, or other uncertain password-type fields, or answer Social Security number questions. Autofill analytics contain only bounded counts, feature states, adapter and mode identifiers, navigation outcomes, and content-free error categories—not resume, answer, field, employer, school, job-title, URL, hash, file content, credentials, or private application answers.";
 
 export const EXTENSION_AUTOFILL_SUPPORT_NOTICE =
-  'Free includes Step-by-step profile/resume/history prefill, optional skills, review-required private answers and one shared default job-portal login, 5 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, opt-in Guided Autopilot, and higher daily AI access. Optional private application data is encrypted separately, never guessed or processed by AI, and requires approval in the extension for every application before filling. The same default portal login may be offered on different third-party job portals after per-application review and approval. It remains masked in the extension panel and is skipped on password-change, security-answer, financial, SSN, date-of-birth, authentication-code, OTP, MFA, PIN, uncertain password-type, and TrackMyOPT pages. Guided Autopilot can advance safe Next/Continue/Done steps for application fields, pauses for required or review-needed answers, and always stops before final submission. Credential filling itself never clicks Login, Continue, Next, Create Account, or Submit. Press Escape or Stop at any time. TrackMyOPT never submits an application; review every field and attachment yourself.';
+  `Free includes Step-by-step profile/resume/history prefill, optional skills, review-required private answers and one shared default job-portal login, ${PLAN_LIMITS.free.screeningDraftsPerMonth} AI screening drafts per month, and ${PLAN_LIMITS.free.coverLettersPerMonth} AI cover letter per month. Pro adds Continuous filling, opt-in Guided Autopilot, and ${PLAN_LIMITS.pro.aiWritingActionsPerMonth} shared AI writing actions per month, subject to daily and per-item safety limits. Optional private application data is encrypted separately, never guessed or processed by AI, and requires approval in the extension for every application before filling. The same default portal login may be offered on different third-party job portals after per-application review and approval. It remains masked in the extension panel and is skipped on password-change, security-answer, financial, SSN, date-of-birth, authentication-code, OTP, MFA, PIN, uncertain password-type, and TrackMyOPT pages. Guided Autopilot can advance safe Next/Continue/Done steps for application fields, pauses for required or review-needed answers, and always stops before final submission. Credential filling itself never clicks Login, Continue, Next, Create Account, or Submit. Press Escape or Stop at any time. TrackMyOPT never submits an application; review every field and attachment yourself.`;
 
 /** Phrases that must not appear in customer-facing product copy (tests scan for these). */
 export const RISKY_MARKETING_PHRASES = [
@@ -174,12 +181,21 @@ export type PaidPlanId = 'pro' | 'dedicated';
 export type BillingInterval = 'month' | 'year';
 
 export const PLAN_DISPLAY_PRICES = {
-  pro: { month: 4.99, year: 49.99 },
-  dedicated: { month: 14.99, year: 149.99 },
+  pro: PLAN_PRICES.pro,
+  dedicated: PLAN_PRICES.dedicated,
 } as const;
 
-export const PRO_TRIAL_DAYS = 7;
+/** Stripe uses a trial period technically, but customers pay $0.99 upfront. */
+export const PRO_TRIAL_DAYS = PRO_PAID_INTRO.durationDays;
+export const PRO_PAID_INTRO_PRICE = PRO_PAID_INTRO.price;
+export const PRO_PAID_INTRO_REFUND_DAYS = PRO_PAID_INTRO.durationDays;
 export const DEDICATED_MONEY_BACK_DAYS = 3;
+export const DEDICATED_CONSULTATION_MINUTES =
+  DEDICATED_ATTORNEY_BENEFIT.durationMinutes;
+export const DEDICATED_CONSULTATIONS_PER_ACCOUNT =
+  DEDICATED_ATTORNEY_BENEFIT.consultationsPerAccount;
+export const DEDICATED_CONSULTATION_WAIT_DAYS =
+  DEDICATED_ATTORNEY_BENEFIT.minimumContinuousPlanDays;
 
 function formatUsd(amount: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -195,20 +211,21 @@ function getBillingFrequencyLabel(interval: BillingInterval): string {
 function getPlanBillingSummary(
   planId: PaidPlanId,
   interval: BillingInterval,
-  options?: { includeProTrial?: boolean }
+  options?: { includeProIntro?: boolean }
 ) {
   const amount = PLAN_DISPLAY_PRICES[planId][interval];
   const frequencyLabel = getBillingFrequencyLabel(interval);
   const cancelMethod =
     'Dashboard → Settings → Subscription → Cancel subscription (opens Stripe billing portal)';
 
-  if (planId === 'pro' && options?.includeProTrial) {
+  if (planId === 'pro' && options?.includeProIntro) {
     return {
       amountLabel: formatUsd(amount),
       frequencyLabel,
-      trialDays: PRO_TRIAL_DAYS,
-      moneyBackDays: null,
-      autoRenewLine: `After your ${PRO_TRIAL_DAYS}-day free trial, your card will be charged ${formatUsd(amount)} ${frequencyLabel} unless you cancel before the trial ends.`,
+      introDays: PRO_TRIAL_DAYS,
+      introPriceLabel: formatUsd(PRO_PAID_INTRO_PRICE),
+      moneyBackDays: PRO_PAID_INTRO_REFUND_DAYS,
+      autoRenewLine: `${formatUsd(PRO_PAID_INTRO_PRICE)} is charged today for your first ${PRO_TRIAL_DAYS} days. After that, your subscription automatically renews at ${formatUsd(amount)} ${frequencyLabel} unless you cancel before the introductory period ends.`,
       cancelMethod,
     };
   }
@@ -217,8 +234,21 @@ function getPlanBillingSummary(
     return {
       amountLabel: formatUsd(amount),
       frequencyLabel,
-      trialDays: null,
+      introDays: null,
+      introPriceLabel: null,
       moneyBackDays: DEDICATED_MONEY_BACK_DAYS,
+      autoRenewLine: `You are charged ${formatUsd(amount)} ${frequencyLabel} today. Your subscription renews automatically until you cancel.`,
+      cancelMethod,
+    };
+  }
+
+  if (planId === 'pro') {
+    return {
+      amountLabel: formatUsd(amount),
+      frequencyLabel,
+      introDays: null,
+      introPriceLabel: null,
+      moneyBackDays: null,
       autoRenewLine: `You are charged ${formatUsd(amount)} ${frequencyLabel} today. Your subscription renews automatically until you cancel.`,
       cancelMethod,
     };
@@ -227,7 +257,8 @@ function getPlanBillingSummary(
   return {
     amountLabel: formatUsd(amount),
     frequencyLabel,
-    trialDays: null,
+    introDays: null,
+    introPriceLabel: null,
     moneyBackDays: null,
     autoRenewLine: `You will be charged ${formatUsd(amount)} ${frequencyLabel}. Your subscription renews automatically until you cancel.`,
     cancelMethod,
@@ -239,17 +270,17 @@ export function getPricingModalProConsentLabel(params: {
   interval: BillingInterval;
   monthlyPrice: number;
   yearlyPrice: number;
-  includeTrial: boolean;
+  includeIntro: boolean;
 }): string {
   const price =
     params.interval === 'year'
       ? `$${params.yearlyPrice.toFixed(2)}/year`
       : `$${params.monthlyPrice.toFixed(2)}/month`;
 
-  if (params.includeTrial) {
-    return `I agree Pro starts with a 7-day free trial, then renews at ${price} unless I cancel before the trial ends.`;
+  if (params.includeIntro) {
+    return `I agree to pay $${PRO_PAID_INTRO_PRICE.toFixed(2)} today for my first ${PRO_TRIAL_DAYS} days. After that, Pro renews at ${price} unless I cancel before the introductory period ends. The $${PRO_PAID_INTRO_PRICE.toFixed(2)} charge is refundable only during those first ${PRO_PAID_INTRO_REFUND_DAYS} days; recurring charges are non-refundable except where required by law.`;
   }
-  return `I agree Pro renews at ${price} unless I cancel.`;
+  return `I agree Pro is charged today at ${price} and renews until canceled. This account has already used its introductory offer, and change-of-mind refunds are not available.`;
 }
 
 /** Inline consent copy on PricingModal Dedicated card (charged today, not after money-back window). */
@@ -259,18 +290,18 @@ export function getPricingModalDedicatedConsentLabel(params: {
   yearlyPrice: number;
 }): string {
   if (params.interval === 'year') {
-    return `I agree Dedicated is charged today at $${params.yearlyPrice.toFixed(2)}/year, renews annually until canceled, and the 3-day money-back guarantee applies only to the first paid term.`;
+    return `I agree Dedicated is charged today at $${params.yearlyPrice.toFixed(2)}/year, renews annually until canceled, includes a ${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee on the first paid term, and unlocks one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation per account after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated, subject to the Terms.`;
   }
-  return `I agree Dedicated is charged today at $${params.monthlyPrice.toFixed(2)}/month, renews monthly until canceled, and the 3-day money-back guarantee applies only to the first paid month.`;
+  return `I agree Dedicated is charged today at $${params.monthlyPrice.toFixed(2)}/month, renews monthly until canceled, includes a ${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee on the first Dedicated subscription charge, and unlocks one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation per account after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated, subject to the Terms.`;
 }
 
 export function buildCheckoutDisclosures(params: {
   planId: PaidPlanId;
   interval: BillingInterval;
-  includeProTrial: boolean;
+  includeProIntro: boolean;
 }) {
   const summary = getPlanBillingSummary(params.planId, params.interval, {
-    includeProTrial: params.includeProTrial,
+    includeProIntro: params.includeProIntro,
   });
 
   return {
@@ -278,21 +309,29 @@ export function buildCheckoutDisclosures(params: {
     headline: 'This is an auto-renewing subscription.',
     amountLine: `Plan: ${params.planId === 'dedicated' ? 'Dedicated' : 'Pro'}. Price: ${summary.amountLabel} billed ${summary.frequencyLabel}.`,
     renewalLine: summary.autoRenewLine,
-    trialLine:
-      summary.trialDays != null
-        ? `Free trial: ${summary.trialDays} days. You will not be charged if you cancel before the trial ends.`
+    introLine:
+      summary.introDays != null && summary.introPriceLabel != null
+        ? `Paid introductory period: ${summary.introPriceLabel} today for ${summary.introDays} days. This is not a free trial.`
         : null,
     dedicatedRefundLine:
-      summary.moneyBackDays != null
-        ? `Dedicated: ${summary.moneyBackDays}-day money-back guarantee on your first paid month only (see Refund Policy).`
+      params.planId === 'dedicated' && summary.moneyBackDays != null
+        ? `Dedicated: ${summary.moneyBackDays}-day money-back guarantee on your first Dedicated subscription charge only (see Refund Policy).`
+        : null,
+    proRefundLine:
+      params.planId === 'pro' && params.includeProIntro
+        ? `Pro: the ${formatUsd(PRO_PAID_INTRO_PRICE)} introductory charge is refundable only during the first ${PRO_PAID_INTRO_REFUND_DAYS} days. Recurring charges after that are non-refundable except where required by law or stated in the Refund Policy.`
+        : null,
+    dedicatedConsultationLine:
+      params.planId === 'dedicated'
+        ? `Dedicated includes one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial consultation per account after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated, subject to attorney availability, conflict checks, acceptance, and the Terms.`
         : null,
     cancelLine: `How to cancel: ${summary.cancelMethod}. Cancellation stops future charges only; you keep access through the end of your current paid period.`,
     noRefundAfterWindow:
-      params.planId === 'pro' && params.includeProTrial
-        ? 'After the trial, we do not offer refunds for change of mind. See our Refund Policy for exceptions.'
+      params.planId === 'pro' && params.includeProIntro
+        ? `After the ${PRO_TRIAL_DAYS}-day paid introductory period, we do not offer refunds for change of mind. See our Refund Policy for legally required exceptions.`
         : params.planId === 'dedicated'
-          ? `After the ${DEDICATED_MONEY_BACK_DAYS}-day first-month window, we do not offer refunds for change of mind. See our Refund Policy for exceptions.`
-          : 'We do not offer refunds for change of mind after purchase. See our Refund Policy for exceptions.',
+          ? `After the ${DEDICATED_MONEY_BACK_DAYS}-day window on the first Dedicated subscription charge, we do not offer refunds for change of mind. See our Refund Policy for exceptions.`
+          : 'Pro recurring charges are non-refundable for change of mind. See our Refund Policy for legally required exceptions.',
     consentLabel:
       'I agree this is an auto-renewing subscription and authorize recurring charges as described. I have read the Terms of Service, Refund Policy, and Privacy Policy.',
   };

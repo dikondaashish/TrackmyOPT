@@ -18,7 +18,7 @@ import {
   emailTextStrong,
   emailWarningNote,
 } from "../email-layout";
-import { COMPANY, LEGAL_CONTACT } from "@/lib/legal/legal-config";
+import { COMPANY, LEGAL_CONTACT, PRO_PAID_INTRO_PRICE } from "@/lib/legal/legal-config";
 import { escapeHtml, welcomeOnboardingStepHtml } from "./formatting";
 import {
   getAppBaseUrl,
@@ -44,25 +44,25 @@ export function buildTrialEndingEmailBodies(args: {
   const safeEndDate = escapeHtml(args.trialEndDate);
 
   const html = buildTransactionalEmail({
-    headerTitle: "Your trial is ending soon",
+    headerTitle: "Your paid introduction is ending soon",
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
-${emailTextLead("Your Premium trial is almost over")}
+${emailTextLead("Your paid Pro introduction is almost over")}
 ${emailTextP(
-  `This is a friendly heads-up: your ${emailTextStrong(`${COMPANY.productName} Premium`)} trial ends on ${emailTextStrong(safeEndDate)}. If you keep your subscription, you&rsquo;ll stay on Pro with full access. If you don&rsquo;t want to continue, cancel before that date to avoid being charged.`
+  `This is a friendly heads-up: your paid ${emailTextStrong(`${COMPANY.productName} Pro`)} introductory period ends on ${emailTextStrong(safeEndDate)}. If you keep your subscription, Pro renews at the recurring price accepted at checkout. Cancel before that date to avoid the regular renewal charge.`
 )}
 ${emailInfoCallout(`
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
   <tr>
     <td style="padding:0 0 10px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
-      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Trial ends</p>
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Paid introduction ends</p>
       <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">${safeEndDate}</p>
     </td>
   </tr>
   <tr>
     <td style="padding:12px 0 0 0;">
-      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">After the trial</p>
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">After the introduction</p>
       <p class="tmo-force-info-text" style="margin:0;font-size:15px;font-weight:600;color:${EMAIL.infoText} !important;">Pro continues at your checkout price unless you cancel</p>
     </td>
   </tr>
@@ -72,7 +72,7 @@ ${emailTextLead("If you want to keep Premium")}
 ${emailTextList([
   "Confirm your payment method is up to date in billing settings",
   "Keep daily USCIS alerts, reminders, and Document Vault active",
-  `Use your <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a> (${emailTextStrong("500 resumes/month")} on Pro) while you search`,
+  `Use your <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a> (${emailTextStrong("50 resumes/month")} on Pro) while you search`,
 ], { ordered: true })}
 ${emailTextLead("If you want to cancel")}
 ${emailTextList([
@@ -81,11 +81,11 @@ ${emailTextList([
   `Cancel before ${safeEndDate} to avoid the first paid charge`,
 ], { ordered: true })}
 ${emailWarningNote(
-  `If you do nothing, your subscription will renew automatically after the trial at the price shown when you signed up. You can cancel anytime before ${safeEndDate}.`
+  `If you do nothing, your subscription will renew automatically after the paid introduction at the recurring price shown at checkout. You can cancel before ${safeEndDate} to stop that renewal.`
 )}
 ${emailPrimaryButton(settingsUrl, "Manage billing")}
 ${emailTextMuted(
-  `Continue using Premium features in <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">your dashboard</a> until the trial ends.`
+  `Continue using Premium features in <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">your dashboard</a> through the paid introductory period.`
 )}
 ${emailTextMuted(
   `Questions? Contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
@@ -96,22 +96,22 @@ ${emailBodySectionClose()}`,
   const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
   const text = `${greetingText}
 
-Your Premium trial is almost over.
+Your paid Pro introduction is almost over.
 
-Trial ends: ${args.trialEndDate}
-After the trial: Pro continues at your checkout price unless you cancel.
+Paid introduction ends: ${args.trialEndDate}
+After the introduction: Pro continues at your checkout price unless you cancel.
 
 If you want to keep Premium:
 1. Confirm your payment method in billing settings
 2. Keep daily USCIS alerts, reminders, and Document Vault
-3. Use AI Resume Generator (500/month on Pro): ${resumeUrl}
+3. Use AI Resume Generator (50/month on Pro): ${resumeUrl}
 
 If you want to cancel:
 1. Settings → Subscription: ${settingsUrl}
 2. Manage billing (Stripe Customer Portal)
 3. Cancel before ${args.trialEndDate} to avoid being charged
 
-If you do nothing, your subscription renews automatically after the trial.
+If you do nothing, your subscription renews automatically after the paid introduction.
 
 Dashboard: ${dashUrl}
 Questions? ${LEGAL_CONTACT.support}
@@ -119,7 +119,7 @@ Questions? ${LEGAL_CONTACT.support}
 © ${new Date().getFullYear()} ${COMPANY.legalName}`;
 
   return {
-    subject: "TrackMyOPT: Your Premium trial is ending soon",
+    subject: "TrackMyOPT: Your paid Pro introduction is ending soon",
     html,
     text,
   };
@@ -153,7 +153,7 @@ export async function sendTrialEndingEmail(args: {
   });
 }
 
-/** HTML + plain text when 7-day Pro trial starts (shared by send + preview catalog). */
+/** HTML + plain text when the 7-day paid Pro introduction starts. */
 export function buildTrialStartedEmailBodies(args: {
   firstName: string | null;
   trialEndDate: string;
@@ -169,25 +169,25 @@ export function buildTrialStartedEmailBodies(args: {
   const safeEndDate = escapeHtml(args.trialEndDate);
 
   const html = buildTransactionalEmail({
-    headerTitle: "Your 7-day Pro trial has started",
+    headerTitle: "Your 7-day paid Pro introduction has started",
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
-${emailTextLead("Welcome to your Pro trial")}
+${emailTextLead("Welcome to your paid Pro introduction")}
 ${emailTextP(
-  `Your ${emailTextStrong("7-day Premium (Pro) trial")} is now active. You have full Pro access through ${emailTextStrong(safeEndDate)} &mdash; explore everything below while your trial is running.`
+  `Your ${emailTextStrong(`$${PRO_PAID_INTRO_PRICE.toFixed(2)}, 7-day Pro introduction`)} is now active. You have full Pro access through ${emailTextStrong(safeEndDate)}.`
 )}
 ${emailInfoCallout(`
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
   <tr>
     <td style="padding:0 0 10px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
-      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Trial length</p>
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Introductory period</p>
       <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">7 days</p>
     </td>
   </tr>
   <tr>
     <td style="padding:12px 0;border-bottom:1px solid ${EMAIL.infoBorder};">
-      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Trial ends</p>
+      <p class="tmo-force-muted" style="margin:0 0 4px 0;font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${EMAIL.textMuted} !important;">Introduction ends</p>
       <p class="tmo-force-info-text" style="margin:0;font-size:16px;font-weight:600;color:${EMAIL.infoText} !important;">${safeEndDate}</p>
     </td>
   </tr>
@@ -199,15 +199,15 @@ ${emailInfoCallout(`
   </tr>
 </table>
 `)}
-${emailTextLead("What&rsquo;s included during your trial")}
+${emailTextLead("What&rsquo;s included during your introduction")}
 ${emailTextList([
   "Daily 9&nbsp;AM OPT/STEM email reminders and smart timeline tracking",
   "Daily USCIS auto-checks and instant case status alerts",
-  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("500 resumes/month")} and ${emailTextStrong("unlimited ATS scans")}`,
+  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("50 resumes/month")} and ${emailTextStrong("100 ATS scans/month")}`,
   "Document Vault, unlimited job tracker, and unlimited H-1B sponsor search",
 ], { ordered: false })}
 ${emailInfoCallout(`
-  <p class="tmo-force-info-text" style="margin:0 0 10px 0;color:${EMAIL.infoText} !important;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Make the most of your trial</p>
+  <p class="tmo-force-info-text" style="margin:0 0 10px 0;color:${EMAIL.infoText} !important;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Make the most of your introduction</p>
   ${welcomeOnboardingStepHtml(
     1,
     "Enable daily reminders",
@@ -224,10 +224,10 @@ ${emailInfoCallout(`
     `Build an ATS-ready resume in minutes at <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a>.`
   )}
 `)}
-${emailTextLead("Billing during your trial")}
+${emailTextLead("Billing during your paid introduction")}
 ${emailTextList([
-  `${emailTextStrong("You will not be charged")} if you cancel before ${safeEndDate}`,
-  "After the trial, Pro continues at the price shown at checkout unless you cancel",
+  `${emailTextStrong(`$${PRO_PAID_INTRO_PRICE.toFixed(2)} was charged at checkout`)} and is refundable only during this 7-day introductory period`,
+  "After the introduction, Pro continues at the recurring price shown at checkout unless you cancel",
   "Update your card or cancel anytime in billing settings",
 ], { ordered: false })}
 ${emailPrimaryButton(dashUrl, "Open your dashboard")}
@@ -243,26 +243,26 @@ ${emailBodySectionClose()}`,
   const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
   const text = `${greetingText}
 
-Your 7-day Premium (Pro) trial has started.
+Your $${PRO_PAID_INTRO_PRICE.toFixed(2)}, 7-day Premium (Pro) introduction has started.
 
-Trial length: 7 days
-Trial ends: ${args.trialEndDate}
+Introductory period: 7 days
+Introduction ends: ${args.trialEndDate}
 Current access: Premium (Pro) — Active
 
-What's included during your trial:
+What's included during your introduction:
 - Daily OPT/STEM email reminders and smart tracking
 - Daily USCIS auto-checks and case status alerts
-- AI Resume Generator: 500/month + unlimited ATS scans
+- AI Resume Generator: 50 resumes/month + 100 ATS scans/month
 - Document Vault, unlimited job tracker, H-1B sponsor search
 
-Make the most of your trial:
+Make the most of your introduction:
 1. Enable daily reminders: ${settingsUrl}
 2. Add your USCIS case: ${caseStatusUrl}
 3. Try AI Resume Generator: ${resumeUrl}
 
 Billing:
-- You will not be charged if you cancel before ${args.trialEndDate}
-- After the trial, Pro renews at checkout price unless you cancel
+- $${PRO_PAID_INTRO_PRICE.toFixed(2)} was charged at checkout and is refundable only during this 7-day introductory period
+- After the introduction, Pro renews at checkout price unless you cancel
 - Manage billing: ${settingsUrl}
 
 Dashboard: ${dashUrl}
@@ -271,7 +271,7 @@ Questions? ${LEGAL_CONTACT.support}
 © ${new Date().getFullYear()} ${COMPANY.legalName}`;
 
   return {
-    subject: "TrackMyOPT: Your 7-day Pro trial has started",
+    subject: "TrackMyOPT: Your 7-day paid Pro introduction has started",
     html,
     text,
   };

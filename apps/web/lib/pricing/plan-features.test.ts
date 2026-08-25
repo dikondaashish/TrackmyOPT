@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
-import { FREE_ATS_SCAN_LIMIT, PRO_ATS_SCAN_LIMIT } from "@/lib/usage-limit";
+import {
+  DEDICATED_ATS_SCAN_LIMIT,
+  FREE_ATS_SCAN_LIMIT,
+  PRO_ATS_SCAN_LIMIT,
+} from "@/lib/usage-limit";
 import {
   FREE_COVER_LETTERS_MONTHLY_LIMIT,
   FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
 } from "@/lib/ai-generation-limits";
 import {
   DEDICATED_PLAN_CARD_FEATURES,
+  DEDICATED_ATS_SCAN_LIMIT_DISPLAY,
   FREE_ATS_SCAN_LIMIT_DISPLAY,
   PRO_ATS_SCAN_LIMIT_DISPLAY,
   FREE_COVER_LETTER_LIMIT_DISPLAY,
@@ -74,17 +79,17 @@ describe("plan-features", () => {
   });
 
   it("Pro ATS scan cap is stated as a real number, never as Unlimited", () => {
-    // The server caps Pro/Dedicated ATS scans at PRO_ATS_SCAN_LIMIT (10,000/mo).
-    // Advertising it as "Unlimited" is a factual overclaim a customer could
-    // point to in a billing dispute. Every surface must show the real number
-    // and stay in sync with the server-enforced constant.
+    // Advertising a capped feature as "Unlimited" is a factual overclaim.
     expect(PRO_ATS_SCAN_LIMIT_DISPLAY).toBe(PRO_ATS_SCAN_LIMIT);
+    expect(DEDICATED_ATS_SCAN_LIMIT_DISPLAY).toBe(DEDICATED_ATS_SCAN_LIMIT);
 
     const ats = PLAN_COMPARISON_FEATURES.flatMap((c) => c.features).find(
       (r) => r.name === "ATS Resume Scanner"
     );
     expect(ats?.pro).toBe(`${PRO_ATS_SCAN_LIMIT.toLocaleString("en-US")}/mo`);
-    expect(ats?.dedicated).toBe(`${PRO_ATS_SCAN_LIMIT.toLocaleString("en-US")}/mo`);
+    expect(ats?.dedicated).toBe(
+      `${DEDICATED_ATS_SCAN_LIMIT.toLocaleString("en-US")}/mo`
+    );
 
     const blob = JSON.stringify([
       ...PRO_PLAN_CARD_FEATURES,
@@ -105,19 +110,15 @@ describe("plan-features", () => {
     expect(auto?.pro).toBe(true);
   });
 
-  it("Dedicated advertises attorney scheduling only, never legal advice", () => {
+  it("Dedicated accurately advertises the one-time consultation, never legal advice", () => {
     const blob = JSON.stringify([
       ...DEDICATED_PLAN_CARD_FEATURES,
       ...getPlanBullets("dedicated"),
     ]).toLowerCase();
     expect(blob).toMatch(/priority email support/);
 
-    // The attorney benefit is real but narrow: we send appointment slots and
-    // the subscriber books one. Any mention of an attorney must stay tied to
-    // scheduling — TrackMyOPT is not a law firm and provides no legal advice.
-    if (blob.includes("attorney")) {
-      expect(blob).toMatch(/attorney consultation scheduling/);
-    }
+    expect(blob).toMatch(/one complimentary 60-minute initial attorney consultation/);
+    expect(blob).toMatch(/per account/);
 
     // Claims we do not deliver, and which would make the plan misleading.
     expect(blob).not.toMatch(/legal advice|immigration advice/);

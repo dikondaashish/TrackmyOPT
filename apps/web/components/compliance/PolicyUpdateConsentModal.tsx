@@ -125,8 +125,10 @@ export function PolicyUpdateConsentModal() {
                 We updated our Privacy Policy, Terms, Cookie Policy, Disclaimer, Security notices,
                 and related legal notices. These updates clarify USCIS Case Status API wording,
                 TrackMyOPT&apos;s independent/non-government status, data handling, breach notice,
-                dormant account handling, analytics opt-out, and payment/security language. Your
-                plan price, trial period, refund window, and cancellation rights did not change.
+                dormant account handling, analytics opt-out, and payment/security language. They
+                also describe Pro&apos;s $0.99 seven-day paid introduction, its refund window,
+                Dedicated&apos;s three-day first-charge guarantee, and the seven-day Dedicated
+                consultation wait.
               </p>
               <ul className="list-disc pl-5 space-y-1">
                 {POLICY_CONSENT_LINKS.map((link) => (

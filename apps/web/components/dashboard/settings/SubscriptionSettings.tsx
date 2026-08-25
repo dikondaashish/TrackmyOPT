@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Loader2, Check, Crown } from 'lucide-react';
+import { Loader2, Check, Crown, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
 import { getPlanBullets } from '@/lib/pricing/plan-features';
 import { shouldShowDedicatedPlanForSale } from '@/lib/pricing/sales-copy';
-import { PRO_TRIAL_DAYS } from '@/lib/legal/legal-config';
+import {
+    DEDICATED_CONSULTATION_MINUTES,
+    DEDICATED_CONSULTATION_WAIT_DAYS,
+    PRO_PAID_INTRO_PRICE,
+    PRO_TRIAL_DAYS,
+} from '@/lib/legal/legal-config';
+import { PLAN_PRICES, annualSavingsPercent } from '@/lib/pricing/plan-config';
+import { getDedicatedConsultationEligibility } from '@/lib/pricing/dedicated-consultation';
 import type { PromoCheckoutMode } from '@/lib/premium/promo-checkout-types';
 import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/format-monthly-equivalent-from-yearly';
 import { BillingHistory } from './BillingHistory';
@@ -17,6 +24,7 @@ interface PremiumStatus {
     isPremium: boolean;
     planName?: string;
     expiresAt?: string;
+    dedicatedStartedAt?: string | null;
 }
 
 interface SubscriptionSettingsProps {
@@ -39,26 +47,6 @@ interface PricingSectionProps {
 
 function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, userEmail, premium, onUpgrade, isCheckoutLoading }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
-    const [proFreeTrialEligible, setProFreeTrialEligible] = useState<boolean | null>(null);
-
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const r = await fetch('/api/premium/status', { credentials: 'include' });
-                const j = (await r.json()) as { proFreeTrialEligible?: boolean };
-                if (cancelled) return;
-                if (typeof j.proFreeTrialEligible === 'boolean') {
-                    setProFreeTrialEligible(j.proFreeTrialEligible);
-                } else {
-                    setProFreeTrialEligible(true);
-                }
-            } catch {
-                if (!cancelled) setProFreeTrialEligible(true);
-            }
-        })();
-        return () => { cancelled = true; };
-    }, []);
 
     const handleDowngrade = (planName: string) => {
         if (currentPlan === 'dedicated') {
@@ -80,7 +68,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             name: "Free",
             id: "free",
             description: "Essential timeline tracking for every F-1 student.",
-            price: { monthly: 0, yearly: 0 },
+            price: { monthly: PLAN_PRICES.free.month, yearly: PLAN_PRICES.free.year },
             originalPrice: { monthly: null, yearly: null },
             features: getPlanBullets("free"),
             cta: "Current Plan",
@@ -91,19 +79,19 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
             name: "Pro",
             id: "pro",
             description: "Daily reminders, unemployment alerts, and unlimited job tracking.",
-            price: { monthly: 4.99, yearly: 49.99 },
-            originalPrice: { monthly: 7.99, yearly: 79.99 },
+            price: { monthly: PLAN_PRICES.pro.month, yearly: PLAN_PRICES.pro.year },
+            originalPrice: { monthly: null, yearly: null },
             features: getPlanBullets("pro"),
-            cta: `Start ${PRO_TRIAL_DAYS}-Day Free Trial`,
+            cta: "Get Pro",
             popular: true,
             highlight: true
         },
         {
             name: "Dedicated",
             id: "dedicated",
-            description: "Pro plus higher resume quota and priority email support.",
-            price: { monthly: 14.99, yearly: 149.99 },
-            originalPrice: { monthly: 19.99, yearly: 199.99 },
+            description: `Pro plus priority support and one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days.`,
+            price: { monthly: PLAN_PRICES.dedicated.month, yearly: PLAN_PRICES.dedicated.year },
+            originalPrice: { monthly: null, yearly: null },
             features: getPlanBullets("dedicated"),
             cta: "Upgrade to Dedicated",
             popular: false,
@@ -132,7 +120,7 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }`}
                     >
-                        Annual <span className="text-[10px] text-green-600 dark:text-green-400 font-bold ml-1">(Save 20%)</span>
+                        Annual <span className="text-[10px] text-green-600 dark:text-green-400 font-bold ml-1">(Save up to {annualSavingsPercent('pro')}%)</span>
                     </button>
                 </div>
             </div>
@@ -178,15 +166,6 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                             buttonText = "Manage billing";
                             onClick = () => onManage && onManage();
                         }
-                    }
-
-                    if (
-                        plan.id === 'pro' &&
-                        !isCurrentPlan &&
-                        currentPlan === 'free' &&
-                        proFreeTrialEligible === false
-                    ) {
-                        buttonText = 'Subscribe to Pro';
                     }
 
                     return (
@@ -236,10 +215,8 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                                         <p className="text-xs text-gray-500 mt-1">billed yearly</p>
                                         <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
                                             {plan.id === 'pro'
-                                                ? proFreeTrialEligible === false
-                                                    ? 'No trial — your account already used the one-time Pro trial'
-                                                    : '7-Day Free Trial'
-                                                : 'Priority email support'}
+                                                ? `$${PRO_PAID_INTRO_PRICE.toFixed(2)} for ${PRO_TRIAL_DAYS} days for eligible accounts`
+                                                : `${DEDICATED_CONSULTATION_MINUTES}-minute attorney consultation included`}
                                         </div>
                                     </>
                                 ) : (
@@ -258,10 +235,8 @@ function PricingSection({ currentPlan, expiresAt, onManage, isLoading = false, u
                                         </div>
                                         <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
                                             {plan.id === 'pro'
-                                                ? proFreeTrialEligible === false
-                                                    ? 'No trial — your account already used the one-time Pro trial'
-                                                    : '7-Day Free Trial'
-                                                : 'Priority email support'}
+                                                ? `$${PRO_PAID_INTRO_PRICE.toFixed(2)} for ${PRO_TRIAL_DAYS} days for eligible accounts`
+                                                : `${DEDICATED_CONSULTATION_MINUTES}-minute attorney consultation included`}
                                         </div>
                                     </>
                                 )}
@@ -314,6 +289,32 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
     const [promoMode, setPromoMode] = useState<PromoCheckoutMode>('default');
     const [customPromoInput, setCustomPromoInput] = useState('');
     const [promoError, setPromoError] = useState<string | null>(null);
+    const [dedicatedStartedAt, setDedicatedStartedAt] = useState<string | null>(
+        premium.dedicatedStartedAt ?? null
+    );
+
+    useEffect(() => {
+        if (!premium.isPremium || premium.planName?.toLowerCase() !== 'dedicated') {
+            setDedicatedStartedAt(null);
+            return;
+        }
+        if (premium.dedicatedStartedAt) {
+            setDedicatedStartedAt(premium.dedicatedStartedAt);
+            return;
+        }
+
+        const controller = new AbortController();
+        void fetch('/api/premium/status', { credentials: 'include', signal: controller.signal })
+            .then((response) => response.ok ? response.json() : null)
+            .then((status) => setDedicatedStartedAt(status?.dedicatedStartedAt ?? null))
+            .catch((error: unknown) => {
+                if (error instanceof DOMException && error.name === 'AbortError') return;
+                setDedicatedStartedAt(null);
+            });
+        return () => controller.abort();
+    }, [premium.dedicatedStartedAt, premium.isPremium, premium.planName]);
+
+    const dedicatedConsultation = getDedicatedConsultationEligibility(dedicatedStartedAt);
 
     // Open pricing modal so recurring-billing disclosures + consent apply before Stripe
     const handleDirectCheckout = async (planId: string, interval: string): Promise<void> => {
@@ -446,6 +447,23 @@ export function SubscriptionSettings({ premium, isLoading, onManage, userEmail }
                                         isLoading={isLoading}
                                     />
                                 </div>
+
+                                {currentPlan === 'dedicated' && dedicatedConsultation.eligible && (
+                                    <a
+                                        href={`mailto:support@trackmyopt.com?subject=${encodeURIComponent('Dedicated 60-minute attorney consultation request')}`}
+                                        className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
+                                    >
+                                        <CalendarDays className="h-4 w-4" />
+                                        Request attorney consultation
+                                    </a>
+                                )}
+                                {currentPlan === 'dedicated' && !dedicatedConsultation.eligible && (
+                                    <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                                        {dedicatedConsultation.eligibleAt
+                                            ? `Attorney consultation unlocks ${dedicatedConsultation.eligibleAt.toLocaleDateString()} after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated.`
+                                            : 'Checking your attorney-consultation eligibility…'}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>

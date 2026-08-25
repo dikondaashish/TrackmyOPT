@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   getPricingModalDedicatedConsentLabel,
   getPricingModalProConsentLabel,
+  PRO_PAID_INTRO_PRICE,
   PRO_TRIAL_DAYS,
 } from "@/lib/legal/legal-config";
 import {
@@ -27,6 +28,7 @@ import {
 } from "@/lib/pricing/sales-copy";
 import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
 import { capturePricingCtaViewed } from "@/lib/posthog-client";
+import { PLAN_PRICES, annualSavingsPercent } from "@/lib/pricing/plan-config";
 
 interface PricingModalProps {
   open: boolean;
@@ -49,7 +51,7 @@ const HEADER_BENEFITS: Array<{ icon: LucideIcon; title: string; sub: string }> =
   { icon: FileCheck, title: "Document vault", sub: "EAD & I-20 expiry reminders" },
   { icon: CalendarDays, title: "STEM deadline tracking", sub: "Extension filing window reminders" },
   { icon: Mail, title: "9:00 AM ET reminders", sub: "Daily, per tracker" },
-  { icon: Shield, title: "Stay work-authorized", sub: "Compliance on autopilot" },
+  { icon: Shield, title: "Stay organized", sub: "Key dates in one place" },
 ];
 
 /**
@@ -108,10 +110,9 @@ export function PricingModal({
   const [promoMode, setPromoMode] = useState<PromoCheckoutMode>("default");
   const [customPromoInput, setCustomPromoInput] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
-  /** null = still loading / unknown; server omits trial when false */
-  const [proFreeTrialEligible, setProFreeTrialEligible] = useState<boolean | null>(null);
   const [proConsent, setProConsent] = useState(false);
   const [dedicatedConsent, setDedicatedConsent] = useState(false);
+  const [proIntroEligible, setProIntroEligible] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!open || isPremium) {
@@ -121,24 +122,6 @@ export function PricingModal({
       variant: "control",
       source: "pricing_modal",
     });
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/premium/status", { credentials: "include" });
-        const j = (await r.json()) as { proFreeTrialEligible?: boolean };
-        if (cancelled) return;
-        if (typeof j.proFreeTrialEligible === "boolean") {
-          setProFreeTrialEligible(j.proFreeTrialEligible);
-        } else {
-          setProFreeTrialEligible(true);
-        }
-      } catch {
-        if (!cancelled) setProFreeTrialEligible(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
   }, [open, isPremium]);
 
   useEffect(() => {
@@ -157,9 +140,43 @@ export function PricingModal({
   }, [open]);
 
   useEffect(() => {
+    if (!open) return;
+    if (isPremium) {
+      setProIntroEligible(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setProIntroEligible(null);
+    void fetch("/api/premium/status", {
+      credentials: "include",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to verify introductory eligibility");
+        return response.json();
+      })
+      .then((status) => {
+        const eligible = status?.proPaidIntroEligible ?? status?.proFreeTrialEligible;
+        setProIntroEligible(eligible === true);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        // Fail closed: never advertise an introductory offer we cannot verify.
+        setProIntroEligible(false);
+      });
+
+    return () => controller.abort();
+  }, [open, isPremium]);
+
+  useEffect(() => {
     setProConsent(false);
     setDedicatedConsent(false);
   }, [isYearly]);
+
+  useEffect(() => {
+    setProConsent(false);
+  }, [proIntroEligible]);
 
   useEffect(() => {
     if (!open || !initialPlan) return;
@@ -288,8 +305,6 @@ export function PricingModal({
     tagline: string;
     monthlyPrice: number;
     yearlyPrice: number;
-    originalMonthly?: number;
-    originalYearly?: number;
     popular: boolean;
     current: boolean;
     trial?: string;
@@ -299,15 +314,14 @@ export function PricingModal({
     ringColor?: string;
     features: Array<{ text: string; included: boolean; isHeader: boolean }>;
   }> => {
-    const showProTrial = !isPremium && proFreeTrialEligible !== false;
     const allPlans = [
     {
       id: 'free',
       name: 'Free',
       icon: Zap,
       tagline: 'Essential tools to start',
-      monthlyPrice: 0,
-      yearlyPrice: 0,
+      monthlyPrice: PLAN_PRICES.free.month,
+      yearlyPrice: PLAN_PRICES.free.year,
       popular: false,
       current: !isPremium,
       iconBg: 'bg-slate-100 dark:bg-slate-800',
@@ -320,13 +334,10 @@ export function PricingModal({
       name: 'Pro',
       icon: Crown,
       tagline: PLAN_SALES_META.pro.tagline,
-      monthlyPrice: 4.99,
-      yearlyPrice: 49.99,
-      originalMonthly: 7.99,
-      originalYearly: 79.99,
+      monthlyPrice: PLAN_PRICES.pro.month,
+      yearlyPrice: PLAN_PRICES.pro.year,
       popular: true,
       current: isPremium,
-      ...(showProTrial ? { trial: `${PRO_TRIAL_DAYS}-day free trial` as const } : {}),
       iconBg: 'bg-gradient-to-br from-violet-500 to-indigo-600',
       iconColor: 'text-white',
       borderColor: 'border-violet-500/50',
@@ -338,10 +349,8 @@ export function PricingModal({
       name: 'Dedicated',
       icon: Shield,
       tagline: PLAN_SALES_META.dedicated.tagline,
-      monthlyPrice: 14.99,
-      yearlyPrice: 149.99,
-      originalMonthly: 19.99,
-      originalYearly: 199.99,
+      monthlyPrice: PLAN_PRICES.dedicated.month,
+      yearlyPrice: PLAN_PRICES.dedicated.year,
       popular: false,
       current: false,
       iconBg: 'bg-gradient-to-br from-amber-400 to-orange-500',
@@ -350,11 +359,11 @@ export function PricingModal({
       features: getPlanCardFeatures("dedicated"),
     },
   ];
-    // Phase 6: hide Dedicated from new sales while grandfathering existing subscribers.
+    // The feature flag can pause new Dedicated sales without removing existing access.
     return shouldShowDedicatedPlanForSale()
       ? allPlans
       : allPlans.filter((p) => p.id !== "dedicated");
-  }, [isPremium, proFreeTrialEligible]);
+  }, [isPremium]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -456,7 +465,7 @@ export function PricingModal({
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 md:px-2 md:py-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] md:text-[9px] font-bold uppercase tracking-wider border border-green-500/20">
                   <Gift className="w-3 h-3" />
-                  Save 40%
+                  Save up to {annualSavingsPercent("pro")}%
                 </span>
               </div>
             </div>
@@ -499,6 +508,11 @@ export function PricingModal({
                 setPromoError(null);
               }}
             />
+            {proIntroEligible === true && (
+              <p className="mt-1 text-center text-[10px] text-muted-foreground">
+                Promo codes cannot be combined with the $0.99 Pro introduction.
+              </p>
+            )}
           </div>
           <div className={cn(
             "grid gap-3 sm:gap-4 md:gap-3 md:items-stretch",
@@ -508,8 +522,6 @@ export function PricingModal({
               const Icon = plan.icon;
               const monthlyDisplay = plan.monthlyPrice;
               const yearlyTotal = plan.yearlyPrice;
-              const originalMonthly = plan.originalMonthly;
-              const originalYearly = plan.originalYearly;
               const salesMeta =
                 plan.id === "pro" || plan.id === "dedicated"
                   ? PLAN_SALES_META[plan.id as PaidPlanId]
@@ -621,13 +633,6 @@ export function PricingModal({
                             <span className="text-sm md:text-xs font-medium text-muted-foreground">/mo</span>
                           </div>
                           <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs md:text-[11px] text-muted-foreground">
-                            {originalYearly != null &&
-                              yearlyTotal > 0 &&
-                              originalYearly > yearlyTotal && (
-                                <span className="line-through decoration-muted-foreground/50 text-muted-foreground/80 tabular-nums">
-                                  ${formatMonthlyEquivalentFromYearly(originalYearly)}/mo
-                                </span>
-                              )}
                             <span className="text-muted-foreground/90">billed yearly</span>
                           </div>
                         </>
@@ -642,25 +647,24 @@ export function PricingModal({
                             >
                               ${monthlyDisplay}
                             </span>
-                            {originalMonthly != null &&
-                              originalMonthly > monthlyDisplay && (
-                                <span className="text-sm md:text-xs text-muted-foreground/70 line-through tabular-nums">
-                                  ${originalMonthly}
-                                </span>
-                              )}
                           </div>
                           <p className="text-muted-foreground text-xs md:text-[11px] mt-0.5">per month</p>
                         </>
                       )}
-                      {plan.trial && (
-                        <p className="text-violet-600 dark:text-violet-400 text-xs md:text-[11px] font-medium mt-1.5 md:mt-1 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 md:w-2.5 md:h-2.5" />
-                          {plan.trial}
-                        </p>
-                      )}
-                      {plan.id === "dedicated" && salesMeta?.guarantee && (
-                        <p className="text-amber-700 dark:text-amber-400 text-xs md:text-[11px] font-medium mt-1.5 md:mt-1">
-                          {salesMeta.guarantee}
+                      {salesMeta?.guarantee && (
+                        <p className={cn(
+                          "text-xs md:text-[11px] font-medium mt-1.5 md:mt-1",
+                          plan.id === "dedicated"
+                            ? "text-amber-700 dark:text-amber-400"
+                            : "text-violet-600 dark:text-violet-400"
+                        )}>
+                          {plan.id === "pro"
+                            ? proIntroEligible === true
+                              ? `$${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first ${PRO_TRIAL_DAYS} days, then regular billing`
+                              : proIntroEligible === null
+                                ? "Checking introductory-offer eligibility…"
+                                : "Regular billing starts today"
+                            : salesMeta.guarantee}
                         </p>
                       )}
                     </div>
@@ -723,7 +727,7 @@ export function PricingModal({
                                     interval: isYearly ? "year" : "month",
                                     monthlyPrice: plan.monthlyPrice,
                                     yearlyPrice: plan.yearlyPrice,
-                                    includeTrial: proFreeTrialEligible !== false,
+                                    includeIntro: proIntroEligible === true,
                                   })
                                 : getPricingModalDedicatedConsentLabel({
                                     interval: isYearly ? "year" : "month",
@@ -773,6 +777,7 @@ export function PricingModal({
                             onClick={() => handleUpgrade(plan.id)}
                             disabled={
                               isLoading ||
+                              (plan.id === "pro" && proIntroEligible === null) ||
                               (plan.id === "pro" ? !proConsent : !dedicatedConsent)
                             }
                             className={cn(
@@ -792,9 +797,11 @@ export function PricingModal({
                                 </>
                               ) : plan.popular ? (
                                 <>
-                                  {proFreeTrialEligible === false
-                                    ? PLAN_SALES_META.pro.ctaNoTrial
-                                    : PLAN_SALES_META.pro.ctaDefault}
+                                  {proIntroEligible === true
+                                    ? `Start ${PRO_TRIAL_DAYS} Days for $${PRO_PAID_INTRO_PRICE.toFixed(2)}`
+                                    : proIntroEligible === null
+                                      ? "Checking eligibility…"
+                                      : PLAN_SALES_META.pro.ctaNoTrial}
                                   <ArrowRight className="w-3.5 h-3.5" />
                                 </>
                               ) : (
@@ -895,10 +902,12 @@ export function PricingModal({
                 <Shield className="w-3.5 h-3.5 text-green-600" />
                 <span>Secure Payment</span>
               </div>
-              {!isPremium && proFreeTrialEligible !== false && (
+              {!isPremium && (
               <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
                 <Sparkles className="w-3.5 h-3.5 md:w-3 md:h-3 text-violet-600" />
-                <span>Pro: {PRO_TRIAL_DAYS}-day free trial</span>
+                <span>
+                  Pro: ${PRO_PAID_INTRO_PRICE.toFixed(2)} for {PRO_TRIAL_DAYS} days for eligible accounts
+                </span>
               </div>
               )}
               {shouldShowDedicatedPlanForSale() ? (

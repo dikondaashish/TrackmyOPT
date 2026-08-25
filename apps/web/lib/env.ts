@@ -99,8 +99,20 @@ const serverEnvSchema = clientEnvSchema.extend({
     // Stripe
     STRIPE_SECRET_KEY: z.string().optional(),
     STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    STRIPE_PRICE_PRO_MONTHLY: z.string().startsWith('price_').optional(),
+    STRIPE_PRICE_PRO_YEARLY: z.string().startsWith('price_').optional(),
+    STRIPE_PRICE_PRO_INTRO: z.string().startsWith('price_').optional(),
+    STRIPE_PRICE_DEDICATED_MONTHLY: z.string().startsWith('price_').optional(),
+    STRIPE_PRICE_DEDICATED_YEARLY: z.string().startsWith('price_').optional(),
+    STRIPE_PROMO_CODE_PRO: z.string().optional(),
+    STRIPE_PROMO_CODE_DEDICATED: z.string().optional(),
 
-    // External services
+    // Google AI. Vertex AI is the default so Google Cloud startup credits are
+    // used. GEMINI_API_KEY is only for an explicit local legacy fallback.
+    GOOGLE_GENAI_USE_VERTEXAI: z.enum(['true', 'false']).optional(),
+    GOOGLE_CLOUD_PROJECT: z.string().min(1).optional(),
+    GOOGLE_CLOUD_LOCATION: z.string().min(1).optional(),
+    GOOGLE_SERVICE_ACCOUNT_JSON: z.string().optional(),
     GEMINI_API_KEY: z.string().optional(),
 
     // AWS S3 / Textract

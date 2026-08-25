@@ -7,6 +7,10 @@ import {
     LANDING_PRO_FEATURES,
 } from "@/lib/pricing/plan-features";
 import { LANDING_PLAN_COPY, shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
+import {
+    PLAN_PRICES,
+    annualSavingsPercent,
+} from "@/lib/pricing/plan-config";
 import { Layers, Rocket, ShieldCheck } from "lucide-react";
 
 export function LandingPricing() {
@@ -16,8 +20,8 @@ export function LandingPricing() {
             name: "Free",
             description: LANDING_PLAN_COPY.free.description,
             icon: <Layers className="w-10 h-10 text-muted-foreground" />,
-            priceMonthly: 0,
-            priceYearly: 0,
+            priceMonthly: PLAN_PRICES.free.month,
+            priceYearly: PLAN_PRICES.free.year,
             users: LANDING_PLAN_COPY.free.users,
             buttonLabel: LANDING_PLAN_COPY.free.buttonLabel,
             features: LANDING_FREE_FEATURES,
@@ -28,10 +32,8 @@ export function LandingPricing() {
             name: "Pro",
             description: LANDING_PLAN_COPY.pro.description,
             icon: <Rocket className="w-10 h-10 text-primary" />,
-            priceMonthly: 4.99,
-            priceMonthlyOriginal: 7.99,
-            priceYearly: 49.99,
-            priceYearlyOriginal: 79.99,
+            priceMonthly: PLAN_PRICES.pro.month,
+            priceYearly: PLAN_PRICES.pro.year,
             users: LANDING_PLAN_COPY.pro.users,
             buttonLabel: LANDING_PLAN_COPY.pro.buttonLabel,
             features: LANDING_PRO_FEATURES,
@@ -46,10 +48,8 @@ export function LandingPricing() {
             name: "Dedicated",
             description: LANDING_PLAN_COPY.dedicated.description,
             icon: <ShieldCheck className="w-10 h-10 text-amber-600" />,
-            priceMonthly: 14.99,
-            priceMonthlyOriginal: 19.99,
-            priceYearly: 149.99,
-            priceYearlyOriginal: 199.99,
+            priceMonthly: PLAN_PRICES.dedicated.month,
+            priceYearly: PLAN_PRICES.dedicated.year,
             users: LANDING_PLAN_COPY.dedicated.users,
             buttonLabel: LANDING_PLAN_COPY.dedicated.buttonLabel,
             features: LANDING_DEDICATED_FEATURES,
@@ -68,7 +68,7 @@ export function LandingPricing() {
                         ? "Start free. Upgrade to Pro for daily auto-checks, or Dedicated for higher quotas and priority support."
                         : "Start free. Upgrade to Pro for daily USCIS auto-checks and status-change alerts."
                 }
-                annualBillingLabel="Annual Billing"
+                annualBillingLabel={`Annual Billing (Save up to ${annualSavingsPercent("pro")}%)`}
                 buttonLabel={LANDING_PLAN_COPY.pro.buttonLabel}
                 plans={plans}
                 className="!bg-transparent !py-0"

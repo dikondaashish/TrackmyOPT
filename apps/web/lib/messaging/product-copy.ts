@@ -4,10 +4,10 @@
  */
 
 export const PRODUCT_CTAS = {
-  startTrial: "Start 7-Day Free Trial",
+  startTrial: "Start Pro for $0.99 for 7 days",
   comparePlans: "Compare Plans",
   upgradeToPro: "Upgrade to Pro",
-  tryProFree: "Try Pro Free",
+  tryProFree: "Start Pro for $0.99",
   subscribeToPro: "Subscribe to Pro",
 } as const;
 
@@ -36,7 +36,7 @@ export const REMINDER_MESSAGING = {
   toolUpsellSubhead:
     "Get email and browser alerts for this tracker — filing windows, unemployment days, and STEM deadlines.",
   footerNote:
-    "7-day free trial · cancel anytime · reminders for all four trackers with Pro",
+    "$0.99 for 7 days for eligible accounts · cancel anytime · reminders for all four trackers with Pro",
 } as const;
 
 export const CASE_STATUS_MESSAGING = {
@@ -50,7 +50,7 @@ export const CASE_STATUS_MESSAGING = {
   proFeatureBody:
     "We check USCIS every day and email you when your status changes — so you do not have to refresh manually.",
   howItWorksNotify: "Get notified by email when your status changes (Pro)",
-  upgradeForAutoChecks: "Start 7-day free trial for daily auto-checks",
+  upgradeForAutoChecks: "Get Pro for daily auto-checks",
   autoMonitorOffHint: "Manual refresh only — daily auto-check is Pro",
   packagingChangeNotice:
     "Free includes manual refresh. Daily USCIS auto-checks and status-change emails are on Pro.",
@@ -60,9 +60,9 @@ export const CASE_STATUS_MESSAGING = {
   receiptAddedNotice:
     "We'll watch this case daily on Pro. Manual refresh stays free.",
   staleStatusNotice:
-    "Status may be outdated. Auto-check daily with Pro — start your 7-day free trial.",
+    "Status may be outdated. Auto-check daily with Pro.",
   trialCtaStrip:
-    "Start 7-day free trial — daily USCIS auto-checks and email when status changes.",
+    "Get Pro — daily USCIS auto-checks and email when status changes.",
   disclaimer:
     "Status data comes from USCIS. Processing times vary — check with your DSO or attorney for official guidance.",
 } as const;
@@ -79,7 +79,7 @@ export const PLAN_OUTCOME_COPY = {
   free: "Basic tracking for one OPT timeline — calculators and clocks always free.",
   pro: "Daily reminders, deadline alerts, OPT/STEM trackers, and case monitoring in one place.",
   dedicated:
-    "Everything in Pro plus higher resume quota and priority email support.",
+    "Everything in Pro plus higher career-tool limits, priority support, and one complimentary 60-minute initial attorney consultation per account after 7 continuous days on Dedicated.",
 } as const;
 
 export const PRO_TIPS = [

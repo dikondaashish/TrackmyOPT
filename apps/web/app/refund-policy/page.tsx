@@ -5,12 +5,14 @@ import {
   DEDICATED_MONEY_BACK_DAYS,
   LEGAL_CONTACT,
   PLAN_DISPLAY_PRICES,
+  PRO_PAID_INTRO_PRICE,
+  PRO_PAID_INTRO_REFUND_DAYS,
   PRO_TRIAL_DAYS,
 } from "@/lib/legal/legal-config";
 
 export const metadata: Metadata = {
   title: "Refund Policy | TrackMyOPT",
-  description: "Subscription refunds, trials, and cancellation for TrackMyOPT.",
+  description: "Subscription refunds, paid introductory offers, and cancellation for TrackMyOPT.",
   alternates: { canonical: "https://www.trackmyopt.com/refund-policy" },
 };
 
@@ -26,35 +28,33 @@ export default function RefundPolicyPage() {
       <h2>2. Plans and pricing (USD)</h2>
       <ul>
         <li>
-          <strong>Pro</strong> — {PRO_TRIAL_DAYS}-day free trial when eligible (one per account, ever); then auto-renews at ${PLAN_DISPLAY_PRICES.pro.month}/month or ${PLAN_DISPLAY_PRICES.pro.year}/year
+          <strong>Pro</strong> — eligible accounts pay ${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first {PRO_TRIAL_DAYS} days, then auto-renew at ${PLAN_DISPLAY_PRICES.pro.month}/month or ${PLAN_DISPLAY_PRICES.pro.year}/year unless canceled. This is a paid introduction, not a free trial.
         </li>
         <li>
-          <strong>Dedicated</strong> — ${PLAN_DISPLAY_PRICES.dedicated.month}/month or ${PLAN_DISPLAY_PRICES.dedicated.year}/year, with no free trial. Includes a {DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee on the first paid month only. Subscribers may switch to Pro at any time in the dashboard.
+          <strong>Dedicated</strong> — ${PLAN_DISPLAY_PRICES.dedicated.month}/month or ${PLAN_DISPLAY_PRICES.dedicated.year}/year. Includes a {DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee on the first Dedicated subscription charge only. Subscribers may switch to Pro at any time in the dashboard.
         </li>
       </ul>
       <p>Exact amounts and discounts shown at checkout before you pay.</p>
 
-      <h2>3. Pro free trial</h2>
-      <ul>
-        <li>Eligible new Pro subscribers receive one {PRO_TRIAL_DAYS}-day trial per account</li>
-        <li>You are <strong>not charged</strong> if you cancel before the trial ends</li>
-        <li>After the trial, your subscription renews automatically unless you cancel</li>
-      </ul>
-
-      <h2>4. Dedicated money-back guarantee (first month only)</h2>
+      <h2>3. Pro paid introductory offer and refund window</h2>
       <p>
-        Dedicated has no free trial. Instead, we offer a <strong>{DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee</strong> on your <strong>first paid month only</strong>. Contact{" "}
-        <a href={`mailto:${LEGAL_CONTACT.support}`}>{LEGAL_CONTACT.support}</a> within {DEDICATED_MONEY_BACK_DAYS} days of your first Dedicated charge if the product is not right for you.
+        The ${PRO_PAID_INTRO_PRICE.toFixed(2)} Pro offer is available once per eligible account. Contact <a href={`mailto:${LEGAL_CONTACT.support}`}>{LEGAL_CONTACT.support}</a> from your account email during the first {PRO_PAID_INTRO_REFUND_DAYS} days to request a refund of that ${PRO_PAID_INTRO_PRICE.toFixed(2)} charge. After the introductory period ends, Pro renews at the price and interval accepted at checkout. Those recurring charges are not refundable for change of mind. Accounts that already used the offer are charged the regular subscription price immediately. Free trials granted before this policy version remain governed by their original checkout terms.
       </p>
 
-      <h2>5. No refunds after trial or guarantee window</h2>
+      <h2>4. Dedicated money-back guarantee (first subscription charge only)</h2>
       <p>
-        After the Pro trial ends (and a charge succeeds), or after the Dedicated {DEDICATED_MONEY_BACK_DAYS}-day first-month window, we generally do <strong>not</strong> provide refunds for change of mind, unused time, or partial billing periods (including annual plans).
+        Dedicated includes a <strong>{DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee</strong> on your <strong>first Dedicated subscription charge only</strong>, whether you selected monthly or annual billing. Contact{" "}
+        <a href={`mailto:${LEGAL_CONTACT.support}`}>{LEGAL_CONTACT.support}</a> within {DEDICATED_MONEY_BACK_DAYS} days of that charge if the product is not right for you.
+      </p>
+
+      <h2>5. No refunds after the applicable window</h2>
+      <p>
+        After the Pro {PRO_PAID_INTRO_REFUND_DAYS}-day paid introductory window, or after the Dedicated {DEDICATED_MONEY_BACK_DAYS}-day first-charge window, we do <strong>not</strong> provide refunds for change of mind, unused time, or partial billing periods (including annual plans), except where required by law or for a confirmed billing error or unauthorized charge.
       </p>
 
       <h2>6. Cancellation vs. refunds</h2>
       <p>
-        <strong>Cancellation</strong> stops future renewal charges. It does not automatically refund past charges. You keep access through the end of your current paid or trial period unless we state otherwise.
+        <strong>Cancellation</strong> stops future renewal charges. It does not automatically refund past charges. You keep access through the end of your current paid or introductory period unless we state otherwise.
       </p>
       <ol>
         <li>Sign in → Settings → Subscription &amp; Billing</li>
@@ -69,7 +69,7 @@ export default function RefundPolicyPage() {
       <ul>
         <li>Reason for the request</li>
         <li>Date and amount of the charge (Stripe receipt helps)</li>
-        <li>Whether you qualify under trial, Dedicated guarantee, or an exception below</li>
+        <li>Whether you qualify under the Pro or Dedicated guarantee, or an exception below</li>
       </ul>
 
       <h2>8. Processing time</h2>
@@ -81,7 +81,6 @@ export default function RefundPolicyPage() {
       <ul>
         <li><strong>Billing errors</strong> — duplicate or incorrect charges after a valid cancellation</li>
         <li><strong>Unauthorized or fraudulent charges</strong> — contact us and your card issuer promptly</li>
-        <li><strong>Major service failure</strong> — prolonged outage or material failure to deliver the subscribed service</li>
       </ul>
 
       <h2>10. Chargebacks and disputes</h2>
@@ -96,7 +95,7 @@ export default function RefundPolicyPage() {
 
       <h2>12. Material policy changes</h2>
       <p>
-        If we materially change refund, trial, or billing terms, we will notify active subscribers in advance when required or appropriate.
+        If we materially change refund, introductory-offer, or billing terms, we will notify active subscribers in advance when required or appropriate.
       </p>
 
       <p className="text-sm text-muted-foreground">

@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("user_id, email, stripe_customer_id, premium_status, plan_tier, subscription_expires_at, pro_free_trial_consumed, premium_purchased_at")
+    .select("user_id, email, stripe_customer_id, premium_status, plan_tier, subscription_expires_at, pro_free_trial_consumed, premium_purchased_at, dedicated_started_at")
     .eq("user_id", userId!)
     .single();
 

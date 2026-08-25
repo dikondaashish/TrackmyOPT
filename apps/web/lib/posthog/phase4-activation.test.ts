@@ -28,7 +28,7 @@ describe("Phase 4 activation emails", () => {
 
     expect(subject.toLowerCase()).toMatch(/receipt|activat/);
     expect(html).toContain("/dashboard/case-status");
-    expect(html).toMatch(/Add your receipt|7-day Pro trial/i);
+    expect(html).toMatch(/Add your receipt|Pro for \$0\.99 for 7 days/i);
     expect(html).not.toMatch(/completed onboarding/i);
     expect(text).toContain("/dashboard/case-status");
     expect(text).not.toMatch(/Open dashboard:\s*https?:\/\/[^/]+\/dashboard\s*$/m);
@@ -39,8 +39,8 @@ describe("Phase 4 activation emails", () => {
 
     expect(subject.toLowerCase()).toMatch(/pro|auto-check/);
     expect(html).toContain("/premium/checkout?planId=pro");
-    expect(html).toContain("Start 7-Day Free Trial");
+    expect(html).toContain("Get Pro");
     expect(html).toContain("/dashboard/case-status");
-    expect(text).toContain("Start 7-Day Free Trial");
+    expect(text).toContain("Get Pro");
   });
 });

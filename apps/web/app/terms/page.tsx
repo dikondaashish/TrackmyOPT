@@ -3,7 +3,14 @@ import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { LEGAL_EFFECTIVE_DATE, LEGAL_VERSION_ID } from "@/lib/legal/legal-config";
+import {
+  DEDICATED_CONSULTATION_MINUTES,
+  DEDICATED_CONSULTATION_WAIT_DAYS,
+  LEGAL_EFFECTIVE_DATE,
+  LEGAL_VERSION_ID,
+  PRO_PAID_INTRO_PRICE,
+  PRO_TRIAL_DAYS,
+} from "@/lib/legal/legal-config";
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions | TrackMyOPT',
@@ -96,14 +103,26 @@ export default function TermsPage() {
 
               <h2>4. Subscriptions, billing, and cancellation</h2>
               <p>
-                TrackMyOPT offers optional paid plans (Pro and Dedicated) billed through Stripe as <strong>auto-renewing subscriptions</strong>. Before you pay, we disclose the price, billing interval (monthly or yearly), whether a free trial applies, and how to cancel.
+                TrackMyOPT offers optional paid plans (Pro and Dedicated) billed through Stripe as <strong>auto-renewing subscriptions</strong>. Before you pay, we disclose the amount charged today, the recurring price, billing interval, introductory terms when applicable, and how to cancel.
               </p>
               <ul>
-                <li><strong>Pro:</strong> One 7-day free trial per account when eligible. If you cancel before the trial ends, you are not charged. After the trial, Pro renews automatically at the checkout price until you cancel.</li>
-                <li><strong>Dedicated:</strong> Billed immediately when you subscribe. A 3-day money-back guarantee applies to your first paid month only, as described in our <Link href="/refund-policy">Refund Policy</Link>.</li>
-                <li><strong>After trial or guarantee windows:</strong> No refunds for change of mind except billing errors, unauthorized charges, or major service failure as stated in the Refund Policy.</li>
+                <li><strong>Pro:</strong> An eligible account may use the paid introductory offer once: ${PRO_PAID_INTRO_PRICE.toFixed(2)} charged at checkout for the first {PRO_TRIAL_DAYS} days, followed by automatic renewal at the selected monthly or annual price unless canceled before the introduction ends. The ${PRO_PAID_INTRO_PRICE.toFixed(2)} charge is refundable only during those first {PRO_TRIAL_DAYS} days. Pro renewal charges are not refundable for change of mind. Accounts that already used the offer are charged the regular price immediately. Any legacy free trial remains governed by its original checkout terms.</li>
+                <li><strong>Dedicated:</strong> Billed immediately when you subscribe. A 3-day money-back guarantee applies only to your first Dedicated subscription charge, whether monthly or annual, as described in our <Link href="/refund-policy">Refund Policy</Link>.</li>
+                <li><strong>After the applicable refund window:</strong> No refunds for change of mind, except where required by law or for confirmed billing errors or unauthorized charges as stated in the Refund Policy.</li>
                 <li><strong>Cancellation:</strong> Use Settings → Subscription → Cancel subscription to open Stripe&apos;s Customer Portal. Cancellation stops future renewals only; access continues through the end of the current paid period.</li>
                 <li><strong>Material changes:</strong> We will provide advance notice by email and/or in-app notice when we materially change subscription price, renewal, cancellation, or refund terms.</li>
+              </ul>
+              <h3>4.1 Dedicated attorney-consultation benefit</h3>
+              <p>
+                After <strong>{DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated</strong>, an active, paid Dedicated account may request <strong>one complimentary {DEDICATED_CONSULTATION_MINUTES}-minute initial consultation per TrackMyOPT account</strong> with a partnered licensed immigration attorney. The benefit does not renew monthly or annually unless TrackMyOPT expressly agrees otherwise in writing.
+              </p>
+              <ul>
+                <li>You must complete {DEDICATED_CONSULTATION_WAIT_DAYS} uninterrupted days on Dedicated before requesting available times from support@trackmyopt.com using your account email.</li>
+                <li>Your Dedicated subscription must be active when the appointment occurs.</li>
+                <li>Scheduling is subject to attorney availability, jurisdiction, conflict checks, identity or eligibility checks, and the attorney&apos;s independent acceptance.</li>
+                <li>TrackMyOPT coordinates the introduction only and is not a law firm, does not provide legal advice, and does not direct the attorney&apos;s professional judgment.</li>
+                <li>Additional legal work or representation is not included. Any further engagement and fees are agreed directly between you and the attorney.</li>
+                <li>One reasonable rescheduling request may be accommodated when availability permits. A missed appointment or late cancellation may consume the one-time benefit.</li>
               </ul>
               <p>
                 By starting a subscription and checking the recurring-billing consent box at checkout, you agree to these terms and our Refund Policy.
@@ -111,7 +130,7 @@ export default function TermsPage() {
 
               <h2>5. User Accounts</h2>
 
-              <h3>4.1 Account Creation</h3>
+              <h3>5.1 Account Creation</h3>
               <p>
                 To use certain features of TrackMyOPT, you must create an account. You may sign up using:
               </p>
@@ -120,7 +139,7 @@ export default function TermsPage() {
                 <li><strong>Google OAuth</strong>: Sign in with your Google account</li>
               </ul>
 
-              <h3>4.2 Account Security</h3>
+              <h3>5.2 Account Security</h3>
               <p>You are responsible for:</p>
               <ul>
                 <li>Maintaining the confidentiality of your password</li>
@@ -128,7 +147,7 @@ export default function TermsPage() {
                 <li>Notifying us immediately of any unauthorized use</li>
               </ul>
 
-              <h3>4.3 Account Termination</h3>
+              <h3>5.3 Account Termination</h3>
               <p>
                 We reserve the right to suspend or terminate your account if you violate these Terms or engage in fraudulent, abusive, or illegal activity.
               </p>
@@ -138,7 +157,7 @@ export default function TermsPage() {
                 Your use of TrackMyOPT is also governed by our <a href="/privacy" className="text-blue-600 hover:text-blue-700">Privacy Policy</a>. By using our Service, you consent to our collection and use of your information as described in the Privacy Policy.
               </p>
 
-              <h3>5.1 Personal Identifiable Information (PII)</h3>
+              <h3>6.1 Personal Identifiable Information (PII)</h3>
               <p>
                 Certain features of TrackMyOPT require you to provide Personal Identifiable Information (PII), including:
               </p>
@@ -153,12 +172,12 @@ export default function TermsPage() {
 
               <h2>7. Acceptable Use</h2>
 
-              <h3>6.1 Permitted Use</h3>
+              <h3>7.1 Permitted Use</h3>
               <p>
                 TrackMyOPT is intended solely for personal, non-commercial use to help you manage your OPT and STEM OPT timelines.
               </p>
 
-              <h3>6.2 Prohibited Activities</h3>
+              <h3>7.2 Prohibited Activities</h3>
               <p>You agree NOT to:</p>
               <ul>
                 <li>Use the Service for any illegal purpose or in violation of U.S. immigration laws</li>
@@ -176,7 +195,7 @@ export default function TermsPage() {
                 IMPORTANT: TRACKMYOPT IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND.
               </p>
 
-              <h3>7.1 No Immigration Advice</h3>
+              <h3>8.1 No Immigration Advice</h3>
               <p>
                 <strong>TrackMyOPT is NOT a substitute for professional immigration advice.</strong> We are not immigration attorneys, and our Service does not constitute legal advice. You should:
               </p>
@@ -186,7 +205,7 @@ export default function TermsPage() {
                 <li>Seek legal counsel if you have immigration questions</li>
               </ul>
 
-              <h3>7.2 Accuracy of Information</h3>
+              <h3>8.2 Accuracy of Information</h3>
               <p>
                 While we strive to provide accurate calculations and timelines, we make NO guarantees regarding:
               </p>
@@ -196,7 +215,7 @@ export default function TermsPage() {
                 <li>The timeliness of email notifications</li>
               </ul>
 
-              <h3>7.3 Service Availability</h3>
+              <h3>8.3 Service Availability</h3>
               <p>
                 We do not guarantee that the Service will be:
               </p>
@@ -234,12 +253,12 @@ export default function TermsPage() {
 
               <h2>11. Intellectual Property</h2>
 
-              <h3>10.1 Our Rights</h3>
+              <h3>11.1 Our Rights</h3>
               <p>
                 All content, features, and functionality of TrackMyOPT (including code, design, logos, and text) are owned by TrackMyOPT and protected by copyright, trademark, and other intellectual property laws.
               </p>
 
-              <h3>10.2 Your Rights</h3>
+              <h3>11.2 Your Rights</h3>
               <p>
                 We grant you a limited, non-exclusive, non-transferable license to use TrackMyOPT for personal use only. This license does NOT include:
               </p>

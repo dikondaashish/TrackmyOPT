@@ -3,6 +3,7 @@
 import { Check, X } from "lucide-react";
 import { comparisonFeatures } from "./PricingData";
 import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
+import { PLAN_PRICES } from "@/lib/pricing/plan-config";
 
 export function PricingDetailedComparison() {
     const showDedicated = shouldShowDedicatedPlanForSale();
@@ -40,7 +41,7 @@ export function PricingDetailedComparison() {
                                 Pro
                             </div>
                             <div className="text-sm text-gray-500">
-                                $4.99/mo
+                                ${PLAN_PRICES.pro.month.toFixed(2)}/mo
                             </div>
                         </div>
                         {showDedicated ? (
@@ -49,7 +50,7 @@ export function PricingDetailedComparison() {
                                     Dedicated
                                 </div>
                                 <div className="text-sm text-gray-500">
-                                    $14.99/mo
+                                    ${PLAN_PRICES.dedicated.month.toFixed(2)}/mo
                                 </div>
                             </div>
                         ) : null}

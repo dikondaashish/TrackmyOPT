@@ -125,7 +125,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const generated = await generateGroundedText(
-      buildScreeningAnswerPrompt(body)
+      buildScreeningAnswerPrompt(body),
+      userId
     );
     const maxLength = body.characterLimit ?? 1_200;
     const draft = generated.slice(0, maxLength).trim();

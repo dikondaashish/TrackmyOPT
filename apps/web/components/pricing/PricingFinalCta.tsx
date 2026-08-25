@@ -13,6 +13,9 @@ import {
   type PricingCtaVariant,
 } from "@/lib/posthog/pricing-cta-experiment";
 import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
+import { DEDICATED_CONSULTATION_MINUTES } from "@/lib/legal/legal-config";
+import { PLAN_PRICES } from "@/lib/pricing/plan-config";
+import { formatMonthlyEquivalentFromYearly } from "@/lib/premium/format-monthly-equivalent-from-yearly";
 
 const PRO_CHECKOUT_HREF =
   "/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear";
@@ -80,7 +83,7 @@ export function PricingFinalCta() {
             Track Every OPT Deadline Before It Becomes a Problem
           </h2>
           <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-            Join 2,500+ F-1 students who use TrackMyOPT Pro for daily reminders,
+            Join F-1 students who use TrackMyOPT for daily reminders,
             unemployment alerts, and case monitoring.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -95,15 +98,15 @@ export function PricingFinalCta() {
                 href={DEDICATED_CHECKOUT_HREF}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/20 transition-colors border border-white/20"
               >
-                Get Dedicated Support
+                Get Dedicated + Attorney Consultation
                 <ArrowRight className="w-4 h-4" />
               </Link>
             ) : null}
           </div>
           <p className="text-sm text-blue-100/80 mt-4">
             {shouldShowDedicatedPlanForSale()
-              ? "Pro from $4.17/mo billed yearly · Dedicated adds priority email support"
-              : "Pro from $4.17/mo billed yearly · cancel anytime"}
+              ? `Pro from $${formatMonthlyEquivalentFromYearly(PLAN_PRICES.pro.year)}/mo billed yearly · Dedicated includes one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation`
+              : `Pro from $${formatMonthlyEquivalentFromYearly(PLAN_PRICES.pro.year)}/mo billed yearly · cancel anytime`}
           </p>
         </div>
       </div>

@@ -21,7 +21,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { capturePremiumCheckoutCompleted } from "@/lib/posthog-client";
-import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
+import {
+  DEDICATED_CONSULTATION_WAIT_DAYS,
+  PRO_PAID_INTRO_PRICE,
+  PRO_TRIAL_DAYS,
+} from "@/lib/legal/legal-config";
 
 const CONFETTI = [
   { tx: "28px", ty: "-52px", rot: "18deg", delay: "0s" },
@@ -226,14 +230,14 @@ export function PremiumSuccessClient() {
   const headline = isDedicated
     ? "You're set for Dedicated."
     : isTrialing
-      ? `Your ${PRO_TRIAL_DAYS}-day Pro trial is live.`
+      ? `Your ${PRO_TRIAL_DAYS}-day paid Pro introduction is live.`
       : "You're all set.";
   const sub = isDedicated
-    ? "Higher resume quota and priority email support are live on your account."
+    ? `Higher career-tool limits and priority support are live. Your one-time attorney consultation becomes requestable after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated.`
     : isTrialing
       ? `Daily USCIS auto-checks and status-change emails are on${
           trialEndLabel ? ` through ${trialEndLabel}` : ""
-        }. First charge is after the trial — cancel anytime in Settings.`
+        }. $${PRO_PAID_INTRO_PRICE.toFixed(2)} was charged today; regular billing starts after the introductory period unless you cancel in Settings.`
       : "Pro is live—here’s what you can use first.";
 
   const proFeatures = [

@@ -26,6 +26,7 @@ export interface PremiumStatus {
   isPremium: boolean;
   planName?: string;
   expiresAt?: string;
+  dedicatedStartedAt?: string | null;
 }
 
 export interface CaseStatusSettings {

@@ -87,14 +87,22 @@ export const softwareApplicationSchema = {
         {
             "@type": "Offer",
             name: "Pro Plan",
-            price: "4.99",
+            price: "7.99",
             priceCurrency: "USD",
             description:
                 "Everything in Free + daily USCIS auto-checks, status-change email alerts, Document Vault, H-1B data, and higher AI resume limits",
         },
+        {
+            "@type": "Offer",
+            name: "Dedicated Plan",
+            price: "14.99",
+            priceCurrency: "USD",
+            description:
+                "Everything in Pro plus higher career-tool limits, priority support, and one complimentary 60-minute initial immigration-attorney consultation per account, subject to terms",
+        },
     ],
     description:
-        "TrackMyOPT helps F-1 international students track their OPT timeline, monitor the 90-day unemployment limit, check USCIS case status, store immigration documents securely, and find H-1B sponsor companies. Trusted by 2,500+ students from 100+ countries.",
+        "TrackMyOPT helps F-1 international students track their OPT timeline, monitor the 90-day unemployment limit, check USCIS case status, store immigration documents securely, and find H-1B sponsor companies.",
     featureList: [
         "OPT Timeline Dashboard with real-time countdown",
         "Unemployment Clock (90-day initial OPT limit and 150-day cumulative STEM OPT limit)",
@@ -187,7 +195,7 @@ export const faqSchema = {
             name: "Is TrackMyOPT free?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "Yes! TrackMyOPT offers a free plan that includes OPT timeline tracking, unemployment clock, and 1 USCIS case tracker with manual refresh — free forever. The Pro plan starts at just $4.99/month and adds daily USCIS auto-checks, status-change email alerts, Document Vault, H-1B verified sponsor data, AI resume scoring, and higher limits.",
+                text: "Yes. TrackMyOPT offers a free plan that includes OPT timeline tracking, an unemployment clock, and 1 USCIS case tracker with manual refresh. Pro starts at $7.99/month and adds daily USCIS auto-checks, status-change email alerts, Document Vault, H-1B sponsor data, 50 AI resumes and 100 ATS scans per month.",
             },
         },
         {

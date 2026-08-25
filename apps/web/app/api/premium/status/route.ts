@@ -15,6 +15,9 @@ import {
 function trialPayload(proFreeTrialConsumed: boolean | null | undefined) {
   const consumed = proFreeTrialConsumed === true;
   return {
+    proPaidIntroConsumed: consumed,
+    proPaidIntroEligible: !consumed,
+    // Legacy response keys retained for extension/backward compatibility.
     proFreeTrialConsumed: consumed,
     proFreeTrialEligible: !consumed,
   };
@@ -95,7 +98,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('premium_status, plan_tier, subscription_expires_at, premium_purchased_at, stripe_customer_id, pro_free_trial_consumed')
+      .select('premium_status, plan_tier, subscription_expires_at, premium_purchased_at, dedicated_started_at, stripe_customer_id, pro_free_trial_consumed')
       .eq('user_id', userId)
       .single();
 
@@ -156,6 +159,7 @@ export async function GET(req: NextRequest) {
               planName: healedPlanTier,
               expiresAt: healedExpiry,
               purchasedAt: data.premium_purchased_at,
+              dedicatedStartedAt: data.dedicated_started_at,
               customerId: data.stripe_customer_id,
               ...trialPayload(
                 String(healedPlanTier).toLowerCase() === 'pro' ? true : data.pro_free_trial_consumed,
@@ -258,6 +262,7 @@ export async function GET(req: NextRequest) {
             planName: healedPlan,
             expiresAt: healedExpiry,
             purchasedAt: data.premium_purchased_at,
+            dedicatedStartedAt: data.dedicated_started_at,
             customerId: data.stripe_customer_id,
             billingStatus: stripeBestSub.status,
             ...trialPayload(
@@ -302,6 +307,7 @@ export async function GET(req: NextRequest) {
       planName: data.plan_tier || 'pro',
       expiresAt: data.subscription_expires_at,
       purchasedAt: data.premium_purchased_at,
+      dedicatedStartedAt: data.dedicated_started_at,
       customerId: data.stripe_customer_id,
       billingStatus,
       ...trialPayload(data.pro_free_trial_consumed),

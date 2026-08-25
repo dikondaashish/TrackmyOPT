@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEDICATED_ATS_SCAN_LIMIT,
   DEDICATED_RESUME_LIMIT,
   FREE_ATS_SCAN_LIMIT,
   FREE_RESUME_LIMIT,
+  PRO_ATS_SCAN_LIMIT,
   PRO_RESUME_LIMIT,
   resolveAtsScanLimitForTier,
   resolveResumeLimitForTier,
@@ -29,6 +31,7 @@ describe("resolveAtsScanLimitForTier", () => {
 
   it("gives paid tiers high ATS cap", () => {
     expect(resolveAtsScanLimitForTier("pro")).toBeGreaterThan(FREE_ATS_SCAN_LIMIT);
-    expect(resolveAtsScanLimitForTier("dedicated")).toBeGreaterThan(FREE_ATS_SCAN_LIMIT);
+    expect(resolveAtsScanLimitForTier("dedicated")).toBe(DEDICATED_ATS_SCAN_LIMIT);
+    expect(DEDICATED_ATS_SCAN_LIMIT).toBeGreaterThan(PRO_ATS_SCAN_LIMIT);
   });
 });

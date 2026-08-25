@@ -3,7 +3,7 @@ export const PRICING_CTA_EXPERIMENT_FLAG = "pricing-cta-experiment";
 export type PricingCtaVariant = "control" | "urgency";
 
 const PRICING_CTA_COPY: Record<PricingCtaVariant, string> = {
-  control: "Start 7-Day Free Trial",
+  control: "Get Pro",
   urgency: "Start tracking before your deadline",
 };
 

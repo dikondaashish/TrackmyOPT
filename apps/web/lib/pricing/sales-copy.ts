@@ -2,11 +2,16 @@
  * Conversion copy for Pro & Dedicated — single source for pricing surfaces.
  */
 
-import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
+import {
+  DEDICATED_CONSULTATION_MINUTES,
+  DEDICATED_CONSULTATION_WAIT_DAYS,
+  PRO_PAID_INTRO_PRICE,
+  PRO_TRIAL_DAYS,
+} from "@/lib/legal/legal-config";
 import { isDedicatedOpenForNewPurchases } from "@/lib/pricing/dedicated-availability";
 
 const PRICING_SOCIAL_PROOF =
-  "Join 2,500+ international students who trust TrackMyOPT";
+  "Built for international students navigating OPT and STEM OPT";
 
 export const PRICING_VALUE_ANCHOR =
   "Pro costs less than one lunch per month. Daily reminders and trackers help you stay organized before OPT deadlines sneak up.";
@@ -56,19 +61,20 @@ export const PLAN_SALES_META: Record<
       "Document vault + higher resume / ATS limits",
     ],
     badge: "Most Popular",
-    ctaDefault: `Start ${PRO_TRIAL_DAYS}-Day Free Trial`,
-    ctaNoTrial: "Subscribe to Pro",
+    guarantee: `$${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first ${PRO_TRIAL_DAYS} days for eligible accounts`,
+    ctaDefault: `Start ${PRO_TRIAL_DAYS} Days for $${PRO_PAID_INTRO_PRICE.toFixed(2)}`,
+    ctaNoTrial: "Get Pro",
   },
   dedicated: {
-    tagline: "Everything in Pro + higher quotas & priority support",
-    bestFor: "Students who want more resume capacity and faster email support",
+    tagline: `Everything in Pro + a complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute attorney consultation`,
+    bestFor: "Students who want priority support and access to a partnered immigration attorney",
     highlights: [
-      "Resume generator up to 1000/mo",
+      `One complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days`,
+      "Higher resume and ATS capacity",
       "Priority email support",
-      "Personalized support plan",
     ],
     badge: "Priority Support",
-    guarantee: "3-day money-back on your first paid month",
+    guarantee: "3-day money-back on your first Dedicated charge",
     ctaDefault: "Get Dedicated Support",
     ctaNoTrial: "Get Dedicated Support",
   },
@@ -80,7 +86,7 @@ export const PLAN_PICKER_GUIDE = {
     "Choose Pro if you want automated USCIS monitoring, unemployment alerts, and career tools — most students start here.",
   /** Shown only while Dedicated is open for new purchases. */
   dedicatedLine:
-    "Choose Dedicated if you want higher resume quotas and priority email support on top of Pro.",
+    `Choose Dedicated for priority support, higher career-tool capacity, and one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation per account.`,
 } as const;
 
 export const LANDING_PLAN_COPY = {
@@ -91,14 +97,14 @@ export const LANDING_PLAN_COPY = {
   },
   pro: {
     description: "Daily reminders, unemployment alerts, and USCIS status monitoring in one place.",
-    users: `${PRO_TRIAL_DAYS}-day free trial · cancel anytime`,
-    buttonLabel: `Start ${PRO_TRIAL_DAYS}-Day Free Trial`,
+    users: `$${PRO_PAID_INTRO_PRICE.toFixed(2)} for ${PRO_TRIAL_DAYS} days, then regular billing · eligible accounts`,
+    buttonLabel: `Start for $${PRO_PAID_INTRO_PRICE.toFixed(2)}`,
   },
   dedicated: {
     // Attorney wording stays narrow: we schedule the consultation, the
     // attorney advises. See /disclaimer §8 and plan-features.test.ts.
     description:
-      "Pro + higher resume quota, priority email support, and help scheduling an immigration attorney consultation.",
+      `Pro + priority support and one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial consultation with a partnered immigration attorney.`,
     users: "Priority support · 3-day money-back",
     buttonLabel: "Get Dedicated Support",
   },

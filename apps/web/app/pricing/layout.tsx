@@ -5,7 +5,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
     title: "TrackMyOPT Pricing — OPT Deadline Tracking Plans for F-1 Students",
     description:
-        "TrackMyOPT Pro adds daily 9:00 AM ET reminders, unemployment alerts, and USCIS case monitoring for OPT and STEM OPT students. Free plan available. Pro from $4.99/mo.",
+        "TrackMyOPT Pro adds daily 9:00 AM ET reminders, unemployment alerts, USCIS case monitoring, and career tools for OPT and STEM OPT students. Free plan available. Pro from $7.99/mo.",
     keywords: [
         "TrackMyOPT pricing",
         "TrackMyOPT Pro worth it",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "TrackMyOPT Pro — OPT Deadline Tracking for F-1 Students",
         description:
-            "Daily reminders, unemployment alerts, and USCIS monitoring in one place. Trusted by 2,500+ international students.",
+            "Daily reminders, unemployment alerts, USCIS monitoring, and career tools in one place.",
         url: "https://www.trackmyopt.com/pricing",
         siteName: "TrackMyOPT",
         type: "website",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "TrackMyOPT Pro — Built for OPT & STEM OPT Students",
         description:
-            "Track filing windows, unemployment days, and STEM deadlines with daily reminders. Free plan available. Pro from $4.99/mo.",
+            "Track filing windows, unemployment days, and STEM deadlines with daily reminders. Free plan available. Pro from $7.99/mo.",
     },
 };
 

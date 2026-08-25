@@ -58,7 +58,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                         className="flex items-center gap-2 px-3 py-2 max-md:min-h-11 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-semibold rounded-full hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
                     >
                         <Crown className="w-4 h-4" />
-                        <span className="hidden md:inline">Try Pro Free</span>
+                        <span className="hidden md:inline">Get Pro</span>
                         <span className="md:hidden">Go Pro</span>
                     </Link>
                 )}

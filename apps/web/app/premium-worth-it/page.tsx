@@ -53,7 +53,7 @@ const faqSchema = {
             name: "How much does TrackMyOPT Premium cost?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "TrackMyOPT Pro is $4.99/month, or about $4.17/mo when billed yearly (save vs paying monthly). Each account may use one 7-day Pro trial, one time only; after that, new Pro checkouts bill without an additional trial. Dedicated adds a higher resume quota, priority email support, and help scheduling an immigration attorney consultation; it has no free trial but includes a 3-day money-back guarantee on the first paid month.",
+                text: "Eligible accounts can start TrackMyOPT Pro for $0.99 for 7 days, then it renews at $7.99/month or $69/year unless canceled. Dedicated is $14.99/month or $149.99/year and adds higher career-tool limits, priority support, and one complimentary 60-minute initial immigration-attorney consultation after 7 continuous days on Dedicated, subject to the terms.",
             },
         },
     ],
@@ -163,7 +163,7 @@ export default function PremiumWorthItPage() {
                         Pro is worth it if you want daily 9:00 AM ET reminders,
                         unemployment day tracking with alerts, and USCIS case
                         monitoring in one place — without spreadsheets. At
-                        $4.99/month, it helps you stay organized before
+                        $7.99/month, it helps you stay organized before
                         deadlines sneak up. Always confirm requirements with
                         your DSO.
                     </p>
@@ -245,13 +245,13 @@ export default function PremiumWorthItPage() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                                    4. Unlimited Career Tools Accelerate Your
+                                    4. Career Tools Accelerate Your
                                     Job Search
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                    Premium unlocks unlimited AI resume
-                                    generation, ATS scanning, job application
-                                    tracking, and full access to the H-1B
+                                    Pro includes 50 AI resumes and 100 ATS
+                                    scans per month, job application tracking,
+                                    and full access to the H-1B
                                     sponsor database with approval rate data.
                                     The faster you find employment, the fewer
                                     unemployment days you accumulate.
@@ -268,8 +268,7 @@ export default function PremiumWorthItPage() {
                                     5. The Cost vs Risk Math Is Obvious
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                    Premium costs $4.99/month — less than a
-                                    single coffee. A missed OPT deadline can
+                                    Pro costs $7.99/month. A missed OPT deadline can
                                     cost you your legal status, your job, and
                                     your ability to remain in the United States.
                                     The Sprintax partner coupon is available to
@@ -293,7 +292,7 @@ export default function PremiumWorthItPage() {
                                 "Daily USCIS case status auto-checks with instant email notifications",
                                 "Daily 9AM email reminders for all upcoming deadlines",
                                 "Secure encrypted document vault with expiry reminders",
-                                "500 AI resume generations and 10,000 ATS scans per month",
+                                "50 AI resumes and 100 ATS scans per month",
                                 "Unlimited job application tracking",
                                 "Full H-1B sponsor database with approval rate data",
                                 "STEM OPT I-983 training plan tracking and E-Verify verification",
@@ -338,7 +337,7 @@ export default function PremiumWorthItPage() {
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-blue-600 font-bold">•</span>
-                            You are applying for jobs and need unlimited AI resume tools and ATS scanning
+                            You are applying for jobs and need higher AI resume and ATS limits
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-blue-600 font-bold">•</span>
@@ -427,7 +426,7 @@ export default function PremiumWorthItPage() {
                         Protect Your OPT Status Today
                     </h2>
                     <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-                        Start with a 7-day free trial. No credit card required.
+                        Eligible accounts start Pro for $0.99 for 7 days, then regular billing begins unless canceled.
                         Cancel anytime. Because your F-1 status is too important
                         to leave to a spreadsheet.
                     </p>
@@ -435,7 +434,7 @@ export default function PremiumWorthItPage() {
                         href="/login"
                         className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold bg-white text-blue-700 rounded-full shadow-2xl hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
                     >
-                        Start 7-Day Free Trial
+                        Get Pro
                         <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>

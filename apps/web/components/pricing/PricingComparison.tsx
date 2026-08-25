@@ -4,10 +4,14 @@ import Link from "next/link";
 import { Check, X, ArrowRight, Shield } from "lucide-react";
 import { PlanPickerGuide } from "@/components/pricing/PlanPickerGuide";
 import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
-import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
-import { PRO_ATS_SCAN_LIMIT_DISPLAY } from "@/lib/pricing/plan-features";
+import { DEDICATED_CONSULTATION_MINUTES, PRO_PAID_INTRO_PRICE, PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
+import {
+    FREE_ATS_SCAN_LIMIT_DISPLAY,
+    PRO_ATS_SCAN_LIMIT_DISPLAY,
+} from "@/lib/pricing/plan-features";
+import { PLAN_LIMITS } from "@/lib/pricing/plan-config";
 
-// Pro's ATS scan cap is real (10,000/mo), so this copy must never say
+// Pro's ATS scan cap is real, so this copy must never say
 // "Unlimited" — see plan-features.test.ts for the regression guard.
 const proAtsScanLabel = `${PRO_ATS_SCAN_LIMIT_DISPLAY.toLocaleString("en-US")}/month`;
 
@@ -22,7 +26,7 @@ export function PricingComparison() {
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400">
                         {showDedicated
-                            ? "See what Pro adds. Need more resume capacity and faster email support? Dedicated includes everything below plus priority support."
+                            ? `See what Pro adds. Dedicated includes everything below, higher career-tool capacity, priority support, and a complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation.`
                             : "See what Pro adds: daily USCIS auto-checks, status-change alerts, and higher career tool limits."}
                     </p>
                 </div>
@@ -64,8 +68,8 @@ export function PricingComparison() {
                                 { feature: "USCIS Case Status Monitoring", free: "Manual check", pro: "Daily auto-check + status change email alerts" },
                                 { feature: "Deadline Reminders", free: "Basic in-app", pro: "Daily 9AM email + push notifications" },
                                 { feature: "H-1B Sponsor Database", free: "25 companies", pro: "Unlimited + approval rate data" },
-                                { feature: "AI Resume Generator", free: "5/month", pro: `500/month + ${proAtsScanLabel} ATS scans` },
-                                { feature: "ATS Resume Scanner", free: "3/month", pro: proAtsScanLabel },
+                                { feature: "AI Resume Generator", free: `${PLAN_LIMITS.free.resumesPerMonth}/month`, pro: `${PLAN_LIMITS.pro.resumesPerMonth}/month + ${proAtsScanLabel} ATS scans` },
+                                { feature: "ATS Resume Scanner", free: `${FREE_ATS_SCAN_LIMIT_DISPLAY}/month`, pro: proAtsScanLabel },
                                 { feature: "Job Application Tracker", free: true, pro: true },
                                 { feature: "Document Vault", free: false, pro: "Encrypted storage + expiry reminders" },
                                 { feature: "STEM OPT Extension Planner", free: "Basic calculator", pro: "Full I-983 tracking + E-Verify check" },
@@ -114,10 +118,10 @@ export function PricingComparison() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-gray-900 dark:text-white">
-                                    Need more capacity and faster support?
+                                    Need attorney access and priority support?
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    Dedicated includes everything in Pro plus a higher resume quota and priority email support.
+                                    Dedicated includes everything in Pro plus higher career-tool limits, priority email support, and one complimentary {DEDICATED_CONSULTATION_MINUTES}-minute initial attorney consultation per account.
                                 </p>
                             </div>
                         </div>
@@ -141,11 +145,11 @@ export function PricingComparison() {
                         href="/login?redirect=%2Fpremium%2Fcheckout%3FplanId%3Dpro%26interval%3Dyear"
                         className="inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors"
                     >
-                        Start Pro {PRO_TRIAL_DAYS}-Day Free Trial
+                        Get Pro
                         <ArrowRight className="w-4 h-4" />
                     </Link>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-                        Pro includes a {PRO_TRIAL_DAYS}-day free trial when eligible. Cancel anytime in Settings.
+                        Eligible accounts pay ${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first {PRO_TRIAL_DAYS} days, then regular billing. Cancel anytime in Settings.
                     </p>
                 </div>
             </div>

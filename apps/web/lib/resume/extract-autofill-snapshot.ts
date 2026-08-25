@@ -1,7 +1,5 @@
 import { createHash } from 'node:crypto';
 
-import { GoogleGenAI } from '@google/genai';
-
 import {
   AUTOFILL_CONTRACT_LIMITS,
   ResumeAutofillSnapshotV1Schema,
@@ -9,6 +7,7 @@ import {
   type ResumeDateValue,
 } from './autofill-schema';
 import { latexToPlainText, splitResumeSections } from './latex-to-plain-text';
+import { generateAiContent } from '../ai/google-ai';
 
 export const FINAL_LATEX_MAX_CHARS = 250_000;
 const NORMALIZED_RESUME_MAX_CHARS = 50_000;
@@ -326,8 +325,6 @@ export function hashFinalLatex(finalLatex: string): string {
 async function extractStructuredSnapshotWithGemini(input: {
   plainText: string;
 }): Promise<unknown> {
-  if (!process.env.GEMINI_API_KEY) throw new Error('AI extractor unavailable');
-
   const prompt = `Extract a resume autofill snapshot from the resume text below.
 
 Rules:
@@ -342,25 +339,15 @@ Rules:
 RESUME TEXT:
 ${input.plainText}`;
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-  const request = (model: string) =>
-    ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-        responseJsonSchema: RESUME_AUTOFILL_SNAPSHOT_JSON_SCHEMA,
-        temperature: 0,
-        maxOutputTokens: 8_192,
-      },
-    });
-
-  let response;
-  try {
-    response = await request('gemini-3.5-flash');
-  } catch {
-    response = await request('gemini-3.1-flash-lite');
-  }
+  const response = await generateAiContent({
+    task: 'autofill_extract',
+    contents: prompt,
+    config: {
+      responseMimeType: 'application/json',
+      responseJsonSchema: RESUME_AUTOFILL_SNAPSHOT_JSON_SCHEMA,
+      maxOutputTokens: 8_192,
+    },
+  });
 
   const text = response.text?.trim();
   if (!text) throw new Error('AI extractor returned no data');

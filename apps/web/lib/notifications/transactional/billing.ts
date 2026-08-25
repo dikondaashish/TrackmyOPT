@@ -194,7 +194,7 @@ ${emailTextLead("What you still have on Free")}
 ${emailTextList([
   "OPT &amp; STEM timeline calculators and unemployment trackers",
   "Manual USCIS case status checks and core dashboard access",
-  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("5 AI-built resumes per month")}`,
+  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("1 AI-built resume per month")}`,
   "Chrome extension and saved account data",
 ], { ordered: false })}
 ${emailPrimaryButton(checkoutUrl, "Reopen daily USCIS alerts")}
@@ -395,7 +395,7 @@ ${emailTextLead("What this means for your account")}
 ${emailTextList([
   `${emailTextStrong("Premium access has ended")} &mdash; daily reminders, auto USCIS checks, document vault, and other Pro-only tools are paused`,
   `${emailTextStrong("Your data is unchanged")} &mdash; OPT/STEM timelines, saved resumes, and profile settings remain in your account`,
-  `<strong>AI Resume Generator</strong> is still available on Free (${emailTextStrong("5 AI-built resumes per month")})`,
+  `<strong>AI Resume Generator</strong> is still available on Free (${emailTextStrong("1 AI-built resume per month")})`,
   `${emailTextStrong("No further charges")} unless you choose to subscribe again`,
 ], { ordered: false })}
 ${emailPrimaryButton(dashUrl, "Go to dashboard")}

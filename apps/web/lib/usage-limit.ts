@@ -1,16 +1,19 @@
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { PLAN_LIMITS } from '@/lib/pricing/plan-config';
 
-export const FREE_RESUME_LIMIT = 5;
-export const PRO_RESUME_LIMIT = 500;
-export const DEDICATED_RESUME_LIMIT = 1000;
+export const FREE_RESUME_LIMIT = PLAN_LIMITS.free.resumesPerMonth;
+export const PRO_RESUME_LIMIT = PLAN_LIMITS.pro.resumesPerMonth;
+export const DEDICATED_RESUME_LIMIT = PLAN_LIMITS.dedicated.resumesPerMonth;
 
-const FREE_ATS_SCAN_LIMIT = 3;
+const FREE_ATS_SCAN_LIMIT = PLAN_LIMITS.free.atsScansPerMonth;
 export { FREE_ATS_SCAN_LIMIT };
 // Exported so pricing copy can be tested against the real cap instead of
 // claiming "Unlimited" — see plan-features.test.ts.
-export const PRO_ATS_SCAN_LIMIT = 10_000;
+export const PRO_ATS_SCAN_LIMIT = PLAN_LIMITS.pro.atsScansPerMonth;
+export const DEDICATED_ATS_SCAN_LIMIT =
+  PLAN_LIMITS.dedicated.atsScansPerMonth;
 
 /** Pure limit resolver — plan_tier only (no premium_status override). */
 export function resolveResumeLimitForTier(tier: string | null | undefined): number {
@@ -22,7 +25,8 @@ export function resolveResumeLimitForTier(tier: string | null | undefined): numb
 
 export function resolveAtsScanLimitForTier(tier: string | null | undefined): number {
   const t = (tier || 'free').toLowerCase();
-  if (t === 'pro' || t === 'dedicated') return PRO_ATS_SCAN_LIMIT;
+  if (t === 'dedicated') return DEDICATED_ATS_SCAN_LIMIT;
+  if (t === 'pro') return PRO_ATS_SCAN_LIMIT;
   return FREE_ATS_SCAN_LIMIT;
 }
 

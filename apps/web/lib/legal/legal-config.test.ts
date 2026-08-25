@@ -3,6 +3,7 @@ import {
   buildCheckoutDisclosures,
   CASE_STATUS_DISCLAIMER,
   DEDICATED_MONEY_BACK_DAYS,
+  DEDICATED_CONSULTATION_MINUTES,
   EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE,
   EXTENSION_AUTOFILL_SUPPORT_NOTICE,
   getPricingModalDedicatedConsentLabel,
@@ -11,6 +12,8 @@ import {
   LEGAL_POLICY_VERSIONS,
   PLAN_DISPLAY_PRICES,
   PRIVACY_CHOICES_VERSION_ID,
+  PRO_PAID_INTRO_PRICE,
+  PRO_PAID_INTRO_REFUND_DAYS,
   PRO_TRIAL_DAYS,
   USCIS_API_DISCLOSURE,
   formatPolicyVersionLabel,
@@ -35,14 +38,17 @@ describe('legal-config', () => {
     );
   });
 
-  it('builds pro trial disclosures', () => {
+  it('builds Pro paid introductory disclosures', () => {
     const d = buildCheckoutDisclosures({
       planId: 'pro',
       interval: 'year',
-      includeProTrial: true,
+      includeProIntro: true,
     });
     expect(d.headline).toContain('auto-renewing');
-    expect(d.trialLine).toContain(String(PRO_TRIAL_DAYS));
+    expect(d.introLine).toContain(String(PRO_TRIAL_DAYS));
+    expect(d.introLine).toContain(PRO_PAID_INTRO_PRICE.toFixed(2));
+    expect(d.introLine).toContain('not a free trial');
+    expect(d.proRefundLine).toContain(String(PRO_PAID_INTRO_REFUND_DAYS));
     expect(d.consentLabel).toContain('Privacy Policy');
   });
 
@@ -50,10 +56,13 @@ describe('legal-config', () => {
     const d = buildCheckoutDisclosures({
       planId: 'dedicated',
       interval: 'month',
-      includeProTrial: false,
+      includeProIntro: false,
     });
     expect(d.dedicatedRefundLine).toContain(String(DEDICATED_MONEY_BACK_DAYS));
-    expect(d.trialLine).toBeNull();
+    expect(d.dedicatedConsultationLine).toContain(
+      String(DEDICATED_CONSULTATION_MINUTES)
+    );
+    expect(d.introLine).toBeNull();
     expect(d.consentLabel).toContain('Refund Policy');
     expect(d.consentLabel).toContain('Privacy Policy');
   });
@@ -100,16 +109,16 @@ describe('legal-config', () => {
     );
   });
 
-  it('pricing modal Pro consent mentions trial, renews, and cancel', () => {
+  it('pricing modal Pro consent explains the once-per-account paid introduction', () => {
     const label = getPricingModalProConsentLabel({
       interval: 'month',
       monthlyPrice: PLAN_DISPLAY_PRICES.pro.month,
       yearlyPrice: PLAN_DISPLAY_PRICES.pro.year,
-      includeTrial: true,
+      includeIntro: true,
     });
-    expect(label).toContain('7-day free trial');
+    expect(label).toContain(`$${PRO_PAID_INTRO_PRICE.toFixed(2)} today`);
     expect(label).toContain('renews');
-    expect(label).toContain('unless I cancel');
+    expect(label).toContain('refundable only during');
     expect(label).not.toContain('auto-converts');
   });
 
@@ -118,13 +127,13 @@ describe('legal-config', () => {
       interval: 'year',
       monthlyPrice: PLAN_DISPLAY_PRICES.pro.month,
       yearlyPrice: PLAN_DISPLAY_PRICES.pro.year,
-      includeTrial: true,
+      includeIntro: false,
     });
     expect(label).toContain('/year');
-    expect(label).toContain('$49.99/year');
+    expect(label).toContain('$69.00/year');
   });
 
-  it('pricing modal Dedicated consent discloses charge today and money-back scope', () => {
+  it('pricing modal Dedicated consent discloses charge and consultation benefit', () => {
     const monthly = getPricingModalDedicatedConsentLabel({
       interval: 'month',
       monthlyPrice: PLAN_DISPLAY_PRICES.dedicated.month,
@@ -132,8 +141,9 @@ describe('legal-config', () => {
     });
     expect(monthly).toContain('charged today');
     expect(monthly).toContain('renews monthly');
-    expect(monthly).toContain('3-day money-back guarantee');
-    expect(monthly).toContain('first paid month');
+    expect(monthly).toContain(`${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee`);
+    expect(monthly).toContain(`${DEDICATED_CONSULTATION_MINUTES}-minute`);
+    expect(monthly).toContain('per account');
     expect(monthly).not.toContain('then $');
 
     const annual = getPricingModalDedicatedConsentLabel({
@@ -143,6 +153,7 @@ describe('legal-config', () => {
     });
     expect(annual).toContain('charged today');
     expect(annual).toContain('renews annually');
-    expect(annual).toContain('first paid term');
+    expect(annual).toContain(`${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee`);
+    expect(annual).toContain(`${DEDICATED_CONSULTATION_MINUTES}-minute`);
   });
 });

@@ -7,6 +7,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   AI_DAILY_GENERATION_LIMIT,
   AI_ITEM_REGENERATION_LIMIT,
+  FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
+  PAID_AI_WRITING_MONTHLY_LIMIT,
   consumeAiGeneration,
   nextAiGenerationResetAt,
   normalizeAiGenerationQuotaResult,
@@ -41,8 +43,8 @@ describe('durable AI generation limits', () => {
         {
           allowed: true,
           quota_period: 'month',
-          quota_limit: 5,
-          quota_remaining: 4,
+          quota_limit: FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
+          quota_remaining: FREE_SCREENING_DRAFTS_MONTHLY_LIMIT - 1,
           daily_limit: 25,
           daily_remaining: 25,
           item_regeneration_limit: 3,
@@ -69,8 +71,8 @@ describe('durable AI generation limits', () => {
     ).resolves.toEqual({
       allowed: true,
       quotaPeriod: 'month',
-      quotaLimit: 5,
-      quotaRemaining: 4,
+      quotaLimit: FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
+      quotaRemaining: FREE_SCREENING_DRAFTS_MONTHLY_LIMIT - 1,
       dailyLimit: AI_DAILY_GENERATION_LIMIT,
       dailyRemaining: 25,
       itemRegenerationLimit: AI_ITEM_REGENERATION_LIMIT,
@@ -78,16 +80,17 @@ describe('durable AI generation limits', () => {
       resetsAt,
     });
 
-    expect(rpc).toHaveBeenCalledWith('consume_plan_ai_generation_quota', {
+    expect(rpc).toHaveBeenCalledWith('consume_plan_ai_generation_quota_v2', {
       p_user_id: '00000000-0000-4000-8000-000000000001',
       p_item_key_hash: createHash('sha256')
         .update(itemKey, 'utf8')
         .digest('hex'),
       p_requested_regeneration: false,
       p_feature_key: 'screening_answer',
-      p_is_premium: false,
+      p_plan_tier: 'free',
       p_daily_limit: 25,
-      p_free_monthly_limit: 5,
+      p_paid_monthly_limit: PAID_AI_WRITING_MONTHLY_LIMIT,
+      p_free_monthly_limit: FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
       p_item_regeneration_limit: 3,
     });
     expect(JSON.stringify(rpc.mock.calls)).not.toContain(itemKey);
@@ -127,14 +130,14 @@ describe('durable AI generation limits', () => {
     });
   });
 
-  it('uses the shared daily allowance for Pro without a monthly cap', async () => {
+  it('uses the shared monthly writing allowance for Pro with a daily safety cap', async () => {
     const { client, rpc } = rpcClient({
       data: [
         {
           allowed: true,
-          quota_period: 'day',
-          quota_limit: 25,
-          quota_remaining: 24,
+          quota_period: 'month',
+          quota_limit: PAID_AI_WRITING_MONTHLY_LIMIT,
+          quota_remaining: PAID_AI_WRITING_MONTHLY_LIMIT - 1,
           daily_limit: 25,
           daily_remaining: 24,
           item_regeneration_limit: 3,
@@ -154,15 +157,16 @@ describe('durable AI generation limits', () => {
 
     expect(result).toMatchObject({
       allowed: true,
-      quotaPeriod: 'day',
-      quotaLimit: 25,
-      quotaRemaining: 24,
+      quotaPeriod: 'month',
+      quotaLimit: PAID_AI_WRITING_MONTHLY_LIMIT,
+      quotaRemaining: PAID_AI_WRITING_MONTHLY_LIMIT - 1,
     });
     expect(rpc).toHaveBeenCalledWith(
-      'consume_plan_ai_generation_quota',
+      'consume_plan_ai_generation_quota_v2',
       expect.objectContaining({
-        p_is_premium: true,
+        p_plan_tier: 'pro',
         p_feature_key: 'cover_letter',
+        p_paid_monthly_limit: PAID_AI_WRITING_MONTHLY_LIMIT,
         p_free_monthly_limit: 1,
       }),
     );
@@ -190,14 +194,14 @@ describe('durable AI generation limits', () => {
       )
     ).resolves.toEqual({
       allowed: false,
-      quotaPeriod: 'day',
-      quotaLimit: 25,
+      quotaPeriod: 'month',
+      quotaLimit: PAID_AI_WRITING_MONTHLY_LIMIT,
       quotaRemaining: 0,
       dailyLimit: 25,
       dailyRemaining: 0,
       itemRegenerationLimit: 3,
       itemRegenerationsRemaining: 0,
-      resetsAt: '2026-07-26T00:00:00.000Z',
+      resetsAt: '2026-08-01T00:00:00.000Z',
       error: 'ai_rate_limited',
     });
 
@@ -245,6 +249,29 @@ describe('durable AI generation limits', () => {
     expect(migration).toMatch(/pg_advisory_xact_lock/i);
     expect(migration).toMatch(
       /REVOKE ALL ON FUNCTION public\.consume_plan_ai_generation_quota[\s\S]+FROM PUBLIC, anon, authenticated/i,
+    );
+  });
+
+  it('adds a shared monthly allowance for paid AI writing actions', () => {
+    const migration = readFileSync(
+      resolve(
+        process.cwd(),
+        '../../supabase/migrations/20260824000000_repackage_ai_writing_quotas.sql',
+      ),
+      'utf8',
+    );
+
+    expect(migration).toMatch(/paid_combined/i);
+    expect(migration).toMatch(/consume_plan_ai_generation_quota_v2/i);
+    expect(migration).toMatch(/p_paid_monthly_limit/i);
+    expect(migration).toMatch(/p_plan_tier/i);
+    expect(migration).toMatch(/pg_advisory_xact_lock/i);
+    expect(migration).toMatch(/SET search_path = ''/i);
+    expect(migration).toMatch(
+      /REVOKE ALL ON FUNCTION public\.consume_plan_ai_generation_quota_v2[\s\S]+FROM PUBLIC, anon, authenticated/i,
+    );
+    expect(migration).toMatch(
+      /GRANT EXECUTE ON FUNCTION public\.consume_plan_ai_generation_quota_v2[\s\S]+TO service_role/i,
     );
   });
 });

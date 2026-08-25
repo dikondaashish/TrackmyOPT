@@ -40,7 +40,7 @@ describe("marketing copy never overclaims Pro's real caps", () => {
   it("the real Pro caps used in this test are the server-enforced ones", () => {
     // Sanity check so the numbers in this file's own comment cannot drift
     // silently from the constants that actually gate usage.
-    expect(PRO_RESUME_LIMIT).toBe(500);
-    expect(PRO_ATS_SCAN_LIMIT).toBe(10_000);
+    expect(PRO_RESUME_LIMIT).toBe(50);
+    expect(PRO_ATS_SCAN_LIMIT).toBe(100);
   });
 });

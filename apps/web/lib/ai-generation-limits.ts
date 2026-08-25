@@ -1,11 +1,16 @@
 import { createHash } from 'node:crypto';
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { PLAN_LIMITS } from '@/lib/pricing/plan-config';
 
 export const AI_DAILY_GENERATION_LIMIT = 25;
 export const AI_ITEM_REGENERATION_LIMIT = 3;
-export const FREE_SCREENING_DRAFTS_MONTHLY_LIMIT = 5;
-export const FREE_COVER_LETTERS_MONTHLY_LIMIT = 1;
+export const FREE_SCREENING_DRAFTS_MONTHLY_LIMIT =
+  PLAN_LIMITS.free.screeningDraftsPerMonth;
+export const FREE_COVER_LETTERS_MONTHLY_LIMIT =
+  PLAN_LIMITS.free.coverLettersPerMonth;
+export const PAID_AI_WRITING_MONTHLY_LIMIT =
+  PLAN_LIMITS.pro.aiWritingActionsPerMonth;
 
 type AiGenerationFeature = 'screening_answer' | 'cover_letter';
 type AiGenerationPlanTier = 'free' | 'pro' | 'dedicated';
@@ -207,13 +212,11 @@ export async function consumeAiGeneration(
     dependencies.feature === 'cover_letter'
       ? FREE_COVER_LETTERS_MONTHLY_LIMIT
       : FREE_SCREENING_DRAFTS_MONTHLY_LIMIT;
-  const quotaPeriod: AiGenerationQuotaPeriod = isPremium ? 'day' : 'month';
+  const quotaPeriod: AiGenerationQuotaPeriod = 'month';
   const quotaLimit = isPremium
-    ? AI_DAILY_GENERATION_LIMIT
+    ? PAID_AI_WRITING_MONTHLY_LIMIT
     : freeMonthlyLimit;
-  const resetAt = isPremium
-    ? nextAiGenerationResetAt(dependencies.now)
-    : nextMonthlyAiGenerationResetAt(dependencies.now);
+  const resetAt = nextMonthlyAiGenerationResetAt(dependencies.now);
   const itemKeyHash = createHash('sha256')
     .update(itemKey, 'utf8')
     .digest('hex');
@@ -223,14 +226,15 @@ export async function consumeAiGeneration(
       dependencies.client ??
       (getSupabaseAdminClient() as unknown as AiGenerationQuotaRpcClient);
     const { data, error } = await client.rpc(
-      'consume_plan_ai_generation_quota',
+      'consume_plan_ai_generation_quota_v2',
       {
         p_user_id: userId,
         p_item_key_hash: itemKeyHash,
         p_requested_regeneration: isRegeneration,
         p_feature_key: dependencies.feature,
-        p_is_premium: isPremium,
+        p_plan_tier: dependencies.planTier,
         p_daily_limit: AI_DAILY_GENERATION_LIMIT,
+        p_paid_monthly_limit: PAID_AI_WRITING_MONTHLY_LIMIT,
         p_free_monthly_limit: freeMonthlyLimit,
         p_item_regeneration_limit: AI_ITEM_REGENERATION_LIMIT,
       },

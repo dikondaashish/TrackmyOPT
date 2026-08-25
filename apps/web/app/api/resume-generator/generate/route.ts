@@ -1,6 +1,6 @@
 
-import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
+import { generateAiContent } from '@/lib/ai/google-ai';
 import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildGeneratePrompt } from '@/lib/ai/prompts/generate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
@@ -47,8 +47,6 @@ const corsHeaders = corsHeadersConfiguredWebApp();
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     try {
@@ -129,19 +127,11 @@ export async function POST(req: NextRequest) {
             yearsOfExperience
         );
 
-        let response;
-        try {
-            response = await ai.models.generateContent({
-                model: 'gemini-3.1-pro-preview',
-                contents: prompt,
-            });
-        } catch (err) {
-            console.warn('[generate] Primary model failed, falling back to gemini-2.5-pro:', err);
-            response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
-                contents: prompt,
-            });
-        }
+        const response = await generateAiContent({
+            task: 'resume_generate',
+            contents: prompt,
+            userId,
+        });
 
         let latex = response.text || '';
 

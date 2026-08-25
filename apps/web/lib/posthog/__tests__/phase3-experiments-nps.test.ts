@@ -21,7 +21,7 @@ describe("pricing-cta-experiment", () => {
   });
 
   it("returns copy per variant", () => {
-    expect(getPricingCtaCopy("control")).toBe("Start 7-Day Free Trial");
+    expect(getPricingCtaCopy("control")).toBe("Get Pro");
     expect(getPricingCtaCopy("urgency")).toBe(
       "Start tracking before your deadline"
     );

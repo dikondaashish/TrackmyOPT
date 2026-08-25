@@ -1,20 +1,10 @@
 /**
  * Google Gemini AI Integration
- * 
- * Uses Gemini 1.5 Pro for both OCR and document analysis
- * Single API for complete document processing pipeline
+ *
+ * Task-specific Gemini integration routed through Vertex AI.
  */
 
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-
-const PRIMARY_MODEL = 'gemini-3.1-pro-preview';
-const FALLBACK_MODEL = 'gemini-2.5-pro';
-
-/** Lightweight models for pre-generation job fit preview (analyze-gap). */
-const GAP_ANALYSIS_PRIMARY_MODEL = 'gemini-3.5-flash';
-const GAP_ANALYSIS_FALLBACK_MODEL = 'gemini-3.1-flash-lite';
+import { generateAiContent } from './google-ai';
 
 // Document types we support
 type DocumentType =
@@ -45,14 +35,10 @@ interface DocumentAnalysis {
 export async function analyzeDocument(
   fileBuffer: Buffer,
   contentType: string,
-  filename: string
+  filename: string,
+  userId?: string
 ): Promise<DocumentAnalysis> {
   try {
-
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not configured');
-    }
-
     const imagePart = {
       inlineData: {
         data: fileBuffer.toString('base64'),
@@ -60,22 +46,14 @@ export async function analyzeDocument(
       },
     };
 
-    let result;
-    try {
-      result = await ai.models.generateContent({
-        model: PRIMARY_MODEL,
-        contents: [
-          { role: 'user', parts: [{ text: GEMINI_ANALYSIS_PROMPT }, imagePart] },
-        ],
-      });
-    } catch {
-      result = await ai.models.generateContent({
-        model: FALLBACK_MODEL,
-        contents: [
-          { role: 'user', parts: [{ text: GEMINI_ANALYSIS_PROMPT }, imagePart] },
-        ],
-      });
-    }
+    const result = await generateAiContent({
+      task: 'document_analysis',
+      contents: [
+        { role: 'user', parts: [{ text: GEMINI_ANALYSIS_PROMPT }, imagePart] },
+      ],
+      config: { responseMimeType: 'application/json' },
+      userId,
+    });
     const text = result.text || '';
 
 
@@ -246,7 +224,8 @@ interface BulletRewrite {
  */
 export async function rewriteBulletPoints(
   resumeText: string,
-  jobDescription: string
+  jobDescription: string,
+  userId?: string
 ): Promise<BulletRewrite[]> {
   try {
     const prompt = `
@@ -277,18 +256,12 @@ Respond in strict JSON array format only (no markdown):
 ]
 `;
 
-    let result;
-    try {
-      result = await ai.models.generateContent({
-        model: PRIMARY_MODEL,
-        contents: prompt,
-      });
-    } catch {
-      result = await ai.models.generateContent({
-        model: FALLBACK_MODEL,
-        contents: prompt,
-      });
-    }
+    const result = await generateAiContent({
+      task: 'bullet_rewrite',
+      contents: prompt,
+      config: { responseMimeType: 'application/json' },
+      userId,
+    });
     const text = result.text || '';
     const jsonMatch = text.match(/\[[\s\S]*\]/);
 
@@ -306,7 +279,8 @@ Respond in strict JSON array format only (no markdown):
  */
 export async function analyzeAtsGap(
   resumeText: string,
-  jobDescription: string
+  jobDescription: string,
+  userId?: string
 ): Promise<AtsGapAnalysis> {
   try {
     const prompt = `
@@ -339,18 +313,12 @@ Output JSON ONLY (no markdown fences):
 }
 `;
 
-    let result;
-    try {
-      result = await ai.models.generateContent({
-        model: GAP_ANALYSIS_PRIMARY_MODEL,
-        contents: prompt,
-      });
-    } catch {
-      result = await ai.models.generateContent({
-        model: GAP_ANALYSIS_FALLBACK_MODEL,
-        contents: prompt,
-      });
-    }
+    const result = await generateAiContent({
+      task: 'ats_gap',
+      contents: prompt,
+      config: { responseMimeType: 'application/json' },
+      userId,
+    });
     const text = result.text || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
 

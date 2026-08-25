@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const analysis = await analyzeAtsGap(resumeText, jobDescription);
+        const analysis = await analyzeAtsGap(resumeText, jobDescription, userId);
 
         return NextResponse.json(analysis, { headers: corsHeaders });
 

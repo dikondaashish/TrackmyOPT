@@ -1,88 +1,78 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRightLeft } from "lucide-react";
+import { CalendarDays } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
+import {
+  DEDICATED_CONSULTATION_MINUTES,
+  DEDICATED_CONSULTATION_WAIT_DAYS,
+} from "@/lib/legal/legal-config";
+import { getDedicatedConsultationEligibility } from "@/lib/pricing/dedicated-consultation";
 
-/**
- * Phase 6: existing Dedicated subscribers can switch to Pro in-app
- * (Dedicated is closed for new purchases).
- */
+/** Shows active Dedicated members how to request their one-time consultation. */
 export function DedicatedMigrationBanner() {
   const premium = usePremiumStatus();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
-
   const plan = (premium.planName || "").toLowerCase();
-  if (premium.isLoading || premium.isPremium !== true || plan !== "dedicated" || done) {
+  const [dedicatedStartedAt, setDedicatedStartedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (premium.isPremium !== true || plan !== "dedicated") {
+      setDedicatedStartedAt(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    void fetch("/api/premium/status", { credentials: "include", signal: controller.signal })
+      .then((response) => response.ok ? response.json() : null)
+      .then((status) => setDedicatedStartedAt(status?.dedicatedStartedAt ?? null))
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setDedicatedStartedAt(null);
+      });
+    return () => controller.abort();
+  }, [plan, premium.isPremium]);
+
+  if (premium.isLoading || premium.isPremium !== true || plan !== "dedicated") {
     return null;
   }
 
-  const switchToPro = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/premium/create-checkout", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planId: "pro",
-          interval: "year",
-          recurringBillingAccepted: true,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.type === "subscription_updated" && typeof data.redirect === "string") {
-        setDone(true);
-        window.location.href = data.redirect;
-        return;
-      }
-      if (res.ok && data.type === "checkout" && typeof data.url === "string") {
-        window.location.href = data.url;
-        return;
-      }
-      if (typeof data.portalUrl === "string") {
-        window.location.href = data.portalUrl;
-        return;
-      }
-      setError(
-        typeof data.error === "string"
-          ? data.error
-          : "Could not switch plans. Try Settings → Manage billing, or email support@trackmyopt.com."
-      );
-    } catch {
-      setError("Network error. Please try again or contact support@trackmyopt.com.");
-    } finally {
-      setBusy(false);
-    }
-  };
+  const consultation = getDedicatedConsultationEligibility(dedicatedStartedAt);
+
+  const subject = encodeURIComponent(
+    `Dedicated ${DEDICATED_CONSULTATION_MINUTES}-minute attorney consultation request`
+  );
+  const body = encodeURIComponent(
+    "Please help me request my one-time Dedicated attorney consultation. I understand scheduling is subject to attorney availability, conflict checks, and acceptance."
+  );
 
   return (
-    <div className="border-b border-sky-200 bg-sky-50 px-4 py-3 text-sky-950 dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-100">
+    <div className="border-b border-purple-200 bg-purple-50 px-4 py-3 text-purple-950 dark:border-purple-900/50 dark:bg-purple-950/40 dark:text-purple-100">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-2 text-sm">
-          <ArrowRightLeft className="mt-0.5 h-4 w-4 shrink-0" />
+          <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <div>
-            <p className="font-medium">Dedicated is no longer sold to new customers.</p>
-            <p className="mt-0.5 text-sky-900/80 dark:text-sky-100/80">
-              You keep full access. Prefer Pro? Same daily USCIS auto-checks and alerts at the Pro
-              price — switch anytime (proration applied by Stripe).
+            <p className="font-medium">
+              {consultation.eligible
+                ? "Your Dedicated consultation benefit is ready."
+                : "Your Dedicated consultation has a 7-day eligibility wait."}
             </p>
-            {error ? <p className="mt-1 text-xs text-red-700 dark:text-red-300">{error}</p> : null}
+            <p className="mt-0.5 text-purple-900/80 dark:text-purple-100/80">
+              {consultation.eligible
+                ? `Request your one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial consultation. One per account; attorney availability, conflict checks, and acceptance apply.`
+                : consultation.eligibleAt
+                  ? `Booking unlocks ${consultation.eligibleAt.toLocaleDateString()} after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated.`
+                  : "Checking the start of your current Dedicated membership…"}
+            </p>
           </div>
         </div>
-        <Button
-          type="button"
-          size="sm"
-          className="shrink-0 bg-sky-900 text-sky-50 hover:bg-sky-800"
-          disabled={busy}
-          onClick={() => void switchToPro()}
-        >
-          {busy ? "Switching…" : "Switch to Pro"}
-        </Button>
+        {consultation.eligible && (
+          <Button asChild size="sm" className="shrink-0 bg-purple-900 text-white hover:bg-purple-800">
+            <a href={`mailto:support@trackmyopt.com?subject=${subject}&body=${body}`}>
+              Request consultation
+            </a>
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ interface RecordBillingConsentInput {
   eventType: BillingConsentEventType;
   planId?: PaidPlanId;
   interval?: BillingInterval;
-  includeProTrial?: boolean;
+  includeProIntro?: boolean;
   ipAddress?: string | null;
   userAgent?: string | null;
   stripeCheckoutSessionId?: string | null;
@@ -37,7 +37,7 @@ export async function recordBillingConsentEvent(
         ? buildCheckoutDisclosures({
             planId: input.planId,
             interval: input.interval,
-            includeProTrial: input.includeProTrial ?? false,
+            includeProIntro: input.includeProIntro ?? false,
           })
         : null;
 

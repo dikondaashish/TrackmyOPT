@@ -6,7 +6,12 @@ import {
     Briefcase,
     Zap,
 } from "lucide-react";
-import { PRO_TRIAL_DAYS } from "@/lib/legal/legal-config";
+import {
+    DEDICATED_CONSULTATION_MINUTES,
+    PRO_PAID_INTRO_PRICE,
+    PRO_TRIAL_DAYS,
+} from "@/lib/legal/legal-config";
+import { PLAN_PRICES, annualSavingsPercent } from "@/lib/pricing/plan-config";
 import { shouldShowDedicatedPlanForSale } from "@/lib/pricing/sales-copy";
 
 export { PLAN_COMPARISON_FEATURES as comparisonFeatures } from "@/lib/pricing/plan-features";
@@ -34,23 +39,23 @@ const basePricingFaqs = [
     },
     {
         q: "Can I try Pro before paying?",
-        a: `Pro includes one ${PRO_TRIAL_DAYS}-day free trial per account, ever: the first time you complete Pro checkout you can start with a trial (full access). After that, Pro checkout starts billing on Stripe’s schedule with no additional trial period. Cancel anytime before the trial ends and you will not be charged.`,
+        a: `Eligible accounts can start Pro for $${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first ${PRO_TRIAL_DAYS} days. It is a paid introductory period, not a free trial, and then renews at the selected monthly or annual price unless canceled.`,
     },
     {
         q: "What payment methods do you accept?",
-        a: "We accept all major credit and debit cards (Visa, Mastercard, American Express) through Stripe, a PCI DSS Level 1 certified payment processor. All transactions are processed by Stripe over an encrypted connection.",
+        a: "Stripe securely displays the eligible payment methods enabled for your location and checkout session. TrackMyOPT never stores your full payment credentials.",
     },
     {
         q: "What is your refund policy?",
-        a: `Pro includes a ${PRO_TRIAL_DAYS}-day free trial when eligible—cancel before it ends and you are not charged. After that window, we generally do not refund change-of-mind charges. See our Refund Policy for exceptions.`,
+        a: `For eligible Pro accounts, only the $${PRO_PAID_INTRO_PRICE.toFixed(2)} introductory charge is refundable during the first ${PRO_TRIAL_DAYS} days. Pro renewal charges are not refundable for change of mind. Dedicated has a separate 3-day guarantee on its first subscription charge.`,
     },
     {
         q: "Can I cancel my subscription anytime?",
-        a: "Yes. Go to Settings → Subscription → Cancel subscription (Stripe billing portal). Cancellation stops future charges; you keep access through the end of your current paid or trial period.",
+        a: "Yes. Go to Settings → Subscription → Cancel subscription (Stripe billing portal). Cancellation stops future charges; you keep access through the end of your current paid or introductory period.",
     },
     {
         q: "Do you offer annual billing?",
-        a: "Yes. Annual billing saves you money vs paying monthly. In the app we show the monthly equivalent for annual Pro (about $4.17/mo) with a clear \"billed yearly\" label; you are charged the full annual amount at checkout.",
+        a: `Yes. Annual Pro is $${PLAN_PRICES.pro.year.toFixed(2)} (about $${(PLAN_PRICES.pro.year / 12).toFixed(2)}/month), saving ${annualSavingsPercent("pro")}% versus monthly billing. The full annual amount is charged at checkout.`,
     },
     {
         q: "Is my payment information secure?",
@@ -61,7 +66,7 @@ const basePricingFaqs = [
 const dedicatedFaqs = [
     {
         q: "When should I choose Dedicated over Pro?",
-        a: "Choose Pro if you want automated USCIS monitoring, unemployment alerts, document vault, and career tools — it covers most OPT and STEM OPT students. Choose Dedicated if you want a higher resume quota and priority email support on top of Pro.",
+        a: `Choose Pro for automated tracking and the complete career workflow. Choose Dedicated for higher career-tool capacity, priority support, and one complimentary ${DEDICATED_CONSULTATION_MINUTES}-minute initial consultation per account with a partnered licensed immigration attorney, subject to availability, conflict checks, acceptance, and the Dedicated terms.`,
     },
 ];
 
@@ -118,8 +123,8 @@ export const whyPremiumReasons = [
     },
     {
         icon: Briefcase,
-        title: "Unlimited Career Tools",
-        description: "Unlimited AI resume generation, ATS scanning, job tracking, and full H-1B sponsor database with approval rate data.",
+        title: "Visa-Aware Career Tools",
+        description: "AI resume tailoring, ATS analysis, job tracking, application prefill, and full H-1B sponsor data in one workflow.",
         risk: "Poor resume formatting = automatic ATS rejection",
     },
     {

@@ -23,7 +23,7 @@ interface PromoCodeCheckoutBarProps {
 }
 
 /**
- * Promo UX for Stripe checkout: default EARLYBIRD auto-apply, remove, or custom code.
+ * Promo UX for Stripe checkout: request configured EARLYBIRD, remove, or use a custom code.
  * Parent maps mode → POST body: default = omit promoCode, none = null, custom = string.
  */
 export function PromoCodeCheckoutBar({
@@ -49,7 +49,7 @@ export function PromoCodeCheckoutBar({
           <span className="font-semibold text-emerald-700 dark:text-emerald-400">
             EARLYBIRD
           </span>
-          <span className="text-muted-foreground"> · Save $3.00</span>
+          <span className="text-muted-foreground"> · Final discount shown by Stripe</span>
         </p>
         <button
           type="button"
@@ -72,8 +72,8 @@ export function PromoCodeCheckoutBar({
       {mode === "default" && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="min-w-0 text-sm text-foreground">
-            <span className="font-medium">EARLYBIRD discount applied</span>
-            <span className="text-muted-foreground"> — Save $3.00</span>
+            <span className="font-medium">EARLYBIRD offer requested</span>
+            <span className="text-muted-foreground"> — Stripe confirms any discount before payment</span>
           </p>
           <Button
             type="button"

@@ -1,7 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { LegalPageShell } from "@/components/legal/LegalPageShell";
-import { COMPANY, LEGAL_CONTACT } from "@/lib/legal/legal-config";
+import {
+  COMPANY,
+  DEDICATED_CONSULTATION_MINUTES,
+  LEGAL_CONTACT,
+} from "@/lib/legal/legal-config";
 
 export const metadata: Metadata = {
   title: "Legal Disclaimer | TrackMyOPT",
@@ -64,10 +68,10 @@ export default function DisclaimerPage() {
 
       <h2>8. Dedicated plan support</h2>
       <p>
-        The Dedicated plan includes higher product quotas, priority email support, and help scheduling a consultation with a licensed immigration attorney. To use it, email us from the address on your account; we reply with available appointment times, and you book the slot that suits you.
+        The Dedicated plan includes higher product quotas, priority email support, and <strong>one complimentary {DEDICATED_CONSULTATION_MINUTES}-minute initial consultation per TrackMyOPT account</strong> with a partnered licensed immigration attorney. To request the benefit, your paid Dedicated subscription must be active and you must email us from the address on your account. We reply with available appointment times, and you request the slot that suits you.
       </p>
       <p>
-        <strong>TrackMyOPT is not a law firm and does not provide legal or immigration advice.</strong> Any advice given during a consultation comes from the attorney, who is solely responsible for it. TrackMyOPT arranges the appointment only; it is not a party to your relationship with the attorney and does not supervise, review, or guarantee the advice given. Attorney availability is not guaranteed for a specific date or time. For legal questions outside a scheduled consultation, consult a licensed immigration attorney, your DSO, or official USCIS sources. See <Link href="/terms">Terms of Service</Link> and <Link href="/refund-policy">Refund Policy</Link>.
+        <strong>TrackMyOPT is not a law firm and does not provide legal or immigration advice.</strong> TrackMyOPT coordinates the introduction only. The attorney independently performs any eligibility, jurisdiction, identity, and conflict checks; decides whether to accept the consultation; controls the consultation; and is solely responsible for any legal advice. Availability for a particular attorney, date, or time is not guaranteed. Additional work or representation is not included and requires a separate agreement directly between you and the attorney. TrackMyOPT does not supervise, review, or guarantee the attorney&apos;s advice or any immigration outcome. See <Link href="/terms">Terms of Service</Link> and <Link href="/refund-policy">Refund Policy</Link>.
       </p>
 
       <h2>9. Urgent matters</h2>

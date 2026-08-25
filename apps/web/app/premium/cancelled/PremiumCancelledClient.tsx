@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { PLAN_PRICES } from "@/lib/pricing/plan-config";
 
 type FeatureTone = "ink" | "clay" | "pine" | "plum";
 
@@ -117,7 +118,7 @@ export function PremiumCancelledClient() {
     },
     {
       icon: Tag,
-      title: "Pro from $4.99/mo",
+      title: `Pro from $${PLAN_PRICES.pro.month.toFixed(2)}/mo`,
       description: "Upgrade when you’re ready—cancel anytime.",
       tone: "plum",
     },

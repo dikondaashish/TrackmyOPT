@@ -11,7 +11,6 @@ import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/get-user-id";
 import { sanitizeError, secureLog } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/require-live-key-in-production";
-import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/pro-free-trial-from-stripe";
 import {
   downgradeDedicatedSubscriptionToPro,
   getPlanFromSubscription,
@@ -21,9 +20,14 @@ import {
   upgradeProSubscriptionToDedicated,
 } from "@/lib/premium/stripe-subscription-sync";
 import type { CreateCheckoutResponse } from "@/lib/premium/checkout-response-types";
+import { syncProFreeTrialConsumedFromStripe } from "@/lib/premium/pro-free-trial-from-stripe";
 import { recordBillingConsentEvent } from "@/lib/billing/record-billing-consent";
 import { getRequestAuditFromHeaders } from "@/lib/billing/request-audit";
-import { LEGAL_POLICY_VERSIONS, PRO_TRIAL_DAYS } from "@/lib/billing/legal-config";
+import {
+  LEGAL_POLICY_VERSIONS,
+  PRO_PAID_INTRO_PRICE,
+  PRO_TRIAL_DAYS,
+} from "@/lib/billing/legal-config";
 import type { BillingInterval, PaidPlanId } from "@/lib/billing/legal-config";
 import { isDedicatedOpenForNewPurchases } from "@/lib/pricing/dedicated-availability";
 import {
@@ -32,6 +36,7 @@ import {
   normalizePlanTier,
 } from "@/lib/posthog-server";
 import { billingInsertId } from "@/lib/posthog/billing-analytics";
+import { PLAN_PRICES } from "@/lib/pricing/plan-config";
 
 // Initialize Stripe
 const getStripe = () => {
@@ -63,7 +68,47 @@ const getPrices = () => ({
   },
 });
 
+const getProIntroPriceId = () => process.env.STRIPE_PRICE_PRO_INTRO?.trim();
+
 type PlanId = "pro" | "dedicated";
+
+async function validateConfiguredPrice(
+  stripe: Stripe,
+  priceId: string,
+  planId: PlanId,
+  interval: "month" | "year"
+): Promise<void> {
+  const price = await stripe.prices.retrieve(priceId);
+  const expectedAmount = Math.round(PLAN_PRICES[planId][interval] * 100);
+  if (
+    !price.active ||
+    price.currency.toLowerCase() !== "usd" ||
+    price.unit_amount !== expectedAmount ||
+    price.recurring?.interval !== interval
+  ) {
+    throw new Error(
+      `Stripe Price ${priceId} does not match ${planId}/${interval}: expected USD ${expectedAmount} cents recurring ${interval}.`
+    );
+  }
+}
+
+async function validateConfiguredOneTimePrice(
+  stripe: Stripe,
+  priceId: string,
+  expectedAmountCents: number
+): Promise<void> {
+  const price = await stripe.prices.retrieve(priceId);
+  if (
+    !price.active ||
+    price.currency.toLowerCase() !== "usd" ||
+    price.unit_amount !== expectedAmountCents ||
+    price.recurring != null
+  ) {
+    throw new Error(
+      `Stripe Price ${priceId} must be an active one-time USD ${expectedAmountCents}-cent Price.`
+    );
+  }
+}
 
 async function createBillingPortalUrl(
   stripe: Stripe,
@@ -165,12 +210,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid plan or interval" }, { status: 400 });
     }
 
-    // Phase 6: Dedicated closed for new sales (existing Dedicated can still migrate to Pro).
+    // This flag can pause new Dedicated sales without affecting existing subscribers.
     if (planId === "dedicated" && !isDedicatedOpenForNewPurchases()) {
       return NextResponse.json(
         {
           error:
-            "Dedicated is no longer available for new purchases. Choose Pro for daily USCIS auto-checks and alerts.",
+            "Dedicated purchases are temporarily paused. Choose Pro or contact support for help.",
           code: "dedicated_closed",
         },
         { status: 400 }
@@ -197,6 +242,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    try {
+      await validateConfiguredPrice(
+        stripe,
+        priceId,
+        planId as PlanId,
+        interval as "month" | "year"
+      );
+    } catch (error) {
+      secureLog.error("Stripe Price validation failed:", sanitizeError(error));
+      return NextResponse.json(
+        { error: "Billing configuration is being updated. Please contact support." },
+        { status: 503 }
+      );
+    }
+
     console.log(`Using price ID: ${priceId}`);
 
     const promoResolved = await resolveCheckoutPromotion(stripe, planId as PlanId, promoCode);
@@ -207,7 +267,7 @@ export async function POST(req: NextRequest) {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("email, first_name, last_name, stripe_customer_id")
+      .select("email, first_name, last_name, stripe_customer_id, pro_free_trial_consumed")
       .eq("user_id", userId)
       .single();
 
@@ -242,6 +302,16 @@ export async function POST(req: NextRequest) {
 
     secureLog.log(`Using Stripe customer: ${customerId}`);
 
+    let proIntroConsumed = profile?.pro_free_trial_consumed === true;
+    if (planId === "pro" && !proIntroConsumed) {
+      proIntroConsumed = await syncProFreeTrialConsumedFromStripe({
+        stripe,
+        supabase,
+        userId,
+        customerId,
+      });
+    }
+
     const origin =
       req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.trackmyopt.com";
     const targetPlan = planId as PlanId;
@@ -261,7 +331,7 @@ export async function POST(req: NextRequest) {
           eventType: "checkout_recurring_consent",
           planId: "pro",
           interval: interval as BillingInterval,
-          includeProTrial: false,
+          includeProIntro: false,
           ipAddress: audit.ip_address,
           userAgent: audit.user_agent,
           metadata: {
@@ -324,7 +394,7 @@ export async function POST(req: NextRequest) {
           eventType: "checkout_recurring_consent",
           planId: "dedicated",
           interval: interval as BillingInterval,
-          includeProTrial: false,
+          includeProIntro: false,
           ipAddress: audit.ip_address,
           userAgent: audit.user_agent,
           metadata: {
@@ -402,23 +472,47 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const profileRow = profile as typeof profile & { pro_free_trial_consumed?: boolean | null };
-    let proFreeTrialConsumed = profileRow.pro_free_trial_consumed === true;
-    if (!proFreeTrialConsumed && customerId) {
+    const includeProIntro = planId === "pro" && !proIntroConsumed;
+    const customPromoRequested = typeof promoCode === "string" && promoCode.trim().length > 0;
+    if (includeProIntro && customPromoRequested) {
+      return NextResponse.json(
+        {
+          error:
+            "The one-time $0.99 Pro introductory offer cannot be combined with a promo code.",
+        },
+        { status: 400 }
+      );
+    }
+
+    let proIntroPriceId: string | undefined;
+    if (includeProIntro) {
+      proIntroPriceId = getProIntroPriceId();
+      if (!proIntroPriceId) {
+        secureLog.error("STRIPE_PRICE_PRO_INTRO is not configured");
+        return NextResponse.json(
+          { error: "The Pro introductory offer is temporarily unavailable. Please contact support." },
+          { status: 503 }
+        );
+      }
       try {
-        const synced = await syncProFreeTrialConsumedFromStripe({
+        await validateConfiguredOneTimePrice(
           stripe,
-          supabase,
-          userId,
-          customerId,
-        });
-        if (synced) proFreeTrialConsumed = true;
-      } catch (e) {
-        console.warn("pro_free_trial Stripe history sync failed (continuing with DB flag):", sanitizeError(e));
+          proIntroPriceId,
+          Math.round(PRO_PAID_INTRO_PRICE * 100)
+        );
+      } catch (error) {
+        secureLog.error("Stripe Pro introductory Price validation failed:", sanitizeError(error));
+        return NextResponse.json(
+          { error: "The Pro introductory offer is temporarily unavailable. Please contact support." },
+          { status: 503 }
+        );
       }
     }
 
-    const includeProTrial = planId === "pro" && !proFreeTrialConsumed;
+    const effectiveDiscounts = includeProIntro ? undefined : discounts;
+    const effectiveCheckoutPromoKey = includeProIntro
+      ? "paid-intro:no-promo"
+      : checkoutPromoKey;
 
     const audit = getRequestAuditFromHeaders(req);
     await recordBillingConsentEvent({
@@ -426,11 +520,11 @@ export async function POST(req: NextRequest) {
       eventType: "checkout_recurring_consent",
       planId: planId as PaidPlanId,
       interval: interval as BillingInterval,
-      includeProTrial,
+      includeProIntro,
       ipAddress: audit.ip_address,
       userAgent: audit.user_agent,
       metadata: {
-        checkout_promo_key: checkoutPromoKey,
+        checkout_promo_key: effectiveCheckoutPromoKey,
         terms_version: LEGAL_POLICY_VERSIONS.terms_of_service,
         refund_policy_version: LEGAL_POLICY_VERSIONS.refund_policy,
       },
@@ -453,26 +547,18 @@ export async function POST(req: NextRequest) {
         const existingSession = await stripe.checkout.sessions.retrieve(
           recentPending.stripe_checkout_session_id
         );
-        const lineItems = await stripe.checkout.sessions.listLineItems(
-          recentPending.stripe_checkout_session_id,
-          { limit: 1 }
-        );
-        const rawPrice = lineItems.data[0]?.price;
-        const sessionPriceId =
-          typeof rawPrice === "string"
-            ? rawPrice
-            : rawPrice && typeof rawPrice === "object" && "id" in rawPrice
-              ? (rawPrice as Stripe.Price).id
-              : undefined;
-        const samePriceAsRequest = sessionPriceId === priceId;
+        const samePriceAsRequest = existingSession.metadata?.recurring_price_id === priceId;
         const sessionPromoKey = existingSession.metadata?.checkout_promo;
-        const samePromoAsRequest = sessionPromoKey === checkoutPromoKey;
+        const samePromoAsRequest = sessionPromoKey === effectiveCheckoutPromoKey;
+        const sameIntroAsRequest =
+          existingSession.metadata?.include_pro_intro === (includeProIntro ? "true" : "false");
 
         if (
           existingSession.status === "open" &&
           existingSession.url &&
           samePriceAsRequest &&
-          samePromoAsRequest
+          samePromoAsRequest &&
+          sameIntroAsRequest
         ) {
           console.log(`Reusing open checkout session ${existingSession.id} for ${planId}/${interval}`);
           await captureServerEvent(userId, "checkout_started", {
@@ -480,7 +566,8 @@ export async function POST(req: NextRequest) {
             plan_tier: normalizePlanTier(planId),
             interval: normalizeBillingInterval(interval),
             is_upgrade: false,
-            had_trial: includeProTrial,
+            had_trial: includeProIntro,
+            had_paid_intro: includeProIntro,
             session_reused: true,
           });
           const body: CreateCheckoutResponse = {
@@ -492,7 +579,7 @@ export async function POST(req: NextRequest) {
         }
         console.log(
           `Not reusing pending session ${recentPending.stripe_checkout_session_id}: ` +
-            `price match=${samePriceAsRequest}, promo match=${samePromoAsRequest} (wanted ${checkoutPromoKey}, had ${sessionPromoKey ?? "none"})`
+            `price match=${samePriceAsRequest}, promo match=${samePromoAsRequest}, intro match=${sameIntroAsRequest} (wanted ${effectiveCheckoutPromoKey}, had ${sessionPromoKey ?? "none"})`
         );
       } catch (e) {
         console.warn("Could not retrieve existing checkout session, creating a new one:", sanitizeError(e));
@@ -502,18 +589,21 @@ export async function POST(req: NextRequest) {
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       mode: "subscription",
-      payment_method_types: ["card"],
       line_items: [
         {
           price: priceId,
           quantity: 1,
         },
+        ...(includeProIntro && proIntroPriceId
+          ? [{ price: proIntroPriceId, quantity: 1 }]
+          : []),
       ],
       subscription_data: {
-        trial_period_days: includeProTrial ? PRO_TRIAL_DAYS : undefined,
+        trial_period_days: includeProIntro ? PRO_TRIAL_DAYS : undefined,
         metadata: {
           planId,
           interval,
+          include_pro_intro: includeProIntro ? "true" : "false",
         },
       },
       success_url: `${origin}/premium/success?session_id={CHECKOUT_SESSION_ID}&planId=${planId}`,
@@ -522,16 +612,21 @@ export async function POST(req: NextRequest) {
         supabase_user_id: userId,
         planId,
         interval,
-        checkout_promo: checkoutPromoKey,
+        checkout_promo: effectiveCheckoutPromoKey,
+        recurring_price_id: priceId,
         terms_version: LEGAL_POLICY_VERSIONS.terms_of_service,
         refund_policy_version: LEGAL_POLICY_VERSIONS.refund_policy,
         subscription_terms_version: LEGAL_POLICY_VERSIONS.subscription_billing_terms,
-        include_pro_trial: includeProTrial ? "true" : "false",
+        include_pro_trial: includeProIntro ? "true" : "false",
+        include_pro_intro: includeProIntro ? "true" : "false",
+        pro_intro_price_cents: includeProIntro
+          ? String(Math.round(PRO_PAID_INTRO_PRICE * 100))
+          : "",
       },
     };
 
-    if (discounts?.length) {
-      sessionConfig.discounts = discounts;
+    if (effectiveDiscounts?.length) {
+      sessionConfig.discounts = effectiveDiscounts;
     }
 
     console.log("Creating Stripe checkout session...");
@@ -559,7 +654,8 @@ export async function POST(req: NextRequest) {
       plan_tier: normalizePlanTier(planId),
       interval: normalizeBillingInterval(interval),
       is_upgrade: false,
-      had_trial: includeProTrial,
+      had_trial: includeProIntro,
+      had_paid_intro: includeProIntro,
       session_reused: false,
     });
     const body: CreateCheckoutResponse = {

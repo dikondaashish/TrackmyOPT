@@ -140,17 +140,17 @@ ${emailBodySectionOpen()}
 ${emailTextLead("Next: refresh once, then try Pro daily auto-checks")}
 ${emailTextP(greeting)}
 ${emailTextP(
-  "You already saved a receipt. On Free, open Case Status and refresh anytime. Pro adds daily USCIS auto-checks and emails you when status changes &mdash; start with a 7-day free trial."
+  "You already saved a receipt. On Free, open Case Status and refresh anytime. Pro adds daily USCIS auto-checks and emails you when status changes."
 )}
 ${emailTextList(
   [
     "Open Case Status and run a manual refresh (Free)",
-    "Start a 7-day Pro trial for daily auto-checks",
+    "Start Pro for $0.99 for 7 days for daily auto-checks",
     "Get email when your USCIS status changes",
   ],
   { ordered: true }
 )}
-${emailPrimaryButton(trialUrl, "Start 7-Day Free Trial")}
+${emailPrimaryButton(trialUrl, "Get Pro")}
 ${emailTextMuted(
   `<a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View your case status</a> and refresh anytime on Free.`
 )}
@@ -159,13 +159,13 @@ ${emailBodySectionClose()}`,
 
   const text = `${greetingText}
 
-You already saved a receipt. On Free, open Case Status and refresh anytime. Pro adds daily USCIS auto-checks and emails you when status changes — start with a 7-day free trial.
+You already saved a receipt. On Free, open Case Status and refresh anytime. Pro adds daily USCIS auto-checks and emails you when status changes.
 
 1. Open Case Status and run a manual refresh (Free)
-2. Start a 7-day Pro trial for daily auto-checks
+2. Start Pro for $0.99 for 7 days for daily auto-checks
 3. Get email when your USCIS status changes
 
-Start 7-Day Free Trial: ${trialUrl}
+Get Pro: ${trialUrl}
 View your case status: ${caseStatusUrl}
 
 — ${COMPANY.productName} Team`;
@@ -296,7 +296,7 @@ export function buildD1ActivationNudgeEmailBodies(args: {
       : "Add your USCIS receipt to activate tracking";
 
   const lead = args.hasCaseStatus
-    ? "Open Case Status to refresh anytime on Free — or start a 7-day Pro trial for daily auto-checks and email alerts."
+    ? "Open Case Status to refresh anytime on Free — or start Pro for $0.99 for 7 days for daily auto-checks and email alerts."
     : args.optHeadline
       ? "Next: add your I-765 receipt number so we can track your case. Free includes manual refresh; Pro adds daily auto-checks."
       : "Your next step: open Case Status, add your receipt number, and run your first check. Then try Pro for daily auto-checks.";
@@ -322,7 +322,7 @@ ${emailTextList(
   [
     "Add your receipt number (Free)",
     "Run a manual status check (Free)",
-    "Start a 7-day Pro trial for daily auto-checks + alerts",
+    "Start Pro for $0.99 for 7 days for daily auto-checks + alerts",
   ],
   { ordered: true }
 )}
@@ -340,7 +340,7 @@ ${emailBodySectionClose()}
     "",
     "1. Add your receipt number (Free)",
     "2. Run a manual status check (Free)",
-    "3. Start a 7-day Pro trial for daily auto-checks + alerts",
+    "3. Start Pro for $0.99 for 7 days for daily auto-checks + alerts",
     "",
     `${ctaLabel}: ${caseStatusUrl}`,
   ].join("\n");

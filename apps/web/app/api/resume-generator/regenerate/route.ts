@@ -1,6 +1,6 @@
 
-import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
+import { generateAiContent } from '@/lib/ai/google-ai';
 import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildRegeneratePrompt } from '@/lib/ai/prompts/regenerate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
@@ -32,8 +32,6 @@ const RegenerateSchema = z.object({
     }),
     atsAnalysis: z.any().optional(),
 });
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function POST(req: NextRequest) {
     try {
@@ -120,19 +118,11 @@ export async function POST(req: NextRequest) {
         );
 
         // 6. Generate
-        let response;
-        try {
-            response = await ai.models.generateContent({
-                model: 'gemini-3.1-pro-preview',
-                contents: prompt,
-            });
-        } catch (err) {
-            console.warn('[regenerate] Primary model failed, falling back to gemini-2.5-pro:', err);
-            response = await ai.models.generateContent({
-                model: 'gemini-2.5-pro',
-                contents: prompt,
-            });
-        }
+        const response = await generateAiContent({
+            task: 'resume_regenerate',
+            contents: prompt,
+            userId: user.id,
+        });
         let latex = response.text || '';
 
         // 7. Clean Output

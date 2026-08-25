@@ -993,7 +993,7 @@ export function HelpSection() {
                     Free and Pro access
                   </h5>
                   <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-400">
-                    Free includes Step-by-step application prefill, skills, saved private-answer review, 5 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, and higher daily AI access. Every AI draft still requires your review, and neither plan ever submits an application.
+                    Free includes Step-by-step application prefill, skills, saved private-answer review, 2 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, and 100 shared AI writing actions per month, subject to safety limits. Every AI draft still requires your review, and neither plan ever submits an application.
                   </p>
                 </div>
 
@@ -1225,7 +1225,7 @@ export function HelpSection() {
                 />
                 <FAQItem
                   question="Is the extension free?"
-                  answer="Yes. Free includes OPT tools, job tracking, Step-by-step application prefill, skills, private-answer review, 5 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, higher daily AI access, Document Vault, daily reminders, and USCIS status alerts."
+                  answer="Yes. Free includes OPT tools, job tracking, Step-by-step application prefill, skills, private-answer review, 2 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, 100 shared AI writing actions per month, Document Vault, daily reminders, and USCIS status alerts."
                 />
                 <FAQItem
                   question="Does the extension work offline?"

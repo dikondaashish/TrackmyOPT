@@ -55,7 +55,7 @@ ${emailTextP(
 ${emailInfoCallout(`
   <p class="tmo-force-info-text" style="margin:0 0 8px 0;color:${EMAIL.infoText} !important;font-size:14px;font-weight:600;">AI Resume Generator</p>
   <p class="tmo-force-light-text" style="margin:0 0 14px 0;color:${EMAIL.textSecondary} !important;font-size:14px;line-height:1.55;">
-    Turn a rough draft or old CV into a polished, job-ready resume in minutes. Start free with ${emailTextStrong("5 AI generations per month")} &mdash; upgrade anytime for higher limits and unlimited ATS scans.
+    Turn a rough draft or old CV into a polished, job-ready resume in minutes. Start free with ${emailTextStrong("1 AI resume per month")} &mdash; upgrade anytime for higher resume and ATS limits.
   </p>
   <p style="margin:0;text-align:center;">
     <a href="${resumeUrl}" class="tmo-force-cta" style="display:inline-block;background:${EMAIL.cta};color:${EMAIL.ctaText} !important;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Try AI Resume Generator</a>
@@ -126,7 +126,7 @@ ${COMPANY.productName} helps you stay on top of OPT & STEM deadlines, unemployme
 
 AI Resume Generator (try it free):
 - Build job-ready resumes in minutes from a draft or existing CV
-- Free plan: 5 AI generations per month
+- Free plan: 1 AI resume per month
 Try it: ${resumeUrl}
 
 Get started in 3 steps:
@@ -259,7 +259,7 @@ ${emailInfoCallout(`
   ${welcomeOnboardingStepHtml(
     3,
     "Polish your resume with AI",
-    `Open the <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a> &mdash; ${emailTextStrong("500 AI-built resumes/month")} plus unlimited ATS scans on Pro.`
+    `Open the <a href="${resumeUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">AI Resume Generator</a> &mdash; ${emailTextStrong("50 AI-built resumes/month")} plus 100 ATS scans/month on Pro.`
   )}
 `)}
 ${emailTextLead("Immigration &amp; automation")}
@@ -270,7 +270,7 @@ ${emailTextList([
 ], { ordered: false })}
 ${emailTextLead("Career &amp; job search")}
 ${emailTextList([
-  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("500 generations/month")} and ${emailTextStrong("unlimited ATS resume scans")}`,
+  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("50 resumes/month")} and ${emailTextStrong("100 ATS resume scans/month")}`,
   "Unlimited job application tracker and analytics",
   "Unlimited H-1B sponsor search with approval-rate insights",
   "Chrome extension for H-1B sponsor intel while you browse",
@@ -303,7 +303,7 @@ Thank you for upgrading to TrackMyOPT Premium (Pro). Your subscription is active
 Get the most from Premium in 3 steps:
 1. Turn on daily 9 AM ET reminders: ${settingsUrl}
 2. Add your USCIS case for auto-checks: ${caseStatusUrl}
-3. Try AI Resume Generator (500/month + unlimited ATS scans): ${resumeUrl}
+3. Try AI Resume Generator (50 resumes/month + 100 ATS scans/month): ${resumeUrl}
 
 Immigration & automation:
 - Daily email reminders for OPT/STEM tools
@@ -311,7 +311,7 @@ Immigration & automation:
 - Document Vault with expiry reminders
 
 Career & job search:
-- AI Resume Generator: 500/month + unlimited ATS scans
+- AI Resume Generator: 50 resumes/month + 100 ATS scans/month
 - Unlimited job tracker
 - Unlimited H-1B sponsor search with analytics
 - Chrome extension for H-1B sponsor intel

@@ -107,7 +107,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                                 className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                Try Pro Free
+                                Get Pro
                             </Link>
                         )}
                     </div>

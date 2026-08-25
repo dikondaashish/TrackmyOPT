@@ -5,7 +5,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
     title: "Is TrackMyOPT Pro Worth It? Honest Answer for F-1 Students",
     description:
-        "TrackMyOPT Pro adds daily reminders, unemployment alerts, and USCIS monitoring for OPT and STEM OPT students — from $4.99/mo. Free plan available.",
+        "TrackMyOPT Pro adds daily reminders, unemployment alerts, USCIS monitoring, and career tools for OPT and STEM OPT students — from $7.99/mo. Free plan available.",
     keywords: [
         "is TrackMyOPT Pro worth it",
         "TrackMyOPT Pro review",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Is TrackMyOPT Pro Worth It? — Honest Answer for F-1 Students",
         description:
-            "Daily reminders, unemployment tracking, and USCIS alerts in one place. Here's why 2,500+ students use Pro.",
+            "Daily reminders, unemployment tracking, USCIS alerts, and career tools in one place.",
         url: "https://www.trackmyopt.com/premium-worth-it",
         siteName: "TrackMyOPT",
         type: "article",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Is TrackMyOPT Pro Worth It?",
         description:
-            "Daily OPT reminders and trackers for $4.99/mo. Helps you stay organized before deadlines sneak up.",
+            "Daily OPT reminders and trackers for $7.99/mo. Helps you stay organized before deadlines sneak up.",
     },
 };
 

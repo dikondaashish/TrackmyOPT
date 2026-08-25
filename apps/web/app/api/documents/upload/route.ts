@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     await uploadToS3(buffer, s3Key, file.type);
 
     // Step 2: Analyze with Gemini AI (OCR + Classification + Extraction)
-    const analysis = await analyzeDocument(buffer, file.type, file.name);
+    const analysis = await analyzeDocument(buffer, file.type, file.name, user.id);
     const normalizedText = normalizeText(analysis.extractedText);
 
     // Step 3: Save to database
