@@ -204,7 +204,7 @@ export default function ToolsPage() {
                     <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mt-4">
                         We <strong>compute</strong> tools like OPT/STEM filing windows, unemployment days, USCIS case
                         status, and document expiry reminders. Other topics (H-1B cap-gap, I-983 details, 60-day grace
-                        period) are covered in our <a href="/blog" className="underline">articles</a> as guidance, not
+                        period) are covered in our <Link href="/blog" className="underline">articles</Link> as guidance, not
                         as in-app calculators. This is informational only and not legal advice.
                     </p>
                 </div>
