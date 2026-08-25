@@ -25,6 +25,7 @@
     "policy-notice:send-test": "npx tsx scripts/send-policy-update-notice.ts --test-email support@trackmyopt.com --send",
     "email-previews:dry-run": "npx tsx scripts/send-all-email-previews.ts --dry-run",
     "email-previews:send": "npx tsx scripts/send-all-email-previews.ts --to support@trackmyopt.com",
+    "everify:smoke": "tsx scripts/test-everify-lookup.ts",
     "posthog:ops-closure": "npx tsx scripts/posthog-ops-closure.ts",
     "posthog:ops-closure:dry-run": "npx tsx scripts/posthog-ops-closure.ts --dry-run"
   },
@@ -41,6 +42,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@sparticuz/chromium": "149.0.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.39.0",
     "@upstash/ratelimit": "^2.0.8",
@@ -62,6 +64,7 @@
     "nodemailer": "^7.0.11",
     "pdf-parse": "1.1.1",
     "pdfjs-dist": "^5.6.205",
+    "playwright-core": "1.62.1",
     "posthog-js": "^1.410.4",
     "posthog-node": "^5.47.7",
     "react": "^19.2.4",
