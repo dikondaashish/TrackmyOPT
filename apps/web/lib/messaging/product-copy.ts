@@ -62,7 +62,14 @@ export const CASE_STATUS_MESSAGING = {
   staleStatusNotice:
     "Status may be outdated. Auto-check daily with Pro.",
   trialCtaStrip:
-    "Get Pro — daily USCIS auto-checks and email when status changes.",
+    'Stop refreshing. Pro checks USCIS daily and emails you when your status changes.',
+  caseInsightHeadline: 'Stop wondering where your case stands.',
+  caseInsightBody:
+    'Unlock a likely decision window from comparable community cases, plus daily USCIS checks and status-change emails.',
+  caseInsightInlineTitle: 'The typical wait is only the headline',
+  caseInsightInlineBody:
+    'Unlock your likely decision window, see cases filed near yours, and let Pro watch USCIS every day.',
+  caseInsightCta: 'Unlock my case insights',
   disclaimer:
     "Status data comes from USCIS. Processing times vary — check with your DSO or attorney for official guidance.",
 } as const;

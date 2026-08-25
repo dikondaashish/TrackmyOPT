@@ -293,13 +293,14 @@ export function associateUniversityPartnerGroup(
 }
 
 type UpgradePromptTrigger =
-  | "status_change_wedge"
-  | "second_manual_refresh"
-  | "stale_status"
-  | "receipt_added"
-  | "h1b_limit"
-  | "ats_limit"
-  | "pricing_modal";
+  | 'status_change_wedge'
+  | 'second_manual_refresh'
+  | 'stale_status'
+  | 'receipt_added'
+  | 'case_insight_popup'
+  | 'h1b_limit'
+  | 'ats_limit'
+  | 'pricing_modal';
 
 type UpgradePromptShownProperties = {
   trigger?: UpgradePromptTrigger;

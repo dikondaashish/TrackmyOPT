@@ -99,10 +99,11 @@ export function shouldShowStaleStatusUpsell(
 }
 
 export const CHECKOUT_UPSELL_TRIGGER = {
-  STATUS_CHANGE_WEDGE: "status_change_wedge",
-  SECOND_MANUAL_REFRESH: "second_manual_refresh",
-  STALE_STATUS: "stale_status",
-  RECEIPT_ADDED: "receipt_added",
+  STATUS_CHANGE_WEDGE: 'status_change_wedge',
+  SECOND_MANUAL_REFRESH: 'second_manual_refresh',
+  STALE_STATUS: 'stale_status',
+  RECEIPT_ADDED: 'receipt_added',
+  CASE_INSIGHT: 'case_insight_popup',
 } as const;
 
 export type CheckoutUpsellTrigger =

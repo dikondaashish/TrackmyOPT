@@ -1,11 +1,11 @@
-"use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { supabase } from "@/lib/supabase/client";
-import { isSupabaseRealtimeSupported } from "@/lib/supabase/realtime-supported";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { PricingModal } from "@/components/pricing/PricingModal";
+'use client';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { supabase } from '@/lib/supabase/client';
+import { isSupabaseRealtimeSupported } from '@/lib/supabase/realtime-supported';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { PricingModal } from '@/components/pricing/PricingModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,22 +32,29 @@ import {
   formatDaysAgoLabel,
   formatStatusLabel,
   getServiceCenterLabel,
-} from "@/lib/case-status/case-status-display";
-import { Globe } from "lucide-react";
-import { PremiumProcessingCountdown } from "@/components/dashboard/case-status/PremiumProcessingCountdown";
-import { CaseStatusReceiptPanel } from "@/components/dashboard/case-status/CaseStatusReceiptPanel";
-import { StatusChangeUpgradeBanner } from "@/components/dashboard/case-status/StatusChangeUpgradeBanner";
-import { ManualRefreshUpsellPrompt } from "@/components/dashboard/case-status/ManualRefreshUpsellPrompt";
+} from '@/lib/case-status/case-status-display';
+import { Globe } from 'lucide-react';
+import { PremiumProcessingCountdown } from '@/components/dashboard/case-status/PremiumProcessingCountdown';
+import { CaseStatusReceiptPanel } from '@/components/dashboard/case-status/CaseStatusReceiptPanel';
+import { StatusChangeUpgradeBanner } from '@/components/dashboard/case-status/StatusChangeUpgradeBanner';
+import { ManualRefreshUpsellPrompt } from '@/components/dashboard/case-status/ManualRefreshUpsellPrompt';
+import { CaseInsightUpgradeDialog } from '@/components/dashboard/case-status/CaseInsightUpgradeDialog';
 import {
   shouldShowStatusChangeWedge,
   shouldShowStaleStatusUpsell,
   MANUAL_REFRESH_COUNT_SESSION_KEY,
   MANUAL_REFRESH_UPSELL_SESSION_KEY,
   STALE_STATUS_UPSELL_SESSION_KEY,
-  RECEIPT_ADDED_UPSELL_SESSION_KEY,
   CHECKOUT_UPSELL_TRIGGER,
   type CheckoutUpsellTrigger,
 } from "@/lib/case-status/free-change-wedge";
+import {
+  CASE_INSIGHT_PROMPT_DELAY_MS,
+  CASE_INSIGHT_PROMPT_SESSION_KEY,
+  CASE_INSIGHT_PROMPT_STORAGE_KEY,
+  parsePromptTimestamp,
+  shouldShowCaseInsightPrompt,
+} from '@/lib/case-status/free-case-insight-prompt';
 import {
   captureCaseStatusCheckCompletedClient,
   captureUpgradePromptShown,
@@ -154,6 +161,7 @@ export function CaseStatusSection() {
   const [success, setSuccess] = useState(false);
   // null = still loading, true/false = resolved — prevents free-tier flash for Pro users
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [proIntroEligible, setProIntroEligible] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [pricingModalPlan, setPricingModalPlan] = useState<"pro" | "dedicated">(
     "pro"
@@ -174,25 +182,167 @@ export function CaseStatusSection() {
   const [packagingNoticeDismissed, setPackagingNoticeDismissed] = useState(true);
   const [showManualRefreshUpsell, setShowManualRefreshUpsell] = useState(false);
   const [showStaleStatusUpsell, setShowStaleStatusUpsell] = useState(false);
-  const [showReceiptAddedUpsell, setShowReceiptAddedUpsell] = useState(false);
+  const [showCaseInsightUpgrade, setShowCaseInsightUpgrade] = useState(false);
+  const caseInsightPromptHandledRef = useRef(false);
+  const pendingReceiptInsightRef = useRef(false);
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
   const [filingDateInput, setFilingDateInput] = useState("");
   const [filingDateSaving, setFilingDateSaving] = useState(false);
 
-  const openProTrialModal = useCallback(
-    (trigger?: CheckoutUpsellTrigger) => {
-      setPricingModalPlan("pro");
-      setShowPricingModal(true);
-      if (trigger) {
-        captureUpgradePromptShown({
-          trigger,
-          source: "case_status_page",
-          plan_suggested: "pro",
-        });
+  const showStatusChangeWedge = useMemo(() => {
+    if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
+    return shouldShowStatusChangeWedge(caseStatus, isPremium);
+  }, [wedgeDismissed, isPremium, caseStatus]);
+
+  const openProTrialModal = useCallback((trigger?: CheckoutUpsellTrigger) => {
+    setPricingModalPlan('pro');
+    setShowPricingModal(true);
+    if (trigger) {
+      captureUpgradePromptShown({
+        trigger,
+        source: 'case_status_page',
+        plan_suggested: 'pro',
+      });
+    }
+  }, []);
+
+  const revealCaseInsightUpgrade = useCallback(
+    (trigger: CheckoutUpsellTrigger) => {
+      if (
+        typeof window === 'undefined' ||
+        caseInsightPromptHandledRef.current
+      ) {
+        return false;
       }
+
+      const nowMs = Date.now();
+      let shownThisSession = false;
+      let lastShownAtMs: number | null = null;
+      try {
+        shownThisSession =
+          window.sessionStorage.getItem(CASE_INSIGHT_PROMPT_SESSION_KEY) ===
+          '1';
+        lastShownAtMs = parsePromptTimestamp(
+          window.localStorage.getItem(CASE_INSIGHT_PROMPT_STORAGE_KEY)
+        );
+      } catch {
+        // Storage may be unavailable in hardened browsers. The in-memory guard
+        // still prevents repeats during this mount.
+      }
+
+      if (
+        !shouldShowCaseInsightPrompt({
+          isPremium,
+          hasCase: Boolean(caseStatus),
+          hasResolvedStatus: Boolean(
+            caseStatus?.current_status &&
+            caseStatus.current_status !== 'Status will be fetched shortly...'
+          ),
+          competingPromptOpen:
+            showPricingModal || showStatusChangeWedge || showCaseInsightUpgrade,
+          shownThisSession,
+          lastShownAtMs,
+          nowMs,
+        })
+      ) {
+        return false;
+      }
+
+      caseInsightPromptHandledRef.current = true;
+      try {
+        window.sessionStorage.setItem(CASE_INSIGHT_PROMPT_SESSION_KEY, '1');
+        window.localStorage.setItem(
+          CASE_INSIGHT_PROMPT_STORAGE_KEY,
+          String(nowMs)
+        );
+      } catch {
+        /* non-blocking */
+      }
+      setShowCaseInsightUpgrade(true);
+      captureUpgradePromptShown({
+        trigger,
+        source: 'case_status_page',
+        plan_suggested: 'pro',
+      });
+      return true;
     },
-    []
+    [
+      caseStatus,
+      isPremium,
+      showCaseInsightUpgrade,
+      showPricingModal,
+      showStatusChangeWedge,
+    ]
   );
+
+  useEffect(() => {
+    if (caseInsightPromptHandledRef.current) return;
+
+    let shownThisSession = false;
+    let lastShownAtMs: number | null = null;
+    try {
+      shownThisSession =
+        window.sessionStorage.getItem(CASE_INSIGHT_PROMPT_SESSION_KEY) === '1';
+      lastShownAtMs = parsePromptTimestamp(
+        window.localStorage.getItem(CASE_INSIGHT_PROMPT_STORAGE_KEY)
+      );
+    } catch {
+      /* storage may be unavailable */
+    }
+
+    const eligible = shouldShowCaseInsightPrompt({
+      isPremium,
+      hasCase: Boolean(caseStatus),
+      hasResolvedStatus: Boolean(
+        caseStatus?.current_status &&
+        caseStatus.current_status !== 'Status will be fetched shortly...'
+      ),
+      competingPromptOpen:
+        showPricingModal ||
+        showStatusChangeWedge ||
+        showManualRefreshUpsell ||
+        showStaleStatusUpsell ||
+        showCaseInsightUpgrade,
+      shownThisSession,
+      lastShownAtMs,
+    });
+
+    if (!eligible) return;
+
+    const timer = window.setTimeout(() => {
+      if (document.visibilityState === 'visible') {
+        revealCaseInsightUpgrade(CHECKOUT_UPSELL_TRIGGER.CASE_INSIGHT);
+      }
+    }, CASE_INSIGHT_PROMPT_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    caseStatus,
+    isPremium,
+    revealCaseInsightUpgrade,
+    showCaseInsightUpgrade,
+    showManualRefreshUpsell,
+    showPricingModal,
+    showStaleStatusUpsell,
+    showStatusChangeWedge,
+  ]);
+
+  useEffect(() => {
+    if (!pendingReceiptInsightRef.current) return;
+    if (
+      isPremium !== false ||
+      !caseStatus?.current_status ||
+      caseStatus.current_status === 'Status will be fetched shortly...'
+    ) {
+      return;
+    }
+
+    pendingReceiptInsightRef.current = false;
+    const timer = window.setTimeout(() => {
+      revealCaseInsightUpgrade(CHECKOUT_UPSELL_TRIGGER.RECEIPT_ADDED);
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [caseStatus, isPremium, revealCaseInsightUpgrade]);
 
   useEffect(() => {
     try {
@@ -221,13 +371,12 @@ export function CaseStatusSection() {
     });
   }, [isPremium, caseStatus?.last_checked_at, caseStatus?.id]);
 
-  const showStatusChangeWedge = useMemo(() => {
-    if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
-    return shouldShowStatusChangeWedge(caseStatus, isPremium);
-  }, [wedgeDismissed, isPremium, caseStatus]);
-
   const showPackagingNotice =
     !packagingNoticeDismissed && isPremium === false && Boolean(caseStatus);
+
+  const proUpgradeCta = proIntroEligible
+    ? PRODUCT_CTAS.startTrial
+    : PRODUCT_CTAS.upgradeToPro;
 
   const nextCheckAt = useMemo(() => {
     if (isPremium !== true || !caseStatus?.last_checked_at) return null;
@@ -444,12 +593,19 @@ export function CaseStatusSection() {
       if (response.ok) {
         const data = await response.json();
         setIsPremium(data.isPremium === true);
+        setProIntroEligible(
+          data.isPremium !== true &&
+            (data.proPaidIntroEligible === true ||
+              data.proFreeTrialEligible === true)
+        );
       } else {
         // Treat fetch errors as unknown, not as "free" — avoids false upsell on transient failures
-        setIsPremium(false);
+        setIsPremium(null);
+        setProIntroEligible(false);
       }
     } catch {
-      setIsPremium(false);
+      setIsPremium(null);
+      setProIntroEligible(false);
     }
   };
 
@@ -596,21 +752,9 @@ export function CaseStatusSection() {
       if (
         isPremium === false &&
         (wasFirstCase || isNewCase) &&
-        typeof window !== "undefined"
+        statusResolved
       ) {
-        try {
-          if (!sessionStorage.getItem(RECEIPT_ADDED_UPSELL_SESSION_KEY)) {
-            sessionStorage.setItem(RECEIPT_ADDED_UPSELL_SESSION_KEY, "1");
-            setShowReceiptAddedUpsell(true);
-            captureUpgradePromptShown({
-              trigger: CHECKOUT_UPSELL_TRIGGER.RECEIPT_ADDED,
-              source: "case_status_page",
-              plan_suggested: "pro",
-            });
-          }
-        } catch {
-          setShowReceiptAddedUpsell(true);
-        }
+        pendingReceiptInsightRef.current = true;
       }
 
       if (!statusResolved) {
@@ -1003,7 +1147,7 @@ export function CaseStatusSection() {
                     onClick={() => openProTrialModal()}
                     className="font-medium underline underline-offset-2 hover:no-underline cursor-pointer"
                   >
-                    {PRODUCT_CTAS.startTrial}
+                    {proUpgradeCta}
                   </button>
                 </p>
                 <button
@@ -1030,6 +1174,7 @@ export function CaseStatusSection() {
             <StatusChangeUpgradeBanner
               statusLastChangedAt={caseStatus.status_last_changed_at}
               onStartTrial={() => openProTrialModal()}
+              ctaLabel={proUpgradeCta}
               onAcknowledged={() => {
                 setWedgeDismissed(true);
                 setCaseStatus((prev) => prev ? { ...prev, last_status_viewed_at: new Date().toISOString() } : prev);
@@ -1051,7 +1196,7 @@ export function CaseStatusSection() {
                   onClick={() => openProTrialModal()}
                 >
                   <Crown className="w-4 h-4 mr-1.5" />
-                  {PRODUCT_CTAS.startTrial}
+                  {proUpgradeCta}
                 </Button>
               </div>
             </Card>
@@ -1308,23 +1453,15 @@ export function CaseStatusSection() {
             />
           </CaseStatusPanelErrorBoundary>
 
-          {/* ── 8b. Manual refresh / stale / receipt upsells ── */}
-          {showReceiptAddedUpsell && (
-            <ManualRefreshUpsellPrompt
-              trigger={CHECKOUT_UPSELL_TRIGGER.RECEIPT_ADDED}
-              message={CASE_STATUS_MESSAGING.receiptAddedNotice}
-              onStartTrial={() => openProTrialModal()}
-              onDismiss={() => setShowReceiptAddedUpsell(false)}
-            />
-          )}
+          {/* ── 8b. Manual refresh / stale upsells ── */}
           {showManualRefreshUpsell && (
             <ManualRefreshUpsellPrompt
               onStartTrial={() => openProTrialModal()}
               onDismiss={() => setShowManualRefreshUpsell(false)}
+              ctaLabel={proUpgradeCta}
             />
           )}
           {!showManualRefreshUpsell &&
-            !showReceiptAddedUpsell &&
             !showStatusChangeWedge &&
             showStaleStatusUpsell && (
               <ManualRefreshUpsellPrompt
@@ -1332,6 +1469,7 @@ export function CaseStatusSection() {
                 message={CASE_STATUS_MESSAGING.staleStatusNotice}
                 onStartTrial={() => openProTrialModal()}
                 onDismiss={() => setShowStaleStatusUpsell(false)}
+                ctaLabel={proUpgradeCta}
               />
             )}
 
@@ -1388,6 +1526,23 @@ export function CaseStatusSection() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <CaseInsightUpgradeDialog
+        open={showCaseInsightUpgrade}
+        onOpenChange={setShowCaseInsightUpgrade}
+        onUpgrade={() => {
+          setShowCaseInsightUpgrade(false);
+          openProTrialModal();
+        }}
+        introEligible={proIntroEligible}
+        daysSinceFiled={
+          clientNowMs !== null
+            ? daysSinceEpochMs(caseStatus?.received_date, clientNowMs)
+            : 0
+        }
+        typicalWaitDays={communitySummary?.medianDays}
+        cohortSize={communitySummary?.cohortSize}
+      />
 
       <PricingModal
         open={showPricingModal}

@@ -244,6 +244,7 @@ export function AnalyticsTabs({
               <CommunitySummaryCard
                 summary={summary}
                 daysSinceFiled={daysSinceFiled}
+                onUpgrade={upgrade}
               />
             )}
 

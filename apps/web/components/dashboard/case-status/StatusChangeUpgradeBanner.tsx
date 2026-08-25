@@ -15,12 +15,14 @@ type StatusChangeUpgradeBannerProps = {
   statusLastChangedAt: string;
   onAcknowledged: () => void;
   onStartTrial: () => void;
+  ctaLabel?: string;
 };
 
 export function StatusChangeUpgradeBanner({
   statusLastChangedAt,
   onAcknowledged,
   onStartTrial,
+  ctaLabel = PRODUCT_CTAS.startTrial,
 }: StatusChangeUpgradeBannerProps) {
   const promptCapturedRef = useRef(false);
   const [daysAgoLabel, setDaysAgoLabel] = useState<string>("");
@@ -91,7 +93,7 @@ export function StatusChangeUpgradeBanner({
             className="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white h-10 px-4"
           >
             <Crown className="w-4 h-4" />
-            {PRODUCT_CTAS.startTrial}
+            {ctaLabel}
           </Button>
         </div>
       </div>
