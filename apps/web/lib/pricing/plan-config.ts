@@ -9,7 +9,7 @@
 
 export const PLAN_PRICES = {
   free: { month: 0, year: 0 },
-  pro: { month: 7.99, year: 69 },
+  pro: { month: 4.99, year: 69 },
   dedicated: { month: 14.99, year: 149.99 },
 } as const;
 

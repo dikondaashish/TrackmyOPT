@@ -6,7 +6,7 @@ import { addMonthsIso, formatDisplayMonthYear } from "@/lib/case-status/safe-dat
 interface EadStemCardsProps {
   eadProjected: string | null;
   stemWindowOpens: string | null;
-  capGapActive: boolean;
+  capGapActive: boolean | null;
 }
 
 export function EadStemCards({ eadProjected, stemWindowOpens, capGapActive }: EadStemCardsProps) {
@@ -42,12 +42,18 @@ export function EadStemCards({ eadProjected, stemWindowOpens, capGapActive }: Ea
           <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Cap-Gap Status</p>
         </div>
         <p className="text-sm font-semibold text-foreground">
-          {capGapActive ? "Cap-gap active" : "Not active"}
+          {capGapActive === true
+            ? "Cap-gap active"
+            : capGapActive === false
+              ? "Not active"
+              : "Not verified"}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {capGapActive
-            ? "H-1B petition filed — your status is protected until Oct 1."
-            : "No H-1B petition on file. Not eligible for cap-gap extension."}
+          {capGapActive === true
+            ? "H-1B petition details indicate a cap-gap extension. Confirm the dates on your I-20 and with your DSO."
+            : capGapActive === false
+              ? "Your saved H-1B details do not indicate an active cap-gap extension."
+              : "Add verified H-1B and I-20 details before relying on a cap-gap date."}
         </p>
       </div>
     </div>

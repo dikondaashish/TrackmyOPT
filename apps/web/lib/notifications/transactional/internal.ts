@@ -259,3 +259,100 @@ ${emailTextLead("Message")}
     console.error("sendInternalPartnershipNotification:", e);
   }
 }
+
+export async function sendInternalDedicatedConsultationNotification(args: {
+  requestId: string;
+  userId: string;
+  email: string;
+  topic: string;
+  summary: string;
+  availability: string | null;
+  caseId: string | null;
+  caseCategory: string | null;
+  createdAtIso: string;
+}): Promise<void> {
+  try {
+    const to = "support@trackmyopt.com";
+    const subject = `Dedicated attorney consultation request: ${args.topic}`;
+    const html = buildInternalAlertEmail(
+      "Dedicated attorney consultation request",
+      `
+${emailTextP(`<strong>Request ID:</strong> ${escapeHtml(args.requestId)}`)}
+${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
+${emailTextP(`<strong>User ID:</strong> ${escapeHtml(args.userId)}`)}
+${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
+${emailTextP(`<strong>Topic:</strong> ${escapeHtml(args.topic)}`)}
+${emailTextP(`<strong>Case ID:</strong> ${escapeHtml(args.caseId ?? "Not selected")}`)}
+${emailTextP(`<strong>Case category:</strong> ${escapeHtml(args.caseCategory ?? "Unknown")}`)}
+${emailTextLead("Member summary")}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${escapeHtml(args.summary)}</div>
+${args.availability ? `${emailTextLead("Availability")}<div style="white-space:pre-wrap;">${escapeHtml(args.availability)}</div>` : ""}
+`
+    );
+    const text = [
+      "Dedicated attorney consultation request",
+      `Request ID: ${args.requestId}`,
+      `Time (UTC): ${args.createdAtIso}`,
+      `User ID: ${args.userId}`,
+      `Email: ${args.email}`,
+      `Topic: ${args.topic}`,
+      `Case ID: ${args.caseId ?? "Not selected"}`,
+      `Case category: ${args.caseCategory ?? "Unknown"}`,
+      "",
+      "Summary:",
+      args.summary,
+      args.availability ? `\nAvailability:\n${args.availability}` : "",
+    ].join("\n");
+
+    await sendMailWithRetry({
+      from: getFromHeader(),
+      to,
+      subject,
+      text,
+      html,
+    });
+  } catch (error) {
+    console.error("sendInternalDedicatedConsultationNotification:", error);
+  }
+}
+
+export async function sendDedicatedConsultationReceivedEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  topic: string;
+}): Promise<QueueTransactionalResult> {
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const html = buildTransactionalEmail({
+    headerTitle: "Consultation request received",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead("Your Dedicated request is in review")}
+${emailTextP("We received your request for the complimentary initial attorney consultation included with Dedicated.")}
+${emailTextP(`Topic: ${emailTextStrong(escapeHtml(args.topic))}`)}
+${emailTextP("Our team will review eligibility, attorney availability, potential conflicts, and attorney acceptance before confirming an appointment.")}
+${emailTextP(`<a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View your subscription settings</a>`)}
+${emailTextMuted("This confirmation is not legal advice and does not create an attorney-client relationship. That relationship begins only if and when the attorney accepts the matter under the applicable terms.")}
+${emailBodySectionClose()}`,
+  });
+  const text = [
+    "Your Dedicated consultation request is in review.",
+    `Topic: ${args.topic}`,
+    "We will review eligibility, availability, conflicts, and attorney acceptance before confirming an appointment.",
+    "This confirmation is not legal advice and does not create an attorney-client relationship.",
+    settingsUrl,
+  ].join("\n\n");
+
+  return queueTransactionalEmailSend({
+    supabase: args.supabase,
+    userId: args.userId,
+    emailAddress: args.toEmail,
+    emailType: "dedicated_consultation_received",
+    subject: "We received your attorney consultation request",
+    html,
+    text,
+    emailData: { topic: args.topic },
+    dedupe: { kind: "none" },
+  });
+}

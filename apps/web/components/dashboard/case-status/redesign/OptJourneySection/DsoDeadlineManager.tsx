@@ -1,34 +1,21 @@
 "use client";
 
 import { CheckCircle2, AlertTriangle, Clock } from "lucide-react";
-import {
-  addDaysIso,
-  formatDisplayDateMonthDay,
-  isDateBeforeMs,
-} from "@/lib/case-status/safe-dates";
+import { formatDisplayDateMonthDay } from "@/lib/case-status/safe-dates";
+import type { OptComplianceAction } from "@/lib/case-status/opt-compliance-actions";
 import { cn } from "@/lib/utils";
 
-type TaskStatus = "open" | "done" | "overdue";
-
-interface DsoTask {
-  id: string;
-  title: string;
-  dueDate?: string;
-  status: TaskStatus;
-  description: string;
-}
-
 interface DsoDeadlineManagerProps {
-  tasks: DsoTask[];
+  tasks: OptComplianceAction[];
 }
 
-const STATUS_ICON: Record<TaskStatus, React.ReactNode> = {
+const STATUS_ICON: Record<OptComplianceAction["status"], React.ReactNode> = {
   done:    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />,
   open:    <Clock className="w-4 h-4 text-blue-500 flex-shrink-0" />,
   overdue: <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />,
 };
 
-const STATUS_LABEL: Record<TaskStatus, string> = {
+const STATUS_LABEL: Record<OptComplianceAction["status"], string> = {
   done:    "Done",
   open:    "Open",
   overdue: "Overdue",
@@ -67,6 +54,14 @@ export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
                 {task.title}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>
+              <a
+                href={task.sourceHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1.5 inline-flex min-h-11 items-center text-xs font-semibold text-blue-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400"
+              >
+                Official guidance
+              </a>
             </div>
             <div className="flex-shrink-0 text-right">
               {task.dueDate && task.status !== "done" && (
@@ -88,45 +83,4 @@ export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
       </div>
     </div>
   );
-}
-
-// `now` is passed explicitly so the caller can use a client-only Date,
-// preventing hydration mismatch #418. When null (SSR), no task is overdue.
-export function buildDefaultDsoTasks(filedDate: string | null, now: Date | null = null): DsoTask[] {
-  const employerDue = addDaysIso(filedDate, 10) ?? undefined;
-  const evalDue = addDaysIso(filedDate, 180) ?? undefined;
-
-  const isOverdue = (iso?: string) =>
-    iso && now ? isDateBeforeMs(iso, now.getTime()) : false;
-
-  return [
-    {
-      id: "report-employer",
-      title: "Report new employer to DSO",
-      dueDate: employerDue,
-      status: isOverdue(employerDue) ? "overdue" : "open",
-      description: "Required within 10 days of starting employment on OPT.",
-    },
-    {
-      id: "i983-plan",
-      title: "I-983 Training Plan signed",
-      dueDate: undefined,
-      status: "open",
-      description: "Required for STEM OPT extension — employer must sign.",
-    },
-    {
-      id: "self-eval",
-      title: "6-month self-evaluation",
-      dueDate: evalDue,
-      status: isOverdue(evalDue) ? "overdue" : "open",
-      description: "Complete with employer supervisor at 6-month mark.",
-    },
-    {
-      id: "address-change",
-      title: "Address change reported",
-      dueDate: undefined,
-      status: "done",
-      description: "Required within 10 days of moving to a new address.",
-    },
-  ];
 }

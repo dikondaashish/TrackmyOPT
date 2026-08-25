@@ -25,7 +25,7 @@ import {
   CaseStatusPanelErrorBoundary,
   CaseTimelineErrorBoundary,
 } from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
-import { addDaysIso, daysSinceEpochMs, formatDisplayDateShort, formatDisplayDateTime, parseValidDate } from "@/lib/case-status/safe-dates";
+import { daysSinceEpochMs, formatDisplayDateShort, formatDisplayDateTime } from "@/lib/case-status/safe-dates";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
 import {
@@ -82,7 +82,8 @@ import { CaseHeroCard } from "@/components/dashboard/case-status/redesign/CaseHe
 import { MonitorHealthStrip } from "@/components/dashboard/case-status/redesign/MonitorHealthStrip";
 import { AnalyticsTabs } from "@/components/dashboard/case-status/redesign/AnalyticsTabs";
 import { ToolsAccordion } from "@/components/dashboard/case-status/redesign/ToolsAccordion";
-import { SmartNextSteps } from "@/components/dashboard/case-status/redesign/SmartNextSteps";
+import { CaseActionCenter } from "@/components/dashboard/case-status/redesign/CaseActionCenter";
+import { DedicatedConsultationCard } from "@/components/dashboard/case-status/redesign/DedicatedConsultationCard";
 import { OptJourneySection } from "@/components/dashboard/case-status/redesign/OptJourneySection";
 import { CaseInfoFooter } from "@/components/dashboard/case-status/redesign/CaseInfoFooter";
 import {
@@ -95,6 +96,7 @@ import type { CommunityEstimate, CommunitySummary } from "@/lib/community-opt/ty
 import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
 import type { JourneyStages } from "@/lib/community-opt/stages";
 import { deriveJourneyPhase } from "@/lib/community-opt/stages";
+import { getPpClock } from "@/lib/case-status/premium-processing";
 
 const PACKAGING_NOTICE_DISMISS_KEY = "tmo_packaging_notice_dismissed_v1";
 
@@ -204,6 +206,16 @@ export function CaseStatusSection() {
         plan_suggested: 'pro',
       });
     }
+  }, []);
+
+  const openDedicatedModal = useCallback(() => {
+    setPricingModalPlan("dedicated");
+    setShowPricingModal(true);
+    captureUpgradePromptShown({
+      trigger: "case_status_attorney_access",
+      source: "case_status_page",
+      plan_suggested: "dedicated",
+    });
   }, []);
 
   const revealCaseInsightUpgrade = useCallback(
@@ -1027,21 +1039,22 @@ export function CaseStatusSection() {
 
   // PP overdue calculation — 0 until clientNow is available (post-hydration).
   const ppStartDate = caseStatus?.pp_start_date ?? null;
-  const ppOverdueDays: number = (() => {
-    if (!ppStartDate || clientNowMs === null) return 0;
-    const start = parseValidDate(ppStartDate);
-    if (!start) return 0;
-    const deadline = new Date(start.getTime());
-    deadline.setDate(deadline.getDate() + 15 * 7 / 5); // ~15 business days approx
-    const diff = clientNowMs - deadline.getTime();
-    if (!Number.isFinite(diff) || diff <= 0) return 0;
-    return Math.floor(diff / 86_400_000);
+  const ppClock =
+    ppStartDate && clientNowMs !== null
+      ? getPpClock(ppStartDate, new Date(clientNowMs))
+      : null;
+  const ppOverdueDays = ppClock?.daysOverdue ?? 0;
+  const ppDeadlineDate = ppClock?.deadline ?? null;
+  const daysSinceFiled =
+    clientNowMs !== null
+      ? daysSinceEpochMs(caseStatus?.received_date, clientNowMs)
+      : null;
+
+  const isOptCase = (() => {
+    const caseType = caseStatus?.case_type?.toLowerCase().trim();
+    if (!caseType) return true; // Existing TrackMyOPT enrollments predate case_type storage.
+    return caseType.includes("i-765") || caseType.includes("optional practical training") || caseType.includes("opt");
   })();
-
-  const ppDeadlineDate: string | null = addDaysIso(ppStartDate, 21);
-
-  const eadProjectedDate = addDaysIso(caseStatus?.received_date ?? null, 115);
-  const stemWindowOpensDate = addDaysIso(caseStatus?.received_date ?? null, 115 + 365 - 90);
 
   const rfeDate: string | null = (() => {
     const rfe = safeStatusHistory.find(
@@ -1231,6 +1244,21 @@ export function CaseStatusSection() {
             </CaseStatusPanelErrorBoundary>
           )}
 
+          {/* ── 3a. CASE ACTION CENTER ── */}
+          <CaseStatusPanelErrorBoundary area="case_action_center">
+            <CaseActionCenter
+              statusText={caseStatus.current_status}
+              daysSinceFiled={daysSinceFiled}
+            />
+          </CaseStatusPanelErrorBoundary>
+
+          <CaseStatusPanelErrorBoundary area="dedicated_consultation">
+            <DedicatedConsultationCard
+              caseId={caseStatus.id}
+              onCompareDedicated={openDedicatedModal}
+            />
+          </CaseStatusPanelErrorBoundary>
+
           {/* ── 3b. Refresh failed inline warning ── */}
           {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
             <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
@@ -1278,11 +1306,7 @@ export function CaseStatusSection() {
                 receiptNumber={caseStatus.receipt_number}
                 isPremium={isPremium}
                 onUpgrade={() => openProTrialModal()}
-                daysSinceFiled={
-                  clientNowMs !== null
-                    ? daysSinceEpochMs(caseStatus.received_date, clientNowMs)
-                    : 0
-                }
+                daysSinceFiled={daysSinceFiled ?? 0}
                 prediction={communityPrediction ?? undefined}
                 summary={communitySummary}
                 stages={communityStages}
@@ -1299,13 +1323,15 @@ export function CaseStatusSection() {
           </Card>
 
           {/* ── 6. OPT JOURNEY SECTION ── */}
-          <CaseStatusPanelErrorBoundary area="opt_journey">
-            <OptJourneySection
-              optFiledDate={caseStatus.received_date ?? null}
-              eadProjected={eadProjectedDate}
-              stemWindowOpens={stemWindowOpensDate}
-            />
-          </CaseStatusPanelErrorBoundary>
+          {isOptCase && (
+            <CaseStatusPanelErrorBoundary area="opt_journey">
+              <OptJourneySection
+                optFiledDate={caseStatus.received_date ?? null}
+                eadProjected={null}
+                stemWindowOpens={null}
+              />
+            </CaseStatusPanelErrorBoundary>
+          )}
 
           {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
           {safeStatusHistory.length > 0 ? (
@@ -1442,14 +1468,6 @@ export function CaseStatusSection() {
                 onEmailChange: setNotificationEmail,
                 onUpgrade: () => openProTrialModal(),
               }}
-            />
-          </CaseStatusPanelErrorBoundary>
-
-          {/* ── 8. SMART NEXT STEPS ── */}
-          <CaseStatusPanelErrorBoundary area="next_steps">
-            <SmartNextSteps
-              caseState={caseState}
-              ppOverdueDays={ppOverdueDays}
             />
           </CaseStatusPanelErrorBoundary>
 

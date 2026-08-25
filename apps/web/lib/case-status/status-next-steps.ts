@@ -51,6 +51,7 @@ export function getStatusNextSteps(
     case "pending":
     case "received":
     case "transferred":
+    case "premium_processing":
     case "other":
     case "unknown": {
       const steps: StatusNextStep[] = [

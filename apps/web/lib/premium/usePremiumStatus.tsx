@@ -26,6 +26,7 @@ interface PremiumStatusValue {
     /** Non-null when the status fetch failed (auth issue, network error, 5xx). */
     error: "unauthenticated" | "network" | "server" | null;
     planName: string | null;
+    dedicatedStartedAt: string | null;
     expiresAt: string | null;
     customerId: string | null;
     refresh: () => Promise<void>;
@@ -36,6 +37,7 @@ const PremiumStatusContext = createContext<PremiumStatusValue | null>(null);
 interface FetchedState {
     isPremium: boolean | null;
     planName: string | null;
+    dedicatedStartedAt: string | null;
     expiresAt: string | null;
     customerId: string | null;
 }
@@ -43,6 +45,7 @@ interface FetchedState {
 const INITIAL: FetchedState = {
     isPremium: null,
     planName: null,
+    dedicatedStartedAt: null,
     expiresAt: null,
     customerId: null,
 };
@@ -79,6 +82,7 @@ export function PremiumStatusProvider({ children }: { children: React.ReactNode 
             setState({
                 isPremium: data.isPremium === true,
                 planName: data.planName ?? null,
+                dedicatedStartedAt: data.dedicatedStartedAt ?? null,
                 expiresAt: data.expiresAt ?? null,
                 customerId: data.customerId ?? null,
             });
@@ -101,6 +105,7 @@ export function PremiumStatusProvider({ children }: { children: React.ReactNode 
             isLoading,
             error,
             planName: state.planName,
+            dedicatedStartedAt: state.dedicatedStartedAt,
             expiresAt: state.expiresAt,
             customerId: state.customerId,
             refresh,
@@ -142,6 +147,7 @@ export function usePremiumStatus(): PremiumStatusValue {
             setLocalState({
                 isPremium: data.isPremium === true,
                 planName: data.planName ?? null,
+                dedicatedStartedAt: data.dedicatedStartedAt ?? null,
                 expiresAt: data.expiresAt ?? null,
                 customerId: data.customerId ?? null,
             });
@@ -165,6 +171,7 @@ export function usePremiumStatus(): PremiumStatusValue {
         isLoading,
         error,
         planName: localState.planName,
+        dedicatedStartedAt: localState.dedicatedStartedAt,
         expiresAt: localState.expiresAt,
         customerId: localState.customerId,
         refresh: localRefresh,

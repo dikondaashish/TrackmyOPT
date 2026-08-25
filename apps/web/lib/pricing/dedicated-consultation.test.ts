@@ -7,7 +7,7 @@ describe("Dedicated consultation eligibility", () => {
   it("keeps booking locked before seven continuous days", () => {
     const result = getDedicatedConsultationEligibility(
       started,
-      new Date("2026-08-07T11:59:59.000Z")
+      new Date("2026-08-08T11:59:59.000Z")
     );
     expect(result.eligible).toBe(false);
     expect(result.daysRemaining).toBe(1);

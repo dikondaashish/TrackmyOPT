@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { addBusinessDays, businessDaysBetween, formatIsoDate } from "../business-days";
-import { detectPpStart, getPpClock } from "../premium-processing";
+import {
+  detectPpStart,
+  getPpClock,
+  PP_BUSINESS_DAY_LIMIT,
+} from "../premium-processing";
 
 describe("addBusinessDays", () => {
   it("skips weekends", () => {
@@ -37,8 +41,15 @@ describe("detectPpStart", () => {
 });
 
 describe("getPpClock", () => {
+  it("uses the 30-business-day Form I-765 premium-processing timeframe", () => {
+    expect(PP_BUSINESS_DAY_LIMIT).toBe(30);
+    expect(
+      getPpClock("2026-05-12", new Date("2026-05-12T12:00:00.000Z")).deadline
+    ).toBe("2026-06-25");
+  });
+
   it("flags overdue after deadline", () => {
-    const clock = getPpClock("2026-05-12", new Date("2026-06-14T12:00:00.000Z"));
+    const clock = getPpClock("2026-05-12", new Date("2026-06-29T12:00:00.000Z"));
     expect(clock.isOverdue).toBe(true);
     expect(clock.daysOverdue).toBeGreaterThan(0);
   });

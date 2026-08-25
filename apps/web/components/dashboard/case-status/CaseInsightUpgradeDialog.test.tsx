@@ -40,7 +40,7 @@ describe('CaseInsightUpgradeDialog', () => {
       />
     );
 
-    expect(screen.getByText('Pro starts at $7.99/month')).toBeInTheDocument();
+    expect(screen.getByText('Pro starts at $4.99/month')).toBeInTheDocument();
     expect(
       screen.queryByText(/\$0\.99 for your first/i)
     ).not.toBeInTheDocument();

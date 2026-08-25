@@ -67,8 +67,8 @@ const EXPLAINER_BY_CATEGORY: Record<StatusExplainerCategory, Omit<StatusExplaine
   },
   premium_processing: {
     title: "Premium Processing active",
-    meaning: "USCIS upgraded your case to Premium Processing. USCIS targets a decision within 15 business days of the PP start date.",
-    nextStep: "Watch the PP countdown below. If the deadline passes with no decision, contact the USCIS Contact Center for Premium Processing follow-up.",
+    meaning: "USCIS upgraded your Form I-765 case to Premium Processing. The published timeframe is 30 business days after all prerequisites are met.",
+    nextStep: "Confirm the start date on your I-907 receipt. If the applicable timeframe passes with no USCIS action, use the contact instructions on your receipt notice or contact USCIS.",
     showUscisLink: true,
     tone: "urgent",
   },

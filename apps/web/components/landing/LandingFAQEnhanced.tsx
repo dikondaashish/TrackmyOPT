@@ -92,7 +92,7 @@ const faqCategories = [
             {
                 question: "Is TrackMyOPT free?",
                 answer:
-                    "Yes. TrackMyOPT offers a free plan with OPT timeline tracking, an unemployment clock, 1 USCIS case with manual refresh, limited H-1B sponsor access, 1 AI resume and 1 ATS scan per month. Pro is $7.99/month and adds up to 8 USCIS cases, daily auto-checks, status-change alerts, Document Vault, 50 resumes and 100 ATS scans per month.",
+                    "Yes. TrackMyOPT offers a free plan with OPT timeline tracking, an unemployment clock, 1 USCIS case with manual refresh, limited H-1B sponsor access, 1 AI resume and 1 ATS scan per month. Pro is $4.99/month and adds up to 8 USCIS cases, daily auto-checks, status-change alerts, Document Vault, 50 resumes and 100 ATS scans per month.",
             },
             {
                 question: "Is my data secure on TrackMyOPT?",

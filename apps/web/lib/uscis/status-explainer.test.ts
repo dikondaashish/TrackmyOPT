@@ -29,6 +29,12 @@ describe("getStatusExplainer", () => {
     expect(result.showUscisLink).toBe(true);
   });
 
+  it("uses the current 30-business-day I-765 premium-processing timeframe", () => {
+    const result = getStatusExplainer("Changed to Premium Processing");
+    expect(result.meaning).toMatch(/30 business days/i);
+    expect(result.nextStep).not.toMatch(/15 business days/i);
+  });
+
   it("handles empty status as unknown", () => {
     const result = getStatusExplainer(null);
     expect(result.category).toBe("unknown");

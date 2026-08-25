@@ -4,7 +4,11 @@ import { Route } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { MilestoneTimeline, buildMilestones } from "./MilestoneTimeline";
 import { EadStemCards } from "./EadStemCards";
-import { DsoDeadlineManager, buildDefaultDsoTasks } from "./DsoDeadlineManager";
+import { DsoDeadlineManager } from "./DsoDeadlineManager";
+import {
+  buildOptComplianceActions,
+  type OptComplianceAction,
+} from "@/lib/case-status/opt-compliance-actions";
 import { useClientDate } from "@/hooks/useClientDate";
 
 interface OptJourneySectionProps {
@@ -12,15 +16,12 @@ interface OptJourneySectionProps {
   eadProjected?: string | null;
   stemWindowOpens?: string | null;
   stemFiled?: string | null;
-  capGapActive?: boolean;
-  /** If not provided, default DSO tasks based on filing date are shown */
-  dsoTasks?: {
-    id: string;
-    title: string;
-    dueDate?: string;
-    status: "open" | "done" | "overdue";
-    description: string;
-  }[];
+  stemStartDate?: string | null;
+  stemEndDate?: string | null;
+  employmentChangeDate?: string | null;
+  capGapActive?: boolean | null;
+  /** If not provided, only tasks supported by the supplied compliance dates are shown. */
+  dsoTasks?: OptComplianceAction[];
 }
 
 export function OptJourneySection({
@@ -28,13 +29,22 @@ export function OptJourneySection({
   eadProjected = null,
   stemWindowOpens = null,
   stemFiled,
-  capGapActive = false,
+  stemStartDate = null,
+  stemEndDate = null,
+  employmentChangeDate = null,
+  capGapActive = null,
   dsoTasks,
 }: OptJourneySectionProps) {
   // Client-only date — null during SSR/hydration to avoid error #418.
   const clientNow = useClientDate();
   const milestones = buildMilestones(optFiledDate, eadProjected, stemWindowOpens, stemFiled, clientNow);
-  const tasks = dsoTasks ?? buildDefaultDsoTasks(optFiledDate, clientNow);
+  const tasks = dsoTasks ?? buildOptComplianceActions({
+    uscisFiledDate: optFiledDate,
+    employmentChangeDate,
+    stemStartDate,
+    stemEndDate,
+    now: clientNow ?? undefined,
+  });
 
   return (
     <Card className="p-5 sm:p-6 border-0 shadow-lg">

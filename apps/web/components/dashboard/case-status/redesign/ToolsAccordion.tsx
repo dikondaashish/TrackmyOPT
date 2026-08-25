@@ -45,7 +45,7 @@ const TOOLS: Tool[] = [
 
 const STATUS_DECODER_ROWS = [
   { status: "Case Was Received",              plain: "USCIS got your application",        action: "Wait — processing begins." },
-  { status: "Changed to Premium Processing",  plain: "15-day processing clock started",   action: "Count 15 business days from PP start date." },
+  { status: "Changed to Premium Processing",  plain: "30-business-day I-765 clock started", action: "Confirm the applicable start date on your I-907 receipt." },
   { status: "Is Being Actively Reviewed",     plain: "An officer is reviewing your file", action: "Wait. Average review 1–3 weeks." },
   { status: "Request for Evidence",          plain: "USCIS needs more documents",        action: "Respond by the RFE deadline or risk denial." },
   { status: "Approved",                       plain: "Application approved!",             action: "Wait for card production." },
@@ -100,8 +100,8 @@ function DecoderPanel() {
           </tr>
         </thead>
         <tbody>
-          {STATUS_DECODER_ROWS.map((row, i) => (
-            <tr key={i} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+          {STATUS_DECODER_ROWS.map((row) => (
+            <tr key={row.status} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
               <td className="py-2 pr-3 font-medium">{row.status}</td>
               <td className="py-2 pr-3 text-muted-foreground">{row.plain}</td>
               <td className="py-2 text-muted-foreground">{row.action}</td>
@@ -114,43 +114,23 @@ function DecoderPanel() {
 }
 
 function EVerifyPanel() {
-  const [employer, setEmployer] = useState("");
-  const [result, setResult] = useState<"enrolled" | "not-enrolled" | null>(null);
-
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        STEM OPT requires your employer to be enrolled in E-Verify. Check enrollment status before filing your STEM extension.
+        STEM OPT employers must participate in E-Verify. Use the official employer search and confirm the legal entity and E-Verify company ID with HR.
       </p>
-      <div className="flex gap-2">
-        <Input
-          placeholder="Employer name or EIN"
-          value={employer}
-          onChange={(e) => setEmployer(e.target.value)}
-          className="flex-1"
-        />
-        <Button
-          size="sm"
-          onClick={() => setResult(employer.length > 3 ? "enrolled" : "not-enrolled")}
-          disabled={!employer.trim()}
+      <Button asChild size="sm" variant="outline" className="min-h-11 gap-2">
+        <a
+          href="https://www.e-verify.gov/employers/enrolling-in-e-verify"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          Check
-        </Button>
-      </div>
-      {result === "enrolled" && (
-        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-          <CheckCircle2 className="w-4 h-4" />
-          Employer appears to be E-Verify enrolled.
-        </div>
-      )}
-      {result === "not-enrolled" && (
-        <div className="flex items-center gap-2 text-sm text-red-500">
-          <XCircle className="w-4 h-4" />
-          Employer not found — confirm directly with HR before filing STEM extension.
-        </div>
-      )}
+          Open official E-Verify search
+          <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+        </a>
+      </Button>
       <p className="text-[10px] text-muted-foreground">
-        Results are indicative only. Verify enrollment directly with your employer&apos;s HR team.
+        The public search may omit locations or use a company&apos;s legal name. Absence from search results does not prove non-enrollment.
       </p>
     </div>
   );

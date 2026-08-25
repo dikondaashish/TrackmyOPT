@@ -144,7 +144,7 @@ export function PremiumProcessingCountdown({
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
               USCIS shows Premium Processing on your case, but we need the start date to
-              run the 15-business-day clock.
+              run the {PP_BUSINESS_DAY_LIMIT}-business-day clock.
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <Input

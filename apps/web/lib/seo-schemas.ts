@@ -87,7 +87,7 @@ export const softwareApplicationSchema = {
         {
             "@type": "Offer",
             name: "Pro Plan",
-            price: "7.99",
+            price: "4.99",
             priceCurrency: "USD",
             description:
                 "Everything in Free + daily USCIS auto-checks, status-change email alerts, Document Vault, H-1B data, and higher AI resume limits",
@@ -195,7 +195,7 @@ export const faqSchema = {
             name: "Is TrackMyOPT free?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "Yes. TrackMyOPT offers a free plan that includes OPT timeline tracking, an unemployment clock, and 1 USCIS case tracker with manual refresh. Pro starts at $7.99/month and adds daily USCIS auto-checks, status-change email alerts, Document Vault, H-1B sponsor data, 50 AI resumes and 100 ATS scans per month.",
+                text: "Yes. TrackMyOPT offers a free plan that includes OPT timeline tracking, an unemployment clock, and 1 USCIS case tracker with manual refresh. Pro starts at $4.99/month and adds daily USCIS auto-checks, status-change email alerts, Document Vault, H-1B sponsor data, 50 AI resumes and 100 ATS scans per month.",
             },
         },
         {

@@ -53,7 +53,7 @@ const faqSchema = {
             name: "How much does TrackMyOPT Premium cost?",
             acceptedAnswer: {
                 "@type": "Answer",
-                text: "Eligible accounts can start TrackMyOPT Pro for $0.99 for 7 days, then it renews at $7.99/month or $69/year unless canceled. Dedicated is $14.99/month or $149.99/year and adds higher career-tool limits, priority support, and one complimentary 60-minute initial immigration-attorney consultation after 7 continuous days on Dedicated, subject to the terms.",
+                text: "Eligible accounts can start TrackMyOPT Pro for $0.99 for 7 days, then it renews at $4.99/month or $69/year unless canceled. Dedicated is $14.99/month or $149.99/year and adds higher career-tool limits, priority support, and one complimentary 60-minute initial immigration-attorney consultation after 7 continuous days on Dedicated, subject to the terms.",
             },
         },
     ],
@@ -163,7 +163,7 @@ export default function PremiumWorthItPage() {
                         Pro is worth it if you want daily 9:00 AM ET reminders,
                         unemployment day tracking with alerts, and USCIS case
                         monitoring in one place — without spreadsheets. At
-                        $7.99/month, it helps you stay organized before
+                        $4.99/month, it helps you stay organized before
                         deadlines sneak up. Always confirm requirements with
                         your DSO.
                     </p>
@@ -268,7 +268,7 @@ export default function PremiumWorthItPage() {
                                     5. The Cost vs Risk Math Is Obvious
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                    Pro costs $7.99/month. A missed OPT deadline can
+                                    Pro costs $4.99/month. A missed OPT deadline can
                                     cost you your legal status, your job, and
                                     your ability to remain in the United States.
                                     The Sprintax partner coupon is available to

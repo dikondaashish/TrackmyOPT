@@ -7,7 +7,8 @@ import {
   parseBusinessDate,
 } from "@/lib/case-status/business-days";
 
-export const PP_BUSINESS_DAY_LIMIT = 15;
+/** Current Form I-765 premium-processing timeframe after prerequisites are met. */
+export const PP_BUSINESS_DAY_LIMIT = 30;
 
 export const PP_CONTACT = {
   phone: "800-375-5283",
