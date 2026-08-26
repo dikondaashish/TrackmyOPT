@@ -262,7 +262,15 @@ export async function fetchRobotsPolicy(
 
 async function launchBrowser(): Promise<Browser> {
   const { chromium } = await import("playwright-core");
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  // Vercel reliably provides VERCEL_ENV, while VERCEL is not guaranteed in
+  // every function runtime. Falling through to chromium.executablePath() on
+  // Vercel makes playwright-core search for its locally downloaded browser.
+  const isServerlessRuntime = Boolean(
+    process.env.VERCEL_ENV ||
+      process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME
+  );
+  if (isServerlessRuntime) {
     const { default: serverlessChromium } = await import("@sparticuz/chromium");
     return chromium.launch({
       args: serverlessChromium.args,
