@@ -603,6 +603,14 @@ export function PricingModal({
                     ? PLAN_SALES_META[plan.id as PaidPlanId]
                     : null;
                 const isInitialPlan = initialPlan === plan.id;
+                const hasProIntroOffer =
+                  plan.id === 'pro' && proIntroEligible === true;
+                const proRenewalPrice = isYearly
+                  ? `$${yearlyTotal.toFixed(2)}/year`
+                  : `$${monthlyDisplay.toFixed(2)}/month`;
+                const proListRenewalPrice = isYearly
+                  ? `$${yearlyListTotal.toFixed(2)}/year`
+                  : `$${monthlyListDisplay.toFixed(2)}/month`;
 
                 return (
                   <div
@@ -710,6 +718,33 @@ export function PricingModal({
                               Forever free
                             </p>
                           </>
+                        ) : hasProIntroOffer ? (
+                          <>
+                            <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300">
+                              First-time Pro offer
+                            </p>
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              <span className="text-4xl md:text-3xl font-bold tracking-tight text-foreground tabular-nums">
+                                ${PRO_PAID_INTRO_PRICE.toFixed(2)}
+                              </span>
+                              <span className="text-sm md:text-xs font-medium text-muted-foreground">
+                                for the first {PRO_TRIAL_DAYS} days
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs md:text-[11px] font-semibold text-violet-700 dark:text-violet-300">
+                              Then {proRenewalPrice}
+                              <span className="font-medium text-muted-foreground">
+                                {' '}
+                                · {LIMITED_TIME_OFFER.label}
+                              </span>
+                            </p>
+                            <p className="mt-0.5 text-[10px] md:text-[9px] text-muted-foreground">
+                              Regularly{' '}
+                              <span className="line-through tabular-nums">
+                                {proListRenewalPrice}
+                              </span>
+                            </p>
+                          </>
                         ) : isYearly ? (
                           <>
                             <div className="mb-0.5 text-[11px] font-medium text-muted-foreground/70 line-through tabular-nums">
@@ -777,7 +812,7 @@ export function PricingModal({
                           >
                             {plan.id === 'pro'
                               ? proIntroEligible === true
-                                ? `$${PRO_PAID_INTRO_PRICE.toFixed(2)} for the first ${PRO_TRIAL_DAYS} days, then regular billing`
+                                ? 'Cancel before day 7 to avoid renewal.'
                                 : proIntroEligible === null
                                   ? 'Checking introductory-offer eligibility…'
                                   : 'Regular billing starts today'
