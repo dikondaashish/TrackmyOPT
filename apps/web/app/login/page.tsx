@@ -11,8 +11,7 @@ import {
   captureUserSignedUp,
   identifyLoginSessionUser,
 } from '@/lib/posthog-client';
-
-import { DEFAULT_POST_AUTH_PATH } from "@/lib/auth/post-auth-landing";
+import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
 import {
   safeStorageGet,
   safeStorageRemove,
@@ -26,11 +25,17 @@ function LoginPageContent() {
   const router = useRouter();
   const errorParam = searchParams.get('error');
 
-  // Get redirect URL from query params (middleware sets returnTo; some links use redirect)
-  const redirectTo =
-    searchParams.get("redirect") ||
-    searchParams.get("returnTo") ||
-    DEFAULT_POST_AUTH_PATH;
+  // Middleware sets returnTo; some links use redirect. Never send a completed
+  // login to an untrusted origin supplied in the query string.
+  const requestedRedirect =
+    searchParams.get('redirect') || searchParams.get('returnTo');
+  const safeRedirect = safeInternalRedirectTarget(
+    requestedRedirect,
+    typeof window === 'undefined'
+      ? 'https://www.trackmyopt.com'
+      : window.location.origin
+  );
+  const redirectTo = `${safeRedirect.pathname}${safeRedirect.search}${safeRedirect.hash}`;
 
   const [mode, setMode] = useState<Mode>('signin');
   const [loading, setLoading] = useState(false);

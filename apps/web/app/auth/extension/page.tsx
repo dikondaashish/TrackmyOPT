@@ -44,6 +44,8 @@ function ExtensionAuthContent() {
   const [error, setError] = useState<string | null>(errorParam);
   const [signInError, setSignInError] = useState<string | null>(null);
   const [signUpError, setSignUpError] = useState<string | null>(null);
+  const [awaitingEmailVerification, setAwaitingEmailVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
 
   // Sign In
   const [email, setEmail] = useState('');
@@ -88,6 +90,50 @@ function ExtensionAuthContent() {
     }
     setDateErrors((prev) => ({ ...prev, [field]: '' }));
     return true;
+  };
+
+  const extensionCallbackPath = () =>
+    `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+
+  const checkBlockedEmail = async (emailToCheck: string) => {
+    const response = await fetch('/api/auth/check-blocked', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailToCheck.trim().toLowerCase() }),
+    });
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok || !result) {
+      throw new Error('Unable to verify this email. Please try again.');
+    }
+    if (result.blocked) {
+      throw new Error(
+        result.message ||
+          'This email has been permanently blocked and cannot be used.'
+      );
+    }
+  };
+
+  const saveExtensionProfileAndContinue = async () => {
+    const response = await fetch('/api/profile/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timezone: 'America/New_York',
+        is_stem_eligible: isStem,
+        program_end_date: programEnd,
+        dso_recommendation_date: dsoReco,
+        opt_ead_end_date: optEadEnd,
+        opt_start_date: optStart,
+        stem_start_date: stemStart,
+      }),
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.ok) {
+      throw new Error('Your account was verified, but setup could not be completed. Please try again.');
+    }
+
+    window.location.assign(extensionCallbackPath());
   };
 
   if (
@@ -147,18 +193,14 @@ function ExtensionAuthContent() {
     setError(null);
 
     try {
-      const res = await fetch('/api/manual/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      await checkBlockedEmail(email);
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
       });
-      const data = await res.json();
+      if (signInError) throw signInError;
 
-      if (!data.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+      window.location.assign(extensionCallbackPath());
     } catch (err: any) {
       setSignInError(err.message || 'Sign in failed. Please check your credentials.');
       setLoading(false);
@@ -185,31 +227,76 @@ function ExtensionAuthContent() {
     }
 
     try {
-      const res = await fetch('/api/manual/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email: signUpEmail,
-          password: signUpPassword,
-          programEnd,
-          dsoReco,
-          optEadEnd,
-          optStart,
-          stemStart,
-          isStem,
-        }),
+      await checkBlockedEmail(signUpEmail);
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: signUpEmail.trim().toLowerCase(),
+        password: signUpPassword,
+        options: {
+          data: {
+            firstName,
+            lastName,
+            fullName: `${firstName} ${lastName}`.trim(),
+          },
+        },
       });
-      const data = await res.json();
 
-      if (!data.ok) {
-        throw new Error(data.error || 'Signup failed');
+      if (signUpError) throw signUpError;
+
+      if (data.session) {
+        await saveExtensionProfileAndContinue();
+        return;
       }
 
-      window.location.href = `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+      setAwaitingEmailVerification(true);
+      setVerificationCode('');
+      setLoading(false);
     } catch (err: any) {
       setSignUpError(err.message || 'Sign up failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const handleVerifySignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setSignUpError(null);
+
+    try {
+      const { error: verificationError } = await supabase.auth.verifyOtp({
+        email: signUpEmail.trim().toLowerCase(),
+        token: verificationCode.trim(),
+        type: 'signup',
+      });
+      if (verificationError) throw verificationError;
+
+      await saveExtensionProfileAndContinue();
+    } catch (err: any) {
+      setSignUpError(err.message || 'The verification code is invalid or expired.');
+      setLoading(false);
+    }
+  };
+
+  const handleResendSignUpVerification = async () => {
+    setLoading(true);
+    setSignUpError(null);
+
+    try {
+      const { error: resendError } = await supabase.auth.signUp({
+        email: signUpEmail.trim().toLowerCase(),
+        password: signUpPassword,
+        options: {
+          data: {
+            firstName,
+            lastName,
+            fullName: `${firstName} ${lastName}`.trim(),
+          },
+        },
+      });
+      if (resendError) throw resendError;
+      setVerificationCode('');
+    } catch (err: any) {
+      setSignUpError(err.message || 'Unable to resend the verification code.');
+    } finally {
       setLoading(false);
     }
   };
@@ -363,7 +450,53 @@ function ExtensionAuthContent() {
                 <span>Create Account</span>
                 <span className="text-xl">{showSignUp ? '−' : '+'}</span>
               </button>
-              {showSignUp && (
+              {showSignUp && (awaitingEmailVerification ? (
+                <form onSubmit={handleVerifySignUp} className="p-6 space-y-4">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-foreground">
+                      Verify your email
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-muted-foreground">
+                      Enter the 6-digit code sent to {signUpEmail} to finish creating your account.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="extension-signup-code">
+                      Verification code
+                    </label>
+                    <input
+                      id="extension-signup-code"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      required
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      disabled={loading}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
+                      placeholder="123456"
+                    />
+                  </div>
+                  {signUpError && <p className="text-red-500 text-sm">{signUpError}</p>}
+                  <button
+                    type="submit"
+                    disabled={loading || verificationCode.length !== 6}
+                    className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  >
+                    {loading ? 'Verifying...' : 'Verify and continue'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResendSignUpVerification}
+                    disabled={loading}
+                    className="w-full py-2 text-sm font-semibold text-blue-700 hover:text-blue-800 disabled:opacity-50"
+                  >
+                    Resend verification code
+                  </button>
+                </form>
+              ) : (
                 <form onSubmit={handleManualSignUp} className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -554,7 +687,7 @@ function ExtensionAuthContent() {
                     {loading ? 'Creating account...' : 'Create Account'}
                   </button>
                 </form>
-              )}
+              ))}
             </div>
           </div>
         )}
