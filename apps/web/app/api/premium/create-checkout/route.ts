@@ -187,97 +187,61 @@ async function resolveCheckoutPromotion(
       }
   }
 
-  const envPromo =
-    planId === 'pro'
-      ? process.env.STRIPE_PROMO_CODE_PRO
-      : process.env.STRIPE_PROMO_CODE_DEDICATED;
-  const configuredPromotionId = envPromo?.trim();
-  const promotionCandidates: Stripe.PromotionCode[] = [];
-
-  if (configuredPromotionId) {
-    try {
-      promotionCandidates.push(
-        await stripe.promotionCodes.retrieve(configuredPromotionId, {
-          expand: ['promotion.coupon'],
-        })
-      );
-    } catch (error) {
-      secureLog.warn(
-        'Configured Stripe promotion could not be loaded:',
-        sanitizeError(error)
-      );
-    }
-  }
-
   try {
     const stableCodes = await stripe.promotionCodes.list({
       code: LIMITED_TIME_OFFER[planId].promotionCode,
       active: true,
       limit: 1,
-      expand: ['data.promotion.coupon'],
     });
     const stablePromotion = stableCodes.data[0];
-    if (
-      stablePromotion &&
-      !promotionCandidates.some(
-        (candidate) => candidate.id === stablePromotion.id
-      )
-    ) {
-      promotionCandidates.push(stablePromotion);
-    }
-  } catch (error) {
-    secureLog.warn(
-      'Stripe limited-time promotion lookup failed:',
-      sanitizeError(error)
-    );
-  }
-
-  const productId =
-    typeof recurringPrice.product === 'string'
-      ? recurringPrice.product
-      : recurringPrice.product.id;
-  const expectedPercentOff = LIMITED_TIME_OFFER[planId].percentOff;
-  const expectedOfferCents = Math.round(PLAN_PRICES[planId][interval] * 100);
-
-  for (const promotionCode of promotionCandidates) {
-    try {
-      const promotionCoupon = promotionCode.promotion.coupon;
-      const coupon =
-        typeof promotionCoupon === 'string'
-          ? await stripe.coupons.retrieve(promotionCoupon)
-          : promotionCoupon;
-      const actualOfferCents =
-        isUsableCoupon(coupon) &&
-        coupon.percent_off != null &&
-        recurringPrice.unit_amount != null
-          ? calculateDiscountedPriceCents(
-              recurringPrice.unit_amount,
-              coupon.percent_off
-            )
-          : null;
-
-      if (
-        promotionCode.active &&
-        isUsableCoupon(coupon) &&
-        coupon.valid &&
-        coupon.duration === 'forever' &&
-        coupon.percent_off === expectedPercentOff &&
-        actualOfferCents === expectedOfferCents &&
-        coupon.applies_to?.products.includes(productId) &&
-        !promotionCode.restrictions.first_time_transaction
-      ) {
-        return {
-          ok: true,
-          discounts: [{ promotion_code: promotionCode.id }],
-          checkoutPromoKey: `default:${planId}:${promotionCode.id}`,
-        };
-      }
-    } catch (error) {
-      secureLog.warn(
-        'Stripe limited-time promotion candidate failed:',
-        sanitizeError(error)
+    if (!stablePromotion) {
+      throw new Error(
+        `No active ${LIMITED_TIME_OFFER[planId].promotionCode} promotion code.`
       );
     }
+    const coupon = await stripe.coupons.retrieve(
+      LIMITED_TIME_OFFER[planId].couponId
+    );
+    const productId =
+      typeof recurringPrice.product === 'string'
+        ? recurringPrice.product
+        : recurringPrice.product.id;
+    const expectedPercentOff = LIMITED_TIME_OFFER[planId].percentOff;
+    const expectedOfferCents = Math.round(PLAN_PRICES[planId][interval] * 100);
+    const actualOfferCents =
+      isUsableCoupon(coupon) &&
+      coupon.percent_off != null &&
+      recurringPrice.unit_amount != null
+        ? calculateDiscountedPriceCents(
+            recurringPrice.unit_amount,
+            coupon.percent_off
+          )
+        : null;
+
+    if (
+      !stablePromotion.active ||
+      !isUsableCoupon(coupon) ||
+      !coupon.valid ||
+      coupon.duration !== 'forever' ||
+      coupon.percent_off !== expectedPercentOff ||
+      actualOfferCents !== expectedOfferCents ||
+      !coupon.applies_to?.products.includes(productId) ||
+      stablePromotion.restrictions.first_time_transaction
+    ) {
+      throw new Error(
+        `Stable ${planId} promotion does not match the configured limited-time offer.`
+      );
+    }
+    return {
+      ok: true,
+      discounts: [{ promotion_code: stablePromotion.id }],
+      checkoutPromoKey: `default:${planId}:${stablePromotion.id}`,
+    };
+  } catch (error) {
+    secureLog.error(
+      'Stripe limited-time promotion validation failed:',
+      sanitizeError(error)
+    );
   }
 
   return {
