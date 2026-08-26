@@ -1,24 +1,48 @@
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { SignJWT } from "jose";
-import { sanitizeError, secureLog } from "@/lib/secure-logger";
-
-const alg = "HS256";
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { mintToken } from '@/lib/auth/jwt';
+import {
+  buildExtensionTokenRedirectUrl,
+  isAllowedExtensionRedirectUri,
+  isValidExtensionAuthState,
+} from '@/lib/auth/trusted-extension';
+import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 // Force dynamic rendering since we use request.url
 export const dynamic = 'force-dynamic';
 
+function extensionAuthRetryUrl(
+  req: NextRequest,
+  redirectUri: string,
+  state: string,
+  error: string
+): URL {
+  const url = new URL('/auth/extension', req.url);
+  url.searchParams.set('error', error);
+  url.searchParams.set('redirect_uri', redirectUri);
+  url.searchParams.set('state', state);
+  return url;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const redirect_uri = searchParams.get("redirect_uri");
-    const state = searchParams.get("state");
-    const code = searchParams.get("code"); // OAuth code from Supabase
+    const redirectUri = searchParams.get('redirect_uri');
+    const state = searchParams.get('state');
+    const code = searchParams.get('code'); // OAuth code from Supabase
 
-
-    if (!redirect_uri || !state) {
-      return new NextResponse("Missing redirect_uri or state", { status: 400 });
+    if (!redirectUri || !state) {
+      return new NextResponse('Missing redirect_uri or state', { status: 400 });
+    }
+    if (
+      !isAllowedExtensionRedirectUri(redirectUri) ||
+      !isValidExtensionAuthState(state)
+    ) {
+      secureLog.warn('Extension callback rejected invalid callback parameters');
+      return new NextResponse('Invalid extension callback parameters', {
+        status: 400,
+      });
     }
 
     // Create Supabase client with proper cookie handling
@@ -51,7 +75,8 @@ export async function GET(req: NextRequest) {
 
     // If we have a code, exchange it for a session
     if (code) {
-      const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      const { error: exchangeError } =
+        await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) {
         secureLog.error('Extension OAuth code exchange error:', {
           message: sanitizeError(exchangeError),
@@ -59,105 +84,39 @@ export async function GET(req: NextRequest) {
           name: exchangeError.name,
         });
         return NextResponse.redirect(
-          new URL(
-            `/auth/extension?error=code_exchange_failed&error_description=${encodeURIComponent(exchangeError.message)}&redirect_uri=${encodeURIComponent(redirect_uri)}&state=${encodeURIComponent(state)}`, 
-            req.url
-          )
+          extensionAuthRetryUrl(req, redirectUri, state, 'code_exchange_failed')
         );
       }
     }
 
     // Get the user from the session
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       secureLog.warn('Extension callback: no user after exchange, redirecting to auth');
       return NextResponse.redirect(
-        new URL(
-          `/auth/extension?error=not_signed_in&redirect_uri=${encodeURIComponent(redirect_uri)}&state=${encodeURIComponent(state)}`, 
-          req.url
-        )
+        extensionAuthRetryUrl(req, redirectUri, state, 'not_signed_in')
       );
     }
 
-    // Create JWT token
-    const secret = new TextEncoder().encode(process.env.JWT_SIGNING_SECRET!);
-    const jwt = await new SignJWT({ sub: user.id, email: user.email })
-      .setProtectedHeader({ alg })
-      .setIssuedAt()
-      .setExpirationTime("10m")
-      .sign(secret);
-
-
-    // Return HTML that redirects to extension with token
-    const html = `
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Returning to Extension…</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      text-align: center;
-    }
-    .container {
-      padding: 2rem;
-    }
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid white;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 2rem;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="spinner"></div>
-    <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Authentication Successful!</h1>
-    <p style="opacity: 0.9;">Redirecting back to extension...</p>
-  </div>
-  <script>
-    (function() {
-      const ru = ${JSON.stringify(redirect_uri)};
-      const st = ${JSON.stringify(state)};
-      const token = ${JSON.stringify(jwt)};
-      
-      
-      // Set window.location with token in fragment
-      window.location = ru + "#id_token=" + encodeURIComponent(token) + "&state=" + encodeURIComponent(st);
-    })();
-  </script>
-</body>
-</html>`;
-    
-    return new NextResponse(html, { 
-      headers: { 
-        "Content-Type": "text/html; charset=utf-8" 
-      } 
-    });
-    
+    // Use the same issuer/audience-bearing token contract as the extension API.
+    const token = await mintToken(
+      { userId: user.id, email: user.email ?? '' },
+      600
+    );
+    const response = NextResponse.redirect(
+      buildExtensionTokenRedirectUrl(redirectUri, state, token)
+    );
+    response.headers.set('Cache-Control', 'no-store, private');
+    response.headers.set('Referrer-Policy', 'no-referrer');
+    return response;
   } catch (error) {
     secureLog.error('Extension callback error:', sanitizeError(error));
     return new NextResponse(
-      `Error: ${error instanceof Error ? error.message : 'Unknown error'}`, 
-      { status: 500 }
+      'Unable to complete extension sign-in.',
+      { status: 500, headers: { 'Cache-Control': 'no-store' } }
     );
   }
 }

@@ -1,12 +1,9 @@
 import type { NextRequest } from 'next/server';
+import { configuredExtensionIds } from '@/lib/auth/trusted-extension';
 
 const STATIC_SITE_ORIGINS = [
   'https://www.trackmyopt.com',
   'https://trackmyopt.com',
-] as const;
-
-const PUBLISHED_EXTENSION_IDS = [
-  'hfljbefkccdmlnhclfojlafipjnjbajm',
 ] as const;
 
 function normalizeOriginUrl(origin: string): string | null {
@@ -15,20 +12,6 @@ function normalizeOriginUrl(origin: string): string | null {
   } catch {
     return null;
   }
-}
-
-function configuredExtensionIds(): Set<string> {
-  const ids = new Set<string>(PUBLISHED_EXTENSION_IDS);
-  for (const value of [
-    process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID,
-    process.env.CHROME_EXTENSION_IDS,
-  ]) {
-    for (const id of (value || '').split(',')) {
-      const normalized = id.trim().toLowerCase();
-      if (/^[a-p]{32}$/.test(normalized)) ids.add(normalized);
-    }
-  }
-  return ids;
 }
 
 function isAllowedExtensionOrigin(origin: string): boolean {

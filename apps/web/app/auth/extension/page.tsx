@@ -8,6 +8,29 @@ import { LoadingScreen } from '@/components/ui/loading-screen';
 
 type Tab = 'google' | 'manual';
 
+const PUBLISHED_EXTENSION_IDS = new Set([
+  'hfljbefkccdmlnhclfojlafipjnjbajm',
+  process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID?.toLowerCase(),
+]);
+
+function looksLikeExtensionRedirectUri(value: string | null): boolean {
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    const match = /^([a-p]{32})\.chromiumapp\.org$/i.exec(url.hostname);
+    return (
+      url.protocol === 'https:' &&
+      !url.username &&
+      !url.password &&
+      !url.port &&
+      match !== null &&
+      PUBLISHED_EXTENSION_IDS.has(match[1].toLowerCase())
+    );
+  } catch {
+    return false;
+  }
+}
+
 function ExtensionAuthContent() {
   const searchParams = useSearchParams();
   const redirectUri = searchParams.get('redirect_uri');
@@ -67,7 +90,12 @@ function ExtensionAuthContent() {
     return true;
   };
 
-  if (!redirectUri || !state) {
+  if (
+    !redirectUri ||
+    !state ||
+    state.length > 512 ||
+    !looksLikeExtensionRedirectUri(redirectUri)
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
         <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
@@ -80,7 +108,7 @@ function ExtensionAuthContent() {
               This authentication page must be accessed from the OPT Hub extension.
             </p>
             <p className="text-sm text-gray-500 dark:text-muted-foreground">
-              Missing required parameters: redirect_uri or state
+              This link must be opened by the official TrackMyOPT extension.
             </p>
           </div>
         </div>
