@@ -453,7 +453,7 @@ export function SubscriptionSettings({
           error={promoError}
           disabled={!!checkoutLoadingPlan}
           onRemoveDefault={() => {
-            setPromoMode('custom');
+            setPromoMode('custom-entry');
             setCustomPromoInput('');
             setPromoError(null);
           }}

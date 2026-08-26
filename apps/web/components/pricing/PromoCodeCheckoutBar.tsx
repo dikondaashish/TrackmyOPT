@@ -95,7 +95,7 @@ export function PromoCodeCheckoutBar({
         </div>
       )}
 
-      {(mode === 'none' || mode === 'custom') && (
+      {(mode === 'none' || mode === 'custom-entry' || mode === 'custom') && (
         <div className={compact ? 'space-y-1.5' : 'space-y-2'}>
           {mode === 'custom' && customCode.trim() ? (
             <div className="flex flex-wrap items-center justify-between gap-2">

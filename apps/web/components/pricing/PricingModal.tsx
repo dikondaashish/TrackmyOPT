@@ -559,7 +559,7 @@ export function PricingModal({
                 error={promoError}
                 disabled={isLoading}
                 onRemoveDefault={() => {
-                  setPromoMode('custom');
+                  setPromoMode('custom-entry');
                   setCustomPromoInput('');
                   setPromoError(null);
                 }}
