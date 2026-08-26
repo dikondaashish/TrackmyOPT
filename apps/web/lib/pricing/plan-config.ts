@@ -44,8 +44,9 @@ export const PRO_PAID_INTRO = {
 export const RESUME_CREDIT_PACK = {
   priceUsd: 1,
   creditsPerPack: 10,
-  allowedPackQuantities: [1, 5, 10],
-  maxPacksPerCheckout: 10,
+  minDollarAmount: 1,
+  maxDollarAmount: 100,
+  suggestedDollarAmounts: [2, 5, 7],
 } as const;
 
 export const PLAN_LIMITS = {
