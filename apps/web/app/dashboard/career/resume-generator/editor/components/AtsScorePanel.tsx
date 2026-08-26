@@ -19,13 +19,13 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
     }
 
     const score = analysis.score ?? Math.max(0, 100 - (analysis.issues.length * 10));
-    const isPassing = analysis.passed || score >= 75;
+    const isPassing = analysis.passed === true && score >= 75;
 
     return (
         <Card className="h-full border-0 shadow-none bg-gray-50/50 dark:bg-gray-900/50 overflow-y-auto max-h-[calc(100vh-200px)]">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center justify-between">
-                    <span>ATS Compatibility Score</span>
+                    <span>Estimated ATS Match</span>
                     <span className={`text-lg font-bold ${isPassing ? 'text-green-600' : 'text-amber-600'}`}>
                         {score}/100
                     </span>
@@ -42,6 +42,15 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
                     />
                 </div>
 
+                {analysis.scoreBreakdown && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Content match {analysis.scoreBreakdown.contentScore}/100
+                        {analysis.scoreBreakdown.formatPenalty > 0
+                            ? ` • ${analysis.scoreBreakdown.formatPenalty}-point format penalty`
+                            : " • No format penalty"}
+                    </p>
+                )}
+
                 <div className={`p-3 rounded-lg text-sm flex items-start gap-2 ${isPassing ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
                     'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
                     }`}>
@@ -50,8 +59,8 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
                         <p className="font-medium">{isPassing ? 'Ready to apply' : 'Needs improvement'}</p>
                         <p className="opacity-90 mt-0.5 text-xs">
                             {isPassing
-                                ? 'Score meets the 75+ target for most ATS systems.'
-                                : 'Fix missing keywords and format issues before applying.'}
+                                ? 'Meets TrackMyOPT’s recommended 75+ match threshold.'
+                                : 'Review the job-keyword gaps and recommendations below.'}
                         </p>
                     </div>
                 </div>
@@ -99,6 +108,17 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
                                         <p className="text-xs text-gray-500 mb-1">Relevance</p>
                                         <p className="text-lg font-bold text-blue-600">
                                             {analysis.sectionScores.relevance}%
+                                        </p>
+                                    </div>
+                                )}
+                                {analysis.metricsBullets && analysis.metricsBullets.total > 0 && (
+                                    <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-100 dark:border-gray-700">
+                                        <p className="text-xs text-gray-500 mb-1">Quantified bullets</p>
+                                        <p className={`text-lg font-bold ${(analysis.metricsRatio ?? 0) >= 0.6 ? 'text-green-600' : 'text-amber-600'}`}>
+                                            {Math.round((analysis.metricsRatio ?? 0) * 100)}%
+                                        </p>
+                                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                                            {analysis.metricsBullets.quantified}/{analysis.metricsBullets.total} bullets
                                         </p>
                                     </div>
                                 )}

@@ -11,6 +11,34 @@ import { EVerifyEmployerLookup } from "@/components/career/h1b/EVerifyEmployerLo
 import { AddToTrackerModal, JobTrackerItem } from "@/components/career/h1b/AddToTrackerModal";
 import { FilterOptions, filterSponsors } from "@/lib/career/h1b/filter-sponsors";
 import { Search } from "lucide-react";
+import { readBrowserStorage, writeBrowserStorage } from "@/lib/browser-storage";
+
+const SAVED_SPONSORS_KEY = "trackmyopt_saved_sponsors";
+const JOB_TRACKER_KEY = "trackmyopt_job_tracker_items";
+
+function parseStoredArray(value: string | null): unknown[] {
+    if (!value) return [];
+    try {
+        const parsed: unknown = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveJobToBrowser(job: JobTrackerItem): void {
+    const items = parseStoredArray(readBrowserStorage(JOB_TRACKER_KEY)) as JobTrackerItem[];
+    items.push(job);
+    const wasSaved = writeBrowserStorage(JOB_TRACKER_KEY, JSON.stringify(items));
+
+    const toast = document.createElement("div");
+    toast.className = "fixed bottom-5 right-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-50 animate-fade-in-up";
+    toast.innerText = wasSaved
+        ? "Added to Job Tracker"
+        : "Browser storage is blocked — job was not saved";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
 
 function mapSponsorRow(row: Record<string, unknown>): H1BSponsor {
     return {
@@ -88,10 +116,9 @@ export default function H1BSponsorsPage() {
         }
 
         // Load saved state from LocalStorage
-        const saved = localStorage.getItem("trackmyopt_saved_sponsors");
-        if (saved) {
-            setSavedSponsors(new Set(JSON.parse(saved)));
-        }
+        const savedIds = parseStoredArray(readBrowserStorage(SAVED_SPONSORS_KEY))
+            .filter((value): value is string => typeof value === "string");
+        setSavedSponsors(new Set(savedIds));
 
         fetchSponsors();
     }, []);
@@ -104,27 +131,12 @@ export default function H1BSponsorsPage() {
             newSaved.add(id);
         }
         setSavedSponsors(newSaved);
-        localStorage.setItem("trackmyopt_saved_sponsors", JSON.stringify(Array.from(newSaved)));
+        writeBrowserStorage(SAVED_SPONSORS_KEY, JSON.stringify(Array.from(newSaved)));
     };
 
     const handleAddToTrackerClick = (sponsor: H1BSponsor) => {
         setSelectedSponsorForTracker(sponsor);
         setIsTrackerModalOpen(true);
-    };
-
-    const handleSaveJob = (job: JobTrackerItem) => {
-        // Save to localStorage for now
-        const existingDefault = localStorage.getItem("trackmyopt_job_tracker_items");
-        const items: JobTrackerItem[] = existingDefault ? JSON.parse(existingDefault) : [];
-        items.push(job);
-        localStorage.setItem("trackmyopt_job_tracker_items", JSON.stringify(items));
-
-        // Show simplified Toast
-        const toast = document.createElement("div");
-        toast.className = "fixed bottom-5 right-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-lg shadow-lg text-sm font-medium z-50 animate-fade-in-up";
-        toast.innerText = "Added to Job Tracker";
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
     };
 
     // Filter Logic
@@ -315,7 +327,7 @@ export default function H1BSponsorsPage() {
                 isOpen={isTrackerModalOpen}
                 onClose={() => setIsTrackerModalOpen(false)}
                 companyName={selectedSponsorForTracker?.name || ""}
-                onSave={handleSaveJob}
+                onSave={saveJobToBrowser}
             />
         </div>
     );

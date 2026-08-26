@@ -1,6 +1,7 @@
 import { buildResumePdfFilename, extractNameFromLatex, extractRoleFromLatex } from "./build-resume-filename";
 import { resolveJobTitle } from "./extract-job-title";
 import type { KeywordPlacement } from "./keyword-placement";
+import { analyzeLatexBulletMetrics } from "./bullet-metrics";
 
 export interface AtsAnalysisLike {
     passed?: boolean;
@@ -12,6 +13,11 @@ export interface AtsAnalysisLike {
         score?: number;
     };
     keywordPlacement?: KeywordPlacement[];
+    metricsRatio?: number;
+    metricsBullets?: {
+        total?: number;
+        quantified?: number;
+    };
 }
 
 export interface ReadinessInput {
@@ -42,15 +48,6 @@ function hasCriticalIssues(issues: string[] = []): boolean {
     return issues.some((i) => i.startsWith("CRITICAL") || i.startsWith("MISSING SECTION"));
 }
 
-function metricsRatioFromLatex(latex: string): number {
-    const bullets = latex.match(/\\item\s+.+/g) ?? [];
-    if (bullets.length === 0) return 0;
-    const withMetrics = bullets.filter((line) =>
-        /\d+[%$kKmMbB]|\d+\s*(percent|million|users|customers)/i.test(line)
-    ).length;
-    return withMetrics / bullets.length;
-}
-
 export function evaluateApplyReadiness(input: ReadinessInput): ApplyReadinessResult {
     const score = input.atsAnalysis?.score ?? 0;
     const issues = input.atsAnalysis?.issues ?? [];
@@ -64,11 +61,13 @@ export function evaluateApplyReadiness(input: ReadinessInput): ApplyReadinessRes
     });
     const nameInFilename = extractNameFromLatex(input.latex).length > 0;
     const roleInFilename = role.length > 0 && filename.toLowerCase().includes(role.split(" ")[0]?.toLowerCase() ?? "___");
+    const bulletMetrics = analyzeLatexBulletMetrics(input.latex);
+    const metricsPercent = Math.round(bulletMetrics.ratio * 100);
 
     const checks: ReadinessCheck[] = [
         {
             id: "ats-score",
-            label: `ATS score ≥ ${PASS_SCORE}`,
+            label: `Estimated match score ≥ ${PASS_SCORE}`,
             passed: score >= PASS_SCORE,
             detail: score > 0 ? `${score}/100` : "Run analysis first",
         },
@@ -87,8 +86,11 @@ export function evaluateApplyReadiness(input: ReadinessInput): ApplyReadinessRes
         {
             id: "metrics",
             label: "≥ 60% bullets with metrics",
-            passed: metricsRatioFromLatex(input.latex) >= 0.6,
-            detail: `${Math.round(metricsRatioFromLatex(input.latex) * 100)}% with numbers`,
+            passed: bulletMetrics.total > 0 && bulletMetrics.ratio >= 0.6,
+            detail:
+                bulletMetrics.total > 0
+                    ? `${metricsPercent}% quantified (${bulletMetrics.withMetrics}/${bulletMetrics.total} bullets)`
+                    : "No experience bullets detected",
         },
         {
             id: "filename",

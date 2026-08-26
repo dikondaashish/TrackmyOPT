@@ -7,6 +7,8 @@ import { latexToPlainText } from '@/lib/resume/latex-to-plain-text';
 import { computeKeywordPlacement } from '@/lib/resume/keyword-placement';
 import { checkAtsScanLimit, trackAtsScan } from '@/lib/usage-limit';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
+import { analyzeLatexBulletMetrics } from '@/lib/resume/bullet-metrics';
+import { calculateAtsFinalScore } from '@/lib/resume/ats-score';
 
 export async function OPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
@@ -97,12 +99,16 @@ export async function POST(req: NextRequest) {
             };
         }
 
-        // 3. Merge Results
-        // Use AI's overall score as the primary score (it already factors in keywords,
-        // bullets, sections, and placement). Apply a small penalty for static format issues.
-        const formatPenalty = Math.min(basicCheck.issues.length * 5, 15);
-        const aiScore = aiAnalysis.overallScore ?? aiAnalysis.keywordMatch?.score ?? 0;
-        const finalScore = Math.max(0, Math.min(100, Math.round(aiScore - formatPenalty)));
+        // 3. Merge Results. Content quality is scored once by the AI rubric.
+        // Only actual parse/structure problems receive the deterministic format
+        // penalty; recommendations such as low metrics must not be counted twice.
+        const scoreBreakdown = calculateAtsFinalScore({
+            overallScore: aiAnalysis.overallScore,
+            keywordScore: aiAnalysis.keywordMatch?.score,
+            issues: basicCheck.issues,
+        });
+        const finalScore = scoreBreakdown.finalScore;
+        const bulletMetrics = analyzeLatexBulletMetrics(latexCode || '');
 
         const foundKeywords = aiAnalysis.keywordMatch?.found ?? [];
         const keywordPlacement = computeKeywordPlacement(scanResumeText, foundKeywords);
@@ -117,6 +123,12 @@ export async function POST(req: NextRequest) {
             missingKeywordsByCategory: aiAnalysis.missingKeywordsByCategory,
             keywordPlacement,
             score: finalScore,
+            metricsRatio: bulletMetrics.ratio,
+            metricsBullets: {
+                total: bulletMetrics.total,
+                quantified: bulletMetrics.withMetrics,
+            },
+            scoreBreakdown,
         };
 
         return NextResponse.json(

@@ -44,6 +44,9 @@ export async function applyStripeCheckoutSession(args: {
   };
 }): Promise<{ ok: true; alreadyRecorded: boolean } | { ok: false; reason: string }> {
   const { stripe, supabase, session, options } = args;
+  if (session.metadata?.purchase_type === "resume_credit_pack") {
+    return { ok: false, reason: "resume_credit_checkout_requires_credit_fulfillment" };
+  }
   let userId = session.metadata?.supabase_user_id;
 
   if (!userId) {

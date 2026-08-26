@@ -7,7 +7,10 @@ import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 import { z } from 'zod';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
+import {
+    releaseResumeGenerationReservation,
+    reserveResumeGeneration,
+} from '@/lib/usage-limit';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
@@ -49,6 +52,9 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
+    let reservationId: string | null = null;
+    let reservationUserId: string | null = null;
+    let reservationCommitted = false;
     try {
         // 0. Auth Check — accepts the web cookie session OR the extension's
         // Bearer token (getUserId handles both).
@@ -56,20 +62,9 @@ export async function POST(req: NextRequest) {
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
         }
+        reservationUserId = userId;
 
-        // 1. Check Usage Limits
-        const { allowed, limit, usage } = await checkResumeLimit(userId);
-        if (!allowed) {
-            return NextResponse.json(
-                {
-                    error: 'Usage limit reached',
-                    details: `You have used ${usage}/${limit} generations this month. Please upgrade your plan.`
-                },
-                { status: 403, headers: corsHeaders }
-            );
-        }
-
-        // 2. Rate Limiting
+        // 1. Rate Limiting
         const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
         if (ratelimit) {
             const { success } = await ratelimit.limit(ip);
@@ -89,7 +84,7 @@ export async function POST(req: NextRequest) {
             JOB_DESCRIPTION_MAX_CHARS
         );
 
-        // 3. Input Validation
+        // 2. Input Validation
         const validation = GenerateSchema.safeParse({
             ...body,
             resumeText: resumePrep.text,
@@ -111,14 +106,14 @@ export async function POST(req: NextRequest) {
         } = validation.data;
         const accentHex = normalizeAccentHex(validation.data.accentHex);
 
-        // 4. Load Template
+        // 3. Load Template
         const template = loadTemplateSource(templateId, accentHex);
         if (!template) {
             console.error(`Template not found for id "${templateId}" (and fallback missing).`);
             return NextResponse.json({ error: 'Template not found' }, { status: 404 });
         }
 
-        // 5. Build Prompt
+        // 4. Build Prompt
         const prompt = buildGeneratePrompt(
             resumeText,
             jobDescription,
@@ -126,6 +121,28 @@ export async function POST(req: NextRequest) {
             focusKeywords,
             yearsOfExperience
         );
+
+        // Reserve included allowance or a purchased credit atomically before
+        // invoking the model. The finally block releases it if generation fails.
+        const entitlement = await reserveResumeGeneration(userId, 'generate');
+        if (!entitlement.allowed || !entitlement.reservationId) {
+            return NextResponse.json(
+                {
+                    error: 'Usage limit reached',
+                    code: entitlement.denialReason,
+                    details:
+                        entitlement.denialReason === 'credits_required'
+                            ? `You used ${entitlement.usage}/${entitlement.limit} included generations. Buy resume credits to continue.`
+                            : `You used ${entitlement.usage}/${entitlement.limit} included generations. Upgrade to Pro to continue.`,
+                    usage: entitlement.usage,
+                    limit: entitlement.limit,
+                    creditBalance: entitlement.creditBalance,
+                    canBuyCredits: entitlement.canBuyCredits,
+                },
+                { status: 403, headers: corsHeaders }
+            );
+        }
+        reservationId = entitlement.reservationId;
 
         const response = await generateAiContent({
             task: 'resume_generate',
@@ -141,8 +158,7 @@ export async function POST(req: NextRequest) {
         // ATS Validation
         const atsCheck = checkAtsCompliance(latex);
 
-        // 6. Track Usage
-        await trackResumeGeneration(userId, 'generate');
+        reservationCommitted = true;
 
         return NextResponse.json(
             {
@@ -171,5 +187,9 @@ export async function POST(req: NextRequest) {
             { success: false, error: 'Failed to generate resume' },
             { status: 500, headers: corsHeaders }
         );
+    } finally {
+        if (reservationId && reservationUserId && !reservationCommitted) {
+            await releaseResumeGenerationReservation(reservationUserId, reservationId);
+        }
     }
 }

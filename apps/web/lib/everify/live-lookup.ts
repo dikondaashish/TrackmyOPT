@@ -1,4 +1,4 @@
-import { chromium, type Browser, type Frame, type Page } from "playwright-core";
+import type { Browser, Frame, Page } from "playwright-core";
 import type { EVerifyEmployerRecord, EVerifyStatus } from "./types";
 
 const SEARCH_URL = "https://www.e-verify.gov/e-verify-employer-search";
@@ -261,6 +261,7 @@ export async function fetchRobotsPolicy(
 }
 
 async function launchBrowser(): Promise<Browser> {
+  const { chromium } = await import("playwright-core");
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     const { default: serverlessChromium } = await import("@sparticuz/chromium");
     return chromium.launch({

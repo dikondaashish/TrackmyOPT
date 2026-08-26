@@ -4,6 +4,7 @@ import {
   DEDICATED_RESUME_LIMIT,
   FREE_ATS_SCAN_LIMIT,
   FREE_RESUME_LIMIT,
+  hasActivePaidResumePlan,
   PRO_ATS_SCAN_LIMIT,
   PRO_RESUME_LIMIT,
   resolveAtsScanLimitForTier,
@@ -21,6 +22,41 @@ describe("resolveResumeLimitForTier", () => {
     expect(resolveResumeLimitForTier("pro")).toBe(PRO_RESUME_LIMIT);
     expect(resolveResumeLimitForTier("dedicated")).toBe(DEDICATED_RESUME_LIMIT);
     expect(resolveResumeLimitForTier("PRO")).toBe(PRO_RESUME_LIMIT);
+  });
+});
+
+describe("hasActivePaidResumePlan", () => {
+  it("allows credit top-ups only for active Pro and Dedicated accounts", () => {
+    const future = new Date(Date.now() + 60_000).toISOString();
+
+    expect(
+      hasActivePaidResumePlan({
+        plan_tier: "pro",
+        premium_status: true,
+        subscription_expires_at: future,
+      })
+    ).toBe(true);
+    expect(
+      hasActivePaidResumePlan({
+        plan_tier: "dedicated",
+        premium_status: true,
+        subscription_expires_at: null,
+      })
+    ).toBe(true);
+  });
+
+  it("rejects free, inactive, and expired accounts", () => {
+    const past = new Date(Date.now() - 60_000).toISOString();
+
+    expect(hasActivePaidResumePlan({ plan_tier: "free", premium_status: true })).toBe(false);
+    expect(hasActivePaidResumePlan({ plan_tier: "pro", premium_status: false })).toBe(false);
+    expect(
+      hasActivePaidResumePlan({
+        plan_tier: "pro",
+        premium_status: true,
+        subscription_expires_at: past,
+      })
+    ).toBe(false);
   });
 });
 

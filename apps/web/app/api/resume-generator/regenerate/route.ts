@@ -6,7 +6,10 @@ import { buildRegeneratePrompt } from '@/lib/ai/prompts/regenerate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
 import { z } from 'zod';
 import rateLimit from '@/lib/auth/rate-limit';
-import { checkResumeLimit, trackResumeGeneration } from '@/lib/usage-limit';
+import {
+    releaseResumeGenerationReservation,
+    reserveResumeGeneration,
+} from '@/lib/usage-limit';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import {
@@ -34,6 +37,9 @@ const RegenerateSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+    let reservationId: string | null = null;
+    let reservationUserId: string | null = null;
+    let reservationCommitted = false;
     try {
         // 0. Auth Check
         const cookieStore = await cookies();
@@ -55,19 +61,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // 1. Check Usage Limits
-        const { allowed, limit, usage } = await checkResumeLimit(user.id);
-        if (!allowed) {
-            return NextResponse.json(
-                {
-                    error: 'Usage limit reached',
-                    details: `You have used ${usage}/${limit} generations this month. Please upgrade your plan.`
-                },
-                { status: 403 }
-            );
-        }
+        reservationUserId = user.id;
 
-        // 2. Rate Limiting
+        // 1. Rate Limiting
         const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
         const { isRateLimited, unavailable } = await limiter.check(req, 10, ip);
 
@@ -86,7 +82,7 @@ export async function POST(req: NextRequest) {
             JOB_DESCRIPTION_MAX_CHARS
         );
 
-        // 3. Input Validation
+        // 2. Input Validation
         const validation = RegenerateSchema.safeParse({
             ...body,
             resumeText: resumePrep.text,
@@ -101,14 +97,14 @@ export async function POST(req: NextRequest) {
 
         const { jobDescription, templateId, previousLatex, userFeedback, atsAnalysis } = validation.data;
 
-        // 4. Load Template
+        // 3. Load Template
         const template = loadTemplateSource(templateId, normalizeAccentHex(body.accentHex));
         if (!template) {
             console.error(`Template not found for id "${templateId}" (and fallback missing).`);
             return NextResponse.json({ error: 'Template not found' }, { status: 404 });
         }
 
-        // 5. Build Prompt
+        // 4. Build Prompt
         const prompt = buildRegeneratePrompt(
             jobDescription,
             template.tex,
@@ -117,7 +113,27 @@ export async function POST(req: NextRequest) {
             atsAnalysis
         );
 
-        // 6. Generate
+        const entitlement = await reserveResumeGeneration(user.id, 'regenerate');
+        if (!entitlement.allowed || !entitlement.reservationId) {
+            return NextResponse.json(
+                {
+                    error: 'Usage limit reached',
+                    code: entitlement.denialReason,
+                    details:
+                        entitlement.denialReason === 'credits_required'
+                            ? `You used ${entitlement.usage}/${entitlement.limit} included generations. Buy resume credits to continue.`
+                            : `You used ${entitlement.usage}/${entitlement.limit} included generations. Upgrade to Pro to continue.`,
+                    usage: entitlement.usage,
+                    limit: entitlement.limit,
+                    creditBalance: entitlement.creditBalance,
+                    canBuyCredits: entitlement.canBuyCredits,
+                },
+                { status: 403 }
+            );
+        }
+        reservationId = entitlement.reservationId;
+
+        // 5. Generate
         const response = await generateAiContent({
             task: 'resume_regenerate',
             contents: prompt,
@@ -125,14 +141,13 @@ export async function POST(req: NextRequest) {
         });
         let latex = response.text || '';
 
-        // 7. Clean Output
+        // 6. Clean Output
         latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
 
-        // 8. ATS Validation
+        // 7. ATS Validation
         const atsCheck = checkAtsCompliance(latex);
 
-        // 9. Track Usage
-        await trackResumeGeneration(user.id, 'regenerate');
+        reservationCommitted = true;
 
         return NextResponse.json({
             latex,
@@ -157,5 +172,9 @@ export async function POST(req: NextRequest) {
             { error: 'Failed to regenerate resume' },
             { status: 500 }
         );
+    } finally {
+        if (reservationId && reservationUserId && !reservationCommitted) {
+            await releaseResumeGenerationReservation(reservationUserId, reservationId);
+        }
     }
 }

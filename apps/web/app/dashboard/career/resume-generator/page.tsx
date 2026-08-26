@@ -33,7 +33,11 @@ import { useResumeStore } from "@/store/resume-store";
 import { extractJobTitle } from "@/lib/resume/extract-job-title";
 import { useToast } from "@/hooks/useToast";
 
-import { ResumeUsageStats } from "@/components/dashboard/resume/ResumeUsageStats";
+import {
+    ResumeUsageStats,
+    type ResumeUsageData,
+} from "@/components/dashboard/resume/ResumeUsageStats";
+import { ResumeCreditTopUpModal } from "@/components/dashboard/resume/ResumeCreditTopUpModal";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { GapAnalysisPanel } from "./components/GapAnalysisPanel";
 
@@ -79,10 +83,11 @@ export default function ResumeGeneratorPage() {
     const [showHistory, setShowHistory] = useState(false);
 
     // Usage limit state
-    const [usageLimit, setUsageLimit] = useState<{ resumeUsage: number; resumeLimit: number } | null>(null);
-    const [usageLoading, setUsageLoading] = useState(true);
+    const [usageLimit, setUsageLimit] = useState<ResumeUsageData | null>(null);
     const [showPricingModal, setShowPricingModal] = useState(false);
+    const [showCreditModal, setShowCreditModal] = useState(false);
     const [isPremium, setIsPremium] = useState<boolean | null>(null);
+    const creditConfirmationRef = useRef<string | null>(null);
 
     // OCR state
     const [resumeOcr, setResumeOcr] = useState<OcrStatus>({ show: false, running: false });
@@ -97,12 +102,12 @@ export default function ResumeGeneratorPage() {
                     setUsageLimit({
                         resumeUsage: data.resumeUsage,
                         resumeLimit: data.resumeLimit,
+                        resumeCreditBalance: data.resumeCreditBalance ?? 0,
+                        canBuyResumeCredits: data.canBuyResumeCredits === true,
                     });
                 }
             } catch (error) {
                 console.error("Failed to fetch resume usage:", error);
-            } finally {
-                setUsageLoading(false);
             }
         }
         fetchUsage();
@@ -136,6 +141,84 @@ export default function ResumeGeneratorPage() {
     const companyParam = searchParams.get("company");
     const roleParam = searchParams.get("role");
     const applicationIdParam = searchParams.get("applicationId");
+    const creditCheckoutStatus = searchParams.get("credit_checkout");
+    const creditCheckoutSessionId = searchParams.get("session_id");
+
+    useEffect(() => {
+        if (creditCheckoutStatus === "cancelled") {
+            router.replace("/dashboard/career/resume-generator", { scroll: false });
+            return;
+        }
+
+        if (
+            creditCheckoutStatus !== "success" ||
+            !creditCheckoutSessionId ||
+            creditConfirmationRef.current === creditCheckoutSessionId
+        ) {
+            return;
+        }
+
+        creditConfirmationRef.current = creditCheckoutSessionId;
+        let cancelled = false;
+
+        (async () => {
+            try {
+                const confirmationResponse = await fetch("/api/resume-credits/confirm", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ sessionId: creditCheckoutSessionId }),
+                });
+                const confirmation = await confirmationResponse.json().catch(() => ({}));
+                if (!confirmationResponse.ok) {
+                    throw new Error(
+                        typeof confirmation.error === "string"
+                            ? confirmation.error
+                            : "We could not confirm your credit purchase."
+                    );
+                }
+
+                const usageResponse = await fetch("/api/user/usage", {
+                    credentials: "include",
+                    cache: "no-store",
+                });
+                const usage = usageResponse.ok ? await usageResponse.json() : null;
+                if (cancelled) return;
+
+                if (usage) {
+                    setUsageLimit({
+                        resumeUsage: usage.resumeUsage,
+                        resumeLimit: usage.resumeLimit,
+                        resumeCreditBalance: usage.resumeCreditBalance ?? 0,
+                        canBuyResumeCredits: usage.canBuyResumeCredits === true,
+                    });
+                }
+
+                toast({
+                    title: "Resume credits added",
+                    description: `${confirmation.creditsGranted ?? "Your"} credits are ready to use.`,
+                });
+            } catch (confirmationError) {
+                if (cancelled) return;
+                toast({
+                    title: "Credit confirmation delayed",
+                    description:
+                        confirmationError instanceof Error
+                            ? confirmationError.message
+                            : "Your payment may still be processing. Please refresh shortly.",
+                    variant: "destructive",
+                });
+            } finally {
+                if (!cancelled) {
+                    router.replace("/dashboard/career/resume-generator", { scroll: false });
+                }
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [creditCheckoutSessionId, creditCheckoutStatus, router, toast]);
 
     // Link resume flow to a Job Tracker application when opened from drawer
     useEffect(() => {
@@ -458,8 +541,13 @@ export default function ResumeGeneratorPage() {
     };
 
     const canProceed = resumeText.length > 50 && jobDescription.length > 50;
-    const isLimitReached =
+    const isPlanLimitReached =
         !!usageLimit && usageLimit.resumeUsage >= usageLimit.resumeLimit;
+    const canUsePurchasedCredit =
+        !!usageLimit &&
+        usageLimit.canBuyResumeCredits &&
+        usageLimit.resumeCreditBalance >= 1;
+    const isGenerationBlocked = isPlanLimitReached && !canUsePurchasedCredit;
 
     return (
         <>
@@ -497,7 +585,11 @@ export default function ResumeGeneratorPage() {
                         {/* Right Actions */}
                         <div className="flex items-center justify-end gap-3">
                             <div className="hidden xl:block">
-                                <ResumeUsageStats compact />
+                                <ResumeUsageStats
+                                    compact
+                                    stats={usageLimit}
+                                    onBuyCredits={() => setShowCreditModal(true)}
+                                />
                             </div>
 
                             <Button
@@ -515,6 +607,12 @@ export default function ResumeGeneratorPage() {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 max-md:px-3 py-6 sm:py-8">
+                <div className="xl:hidden">
+                    <ResumeUsageStats
+                        stats={usageLimit}
+                        onBuyCredits={() => setShowCreditModal(true)}
+                    />
+                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     <div className="space-y-6">
@@ -1003,19 +1101,25 @@ export default function ResumeGeneratorPage() {
                 <GapAnalysisPanel
                     resumeText={resumeText}
                     jobDescription={jobDescription}
-                    disabled={isLimitReached}
+                    disabled={isGenerationBlocked}
                 />
 
                 {/* CTA Button */}
                 <div className="mt-8 flex justify-center">
-                    {isLimitReached ? (
+                    {isGenerationBlocked ? (
                         <Button
                             type="button"
-                            onClick={() => setShowPricingModal(true)}
+                            onClick={() => {
+                                if (usageLimit?.canBuyResumeCredits) {
+                                    setShowCreditModal(true);
+                                } else {
+                                    setShowPricingModal(true);
+                                }
+                            }}
                             className="px-8 py-6 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
                         >
                             <Sparkles className="w-5 h-5 mr-2" />
-                            Upgrade to Pro
+                            {usageLimit?.canBuyResumeCredits ? "Buy Resume Credits" : "Upgrade to Pro"}
                             <ChevronRight className="w-5 h-5 ml-2" />
                         </Button>
                     ) : (
@@ -1032,14 +1136,21 @@ export default function ResumeGeneratorPage() {
                 </div>
 
                 {/* Helper Text */}
-                {!canProceed && !isLimitReached && (
+                {!canProceed && !isGenerationBlocked && (
                     <p className="mt-4 text-center text-sm text-amber-600 dark:text-amber-400">
                         Please add both your resume and job description (min 50 characters each) to continue
                     </p>
                 )}
-                {isLimitReached && (
+                {isPlanLimitReached && canUsePurchasedCredit && (
+                    <p className="mt-4 text-center text-sm text-emerald-600 dark:text-emerald-400">
+                        Your included monthly allowance is used. This resume will use 1 purchased credit.
+                    </p>
+                )}
+                {isGenerationBlocked && (
                     <p className="mt-4 text-center text-sm text-red-600 dark:text-red-400">
-                        You&apos;ve reached your monthly free resume limit. Upgrade to Pro for more ATS-optimized resumes.
+                        {usageLimit?.canBuyResumeCredits
+                            ? `You’ve used all ${usageLimit.resumeLimit} included resumes. Add 10 credits for $1 to keep generating.`
+                            : "You’ve reached your monthly free resume limit. Upgrade to Pro for more ATS-optimized resumes."}
                     </p>
                 )}
 
@@ -1065,6 +1176,11 @@ export default function ResumeGeneratorPage() {
             open={showPricingModal}
             onClose={() => setShowPricingModal(false)}
             isPremium={isPremium ?? false}
+        />
+        <ResumeCreditTopUpModal
+            open={showCreditModal}
+            onClose={() => setShowCreditModal(false)}
+            currentBalance={usageLimit?.resumeCreditBalance ?? 0}
         />
         </>
     );

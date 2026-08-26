@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useId } from "react";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import type { PromoCheckoutMode } from "@/lib/premium/promo-checkout-types";
+import { useId } from 'react';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import type { PromoCheckoutMode } from '@/lib/premium/promo-checkout-types';
 
 export type { PromoCheckoutMode };
 
@@ -23,8 +23,8 @@ interface PromoCodeCheckoutBarProps {
 }
 
 /**
- * Promo UX for Stripe checkout: request configured EARLYBIRD, remove, or use a custom code.
- * Parent maps mode → POST body: default = omit promoCode, none = null, custom = string.
+ * Promo UX for Stripe checkout: the limited-time offer is automatic, while a
+ * customer can replace it with another valid promotion code.
  */
 export function PromoCodeCheckoutBar({
   mode,
@@ -39,7 +39,7 @@ export function PromoCodeCheckoutBar({
 }: PromoCodeCheckoutBarProps) {
   const inputId = useId();
 
-  if (compact && mode === "default") {
+  if (compact && mode === 'default') {
     return (
       <div
         className="flex items-center justify-between gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/[0.07] px-2.5 py-1"
@@ -47,9 +47,12 @@ export function PromoCodeCheckoutBar({
       >
         <p className="min-w-0 truncate text-[11px] sm:text-xs text-foreground">
           <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-            EARLYBIRD
+            Limited-time offer
           </span>
-          <span className="text-muted-foreground"> · Final discount shown by Stripe</span>
+          <span className="text-muted-foreground">
+            {' '}
+            · Final discount shown by Stripe
+          </span>
         </p>
         <button
           type="button"
@@ -57,23 +60,26 @@ export function PromoCodeCheckoutBar({
           onClick={onRemoveDefault}
           disabled={disabled}
         >
-          Remove
+          Use another code
         </button>
       </div>
     );
   }
 
   const shellClass = compact
-    ? "rounded-md border border-border/60 bg-muted/20 px-2.5 py-1.5 text-left"
-    : "rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left";
+    ? 'rounded-md border border-border/60 bg-muted/20 px-2.5 py-1.5 text-left'
+    : 'rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left';
 
   return (
     <div className={shellClass}>
-      {mode === "default" && (
+      {mode === 'default' && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="min-w-0 text-sm text-foreground">
-            <span className="font-medium">EARLYBIRD offer requested</span>
-            <span className="text-muted-foreground"> — Stripe confirms any discount before payment</span>
+            <span className="font-medium">Limited-time offer applied</span>
+            <span className="text-muted-foreground">
+              {' '}
+              — Stripe confirms any discount before payment
+            </span>
           </p>
           <Button
             type="button"
@@ -84,25 +90,32 @@ export function PromoCodeCheckoutBar({
             disabled={disabled}
           >
             <X className="h-3.5 w-3.5" />
-            Remove
+            Use another code
           </Button>
         </div>
       )}
 
-      {(mode === "none" || mode === "custom") && (
-        <div className={compact ? "space-y-1.5" : "space-y-2"}>
-          {mode === "custom" && customCode.trim() ? (
+      {(mode === 'none' || mode === 'custom') && (
+        <div className={compact ? 'space-y-1.5' : 'space-y-2'}>
+          {mode === 'custom' && customCode.trim() ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className={cn("text-foreground", compact ? "text-xs" : "text-sm")}>
+              <p
+                className={cn(
+                  'text-foreground',
+                  compact ? 'text-xs' : 'text-sm'
+                )}
+              >
                 <span className="font-medium">Promo </span>
-                <span className="font-mono text-[11px]">{customCode.trim()}</span>
+                <span className="font-mono text-[11px]">
+                  {customCode.trim()}
+                </span>
                 <span className="text-muted-foreground"> at checkout</span>
               </p>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className={cn("shrink-0", compact ? "h-7 px-2 text-xs" : "h-8")}
+                className={cn('shrink-0', compact ? 'h-7 px-2 text-xs' : 'h-8')}
                 onClick={onClearCustom}
                 disabled={disabled}
               >
@@ -119,18 +132,23 @@ export function PromoCodeCheckoutBar({
                 placeholder="Promo code"
                 value={customCode}
                 onChange={(e) => onCustomCodeChange(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), onApplyCustom())}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && (e.preventDefault(), onApplyCustom())
+                }
                 disabled={disabled}
                 className={cn(
-                  "flex-1 font-mono",
-                  compact ? "h-8 text-xs" : "h-9 text-sm"
+                  'flex-1 font-mono',
+                  compact ? 'h-8 text-xs' : 'h-9 text-sm'
                 )}
               />
               <Button
                 type="button"
                 variant="secondary"
                 size="sm"
-                className={cn("shrink-0 sm:w-auto", compact ? "h-8 text-xs" : "h-9")}
+                className={cn(
+                  'shrink-0 sm:w-auto',
+                  compact ? 'h-8 text-xs' : 'h-9'
+                )}
                 onClick={onApplyCustom}
                 disabled={disabled || !customCode.trim()}
               >

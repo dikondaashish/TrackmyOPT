@@ -55,6 +55,11 @@ import {
   buildPaymentSucceededCapture,
 } from '@/lib/posthog/billing-analytics';
 import { syncUserLtvToPostHog } from '@/lib/posthog/ltv-sync';
+import {
+  applyResumeCreditRefund,
+  fulfillResumeCreditCheckout,
+  isResumeCreditCheckout,
+} from '@/lib/resume-credits/fulfillment';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -148,13 +153,23 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(stripe, session, event.id);
+        if (isResumeCreditCheckout(session)) {
+          if (session.payment_status === 'paid') {
+            await fulfillResumeCreditCheckout(session, supabase);
+          }
+        } else {
+          await handleCheckoutCompleted(stripe, session, event.id);
+        }
         break;
       }
 
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(stripe, session, event.id);
+        if (isResumeCreditCheckout(session)) {
+          await fulfillResumeCreditCheckout(session, supabase);
+        } else {
+          await handleCheckoutCompleted(stripe, session, event.id);
+        }
         break;
       }
 
@@ -203,7 +218,28 @@ export async function POST(req: NextRequest) {
 
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge;
-        await handleChargeRefunded(stripe, charge, event.id);
+        const creditRefund = await applyResumeCreditRefund(charge, event.id, supabase);
+        if (creditRefund.handled) {
+          const paymentIntentId =
+            typeof charge.payment_intent === 'string'
+              ? charge.payment_intent
+              : charge.payment_intent?.id;
+          if (paymentIntentId) {
+            const fullyRefunded = charge.amount_refunded >= charge.amount;
+            const { error: transactionError } = await supabase
+              .from('payment_transactions')
+              .update({
+                status: fullyRefunded ? 'refunded' : 'partially_refunded',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('stripe_payment_intent_id', paymentIntentId);
+            if (transactionError) {
+              throw new Error(`Resume-credit refund transaction update failed: ${transactionError.message}`);
+            }
+          }
+        } else {
+          await handleChargeRefunded(stripe, charge, event.id);
+        }
         break;
       }
 
@@ -494,6 +530,10 @@ async function logPaymentFailure(session: Stripe.Checkout.Session) {
       currency: session.currency || 'usd',
       status: 'failed',
       failure_reason: 'Async payment failed',
+      plan_id: isResumeCreditCheckout(session) ? 'resume_credits' : session.metadata?.planId,
+      metadata: isResumeCreditCheckout(session)
+        ? { purchase_type: 'resume_credit_pack' }
+        : session.metadata,
     });
   } catch (error) {
     secureLog.error('Error logging payment failure:', sanitizeError(error));
@@ -527,8 +567,11 @@ async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session
       return;
     }
 
+    const isCreditPurchase = isResumeCreditCheckout(session);
     const planId = session.metadata?.planId || 'pro';
-    const planLabel = `TrackMyOPT Premium (${planId})`;
+    const planLabel = isCreditPurchase
+      ? 'TrackMyOPT Resume Credits'
+      : `TrackMyOPT Premium (${planId})`;
     const amountCents = session.amount_total || 0;
     const currency = session.currency || 'usd';
 
@@ -538,6 +581,7 @@ async function handleAsyncCheckoutPaymentFailed(session: Stripe.Checkout.Session
       amount_cents: amountCents,
       currency,
       failure_code: 'async_payment_failed',
+      ...(isCreditPurchase ? { purchase_type: 'resume_credit_pack' } : {}),
     });
 
     const r = await sendPaymentFailedEmail({

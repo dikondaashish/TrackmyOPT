@@ -1,4 +1,9 @@
 
+import {
+    analyzeLatexBulletMetrics,
+    extractLatexBulletBodies,
+} from '@/lib/resume/bullet-metrics';
+
 interface AtsCheckResult {
     passed: boolean;
     issues: string[];
@@ -55,10 +60,10 @@ export function checkAtsCompliance(latex: string): AtsCheckResult {
     }
 
     // 6. Weak action verbs in bullet points
-    const bulletLines = latex.match(/\\item\s+.+/g) || [];
+    const bulletLines = extractLatexBulletBodies(latex);
     let weakVerbCount = 0;
     bulletLines.forEach(line => {
-        const lineText = line.replace(/\\item\s+/, '').toLowerCase();
+        const lineText = line.toLowerCase();
         if (WEAK_VERBS.some(verb => lineText.startsWith(verb))) {
             weakVerbCount++;
         }
@@ -68,13 +73,9 @@ export function checkAtsCompliance(latex: string): AtsCheckResult {
     }
 
     // 7. Metrics check — at least some bullets should have numbers
-    const bulletsWithMetrics = bulletLines.filter(line =>
-        /\d+[%$kKmMbB]|\d+\s*(percent|million|billion|thousand|users|customers|requests|team)/i.test(line)
-        || /\$\d|saved|reduced|increased|improved.*\d/i.test(line)
-    ).length;
-    const metricsRatio = bulletLines.length > 0 ? bulletsWithMetrics / bulletLines.length : 0;
-    if (bulletLines.length > 3 && metricsRatio < 0.4) {
-        issues.push(`LOW METRICS: Only ${Math.round(metricsRatio * 100)}% of bullets include measurable results. Aim for 60%+ with numbers, percentages, or dollar amounts.`);
+    const bulletMetrics = analyzeLatexBulletMetrics(latex);
+    if (bulletMetrics.total > 3 && bulletMetrics.ratio < 0.6) {
+        issues.push(`LOW METRICS: ${bulletMetrics.withMetrics}/${bulletMetrics.total} bullets (${Math.round(bulletMetrics.ratio * 100)}%) include measurable results. Aim for 60%+ with counts, time, scale, percentages, or dollar amounts.`);
     }
 
     // 8. Resume length check (rough estimate based on content volume)

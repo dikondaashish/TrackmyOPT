@@ -38,13 +38,17 @@ export async function GET(_req: NextRequest) {
         const jobLimit = 1000;
 
         // Get Resume Usage
-        const { usage: resumeUsage, limit: resumeLimit } = await checkResumeLimit(user.id);
+        const resume = await checkResumeLimit(user.id);
 
         return NextResponse.json({
             jobsCount: jobCount || 0,
             jobLimit: jobLimit,
-            resumeUsage,
-            resumeLimit
+            resumeUsage: resume.usage,
+            resumeLimit: resume.limit,
+            resumeAllowed: resume.allowed,
+            resumeCreditBalance: resume.creditBalance,
+            canBuyResumeCredits: resume.canBuyCredits,
+            planTier: resume.tier,
         });
 
     } catch (error) {

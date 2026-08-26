@@ -44,6 +44,7 @@ import { isDownloadGateRequired } from "@/lib/resume/apply-readiness";
 import { ATS_PASS_SCORE, buildAutoRegenFeedback, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
 import { captureClientEvent, captureUpgradePromptShown } from "@/lib/posthog-client";
 import { PricingModal } from "@/components/pricing/PricingModal";
+import { ResumeCreditTopUpModal } from "@/components/dashboard/resume/ResumeCreditTopUpModal";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import {
     findTextInLatex,
@@ -78,6 +79,8 @@ export default function ResumeEditorPage() {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showDownloadGate, setShowDownloadGate] = useState(false);
     const [showPricingModal, setShowPricingModal] = useState(false);
+    const [showCreditModal, setShowCreditModal] = useState(false);
+    const [resumeCreditBalance, setResumeCreditBalance] = useState(0);
     const [pdfParseOk, setPdfParseOk] = useState<boolean | null>(null);
     const [isAutoFixing, setIsAutoFixing] = useState(false);
     const [compiledPdfBlob, setCompiledPdfBlob] = useState<Blob | null>(null);
@@ -103,6 +106,34 @@ export default function ResumeEditorPage() {
 
     // Streaming Effect
     const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
+
+    const handleGenerationLimitResponse = useCallback(
+        (data: {
+            code?: string;
+            canBuyCredits?: boolean;
+            creditBalance?: number;
+            details?: string;
+        }) => {
+            if (data.code === "credits_required" && data.canBuyCredits === true) {
+                setResumeCreditBalance(Number(data.creditBalance) || 0);
+                setShowCreditModal(true);
+                toast({
+                    title: "Included resume allowance used",
+                    description: data.details || "Add 10 resume credits for $1 to continue.",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            setShowPricingModal(true);
+            toast({
+                title: "Resume limit reached",
+                description: data.details || "Upgrade your plan to continue generating resumes.",
+                variant: "destructive",
+            });
+        },
+        [toast]
+    );
 
     const { displayedText, isStreaming, stopStreaming } = useStreamingEffect({
         text: generatedLatex,
@@ -347,7 +378,7 @@ export default function ResumeEditorPage() {
                 if (!silent) {
                     toast({
                         title: "Analysis complete",
-                        description: `ATS score: ${data.score ?? "—"}/100`,
+                        description: `Estimated ATS match: ${data.score ?? "—"}/100`,
                     });
                 }
                 return data as AtsAnalysis;
@@ -394,6 +425,10 @@ export default function ResumeEditorPage() {
                 });
 
                 const data = await response.json();
+                if (response.status === 403) {
+                    handleGenerationLimitResponse(data);
+                    return;
+                }
                 if (!response.ok) throw new Error(data.error || "Regenerate failed");
 
                 updateText(data.latex, false);
@@ -415,7 +450,7 @@ export default function ResumeEditorPage() {
                 setIsAutoFixing(false);
             }
         },
-        [generatedLatex, jobDescription, resumeText, selectedTemplateId, setAtsAnalysis, toast, trackAtsScored, updateText]
+        [generatedLatex, handleGenerationLimitResponse, jobDescription, resumeText, selectedTemplateId, setAtsAnalysis, toast, trackAtsScored, updateText]
     );
 
     const postCompilePipeline = useCallback(
@@ -706,6 +741,11 @@ export default function ResumeEditorPage() {
 
             const data = await response.json();
 
+            if (response.status === 403) {
+                handleGenerationLimitResponse(data);
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to regenerate resume');
             }
@@ -887,6 +927,11 @@ export default function ResumeEditorPage() {
                 open={showPricingModal}
                 onClose={() => setShowPricingModal(false)}
                 isPremium={premium.isPremium === true}
+            />
+            <ResumeCreditTopUpModal
+                open={showCreditModal}
+                onClose={() => setShowCreditModal(false)}
+                currentBalance={resumeCreditBalance}
             />
 
             {/* Header */}

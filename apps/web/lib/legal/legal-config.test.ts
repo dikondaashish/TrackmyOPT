@@ -130,7 +130,7 @@ describe('legal-config', () => {
       includeIntro: false,
     });
     expect(label).toContain('/year');
-    expect(label).toContain('$69.00/year');
+    expect(label).toContain('$49.99/year');
   });
 
   it('pricing modal Dedicated consent discloses charge and consultation benefit', () => {
@@ -141,7 +141,9 @@ describe('legal-config', () => {
     });
     expect(monthly).toContain('charged today');
     expect(monthly).toContain('renews monthly');
-    expect(monthly).toContain(`${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee`);
+    expect(monthly).toContain(
+      `${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee`
+    );
     expect(monthly).toContain(`${DEDICATED_CONSULTATION_MINUTES}-minute`);
     expect(monthly).toContain('per account');
     expect(monthly).not.toContain('then $');
@@ -153,7 +155,9 @@ describe('legal-config', () => {
     });
     expect(annual).toContain('charged today');
     expect(annual).toContain('renews annually');
-    expect(annual).toContain(`${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee`);
+    expect(annual).toContain(
+      `${DEDICATED_MONEY_BACK_DAYS}-day money-back guarantee`
+    );
     expect(annual).toContain(`${DEDICATED_CONSULTATION_MINUTES}-minute`);
   });
 });

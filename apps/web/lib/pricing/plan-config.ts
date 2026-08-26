@@ -7,16 +7,37 @@
  * values before a pricing release is deployed.
  */
 
+/** Undiscounted recurring Stripe Price amounts. */
+export const PLAN_LIST_PRICES = {
+  free: { month: 0, year: 0 },
+  pro: { month: 7.99, year: 79.99 },
+  dedicated: { month: 19.99, year: 199.99 },
+} as const;
+
+/** Customer-facing prices while the limited-time offer is active. */
 export const PLAN_PRICES = {
   free: { month: 0, year: 0 },
-  pro: { month: 4.99, year: 69 },
+  pro: { month: 4.99, year: 49.99 },
   dedicated: { month: 14.99, year: 149.99 },
+} as const;
+
+export const LIMITED_TIME_OFFER = {
+  label: 'Limited-time offer',
+  pro: { percentOff: 37.5, promotionCode: 'TRACKMYOPT-PRO-OFFER' },
+  dedicated: { percentOff: 25, promotionCode: 'TRACKMYOPT-DEDICATED-OFFER' },
 } as const;
 
 export const PRO_PAID_INTRO = {
   price: 0.99,
   durationDays: 7,
   usesPerAccount: 1,
+} as const;
+
+export const RESUME_CREDIT_PACK = {
+  priceUsd: 1,
+  creditsPerPack: 10,
+  allowedPackQuantities: [1, 5, 10],
+  maxPacksPerCheckout: 10,
 } as const;
 
 export const PLAN_LIMITS = {
@@ -45,11 +66,19 @@ export const DEDICATED_ATTORNEY_BENEFIT = {
   minimumContinuousPlanDays: 7,
 } as const;
 
-export function annualSavingsPercent(planId: "pro" | "dedicated"): number {
+export function annualSavingsPercent(planId: 'pro' | 'dedicated'): number {
   const price = PLAN_PRICES[planId];
   return Math.round((1 - price.year / (price.month * 12)) * 100);
 }
 
+/** Mirrors Stripe's cent-level rounding for percentage coupons. */
+export function calculateDiscountedPriceCents(
+  listPriceCents: number,
+  percentOff: number
+): number {
+  return Math.round(listPriceCents * (1 - percentOff / 100));
+}
+
 export function formatPlanLimit(limit: number): string {
-  return limit.toLocaleString("en-US");
+  return limit.toLocaleString('en-US');
 }

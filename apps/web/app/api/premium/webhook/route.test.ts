@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
   reconcileCustomerBilling: vi.fn(),
   resolveUserForStripeCustomer: vi.fn(),
   captureServerEvent: vi.fn(),
+  fulfillResumeCreditCheckout: vi.fn(),
+  applyResumeCreditRefund: vi.fn(),
 }));
 
 vi.mock('next/headers', () => ({
@@ -23,7 +25,13 @@ vi.mock('stripe', () => ({
   },
 }));
 vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => ({})),
+  createClient: vi.fn(() => ({
+    from: vi.fn(() => ({
+      update: vi.fn(() => ({
+        eq: vi.fn().mockResolvedValue({ error: null }),
+      })),
+    })),
+  })),
 }));
 vi.mock('@/lib/stripe/require-live-key-in-production', () => ({
   requireLiveStripeKeyInProduction: vi.fn(),
@@ -69,6 +77,14 @@ vi.mock('@/lib/posthog/billing-analytics', () => ({
 vi.mock('@/lib/posthog/ltv-sync', () => ({
   syncUserLtvToPostHog: vi.fn(),
 }));
+vi.mock('@/lib/resume-credits/fulfillment', () => ({
+  isResumeCreditCheckout: vi.fn(
+    (session: { metadata?: { purchase_type?: string } }) =>
+      session.metadata?.purchase_type === 'resume_credit_pack',
+  ),
+  fulfillResumeCreditCheckout: mocks.fulfillResumeCreditCheckout,
+  applyResumeCreditRefund: mocks.applyResumeCreditRefund,
+}));
 
 import { POST } from './route';
 
@@ -87,6 +103,7 @@ describe('Stripe webhook retry contract', () => {
     vi.clearAllMocks();
     process.env.STRIPE_SECRET_KEY = 'sk_test_webhook';
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test';
+    mocks.applyResumeCreditRefund.mockResolvedValue({ handled: false });
   });
 
   it('returns 500 when checkout entitlement application fails', async () => {
@@ -135,6 +152,62 @@ describe('Stripe webhook retry contract', () => {
     const response = await POST(webhookRequest());
 
     expect(response.status).toBe(500);
+  });
+
+  it('fulfills a paid resume-credit checkout without granting premium', async () => {
+    mocks.constructEvent.mockReturnValue({
+      id: 'evt_credit_checkout',
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          id: 'cs_credit',
+          status: 'complete',
+          payment_status: 'paid',
+          metadata: {
+            purchase_type: 'resume_credit_pack',
+            supabase_user_id: 'user-1',
+          },
+        },
+      },
+    });
+    mocks.fulfillResumeCreditCheckout.mockResolvedValue({
+      alreadyGranted: false,
+      creditBalance: 10,
+      creditsGranted: 10,
+    });
+
+    const response = await POST(webhookRequest());
+
+    expect(response.status).toBe(200);
+    expect(mocks.fulfillResumeCreditCheckout).toHaveBeenCalledOnce();
+    expect(mocks.applyStripeCheckoutSession).not.toHaveBeenCalled();
+  });
+
+  it('handles a credit refund without revoking the subscription', async () => {
+    mocks.constructEvent.mockReturnValue({
+      id: 'evt_credit_refund',
+      type: 'charge.refunded',
+      data: {
+        object: {
+          id: 'ch_credit',
+          payment_intent: 'pi_credit',
+          amount: 100,
+          amount_refunded: 100,
+        },
+      },
+    });
+    mocks.applyResumeCreditRefund.mockResolvedValue({
+      handled: true,
+      userId: 'user-1',
+      creditsRevoked: 10,
+      creditBalance: 0,
+    });
+
+    const response = await POST(webhookRequest());
+
+    expect(response.status).toBe(200);
+    expect(mocks.applyResumeCreditRefund).toHaveBeenCalledOnce();
+    expect(mocks.reconcileCustomerBilling).not.toHaveBeenCalled();
   });
 
   it('acknowledges after a successful revocation even when analytics fails', async () => {

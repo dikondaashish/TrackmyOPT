@@ -55,4 +55,27 @@ describe("EVerifyEmployerLookup", () => {
       expect(screen.getByText(/Cached result/)).toBeInTheDocument()
     );
   });
+
+  it("shows a safe retry message when an upstream gateway returns HTML", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("<!DOCTYPE html><html><body>Gateway Timeout</body></html>", {
+        status: 504,
+        headers: { "content-type": "text/html" },
+      })
+    );
+
+    render(<EVerifyEmployerLookup />);
+    fireEvent.change(screen.getByLabelText("Employer legal name or DBA"), {
+      target: { value: "Microsoft" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Check E-Verify" }));
+
+    expect(await screen.findByText("Lookup unavailable")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "The live E-Verify check timed out or is temporarily unavailable. Please try again."
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Unexpected token/)).not.toBeInTheDocument();
+  });
 });

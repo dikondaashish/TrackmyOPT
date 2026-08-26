@@ -13,11 +13,44 @@ import {
 } from "lucide-react";
 import type { EVerifyLookupResponse } from "@/lib/everify/types";
 
-interface LookupError {
-  company: string;
-  found: false;
-  error: string;
-  message: string;
+const LOOKUP_UNAVAILABLE_MESSAGE =
+  "The live E-Verify check timed out or is temporarily unavailable. Please try again.";
+
+function responseFailureMessage(status: number): string {
+  if (status === 401) {
+    return "Your session has expired. Sign in again, then retry the lookup.";
+  }
+  if (status === 429) {
+    return "Too many employer lookups. Please wait a few minutes and try again.";
+  }
+  return LOOKUP_UNAVAILABLE_MESSAGE;
+}
+
+async function readLookupResponse(
+  response: Response
+): Promise<EVerifyLookupResponse> {
+  const body = await response.text();
+  let payload: unknown;
+
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    throw new Error(responseFailureMessage(response.status));
+  }
+
+  if (!payload || typeof payload !== "object") {
+    throw new Error(responseFailureMessage(response.status));
+  }
+
+  if (!response.ok || "error" in payload) {
+    const message =
+      "message" in payload && typeof payload.message === "string"
+        ? payload.message
+        : responseFailureMessage(response.status);
+    throw new Error(message);
+  }
+
+  return payload as EVerifyLookupResponse;
 }
 
 const publicDateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -100,10 +133,7 @@ export function EVerifyEmployerLookup() {
         `/api/everify-lookup?company=${encodeURIComponent(query)}`,
         { credentials: "include" }
       );
-      const payload = (await response.json()) as EVerifyLookupResponse | LookupError;
-      if (!response.ok || "error" in payload) {
-        throw new Error(payload.message || "Employer lookup is unavailable.");
-      }
+      const payload = await readLookupResponse(response);
       setResult(payload);
     } catch (lookupError) {
       setError(

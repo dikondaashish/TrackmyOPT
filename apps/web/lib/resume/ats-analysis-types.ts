@@ -27,6 +27,16 @@ export interface AtsAnalysis {
         weak: number;
         score: number;
     };
+    metricsRatio?: number;
+    metricsBullets?: {
+        total: number;
+        quantified: number;
+    };
+    scoreBreakdown?: {
+        contentScore: number;
+        formatPenalty: number;
+        finalScore: number;
+    };
     improvements?: string[];
     missingKeywordsByCategory?: {
         required?: string[];

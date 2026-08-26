@@ -1,44 +1,34 @@
 "use client";
 
-import { useEffect, useState } from 'react';
 import { Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-interface UsageData {
+export interface ResumeUsageData {
     resumeUsage: number;
     resumeLimit: number;
+    resumeCreditBalance: number;
+    canBuyResumeCredits: boolean;
 }
 
-export function ResumeUsageStats({ compact = false }: { compact?: boolean }) {
-    const [stats, setStats] = useState<UsageData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function fetchStats() {
-            try {
-                const res = await fetch('/api/user/usage');
-                if (res.ok) {
-                    const data = await res.json();
-                    setStats({
-                        resumeUsage: data.resumeUsage,
-                        resumeLimit: data.resumeLimit
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to fetch usage:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchStats();
-    }, []);
-
-    if (loading) return null;
+export function ResumeUsageStats({
+    compact = false,
+    stats,
+    onBuyCredits,
+}: {
+    compact?: boolean;
+    stats: ResumeUsageData | null;
+    onBuyCredits?: () => void;
+}) {
     if (!stats) return null;
 
-    const { resumeUsage, resumeLimit } = stats;
+    const {
+        resumeUsage,
+        resumeLimit,
+        resumeCreditBalance,
+        canBuyResumeCredits,
+    } = stats;
     const percentage = Math.min((resumeUsage / resumeLimit) * 100, 100);
     const isLimitReached = resumeUsage >= resumeLimit;
     const isNearLimit = percentage >= 80;
@@ -60,6 +50,11 @@ export function ResumeUsageStats({ compact = false }: { compact?: boolean }) {
                             </span>
                             <span className="text-[10px] text-gray-400 font-medium">/ {resumeLimit}</span>
                         </div>
+                        {resumeCreditBalance > 0 && (
+                            <span className="mt-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                + {resumeCreditBalance} purchased credits
+                            </span>
+                        )}
                     </div>
                     <div className="relative flex items-center justify-center">
                         <svg className="w-9 h-9 transform -rotate-90">
@@ -122,11 +117,24 @@ export function ResumeUsageStats({ compact = false }: { compact?: boolean }) {
                     {isLimitReached && (
                         <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">
                             <p className="text-xs text-red-600 dark:text-red-400 font-medium">
-                                Monthly resume limit reached. Upgrade to Pro for more ATS-optimized resumes.
+                                {canBuyResumeCredits
+                                    ? `Monthly allowance used. ${resumeCreditBalance} purchased credits available.`
+                                    : 'Monthly resume limit reached. Upgrade to Pro for more ATS-optimized resumes.'}
                             </p>
-                            <Button size="sm" variant="default" className="bg-red-600 hover:bg-red-700 text-white h-7 text-xs" asChild>
-                                <Link href="/premium/checkout?planId=pro&interval=year">Upgrade to Pro</Link>
-                            </Button>
+                            {canBuyResumeCredits ? (
+                                <Button
+                                    size="sm"
+                                    variant="default"
+                                    className="bg-red-600 hover:bg-red-700 text-white h-7 text-xs"
+                                    onClick={onBuyCredits}
+                                >
+                                    Buy credits
+                                </Button>
+                            ) : (
+                                <Button size="sm" variant="default" className="bg-red-600 hover:bg-red-700 text-white h-7 text-xs" asChild>
+                                    <Link href="/premium/checkout?planId=pro&interval=year">Upgrade to Pro</Link>
+                                </Button>
+                            )}
                         </div>
                     )}
                 </>

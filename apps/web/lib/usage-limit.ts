@@ -1,6 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import { PLAN_LIMITS } from '@/lib/pricing/plan-config';
 
 export const FREE_RESUME_LIMIT = PLAN_LIMITS.free.resumesPerMonth;
@@ -38,30 +36,76 @@ function getServiceUsageClient() {
   );
 }
 
-export async function checkResumeLimit(userId: string) {
-  // Service role: same as ATS — cookie anon RLS can miscount / fail open under Bearer JWT.
-  const supabase = getServiceUsageClient();
+type ResumeGenerationType = 'generate' | 'regenerate';
 
+export interface ResumeUsageSummary {
+  allowed: boolean;
+  limit: number;
+  usage: number;
+  tier: string;
+  creditBalance: number;
+  canBuyCredits: boolean;
+}
+
+export interface ResumeGenerationReservation extends ResumeUsageSummary {
+  reservationId: string | null;
+  fundingSource: 'plan' | 'purchased' | null;
+  denialReason: 'credits_required' | 'upgrade_required' | null;
+}
+
+export function hasActivePaidResumePlan(profile: {
+  plan_tier?: string | null;
+  premium_status?: boolean | null;
+  subscription_expires_at?: string | null;
+}): boolean {
+  const tier = (profile.plan_tier || '').toLowerCase();
+  const expiresAt = profile.subscription_expires_at
+    ? Date.parse(profile.subscription_expires_at)
+    : null;
+  return (
+    profile.premium_status === true &&
+    (tier === 'pro' || tier === 'dedicated') &&
+    (expiresAt === null || (Number.isFinite(expiresAt) && expiresAt > Date.now()))
+  );
+}
+
+async function getResumeEntitlement(userId: string) {
+  const supabase = getServiceUsageClient();
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('plan_tier')
+    .select('plan_tier, premium_status, subscription_expires_at')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (profileError) {
     console.error('Error fetching profile for limit check:', profileError);
+    throw new Error('Failed to verify resume entitlement');
   }
 
   const tier = profile?.plan_tier || 'free';
-  const limit = resolveResumeLimitForTier(tier);
+  return {
+    supabase,
+    tier,
+    limit: resolveResumeLimitForTier(tier),
+    canBuyCredits: hasActivePaidResumePlan(profile || {}),
+  };
+}
+
+export async function checkResumeLimit(userId: string): Promise<ResumeUsageSummary> {
+  // Service role: cookie/JWT RLS must never make paid usage accounting fail open.
+  const { supabase, tier, limit, canBuyCredits } = await getResumeEntitlement(userId);
 
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const startOfMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+  ).toISOString();
 
   const { data: usageData, error: usageError } = await supabase
     .from('resume_generations')
     .select('credit_cost')
     .eq('user_id', userId)
+    .eq('funding_source', 'plan')
+    .in('generation_type', ['generate', 'regenerate'])
     .gte('created_at', startOfMonth);
 
   if (usageError) {
@@ -70,45 +114,76 @@ export async function checkResumeLimit(userId: string) {
   }
 
   const usage = usageData?.reduce((acc, row) => acc + Number(row.credit_cost || 0), 0) || 0;
-  const allowed = usage < limit;
+  const { data: ledgerData, error: ledgerError } = await supabase
+    .from('resume_credit_ledger')
+    .select('credits_delta')
+    .eq('user_id', userId);
 
-  return { allowed, limit, usage, tier };
+  if (ledgerError) {
+    console.error('Error fetching purchased resume credits:', ledgerError);
+    throw new Error('Failed to check purchased resume credits');
+  }
+
+  const rawBalance =
+    ledgerData?.reduce((total, row) => total + Number(row.credits_delta || 0), 0) || 0;
+  const creditBalance = Math.max(0, rawBalance);
+  const allowed = usage < limit || (canBuyCredits && creditBalance >= 1);
+
+  return { allowed, limit, usage, tier, creditBalance, canBuyCredits };
 }
 
-/**
- * Logs a resume generation. Returns `{ ok: boolean }` so callers can choose to
- * fail-closed (block the generation) when accounting fails — ISS-023.
- */
-export async function trackResumeGeneration(
+export async function reserveResumeGeneration(
   userId: string,
-  type: 'generate' | 'regenerate',
-): Promise<{ ok: boolean; error?: string }> {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
-
-  const creditCost = type === 'regenerate' ? 0.5 : 1.0;
-
-  const { error } = await supabase.from('resume_generations').insert({
-    user_id: userId,
-    generation_type: type,
-    credit_cost: creditCost,
+  type: ResumeGenerationType,
+): Promise<ResumeGenerationReservation> {
+  const { supabase, tier, limit, canBuyCredits } = await getResumeEntitlement(userId);
+  const reservationToken = crypto.randomUUID();
+  const { data, error } = await supabase.rpc('reserve_resume_generation', {
+    p_user_id: userId,
+    p_generation_type: type,
+    p_plan_limit: limit,
+    p_reservation_token: reservationToken,
   });
 
   if (error) {
-    console.error('Failed to log resume generation:', error);
-    return { ok: false, error: error.message };
+    console.error('Failed to reserve resume generation:', error);
+    throw new Error('Failed to reserve resume generation entitlement');
   }
-  return { ok: true };
+
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error('Resume reservation returned no result');
+
+  return {
+    allowed: row.allowed === true,
+    reservationId: typeof row.reservation_id === 'string' ? row.reservation_id : null,
+    fundingSource:
+      row.funding_source === 'plan' || row.funding_source === 'purchased'
+        ? row.funding_source
+        : null,
+    usage: Number(row.plan_usage || 0),
+    limit,
+    tier,
+    creditBalance: Math.max(0, Number(row.credit_balance || 0)),
+    canBuyCredits,
+    denialReason:
+      row.denial_reason === 'credits_required' || row.denial_reason === 'upgrade_required'
+        ? row.denial_reason
+        : null,
+  };
+}
+
+export async function releaseResumeGenerationReservation(
+  userId: string,
+  reservationId: string,
+): Promise<void> {
+  const supabase = getServiceUsageClient();
+  const { error } = await supabase.rpc('release_resume_generation_reservation', {
+    p_user_id: userId,
+    p_reservation_id: reservationId,
+  });
+  if (error) {
+    console.error('Failed to release resume generation reservation:', error);
+  }
 }
 
 // ATS routes accept the extension's custom Bearer JWT as well as web cookies.

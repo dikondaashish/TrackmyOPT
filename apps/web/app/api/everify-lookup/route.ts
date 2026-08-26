@@ -5,10 +5,6 @@ import {
   checkRateLimitByUser,
   rateLimitResponse,
 } from "@/lib/auth/api-rate-limit";
-import {
-  EVerifyLookupUnavailableError,
-  lookupEVerifyCompany,
-} from "@/lib/everify/lookup-service";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -75,6 +71,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Keep browser automation out of the route's startup path. If its optional
+    // runtime dependencies fail to load, this request still returns JSON below
+    // instead of Next.js replacing the API response with an HTML 500 page.
+    const { lookupEVerifyCompany } = await import("@/lib/everify/lookup-service");
     const result = await lookupEVerifyCompany(company);
     return addRateLimitHeaders(
       NextResponse.json(result, { headers: responseHeaders }),
@@ -85,16 +85,13 @@ export async function GET(request: NextRequest) {
       company,
       error: error instanceof Error ? error.message : String(error),
     });
-    const message =
-      error instanceof EVerifyLookupUnavailableError
-        ? "Employer lookup is temporarily busy. Please try again shortly."
-        : "The public E-Verify lookup is temporarily unavailable. Please try again later.";
     return NextResponse.json(
       {
         company,
         found: false,
         error: "lookup_unavailable",
-        message,
+        message:
+          "The public E-Verify lookup is temporarily unavailable. Please try again later.",
       },
       { status: 503, headers: responseHeaders }
     );

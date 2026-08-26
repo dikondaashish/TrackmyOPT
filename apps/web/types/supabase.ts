@@ -1754,26 +1754,134 @@ export type Database = {
         }
         Relationships: []
       }
-      resume_generations: {
+      resume_credit_ledger: {
         Row: {
           created_at: string
-          credit_cost: number | null
-          generation_type: string
+          credits_delta: number
+          entry_type: string
+          external_reference: string
           id: string
+          metadata: Json
+          purchase_id: string | null
+          resume_generation_id: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
-          credit_cost?: number | null
-          generation_type: string
+          credits_delta: number
+          entry_type: string
+          external_reference: string
           id?: string
+          metadata?: Json
+          purchase_id?: string | null
+          resume_generation_id?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
-          credit_cost?: number | null
+          credits_delta?: number
+          entry_type?: string
+          external_reference?: string
+          id?: string
+          metadata?: Json
+          purchase_id?: string | null
+          resume_generation_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_credit_ledger_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "resume_credit_purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_credit_ledger_resume_generation_id_fkey"
+            columns: ["resume_generation_id"]
+            isOneToOne: false
+            referencedRelation: "resume_generations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_credit_purchases: {
+        Row: {
+          amount_paid_cents: number
+          amount_refunded_cents: number
+          created_at: string
+          credits_granted: number
+          id: string
+          metadata: Json
+          pack_quantity: number
+          status: string
+          stripe_charge_id: string | null
+          stripe_checkout_session_id: string
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid_cents: number
+          amount_refunded_cents?: number
+          created_at?: string
+          credits_granted: number
+          id?: string
+          metadata?: Json
+          pack_quantity: number
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_checkout_session_id: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid_cents?: number
+          amount_refunded_cents?: number
+          created_at?: string
+          credits_granted?: number
+          id?: string
+          metadata?: Json
+          pack_quantity?: number
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_checkout_session_id?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      resume_generations: {
+        Row: {
+          created_at: string
+          credit_cost: number
+          funding_source: string
+          generation_type: string
+          id: string
+          reservation_token: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credit_cost?: number
+          funding_source?: string
+          generation_type: string
+          id?: string
+          reservation_token?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credit_cost?: number
+          funding_source?: string
           generation_type?: string
           id?: string
+          reservation_token?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1962,6 +2070,20 @@ export type Database = {
       }
     }
     Functions: {
+      apply_resume_credit_refund: {
+        Args: {
+          p_amount_refunded_cents: number
+          p_charge_id: string
+          p_payment_intent_id: string
+          p_stripe_event_id: string
+        }
+        Returns: {
+          credit_balance: number
+          credits_revoked: number
+          handled: boolean
+          user_id: string
+        }[]
+      }
       create_document_reminders: {
         Args: {
           p_document_id: string
@@ -1994,6 +2116,23 @@ export type Database = {
           top_law_firm: string
         }[]
       }
+      grant_resume_credit_purchase: {
+        Args: {
+          p_amount_paid_cents: number
+          p_checkout_session_id: string
+          p_credits_granted: number
+          p_customer_id: string | null
+          p_metadata: Json
+          p_pack_quantity: number
+          p_payment_intent_id: string
+          p_user_id: string
+        }
+        Returns: {
+          already_granted: boolean
+          credit_balance: number
+          purchase_id: string
+        }[]
+      }
       increment_referral_clicks: {
         Args: { ref_code: string }
         Returns: undefined
@@ -2005,6 +2144,27 @@ export type Database = {
       increment_referral_signups: {
         Args: { ref_code: string }
         Returns: undefined
+      }
+      release_resume_generation_reservation: {
+        Args: { p_reservation_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      reserve_resume_generation: {
+        Args: {
+          p_generation_type: string
+          p_plan_limit: number
+          p_reservation_token: string
+          p_user_id: string
+        }
+        Returns: {
+          allowed: boolean
+          credit_balance: number
+          denial_reason: string | null
+          funding_source: string | null
+          plan_limit: number
+          plan_usage: number
+          reservation_id: string | null
+        }[]
       }
       upgrade_user_to_premium: {
         Args: {

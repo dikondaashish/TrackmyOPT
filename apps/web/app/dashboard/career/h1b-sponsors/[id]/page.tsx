@@ -16,6 +16,24 @@ import { getLogoUrl, handleLogoError } from "@/lib/documents/image-utils";
 import { Button } from "@/components/ui/button";
 import { captureUpgradePromptShown } from "@/lib/posthog-client";
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
+import { readBrowserStorage, writeBrowserStorage } from "@/lib/browser-storage";
+
+const SAVED_SPONSORS_KEY = "trackmyopt_saved_sponsors";
+
+function readSavedSponsorIds(): Set<string> {
+    const saved = readBrowserStorage(SAVED_SPONSORS_KEY);
+    if (!saved) return new Set();
+    try {
+        const parsed: unknown = JSON.parse(saved);
+        return new Set(
+            Array.isArray(parsed)
+                ? parsed.filter((value): value is string => typeof value === "string")
+                : []
+        );
+    } catch {
+        return new Set();
+    }
+}
 
 type H1BSponsorRow = Database['public']['Tables']['h1b_sponsors']['Row'];
 type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
@@ -65,11 +83,7 @@ export default function CompanyProfilePage() {
                 setSponsor(payload.sponsor as H1BSponsorRow);
                 setFilings((payload.filings ?? []) as H1BFilingRow[]);
 
-                const saved = localStorage.getItem("trackmyopt_saved_sponsors");
-                if (saved) {
-                    const savedSet = new Set(JSON.parse(saved));
-                    setIsSaved(savedSet.has(sponsorId));
-                }
+                setIsSaved(readSavedSponsorIds().has(sponsorId));
             } catch (err) {
                 console.error("Unexpected error:", err);
             } finally {
@@ -83,8 +97,7 @@ export default function CompanyProfilePage() {
     }, [sponsorId]);
 
     const toggleSave = () => {
-        const saved = localStorage.getItem("trackmyopt_saved_sponsors");
-        const savedSet = new Set(saved ? JSON.parse(saved) : []);
+        const savedSet = readSavedSponsorIds();
 
         if (savedSet.has(sponsorId)) {
             savedSet.delete(sponsorId);
@@ -94,7 +107,7 @@ export default function CompanyProfilePage() {
             setIsSaved(true);
         }
 
-        localStorage.setItem("trackmyopt_saved_sponsors", JSON.stringify(Array.from(savedSet)));
+        writeBrowserStorage(SAVED_SPONSORS_KEY, JSON.stringify(Array.from(savedSet)));
     };
 
     if (isLoading) {
