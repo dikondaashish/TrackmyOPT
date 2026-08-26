@@ -27,6 +27,9 @@ import {
 } from '@/lib/legal/legal-config';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
+import type { PromoCheckoutMode } from '@/lib/premium/promo-checkout-types';
+import { buildPromoCheckoutBody } from '@/lib/premium/checkout-promo-payload';
 import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/format-monthly-equivalent-from-yearly';
 import { getPlanCardFeatures } from '@/lib/pricing/plan-features';
 import {
@@ -140,6 +143,9 @@ export function PricingModal({
   const [isYearly, setIsYearly] = useState(() =>
     isYearlyBillingDefault(initialInterval)
   );
+  const [promoMode, setPromoMode] = useState<PromoCheckoutMode>('default');
+  const [customPromoInput, setCustomPromoInput] = useState('');
+  const [promoError, setPromoError] = useState<string | null>(null);
   const [proConsent, setProConsent] = useState(false);
   const [dedicatedConsent, setDedicatedConsent] = useState(false);
   const [proIntroEligible, setProIntroEligible] = useState<boolean | null>(
@@ -163,6 +169,9 @@ export function PricingModal({
 
   useEffect(() => {
     if (open) {
+      setPromoMode('default');
+      setCustomPromoInput('');
+      setPromoError(null);
       setProConsent(false);
       setDedicatedConsent(false);
     }
@@ -224,10 +233,12 @@ export function PricingModal({
 
   const handleUpgrade = async (selectedPlan: string) => {
     setIsLoading(true);
+    setPromoError(null);
 
     const currentInterval = isYearly ? 'year' : 'month';
 
     try {
+      const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
       const response = await fetch('/api/premium/create-checkout', {
         method: 'POST',
         headers: {
@@ -238,6 +249,7 @@ export function PricingModal({
           planId: selectedPlan,
           interval: currentInterval,
           recurringBillingAccepted: true,
+          ...promoFields,
         }),
       });
 
@@ -539,6 +551,41 @@ export function PricingModal({
               checkoutPage ? 'md:p-5 lg:p-6 md:pt-3' : 'md:p-4 lg:p-5 md:pt-2'
             )}
           >
+            <div className="mb-3 md:mb-2 max-w-xs mx-auto w-full">
+              <PromoCodeCheckoutBar
+                compact
+                mode={promoMode}
+                customCode={customPromoInput}
+                error={promoError}
+                disabled={isLoading}
+                onRemoveDefault={() => {
+                  setPromoMode('custom-entry');
+                  setCustomPromoInput('');
+                  setPromoError(null);
+                }}
+                onCustomCodeChange={(v) => {
+                  setCustomPromoInput(v);
+                  setPromoError(null);
+                }}
+                onApplyCustom={() => {
+                  const t = customPromoInput.trim();
+                  if (!t) return;
+                  setPromoMode('custom');
+                  setPromoError(null);
+                }}
+                onClearCustom={() => {
+                  setPromoMode('default');
+                  setCustomPromoInput('');
+                  setPromoError(null);
+                }}
+              />
+              {proIntroEligible === true && (
+                <p className="mt-1 text-center text-[10px] text-muted-foreground">
+                  A promo code replaces the public offer after your $0.99
+                  introductory period.
+                </p>
+              )}
+            </div>
             <div
               className={cn(
                 'grid gap-3 sm:gap-4 md:gap-3 md:items-stretch',
@@ -977,6 +1024,15 @@ export function PricingModal({
                 );
               })}
             </div>
+
+            {promoError && (
+              <p
+                className="px-4 pb-2 text-xs text-destructive text-center"
+                role="alert"
+              >
+                {promoError}
+              </p>
+            )}
 
             <div className="px-4 sm:px-5 md:px-4 pb-3">
               <PlanPickerGuide compact />
