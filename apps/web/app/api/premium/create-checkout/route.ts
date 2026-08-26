@@ -146,15 +146,14 @@ async function createBillingPortalUrl(
 
 /**
  * Resolves discounts + stable key for session reuse.
- * promoCode: undefined/null/blank = configured limited-time offer.
- * A non-blank string replaces it with an active customer-facing promotion code.
+ * Always applies the configured limited-time offer. Customers do not enter
+ * codes: the $0.99 Pro introduction and the recurring offer are one flow.
  */
 async function resolveCheckoutPromotion(
   stripe: Stripe,
   planId: PlanId,
   interval: 'month' | 'year',
-  recurringPrice: Stripe.Price,
-  promoCode: unknown
+  recurringPrice: Stripe.Price
 ): Promise<
   | {
       ok: true;
@@ -163,30 +162,6 @@ async function resolveCheckoutPromotion(
     }
   | { ok: false; error: string; status: 400 | 503 }
 > {
-  if (typeof promoCode === 'string') {
-    const trimmed = promoCode.trim();
-    if (trimmed)
-      try {
-        const codes = await stripe.promotionCodes.list({
-          code: trimmed,
-          active: true,
-          limit: 1,
-        });
-        if (!codes.data.length) {
-          return { ok: false, error: 'Invalid promo code', status: 400 };
-        }
-        const promoId = codes.data[0].id;
-        return {
-          ok: true,
-          discounts: [{ promotion_code: promoId }],
-          checkoutPromoKey: `custom:${promoId}`,
-        };
-      } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : 'Invalid promo code';
-        return { ok: false, error: msg, status: 400 };
-      }
-  }
-
   try {
     const stableCodes = await stripe.promotionCodes.list({
       code: LIMITED_TIME_OFFER[planId].promotionCode,
@@ -272,13 +247,11 @@ export async function POST(req: NextRequest) {
 
     const requestBody = await req.json();
     const { planId = 'pro', interval = 'year' } = requestBody;
-    /** undefined/null/blank = limited-time offer; non-blank string = custom code */
-    const promoCode = requestBody.promoCode as string | null | undefined;
     const recurringBillingAccepted =
       requestBody.recurringBillingAccepted === true;
 
     console.log(
-      `Checkout request: planId=${planId}, interval=${interval}, userId=${userId}, promo=${promoCode === null ? 'null' : promoCode === undefined ? 'default' : 'custom'}`
+      `Checkout request: planId=${planId}, interval=${interval}, userId=${userId}, offer=automatic`
     );
 
     if (
@@ -355,8 +328,7 @@ export async function POST(req: NextRequest) {
       stripe,
       planId as PlanId,
       interval as 'month' | 'year',
-      recurringPrice,
-      promoCode
+      recurringPrice
     );
     if (!promoResolved.ok) {
       return NextResponse.json(
@@ -619,18 +591,6 @@ export async function POST(req: NextRequest) {
     }
 
     const includeProIntro = planId === 'pro' && !proIntroConsumed;
-    const customPromoRequested =
-      typeof promoCode === 'string' && promoCode.trim().length > 0;
-    if (includeProIntro && customPromoRequested) {
-      return NextResponse.json(
-        {
-          error:
-            'The one-time $0.99 Pro introductory offer cannot be combined with a promo code.',
-        },
-        { status: 400 }
-      );
-    }
-
     let proIntroPriceId: string | undefined;
     if (includeProIntro) {
       proIntroPriceId = getProIntroPriceId();

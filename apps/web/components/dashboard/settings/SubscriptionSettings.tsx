@@ -8,7 +8,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
 import { getPlanBullets } from '@/lib/pricing/plan-features';
 import { shouldShowDedicatedPlanForSale } from '@/lib/pricing/sales-copy';
 import {
@@ -23,7 +22,6 @@ import {
   annualSavingsPercent,
 } from '@/lib/pricing/plan-config';
 import { getDedicatedConsultationEligibility } from '@/lib/pricing/dedicated-consultation';
-import type { PromoCheckoutMode } from '@/lib/premium/promo-checkout-types';
 import { formatMonthlyEquivalentFromYearly } from '@/lib/premium/format-monthly-equivalent-from-yearly';
 import { BillingHistory } from './BillingHistory';
 import { SubscriptionFAQ } from './SubscriptionFAQ';
@@ -361,9 +359,6 @@ export function SubscriptionSettings({
   const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<string | null>(
     null
   );
-  const [promoMode, setPromoMode] = useState<PromoCheckoutMode>('default');
-  const [customPromoInput, setCustomPromoInput] = useState('');
-  const [promoError, setPromoError] = useState<string | null>(null);
   const [dedicatedStartedAt, setDedicatedStartedAt] = useState<string | null>(
     premium.dedicatedStartedAt ?? null
   );
@@ -444,35 +439,6 @@ export function SubscriptionSettings({
         <p className="text-gray-500 dark:text-gray-400 mt-1">
           Manage your plan, billing details, and invoices.
         </p>
-      </div>
-
-      <div className="max-w-lg mx-auto mb-6">
-        <PromoCodeCheckoutBar
-          mode={promoMode}
-          customCode={customPromoInput}
-          error={promoError}
-          disabled={!!checkoutLoadingPlan}
-          onRemoveDefault={() => {
-            setPromoMode('custom-entry');
-            setCustomPromoInput('');
-            setPromoError(null);
-          }}
-          onCustomCodeChange={(v) => {
-            setCustomPromoInput(v);
-            setPromoError(null);
-          }}
-          onApplyCustom={() => {
-            const t = customPromoInput.trim();
-            if (!t) return;
-            setPromoMode('custom');
-            setPromoError(null);
-          }}
-          onClearCustom={() => {
-            setPromoMode('default');
-            setCustomPromoInput('');
-            setPromoError(null);
-          }}
-        />
       </div>
 
       {/* Always show Pricing Section for upgrades/downgrades */}
