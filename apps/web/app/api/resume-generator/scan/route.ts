@@ -9,6 +9,7 @@ import { checkAtsScanLimit, trackAtsScan } from '@/lib/usage-limit';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { analyzeLatexBulletMetrics } from '@/lib/resume/bullet-metrics';
 import { calculateAtsFinalScore } from '@/lib/resume/ats-score';
+import { parseAtsScanAiResponse } from '@/lib/resume/ats-analysis-schema';
 
 export async function OPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
@@ -59,14 +60,6 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const reserved = await trackAtsScan(userId);
-        if (!reserved.ok) {
-            return NextResponse.json(
-                { error: 'Failed to reserve ATS scan quota' },
-                { status: 500, headers: corsHeaders }
-            );
-        }
-
         // 1. Static Analysis (Format Check)
         // We use the existing validator for "Basic" checks (tables, images, etc.)
         const basicCheck = checkAtsCompliance(latexCode || '');
@@ -74,29 +67,40 @@ export async function POST(req: NextRequest) {
         // 2. AI Deep Analysis
         const prompt = buildAtsScanPrompt(scanResumeText, jobDescription);
 
-        const response = await generateAiContent({
-            task: 'ats_scan',
-            contents: prompt,
-            config: { responseMimeType: 'application/json' },
-            userId,
-        });
+        let response;
+        try {
+            response = await generateAiContent({
+                task: 'ats_scan',
+                contents: prompt,
+                config: { responseMimeType: 'application/json' },
+                userId,
+            });
+        } catch (error) {
+            console.error('ATS provider request failed:', error);
+            return NextResponse.json(
+                {
+                    error: 'We could not complete the ATS analysis. Your scan was not used. Please try again.',
+                    code: 'ats_analysis_unavailable',
+                    scanConsumed: false,
+                },
+                { status: 502, headers: corsHeaders }
+            );
+        }
         const text = response.text || '';
 
-        // Parse JSON response from AI
-        // Remove markdown code blocks if present
-        const jsonString = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
-
-        let aiAnalysis;
-        try {
-            aiAnalysis = JSON.parse(jsonString);
-        } catch (_e) {
-            console.error("Failed to parse AI output:", text);
-            // Fallback empty structure
-            aiAnalysis = {
-                keywordMatch: { found: [], missing: [], score: 0 },
-                sectionScores: { impact: 0, brevity: 0, relevance: 0 },
-                improvements: ["Could not analyze content detailedly. Please try again."]
-            };
+        // The model response is untrusted. A malformed or incomplete response
+        // must never be presented as a real low ATS score or consume quota.
+        const aiAnalysis = parseAtsScanAiResponse(text);
+        if (!aiAnalysis) {
+            console.error('ATS provider returned an invalid analysis payload');
+            return NextResponse.json(
+                {
+                    error: 'We could not produce a trustworthy ATS analysis. Your scan was not used. Please try again.',
+                    code: 'ats_analysis_unavailable',
+                    scanConsumed: false,
+                },
+                { status: 502, headers: corsHeaders }
+            );
         }
 
         // 3. Merge Results. Content quality is scored once by the AI rubric.
@@ -131,15 +135,45 @@ export async function POST(req: NextRequest) {
             scoreBreakdown,
         };
 
+        // Record usage last. This RPC locks by user and rechecks the limit, so
+        // simultaneous completed scans cannot exceed the monthly allowance.
+        const reservation = await trackAtsScan(userId, limit);
+        if (!reservation.ok) {
+            return NextResponse.json(
+                {
+                    error: 'ATS analysis is ready, but we could not safely record your scan. Your scan was not used. Please try again.',
+                    code: 'ats_quota_unavailable',
+                    scanConsumed: false,
+                },
+                { status: 503, headers: corsHeaders }
+            );
+        }
+        if (!reservation.allowed) {
+            return NextResponse.json(
+                {
+                    error: 'Your monthly ATS scan limit was reached while this analysis was running. Your scan was not used.',
+                    code: 'ats_scan_limit_reached',
+                    limit: reservation.limit ?? limit,
+                    usage: reservation.usage ?? usage,
+                    scanConsumed: false,
+                },
+                { status: 402, headers: corsHeaders }
+            );
+        }
+
         return NextResponse.json(
             finalAnalysis,
             { status: 200, headers: corsHeaders }
         );
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('ATS Scan Error:', error);
         return NextResponse.json(
-            { error: 'Failed to perform ATS scan' },
+            {
+                error: 'Unable to start an ATS scan. Please try again.',
+                code: 'ats_scan_unavailable',
+                scanConsumed: false,
+            },
             { status: 500, headers: corsHeaders }
         );
     }

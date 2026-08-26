@@ -2166,6 +2166,14 @@ export type Database = {
           reservation_id: string | null
         }[]
       }
+      reserve_ats_scan: {
+        Args: { p_plan_limit: number; p_user_id: string }
+        Returns: {
+          allowed: boolean
+          plan_limit: number
+          usage: number
+        }[]
+      }
       upgrade_user_to_premium: {
         Args: {
           p_stripe_customer_id: string

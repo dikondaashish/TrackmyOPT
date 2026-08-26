@@ -228,17 +228,47 @@ export async function checkAtsScanLimit(userId: string) {
   return { allowed, limit, usage, tier };
 }
 
-export async function trackAtsScan(userId: string): Promise<{ ok: boolean; error?: string }> {
+export interface AtsScanReservation {
+  /** The database operation completed successfully. */
+  ok: boolean;
+  /** The operation completed and recorded one scan. */
+  allowed: boolean;
+  usage?: number;
+  limit?: number;
+  error?: string;
+}
+
+/**
+ * Atomically counts and records a completed ATS scan. Call this only after
+ * provider output has passed validation; malformed/failed analysis must never
+ * consume a customer's monthly quota.
+ */
+export async function trackAtsScan(
+  userId: string,
+  planLimit: number,
+): Promise<AtsScanReservation> {
   const supabase = getAtsUsageClient();
 
-  const { error } = await supabase.from('resume_generations').insert({
-    user_id: userId,
-    generation_type: 'ats_scan',
+  const { data, error } = await supabase.rpc('reserve_ats_scan', {
+    p_user_id: userId,
+    p_plan_limit: planLimit,
   });
 
   if (error) {
     console.error('Failed to log ATS scan:', error);
-    return { ok: false, error: error.message };
+    return { ok: false, allowed: false, error: error.message };
   }
-  return { ok: true };
+
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) {
+    console.error('ATS scan reservation returned no result');
+    return { ok: false, allowed: false, error: 'No reservation result' };
+  }
+
+  return {
+    ok: true,
+    allowed: row.allowed === true,
+    usage: Number(row.usage ?? 0),
+    limit: Number(row.plan_limit ?? planLimit),
+  };
 }

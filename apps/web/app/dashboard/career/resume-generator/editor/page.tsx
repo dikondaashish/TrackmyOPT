@@ -377,13 +377,17 @@ export default function ResumeEditorPage() {
                     if (!silent) {
                         toast({
                             title: "ATS scan limit reached",
-                            description: `Free plan includes ${data.limit ?? 3} deep scans per month. Upgrade for unlimited scans.`,
+                            description: `You have used ${data.usage ?? data.limit ?? 0}/${data.limit ?? 0} deep scans this month. Upgrade for more scans.`,
                             variant: "destructive",
                         });
                     }
                     return null;
                 }
-                if (!response.ok) throw new Error(data.error || "Scan failed");
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || "We could not complete the ATS analysis. Please try again."
+                    );
+                }
 
                 setAtsAnalysis(data);
                 trackAtsScored(data, "deep_scan");
@@ -399,7 +403,10 @@ export default function ResumeEditorPage() {
                 if (!silent) {
                     toast({
                         title: "Scan Failed",
-                        description: "Could not perform deep analysis.",
+                        description:
+                            error instanceof Error
+                                ? error.message
+                                : "Could not perform deep analysis.",
                         variant: "destructive",
                     });
                 }
