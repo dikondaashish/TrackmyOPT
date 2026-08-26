@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
 
     const { data: caseMeta } = await supabase
       .from('case_status')
-      .select('user_id, current_status')
+      .select('id, user_id, current_status')
       .eq('receipt_number', normalizedReceipt)
       .eq('user_id', bodyUserId)
       .maybeSingle();
@@ -145,6 +145,10 @@ export async function POST(req: NextRequest) {
         { status: 403, headers: corsHeaders }
       );
     }
+    // Every subsequent read/write is pinned to this owned row. Receipt numbers
+    // are intentionally shareable across users, so receipt_number alone is not
+    // an authorization boundary for service-role operations.
+    const caseId = caseMeta.id;
 
     await trackCaseStatusCheckStarted({
       userId: analyticsUserId,
@@ -161,7 +165,8 @@ export async function POST(req: NextRequest) {
       const { data: existingCase } = await supabase
         .from('case_status')
         .select('current_status, last_checked_at')
-        .eq('receipt_number', receipt_number)
+        .eq('id', caseId)
+        .eq('user_id', bodyUserId)
         .single();
 
       if (existingCase?.current_status) {
@@ -227,7 +232,8 @@ export async function POST(req: NextRequest) {
       const { data: currentCase } = await supabase
         .from('case_status')
         .select('*')
-        .eq('receipt_number', receipt_number)
+        .eq('id', caseId)
+        .eq('user_id', bodyUserId)
         .single();
 
       const isFirstCheck = currentCase && !currentCase.current_status;
@@ -280,7 +286,8 @@ export async function POST(req: NextRequest) {
       await supabase
         .from('case_status')
         .update(mockUpdateData)
-        .eq('receipt_number', receipt_number);
+        .eq('id', caseId)
+        .eq('user_id', bodyUserId);
 
       await finishCompleted(mockStatus.status, 200);
 
@@ -332,7 +339,8 @@ export async function POST(req: NextRequest) {
         const { data: row } = await supabase
           .from('case_status')
           .select('consecutive_failures')
-          .eq('receipt_number', receipt_number)
+          .eq('id', caseId)
+          .eq('user_id', bodyUserId)
           .single();
         const prevFails = row?.consecutive_failures || 0;
         await supabase
@@ -343,7 +351,8 @@ export async function POST(req: NextRequest) {
             last_check_error_message: errorMessage.slice(0, 500),
             consecutive_failures: prevFails + 1,
           })
-          .eq('receipt_number', receipt_number);
+          .eq('id', caseId)
+          .eq('user_id', bodyUserId);
       } catch (e) {
         console.error('Failed to persist USCIS failure state:', e);
       }
@@ -381,7 +390,8 @@ export async function POST(req: NextRequest) {
     const { data: currentCase, error: fetchError } = await supabase
       .from('case_status')
       .select('*')
-      .eq('receipt_number', receipt_number)
+      .eq('id', caseId)
+      .eq('user_id', bodyUserId)
       .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
@@ -458,7 +468,8 @@ export async function POST(req: NextRequest) {
     const { error: updateError } = await supabase
       .from('case_status')
       .update(updateData)
-      .eq('receipt_number', receipt_number);
+      .eq('id', caseId)
+      .eq('user_id', bodyUserId);
 
     // Log successful check (ISS-015 observability)
     try {
@@ -528,4 +539,3 @@ export async function POST(req: NextRequest) {
 export async function OPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
-
