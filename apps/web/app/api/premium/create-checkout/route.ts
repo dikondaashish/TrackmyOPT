@@ -199,8 +199,11 @@ async function resolveCheckoutPromotion(
         `No active ${LIMITED_TIME_OFFER[planId].promotionCode} promotion code.`
       );
     }
+    // `applies_to` is omitted by Stripe unless explicitly expanded. We need it
+    // below to guarantee that the configured offer is restricted to this plan.
     const coupon = await stripe.coupons.retrieve(
-      LIMITED_TIME_OFFER[planId].couponId
+      LIMITED_TIME_OFFER[planId].couponId,
+      { expand: ['applies_to'] }
     );
     const productId =
       typeof recurringPrice.product === 'string'
