@@ -4,7 +4,6 @@ import {
   normalizePricingCtaVariant,
 } from "@/lib/posthog/pricing-cta-experiment";
 import {
-  isAccountOldEnough,
   isWithinNpsCooldown,
   resolveNpsCategory,
 } from "@/lib/posthog/nps-survey";
@@ -36,13 +35,6 @@ describe("nps-survey helpers", () => {
     expect(resolveNpsCategory(8)).toBe("passive");
     expect(resolveNpsCategory(9)).toBe("promoter");
     expect(resolveNpsCategory(10)).toBe("promoter");
-  });
-
-  it("checks account age", () => {
-    const old = new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString();
-    const young = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
-    expect(isAccountOldEnough(old, 14)).toBe(true);
-    expect(isAccountOldEnough(young, 14)).toBe(false);
   });
 
   it("respects cooldown window", () => {

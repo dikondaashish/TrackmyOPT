@@ -60,6 +60,7 @@ import {
   captureUpgradePromptShown,
 } from "@/lib/posthog-client";
 import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
+import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import {
   normalizeStatusHistory,
@@ -767,6 +768,13 @@ export function CaseStatusSection() {
         statusResolved
       ) {
         pendingReceiptInsightRef.current = true;
+      }
+
+      if (wasFirstCase && statusResolved) {
+        requestNpsSurvey({
+          trigger: "case_status_first_success",
+          planTier: isPremium === true ? "pro" : "free",
+        });
       }
 
       if (!statusResolved) {

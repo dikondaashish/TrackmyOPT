@@ -35,6 +35,7 @@ import {
 import { saveReceiptAndPoll, type CaseStatusRecord } from "@/lib/case-status/save-receipt-and-poll";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
+import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
 
 type WizardStep = 'welcome' | 'course' | 'status' | 'dates' | 'receipt' | 'finishing';
 
@@ -372,6 +373,10 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         captureCaseStatusCheckCompletedClient({
           trigger: "initial",
           receipt_prefix: getReceiptPrefix(validation.normalized),
+        });
+        requestNpsSurvey({
+          trigger: "case_status_first_success",
+          planTier: "free",
         });
       }
       if (!saveResult.statusResolved) {

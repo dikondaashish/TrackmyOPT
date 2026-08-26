@@ -24,7 +24,7 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | `onboarding_receipt_variant_exposed` | Client | `variant` | Experiment 381118 |
 | `receipt_added` | Server | `is_first_receipt` | **Preferred** over legacy `case_status_enrolled` |
 | `receipt_updated` | Server | — | Subsequent receipt changes |
-| `case_status_check_completed` | Client + server | `source` | Triggers NPS survey |
+| `case_status_check_completed` | Client + server | `source` | Case-refresh observability |
 | `activation_completed` | Client | `days_since_signup`, `within_24h`, `source` | Receipt + successful case check (Phase 4; onboarding not required) |
 | `extension_detected` | Client | `version`, `source` | Chrome extension present on dashboard |
 | `dashboard_viewed` | Client | `has_receipt`, `path`, `plan_tier`, … | All dashboard routes (Phase 4); once per session |
@@ -35,7 +35,7 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | Event | Source | Properties | Notes |
 |-------|--------|------------|-------|
 | `premium_checkout_viewed` | Client | `plan_id`, `interval`, `source` | Checkout modal load |
-| `premium_checkout_completed` | Client | `plan_tier`, `stripe_session_id`, `source` | Success page; triggers post-checkout NPS |
+| `premium_checkout_completed` | Client | `plan_tier`, `stripe_session_id`, `source` | Premium activation observability |
 | `checkout_started` | Server | `plan_id`, `amount_cents`, `$insert_id` | Sole emitter: `create-checkout` after Stripe session exists (Phase 5) |
 | `checkout_recovery_email_sent` | Server | `resume_kind`, `plan_id` | Abandoned checkout cron |
 | `payment_succeeded` | Server | `amount_cents`, `$insert_id` | Billing — see LEGACY_EVENTS validation |
@@ -51,6 +51,9 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | `resume_generated` | Server | `template_id` | AI LaTeX returned |
 | `resume_downloaded` | Client | `ats_score` | PDF export |
 | `resume_ats_scored` | Client | `score` | Deep scan complete |
+| `nps_shown` | Client | `trigger`, `plan_tier`, `pathname`, `days_since_signup` | 0–10 NPS shown after a success milestone |
+| `nps_dismissed` | Client | `trigger`, `plan_tier`, `pathname`, `days_since_signup` | NPS dismissed after being shown |
+| `nps_submitted` | Client | `score`, `category`, `feedback`, trigger context | NPS submitted; only interpret after 50 valid responses |
 
 ### Chrome extension job widget
 
@@ -121,9 +124,16 @@ Set via `PostHogIdentify` / server identify:
 
 ---
 
-## Surveys
+## NPS collection
 
-| Survey | Trigger event |
-|--------|-----------------|
-| [Case status NPS](https://us.posthog.com/project/369087/surveys/019f346e-21f7-0000-0709-bbf4a29078ce) | `case_status_check_completed` |
-| [Post-checkout NPS](https://us.posthog.com/project/369087/surveys/019f347f-8f11-0000-3265-519683f516e7) | `premium_checkout_completed` |
+TrackMyOPT uses one custom 0–10 NPS prompt rather than PostHog's 3/5/7-point
+rating survey. It is requested only after a completed product outcome:
+
+- First successfully resolved USCIS case
+- Completed deep ATS scan
+- Resume PDF download
+
+The prompt has a 90-day device cooldown and requires analytics consent because
+optional free-text feedback is stored in PostHog. Analyze NPS only after at
+least 50 valid submissions; use `nps_shown` as the denominator for response
+rate, not submissions plus dismissals.

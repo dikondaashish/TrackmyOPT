@@ -43,6 +43,7 @@ import {
 import { isDownloadGateRequired } from "@/lib/resume/apply-readiness";
 import { ATS_PASS_SCORE, buildAutoRegenFeedback, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
 import { captureClientEvent, captureUpgradePromptShown } from "@/lib/posthog-client";
+import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { ResumeCreditTopUpModal } from "@/components/dashboard/resume/ResumeCreditTopUpModal";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
@@ -55,6 +56,11 @@ import {
 export default function ResumeEditorPage() {
     const { toast } = useToast();
     const premium = usePremiumStatus();
+    const npsPlanTier = premium.planName === "dedicated"
+        ? "dedicated"
+        : premium.isPremium === true
+            ? "pro"
+            : "free";
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const searchParams = useSearchParams();
     const autoRegenAttempts = useRef(0);
@@ -296,8 +302,14 @@ export default function ResumeEditorPage() {
                 scan_source: scanSource,
                 source: "resume_editor",
             });
+            if (scanSource === "deep_scan") {
+                requestNpsSurvey({
+                    trigger: "ats_scan_completed",
+                    planTier: npsPlanTier,
+                });
+            }
         },
-        [applicationId, selectedTemplateId]
+        [applicationId, npsPlanTier, selectedTemplateId]
     );
 
     const saveResumeToHistory = useCallback(
@@ -828,6 +840,10 @@ export default function ResumeEditorPage() {
                 filename: buildPdfFilename(),
                 source: "resume_editor",
             });
+            requestNpsSurvey({
+                trigger: "resume_downloaded",
+                planTier: npsPlanTier,
+            });
             triggerUrlDownload(compiledPdfUrl, buildPdfFilename());
         },
         [
@@ -835,6 +851,7 @@ export default function ResumeEditorPage() {
             atsAnalysis?.score,
             buildPdfFilename,
             compiledPdfUrl,
+            npsPlanTier,
             selectedTemplateId,
         ]
     );

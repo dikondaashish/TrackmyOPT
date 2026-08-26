@@ -1,11 +1,21 @@
 export const NPS_LAST_SHOWN_KEY = "nps_last_shown";
 export const NPS_LAST_SHOWN_PERSON_PROPERTY = "nps_last_shown";
 
-export const NPS_MIN_ACCOUNT_AGE_DAYS = 14;
 export const NPS_COOLDOWN_DAYS = 90;
-export const NPS_SHOW_DELAY_MS = 30_000;
+export const NPS_SHOW_DELAY_MS = 1_200;
+export const NPS_REQUEST_EVENT = "trackmyopt:nps-request";
 
-type NpsCategory = "detractor" | "passive" | "promoter";
+export type NpsCategory = "detractor" | "passive" | "promoter";
+export type NpsTrigger =
+  | "case_status_first_success"
+  | "resume_downloaded"
+  | "ats_scan_completed";
+export type NpsPlanTier = "free" | "pro" | "dedicated";
+
+export type NpsRequest = {
+  trigger: NpsTrigger;
+  planTier: NpsPlanTier;
+};
 
 export function resolveNpsCategory(score: number): NpsCategory {
   if (score <= 6) return "detractor";
@@ -29,4 +39,16 @@ export function isWithinNpsCooldown(
   if (Number.isNaN(lastShown.getTime())) return false;
   const elapsedMs = Date.now() - lastShown.getTime();
   return elapsedMs < cooldownDays * 24 * 60 * 60 * 1000;
+}
+
+/**
+ * Request the single product NPS prompt after a completed user outcome. The
+ * dashboard listener owns eligibility, display, and event capture so callers
+ * cannot accidentally create an always-on or duplicate prompt.
+ */
+export function requestNpsSurvey(request: NpsRequest): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent<NpsRequest>(NPS_REQUEST_EVENT, { detail: request })
+  );
 }

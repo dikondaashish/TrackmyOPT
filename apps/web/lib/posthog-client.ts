@@ -2,6 +2,7 @@ import posthog from "posthog-js";
 import { captureOnceWhenConsented } from "@/lib/posthog/capture-with-consent";
 import { isNonFatalBoundaryError } from "@/lib/posthog/error-boundary-report";
 import { billingInsertId } from "@/lib/posthog/billing-analytics";
+import type { NpsCategory, NpsPlanTier, NpsTrigger } from "@/lib/posthog/nps-survey";
 
 /** Dispatched when the user accepts/declines analytics cookies (see posthog-browser). */
 export const ANALYTICS_CONSENT_CHANGE_EVENT = "trackmyopt:analytics-consent";
@@ -215,21 +216,37 @@ export function capturePricingCtaViewed(properties: {
   });
 }
 
-export function captureNpsSubmitted(properties: {
-  score: number;
-  feedback?: string;
-  category: "detractor" | "passive" | "promoter";
-}): void {
-  captureClientEvent("nps_submitted", {
-    score: properties.score,
-    ...(properties.feedback ? { feedback: properties.feedback } : {}),
-    category: properties.category,
-    source: "dashboard_nps",
+type NpsSurveyEventProperties = {
+  trigger: NpsTrigger;
+  plan_tier: NpsPlanTier;
+  pathname: string;
+  days_since_signup: number | null;
+};
+
+export function captureNpsShown(properties: NpsSurveyEventProperties): void {
+  captureClientEvent("nps_shown", {
+    ...properties,
+    source: "success_milestone_nps",
   });
 }
 
-export function captureNpsDismissed(): void {
-  captureClientEvent("nps_dismissed", { source: "dashboard_nps" });
+export function captureNpsSubmitted(properties: NpsSurveyEventProperties & {
+  score: number;
+  feedback?: string;
+  category: NpsCategory;
+}): void {
+  captureClientEvent("nps_submitted", {
+    ...properties,
+    ...(properties.feedback ? { feedback: properties.feedback } : {}),
+    source: "success_milestone_nps",
+  });
+}
+
+export function captureNpsDismissed(properties: NpsSurveyEventProperties): void {
+  captureClientEvent("nps_dismissed", {
+    ...properties,
+    source: "success_milestone_nps",
+  });
 }
 
 export function setNpsLastShownPersonProperty(isoTimestamp: string): void {
