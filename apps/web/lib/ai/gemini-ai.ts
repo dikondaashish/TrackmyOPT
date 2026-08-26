@@ -5,6 +5,7 @@
  */
 
 import { generateAiContent } from './google-ai';
+import { z } from 'zod';
 
 // Document types we support
 type DocumentType =
@@ -282,6 +283,14 @@ export async function analyzeAtsGap(
   jobDescription: string,
   userId?: string
 ): Promise<AtsGapAnalysis> {
+  const atsGapSchema = z.object({
+    matchScore: z.number().finite().min(0).max(100),
+    missingKeywords: z.array(z.string()),
+    foundKeywords: z.array(z.string()),
+    gapAnalysis: z.string().min(1),
+    recommendations: z.array(z.string()),
+  });
+
   try {
     const prompt = `
 You are an enterprise ATS (Applicant Tracking System) simulator. Parse and score this resume against the job description exactly as Workday, Greenhouse, or Taleo would.
@@ -324,16 +333,10 @@ Output JSON ONLY (no markdown fences):
 
     if (!jsonMatch) throw new Error('Failed to parse AI response');
 
-    return JSON.parse(jsonMatch[0]);
+    return atsGapSchema.parse(JSON.parse(jsonMatch[0]));
 
   } catch (error) {
     console.error('❌ ATS Gap Analysis Error:', error);
-    return {
-      matchScore: 0,
-      missingKeywords: [],
-      foundKeywords: [],
-      gapAnalysis: 'AI Analysis Failed',
-      recommendations: []
-    };
+    throw new Error('ATS gap analysis is unavailable');
   }
 }

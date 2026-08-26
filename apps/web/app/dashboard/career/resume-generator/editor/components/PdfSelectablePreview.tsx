@@ -39,6 +39,14 @@ type PdfDocHandle = {
     destroy: () => Promise<void>;
 };
 
+type DestroyablePdfDocument = {
+    destroy?: () => void | Promise<void>;
+};
+
+async function destroyPdfDocument(document: DestroyablePdfDocument | null): Promise<void> {
+    await document?.destroy?.();
+}
+
 const FIT_PADDING_PX = 24;
 const MIN_FIT_WIDTH = 280;
 const MAX_DPR = 3;
@@ -212,7 +220,7 @@ export function PdfSelectablePreview({
             const doc = await pdfjs.getDocument({ data: buffer }).promise;
 
             if (generation !== loadGenerationRef.current) {
-                await doc.destroy();
+                await destroyPdfDocument(doc as unknown as DestroyablePdfDocument);
                 return;
             }
 
@@ -254,7 +262,7 @@ export function PdfSelectablePreview({
                 pdfDocRef.current = doc as unknown as PdfDocHandle;
                 setPages(pageList);
             } else {
-                await doc.destroy();
+                await destroyPdfDocument(doc as unknown as DestroyablePdfDocument);
             }
         } catch (e) {
             console.error("[PdfSelectablePreview]", e);

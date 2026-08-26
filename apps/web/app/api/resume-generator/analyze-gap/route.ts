@@ -38,23 +38,33 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const reserved = await trackAtsScan(userId);
+        const analysis = await analyzeAtsGap(resumeText, jobDescription, userId);
+
+        // Only consume quota after a valid analysis is available. A model or
+        // parsing failure must be visible to the user, not become a fake zero
+        // score that silently spends an ATS scan.
+        const reserved = await trackAtsScan(userId, limit);
         if (!reserved.ok) {
             return NextResponse.json(
-                { error: 'Failed to reserve ATS scan quota' },
-                { status: 500, headers: corsHeaders }
+                {
+                    error: reserved.error === 'ATS scan limit reached'
+                        ? 'Monthly ATS scan limit reached'
+                        : 'Failed to reserve ATS scan quota',
+                    code: reserved.error === 'ATS scan limit reached'
+                        ? 'ats_scan_limit_reached'
+                        : 'ats_scan_reservation_failed',
+                },
+                { status: reserved.error === 'ATS scan limit reached' ? 402 : 500, headers: corsHeaders }
             );
         }
-
-        const analysis = await analyzeAtsGap(resumeText, jobDescription, userId);
 
         return NextResponse.json(analysis, { headers: corsHeaders });
 
     } catch (error) {
         console.error('Gap Analysis Error:', error);
         return NextResponse.json(
-            { error: 'Failed to analyze gap' },
-            { status: 500, headers: corsHeaders }
+            { error: 'ATS analysis is temporarily unavailable', code: 'ats_analysis_unavailable' },
+            { status: 502, headers: corsHeaders }
         );
     }
 }

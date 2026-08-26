@@ -92,8 +92,15 @@ function ExtensionAuthContent() {
     return true;
   };
 
-  const extensionCallbackPath = () =>
-    `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+  const extensionCallbackPath = () => {
+    // Keep this guard beside URL construction: callbacks must never be built
+    // from missing values even if a future caller bypasses the render guard.
+    if (!redirectUri || !state) {
+      throw new Error('Invalid extension login link');
+    }
+
+    return `/auth/extension/callback?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+  };
 
   const checkBlockedEmail = async (emailToCheck: string) => {
     const response = await fetch('/api/auth/check-blocked', {

@@ -125,16 +125,37 @@ export async function POST(req: NextRequest) {
 
     if (contentType === 'application/pdf') {
       try {
-        const pdfParseModule = (await import('pdf-parse')) as {
-          default?: (buffer: Buffer) => Promise<{ text?: string }>;
-        };
-        const pdfParse =
-          pdfParseModule.default ||
-          (pdfParseModule as unknown as (
-            buffer: Buffer,
-          ) => Promise<{ text?: string }>);
-        const pdfData = await pdfParse(response.body);
-        const content = pdfData.text?.trim() || '';
+        // Use the PDF parser that is already bundled with the web app.  The
+        // previous optional pdf-parse import was not a web dependency, which
+        // meant valid PDF URL imports failed after deployment.
+        const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+        const loadingTask = pdfjs.getDocument({
+          data: new Uint8Array(response.body),
+        });
+        const pdfDocument = await loadingTask.promise;
+        const pageTexts: string[] = [];
+
+        try {
+          // A remote import is capped at 5 MB; capping page processing as well
+          // prevents a pathological but small PDF from holding a function open.
+          const pageCount = Math.min(pdfDocument.numPages, 50);
+          for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+            const page = await pdfDocument.getPage(pageNumber);
+            const textContent = await page.getTextContent();
+            pageTexts.push(
+              textContent.items
+                .map((item) => ('str' in item ? item.str : ''))
+                .filter(Boolean)
+                .join(' '),
+            );
+          }
+        } finally {
+          // The legacy PDF.js type declarations omit PDFDocumentProxy.destroy,
+          // while the loading task exposes the supported cleanup API.
+          await loadingTask.destroy();
+        }
+
+        const content = pageTexts.join('\n').trim();
         if (content.length < 50) {
           return errorResponse(
             'Could not extract text from the PDF. Please download and upload the file instead.',

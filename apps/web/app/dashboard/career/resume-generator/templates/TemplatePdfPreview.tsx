@@ -7,6 +7,13 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 
 type PdfPage = { pageNumber: number; width: number; height: number };
 
+async function destroyPdfDocument(document: PDFDocumentProxy | null): Promise<void> {
+    const destroy = (document as (PDFDocumentProxy & {
+        destroy?: () => void | Promise<void>;
+    }) | null)?.destroy;
+    if (destroy) await destroy.call(document);
+}
+
 interface TemplatePdfPreviewProps {
     templateId: string;
     /** Render at most this many pages (thumbnails only need page 1). */
@@ -76,11 +83,11 @@ export function TemplatePdfPreview({
 
                 const doc = await pdfjs.getDocument({ data: buffer }).promise;
                 if (cancelled || generation !== generationRef.current) {
-                    await doc.destroy();
+                    await destroyPdfDocument(doc);
                     return;
                 }
 
-                if (pdfDocRef.current) void pdfDocRef.current.destroy();
+                void destroyPdfDocument(pdfDocRef.current);
                 pdfDocRef.current = doc;
 
                 onPageCount?.(doc.numPages);
@@ -145,7 +152,7 @@ export function TemplatePdfPreview({
     useEffect(() => {
         return () => {
             if (pdfDocRef.current) {
-                void pdfDocRef.current.destroy();
+                void destroyPdfDocument(pdfDocRef.current);
                 pdfDocRef.current = null;
             }
         };
