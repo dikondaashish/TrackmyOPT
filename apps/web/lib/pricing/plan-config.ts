@@ -25,13 +25,13 @@ export const LIMITED_TIME_OFFER = {
   label: 'Limited-time offer',
   pro: {
     percentOff: 37.5,
-    couponId: 'trackmyopt_pro_limited_2026',
-    promotionCode: 'TRACKMYOPT-PRO-OFFER',
+    couponId: 'trackmyopt_pro_limited_2026_products',
+    promotionCode: 'TRACKMYOPT-PRO-LIMITED-2026',
   },
   dedicated: {
     percentOff: 25,
-    couponId: 'trackmyopt_dedicated_limited_2026',
-    promotionCode: 'TRACKMYOPT-DEDICATED-OFFER',
+    couponId: 'trackmyopt_dedicated_limited_2026_products',
+    promotionCode: 'TRACKMYOPT-DEDICATED-LIMITED-2026',
   },
 } as const;
 

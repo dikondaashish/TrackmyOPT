@@ -211,6 +211,10 @@ async function resolveCheckoutPromotion(
         : recurringPrice.product.id;
     const expectedPercentOff = LIMITED_TIME_OFFER[planId].percentOff;
     const expectedOfferCents = Math.round(PLAN_PRICES[planId][interval] * 100);
+    const promotionCouponId =
+      typeof stablePromotion.promotion.coupon === 'string'
+        ? stablePromotion.promotion.coupon
+        : stablePromotion.promotion.coupon?.id;
     const actualOfferCents =
       isUsableCoupon(coupon) &&
       coupon.percent_off != null &&
@@ -227,6 +231,7 @@ async function resolveCheckoutPromotion(
       !coupon.valid ||
       coupon.duration !== 'forever' ||
       coupon.percent_off !== expectedPercentOff ||
+      promotionCouponId !== LIMITED_TIME_OFFER[planId].couponId ||
       actualOfferCents !== expectedOfferCents ||
       !coupon.applies_to?.products.includes(productId) ||
       stablePromotion.restrictions.first_time_transaction
