@@ -8,8 +8,10 @@ COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm
+# Use the exact package manager declared by the workspace. Installing the
+# moving `latest` pnpm release breaks frozen installs once pnpm validates the
+# package-manager identity recorded in package.json.
+RUN corepack enable && corepack prepare pnpm@10.18.2 --activate
 RUN pnpm install --frozen-lockfile
 
 # Copy source code
