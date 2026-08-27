@@ -4,6 +4,7 @@ import { Search, CheckCircle2, Clock, ArrowRight, BookOpen, AlertTriangle, Bell,
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
+import { AdSenseInArticle } from "@/components/blog/AdSenseInArticle";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
@@ -98,6 +99,8 @@ export default function USCISCaseStatusTrackingGuide() {
                 variant="case-status"
                 sourcePage="/blog/uscis-case-status-tracking-guide"
             />
+
+            <AdSenseInArticle />
 
             {/* Key Takeaway Box */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">

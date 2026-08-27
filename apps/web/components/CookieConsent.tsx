@@ -11,6 +11,7 @@ import {
   type CookieConsentStatus,
 } from '@/lib/cookie-consent';
 import { setPostHogAnalyticsConsent } from '@/lib/posthog/posthog-browser';
+import { loadAdSense } from '@/lib/adsense';
 
 const GA_ID = 'G-LD9XN0RHXH';
 
@@ -33,21 +34,6 @@ function loadGA4() {
     document.head.appendChild(init);
   } catch (error) {
     console.warn('Third-party init failed: GA4', error);
-  }
-}
-
-function loadAdSense() {
-  try {
-    if (document.getElementById('adsense-script')) return;
-    const script = document.createElement('script');
-    script.id = 'adsense-script';
-    script.async = true;
-    script.src =
-      'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4262248775973692';
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
-  } catch (error) {
-    console.warn('Third-party init failed: AdSense', error);
   }
 }
 

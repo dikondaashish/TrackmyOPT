@@ -4,6 +4,7 @@ import { Clock, ArrowRight, TrendingUp, AlertTriangle, CheckCircle2 } from "luci
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { AdSenseInArticle } from "@/components/blog/AdSenseInArticle";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
@@ -93,6 +94,8 @@ export default function OPTProcessingTimeArticle() {
                 variant="case-status"
                 sourcePage="/blog/opt-processing-time-2026"
             />
+
+            <AdSenseInArticle />
 
             {/* Key Stat Box */}
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-6 mb-10">

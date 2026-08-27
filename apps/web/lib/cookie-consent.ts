@@ -10,6 +10,7 @@ export const COOKIE_CONSENT_KEY = "trackmyopt_cookie_consent";
 export const COOKIE_CONSENT_TIMESTAMP_KEY = "trackmyopt_cookie_consent_ts";
 const COOKIE_CONSENT_EXPIRY_DAYS = 365;
 export const OPEN_PRIVACY_CHOICES_EVENT = "trackmyopt:open-privacy-choices";
+export const COOKIE_CONSENT_CHANGED_EVENT = "trackmyopt:cookie-consent-changed";
 
 export type CookieConsentStatus = "accepted" | "declined" | null;
 
@@ -32,8 +33,13 @@ export function getStoredCookieConsent(): CookieConsentStatus {
  * still applies the choice for this session; it just cannot be remembered.
  */
 export function setStoredCookieConsent(status: "accepted" | "declined"): void {
-  if (!safeStorageSet(COOKIE_CONSENT_KEY, status)) return;
+  safeStorageSet(COOKIE_CONSENT_KEY, status);
   safeStorageSet(COOKIE_CONSENT_TIMESTAMP_KEY, Date.now().toString());
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent(COOKIE_CONSENT_CHANGED_EVENT, { detail: { status } })
+    );
+  }
 }
 
 /** Accept All = product analytics (PostHog) + advertising (AdSense). */

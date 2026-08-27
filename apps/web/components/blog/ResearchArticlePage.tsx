@@ -13,6 +13,7 @@ import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import type { ResearchArticle } from '@/data/blog-series/types';
+import { AdSenseInArticle } from '@/components/blog/AdSenseInArticle';
 
 const SITE = 'https://www.trackmyopt.com';
 const DEFAULT_IMAGE = '/blog/international-student-guidance-library-2026.png';
@@ -102,6 +103,8 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           {article.directAnswer}
         </p>
       </div>
+
+      <AdSenseInArticle />
 
       <div className="prose prose-lg prose-longform dark:prose-invert max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400">
         <section>
