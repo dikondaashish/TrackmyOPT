@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { normalizeSearchText } from "@/lib/resume/latex-text-sync";
 
@@ -43,8 +43,24 @@ type DestroyablePdfDocument = {
     destroy?: () => void | Promise<void>;
 };
 
+function isPdfRenderCancellation(error: unknown): boolean {
+    return (
+        typeof error === "object" &&
+        error !== null &&
+        "name" in error &&
+        String(error.name) === "RenderingCancelledException"
+    );
+}
+
 async function destroyPdfDocument(document: DestroyablePdfDocument | null): Promise<void> {
-    await document?.destroy?.();
+    try {
+        await document?.destroy?.();
+    } catch (error) {
+        // Switching away from Preview intentionally cancels active PDF.js work.
+        if (!isPdfRenderCancellation(error)) {
+            console.error("[PdfSelectablePreview] document cleanup failed:", error);
+        }
+    }
 }
 
 const FIT_PADDING_PX = 24;
@@ -113,8 +129,7 @@ function PdfPageView({
         paint().catch((e) => {
             // pdf.js rejects with RenderingCancelledException when cancel() runs.
             if (cancelled) return;
-            const name = e && typeof e === "object" && "name" in e ? String(e.name) : "";
-            if (name === "RenderingCancelledException") return;
+            if (isPdfRenderCancellation(e)) return;
             console.error("[PdfPageView] render failed:", e);
         });
 
@@ -181,6 +196,7 @@ export function PdfSelectablePreview({
 }: PdfSelectablePreviewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const pdfDocRef = useRef<PdfDocHandle | null>(null);
+    const [pdfDoc, setPdfDoc] = useState<PdfDocHandle | null>(null);
     const [pages, setPages] = useState<PageData[]>([]);
     const [fitScale, setFitScale] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -205,8 +221,9 @@ export function PdfSelectablePreview({
         setError(null);
         setPages([]);
         if (pdfDocRef.current) {
-            void pdfDocRef.current.destroy();
+            void destroyPdfDocument(pdfDocRef.current);
             pdfDocRef.current = null;
+            setPdfDoc(null);
         }
 
         try {
@@ -260,11 +277,13 @@ export function PdfSelectablePreview({
             if (generation === loadGenerationRef.current) {
                 setFitScale(scale);
                 pdfDocRef.current = doc as unknown as PdfDocHandle;
+                setPdfDoc(doc as unknown as PdfDocHandle);
                 setPages(pageList);
             } else {
                 await destroyPdfDocument(doc as unknown as DestroyablePdfDocument);
             }
         } catch (e) {
+            if (isPdfRenderCancellation(e)) return;
             console.error("[PdfSelectablePreview]", e);
             if (generation === loadGenerationRef.current) {
                 setError("Could not render PDF preview.");
@@ -278,20 +297,33 @@ export function PdfSelectablePreview({
 
     useEffect(() => {
         if (!blob) {
-            setPages([]);
+            let active = true;
             if (pdfDocRef.current) {
-                void pdfDocRef.current.destroy();
+                void destroyPdfDocument(pdfDocRef.current);
                 pdfDocRef.current = null;
             }
-            return;
+            queueMicrotask(() => {
+                if (!active) return;
+                setPages([]);
+                setPdfDoc(null);
+            });
+            return () => {
+                active = false;
+            };
         }
         if (fitWidth < 100) return;
-        loadPdf(blob, fitWidth);
+        let active = true;
+        queueMicrotask(() => {
+            if (active) void loadPdf(blob, fitWidth);
+        });
+        return () => {
+            active = false;
+        };
     }, [blob, fitWidth, loadPdf]);
 
     useEffect(() => {
         return () => {
-            void pdfDocRef.current?.destroy();
+            void destroyPdfDocument(pdfDocRef.current);
         };
     }, []);
 
@@ -322,10 +354,13 @@ export function PdfSelectablePreview({
     }, [onTextSelect]);
 
     const highlightLower = normalizeSearchText(highlightQuery ?? "").toLowerCase();
-    const highlightWords =
-        highlightLower.length >= 2
-            ? highlightLower.split(/\s+/).filter((w) => w.length >= 3)
-            : [];
+    const highlightWords = useMemo(
+        () =>
+            highlightLower.length >= 2
+                ? highlightLower.split(/\s+/).filter((word) => word.length >= 3)
+                : [],
+        [highlightLower]
+    );
 
     const spanMatchesHighlight = useCallback(
         (spanText: string): boolean => {
@@ -357,7 +392,7 @@ export function PdfSelectablePreview({
                 <div className="flex items-center justify-center flex-1 text-sm text-red-500">
                     {error}
                 </div>
-            ) : pages.length > 0 && pdfDocRef.current ? (
+            ) : pages.length > 0 && pdfDoc ? (
                 <>
                     <p className="text-xs text-gray-500 dark:text-gray-400 self-start px-1 shrink-0">
                         Select text in the PDF to jump to the matching LaTeX source.
@@ -365,7 +400,7 @@ export function PdfSelectablePreview({
                     {pages.map((page) => (
                         <PdfPageView
                             key={page.pageNumber}
-                            pdfDoc={pdfDocRef.current!}
+                            pdfDoc={pdfDoc}
                             page={page}
                             fitScale={fitScale}
                             spanMatchesHighlight={spanMatchesHighlight}
