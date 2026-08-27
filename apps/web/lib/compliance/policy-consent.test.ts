@@ -27,22 +27,34 @@ describe("getPoliciesNeedingConsent", () => {
   ];
 
   it("returns policies with requires_consent missing user consent", () => {
-    const pending = getPoliciesNeedingConsent(versions, [
-      { policy_type: "privacy_policy", policy_version: "2026-05-31" },
-    ]);
+    const pending = getPoliciesNeedingConsent(
+      versions,
+      [{ policy_type: "privacy_policy", policy_version: "2026-05-31" }],
+      "2026-05-01T00:00:00.000Z"
+    );
     expect(pending.map((p) => p.type)).toEqual(["terms_of_service"]);
   });
 
   it("returns empty when all required consents exist", () => {
-    const pending = getPoliciesNeedingConsent(versions, [
-      { policy_type: "privacy_policy", policy_version: "2026-05-31" },
-      { policy_type: "terms_of_service", policy_version: "2026-05-31" },
-    ]);
+    const pending = getPoliciesNeedingConsent(
+      versions,
+      [
+        { policy_type: "privacy_policy", policy_version: "2026-05-31" },
+        { policy_type: "terms_of_service", policy_version: "2026-05-31" },
+      ],
+      "2026-05-01T00:00:00.000Z"
+    );
     expect(pending).toEqual([]);
   });
 
   it("ignores cookie_policy when requires_consent is false", () => {
-    const pending = getPoliciesNeedingConsent(versions, []);
+    const pending = getPoliciesNeedingConsent(versions, [], "2026-05-01T00:00:00.000Z");
     expect(pending.some((p) => p.type === "cookie_policy")).toBe(false);
+  });
+
+  it("does not show an update modal to accounts created after the policy became effective", () => {
+    expect(
+      getPoliciesNeedingConsent(versions, [], "2026-06-01T00:00:00.000Z")
+    ).toEqual([]);
   });
 });

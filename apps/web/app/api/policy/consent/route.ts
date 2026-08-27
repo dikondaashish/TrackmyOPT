@@ -15,13 +15,14 @@ export const dynamic = 'force-dynamic';
  * POST /api/policy/consent - Record user consent (single or all required)
  */
 
-type ConsentMethod = 'checkbox' | 'modal' | 'banner_click' | 'checkout_checkbox';
+type ConsentMethod = 'checkbox' | 'modal' | 'banner_click' | 'checkout_checkbox' | 'signup_checkbox';
 
 interface PolicyConsentRequest {
   policyType?: LegalPolicyType;
   policyVersion?: string;
   consentMethod: ConsentMethod;
   acceptAllRequired?: boolean;
+  recordSignupAcceptance?: boolean;
 }
 
 function getRequestMeta(request: NextRequest) {
@@ -60,7 +61,8 @@ export async function GET() {
 
     const policiesNeedingConsent = getPoliciesNeedingConsent(
       policyVersions ?? [],
-      userConsents ?? []
+      userConsents ?? [],
+      user.created_at
     );
 
     return NextResponse.json({
@@ -92,13 +94,51 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as PolicyConsentRequest;
-    const { policyType, policyVersion, consentMethod, acceptAllRequired } = body;
+    const { policyType, policyVersion, consentMethod, acceptAllRequired, recordSignupAcceptance } = body;
 
     if (!consentMethod) {
       return NextResponse.json({ error: 'Missing consentMethod' }, { status: 400 });
     }
 
     const { ipAddress, userAgent } = getRequestMeta(request);
+
+    if (recordSignupAcceptance) {
+      if (consentMethod !== 'signup_checkbox') {
+        return NextResponse.json({ error: 'Invalid signup consent method' }, { status: 400 });
+      }
+
+      const { data: policyVersions, error: versionsError } = await supabase
+        .from('policy_versions')
+        .select('*')
+        .in('policy_type', ['privacy_policy', 'terms_of_service']);
+
+      if (versionsError) {
+        return NextResponse.json({ error: 'Failed to load signup policies' }, { status: 500 });
+      }
+
+      const result = await recordPolicyConsentsBatch({
+        supabase,
+        userId: user.id,
+        policies: (policyVersions ?? [])
+          .filter((policy) => policy.requires_consent)
+          .map((policy) => ({
+            policyType: policy.policy_type,
+            policyVersion: policy.current_version,
+          })),
+        consentMethod,
+        ipAddress,
+        userAgent,
+      });
+
+      if (!result.ok) {
+        return NextResponse.json(
+          { error: 'Could not record signup consent', details: result.errors },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true, recorded: result.recorded });
+    }
 
     if (acceptAllRequired) {
       const { data: policyVersions, error: versionsError } = await supabase
@@ -114,7 +154,11 @@ export async function POST(request: NextRequest) {
         .select('policy_type, policy_version')
         .eq('user_id', user.id);
 
-      const pending = getPoliciesNeedingConsent(policyVersions ?? [], userConsents ?? []);
+      const pending = getPoliciesNeedingConsent(
+        policyVersions ?? [],
+        userConsents ?? [],
+        user.created_at
+      );
 
       if (pending.length === 0) {
         return NextResponse.json({

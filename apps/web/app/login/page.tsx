@@ -350,6 +350,19 @@ function LoginPageContent() {
           provider: 'email',
           ...(refCode ? { referred_by: refCode } : {}),
         });
+
+        // The user checked the signup Terms/Privacy acknowledgement before
+        // creating this account. Persist the current versions after the OTP
+        // creates a session; a new account should not see the update modal.
+        await fetch('/api/policy/consent', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            consentMethod: 'signup_checkbox',
+            recordSignupAcceptance: true,
+          }),
+        }).catch(() => undefined);
       }
 
       // Track referral signup if we have a code

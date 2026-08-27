@@ -22,10 +22,26 @@ type PolicyNeedingConsent = {
 
 export function getPoliciesNeedingConsent(
   policyVersions: PolicyVersionRow[],
-  userConsents: PolicyConsentRow[]
+  userConsents: PolicyConsentRow[],
+  accountCreatedAt?: string | Date | null
 ): PolicyNeedingConsent[] {
+  const accountCreatedTime = accountCreatedAt
+    ? new Date(accountCreatedAt).getTime()
+    : Number.NaN;
+
   return policyVersions
     .filter((policy) => policy.requires_consent)
+    // This dashboard acknowledgement is for an update received by an
+    // existing account. New accounts accept the signup terms instead of being
+    // interrupted by an "updated policies" modal on their first dashboard.
+    .filter((policy) => {
+      const effectiveTime = policy.effective_date
+        ? new Date(`${policy.effective_date}T00:00:00.000Z`).getTime()
+        : Number.NaN;
+      return Number.isFinite(accountCreatedTime) &&
+        Number.isFinite(effectiveTime) &&
+        accountCreatedTime < effectiveTime;
+    })
     .filter((policy) => {
       const hasConsented = userConsents.some(
         (consent) =>
@@ -46,7 +62,7 @@ export async function recordPolicyConsentsBatch(args: {
   supabase: SupabaseClient;
   userId: string;
   policies: Array<{ policyType: string; policyVersion: string }>;
-  consentMethod: "checkbox" | "modal" | "banner_click" | "checkout_checkbox";
+  consentMethod: "checkbox" | "modal" | "banner_click" | "checkout_checkbox" | "signup_checkbox";
   ipAddress: string;
   userAgent: string;
 }): Promise<{ ok: boolean; recorded: number; errors: string[] }> {
