@@ -52,7 +52,7 @@ const basePricingFaqs = [
   },
   {
     q: 'Is my payment information secure?',
-    a: 'All payments are processed by Stripe, a PCI Level 1 certified payment processor. We never store your credit card information on our servers.',
+    a: 'All payments are processed by Stripe, a PCI DSS Level 1 certified payment processor. We never store your credit card information on our servers.',
   },
 ];
 
