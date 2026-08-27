@@ -55,7 +55,7 @@ function CalculatorPreview() {
             >
                 <p className="text-sm opacity-80 mb-1">Your Safe Filing Window</p>
                 <p className="text-2xl font-bold mb-2">April 15 - June 15, 2025</p>
-                <p className="text-sm opacity-80">90 days before OPT expires</p>
+                <p className="text-sm opacity-80">Up to 90 days before current OPT expires</p>
             </motion.div>
         </div>
     );
@@ -78,7 +78,7 @@ export default function CompliancePage() {
                 faqItems={[
                   {question: "What happens if I exceed my unemployment limit?", answer: "The aggregate limit is 90 days during initial OPT and 150 days across initial OPT plus STEM OPT. Exceeding the applicable limit can violate F-1 status. TrackMyOPT tracks saved employment periods and alerts you as you approach the limit; verify your situation with your DSO."},
                   {question: "How does TrackMyOPT calculate my unemployment days?", answer: "We track the gap between your employment end dates and start dates. You enter your employment history, and our system automatically calculates cumulative unemployment. We account for weekends and holidays per USCIS guidelines."},
-                  {question: "When should I apply for STEM OPT extension?", answer: "You must apply 90 days before your OPT expires. Our filing calculator shows you the exact window and sends reminders 60, 30, and 7 days before your deadline."},
+                  {question: "When should I apply for STEM OPT extension?", answer: "You may file Form I-765 up to 90 days before your current OPT expires. Other timing requirements apply, including the timing of your DSO recommendation, so confirm the current Form I-765 instructions and your individual deadline with your DSO."},
                   {question: "Do I need to report every job change to SEVP?", answer: "Yes, you must update the SEVP Portal within 10 days of any employment change including new jobs, address changes, or employer name changes. TrackMyOPT reminds you of these reporting requirements."},
                   {question: "Is TrackMyOPT free to use?", answer: "Yes! Core OPT tracking is free forever — countdown timer, unemployment tracker, and deadline tools. Free also includes 1 USCIS case with manual refresh and limited H-1B sponsor search. Pro adds daily case auto-checks, status-change emails, Document Vault, and higher limits."},
                   {question: "How accurate is the filing deadline calculator?", answer: "Our calculator uses publicly available USCIS timelines and accounts for your specific OPT start date, employment status, and extension type. Always verify deadlines with your DSO or a licensed immigration attorney."}
@@ -269,7 +269,7 @@ export default function CompliancePage() {
                     },
                     {
                         question: "When should I apply for STEM OPT extension?",
-                        answer: "You must apply 90 days before your OPT expires. Our filing calculator shows you the exact window and sends reminders 60, 30, and 7 days before your deadline."
+                        answer: "You may file Form I-765 up to 90 days before your current OPT expires. Other timing requirements apply, including the timing of your DSO recommendation, so confirm the current Form I-765 instructions and your individual deadline with your DSO."
                     },
                     {
                         question: "Do I need to report every job change to SEVP?",

@@ -39,7 +39,7 @@ export default function USCISCaseStatusArticle() {
             <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-15" modifiedDate="2026-03-15" author="Vinay Kumar" faqItems={[
                 { question: "Where do I check my USCIS case status?", answer: "Log into your USCIS account at uscis.gov, click 'Check Application Status,' enter your case number (starts with three letters like EAC, LIN, or WAC), and review your status messages." },
                 { question: "What does 'case received' mean for OPT?", answer: "'Case received' means USCIS has accepted your I-765 petition and assigned it a case number. Processing has begun, and you should see updates within 30-60 days." },
-                { question: "What does 'request for additional evidence (RFE)' mean?", answer: "USCIS is requesting additional documents or information to process your case. You have 7 calendar days to respond (extendable to 87 days). Missing the deadline results in case denial." },
+                { question: "What does 'request for additional evidence (RFE)' mean?", answer: "USCIS is requesting documents or information to continue processing your case. The deadline printed on your RFE notice controls; response periods can be up to 12 weeks, and USCIS generally does not grant extra response time." },
                 { question: "How long does it take to get OPT approval?", answer: "Current USCIS processing times for I-765 EAD cases are 90-120 calendar days from case receipt, but can vary by location and complexity. Check USCIS.gov for your specific service center." },
                 { question: "Why is my case taking longer than expected?", answer: "Delays can be caused by missing documents, administrative backlogs, security checks, name verification issues, or volume surges. Contact USCIS if your case exceeds published processing times." },
                 { question: "Can I contact USCIS about a delayed case?", answer: "Yes, if your case exceeds published processing times by 30+ days. Call 1-800-375-5283 or file a case inquiry through your USCIS account if USCIS cannot be reached by phone." },
@@ -98,7 +98,7 @@ export default function USCISCaseStatusArticle() {
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
-                    Track your OPT case at <strong>uscis.gov/cases</strong> using your receipt number or case number. Current I-765 processing times are <strong>90-120 days</strong>. If you receive an RFE (Request for Evidence), respond within 7 days or your case will be denied. Don't panic about delays—they're common.
+                    Track your OPT case at <strong>uscis.gov/cases</strong> using your receipt number or case number. Check USCIS&apos;s current processing-time tool for your filing category. If you receive an RFE (Request for Evidence), follow the deadline and instructions printed on that notice. Don&apos;t panic about delays—they&apos;re common.
                 </p>
                 <p className="text-blue-700 dark:text-blue-300 text-sm mt-2">
                     Source: <a href="https://www.uscis.gov" target="_blank" rel="noopener noreferrer" className="underline">USCIS.gov</a>
@@ -139,7 +139,7 @@ export default function USCISCaseStatusArticle() {
 
                     <div className="space-y-3 mb-6">
                         {[
-                            "Respond to Requests for Evidence (RFE) before the deadline expires (7 calendar days)",
+                            "Respond to Requests for Evidence (RFE) by the deadline printed on the notice",
                             "Know when your EAD card is being mailed so you can prepare to collect it",
                             "Identify delays early so you can contact USCIS or consult an immigration attorney",
                             "Defend against accusations that you failed to respond (you'll have proof of timely submission)",
@@ -258,7 +258,7 @@ export default function USCISCaseStatusArticle() {
                         {[
                             { status: "Application/Document Received", meaning: "USCIS has received your I-765 petition. Case number assigned. Processing begins. Next update expected in 30-60 days." },
                             { status: "Application Under Review", meaning: "USCIS is evaluating your application. Still within normal processing time. No action needed from you." },
-                            { status: "Request for Additional Evidence", meaning: "USCIS needs more documents/information. URGENT: Respond within 7 calendar days or case will be DENIED. Usually addressed within 10-14 days of submission." },
+                            { status: "Request for Additional Evidence", meaning: "USCIS needs more documents or information. Follow the RFE notice exactly and submit by its stated deadline; do not rely on a general number of days." },
                             { status: "Decision Pending", meaning: "USCIS has completed review and is preparing final decision. Approval or denial imminent. Check daily for updates." },
                             { status: "Approved-Decision Sent", meaning: "Your I-765 has been APPROVED. USCIS mailed approval notice. EAD card will arrive within 7-10 business days." },
                             { status: "Denied", meaning: "Application has been denied. You have options: appeal, motion to reopen, or reapply. Consult immigration attorney immediately." },
@@ -273,7 +273,7 @@ export default function USCISCaseStatusArticle() {
 
                     <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
                         <p className="text-red-900 dark:text-red-100 font-medium text-sm">
-                            <strong>🚨 Critical:</strong> If you see "Request for Additional Evidence," act immediately. The 7-day count includes weekends and holidays. Don't wait until day 6.
+                            <strong>🚨 Critical:</strong> If you see "Request for Additional Evidence," act immediately. Read the notice and calendar its stated deadline; do not wait until the last day.
                         </p>
                     </div>
                 </section>
@@ -283,41 +283,13 @@ export default function USCISCaseStatusArticle() {
                         Current Processing Times
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                        USCIS publishes official processing times. As of March 2026, I-765 EAD processing varies by service center:
+                        USCIS publishes official processing times, which change and depend on the form category and service center. Use the official tool for the current estimate for your case.
                     </p>
 
-                    <div className="overflow-x-auto mb-6">
-                        <table className="w-full border-collapse text-sm">
-                            <thead>
-                                <tr className="bg-gray-100 dark:bg-zinc-800">
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Service Center</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Processing Time</th>
-                                    <th className="text-left p-3 font-semibold text-gray-900 dark:text-white border dark:border-zinc-700">Ready Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Vermont Service Center</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">90-120 days</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">6+ months</td>
-                                </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Nebraska Service Center</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">90-120 days</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">5+ months</td>
-                                </tr>
-                                <tr>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">Texas Service Center</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">120-150 days</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">6+ months</td>
-                                </tr>
-                                <tr className="bg-gray-50 dark:bg-zinc-900">
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">California Service Center</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">120-150 days</td>
-                                    <td className="p-3 border dark:border-zinc-700 text-gray-700 dark:text-gray-300">6+ months</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-900/20">
+                        <p className="text-gray-700 dark:text-gray-300">
+                            <a href="https://egov.uscis.gov/processing-times/" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 underline dark:text-blue-300">Check USCIS Processing Times</a> for the most current published estimate. TrackMyOPT does not predict an approval date.
+                        </p>
                     </div>
 
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -336,7 +308,10 @@ export default function USCISCaseStatusArticle() {
                         How to Handle an RFE (Request for Evidence)
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                        An RFE means USCIS needs more documents or information. This is common and doesn't mean your case is in trouble. <strong>You have exactly 7 calendar days to respond.</strong>
+                        An RFE means USCIS needs more documents or information. This is common and does not by itself mean your case is in trouble. <strong>The deadline printed on your RFE notice controls.</strong>
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                        USCIS states that the maximum RFE response period is generally 12 weeks (84 days), although the agency may set a shorter period, and additional response time generally is not granted. Read your notice immediately and use its instructions as the source of truth. <a href="https://www.uscis.gov/sites/default/files/document/outreach-engagements/change-timeframes-rfe.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">Read USCIS&apos;s RFE policy guidance</a>.
                     </p>
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">Step-by-Step RFE Response</h3>
@@ -364,7 +339,7 @@ export default function USCISCaseStatusArticle() {
                     <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
                         <p className="text-red-900 dark:text-red-100 font-medium text-sm">
                             <AlertTriangle className="inline w-4 h-4 mr-2" />
-                            <strong>Critical:</strong> Missing the RFE deadline results in automatic DENIAL. There is usually no second chance. Don't ignore RFE notices—they're not optional.
+                            <strong>Critical:</strong> Missing the RFE deadline can result in denial or a decision based on the existing record. Don&apos;t ignore an RFE notice—follow its stated instructions and deadline.
                         </p>
                     </div>
                 </section>
@@ -439,7 +414,7 @@ export default function USCISCaseStatusArticle() {
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 Submit a new I-765 application with corrected information or additional documentation. Most successful if you can address the original denial reason.
                             </p>
-                            <p className="text-gray-500 dark:text-gray-500 text-sm"><strong>Cost:</strong> $410-765 | <strong>Time:</strong> 90-120 days processing</p>
+                            <p className="text-gray-500 dark:text-gray-500 text-sm">Filing fees and processing times vary. Check the current USCIS Form I-765 page before acting.</p>
                         </div>
 
                         <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
@@ -466,10 +441,10 @@ export default function USCISCaseStatusArticle() {
                         {[
                             { question: "Where do I check my USCIS case status?", answer: "Log into your USCIS account at uscis.gov/cases, click 'Check Application Status,' and enter your case number or receipt number to view your status." },
                             { question: "What does 'case received' mean for OPT?", answer: "'Case received' means USCIS has accepted your I-765 petition and assigned a case number. Processing has officially begun." },
-                            { question: "How long does OPT approval take?", answer: "Current USCIS processing times for I-765 applications are 90-120 days from receipt. However, timelines vary by service center and can be longer due to RFEs or background checks." },
-                            { question: "What should I do if I receive an RFE?", answer: "Read the RFE carefully to identify what documents are requested, gather all requested items, and submit before the 7-day deadline. Missing the deadline results in automatic denial." },
+                            { question: "How long does OPT approval take?", answer: "Processing times vary by filing category, service center, and case circumstances. Check USCIS's Processing Times tool for the current published estimate for your form category." },
+                            { question: "What should I do if I receive an RFE?", answer: "Read the RFE carefully, identify every requested item, and submit a complete response by the deadline printed on your notice. Do not rely on a general deadline because USCIS sets the response period on the notice." },
                             { question: "Can I contact USCIS about a delayed case?", answer: "Yes, if your case exceeds processing times by 30+ days. Call 1-800-375-5283 or file a case inquiry through your USCIS account. You can also contact your U.S. Representative." },
-                            { question: "What does 'approved-decision already sent' mean?", answer: "Your I-765 has been approved and USCIS has mailed the approval notice. Your EAD card will arrive within 7-10 business days. Start date can now be finalized with your employer." },
+                            { question: "What does 'approved-decision already sent' mean?", answer: "USCIS has approved the case and sent a decision notice. Check your USCIS account and mail for the notice and card; delivery timing varies." },
                         ].map((faq, i) => (
                             <div key={i} className="p-5 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800" itemScope itemType="https://schema.org/Question">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-2" itemProp="name">{faq.question}</h3>
