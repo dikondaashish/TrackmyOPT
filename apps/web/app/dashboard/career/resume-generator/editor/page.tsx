@@ -740,7 +740,7 @@ export default function ResumeEditorPage() {
     };
 
     // Handle Manual Regenerate
-    const handleRegenerate = async (feedback: string) => {
+    const handleRegenerate = async (feedback: string, analysisOverride?: AtsAnalysis | null) => {
         setIsGenerating(true);
         setShowFeedbackModal(false); // Close modal on start
 
@@ -754,7 +754,9 @@ export default function ResumeEditorPage() {
                     templateId: selectedTemplateId || "professional",
                     previousLatex: generatedLatex,
                     userFeedback: feedback,
-                    atsAnalysis // Pass ATS data to backend
+                    // A just-completed scan is not guaranteed to be visible in React state yet.
+                    // Prefer it so this regeneration receives the exact gaps the user saw.
+                    atsAnalysis: analysisOverride ?? atsAnalysis,
                 })
             });
 
@@ -798,6 +800,40 @@ export default function ResumeEditorPage() {
         } finally {
             setIsGenerating(false);
         }
+    };
+
+    const handleImproveForAts = async () => {
+        if (!generatedLatex) return;
+
+        const analysis = atsAnalysis ?? await runDeepScan(generatedLatex, true);
+        if (!analysis) {
+            toast({
+                title: "ATS analysis needed",
+                description: "We could not read the ATS gaps yet. Please run the analysis again.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        if (analysis.passed && (analysis.score ?? 0) >= ATS_PASS_SCORE) {
+            toast({
+                title: "Resume already meets the ATS target",
+                description: "Review the suggestions before making another change.",
+            });
+            return;
+        }
+
+        captureClientEvent("resume_ats_fix_requested", {
+            score: analysis.score ?? null,
+            template_id: selectedTemplateId,
+            application_id: applicationId,
+            source: "resume_editor",
+        });
+
+        await handleRegenerate([
+            buildAutoRegenFeedback(analysis),
+            "Improve ATS readability, keyword placement, and bullet quality for this job description. Only use skills, experience, employers, dates, degrees, credentials, and metrics supported by the source resume. Do not invent, exaggerate, or rename anything.",
+        ].join("\n\n"), analysis);
     };
 
     const handleLatexSelectionSync = useCallback(() => {
@@ -1230,6 +1266,37 @@ export default function ResumeEditorPage() {
                                         pdfParseOk,
                                     }}
                                 />
+                                {atsAnalysis && (!atsAnalysis.passed || (atsAnalysis.score ?? 0) < ATS_PASS_SCORE) && (
+                                    <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/70 dark:bg-blue-950/30">
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                            <div className="space-y-1">
+                                                <h3 className="text-sm font-semibold text-blue-950 dark:text-blue-100">
+                                                    Improve this resume for ATS
+                                                </h3>
+                                                <p className="text-xs leading-5 text-blue-800 dark:text-blue-200">
+                                                    Strengthens supported keyword placement and bullets for this job. It preserves your real experience and credentials.
+                                                </p>
+                                            </div>
+                                            <Button
+                                                onClick={handleImproveForAts}
+                                                disabled={isScanning || isGenerating || isAutoFixing || !generatedLatex}
+                                                className="min-h-11 shrink-0 bg-blue-600 px-4 text-white hover:bg-blue-700"
+                                            >
+                                                {isGenerating || isAutoFixing ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Improving…
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles className="mr-2 h-4 w-4" />
+                                                        Fix resume for ATS
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="flex justify-end">
                                     <Button
                                         size="sm"
