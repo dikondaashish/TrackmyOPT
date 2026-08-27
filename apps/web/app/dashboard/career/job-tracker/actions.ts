@@ -39,14 +39,14 @@ export async function getUserPlanTier() {
         .from("profiles")
         .select("plan_tier")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
     if (error) {
         console.error("Error fetching plan tier:", error);
         return null;
     }
 
-    return data.plan_tier as string | null;
+    return data?.plan_tier as string | null;
 }
 
 export async function createApplication(formData: {

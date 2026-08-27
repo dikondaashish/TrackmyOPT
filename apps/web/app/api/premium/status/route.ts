@@ -100,7 +100,10 @@ export async function GET(req: NextRequest) {
       .from('profiles')
       .select('premium_status, plan_tier, subscription_expires_at, premium_purchased_at, dedicated_started_at, stripe_customer_id, pro_free_trial_consumed')
       .eq('user_id', userId)
-      .single();
+      // A profile is created lazily for some valid accounts. Treat its absence
+      // as the normal free-user state rather than surfacing PGRST116 as an
+      // application error on every status refresh.
+      .maybeSingle();
 
     if (error) {
       console.error('Error checking premium status:', sanitizeError(error));

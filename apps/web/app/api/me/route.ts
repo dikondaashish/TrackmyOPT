@@ -171,10 +171,10 @@ export async function GET(request: NextRequest) {
       .from('profiles')
       .select('timezone, is_stem_eligible, degree_level, major_name')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     // If profile doesn't exist (new Google OAuth user), create it
-    if (profileError && profileError.code === 'PGRST116') {
+    if (!profile && !profileError) {
       
       // Use service role key to bypass RLS for initial profile creation
       const profileWriter = supabaseAdmin ?? createClient(
@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
         .select('timezone, is_stem_eligible, degree_level, major_name')
         .single();
       
-      if (insertError) {
+      if (insertError && insertError.code !== '23505') {
         console.error('Failed to create profile:', insertError);
         return NextResponse.json(
           { error: 'Failed to create user profile' },
@@ -201,10 +201,36 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      // Two tabs (or an extension plus the browser) can perform this lazy
+      // first-login creation at the same time. The unique key correctly lets
+      // only one insert win; read that winner instead of returning a false 500.
+      if (insertError?.code === '23505') {
+        const { data: concurrentProfile, error: concurrentProfileError } =
+          await profileWriter
+            .from('profiles')
+            .select('timezone, is_stem_eligible, degree_level, major_name')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (concurrentProfileError || !concurrentProfile) {
+          console.error(
+            'Failed to retrieve concurrently created profile:',
+            concurrentProfileError,
+          );
+          return NextResponse.json(
+            { error: 'Failed to create user profile' },
+            { status: 500, headers: cors },
+          );
+        }
+        profile = concurrentProfile;
+      } else {
+        profile = newProfile;
+      }
+
       const sessionEmail = currentUser?.email?.trim();
       const meta = currentUser?.user_metadata as { firstName?: string; first_name?: string } | undefined;
       const metaFirst = meta?.firstName || meta?.first_name || null;
-      if (sessionEmail) {
+      if (sessionEmail && !insertError) {
         // Keep runtime alive until SMTP + email_queue update complete (Vercel / serverless)
         after(async () => {
           try {
@@ -220,7 +246,6 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      profile = newProfile;
     } else if (profileError) {
       console.error('Profile query error:', profileError);
       return NextResponse.json(
