@@ -1,0 +1,8 @@
+# Public Greenhouse/Ashby board adapter used by the authorized API worker.
+# Do not use the package's `scrapers` extra here: it brings unrelated
+# browser/proxy integrations, which are permanently out of scope.
+ats-scrapers @ git+https://github.com/kalil0321/ats-scrapers.git@f654221f5236f24360719008764b23c5939fbce8
+
+# The adapter registers every ATS class at import time; a few non-enabled
+# classes import BeautifulSoup. Greenhouse and Ashby themselves use HTTP JSON.
+beautifulsoup4>=4.12

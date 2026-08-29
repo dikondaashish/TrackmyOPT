@@ -17,10 +17,11 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# The authorized ATS worker invokes the pinned MIT-licensed ats-scrapers
-# adapter through a small Python bridge. It is never included in the browser.
+# The authorized ATS worker invokes the pinned, public-API ATS adapter through
+# a small Python bridge. Keep this list separate from root browser tooling:
+# this image never runs a browser worker or Playwright.
 RUN apk add --no-cache python3 py3-pip git
-RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r apps/api/requirements.job-board.txt
 
 # Build API
 RUN pnpm --filter api build
