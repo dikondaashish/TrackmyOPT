@@ -8,6 +8,7 @@ import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearc
 import { H1BSponsorStatsRow } from "@/components/career/h1b/H1BSponsorStatsRow";
 import { H1BSponsorLimitBanner } from "@/components/career/h1b/H1BSponsorLimitBanner";
 import { EVerifyEmployerLookup } from "@/components/career/h1b/EVerifyEmployerLookup";
+import { OfficialEVerifyEmployerSearch } from "@/components/career/h1b/OfficialEVerifyEmployerSearch";
 import { AddToTrackerModal, JobTrackerItem } from "@/components/career/h1b/AddToTrackerModal";
 import { FilterOptions, filterSponsors } from "@/lib/career/h1b/filter-sponsors";
 import { Search } from "lucide-react";
@@ -198,6 +199,8 @@ export default function H1BSponsorsPage() {
             </div>
 
             <EVerifyEmployerLookup />
+
+            <OfficialEVerifyEmployerSearch />
 
             {/* Controls Section */}
             <div className="flex flex-col gap-6">

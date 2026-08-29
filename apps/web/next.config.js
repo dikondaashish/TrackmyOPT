@@ -35,7 +35,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "connect-src 'self' https://*.supabase.co https://*.supabase.in https://api.stripe.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://api.indexnow.org https://us.i.posthog.com https://us-assets.i.posthog.com https://us.posthog.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://pagead2.googlesyndication.com",
       "worker-src 'self' blob:",
-      "frame-src 'self' blob: data: https://*.s3.amazonaws.com https://all-in-one-career-ashish.s3.us-east-1.amazonaws.com https://js.stripe.com https://hooks.stripe.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://pagead2.googlesyndication.com",
+      "frame-src 'self' blob: data: https://*.s3.amazonaws.com https://all-in-one-career-ashish.s3.us-east-1.amazonaws.com https://js.stripe.com https://hooks.stripe.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://bigdataanalyticspub-sb.uscis.dhs.gov",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
