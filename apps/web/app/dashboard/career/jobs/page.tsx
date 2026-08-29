@@ -110,13 +110,15 @@ export default async function VerifiedJobsPage() {
   });
 
   return (
-    <main className="mx-auto max-w-[1440px] space-y-7 px-4 py-7 sm:px-6 lg:py-10">
-      <header className="max-w-3xl space-y-3">
-        <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-800 dark:border-blue-900/70 dark:bg-blue-950/40 dark:text-blue-200">
-          <BriefcaseBusiness className="size-4" aria-hidden="true" /> Verified employer boards
+    <main className="mx-auto max-w-[1440px] space-y-4 px-3 py-4 sm:px-5 sm:py-5">
+      <header className="max-w-4xl space-y-1.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h1 className="text-2xl font-semibold tracking-[-0.025em] text-gray-950 sm:text-3xl dark:text-white">Find verified jobs</h1>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-800 dark:border-blue-900/70 dark:bg-blue-950/40 dark:text-blue-200">
+            <BriefcaseBusiness className="size-3.5" aria-hidden="true" /> Employer boards
+          </span>
         </div>
-        <h1 className="text-3xl font-bold tracking-[-0.03em] text-gray-950 sm:text-4xl dark:text-white">Find your next verified role</h1>
-        <p className="max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-300">
+        <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
           Browse jobs and add them to your resume queue. {jobs.length} results.
         </p>
       </header>

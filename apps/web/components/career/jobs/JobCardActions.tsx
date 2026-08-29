@@ -52,13 +52,13 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
   const isList = variant === 'list';
 
   return (
-    <section className={isList ? 'w-full sm:w-40' : 'border-t border-slate-950/10 bg-white/25 px-5 py-4 dark:border-white/10 dark:bg-slate-950/25 sm:px-6'} aria-label="Safe job actions">
-      <div className={isList ? 'flex flex-wrap items-center gap-2 sm:flex-col sm:items-stretch' : 'flex flex-wrap items-center gap-2'}>
+    <section className={isList ? 'w-full lg:w-auto' : 'border-t border-slate-950/10 bg-white/25 px-5 py-4 dark:border-white/10 dark:bg-slate-950/25 sm:px-6'} aria-label="Safe job actions">
+      <div className={isList ? 'flex flex-wrap items-center gap-1.5 lg:flex-nowrap' : 'flex flex-wrap items-center gap-2'}>
         <button
           type="button"
           onClick={saveToTracker}
           disabled={saveState === 'saving' || saveState === 'saved'}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-950/10 bg-white/45 px-3.5 py-2 text-sm font-semibold text-slate-800 transition-colors hover:bg-white/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-100 dark:hover:bg-slate-950/75 ${isList ? 'flex-1 sm:w-full' : ''}`}
+          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 ${isList ? 'flex-1 lg:flex-none' : ''}`}
         >
           {saveState === 'saving' ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <BookmarkPlus className="size-4" aria-hidden="true" />}
           {saveState === 'saved' ? (isList ? 'Added' : 'Saved') : (isList ? 'Add to tracker' : 'Save')}
@@ -68,13 +68,13 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
             href={jobUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 ${isList ? 'flex-1 sm:w-full' : ''}`}
+            className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 ${isList ? 'flex-1 lg:flex-none' : ''}`}
           >
             {isList ? 'Apply on ATS' : 'View role'} <ExternalLink className="size-4" aria-hidden="true" />
           </a>
         )}
         <details className="group relative">
-          <summary className={`inline-flex min-h-11 cursor-pointer list-none items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 ${isList ? 'w-full' : ''}`}>
+          <summary className={`inline-flex min-h-11 cursor-pointer list-none items-center justify-center gap-1 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 ${isList ? 'w-full lg:w-auto' : ''}`}>
             More tools <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
           </summary>
           <div className={`absolute z-10 mt-2 grid w-[min(21rem,calc(100vw-3rem))] gap-1 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-950 ${isList ? 'right-0' : 'left-0'}`}>

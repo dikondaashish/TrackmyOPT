@@ -3,7 +3,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Bookmark, ChevronDown, FileText, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
 import { EmployerEvidencePanel } from '@/components/career/jobs/EmployerEvidencePanel';
-import { atsSourceName, AtsSourceLogo, JobCompanyLogo } from '@/components/career/jobs/JobBrandLogo';
+import { AtsSourceLogo, JobCompanyLogo } from '@/components/career/jobs/JobBrandLogo';
+import { atsSourceName } from '@/components/career/jobs/JobBrandLogo.utils';
 import { JobCardActions } from '@/components/career/jobs/JobCardActions';
 import { JobUrgencyLabels } from '@/components/career/jobs/JobRunwayPersonalization';
 import { isRecentlyPosted, type RunwayContext } from '@/lib/job-board/runway';
@@ -179,7 +180,7 @@ function FilterSelect({ label, value, onChange, children }: {
         aria-label={label}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-11 max-w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-semibold text-slate-700 shadow-sm outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="min-h-11 max-w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
       >
         {children}
       </select>
@@ -226,22 +227,22 @@ function JobListItem({
   const sponsorEvidenced = isSourceBacked(job);
 
   return (
-    <article className="relative rounded-[1.4rem] border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
-      <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex min-w-0 flex-1 items-start gap-4">
+    <article className="relative rounded-xl border border-slate-200 bg-white transition-colors duration-200 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700">
+      <div className="flex flex-col gap-3 p-3.5 sm:p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           <JobCompanyLogo companyName={companyName} website={job.company_website} />
           <div className="min-w-0 flex-1">
-            <button type="button" onClick={onToggle} aria-expanded={expanded} className="group flex min-h-11 items-center gap-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
-              <h2 className="text-xl font-bold tracking-[-0.02em] text-slate-950 group-hover:text-blue-800 dark:text-white dark:group-hover:text-blue-200">{job.title}</h2>
-              <ChevronDown className={`size-5 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
+            <button type="button" onClick={onToggle} aria-expanded={expanded} className="group flex min-h-11 items-center gap-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
+              <h2 className="text-base font-semibold leading-5 tracking-[-0.01em] text-slate-950 group-hover:text-blue-800 sm:text-[1.05rem] dark:text-white dark:group-hover:text-blue-200">{job.title}</h2>
+              <ChevronDown className={`size-4 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
             </button>
-            <p className="mt-1 text-base font-medium text-slate-600 dark:text-slate-300">{companyName} <span className="px-1 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-1 text-slate-300 dark:text-slate-600">·</span> {formatDate(job.posted_at)}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {requirements.map((label) => <span key={label} className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200">{label}</span>)}
-              {sponsorEvidenced && <span className="rounded-lg bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-800 dark:bg-blue-950/50 dark:text-blue-200">Source-backed employer history</span>}
-              {job.tracker_status && <span className="rounded-lg bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">In tracker: {job.tracker_status}</span>}
+            <p className="text-sm leading-5 text-slate-600 dark:text-slate-300">{companyName} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {formatDate(job.posted_at)}</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {requirements.map((label) => <span key={label} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium leading-5 text-slate-600 dark:bg-slate-900 dark:text-slate-300">{label}</span>)}
+              {sponsorEvidenced && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium leading-5 text-blue-700 dark:bg-blue-950/50 dark:text-blue-200">Source-backed history</span>}
+              {job.tracker_status && <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium leading-5 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200">Tracker: {job.tracker_status}</span>}
             </div>
-            <p className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400"><AtsSourceLogo sourceAts={job.source_ats} /> {atsSourceName(job.source_ats)} verified source{job.department ? ` · ${job.department}` : ''}</p>
+            <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"><AtsSourceLogo sourceAts={job.source_ats} /> {atsSourceName(job.source_ats)} verified{job.department ? ` · ${job.department}` : ''}</p>
           </div>
         </div>
         <JobCardActions
@@ -257,17 +258,17 @@ function JobListItem({
       </div>
 
       {expanded && (
-        <div className="rounded-b-[1.35rem] border-t border-slate-200 bg-slate-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/30 sm:p-6">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
+        <div className="rounded-b-[0.7rem] border-t border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900/30">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
             <div>
-              <h3 className="inline-flex items-center gap-2 text-base font-bold text-slate-950 dark:text-white"><FileText className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Job description</h3>
-              <div className="mt-3 max-h-80 overflow-y-auto rounded-xl border border-slate-200 bg-white p-4 text-sm leading-7 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+              <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white"><FileText className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Job description</h3>
+              <div className="mt-2 max-h-64 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3 text-[0.8125rem] leading-6 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
                 {readableDescription(job.description)}
               </div>
             </div>
-            <aside className="space-y-3 border-t border-slate-200 pt-5 dark:border-slate-800 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-              <h3 className="text-base font-bold text-slate-950 dark:text-white">Details</h3>
-              <dl className="space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <aside className="space-y-2.5 border-t border-slate-200 pt-4 dark:border-slate-800 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+              <h3 className="text-sm font-semibold text-slate-950 dark:text-white">Details</h3>
+              <dl className="space-y-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Source:</dt> <dd className="inline">{atsSourceName(job.source_ats)} verified employer board</dd></div>
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Posted:</dt> <dd className="inline">{formatDate(job.posted_at)}</dd></div>
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Confirmed:</dt> <dd className="inline">{formatDate(job.last_confirmed_at)}</dd></div>
@@ -276,8 +277,8 @@ function JobListItem({
               <JobUrgencyLabels recentlyPosted={isRecentlyPosted(job.first_seen_at, asOf)} sponsorEvidenced={sponsorEvidenced} runway={runway} />
             </aside>
           </div>
-          <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-800"><EmployerEvidencePanel employerBoardName={job.employer_board_name} match={job.employer_match} signals={job.visa_signals || []} /></div>
-          <p className="mt-4 text-xs leading-5 text-slate-500 dark:text-slate-400">Saving adds this listing to your tracker. “Apply on ATS” opens the original employer posting and never submits an application for you.</p>
+          <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-800"><EmployerEvidencePanel employerBoardName={job.employer_board_name} match={job.employer_match} signals={job.visa_signals || []} /></div>
+          <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">Saving adds this listing to your tracker. “Apply on ATS” only opens the employer posting.</p>
         </div>
       )}
     </article>
@@ -306,46 +307,36 @@ export function JobBoardExplorer({ jobs, runway, asOf }: { jobs: ExplorerJob[]; 
   };
 
   return (
-    <section className="space-y-5" aria-label="Verified job search">
+    <section className="space-y-3" aria-label="Verified job search">
       <form
-        className="rounded-[1.5rem] border border-slate-200 bg-[#f7f9ff] p-3 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+        className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-800 dark:bg-slate-950"
         onSubmit={(event) => {
           event.preventDefault();
           setFilters(draft);
+          event.currentTarget.querySelector<HTMLDetailsElement>('[data-advanced-filters]')?.removeAttribute('open');
         }}
       >
-        <div className="flex flex-col gap-3">
-          <div className="flex min-h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 shadow-sm focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600/20 dark:border-slate-700 dark:bg-slate-950">
+        <div className="flex flex-col gap-2">
+          <div className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-600/15 dark:border-slate-700 dark:bg-slate-950">
             <FilterSelect label="Search scope" value={draft.searchScope} onChange={(value) => updateDraft('searchScope', value as JobFilters['searchScope'])}>
               <option value="title_description">Title + description</option>
               <option value="title">Title only</option>
               <option value="company">Company</option>
             </FilterSelect>
-            <span className="h-7 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
-            <Search className="size-5 shrink-0 text-slate-400" aria-hidden="true" />
+            <span className="h-6 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
+            <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
             <label className="min-w-0 flex-1">
               <span className="sr-only">Search verified jobs</span>
               <input
                 value={draft.query}
                 onChange={(event) => updateDraft('query', event.target.value)}
                 placeholder="Search title or keyword"
-                className="h-11 w-full min-w-0 bg-transparent text-base text-slate-950 outline-none placeholder:text-slate-400 dark:text-white"
+                className="h-11 w-full min-w-0 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400 dark:text-white"
               />
             </label>
           </div>
 
-          <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white/70 px-3 text-sm dark:border-slate-800 dark:bg-slate-900/60">
-            <span className="font-semibold text-slate-500">Exclude</span>
-            <input
-              value={draft.exclude}
-              onChange={(event) => updateDraft('exclude', event.target.value)}
-              placeholder="Hide jobs mentioning a keyword"
-              className="min-w-0 flex-1 bg-transparent text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
-            />
-          </label>
-
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-slate-700 dark:text-slate-200"><SlidersHorizontal className="size-4" aria-hidden="true" /> Filters</span>
             <FilterSelect label="Date" value={draft.date} onChange={(value) => updateDraft('date', value as JobFilters['date'])}>
               <option value="any">Date</option><option value="1">Past 24 hours</option><option value="3">Past 3 days</option><option value="7">Past week</option><option value="30">Past month</option>
             </FilterSelect>
@@ -358,36 +349,56 @@ export function JobBoardExplorer({ jobs, runway, asOf }: { jobs: ExplorerJob[]; 
             <FilterSelect label="Company" value={draft.company} onChange={(value) => updateDraft('company', value)}>
               <option value="all">Companies</option>{companies.map((company) => <option key={company} value={company}>{company}</option>)}
             </FilterSelect>
-            <FilterSelect label="Degree level" value={draft.degree} onChange={(value) => updateDraft('degree', value as JobFilters['degree'])}>
-              <option value="all">Degree level</option><option value="bachelor">Bachelor's</option><option value="master">Master's</option><option value="doctorate">Doctorate</option><option value="unspecified">Not specified</option>
-            </FilterSelect>
-            <FilterSelect label="Maximum experience" value={draft.experience} onChange={(value) => updateDraft('experience', value as JobFilters['experience'])}>
-              <option value="all">Max experience</option><option value="entry">0–2 years</option><option value="mid">3–5 years</option><option value="senior">6+ years</option><option value="unspecified">Not specified</option>
-            </FilterSelect>
-            <FilterSelect label="Employer evidence" value={draft.evidence} onChange={(value) => updateDraft('evidence', value as JobFilters['evidence'])}>
-              <option value="all">Employer evidence</option><option value="source_backed">Source-backed history</option>
-            </FilterSelect>
             <FilterSelect label="Role" value={draft.role} onChange={(value) => updateDraft('role', value as JobFilters['role'])}>
               <option value="all">Role</option><option value="engineering">Engineering</option><option value="data">Data & analytics</option><option value="product">Product</option><option value="design">Design</option><option value="operations">Operations</option><option value="sales">Sales</option><option value="other">Other</option>
             </FilterSelect>
-            <FilterSelect label="Job type" value={draft.jobType} onChange={(value) => updateDraft('jobType', value as JobFilters['jobType'])}>
-              <option value="all">Job type</option><option value="internship">Internship</option><option value="contract">Contract</option><option value="temporary">Temporary</option><option value="permanent">Permanent / unspecified</option>
-            </FilterSelect>
-            <FilterSelect label="Employment type" value={draft.employmentType} onChange={(value) => updateDraft('employmentType', value as JobFilters['employmentType'])}>
-              <option value="all">Employment type</option><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="unspecified">Not specified</option>
-            </FilterSelect>
-            <FilterSelect label="Tracker status" value={draft.tracker} onChange={(value) => updateDraft('tracker', value as JobFilters['tracker'])}>
-              <option value="all">Tracker status</option><option value="saved">Saved</option><option value="not_saved">Not saved</option><option value="applied">Manually applied</option>
-            </FilterSelect>
-            <button type="button" onClick={clearFilters} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-white hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"><RotateCcw className="size-4" aria-hidden="true" /> Clear</button>
-            <button type="submit" className="ml-auto inline-flex min-h-11 items-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">Apply filters</button>
+            <details className="group relative w-full sm:w-auto" data-advanced-filters>
+              <summary className="inline-flex min-h-11 w-full cursor-pointer list-none items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900">
+                <SlidersHorizontal className="size-4" aria-hidden="true" /> More filters <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+              </summary>
+              <div className="absolute left-0 z-20 mt-2 w-[min(40rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white p-3 shadow-xl sm:right-0 sm:left-auto dark:border-slate-700 dark:bg-slate-950">
+                <label className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm dark:border-slate-700">
+                  <span className="font-medium text-slate-500">Exclude</span>
+                  <input
+                    value={draft.exclude}
+                    onChange={(event) => updateDraft('exclude', event.target.value)}
+                    placeholder="Hide jobs mentioning a keyword"
+                    className="min-w-0 flex-1 bg-transparent text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
+                  />
+                </label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <FilterSelect label="Degree level" value={draft.degree} onChange={(value) => updateDraft('degree', value as JobFilters['degree'])}>
+                    <option value="all">Degree level</option><option value="bachelor">Bachelor's</option><option value="master">Master's</option><option value="doctorate">Doctorate</option><option value="unspecified">Not specified</option>
+                  </FilterSelect>
+                  <FilterSelect label="Maximum experience" value={draft.experience} onChange={(value) => updateDraft('experience', value as JobFilters['experience'])}>
+                    <option value="all">Max experience</option><option value="entry">0–2 years</option><option value="mid">3–5 years</option><option value="senior">6+ years</option><option value="unspecified">Not specified</option>
+                  </FilterSelect>
+                  <FilterSelect label="Employer evidence" value={draft.evidence} onChange={(value) => updateDraft('evidence', value as JobFilters['evidence'])}>
+                    <option value="all">Employer evidence</option><option value="source_backed">Source-backed history</option>
+                  </FilterSelect>
+                  <FilterSelect label="Job type" value={draft.jobType} onChange={(value) => updateDraft('jobType', value as JobFilters['jobType'])}>
+                    <option value="all">Job type</option><option value="internship">Internship</option><option value="contract">Contract</option><option value="temporary">Temporary</option><option value="permanent">Permanent / unspecified</option>
+                  </FilterSelect>
+                  <FilterSelect label="Employment type" value={draft.employmentType} onChange={(value) => updateDraft('employmentType', value as JobFilters['employmentType'])}>
+                    <option value="all">Employment type</option><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="unspecified">Not specified</option>
+                  </FilterSelect>
+                  <FilterSelect label="Tracker status" value={draft.tracker} onChange={(value) => updateDraft('tracker', value as JobFilters['tracker'])}>
+                    <option value="all">Tracker status</option><option value="saved">Saved</option><option value="not_saved">Not saved</option><option value="applied">Manually applied</option>
+                  </FilterSelect>
+                </div>
+              </div>
+            </details>
+            <div className="ml-auto flex items-center gap-1">
+              <button type="button" onClick={clearFilters} className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"><RotateCcw className="size-4" aria-hidden="true" /> Clear</button>
+              <button type="submit" aria-label="Apply filters" className="inline-flex min-h-11 items-center rounded-lg bg-slate-950 px-3.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">Apply</button>
+            </div>
           </div>
         </div>
       </form>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-200" aria-live="polite">{visibleJobs.length} {visibleJobs.length === 1 ? 'verified job' : 'verified jobs'} found</p>
-        <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200"><Bookmark className="size-4" aria-hidden="true" /> Saved {savedJobIds.size}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300" aria-live="polite">{visibleJobs.length} {visibleJobs.length === 1 ? 'job' : 'jobs'}</p>
+        <span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300"><Bookmark className="size-3.5" aria-hidden="true" /> Saved {savedJobIds.size}</span>
       </div>
 
       {visibleJobs.length === 0 ? (
@@ -397,7 +408,7 @@ export function JobBoardExplorer({ jobs, runway, asOf }: { jobs: ExplorerJob[]; 
           <button type="button" onClick={clearFilters} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Clear filters</button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           {visibleJobs.map((job) => {
             const facts = factsByJob.get(job.id)!;
             const saved = savedJobIds.has(job.id);

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { AtsSourceLogo, companyLogoUrl, domainFromWebsite, JobCompanyLogo } from './JobBrandLogo';
+import { AtsSourceLogo, JobCompanyLogo } from './JobBrandLogo';
+import { companyLogoUrl, domainFromWebsite } from './JobBrandLogo.utils';
 
 describe('JobBrandLogo', () => {
   it('builds the approved 256px favicon URL from a verified company website', () => {

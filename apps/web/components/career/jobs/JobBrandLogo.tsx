@@ -2,11 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-
-const ATS_DOMAINS: Record<string, string> = {
-  ashby: 'ashbyhq.com',
-  greenhouse: 'greenhouse.com',
-};
+import { ATS_DOMAINS, atsSourceName, companyLogoUrl, domainFromWebsite } from './JobBrandLogo.utils';
 
 const logoGradients = [
   'from-blue-600 to-indigo-700',
@@ -15,25 +11,6 @@ const logoGradients = [
   'from-amber-500 to-orange-600',
   'from-rose-500 to-pink-700',
 ] as const;
-
-export function domainFromWebsite(website: string | null | undefined) {
-  if (!website?.trim()) return null;
-  try {
-    const normalized = /^https?:\/\//i.test(website) ? website : `https://${website}`;
-    return new URL(normalized).hostname.replace(/^www\./i, '').toLowerCase();
-  } catch {
-    return null;
-  }
-}
-
-export function companyLogoUrl(domain: string | null | undefined) {
-  if (!domain) return null;
-  return `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=256`;
-}
-
-export function atsSourceName(sourceAts: string) {
-  return sourceAts.charAt(0).toUpperCase() + sourceAts.slice(1).toLowerCase();
-}
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join('').toUpperCase() || '?';
@@ -47,7 +24,7 @@ function gradientFor(name: string) {
 function Logo({ name, domain, compact = false }: { name: string; domain: string | null; compact?: boolean }) {
   const [failed, setFailed] = useState(false);
   const src = companyLogoUrl(domain);
-  const sizeClass = compact ? 'size-5 rounded-md' : 'size-12 rounded-xl';
+  const sizeClass = compact ? 'size-4 rounded' : 'size-10 rounded-lg';
 
   if (!src || failed) {
     return (
@@ -67,8 +44,8 @@ function Logo({ name, domain, compact = false }: { name: string; domain: string 
         alt={`${name} logo`}
         width={256}
         height={256}
-        sizes={compact ? '20px' : '48px'}
-        className={`size-full object-contain ${compact ? 'p-0.5' : 'p-1.5'}`}
+        sizes={compact ? '16px' : '40px'}
+        className={`size-full object-contain ${compact ? 'p-px' : 'p-1'}`}
         onError={() => setFailed(true)}
         unoptimized
       />

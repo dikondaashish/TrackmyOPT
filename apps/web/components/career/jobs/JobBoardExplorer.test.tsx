@@ -73,10 +73,13 @@ describe('JobBoardExplorer', () => {
     expect(screen.getByRole('combobox', { name: 'Location' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Workplace' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Company' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Role' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('More filters'));
+
     expect(screen.getByRole('combobox', { name: 'Degree level' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Maximum experience' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Employer evidence' })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Role' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Job type' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Employment type' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Tracker status' })).toBeInTheDocument();
@@ -94,6 +97,7 @@ describe('JobBoardExplorer', () => {
     expect(screen.queryByText('Software Engineer')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Clear/ }));
+    fireEvent.click(screen.getByText('More filters'));
     fireEvent.change(screen.getByRole('combobox', { name: 'Employer evidence' }), { target: { value: 'source_backed' } });
     fireEvent.click(screen.getByRole('button', { name: 'Apply filters' }));
 
