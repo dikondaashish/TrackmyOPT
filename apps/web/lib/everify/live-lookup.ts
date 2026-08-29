@@ -3,8 +3,12 @@ import type { EVerifyEmployerRecord, EVerifyStatus } from "./types";
 
 const SEARCH_URL = "https://www.e-verify.gov/e-verify-employer-search";
 const ROBOTS_URL = "https://www.e-verify.gov/robots.txt";
-const TABLEAU_IFRAME_SELECTOR = "iframe#tableau-viz";
 const TABLEAU_VIZ_SELECTOR = "tableau-viz#tableau-viz";
+// Tableau's Embedding API renders the actual dashboard iframe inside the
+// tableau-viz web component's open shadow root. Playwright's CSS locators
+// pierce open shadow roots, but a direct `iframe#tableau-viz` selector only
+// matches the legacy embed markup and now times out on the public page.
+const TABLEAU_IFRAME_SELECTOR = `${TABLEAU_VIZ_SELECTOR} iframe#tableau-viz`;
 const WORKSHEET_HINT = "Employer List";
 const PAGE_SIZE = 10_000;
 const DEFAULT_CRAWL_DELAY_SECONDS = 10;
