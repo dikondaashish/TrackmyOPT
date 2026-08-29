@@ -117,7 +117,7 @@ export default async function VerifiedJobsPage() {
         </div>
         <h1 className="text-3xl font-bold tracking-[-0.03em] text-gray-950 sm:text-4xl dark:text-white">Find your next verified role</h1>
         <p className="max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-300">
-          Listings come directly from authorized ATS boards and link back to the original employer posting. Employer context is shown only when it has dated, source-backed evidence.
+          Browse jobs and add them to your resume queue. {jobs.length} results.
         </p>
       </header>
 
