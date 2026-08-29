@@ -3,10 +3,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { JobBoardExplorer } from './JobBoardExplorer';
 
 vi.mock('./JobCardActions', () => ({
-  JobCardActions: ({ initialSaved }: { initialSaved?: boolean }) => <span>{initialSaved ? 'Saved action' : 'Save action'}</span>,
+  JobCardActions: ({ initialSaved, onSaved }: { initialSaved?: boolean; onSaved?: () => void }) => (
+    <button type="button" onClick={onSaved}>{initialSaved ? 'Saved action' : 'Save action'}</button>
+  ),
 }));
 
-const jobs = [
+type TestJob = Parameters<typeof JobBoardExplorer>[0]['jobs'][number];
+
+const jobs: TestJob[] = [
   {
     id: 'job-1',
     title: 'Software Engineer',
@@ -44,6 +48,18 @@ const jobs = [
     visa_signals: [],
   },
 ];
+
+function job(overrides: Partial<TestJob>): TestJob {
+  return { ...jobs[0], ...overrides };
+}
+
+function openMoreFilters() {
+  fireEvent.click(screen.getByText('More filters'));
+}
+
+function applyFilters() {
+  fireEvent.click(screen.getByRole('button', { name: 'Apply filters' }));
+}
 
 describe('JobBoardExplorer', () => {
   it('uses compact list rows and reveals posting details on demand', () => {
@@ -96,12 +112,176 @@ describe('JobBoardExplorer', () => {
     expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
     expect(screen.queryByText('Software Engineer')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /Clear/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
     fireEvent.click(screen.getByText('More filters'));
     fireEvent.change(screen.getByRole('combobox', { name: 'Employer evidence' }), { target: { value: 'source_backed' } });
     fireEvent.click(screen.getByRole('button', { name: 'Apply filters' }));
 
     expect(screen.getByText('Software Engineer')).toBeInTheDocument();
     expect(screen.queryByText('Data Product Analyst')).not.toBeInTheDocument();
+  });
+
+  it('uses the server reference time for inclusive date windows and rejects future timestamps', () => {
+    const datedJobs = [
+      job({ id: 'recent', title: 'Recent role', posted_at: '2030-01-02T12:00:00.000Z' }),
+      job({ id: 'boundary', title: 'Boundary role', posted_at: '2030-01-01T12:00:00.000Z' }),
+      job({ id: 'old', title: 'Old role', posted_at: '2030-01-01T11:59:59.000Z' }),
+      job({ id: 'future', title: 'Future role', posted_at: '2030-01-02T12:00:01.000Z' }),
+    ];
+    render(<JobBoardExplorer jobs={datedJobs} runway={null} asOf="2030-01-02T12:00:00.000Z" />);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Date' }), { target: { value: '1' } });
+    applyFilters();
+
+    expect(screen.getByText('Recent role')).toBeInTheDocument();
+    expect(screen.getByText('Boundary role')).toBeInTheDocument();
+    expect(screen.queryByText('Old role')).not.toBeInTheDocument();
+    expect(screen.queryByText('Future role')).not.toBeInTheDocument();
+  });
+
+  it('searches the selected scope and excludes matches from all job content', () => {
+    render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Search scope' }), { target: { value: 'company' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search verified jobs' }), { target: { value: '  NORTH   beam ' } });
+    applyFilters();
+    expect(screen.getByText('Software Engineer')).toBeInTheDocument();
+    expect(screen.queryByText('Data Product Analyst')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Exclude jobs containing' }), { target: { value: 'engineering' } });
+    applyFilters();
+    expect(screen.queryByText('Software Engineer')).not.toBeInTheDocument();
+    expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
+  });
+
+  it('matches every explicitly accepted degree and every applicable role family', () => {
+    const multiFactJobs = [
+      job({
+        id: 'data-engineer',
+        title: 'Data Engineer',
+        description: "Bachelor's or Master's degree and 4 years of experience required.",
+        tracker_status: null,
+      }),
+      job({ id: 'designer', title: 'Brand Designer', description: 'Portfolio required.', tracker_status: null }),
+    ];
+    render(<JobBoardExplorer jobs={multiFactJobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Role' }), { target: { value: 'data' } });
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Degree level' }), { target: { value: 'bachelor' } });
+    applyFilters();
+
+    expect(screen.getByText('Data Engineer')).toBeInTheDocument();
+    expect(screen.queryByText('Brand Designer')).not.toBeInTheDocument();
+  });
+
+  it('applies exact company and location choices and clears both draft and active filters', () => {
+    render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Company' }), { target: { value: 'Also, Inc.' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Location' }), { target: { value: 'Palo Alto, CA' } });
+    applyFilters();
+    expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
+    expect(screen.queryByText('Software Engineer')).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Company' }), { target: { value: 'North Beam, Inc.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(screen.getByRole('combobox', { name: 'Company' })).toHaveValue('all');
+    expect(screen.getByRole('combobox', { name: 'Location' })).toHaveValue('all');
+    expect(screen.getByText('Software Engineer')).toBeInTheDocument();
+    expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
+  });
+
+  it('keeps title-and-description search separate from title-only search', () => {
+    render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search verified jobs' }), { target: { value: "master's" } });
+    applyFilters();
+    expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.change(screen.getByRole('combobox', { name: 'Search scope' }), { target: { value: 'title' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search verified jobs' }), { target: { value: "master's" } });
+    applyFilters();
+    expect(screen.queryByText('Data Product Analyst')).not.toBeInTheDocument();
+  });
+
+  it('treats maximum experience as a ceiling instead of an exact bucket', () => {
+    const experienceJobs = [
+      job({ id: 'entry', title: 'Junior Engineer', description: '2 years of experience required.', tracker_status: null }),
+      job({ id: 'mid', title: 'Engineer II', description: '4 years of experience required.', tracker_status: null }),
+      job({ id: 'senior', title: 'Senior Engineer', description: '7 years of experience required.', tracker_status: null }),
+      job({ id: 'unknown', title: 'Flexible Engineer', description: 'Experience welcomed.', tracker_status: null }),
+    ];
+    render(<JobBoardExplorer jobs={experienceJobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Maximum experience' }), { target: { value: 'mid' } });
+    applyFilters();
+
+    expect(screen.getByText('Junior Engineer')).toBeInTheDocument();
+    expect(screen.getByText('Engineer II')).toBeInTheDocument();
+    expect(screen.queryByText('Senior Engineer')).not.toBeInTheDocument();
+    expect(screen.queryByText('Flexible Engineer')).not.toBeInTheDocument();
+  });
+
+  it('does not infer permanent employment or employer history without explicit evidence', () => {
+    const evidenceJobs = [
+      job({
+        id: 'negative-signal',
+        title: 'Explicit temporary role',
+        description: 'Temporary assignment. Sponsorship is not available.',
+        tracker_status: null,
+        visa_signals: [{
+          signal_type: 'no_sponsorship_stated',
+          evidence_snippet: 'Sponsorship is not available.',
+          source_url: 'https://example.com/negative',
+          observed_date: '2026-08-29',
+          confidence: 1,
+          source: 'employer_posting',
+        }],
+      }),
+      job({ id: 'unspecified', title: 'General role', description: 'Join our growing team.', tracker_status: null, visa_signals: [] }),
+    ];
+    render(<JobBoardExplorer jobs={evidenceJobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Employer evidence' }), { target: { value: 'source_backed' } });
+    applyFilters();
+    expect(screen.queryByText('Explicit temporary role')).not.toBeInTheDocument();
+    expect(screen.queryByText('General role')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Job type' }), { target: { value: 'permanent' } });
+    applyFilters();
+    expect(screen.queryByText('General role')).not.toBeInTheDocument();
+  });
+
+  it('counts all tracker entries as saved and later pipeline stages as manually applied', () => {
+    const trackerJobs = [
+      job({ id: 'wishlist', title: 'Wishlist role', tracker_status: 'Wishlist' }),
+      job({ id: 'interviewing', title: 'Interviewing role', tracker_status: 'Interviewing' }),
+      job({ id: 'unsaved', title: 'Unsaved role', tracker_status: null }),
+    ];
+    render(<JobBoardExplorer jobs={trackerJobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    expect(screen.getByText('Saved 2')).toBeInTheDocument();
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Tracker status' }), { target: { value: 'applied' } });
+    applyFilters();
+    expect(screen.getByText('Interviewing role')).toBeInTheDocument();
+    expect(screen.queryByText('Wishlist role')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save action' }));
+    expect(screen.getByText('Saved 3')).toBeInTheDocument();
+
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Tracker status' }), { target: { value: 'saved' } });
+    applyFilters();
+    expect(screen.getByText('Unsaved role')).toBeInTheDocument();
   });
 });

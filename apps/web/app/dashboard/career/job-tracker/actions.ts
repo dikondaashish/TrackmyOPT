@@ -21,6 +21,7 @@ type VerifiedJobForTracker = {
 type VerifiedJobTrackerResult = VerifiedJobForTracker & {
     applicationId: string;
     wasCreated: boolean;
+    wasRestored: boolean;
 };
 
 async function getVerifiedJobForTracker(jobId: string, userId: string): Promise<VerifiedJobTrackerResult> {
@@ -43,15 +44,27 @@ async function getVerifiedJobForTracker(jobId: string, userId: string): Promise<
 
     const existingQuery = supabase
         .from("job_applications")
-        .select("id")
+        .select("id, is_archived")
         .eq("user_id", userId)
-        .limit(1);
+        .limit(10);
     const { data: existing, error: existingError } = job.job_url
         ? await existingQuery.eq("job_url", job.job_url)
         : await existingQuery.eq("company_name", companyName).eq("role_title", job.title);
 
     if (existingError) throw new Error("Unable to check job tracker");
-    if (existing?.[0]) return { ...job, applicationId: existing[0].id, wasCreated: false };
+    const existingApplication = existing?.find((application) => !application.is_archived) || existing?.[0];
+    if (existingApplication) {
+        const wasRestored = Boolean(existingApplication.is_archived);
+        if (wasRestored) {
+            const { error: restoreError } = await supabase
+                .from("job_applications")
+                .update({ is_archived: false, archived_at: null, updated_at: new Date().toISOString() })
+                .eq("id", existingApplication.id)
+                .eq("user_id", userId);
+            if (restoreError) throw new Error("Unable to restore job in tracker");
+        }
+        return { ...job, applicationId: existingApplication.id, wasCreated: false, wasRestored };
+    }
 
     const { data: application, error: createError } = await supabase
         .from("job_applications")
@@ -75,7 +88,7 @@ async function getVerifiedJobForTracker(jobId: string, userId: string): Promise<
         has_job_url: !!job.job_url,
         source: "verified_jobs",
     });
-    return { ...job, applicationId: application.id, wasCreated: true };
+    return { ...job, applicationId: application.id, wasCreated: true, wasRestored: false };
 }
 
 /** Saves a verified listing into the user's existing manual Job Tracker. */
@@ -85,7 +98,7 @@ export async function saveVerifiedJobToTracker(jobId: string) {
     if (!user) throw new Error("Unauthorized");
 
     const result = await getVerifiedJobForTracker(jobId, user.id);
-    if (result.wasCreated) revalidatePath(APP_PATH);
+    if (result.wasCreated || result.wasRestored) revalidatePath(APP_PATH);
     return { applicationId: result.applicationId, wasCreated: result.wasCreated };
 }
 

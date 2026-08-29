@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { JobRunwaySummary } from '@/components/career/jobs/JobRunwayPersonalization';
 import { JobBoardExplorer } from '@/components/career/jobs/JobBoardExplorer';
+import { findActiveTrackerStatus } from '@/lib/job-board/filters';
 import { getRunwayContext, type StoredOptStatus } from '@/lib/job-board/runway';
 import type { EmploymentSpan } from '@/lib/immigration/opt-calculations';
 
@@ -65,7 +66,7 @@ export default async function VerifiedJobsPage() {
       .order('start_date', { ascending: true }),
     supabase
       .from('job_applications')
-      .select('job_url, company_name, role_title, status')
+      .select('job_url, company_name, role_title, status, is_archived')
       .eq('user_id', user.id),
   ]);
   if (jobsResult.error || trackerResult.error) throw new Error('Unable to load verified jobs');
@@ -94,18 +95,12 @@ export default async function VerifiedJobsPage() {
   }
 
   const jobs = matchedJobs.map((job) => {
-    const trackerEntry = trackerEntries.find((entry) => (
-      (job.job_url && entry.job_url === job.job_url)
-      || (!job.job_url
-        && entry.company_name === (job.company_name || job.employer_board_name)
-        && entry.role_title === job.title)
-    ));
     return {
       ...job,
       company_website: job.employer_match?.canonical_h1b_sponsor_id
         ? sponsorWebsiteById.get(job.employer_match.canonical_h1b_sponsor_id) || null
         : null,
-      tracker_status: trackerEntry?.status || null,
+      tracker_status: findActiveTrackerStatus(job, trackerEntries),
     };
   });
 

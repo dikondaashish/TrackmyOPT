@@ -94,4 +94,26 @@ describe('JobCardActions', () => {
     expect(screen.queryByRole('link', { name: /Compare sponsor profile/ })).not.toBeInTheDocument();
     expect(screen.getByText(/Sponsor profile unavailable until employer identity is confirmed/)).toBeInTheDocument();
   });
+
+  it('marks an unsaved job as saved when setting a follow-up creates its tracker entry', async () => {
+    const onSaved = vi.fn();
+    render(
+      <JobCardActions
+        jobId="0fb994bb-353a-4792-8018-05e7f564bc33"
+        companyName="North Beam, Inc."
+        title="Director of Customer Success"
+        jobUrl="https://job-boards.greenhouse.io/northbeam/jobs/4603154006"
+        sponsorId="north-beam-inc"
+        onSaved={onSaved}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('More tools'));
+    fireEvent.click(screen.getByRole('button', { name: /Set follow-up date/ }));
+    fireEvent.change(screen.getByLabelText('Follow-up date'), { target: { value: '2026-09-03' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save follow-up' }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+    expect(screen.getByRole('button', { name: 'Saved' })).toBeInTheDocument();
+  });
 });

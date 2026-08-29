@@ -44,6 +44,8 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
       setFollowupState('saving');
       await setVerifiedJobFollowup(jobId, followupDate);
       setFollowupState('saved');
+      setSaveState('saved');
+      onSaved?.();
     } catch {
       setFollowupState('error');
     }
