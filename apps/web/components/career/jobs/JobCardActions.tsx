@@ -46,13 +46,13 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId }:
   };
 
   return (
-    <section className="border-t border-slate-200 bg-white/80 px-5 py-4 dark:border-slate-800 dark:bg-slate-950/80 sm:px-6" aria-label="Safe job actions">
+    <section className="border-t border-slate-950/10 bg-white/25 px-5 py-4 dark:border-white/10 dark:bg-slate-950/25 sm:px-6" aria-label="Safe job actions">
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={saveToTracker}
           disabled={saveState === 'saving' || saveState === 'saved'}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-950/10 bg-white/45 px-3.5 py-2 text-sm font-semibold text-slate-800 transition-colors hover:bg-white/75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-100 dark:hover:bg-slate-950/75"
         >
           {saveState === 'saving' ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <BookmarkPlus className="size-4" aria-hidden="true" />}
           {saveState === 'saved' ? 'Saved' : 'Save'}

@@ -54,11 +54,11 @@ function formatDate(value: string | null) {
 function sourceCardTone(sourceAts: string) {
   switch (sourceAts.toLowerCase()) {
     case 'greenhouse':
-      return 'from-emerald-50 via-white to-white dark:from-emerald-950/30 dark:via-gray-950 dark:to-gray-950';
+      return 'border-emerald-200 bg-[#daf8e8] dark:border-emerald-900 dark:bg-emerald-950/50';
     case 'ashby':
-      return 'from-amber-50 via-white to-white dark:from-amber-950/30 dark:via-gray-950 dark:to-gray-950';
+      return 'border-amber-200 bg-[#fff0bd] dark:border-amber-900 dark:bg-amber-950/50';
     default:
-      return 'from-blue-50 via-white to-white dark:from-blue-950/30 dark:via-gray-950 dark:to-gray-950';
+      return 'border-indigo-200 bg-[#e7e6ff] dark:border-indigo-900 dark:bg-indigo-950/50';
   }
 }
 
@@ -100,7 +100,7 @@ export default async function VerifiedJobsPage() {
   }));
 
   return (
-    <main className="mx-auto max-w-6xl space-y-7 px-4 py-7 sm:px-6 lg:py-10">
+    <main className="mx-auto max-w-[1440px] space-y-7 px-4 py-7 sm:px-6 lg:py-10">
       <header className="max-w-3xl space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-800 dark:border-blue-900/70 dark:bg-blue-950/40 dark:text-blue-200">
           <BriefcaseBusiness className="size-4" aria-hidden="true" /> Verified employer boards
@@ -119,12 +119,12 @@ export default async function VerifiedJobsPage() {
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Approved boards will appear here after their first successful ingestion run.</p>
         </section>
       ) : (
-        <section className="grid gap-5 xl:grid-cols-2">
+        <section className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {jobs.map((job) => (
-            <article key={job.id} className={`group overflow-hidden rounded-[1.5rem] border border-slate-200 bg-gradient-to-br shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-800 ${sourceCardTone(job.source_ats)}`}>
-              <div className="space-y-4 p-5 sm:p-6">
+            <article key={job.id} className={`group flex h-full flex-col overflow-hidden rounded-[1.5rem] border shadow-[0_8px_28px_rgba(15,23,42,0.06)] transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(15,23,42,0.12)] motion-reduce:transform-none dark:shadow-none ${sourceCardTone(job.source_ats)}`}>
+              <div className="flex flex-1 flex-col space-y-4 p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
-                  <span className="inline-flex items-center rounded-full border border-white/80 bg-white/80 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.11em] text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-950/80 dark:text-slate-200">
+                  <span className="inline-flex items-center rounded-full border border-slate-950/10 bg-white/50 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.11em] text-slate-700 dark:border-white/10 dark:bg-slate-950/50 dark:text-slate-200">
                     {job.source_ats} verified
                   </span>
                   <span className="shrink-0 text-right text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -132,13 +132,15 @@ export default async function VerifiedJobsPage() {
                   </span>
                 </div>
 
-                <div className="min-w-0 space-y-2">
+                <div className="min-w-0 flex-1 space-y-2">
                   <h2 className="text-xl font-bold leading-snug tracking-[-0.02em] text-slate-950 dark:text-white">{job.title}</h2>
                   <p className="text-base font-semibold text-slate-700 dark:text-slate-200">{job.company_name || job.employer_board_name}</p>
-                  <div className="flex flex-wrap gap-2 pt-1 text-sm text-slate-600 dark:text-slate-300">
-                    {job.location && <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1.5 dark:bg-slate-900/70"><MapPin className="size-3.5" aria-hidden="true" />{job.location}</span>}
-                    {job.department && <span className="rounded-full bg-white/70 px-2.5 py-1.5 dark:bg-slate-900/70">{job.department}</span>}
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1.5 dark:bg-slate-900/70"><CalendarDays className="size-3.5" aria-hidden="true" />Posted {formatDate(job.posted_at)}</span>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    {job.location && <span className="inline-flex items-center gap-1.5"><MapPin className="size-3.5" aria-hidden="true" />{job.location}</span>}
+                    {job.location && (job.department || job.posted_at) && <span aria-hidden="true">·</span>}
+                    {job.department && <span>{job.department}</span>}
+                    {job.department && job.posted_at && <span aria-hidden="true">·</span>}
+                    <span className="inline-flex items-center gap-1.5"><CalendarDays className="size-3.5" aria-hidden="true" />Posted {formatDate(job.posted_at)}</span>
                   </div>
                 </div>
 
