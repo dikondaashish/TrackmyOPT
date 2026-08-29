@@ -40,12 +40,12 @@ export function JobUrgencyLabels({
   return (
     <div className="flex flex-wrap gap-2" aria-label="Job priority context">
       {recentlyPosted && sponsorEvidenced && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-900 dark:bg-blue-950/60 dark:text-blue-100">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-900 dark:border-blue-900/70 dark:bg-blue-950/60 dark:text-blue-100">
           <Sparkles className="size-3.5" aria-hidden="true" /> Recently posted, sponsor-evidenced role
         </span>
       )}
       {highPriority && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-950 dark:bg-amber-950/60 dark:text-amber-50">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-950 dark:border-amber-900/70 dark:bg-amber-950/60 dark:text-amber-50">
           <AlertTriangle className="size-3.5" aria-hidden="true" /> High-priority this week
         </span>
       )}

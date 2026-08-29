@@ -30,9 +30,10 @@ describe('JobCardActions', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Save to job tracker' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Open original posting/ })).toHaveAttribute('href', 'https://job-boards.greenhouse.io/northbeam/jobs/4603154006');
-    expect(screen.getByRole('link', { name: /Open original posting/ })).toHaveAttribute('target', '_blank');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /View role/ })).toHaveAttribute('href', 'https://job-boards.greenhouse.io/northbeam/jobs/4603154006');
+    expect(screen.getByRole('link', { name: /View role/ })).toHaveAttribute('target', '_blank');
+    fireEvent.click(screen.getByText('More tools'));
     expect(screen.getByRole('link', { name: /Tailor resume/ })).toHaveAttribute(
       'href',
       '/dashboard/career/resume-generator?company=North+Beam%2C+Inc.&role=Director+of+Customer+Success',
@@ -48,9 +49,9 @@ describe('JobCardActions', () => {
     );
     expect(screen.getByText(/They never submit an application or contact an employer/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save to job tracker' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(saveJob).toHaveBeenCalledWith('0fb994bb-353a-4792-8018-05e7f564bc33'));
-    expect(await screen.findByRole('button', { name: 'Saved to tracker' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Saved' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Set follow-up date/ }));
     fireEvent.change(screen.getByLabelText('Follow-up date'), { target: { value: '2026-09-03' } });
@@ -69,6 +70,7 @@ describe('JobCardActions', () => {
       />,
     );
 
+    fireEvent.click(screen.getByText('More tools'));
     expect(screen.queryByRole('link', { name: /Compare sponsor profile/ })).not.toBeInTheDocument();
     expect(screen.getByText(/Sponsor profile unavailable until employer identity is confirmed/)).toBeInTheDocument();
   });
