@@ -44,8 +44,26 @@ const jobs = [
 ];
 
 describe('JobBoardExplorer', () => {
+  it('uses compact list rows and reveals posting details on demand', () => {
+    render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    const toggle = screen.getByRole('button', { name: 'Software Engineer' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('heading', { name: 'Job description' })).not.toBeInTheDocument();
+
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('heading', { name: 'Job description' })).toBeInTheDocument();
+    expect(screen.getByText(/Remote full-time role/)).toBeInTheDocument();
+    expect(screen.getByText('Employer history found')).toBeInTheDocument();
+
+    fireEvent.click(toggle);
+    expect(screen.queryByRole('heading', { name: 'Job description' })).not.toBeInTheDocument();
+  });
+
   it('applies search and every visible structured filter to verified jobs', () => {
-    render(<JobBoardExplorer jobs={jobs} runway={null} />);
+    render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
 
     expect(screen.getByRole('combobox', { name: 'Date' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Location' })).toBeInTheDocument();

@@ -19,6 +19,26 @@ describe('JobCardActions', () => {
     setFollowup.mockResolvedValue({ applicationId: 'application-1' });
   });
 
+  it('uses clear tracker and ATS labels in compact list rows', () => {
+    render(
+      <JobCardActions
+        jobId="0fb994bb-353a-4792-8018-05e7f564bc33"
+        companyName="North Beam, Inc."
+        title="Director of Customer Success"
+        jobUrl="https://job-boards.greenhouse.io/northbeam/jobs/4603154006"
+        sponsorId="north-beam-inc"
+        variant="list"
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Add to tracker' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Apply on ATS/ })).toHaveAttribute(
+      'href',
+      'https://job-boards.greenhouse.io/northbeam/jobs/4603154006',
+    );
+    expect(screen.getByText('More tools')).toBeInTheDocument();
+  });
+
   it('maps every action to an existing manual product surface', async () => {
     render(
       <JobCardActions

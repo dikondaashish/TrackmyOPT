@@ -105,7 +105,7 @@ export default async function VerifiedJobsPage() {
 
       <JobRunwaySummary runway={runway} />
 
-      <JobBoardExplorer jobs={jobs} runway={runway} />
+      <JobBoardExplorer jobs={jobs} runway={runway} asOf={now.toISOString()} />
     </main>
   );
 }
