@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Bookmark, ChevronDown, FileText, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
 import { EmployerEvidencePanel } from '@/components/career/jobs/EmployerEvidencePanel';
+import { atsSourceName, AtsSourceLogo, JobCompanyLogo } from '@/components/career/jobs/JobBrandLogo';
 import { JobCardActions } from '@/components/career/jobs/JobCardActions';
 import { JobUrgencyLabels } from '@/components/career/jobs/JobRunwayPersonalization';
 import { isRecentlyPosted, type RunwayContext } from '@/lib/job-board/runway';
@@ -29,6 +30,7 @@ type ExplorerJob = {
   first_seen_at: string;
   last_confirmed_at: string;
   source_ats: string;
+  company_website: string | null;
   tracker_status: string | null;
   employer_match: {
     canonical_h1b_sponsor_id: string | null;
@@ -226,18 +228,21 @@ function JobListItem({
   return (
     <article className="relative rounded-[1.4rem] border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
       <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 flex-1">
-          <button type="button" onClick={onToggle} aria-expanded={expanded} className="group flex min-h-11 items-center gap-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
-            <h2 className="text-xl font-bold tracking-[-0.02em] text-slate-950 group-hover:text-blue-800 dark:text-white dark:group-hover:text-blue-200">{job.title}</h2>
-            <ChevronDown className={`size-5 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
-          </button>
-          <p className="mt-1 text-base font-medium text-slate-600 dark:text-slate-300">{companyName} <span className="px-1 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-1 text-slate-300 dark:text-slate-600">·</span> {formatDate(job.posted_at)}</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {requirements.map((label) => <span key={label} className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200">{label}</span>)}
-            {sponsorEvidenced && <span className="rounded-lg bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-800 dark:bg-blue-950/50 dark:text-blue-200">Source-backed employer history</span>}
-            {job.tracker_status && <span className="rounded-lg bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">In tracker: {job.tracker_status}</span>}
+        <div className="flex min-w-0 flex-1 items-start gap-4">
+          <JobCompanyLogo companyName={companyName} website={job.company_website} />
+          <div className="min-w-0 flex-1">
+            <button type="button" onClick={onToggle} aria-expanded={expanded} className="group flex min-h-11 items-center gap-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
+              <h2 className="text-xl font-bold tracking-[-0.02em] text-slate-950 group-hover:text-blue-800 dark:text-white dark:group-hover:text-blue-200">{job.title}</h2>
+              <ChevronDown className={`size-5 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
+            </button>
+            <p className="mt-1 text-base font-medium text-slate-600 dark:text-slate-300">{companyName} <span className="px-1 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-1 text-slate-300 dark:text-slate-600">·</span> {formatDate(job.posted_at)}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {requirements.map((label) => <span key={label} className="rounded-lg bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200">{label}</span>)}
+              {sponsorEvidenced && <span className="rounded-lg bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-800 dark:bg-blue-950/50 dark:text-blue-200">Source-backed employer history</span>}
+              {job.tracker_status && <span className="rounded-lg bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">In tracker: {job.tracker_status}</span>}
+            </div>
+            <p className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400"><AtsSourceLogo sourceAts={job.source_ats} /> {atsSourceName(job.source_ats)} verified source{job.department ? ` · ${job.department}` : ''}</p>
           </div>
-          {job.department && <p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">{job.department} · {job.source_ats} verified source</p>}
         </div>
         <JobCardActions
           jobId={job.id}
@@ -263,7 +268,7 @@ function JobListItem({
             <aside className="space-y-3 border-t border-slate-200 pt-5 dark:border-slate-800 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
               <h3 className="text-base font-bold text-slate-950 dark:text-white">Details</h3>
               <dl className="space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Source:</dt> <dd className="inline">{job.source_ats} verified employer board</dd></div>
+                <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Source:</dt> <dd className="inline">{atsSourceName(job.source_ats)} verified employer board</dd></div>
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Posted:</dt> <dd className="inline">{formatDate(job.posted_at)}</dd></div>
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Confirmed:</dt> <dd className="inline">{formatDate(job.last_confirmed_at)}</dd></div>
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Role:</dt> <dd className="inline">{facts.role.replace('_', ' ')}</dd></div>

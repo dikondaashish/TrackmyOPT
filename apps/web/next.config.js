@@ -255,6 +255,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 't1.gstatic.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'logo.clearbit.com',
       },
       {

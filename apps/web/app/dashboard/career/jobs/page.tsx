@@ -1,6 +1,7 @@
 import { BriefcaseBusiness } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { JobRunwaySummary } from '@/components/career/jobs/JobRunwayPersonalization';
 import { JobBoardExplorer } from '@/components/career/jobs/JobBoardExplorer';
 import { getRunwayContext, type StoredOptStatus } from '@/lib/job-board/runway';
@@ -77,7 +78,22 @@ export default async function VerifiedJobsPage() {
     now,
   );
   const trackerEntries = trackerResult.data || [];
-  const jobs = ((jobsResult.data || []) as FeedJobQueryResult[]).map((job) => {
+  const matchedJobs = ((jobsResult.data || []) as FeedJobQueryResult[]).map((job) => ({
+    ...job,
+    employer_match: Array.isArray(job.employer_match) ? job.employer_match[0] || null : job.employer_match,
+  }));
+  const sponsorIds = [...new Set(matchedJobs.map((job) => job.employer_match?.canonical_h1b_sponsor_id).filter((id): id is string => Boolean(id)))];
+  const sponsorWebsiteById = new Map<string, string | null>();
+  if (sponsorIds.length > 0) {
+    const { data: sponsors, error: sponsorError } = await getSupabaseAdminClient()
+      .from('h1b_sponsors')
+      .select('id, website')
+      .in('id', sponsorIds);
+    if (sponsorError) throw new Error('Unable to load verified employer logos');
+    for (const sponsor of sponsors || []) sponsorWebsiteById.set(String(sponsor.id), sponsor.website ? String(sponsor.website) : null);
+  }
+
+  const jobs = matchedJobs.map((job) => {
     const trackerEntry = trackerEntries.find((entry) => (
       (job.job_url && entry.job_url === job.job_url)
       || (!job.job_url
@@ -86,7 +102,9 @@ export default async function VerifiedJobsPage() {
     ));
     return {
       ...job,
-      employer_match: Array.isArray(job.employer_match) ? job.employer_match[0] || null : job.employer_match,
+      company_website: job.employer_match?.canonical_h1b_sponsor_id
+        ? sponsorWebsiteById.get(job.employer_match.canonical_h1b_sponsor_id) || null
+        : null,
       tracker_status: trackerEntry?.status || null,
     };
   });

@@ -20,6 +20,7 @@ const jobs = [
     first_seen_at: '2026-08-29T12:00:00.000Z',
     last_confirmed_at: '2026-08-29T12:00:00.000Z',
     source_ats: 'greenhouse',
+    company_website: 'https://northbeam.io',
     tracker_status: 'Wishlist',
     employer_match: { canonical_h1b_sponsor_id: 'north-beam', confidence: 1, review_status: 'confirmed' },
     visa_signals: [{ signal_type: 'historical_h1b_filing', evidence_snippet: 'Dated filing history.', source_url: 'https://example.com/source', observed_date: '2026-08-29', confidence: 0.9, source: 'DOL' }],
@@ -37,6 +38,7 @@ const jobs = [
     first_seen_at: '2026-08-28T12:00:00.000Z',
     last_confirmed_at: '2026-08-29T12:00:00.000Z',
     source_ats: 'ashby',
+    company_website: null,
     tracker_status: null,
     employer_match: null,
     visa_signals: [],
@@ -49,6 +51,8 @@ describe('JobBoardExplorer', () => {
 
     const toggle = screen.getByRole('button', { name: 'Software Engineer' });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('img', { name: 'North Beam, Inc. logo' })).toHaveAttribute('src', expect.stringContaining('northbeam.io'));
+    expect(screen.getByRole('img', { name: 'Greenhouse logo' })).toHaveAttribute('src', expect.stringContaining('greenhouse.com'));
     expect(screen.queryByRole('heading', { name: 'Job description' })).not.toBeInTheDocument();
 
     fireEvent.click(toggle);
