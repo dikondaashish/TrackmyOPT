@@ -46,14 +46,6 @@ const securityHeaders = [
 
 const nextConfig = {
   productionBrowserSourceMaps: process.env.POSTHOG_SOURCEMAPS_ENABLED === "true",
-  // Sparticuz resolves its compressed Chromium payload at runtime, so static
-  // tracing cannot discover these files automatically. Keep the include scoped
-  // to the one route that launches Chromium.
-  outputFileTracingIncludes: {
-    '/api/everify-lookup': [
-      './node_modules/@sparticuz/chromium/bin/**/*',
-    ],
-  },
   async headers() {
     return [
       {
