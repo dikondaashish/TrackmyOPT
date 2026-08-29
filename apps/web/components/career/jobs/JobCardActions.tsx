@@ -11,6 +11,8 @@ type JobCardActionsProps = {
   title: string;
   jobUrl: string | null;
   sponsorId: string | null;
+  initialSaved?: boolean;
+  onSaved?: () => void;
 };
 
 function resumeGeneratorHref(companyName: string, title: string) {
@@ -18,8 +20,8 @@ function resumeGeneratorHref(companyName: string, title: string) {
   return `/dashboard/career/resume-generator?${params.toString()}`;
 }
 
-export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId }: JobCardActionsProps) {
-  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, initialSaved = false, onSaved }: JobCardActionsProps) {
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>(initialSaved ? 'saved' : 'idle');
   const [showFollowup, setShowFollowup] = useState(false);
   const [followupDate, setFollowupDate] = useState('');
   const [followupState, setFollowupState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -29,6 +31,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId }:
       setSaveState('saving');
       await saveVerifiedJobToTracker(jobId);
       setSaveState('saved');
+      onSaved?.();
     } catch {
       setSaveState('error');
     }
