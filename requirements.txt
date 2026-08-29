@@ -1,1 +1,2 @@
 playwright>=1.49,<2
+ats-scrapers[scrapers] @ git+https://github.com/kalil0321/ats-scrapers.git@f654221f5236f24360719008764b23c5939fbce8

@@ -78,6 +78,7 @@ export const SIDEBAR_CONFIG: SidebarItem[] = [
     { type: 'link', item: { label: "Case Status", href: "/dashboard/case-status", icon: FileSearch } },
     { type: 'link', item: { label: "Documents", href: "/dashboard/documents", icon: FolderOpen } },
     { type: 'link', item: { label: "H-1B Sponsors", href: "/dashboard/career/h1b-sponsors", icon: Building2 } },
+    { type: 'link', item: { label: "Verified Jobs", href: "/dashboard/career/jobs", icon: Briefcase } },
     { type: 'link', item: { label: "Job Tracker", href: "/dashboard/career/job-tracker", icon: ClipboardList } },
     {
         type: 'section',

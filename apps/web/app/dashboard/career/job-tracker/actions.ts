@@ -6,6 +6,117 @@ import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/caree
 import { captureServerEvent } from "@/lib/posthog-server";
 
 const APP_PATH = "/dashboard/career/job-tracker";
+const VERIFIED_JOB_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+type VerifiedJobForTracker = {
+    id: string;
+    title: string;
+    company_name: string | null;
+    employer_board_name: string | null;
+    location: string | null;
+    job_url: string | null;
+};
+
+type VerifiedJobTrackerResult = VerifiedJobForTracker & {
+    applicationId: string;
+    wasCreated: boolean;
+};
+
+async function getVerifiedJobForTracker(jobId: string, userId: string): Promise<VerifiedJobTrackerResult> {
+    if (!VERIFIED_JOB_ID.test(jobId)) throw new Error("Invalid job");
+
+    const supabase = await createClient();
+    const { data: job, error } = await supabase
+        .from("jobs")
+        .select("id, title, company_name, employer_board_name, location, job_url")
+        .eq("id", jobId)
+        .eq("listing_status", "open")
+        .eq("source_trust_tier", "verified_ats")
+        .maybeSingle();
+
+    if (error) throw new Error("Unable to load verified job");
+    if (!job) throw new Error("Verified job is no longer available");
+
+    const companyName = job.company_name || job.employer_board_name;
+    if (!companyName || !job.title) throw new Error("Verified job is missing required tracker details");
+
+    const existingQuery = supabase
+        .from("job_applications")
+        .select("id")
+        .eq("user_id", userId)
+        .limit(1);
+    const { data: existing, error: existingError } = job.job_url
+        ? await existingQuery.eq("job_url", job.job_url)
+        : await existingQuery.eq("company_name", companyName).eq("role_title", job.title);
+
+    if (existingError) throw new Error("Unable to check job tracker");
+    if (existing?.[0]) return { ...job, applicationId: existing[0].id, wasCreated: false };
+
+    const { data: application, error: createError } = await supabase
+        .from("job_applications")
+        .insert({
+            user_id: userId,
+            company_name: companyName,
+            role_title: job.title,
+            location: job.location,
+            job_url: job.job_url,
+            status: "Wishlist",
+            notes: "Saved from a verified employer job board. Record any application or interview manually.",
+        })
+        .select("id")
+        .single();
+
+    if (createError || !application) throw new Error("Unable to save job to tracker");
+    await captureServerEvent(userId, "job_application_created", {
+        company_name: companyName,
+        role_title: job.title,
+        status: "Wishlist",
+        has_job_url: !!job.job_url,
+        source: "verified_jobs",
+    });
+    return { ...job, applicationId: application.id, wasCreated: true };
+}
+
+/** Saves a verified listing into the user's existing manual Job Tracker. */
+export async function saveVerifiedJobToTracker(jobId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const result = await getVerifiedJobForTracker(jobId, user.id);
+    if (result.wasCreated) revalidatePath(APP_PATH);
+    return { applicationId: result.applicationId, wasCreated: result.wasCreated };
+}
+
+/** Creates a user-selected follow-up in the existing tracker; it does not contact an employer. */
+export async function setVerifiedJobFollowup(jobId: string, followupDate: string) {
+    if (!ISO_DATE.test(followupDate)) throw new Error("Enter a valid follow-up date");
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const result = await getVerifiedJobForTracker(jobId, user.id);
+    const { error } = await supabase.from("job_followups").insert({
+        user_id: user.id,
+        job_application_id: result.applicationId,
+        followup_at: followupDate,
+        followup_type: "Other",
+        notes: "Follow-up date set from a verified job listing.",
+    });
+    if (error) throw new Error("Unable to set follow-up date");
+
+    const { error: updateError } = await supabase
+        .from("job_applications")
+        .update({ next_follow_up_at: followupDate, updated_at: new Date().toISOString() })
+        .eq("id", result.applicationId)
+        .eq("user_id", user.id);
+    if (updateError) throw new Error("Unable to update job tracker");
+
+    revalidatePath(APP_PATH);
+    return { applicationId: result.applicationId };
+}
 
 export async function getApplications() {
     const supabase = await createClient();

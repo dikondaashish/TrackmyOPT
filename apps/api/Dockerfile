@@ -17,6 +17,11 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# The authorized ATS worker invokes the pinned MIT-licensed ats-scrapers
+# adapter through a small Python bridge. It is never included in the browser.
+RUN apk add --no-cache python3 py3-pip
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
+
 # Build API
 RUN pnpm --filter api build
 
