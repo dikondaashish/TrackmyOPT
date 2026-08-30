@@ -72,7 +72,7 @@ export function JobCardActions({ jobId, companyName, title, jobUrl, sponsorId, i
             rel="noopener noreferrer"
             className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 ${isList ? 'flex-1 lg:flex-none' : ''}`}
           >
-            {isList ? 'Apply on ATS' : 'View role'} <ExternalLink className="size-4" aria-hidden="true" />
+            {isList ? 'Apply now' : 'View role'} <ExternalLink className="size-4" aria-hidden="true" />
           </a>
         )}
         <details className="group relative">

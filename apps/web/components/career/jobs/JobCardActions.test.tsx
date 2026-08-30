@@ -32,7 +32,7 @@ describe('JobCardActions', () => {
     );
 
     expect(screen.getByRole('button', { name: 'Add to tracker' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Apply on ATS/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Apply now/ })).toHaveAttribute(
       'href',
       'https://job-boards.greenhouse.io/northbeam/jobs/4603154006',
     );
