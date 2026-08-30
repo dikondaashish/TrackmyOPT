@@ -80,6 +80,9 @@ describe('AI model policies', () => {
     expect(AI_MODEL_POLICIES.autofill_extract.primary.model).toBe(
       'gemini-3.5-flash-lite'
     );
+    expect(AI_MODEL_POLICIES.resume_job_profile.primary.model).toBe(
+      'gemini-3.5-flash-lite'
+    );
   });
 });
 

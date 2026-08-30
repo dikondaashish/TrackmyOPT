@@ -47,7 +47,7 @@ export default async function VerifiedJobsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [jobsResult, optStatusResult, employmentResult, trackerResult] = await Promise.all([
+  const [jobsResult, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
     supabase
       .from('jobs')
       .select('id, title, company_name, employer_board_name, location, department, description, job_url, posted_at, first_seen_at, last_confirmed_at, source_ats, employer_match:employer_matches(canonical_h1b_sponsor_id, confidence, review_status), visa_signals:job_visa_signals(signal_type, evidence_snippet, source_url, observed_date, confidence, source)')
@@ -68,8 +68,15 @@ export default async function VerifiedJobsPage() {
       .from('job_applications')
       .select('job_url, company_name, role_title, status, is_archived')
       .eq('user_id', user.id),
+    supabase
+      .from('resumes')
+      .select('id, filename, updated_at, created_at')
+      .eq('user_id', user.id)
+      .not('content', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(50),
   ]);
-  if (jobsResult.error || trackerResult.error) throw new Error('Unable to load verified jobs');
+  if (jobsResult.error || trackerResult.error || resumesResult.error) throw new Error('Unable to load verified jobs');
   if (optStatusResult.error || employmentResult.error) throw new Error('Unable to load OPT runway');
 
   const now = new Date();
@@ -120,7 +127,16 @@ export default async function VerifiedJobsPage() {
 
       <JobRunwaySummary runway={runway} />
 
-      <JobBoardExplorer jobs={jobs} runway={runway} asOf={now.toISOString()} />
+      <JobBoardExplorer
+        jobs={jobs}
+        runway={runway}
+        asOf={now.toISOString()}
+        savedResumes={(resumesResult.data || []).map((resume) => ({
+          id: String(resume.id),
+          filename: resume.filename || 'Untitled resume',
+          updatedAt: resume.updated_at || resume.created_at,
+        }))}
+      />
     </main>
   );
 }

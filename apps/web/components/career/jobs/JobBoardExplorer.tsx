@@ -7,6 +7,7 @@ import { AtsSourceLogo, JobCompanyLogo } from '@/components/career/jobs/JobBrand
 import { atsSourceName } from '@/components/career/jobs/JobBrandLogo.utils';
 import { JobCardActions } from '@/components/career/jobs/JobCardActions';
 import { JobUrgencyLabels } from '@/components/career/jobs/JobRunwayPersonalization';
+import { ResumeJobMatcher, type ActiveResumeMatch, type SavedResumeOption } from '@/components/career/jobs/ResumeJobMatcher';
 import {
   EMPTY_JOB_FILTERS,
   hasPositiveSponsorshipEvidence,
@@ -17,6 +18,7 @@ import {
   type JobFacts,
   type JobFilters,
 } from '@/lib/job-board/filters';
+import { scoreJobForResume, type ResumeJobMatch } from '@/lib/job-board/resume-match';
 import { isRecentlyPosted, type RunwayContext } from '@/lib/job-board/runway';
 
 type VisaSignal = {
@@ -50,6 +52,8 @@ type ExplorerJob = FilterableJob & {
   } | null;
   visa_signals: VisaSignal[];
 };
+
+const EMPTY_SAVED_RESUMES: SavedResumeOption[] = [];
 
 const shortMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
 
@@ -113,6 +117,7 @@ function JobListItem({
   expanded,
   onToggle,
   onSaved,
+  resumeMatch,
 }: {
   job: ExplorerJob;
   facts: JobFacts;
@@ -122,6 +127,7 @@ function JobListItem({
   expanded: boolean;
   onToggle: () => void;
   onSaved: () => void;
+  resumeMatch: ResumeJobMatch | null;
 }) {
   const companyName = job.company_name || job.employer_board_name || 'Employer';
   const requirements = requirementLabel(facts);
@@ -140,6 +146,7 @@ function JobListItem({
             </button>
             <p className="text-sm leading-5 text-slate-600 dark:text-slate-300">{companyName} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {formatDate(job.posted_at)}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
+              {resumeMatch && <span className={`rounded-md px-2 py-0.5 text-xs font-semibold leading-5 ${resumeMatch.score >= 75 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200' : resumeMatch.score >= 50 ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-200' : 'bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300'}`}>{resumeMatch.score}% match</span>}
               {requirements.map((label) => <span key={label} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium leading-5 text-slate-600 dark:bg-slate-900 dark:text-slate-300">{label}</span>)}
               {employerHistory && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium leading-5 text-blue-700 dark:bg-blue-950/50 dark:text-blue-200">Source-backed history</span>}
               {job.tracker_status && <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium leading-5 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200">Tracker: {job.tracker_status}</span>}
@@ -179,6 +186,16 @@ function JobListItem({
               <JobUrgencyLabels recentlyPosted={isRecentlyPosted(job.first_seen_at, asOf)} sponsorEvidenced={sponsorEvidenced} runway={runway} />
             </aside>
           </div>
+          {resumeMatch && (
+            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 p-3 dark:border-blue-900/60 dark:bg-blue-950/20">
+              <h3 className="text-sm font-semibold text-slate-950 dark:text-white">Why this job matches</h3>
+              <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                {resumeMatch.reasons.map((reason) => <li key={reason} className="flex gap-2"><span className="mt-[0.55rem] size-1 shrink-0 rounded-full bg-blue-600" aria-hidden="true" />{reason}</li>)}
+              </ul>
+              {resumeMatch.matchedSkills.length > 0 && <div className="mt-2 flex flex-wrap gap-1">{resumeMatch.matchedSkills.map((skill) => <span key={skill} className="rounded bg-white px-1.5 py-0.5 text-[0.6875rem] font-medium text-blue-800 dark:bg-slate-950 dark:text-blue-200">{skill}</span>)}</div>}
+              <p className="mt-2 text-[0.6875rem] leading-4 text-slate-500 dark:text-slate-400">This is a qualification-text comparison, not a hiring or sponsorship prediction.</p>
+            </div>
+          )}
           <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-800"><EmployerEvidencePanel employerBoardName={job.employer_board_name} match={job.employer_match} signals={job.visa_signals || []} /></div>
           <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">Saving adds this listing to your tracker. “Apply on ATS” only opens the employer posting.</p>
         </div>
@@ -187,17 +204,25 @@ function JobListItem({
   );
 }
 
-export function JobBoardExplorer({ jobs, runway, asOf }: { jobs: ExplorerJob[]; runway: RunwayContext | null; asOf: string }) {
+export function JobBoardExplorer({ jobs, runway, asOf, savedResumes = EMPTY_SAVED_RESUMES }: { jobs: ExplorerJob[]; runway: RunwayContext | null; asOf: string; savedResumes?: SavedResumeOption[] }) {
   const [draft, setDraft] = useState<JobFilters>(EMPTY_JOB_FILTERS);
   const [filters, setFilters] = useState<JobFilters>(EMPTY_JOB_FILTERS);
   const [savedJobIds, setSavedJobIds] = useState(() => initialSavedJobIds(jobs));
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
+  const [activeResumeMatch, setActiveResumeMatch] = useState<ActiveResumeMatch | null>(null);
   const asOfDate = useMemo(() => new Date(asOf), [asOf]);
 
   const factsByJob = useMemo(() => new Map(jobs.map((job) => [job.id, inferJobFacts(job)])), [jobs]);
   const locations = useMemo(() => [...new Set(jobs.map((job) => job.location).filter((value): value is string => Boolean(value)))].sort(), [jobs]);
   const companies = useMemo(() => [...new Set(jobs.map((job) => job.company_name || job.employer_board_name).filter((value): value is string => Boolean(value)))].sort(), [jobs]);
-  const visibleJobs = useMemo(() => jobs.filter((job) => matchesJobFilters(job, factsByJob.get(job.id)!, filters, savedJobIds.has(job.id), asOfDate)), [asOfDate, factsByJob, filters, jobs, savedJobIds]);
+  const resumeMatches = useMemo(() => new Map(jobs.map((job) => [
+    job.id,
+    activeResumeMatch ? scoreJobForResume(activeResumeMatch.profile, job, factsByJob.get(job.id)!) : null,
+  ])), [activeResumeMatch, factsByJob, jobs]);
+  const visibleJobs = useMemo(() => jobs
+    .filter((job) => matchesJobFilters(job, factsByJob.get(job.id)!, filters, savedJobIds.has(job.id), asOfDate))
+    .sort((left, right) => activeResumeMatch ? (resumeMatches.get(right.id)?.score || 0) - (resumeMatches.get(left.id)?.score || 0) : 0),
+  [activeResumeMatch, asOfDate, factsByJob, filters, jobs, resumeMatches, savedJobIds]);
 
   const updateDraft = <K extends keyof JobFilters>(key: K, value: JobFilters[K]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -210,6 +235,7 @@ export function JobBoardExplorer({ jobs, runway, asOf }: { jobs: ExplorerJob[]; 
 
   return (
     <section className="space-y-3" aria-label="Verified job search">
+      <ResumeJobMatcher savedResumes={savedResumes} activeMatch={activeResumeMatch} onMatch={setActiveResumeMatch} onClear={() => setActiveResumeMatch(null)} />
       <form
         className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-800 dark:bg-slate-950"
         onSubmit={(event) => {
@@ -300,7 +326,7 @@ export function JobBoardExplorer({ jobs, runway, asOf }: { jobs: ExplorerJob[]; 
       </form>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-slate-600 dark:text-slate-300" aria-live="polite">{visibleJobs.length} {visibleJobs.length === 1 ? 'job' : 'jobs'}</p>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300" aria-live="polite">{visibleJobs.length} {visibleJobs.length === 1 ? 'job' : 'jobs'}{activeResumeMatch ? ' ranked for your resume' : ''}</p>
         <span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300"><Bookmark className="size-3.5" aria-hidden="true" /> Saved {savedJobIds.size}</span>
       </div>
 
@@ -326,6 +352,7 @@ export function JobBoardExplorer({ jobs, runway, asOf }: { jobs: ExplorerJob[]; 
                 expanded={expandedJobId === job.id}
                 onToggle={() => setExpandedJobId((current) => current === job.id ? null : job.id)}
                 onSaved={() => setSavedJobIds((current) => new Set(current).add(job.id))}
+                resumeMatch={resumeMatches.get(job.id) || null}
               />
             );
           })}

@@ -18,7 +18,8 @@ export type AiTask =
   | 'bullet_rewrite'
   | 'screening_answer'
   | 'document_analysis'
-  | 'autofill_extract';
+  | 'autofill_extract'
+  | 'resume_job_profile';
 
 type ModelChoice = {
   model: string;
@@ -75,6 +76,7 @@ export const AI_MODEL_POLICIES: Readonly<Record<AiTask, AiModelPolicy>> = {
   screening_answer: { primary: FLASH_37_LOW, fallback: PRO_31_LOW },
   document_analysis: { primary: FLASH_LITE_35, fallback: FLASH_37_LOW },
   autofill_extract: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
+  resume_job_profile: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
 };
 
 type AiBackendConfig =

@@ -284,4 +284,77 @@ describe('JobBoardExplorer', () => {
     applyFilters();
     expect(screen.getByText('Unsaved role')).toBeInTheDocument();
   });
+
+  it('uploads a resume, ranks jobs, and shows explainable match information without replacing manual filters', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, text: 'Software engineer with TypeScript experience.', filename: 'Asha Resume.pdf' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          filename: 'Asha Resume.pdf',
+          source: 'ai',
+          profile: {
+            schemaVersion: 1,
+            roleTitles: ['Software Engineer'],
+            skills: ['TypeScript'],
+            certifications: [],
+            education: [{ level: 'bachelor', field: 'Computer Science' }],
+            yearsExperience: 2,
+          },
+        }),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Match from resume' }));
+    const file = new File(['resume'], 'Asha Resume.pdf', { type: 'application/pdf' });
+    fireEvent.change(screen.getByLabelText('Upload resume for job matching'), { target: { files: [file] } });
+
+    expect(await screen.findByText('Matching from Asha Resume.pdf')).toBeInTheDocument();
+    expect(screen.getAllByText(/% match/).length).toBeGreaterThan(0);
+    expect(screen.getByRole('textbox', { name: 'Search verified jobs' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Workplace' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Software Engineer' }));
+    expect(await screen.findByRole('heading', { name: 'Why this job matches' })).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it('uses the existing OCR fallback for scanned PDF resumes before matching', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'pdf_no_extractable_text', can_ocr: true, fileBuffer: 'base64-pdf', filename: 'Scanned Resume.pdf' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: true, text: 'Data analyst with SQL and Tableau experience.', filename: 'Scanned Resume.pdf' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          ok: true,
+          filename: 'Scanned Resume.pdf',
+          source: 'ai',
+          profile: { schemaVersion: 1, roleTitles: ['Data Analyst'], skills: ['SQL', 'Tableau'], certifications: [], education: [], yearsExperience: 2 },
+        }),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Match from resume' }));
+    fireEvent.change(screen.getByLabelText('Upload resume for job matching'), {
+      target: { files: [new File(['scan'], 'Scanned Resume.pdf', { type: 'application/pdf' })] },
+    });
+
+    expect(await screen.findByText('Matching from Scanned Resume.pdf')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/proxy/ocr/direct', expect.objectContaining({ method: 'POST' }));
+    vi.unstubAllGlobals();
+  });
 });
