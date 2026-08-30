@@ -13,6 +13,7 @@ import {
     Users,
     CreditCard,
     GraduationCap,
+    Building2,
 } from "lucide-react";
 import { CanonicalURL } from "@/components/CanonicalURL";
 
@@ -55,6 +56,13 @@ const TOOLS = {
         title: "USCIS Case Tracking",
         gradient: "from-emerald-500 to-teal-600",
         tools: [
+            {
+                name: "E-Verify Employer Search",
+                description: "Search the official USCIS employer database and understand STEM OPT requirements",
+                href: "/e-verify-employer-search",
+                icon: Building2,
+                badge: "Free",
+            },
             {
                 name: "Case Status Checker",
                 description: "Check your USCIS case status with your receipt number",

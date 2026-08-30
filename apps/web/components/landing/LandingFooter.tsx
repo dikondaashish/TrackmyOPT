@@ -53,6 +53,7 @@ export function LandingFooter() {
             { label: "Health Insurance Guide", href: "/guides/opt-health-insurance" },
         ],
         resources: [
+            { label: "E-Verify Employer Search", href: "/e-verify-employer-search" },
             { label: "All Blog Posts", href: "/blog" },
             { label: "Glossary", href: "/glossary" },
             { label: "Answers (Q&A)", href: "/answers" },

@@ -310,7 +310,7 @@ export default function ChangeStemOptEmployerPage() {
           {[
             { label: "DHS Form I-983 Overview", href: "https://studyinthestates.dhs.gov/form-i-983-overview" },
             { label: "DHS STEM OPT Reporting Requirements (PDF)", href: "https://studyinthestates.dhs.gov/assets/sevpstemoptreportingrequirementsfinal.pdf" },
-            { label: "E-Verify Employer Search", href: "https://www.e-verify.uscis.gov/emp" },
+            { label: "E-Verify Employer Search", href: "/e-verify-employer-search" },
             { label: "SEVP Portal Student Guide", href: "https://studyinthestates.dhs.gov/assets/SEVP%20Portal%20Student%20User%20Guide.pdf" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"

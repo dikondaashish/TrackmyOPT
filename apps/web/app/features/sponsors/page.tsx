@@ -16,7 +16,8 @@ import {
     ExternalLink,
     XCircle,
     Clock,
-    Briefcase
+    Briefcase,
+    ArrowRight
 } from "lucide-react";
 import { FeatureHero } from "@/components/features/FeatureHero";
 import { FeatureFAQ } from "@/components/features/FeatureFAQ";
@@ -322,6 +323,29 @@ export default function SponsorsPage() {
                             </Link>
                         </motion.div>
                     </div>
+                </div>
+            </section>
+
+            <section className="border-y border-blue-100 bg-blue-50/70 py-10 dark:border-blue-950 dark:bg-blue-950/20">
+                <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-5 px-4 sm:px-6 md:flex-row md:items-center lg:px-8">
+                    <div>
+                        <p className="text-sm font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+                            Planning for STEM OPT?
+                        </p>
+                        <h2 className="mt-1 text-2xl font-bold text-gray-950 dark:text-white">
+                            Check an employer in the official E-Verify database
+                        </h2>
+                        <p className="mt-2 max-w-2xl text-gray-600 dark:text-gray-300">
+                            Use our free public guide and embedded USCIS search, then confirm the employer&apos;s E-Verify Company ID directly with HR.
+                        </p>
+                    </div>
+                    <Link
+                        href="/e-verify-employer-search"
+                        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                    >
+                        Search E-Verify
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
                 </div>
             </section>
 

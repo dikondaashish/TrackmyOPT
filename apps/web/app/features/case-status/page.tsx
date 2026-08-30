@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
     ArrowRight,
     Bell,
+    Building2,
     Clock,
     Eye,
     FileSearch,
@@ -276,6 +277,34 @@ export default function CaseStatusPage() {
                 }}
                 accentColor="emerald"
             />
+
+            <section className="border-y border-blue-100 bg-blue-50/70 px-4 py-10 dark:border-blue-950 dark:bg-blue-950/20 sm:px-6 lg:px-8">
+                <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-5 md:flex-row md:items-center">
+                    <div className="flex items-start gap-4">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+                            <Building2 className="h-5 w-5" aria-hidden="true" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+                                Planning a STEM OPT role?
+                            </p>
+                            <h2 className="mt-1 text-2xl font-bold text-gray-950 dark:text-white">
+                                Search the official E-Verify employer database
+                            </h2>
+                            <p className="mt-2 max-w-2xl text-gray-600 dark:text-gray-300">
+                                Check an employer, understand USCIS search caveats, and learn which Company ID belongs on Form I-765.
+                            </p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/e-verify-employer-search"
+                        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                    >
+                        Search E-Verify
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                </div>
+            </section>
 
             <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
                 <UscisApiDisclosureBlock />

@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { route: '/pricing', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/glossary', changeFrequency: 'weekly' as const, priority: 0.8 },
         { route: '/tools', changeFrequency: 'weekly' as const, priority: 0.8 },
+        { route: '/e-verify-employer-search', changeFrequency: 'weekly' as const, priority: 0.9 },
         { route: '/answers', changeFrequency: 'weekly' as const, priority: 0.8 },
         { route: '/ai-facts', changeFrequency: 'monthly' as const, priority: 0.7 },
         { route: '/compare', changeFrequency: 'monthly' as const, priority: 0.7 },

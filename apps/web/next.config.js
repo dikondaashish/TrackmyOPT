@@ -165,6 +165,24 @@ const nextConfig = {
         permanent: true,
       },
 
+      // ── E-Verify public search aliases ─────────────────────────────────────
+      // Preserve likely typo/short variants while consolidating SEO signals.
+      {
+        source: '/e-everfiysearch',
+        destination: '/e-verify-employer-search',
+        permanent: true,
+      },
+      {
+        source: '/e-everifysearch',
+        destination: '/e-verify-employer-search',
+        permanent: true,
+      },
+      {
+        source: '/e-verify-search',
+        destination: '/e-verify-employer-search',
+        permanent: true,
+      },
+
       // ── GSC 404 drilldown (2026-06-29): stale slugs & broken internal links ─
       {
         source: '/community',

@@ -19,12 +19,12 @@ export function OfficialEVerifyEmployerSearch() {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2
+                <h3
                   id="official-everify-search-heading"
                   className="text-lg font-bold text-gray-950 dark:text-white"
                 >
                   Official USCIS E-Verify Employer Search
-                </h2>
+                </h3>
                 <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                   Official public tool
                 </span>
@@ -55,6 +55,7 @@ export function OfficialEVerifyEmployerSearch() {
           className="h-[900px] w-full rounded-xl border-0 bg-white dark:bg-gray-900"
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
+          sandbox="allow-downloads allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
           allowFullScreen
         />
       </div>
