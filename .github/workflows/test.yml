@@ -36,6 +36,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
+      - name: Job-board scheduler tests
+        run: node --test scripts/operations/trigger-job-board-ingestion.test.mjs
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

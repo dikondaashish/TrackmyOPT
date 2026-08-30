@@ -1,0 +1,36 @@
+name: Job Board Ingestion
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: job-board-ingestion
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    name: Wake API and queue authorized sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify scheduler configuration
+        env:
+          RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
+          API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
+        run: |
+          test -n "$RENDER_API_URL" || { echo 'Missing RENDER_API_URL secret'; exit 1; }
+          test -n "$API_SECRET_KEY" || { echo 'Missing API_SECRET_KEY secret'; exit 1; }
+
+      - name: Wake Render and queue ingestion
+        env:
+          RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
+          API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
+        run: node scripts/operations/trigger-job-board-ingestion.mjs
