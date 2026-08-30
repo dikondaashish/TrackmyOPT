@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Heart } from "lucide-react";
 import { LEGAL_FOOTER_LINKS } from "@/lib/legal/legal-config";
 import { requestOpenPrivacyChoices } from "@/lib/cookie-consent";
@@ -72,23 +73,15 @@ export function LandingFooter() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 gap-10 md:grid-cols-5 md:gap-8 lg:gap-12">
                     {/* Brand */}
-                    <div className="md:col-span-1 prose-longform">
+                    <div className="md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-4">
-                            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-                                <svg
-                                    className="w-5 h-5 text-white"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                </svg>
-                            </div>
+                            <Image
+                                src="/TrackMyOPT Logo/Favicon.png"
+                                alt=""
+                                width={40}
+                                height={40}
+                                className="h-10 w-10 shrink-0 object-contain"
+                            />
                             <span className="text-xl font-bold text-gray-900 dark:text-white">
                                 TrackMyOPT
                             </span>
