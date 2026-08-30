@@ -9,7 +9,10 @@ type MatchCase = {
 
 const exactCases: MatchCase[] = [
   ['Amazon.com Services LLC', 'amazon-com-services-llc'],
-  ['COGNIZANT TECHNOLOGY SOLUTIONS US CORP', 'cognizant-technology-solutions-us-corp'],
+  [
+    'COGNIZANT TECHNOLOGY SOLUTIONS US CORP',
+    'cognizant-technology-solutions-us-corp',
+  ],
   ['INFOSYS LIMITED', 'infosys-limited'],
   ['Microsoft Corporation', 'microsoft-corporation'],
   ['Ernst & Young U.S. LLP', 'ernst-young-u-s-llp'],
@@ -68,7 +71,10 @@ describe('employer matcher', () => {
     expect(cases).toHaveLength(20);
 
     for (const testCase of cases) {
-      const decision = decideEmployerMatch(testCase.sourceName, testCase.candidates);
+      const decision = decideEmployerMatch(
+        testCase.sourceName,
+        testCase.candidates,
+      );
       expect(decision.canonicalH1bSponsorId).toBe(testCase.expectedId);
       expect(decision.reviewStatus).toBe(testCase.expectedStatus);
     }

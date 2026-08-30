@@ -28,7 +28,10 @@ export function normalizeEmployerName(name: string): string {
 
 function collisionKey(name: string): string {
   return normalizeEmployerName(name)
-    .replace(/\b(incorporated|inc|llc|ltd|limited|corp|corporation|company|co|lp|llp|pllc)\b/g, ' ')
+    .replace(
+      /\b(incorporated|inc|llc|ltd|limited|corp|corporation|company|co|lp|llp|pllc)\b/g,
+      ' ',
+    )
     .trim()
     .replace(/\s+/g, ' ');
 }
@@ -38,8 +41,9 @@ export function decideEmployerMatch(
   candidates: SponsorCandidate[],
 ): EmployerMatchDecision {
   const normalized = normalizeEmployerName(jobSourceCompanyName);
-  const ambiguousEntities = candidates.filter((candidate) =>
-    collisionKey(candidate.name) === collisionKey(jobSourceCompanyName),
+  const ambiguousEntities = candidates.filter(
+    (candidate) =>
+      collisionKey(candidate.name) === collisionKey(jobSourceCompanyName),
   );
   if (ambiguousEntities.length > 1) {
     return {
@@ -49,7 +53,9 @@ export function decideEmployerMatch(
       reviewStatus: 'pending_review',
     };
   }
-  const exact = candidates.filter((candidate) => normalizeEmployerName(candidate.name) === normalized);
+  const exact = candidates.filter(
+    (candidate) => normalizeEmployerName(candidate.name) === normalized,
+  );
   if (exact.length === 1) {
     return {
       canonicalH1bSponsorId: exact[0].id,
@@ -60,7 +66,9 @@ export function decideEmployerMatch(
   }
 
   const alias = candidates.filter((candidate) =>
-    candidate.aliases?.some((value) => normalizeEmployerName(value) === normalized),
+    candidate.aliases?.some(
+      (value) => normalizeEmployerName(value) === normalized,
+    ),
   );
   if (alias.length === 1) {
     return {

@@ -9,6 +9,11 @@ import { JobVisaSignalService } from './job-visa-signal.service';
 @Module({
   imports: [BullModule.registerQueue({ name: 'job-board' })],
   controllers: [JobBoardController],
-  providers: [JobBoardService, JobBoardProcessor, EmployerMatchService, JobVisaSignalService],
+  providers: [
+    JobBoardService,
+    JobBoardProcessor,
+    EmployerMatchService,
+    JobVisaSignalService,
+  ],
 })
 export class JobBoardModule {}
