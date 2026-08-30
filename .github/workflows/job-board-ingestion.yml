@@ -3,8 +3,8 @@ name: Job Board Ingestion
 on:
   schedule:
     # Off-peak minute reduces GitHub's documented risk of dropped schedules.
-    # A three-hour cadence provides a free retry window for missed runs.
-    - cron: '37 */3 * * *'
+    # Hourly refresh stays well below each authorized source's daily limit.
+    - cron: '37 * * * *'
   workflow_dispatch:
 
 permissions:

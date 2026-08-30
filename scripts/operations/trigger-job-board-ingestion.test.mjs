@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { after, before, test } from 'node:test';
 
@@ -77,4 +78,13 @@ test('fails closed when the API key is missing', async () => {
     }),
     /API secret/
   );
+});
+
+test('schedules authorized source ingestion every hour at an off-peak minute', async () => {
+  const workflow = await readFile(
+    new URL('../../.github/workflows/job-board-ingestion.yml', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(workflow, /cron:\s*['"]37 \* \* \* \*['"]/);
 });

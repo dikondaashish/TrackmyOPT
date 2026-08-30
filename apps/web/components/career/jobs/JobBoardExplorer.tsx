@@ -266,7 +266,7 @@ export function JobBoardExplorer({ jobs, runway, asOf, savedResumes = EMPTY_SAVE
 
           <div className="flex flex-wrap items-center gap-2">
             <FilterSelect label="Date" value={draft.date} onChange={(value) => updateDraft('date', value as JobFilters['date'])}>
-              <option value="any">Date</option><option value="1">Past 24 hours</option><option value="3">Past 3 days</option><option value="7">Past week</option><option value="30">Past month</option>
+              <option value="any">Date</option><option value="1h">Past hour</option><option value="6h">Past 6 hours</option><option value="12h">Past 12 hours</option><option value="24h">Past 24 hours</option><option value="48h">Past 48 hours</option><option value="7d">Past week</option><option value="30d">Past month</option>
             </FilterSelect>
             <FilterSelect label="Location" value={draft.location} onChange={(value) => updateDraft('location', value)}>
               <option value="all">Location</option>{locations.map((location) => <option key={location} value={location}>{location}</option>)}

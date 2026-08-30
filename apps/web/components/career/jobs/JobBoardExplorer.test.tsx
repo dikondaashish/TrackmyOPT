@@ -124,13 +124,22 @@ describe('JobBoardExplorer', () => {
   it('uses the server reference time for inclusive date windows and rejects future timestamps', () => {
     const datedJobs = [
       job({ id: 'recent', title: 'Recent role', posted_at: '2030-01-02T12:00:00.000Z' }),
-      job({ id: 'boundary', title: 'Boundary role', posted_at: '2030-01-01T12:00:00.000Z' }),
-      job({ id: 'old', title: 'Old role', posted_at: '2030-01-01T11:59:59.000Z' }),
+      job({ id: 'boundary', title: 'Boundary role', posted_at: '2030-01-02T11:00:00.000Z' }),
+      job({ id: 'old', title: 'Old role', posted_at: '2030-01-02T10:59:59.000Z' }),
       job({ id: 'future', title: 'Future role', posted_at: '2030-01-02T12:00:01.000Z' }),
     ];
     render(<JobBoardExplorer jobs={datedJobs} runway={null} asOf="2030-01-02T12:00:00.000Z" />);
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Date' }), { target: { value: '1' } });
+    const dateFilter = screen.getByRole('combobox', { name: 'Date' });
+    expect(dateFilter).toHaveTextContent('Past hour');
+    expect(dateFilter).toHaveTextContent('Past 6 hours');
+    expect(dateFilter).toHaveTextContent('Past 12 hours');
+    expect(dateFilter).toHaveTextContent('Past 24 hours');
+    expect(dateFilter).toHaveTextContent('Past 48 hours');
+    expect(dateFilter).toHaveTextContent('Past week');
+    expect(dateFilter).toHaveTextContent('Past month');
+
+    fireEvent.change(dateFilter, { target: { value: '1h' } });
     applyFilters();
 
     expect(screen.getByText('Recent role')).toBeInTheDocument();

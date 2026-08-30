@@ -1,5 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { findActiveTrackerStatus, inferJobFacts } from './filters';
+import { findActiveTrackerStatus, inferJobFacts, isWithinDateRange, type JobDateWindow } from './filters';
+
+describe('isWithinDateRange', () => {
+  const asOf = new Date('2030-02-01T12:00:00.000Z');
+
+  it.each<[JobDateWindow, string, string]>([
+    ['1h', '2030-02-01T11:00:00.000Z', '2030-02-01T10:59:59.999Z'],
+    ['6h', '2030-02-01T06:00:00.000Z', '2030-02-01T05:59:59.999Z'],
+    ['12h', '2030-02-01T00:00:00.000Z', '2030-01-31T23:59:59.999Z'],
+    ['24h', '2030-01-31T12:00:00.000Z', '2030-01-31T11:59:59.999Z'],
+    ['48h', '2030-01-30T12:00:00.000Z', '2030-01-30T11:59:59.999Z'],
+    ['7d', '2030-01-25T12:00:00.000Z', '2030-01-25T11:59:59.999Z'],
+    ['30d', '2030-01-02T12:00:00.000Z', '2030-01-02T11:59:59.999Z'],
+  ])('uses an inclusive %s window', (window, boundary, outside) => {
+    expect(isWithinDateRange(boundary, window, asOf)).toBe(true);
+    expect(isWithinDateRange(outside, window, asOf)).toBe(false);
+  });
+
+  it('rejects future and invalid posting timestamps', () => {
+    expect(isWithinDateRange('2030-02-01T12:00:00.001Z', '1h', asOf)).toBe(false);
+    expect(isWithinDateRange('not-a-date', '1h', asOf)).toBe(false);
+    expect(isWithinDateRange(null, '1h', asOf)).toBe(false);
+  });
+});
 
 describe('findActiveTrackerStatus', () => {
   it('ignores archived matches and normalizes harmless URL differences', () => {

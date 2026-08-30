@@ -32,6 +32,7 @@ export type TrackerEntrySummary = {
 
 export type DegreeLevel = 'bachelor' | 'master' | 'doctorate';
 export type RoleFamily = 'engineering' | 'data' | 'product' | 'design' | 'operations' | 'sales' | 'other';
+export type JobDateWindow = 'any' | '1h' | '6h' | '12h' | '24h' | '48h' | '7d' | '30d';
 
 export type JobFacts = {
   workplace: 'remote' | 'hybrid' | 'on_site' | 'unspecified';
@@ -47,7 +48,7 @@ export type JobFilters = {
   searchScope: 'title_description' | 'title' | 'company';
   query: string;
   exclude: string;
-  date: 'any' | '1' | '3' | '7' | '30';
+  date: JobDateWindow;
   location: string;
   workplace: 'all' | JobFacts['workplace'];
   company: string;
@@ -210,13 +211,24 @@ export function hasPositiveSponsorshipEvidence(job: FilterableJob) {
     || hasSourceBackedEmployerHistory(job);
 }
 
-function isWithinDateRange(date: string | null, days: JobFilters['date'], asOf: Date) {
-  if (days === 'any') return true;
+const JOB_DATE_WINDOW_HOURS: Record<Exclude<JobDateWindow, 'any'>, number> = {
+  '1h': 1,
+  '6h': 6,
+  '12h': 12,
+  '24h': 24,
+  '48h': 48,
+  '7d': 7 * 24,
+  '30d': 30 * 24,
+};
+
+export function isWithinDateRange(date: string | null, window: JobDateWindow, asOf: Date) {
+  if (window === 'any') return true;
   if (!date || Number.isNaN(asOf.getTime())) return false;
   const timestamp = new Date(date).getTime();
   if (Number.isNaN(timestamp)) return false;
   const reference = asOf.getTime();
-  return timestamp <= reference && timestamp >= reference - Number(days) * 24 * 60 * 60 * 1000;
+  return timestamp <= reference
+    && timestamp >= reference - JOB_DATE_WINDOW_HOURS[window] * 60 * 60 * 1000;
 }
 
 function matchesExperience(facts: JobFacts, filter: JobFilters['experience']) {
