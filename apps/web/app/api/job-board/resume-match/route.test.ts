@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   generateAiContent: vi.fn(),
   maybeSingle: vi.fn(),
   update: vi.fn(),
+  insert: vi.fn(),
+  single: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/get-user-id', () => ({ getUserId: mocks.getUserId }));
@@ -26,6 +28,8 @@ vi.mock('@/lib/supabase/admin', () => ({
       builder.eq = vi.fn(() => builder);
       builder.maybeSingle = mocks.maybeSingle;
       builder.update = mocks.update.mockImplementation(() => builder);
+      builder.insert = mocks.insert.mockImplementation(() => builder);
+      builder.single = mocks.single;
       return builder;
     },
   }),
@@ -56,6 +60,7 @@ describe('POST /api/job-board/resume-match', () => {
     mocks.getUserId.mockResolvedValue(USER_ID);
     mocks.checkRateLimitByUser.mockResolvedValue({ success: true });
     mocks.update.mockImplementation(() => ({ eq: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })) }));
+    mocks.single.mockResolvedValue({ data: { id: RESUME_ID, updated_at: '2026-08-30T12:00:00.000Z' }, error: null });
   });
 
   it('requires an authenticated user', async () => {
@@ -75,7 +80,7 @@ describe('POST /api/job-board/resume-match', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toMatchObject({ ok: true, filename: 'Asha Resume.pdf', source: 'ai', profile: aiProfile });
+    expect(body).toMatchObject({ ok: true, resumeId: RESUME_ID, filename: 'Asha Resume.pdf', source: 'ai', profile: aiProfile });
     expect(mocks.generateAiContent).toHaveBeenCalledWith(expect.objectContaining({ task: 'resume_job_profile', userId: USER_ID }));
     expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
       structured_data: expect.objectContaining({
@@ -85,7 +90,7 @@ describe('POST /api/job-board/resume-match', () => {
     }));
   });
 
-  it('uses a deterministic profile when the AI response is invalid', async () => {
+  it('stores an uploaded resume with its deterministic profile when the AI response is invalid', async () => {
     mocks.generateAiContent.mockResolvedValue({ text: '{"skills":"not-an-array"}' });
 
     const response = await POST(request({
@@ -95,8 +100,17 @@ describe('POST /api/job-board/resume-match', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(body.resumeId).toBe(RESUME_ID);
     expect(body.source).toBe('deterministic');
     expect(body.profile.skills).toEqual(expect.arrayContaining(['TypeScript', 'Node.js', 'PostgreSQL', 'AWS']));
+    expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({
+      user_id: USER_ID,
+      filename: 'resume.txt',
+      is_parsed: true,
+      structured_data: expect.objectContaining({
+        jobMatchProfile: expect.objectContaining({ source: 'deterministic' }),
+      }),
+    }));
     expect(mocks.update).not.toHaveBeenCalled();
   });
 

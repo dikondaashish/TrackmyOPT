@@ -6,6 +6,7 @@ import { EmployerEvidencePanel } from '@/components/career/jobs/EmployerEvidence
 import { AtsSourceLogo, JobCompanyLogo } from '@/components/career/jobs/JobBrandLogo';
 import { atsSourceName } from '@/components/career/jobs/JobBrandLogo.utils';
 import { JobCardActions } from '@/components/career/jobs/JobCardActions';
+import { JobDescriptionContent } from '@/components/career/jobs/JobDescriptionContent';
 import { JobUrgencyLabels } from '@/components/career/jobs/JobRunwayPersonalization';
 import { ResumeJobMatcher, type ActiveResumeMatch, type SavedResumeOption } from '@/components/career/jobs/ResumeJobMatcher';
 import {
@@ -19,6 +20,7 @@ import {
   type JobFilters,
 } from '@/lib/job-board/filters';
 import { scoreJobForResume, type ResumeJobMatch } from '@/lib/job-board/resume-match';
+import { deriveResumeJobFilters } from '@/lib/job-board/resume-filter-defaults';
 import { isRecentlyPosted, type RunwayContext } from '@/lib/job-board/runway';
 
 type VisaSignal = {
@@ -104,10 +106,6 @@ function requirementLabel(facts: JobFacts) {
   return labels.filter((label): label is string => Boolean(label));
 }
 
-function readableDescription(description: string | null) {
-  return description?.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() || 'The employer has not provided a job description on this authorized board.';
-}
-
 function JobListItem({
   job,
   facts,
@@ -171,8 +169,8 @@ function JobListItem({
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_15rem]">
             <div>
               <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white"><FileText className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Job description</h3>
-              <div className="mt-2 max-h-64 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3 text-[0.8125rem] leading-6 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-                {readableDescription(job.description)}
+              <div className="mt-2 max-h-[34rem] overflow-y-auto rounded-lg border border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950 sm:px-5">
+                <JobDescriptionContent description={job.description} />
               </div>
             </div>
             <aside className="space-y-2.5 border-t border-slate-200 pt-4 dark:border-slate-800 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
@@ -204,16 +202,32 @@ function JobListItem({
   );
 }
 
-export function JobBoardExplorer({ jobs, runway, asOf, savedResumes = EMPTY_SAVED_RESUMES }: { jobs: ExplorerJob[]; runway: RunwayContext | null; asOf: string; savedResumes?: SavedResumeOption[] }) {
-  const [draft, setDraft] = useState<JobFilters>(EMPTY_JOB_FILTERS);
-  const [filters, setFilters] = useState<JobFilters>(EMPTY_JOB_FILTERS);
+export function JobBoardExplorer({
+  jobs,
+  runway,
+  asOf,
+  savedResumes = EMPTY_SAVED_RESUMES,
+  initialResumeMatch = null,
+}: {
+  jobs: ExplorerJob[];
+  runway: RunwayContext | null;
+  asOf: string;
+  savedResumes?: SavedResumeOption[];
+  initialResumeMatch?: ActiveResumeMatch | null;
+}) {
+  const locations = useMemo(() => [...new Set(jobs.map((job) => job.location).filter((value): value is string => Boolean(value)))].sort(), [jobs]);
+  const initialFilters = useMemo(
+    () => initialResumeMatch ? deriveResumeJobFilters(initialResumeMatch.profile, locations) : EMPTY_JOB_FILTERS,
+    [initialResumeMatch, locations],
+  );
+  const [draft, setDraft] = useState<JobFilters>(initialFilters);
+  const [filters, setFilters] = useState<JobFilters>(initialFilters);
   const [savedJobIds, setSavedJobIds] = useState(() => initialSavedJobIds(jobs));
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
-  const [activeResumeMatch, setActiveResumeMatch] = useState<ActiveResumeMatch | null>(null);
+  const [activeResumeMatch, setActiveResumeMatch] = useState<ActiveResumeMatch | null>(initialResumeMatch);
   const asOfDate = useMemo(() => new Date(asOf), [asOf]);
 
   const factsByJob = useMemo(() => new Map(jobs.map((job) => [job.id, inferJobFacts(job)])), [jobs]);
-  const locations = useMemo(() => [...new Set(jobs.map((job) => job.location).filter((value): value is string => Boolean(value)))].sort(), [jobs]);
   const companies = useMemo(() => [...new Set(jobs.map((job) => job.company_name || job.employer_board_name).filter((value): value is string => Boolean(value)))].sort(), [jobs]);
   const resumeMatches = useMemo(() => new Map(jobs.map((job) => [
     job.id,
@@ -233,9 +247,21 @@ export function JobBoardExplorer({ jobs, runway, asOf, savedResumes = EMPTY_SAVE
     setFilters(EMPTY_JOB_FILTERS);
   };
 
+  const applyResumeMatch = (match: ActiveResumeMatch) => {
+    const resumeFilters = deriveResumeJobFilters(match.profile, locations);
+    setActiveResumeMatch(match);
+    setDraft(resumeFilters);
+    setFilters(resumeFilters);
+  };
+
+  const clearResumeMatch = () => {
+    setActiveResumeMatch(null);
+    clearFilters();
+  };
+
   return (
     <section className="space-y-3" aria-label="Verified job search">
-      <ResumeJobMatcher savedResumes={savedResumes} activeMatch={activeResumeMatch} onMatch={setActiveResumeMatch} onClear={() => setActiveResumeMatch(null)} />
+      <ResumeJobMatcher savedResumes={savedResumes} activeMatch={activeResumeMatch} onMatch={applyResumeMatch} onClear={clearResumeMatch} />
       <form
         className="rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-800 dark:bg-slate-950"
         onSubmit={(event) => {

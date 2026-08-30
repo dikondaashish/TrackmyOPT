@@ -13,6 +13,8 @@ export const ResumeJobProfileSchema = z.object({
     field: z.string().trim().max(160).nullable(),
   }).strict()).max(10),
   yearsExperience: z.number().finite().min(0).max(80).nullable(),
+  preferredLocations: z.array(boundedText).max(10).optional(),
+  workplacePreferences: z.array(z.enum(['remote', 'hybrid', 'on_site'])).max(3).optional(),
 }).strict();
 
 export type ResumeJobProfile = z.infer<typeof ResumeJobProfileSchema>;
@@ -56,6 +58,8 @@ export function parseResumeJobProfile(value: unknown): ResumeJobProfile | null {
     roleTitles: dedupe(parsed.data.roleTitles, 12),
     skills: dedupe(parsed.data.skills, 80),
     certifications: dedupe(parsed.data.certifications, 20),
+    preferredLocations: parsed.data.preferredLocations ? dedupe(parsed.data.preferredLocations, 10) : undefined,
+    workplacePreferences: parsed.data.workplacePreferences ? [...new Set(parsed.data.workplacePreferences)] : undefined,
   };
 }
 

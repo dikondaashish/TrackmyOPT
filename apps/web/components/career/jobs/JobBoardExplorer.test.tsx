@@ -18,7 +18,7 @@ const jobs: TestJob[] = [
     employer_board_name: 'North Beam',
     location: 'Remote, United States',
     department: 'Engineering',
-    description: 'Remote full-time role. Bachelor\'s degree and 2 years of experience required.',
+    description: '<h2>About North Beam.</h2><p>Remote full-time role. Bachelor\'s degree and 2 years of experience required.</p><h2>What You\'ll Do</h2><ul><li>Build reliable software.</li></ul>',
     job_url: 'https://example.com/one',
     posted_at: '2026-08-29T12:00:00.000Z',
     first_seen_at: '2026-08-29T12:00:00.000Z',
@@ -75,7 +75,9 @@ describe('JobBoardExplorer', () => {
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('heading', { name: 'Job description' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'About North Beam.' })).toBeInTheDocument();
     expect(screen.getByText(/Remote full-time role/)).toBeInTheDocument();
+    expect(screen.getByText('Build reliable software.').closest('li')).toBeInTheDocument();
     expect(screen.getByText('Employer history found')).toBeInTheDocument();
 
     fireEvent.click(toggle);
@@ -294,7 +296,7 @@ describe('JobBoardExplorer', () => {
     expect(screen.getByText('Unsaved role')).toBeInTheDocument();
   });
 
-  it('uploads a resume, ranks jobs, and shows explainable match information without replacing manual filters', async () => {
+  it('saves an uploaded resume, prefills filters, ranks jobs, and shows explainable match information', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
@@ -304,6 +306,8 @@ describe('JobBoardExplorer', () => {
         ok: true,
         json: async () => ({
           ok: true,
+          resumeId: '33333333-3333-4333-8333-333333333333',
+          updatedAt: '2026-08-30T12:00:00.000Z',
           filename: 'Asha Resume.pdf',
           source: 'ai',
           profile: {
@@ -313,6 +317,8 @@ describe('JobBoardExplorer', () => {
             certifications: [],
             education: [{ level: 'bachelor', field: 'Computer Science' }],
             yearsExperience: 2,
+            preferredLocations: ['Remote'],
+            workplacePreferences: ['remote'],
           },
         }),
       });
@@ -323,11 +329,16 @@ describe('JobBoardExplorer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Match from resume' }));
     const file = new File(['resume'], 'Asha Resume.pdf', { type: 'application/pdf' });
     fireEvent.change(screen.getByLabelText('Upload resume for job matching'), { target: { files: [file] } });
+    expect(fetchMock).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Analyze and save Asha Resume.pdf' }));
 
     expect(await screen.findByText('Matching from Asha Resume.pdf')).toBeInTheDocument();
     expect(screen.getAllByText(/% match/).length).toBeGreaterThan(0);
-    expect(screen.getByRole('textbox', { name: 'Search verified jobs' })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Workplace' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Search verified jobs' })).toHaveValue('engineer');
+    expect(screen.getByRole('combobox', { name: 'Date' })).toHaveValue('30d');
+    expect(screen.getByRole('combobox', { name: 'Location' })).toHaveValue('Remote, United States');
+    expect(screen.getByRole('combobox', { name: 'Workplace' })).toHaveValue('remote');
+    expect(screen.getByRole('combobox', { name: 'Role' })).toHaveValue('engineering');
 
     fireEvent.click(screen.getByRole('button', { name: 'Software Engineer' }));
     expect(await screen.findByRole('heading', { name: 'Why this job matches' })).toBeInTheDocument();
@@ -349,6 +360,8 @@ describe('JobBoardExplorer', () => {
         ok: true,
         json: async () => ({
           ok: true,
+          resumeId: '55555555-5555-4555-8555-555555555555',
+          updatedAt: '2026-08-30T12:00:00.000Z',
           filename: 'Scanned Resume.pdf',
           source: 'ai',
           profile: { schemaVersion: 1, roleTitles: ['Data Analyst'], skills: ['SQL', 'Tableau'], certifications: [], education: [], yearsExperience: 2 },
@@ -361,9 +374,48 @@ describe('JobBoardExplorer', () => {
     fireEvent.change(screen.getByLabelText('Upload resume for job matching'), {
       target: { files: [new File(['scan'], 'Scanned Resume.pdf', { type: 'application/pdf' })] },
     });
+    fireEvent.click(screen.getByRole('button', { name: 'Analyze and save Scanned Resume.pdf' }));
 
     expect(await screen.findByText('Matching from Scanned Resume.pdf')).toBeInTheDocument();
     expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/proxy/ocr/direct', expect.objectContaining({ method: 'POST' }));
+    vi.unstubAllGlobals();
+  });
+
+  it('restores a stored match on return and can remove that saved resume', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ success: true, deleted: 1 }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const initialResumeMatch = {
+      resumeId: '44444444-4444-4444-8444-444444444444',
+      filename: 'Stored Resume.pdf',
+      source: 'ai' as const,
+      profile: {
+        schemaVersion: 1 as const,
+        roleTitles: ['Software Engineer'],
+        skills: ['TypeScript'],
+        certifications: [],
+        education: [],
+        yearsExperience: 2,
+      },
+    };
+
+    render(
+      <JobBoardExplorer
+        jobs={jobs}
+        runway={null}
+        asOf="2026-08-29T12:00:00.000Z"
+        savedResumes={[{ id: initialResumeMatch.resumeId, filename: initialResumeMatch.filename, updatedAt: '2026-08-30T12:00:00.000Z' }]}
+        initialResumeMatch={initialResumeMatch}
+      />,
+    );
+
+    expect(screen.getByText('Matching from Stored Resume.pdf')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Search verified jobs' })).toHaveValue('engineer');
+    fireEvent.click(screen.getByRole('button', { name: 'Change resume' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Stored Resume.pdf' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm remove resume' }));
+
+    expect(await screen.findByText('No saved resumes yet')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith('/api/proxy/resume/44444444-4444-4444-8444-444444444444', expect.objectContaining({ method: 'DELETE' }));
     vi.unstubAllGlobals();
   });
 });

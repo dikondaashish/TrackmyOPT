@@ -4,7 +4,9 @@ import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { JobRunwaySummary } from '@/components/career/jobs/JobRunwayPersonalization';
 import { JobBoardExplorer } from '@/components/career/jobs/JobBoardExplorer';
+import type { ActiveResumeMatch } from '@/components/career/jobs/ResumeJobMatcher';
 import { findActiveTrackerStatus } from '@/lib/job-board/filters';
+import { parseResumeJobProfile } from '@/lib/job-board/resume-match';
 import { getRunwayContext, type StoredOptStatus } from '@/lib/job-board/runway';
 import type { EmploymentSpan } from '@/lib/immigration/opt-calculations';
 
@@ -42,6 +44,24 @@ type FeedJobQueryResult = Omit<FeedJob, 'employer_match'> & {
   employer_match: FeedJob['employer_match'] | FeedJob['employer_match'][];
 };
 
+function restoreResumeMatch(resumes: Array<{ id: string; filename: string | null; structured_data: unknown }>): ActiveResumeMatch | null {
+  for (const resume of resumes) {
+    if (!resume.structured_data || typeof resume.structured_data !== 'object' || Array.isArray(resume.structured_data)) continue;
+    const cached = (resume.structured_data as Record<string, unknown>).jobMatchProfile;
+    if (!cached || typeof cached !== 'object' || Array.isArray(cached)) continue;
+    const source = (cached as Record<string, unknown>).source;
+    const profile = parseResumeJobProfile((cached as Record<string, unknown>).profile);
+    if ((source !== 'ai' && source !== 'deterministic') || !profile) continue;
+    return {
+      resumeId: String(resume.id),
+      filename: resume.filename || 'Untitled resume',
+      source,
+      profile,
+    };
+  }
+  return null;
+}
+
 export default async function VerifiedJobsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -70,7 +90,7 @@ export default async function VerifiedJobsPage() {
       .eq('user_id', user.id),
     supabase
       .from('resumes')
-      .select('id, filename, updated_at, created_at')
+      .select('id, filename, updated_at, created_at, structured_data')
       .eq('user_id', user.id)
       .not('content', 'is', null)
       .order('updated_at', { ascending: false })
@@ -110,6 +130,8 @@ export default async function VerifiedJobsPage() {
       tracker_status: findActiveTrackerStatus(job, trackerEntries),
     };
   });
+  const savedResumeRows = resumesResult.data || [];
+  const initialResumeMatch = restoreResumeMatch(savedResumeRows);
 
   return (
     <main className="mx-auto max-w-[1440px] space-y-4 px-3 py-4 sm:px-5 sm:py-5">
@@ -131,11 +153,12 @@ export default async function VerifiedJobsPage() {
         jobs={jobs}
         runway={runway}
         asOf={now.toISOString()}
-        savedResumes={(resumesResult.data || []).map((resume) => ({
+        savedResumes={savedResumeRows.map((resume) => ({
           id: String(resume.id),
           filename: resume.filename || 'Untitled resume',
           updatedAt: resume.updated_at || resume.created_at,
         }))}
+        initialResumeMatch={initialResumeMatch}
       />
     </main>
   );

@@ -10,12 +10,15 @@ Return only valid JSON matching this exact shape:
   "skills": ["up to 80 concrete skills, tools, technologies, methods, and domain skills explicitly supported by the resume"],
   "certifications": ["up to 20 certifications explicitly present"],
   "education": [{ "level": "bachelor|master|doctorate", "field": "field of study or null" }],
-  "yearsExperience": 0
+  "yearsExperience": 0,
+  "preferredLocations": ["only locations explicitly stated as job-search or relocation preferences"],
+  "workplacePreferences": ["remote|hybrid|on_site only when explicitly stated as a work preference"]
 }
 
 Rules:
 - Use null for yearsExperience when it cannot be supported. Do not double-count overlapping jobs.
 - Do not invent skills or qualifications.
+- Never treat a contact/header address as a preferred job location. Return empty preference arrays unless the resume explicitly states a job-search, relocation, remote, hybrid, or on-site preference.
 - Use concise, conventional capitalization and deduplicate values.
 - Do not include proficiency claims that are not explicit.
 

@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
   if (parsed.data.resumeId) {
     const { data, error } = await getSupabaseAdminClient()
       .from('resumes')
-      .select('id, filename, content, structured_data')
+      .select('id, filename, content, structured_data, updated_at')
       .eq('id', parsed.data.resumeId)
       .eq('user_id', userId)
       .maybeSingle();
@@ -96,6 +96,17 @@ export async function POST(req: NextRequest) {
     filename = data.filename || 'Saved resume';
     resumeText = String(data.content);
     structuredData = objectValue(data.structured_data);
+    const updatedAt = typeof data.updated_at === 'string' ? data.updated_at : null;
+
+    const prepared = prepareResumeText(resumeText);
+    if (prepared.text.length < 50) {
+      return NextResponse.json({ ok: false, error: 'The resume does not contain enough readable text' }, { status: 400, headers: PRIVATE_HEADERS });
+    }
+    const hash = contentHash(prepared.text);
+    const cached = readCache(structuredData, hash);
+    if (cached) {
+      return NextResponse.json({ ok: true, resumeId, updatedAt, filename, source: cached.source, cached: true, profile: cached.profile }, { headers: PRIVATE_HEADERS });
+    }
   }
 
   const prepared = prepareResumeText(resumeText);
@@ -103,10 +114,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'The resume does not contain enough readable text' }, { status: 400, headers: PRIVATE_HEADERS });
   }
   const hash = contentHash(prepared.text);
-  const cached = resumeId ? readCache(structuredData, hash) : null;
-  if (cached) {
-    return NextResponse.json({ ok: true, filename, source: cached.source, cached: true, profile: cached.profile }, { headers: PRIVATE_HEADERS });
-  }
 
   const rateLimit = await checkRateLimitByUser(userId, MATCH_LIMIT);
   if (!rateLimit.success) return rateLimitResponse(rateLimit);
@@ -129,21 +136,43 @@ export async function POST(req: NextRequest) {
     profile = extractResumeProfileFallback(prepared.text);
   }
 
+  const updatedAt = new Date().toISOString();
+  const jobMatchProfile: CachedMatchProfile = {
+    schemaVersion: 1,
+    contentHash: hash,
+    createdAt: updatedAt,
+    source,
+    profile,
+  };
   if (resumeId) {
-    const jobMatchProfile: CachedMatchProfile = {
-      schemaVersion: 1,
-      contentHash: hash,
-      createdAt: new Date().toISOString(),
-      source,
-      profile,
-    };
     const { error } = await getSupabaseAdminClient()
       .from('resumes')
-      .update({ structured_data: { ...structuredData, jobMatchProfile } })
+      .update({ structured_data: { ...structuredData, jobMatchProfile }, updated_at: updatedAt })
       .eq('id', resumeId)
       .eq('user_id', userId);
-    if (error) console.error('[resume-job-match] Unable to cache profile', error.message);
+    if (error) {
+      console.error('[resume-job-match] Unable to cache profile', error.message);
+      return NextResponse.json({ ok: false, error: 'Unable to save the resume analysis' }, { status: 500, headers: PRIVATE_HEADERS });
+    }
+  } else {
+    const { data, error } = await getSupabaseAdminClient()
+      .from('resumes')
+      .insert({
+        user_id: userId,
+        filename,
+        content: prepared.text,
+        structured_data: { jobMatchProfile },
+        is_parsed: true,
+        updated_at: updatedAt,
+      })
+      .select('id, updated_at')
+      .single();
+    if (error || !data?.id) {
+      console.error('[resume-job-match] Unable to store uploaded resume', error?.message || 'missing inserted row');
+      return NextResponse.json({ ok: false, error: 'Unable to save the uploaded resume' }, { status: 500, headers: PRIVATE_HEADERS });
+    }
+    resumeId = String(data.id);
   }
 
-  return NextResponse.json({ ok: true, filename, source, cached: false, profile }, { headers: PRIVATE_HEADERS });
+  return NextResponse.json({ ok: true, resumeId, updatedAt, filename, source, cached: false, profile }, { headers: PRIVATE_HEADERS });
 }
