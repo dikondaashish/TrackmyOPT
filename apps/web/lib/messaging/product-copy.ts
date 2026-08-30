@@ -62,7 +62,7 @@ export const CASE_STATUS_MESSAGING = {
   staleStatusNotice:
     "Status may be outdated. Auto-check daily with Pro.",
   trialCtaStrip:
-    'Stop refreshing. Pro checks USCIS daily and emails you when your status changes.',
+    'Stop refreshing. Get Pro for daily USCIS checks and email alerts when your status changes.',
   caseInsightHeadline: 'Stop wondering where your case stands.',
   caseInsightBody:
     'Unlock a likely decision window from comparable community cases, plus daily USCIS checks and status-change emails.',
