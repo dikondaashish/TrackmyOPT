@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { extractJobTitle, isLikelyFilename, normalizeRoleTitle } from '@/lib/resume/extract-job-title';
 import { normalizeAtsAnalysis, type AtsAnalysis } from '@/lib/resume/ats-analysis-types';
-import type { TemplateColor } from '@/lib/documents/templates';
+import { DEFAULT_RESUME_TEMPLATE_ID, type TemplateColor } from '@/lib/documents/templates';
 
 export type { AtsAnalysis };
 
@@ -62,7 +62,7 @@ export const useResumeStore = create<ResumeState>()(
             jobDescription: '',
             jobTitle: null,
             applicationId: null,
-            selectedTemplateId: 'professional',
+            selectedTemplateId: DEFAULT_RESUME_TEMPLATE_ID,
             selectedColor: null,
             generatedLatex: '',
             compiledPdfUrl: null,
@@ -105,7 +105,7 @@ export const useResumeStore = create<ResumeState>()(
                 jobDescription: '',
                 jobTitle: null,
                 applicationId: null,
-                selectedTemplateId: 'professional',
+                selectedTemplateId: DEFAULT_RESUME_TEMPLATE_ID,
                 selectedColor: null,
                 generatedLatex: '',
                 compiledPdfUrl: null,
@@ -116,6 +116,11 @@ export const useResumeStore = create<ResumeState>()(
         }),
         {
             name: 'resume-storage',
+            version: 2,
+            migrate: (persistedState) => ({
+                ...(persistedState as PersistedResumeState),
+                selectedTemplateId: DEFAULT_RESUME_TEMPLATE_ID,
+            }),
             partialize: (state) => ({
                 resumeText: state.resumeText,
                 resumeFilename: state.resumeFilename,

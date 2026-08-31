@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { TemplatePreviewModal } from "./TemplatePreviewModal";
 import { TemplatePdfPreview } from "./TemplatePdfPreview";
 import { useResumeStore } from "@/store/resume-store";
-import { RESUME_TEMPLATES, Template, TemplateColor } from "@/lib/documents/templates";
+import { RESUME_TEMPLATES, Template, TemplateColor, DEFAULT_RESUME_TEMPLATE_ID } from "@/lib/documents/templates";
 import { hasResumeGenerationInputs } from "@/lib/resume/generation-inputs";
 
 /** Soft tint behind the card copy only — never applied to the resume preview. */
@@ -44,6 +44,10 @@ export default function TemplateSelectionPage() {
     } = useResumeStore();
 
     const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+
+    useEffect(() => {
+        setSelectedTemplateId(DEFAULT_RESUME_TEMPLATE_ID);
+    }, [setSelectedTemplateId]);
 
     const handleSelectTemplate = (templateId: string) => {
         setSelectedTemplateId(templateId);

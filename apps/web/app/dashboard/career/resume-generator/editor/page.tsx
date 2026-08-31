@@ -52,6 +52,7 @@ import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { ResumeCreditTopUpModal } from "@/components/dashboard/resume/ResumeCreditTopUpModal";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
+import { DEFAULT_RESUME_TEMPLATE_ID } from "@/lib/documents/templates";
 import {
     findTextInLatex,
     getTextareaSelection,
@@ -72,6 +73,7 @@ export default function ResumeEditorPage() {
     const searchParams = useSearchParams();
     const autoRegenAttempts = useRef(0);
     const skipNextAutoRegen = useRef(false);
+    const compileSeqRef = useRef(0);
     const handoffLoadedRef = useRef(false);
     const handoffId = searchParams.get("handoffId");
 
@@ -453,7 +455,7 @@ export default function ResumeEditorPage() {
                     body: JSON.stringify({
                         resumeText,
                         jobDescription,
-                        templateId: selectedTemplateId || "professional",
+                        templateId: selectedTemplateId || DEFAULT_RESUME_TEMPLATE_ID,
                         previousLatex: generatedLatex,
                         userFeedback: limitRegenerationFeedback(feedback),
                         atsAnalysis: analysis,
@@ -603,13 +605,14 @@ export default function ResumeEditorPage() {
         allowAutoRegen = true
     ) => {
         if (!code) return;
+        const seq = ++compileSeqRef.current;
         setIsCompiling(true);
-        setCompiledPdfBlob(null);
         setPdfHighlightQuery(null);
         try {
             const response = await fetch('/api/resume-generator/compile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                cache: 'no-store',
                 body: JSON.stringify({ latexCode: code })
             });
 
@@ -646,6 +649,7 @@ export default function ResumeEditorPage() {
             }
 
             const blob = await response.blob();
+            if (seq !== compileSeqRef.current) return;
             const url = URL.createObjectURL(blob);
             const prevUrl = useResumeStore.getState().compiledPdfUrl;
             if (prevUrl) URL.revokeObjectURL(prevUrl);
@@ -659,14 +663,18 @@ export default function ResumeEditorPage() {
             await postCompilePipeline(code, blob, { allowAutoRegen });
 
         } catch (error: unknown) {
+            if (seq !== compileSeqRef.current) return;
             console.error(error);
+            const message = error instanceof Error ? error.message : "";
             toast({
-                title: "Compilation Failed",
-                description: "Could not create PDF preview. Please check LaTeX syntax.",
+                title: "PDF preview failed",
+                description: message.includes("temporarily unavailable")
+                    ? "The PDF compiler is busy. Tap Refresh PDF, or Start over to clear local resume data."
+                    : "This resume source could not be turned into a PDF. Tap Refresh PDF, or Start over to clear local resume data.",
                 variant: "destructive",
             });
         } finally {
-            setIsCompiling(false);
+            if (seq === compileSeqRef.current) setIsCompiling(false);
         }
     };
 
@@ -768,7 +776,7 @@ export default function ResumeEditorPage() {
                 body: JSON.stringify({
                     resumeText,
                     jobDescription,
-                    templateId: selectedTemplateId || "professional",
+                    templateId: selectedTemplateId || DEFAULT_RESUME_TEMPLATE_ID,
                     previousLatex: generatedLatex,
                     userFeedback: limitRegenerationFeedback(feedback),
                     // A just-completed scan is not guaranteed to be visible in React state yet.
@@ -865,13 +873,27 @@ export default function ResumeEditorPage() {
 
     const handlePdfTextSelect = useCallback(
         (text: string) => {
-            const latex = textareaRef.current?.value ?? generatedLatex;
-            const match = findTextInLatex(latex, text);
-            if (match && textareaRef.current) {
-                scrollTextareaToMatch(textareaRef.current, match.index, match.length);
+            const jump = () => {
+                const textarea = textareaRef.current;
+                const latex = textarea?.value ?? generatedLatex;
+                const match = findTextInLatex(latex, text);
+                if (match && textarea) {
+                    scrollTextareaToMatch(textarea, match.index, match.length);
+                }
+            };
+
+            // Visual-only hides the editor — reveal it so the match is actually visible.
+            if (viewMode === "visual") {
+                setViewMode("split");
+                setShowPreview(true);
+                setEditorWidth(50);
+                requestAnimationFrame(() => requestAnimationFrame(jump));
+                return;
             }
+
+            jump();
         },
-        [generatedLatex]
+        [generatedLatex, viewMode]
     );
 
     const handleCopy = useCallback(() => {
@@ -958,6 +980,12 @@ export default function ResumeEditorPage() {
         stopStreaming();
         const currentUrl = useResumeStore.getState().compiledPdfUrl;
         if (currentUrl) URL.revokeObjectURL(currentUrl);
+        setCompiledPdfBlob(null);
+        try {
+            window.localStorage.removeItem("resume-storage");
+        } catch {
+            // Ignore private-mode storage failures.
+        }
         reset();
         router.replace("/dashboard/career/resume-generator");
     }, [reset, router, stopStreaming]);
@@ -1256,41 +1284,30 @@ export default function ResumeEditorPage() {
                         </div>
 
                         <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 m-0 data-[state=inactive]:hidden">
-                            {isGenerating || isCompiling ? (
-                                <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
-                                    <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
-                                    <p>{isGenerating ? "Generating tailored resume…" : "Compiling PDF…"}</p>
-                                </div>
-                            ) : compiledPdfBlob ? (
-                                <div className="w-full h-full max-w-[8.5in]">
-                                    <PdfSelectablePreview
-                                        blob={compiledPdfBlob}
-                                        onTextSelect={handlePdfTextSelect}
-                                        highlightQuery={pdfHighlightQuery}
-                                    />
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center p-8 text-gray-500 w-full h-full">
-                                    {isGenerating ? (
-                                        <>
-                                            <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
-                                            <p>Generating tailored resume...</p>
-                                        </>
-                                    ) : isCompiling ? (
-                                        <>
-                                            <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-500" />
-                                            <p>Compiling PDF...</p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="animate-pulse flex flex-col items-center">
-                                                <RefreshCw className="w-12 h-12 mb-4 opacity-50" />
-                                                <p>Waiting for compilation...</p>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            )}
+                            <div className="relative flex h-full w-full items-center justify-center">
+                                {compiledPdfBlob ? (
+                                    <div className="h-full w-full max-w-[8.5in]">
+                                        <PdfSelectablePreview
+                                            blob={compiledPdfBlob}
+                                            onTextSelect={handlePdfTextSelect}
+                                            highlightQuery={pdfHighlightQuery}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex h-full w-full flex-col items-center justify-center p-8 text-gray-500">
+                                        <div className="flex animate-pulse flex-col items-center">
+                                            <RefreshCw className="mb-4 h-12 w-12 opacity-50" />
+                                            <p>Waiting for compilation...</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {(isGenerating || isCompiling) && (
+                                    <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-gray-600 ${compiledPdfBlob ? "bg-white/70 dark:bg-gray-950/70" : "bg-transparent"}`}>
+                                        <Loader2 className="mb-4 h-10 w-10 animate-spin text-blue-500" />
+                                        <p>{isGenerating ? "Generating tailored resume…" : "Compiling PDF…"}</p>
+                                    </div>
+                                )}
+                            </div>
                         </TabsContent>
 
                         <TabsContent value="ats" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 m-0 data-[state=inactive]:hidden">

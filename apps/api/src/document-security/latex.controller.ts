@@ -11,7 +11,11 @@ import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Public } from '../common/decorators/public.decorator';
 import { bearerMatches } from './bearer-token';
-import { compileLatexPdf, extractMainLatex } from './compile-latex';
+import {
+  compileLatexPdf,
+  CompilerUnavailableError,
+  extractMainLatex,
+} from './compile-latex';
 import { CompileLatexDto } from './compile-latex.dto';
 
 @Controller()
@@ -49,7 +53,13 @@ export class LatexController {
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Cache-Control', 'no-store');
       res.status(200).send(pdf);
-    } catch {
+    } catch (error) {
+      if (error instanceof CompilerUnavailableError) {
+        throw new HttpException(
+          'LaTeX compiler is unavailable',
+          HttpStatus.SERVICE_UNAVAILABLE,
+        );
+      }
       throw new HttpException(
         'LaTeX compilation failed',
         HttpStatus.UNPROCESSABLE_ENTITY,

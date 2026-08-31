@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { normalizeSearchText } from "@/lib/resume/latex-text-sync";
+import { collapseSpacedGlyphs, normalizeSearchText } from "@/lib/resume/latex-text-sync";
 
 interface PdfSelectablePreviewProps {
     blob: Blob | null;
@@ -66,6 +66,63 @@ async function destroyPdfDocument(document: DestroyablePdfDocument | null): Prom
 const FIT_PADDING_PX = 24;
 const MIN_FIT_WIDTH = 280;
 const MAX_DPR = 3;
+const NEAREST_SPAN_PX = 36;
+
+function nearestPdfSpan(
+    container: HTMLElement | null,
+    x: number,
+    y: number
+): HTMLElement | null {
+    if (!container) return null;
+    const spans = container.querySelectorAll<HTMLElement>("[data-pdf-text]");
+    let best: HTMLElement | null = null;
+    let bestDist = NEAREST_SPAN_PX * NEAREST_SPAN_PX;
+
+    for (const span of spans) {
+        const rect = span.getBoundingClientRect();
+        if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+            return span;
+        }
+        const dx = x - (rect.left + rect.width / 2);
+        const dy = y - (rect.top + rect.height / 2);
+        const dist = dx * dx + dy * dy;
+        if (dist < bestDist) {
+            bestDist = dist;
+            best = span;
+        }
+    }
+    return best;
+}
+
+function wordAroundSpan(span: HTMLElement): string {
+    const rowTop = span.getBoundingClientRect().top;
+    const parent = span.parentElement;
+    if (!parent) return (span.dataset.pdfText ?? "").trim();
+
+    const row = Array.from(parent.children).filter((el): el is HTMLElement => {
+        if (!(el instanceof HTMLElement) || el.dataset.pdfText == null) return false;
+        return Math.abs(el.getBoundingClientRect().top - rowTop) < 4;
+    });
+    if (row.length === 0) return (span.dataset.pdfText ?? "").trim();
+
+    const joined = row.map((el) => el.dataset.pdfText ?? "").join("");
+    const index = row.indexOf(span);
+    const offset = row
+        .slice(0, Math.max(0, index))
+        .reduce((sum, el) => sum + (el.dataset.pdfText?.length ?? 0), 0);
+
+    const word = /[\w+#.-]+/g;
+    let match: RegExpExecArray | null;
+    while ((match = word.exec(joined))) {
+        const start = match.index;
+        const end = start + match[0].length;
+        if (offset >= start && offset < end) return match[0];
+        if (offset === end) return match[0];
+    }
+
+    const raw = (span.dataset.pdfText ?? "").trim();
+    return raw.length >= 2 ? raw : joined.trim();
+}
 
 function getOutputScale(): number {
     if (typeof window === "undefined") return 1;
@@ -175,6 +232,8 @@ function PdfPageView({
                                 lineHeight: 1,
                                 color: "transparent",
                                 whiteSpace: "pre",
+                                cursor: "text",
+                                userSelect: "text",
                                 backgroundColor: isMatch
                                     ? "rgba(59, 130, 246, 0.35)"
                                     : undefined,
@@ -345,13 +404,21 @@ export function PdfSelectablePreview({
         }
     }, [highlightQuery, pages]);
 
-    const handleMouseUp = useCallback(() => {
-        const selection = window.getSelection();
-        const text = normalizeSearchText(selection?.toString() ?? "");
-        if (text.length >= 2) {
-            onTextSelect?.(text);
-        }
-    }, [onTextSelect]);
+    const handleMouseUp = useCallback(
+        (event: React.MouseEvent<HTMLDivElement>) => {
+            const selected = collapseSpacedGlyphs(window.getSelection()?.toString() ?? "");
+            if (selected.length >= 2) {
+                onTextSelect?.(selected);
+                return;
+            }
+
+            const span = nearestPdfSpan(containerRef.current, event.clientX, event.clientY);
+            if (!span) return;
+            const word = collapseSpacedGlyphs(wordAroundSpan(span));
+            if (word.length >= 2) onTextSelect?.(word);
+        },
+        [onTextSelect]
+    );
 
     const highlightLower = normalizeSearchText(highlightQuery ?? "").toLowerCase();
     const highlightWords = useMemo(
@@ -376,7 +443,7 @@ export function PdfSelectablePreview({
     return (
         <div
             ref={containerRef}
-            className="h-full w-full overflow-y-auto flex flex-col items-center gap-4 p-2 select-text"
+            className="h-full w-full overflow-y-auto flex flex-col items-center gap-4 p-2 select-text cursor-text"
             onMouseUp={handleMouseUp}
         >
             {!blob ? (

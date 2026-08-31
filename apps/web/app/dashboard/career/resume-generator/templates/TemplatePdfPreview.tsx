@@ -25,6 +25,76 @@ interface TemplatePdfPreviewProps {
     onPageCount?: (count: number) => void;
 }
 
+const previewBytesCache = new Map<string, ArrayBuffer>();
+const previewInflight = new Map<string, Promise<ArrayBuffer>>();
+
+// ponytail: global slot cap, raise if the compiler is dedicated and idle
+const MAX_PARALLEL_PREVIEWS = 2;
+let activePreviews = 0;
+const previewWaiters: Array<() => void> = [];
+
+function acquirePreviewSlot(): Promise<void> {
+    if (activePreviews < MAX_PARALLEL_PREVIEWS) {
+        activePreviews += 1;
+        return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+        previewWaiters.push(() => {
+            activePreviews += 1;
+            resolve();
+        });
+    });
+}
+
+function releasePreviewSlot(): void {
+    activePreviews = Math.max(0, activePreviews - 1);
+    const next = previewWaiters.shift();
+    if (next) next();
+}
+
+let pdfjsLoader: Promise<typeof import("pdfjs-dist/legacy/build/pdf.mjs")> | null = null;
+
+function loadPdfjs() {
+    if (!pdfjsLoader) {
+        pdfjsLoader = import("pdfjs-dist/legacy/build/pdf.mjs").then((pdfjs) => {
+            pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+                "pdfjs-dist/legacy/build/pdf.worker.mjs",
+                import.meta.url
+            ).toString();
+            return pdfjs;
+        });
+    }
+    return pdfjsLoader;
+}
+
+function fetchPreviewPdf(templateId: string): Promise<ArrayBuffer> {
+    const cached = previewBytesCache.get(templateId);
+    if (cached) return Promise.resolve(cached);
+
+    const pending = previewInflight.get(templateId);
+    if (pending) return pending;
+
+    const task = (async () => {
+        await acquirePreviewSlot();
+        try {
+            const res = await fetch(
+                `/api/resume-generator/template-preview?templateId=${encodeURIComponent(templateId)}`
+            );
+            if (!res.ok) throw new Error(`Preview request failed: ${res.status}`);
+            const buffer = await res.arrayBuffer();
+            previewBytesCache.set(templateId, buffer);
+            return buffer;
+        } finally {
+            releasePreviewSlot();
+        }
+    })();
+
+    previewInflight.set(templateId, task);
+    return task.finally(() => {
+        previewInflight.delete(templateId);
+    });
+}
+
 /**
  * Renders a template's demo PDF — the actual compiled output of the .tex file —
  * with pdf.js. The selection card and the quick-view modal both use this, so
@@ -41,12 +111,14 @@ export function TemplatePdfPreview({
     const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
     const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
     const generationRef = useRef(0);
+    const onPageCountRef = useRef(onPageCount);
+    onPageCountRef.current = onPageCount;
 
     const [pages, setPages] = useState<PdfPage[]>([]);
     const [containerWidth, setContainerWidth] = useState(0);
     const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+    const [inView, setInView] = useState(!compact);
 
-    // Track the available width so pages always fit without horizontal scroll.
     useEffect(() => {
         const el = containerRef.current;
         if (!el) return;
@@ -58,8 +130,26 @@ export function TemplatePdfPreview({
         return () => ro.disconnect();
     }, []);
 
-    // Load the document once per template.
     useEffect(() => {
+        if (!compact) {
+            setInView(true);
+            return;
+        }
+        const el = containerRef.current;
+        if (!el) return;
+        const io = new IntersectionObserver(
+            ([entry]) => {
+                if (entry?.isIntersecting) setInView(true);
+            },
+            { root: null, rootMargin: "240px 0px", threshold: 0 }
+        );
+        io.observe(el);
+        return () => io.disconnect();
+    }, [compact]);
+
+    useEffect(() => {
+        if (!inView) return;
+
         let cancelled = false;
         const generation = ++generationRef.current;
 
@@ -68,18 +158,11 @@ export function TemplatePdfPreview({
             setPages([]);
 
             try {
-                const res = await fetch(
-                    `/api/resume-generator/template-preview?templateId=${encodeURIComponent(templateId)}`
-                );
-                if (!res.ok) throw new Error(`Preview request failed: ${res.status}`);
-                const buffer = await res.arrayBuffer();
+                const buffer = await fetchPreviewPdf(templateId);
                 if (cancelled || generation !== generationRef.current) return;
 
-                const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-                pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-                    "pdfjs-dist/legacy/build/pdf.worker.mjs",
-                    import.meta.url
-                ).toString();
+                const pdfjs = await loadPdfjs();
+                if (cancelled || generation !== generationRef.current) return;
 
                 const doc = await pdfjs.getDocument({ data: buffer }).promise;
                 if (cancelled || generation !== generationRef.current) {
@@ -90,7 +173,7 @@ export function TemplatePdfPreview({
                 void destroyPdfDocument(pdfDocRef.current);
                 pdfDocRef.current = doc;
 
-                onPageCount?.(doc.numPages);
+                onPageCountRef.current?.(doc.numPages);
 
                 const limit = Math.min(doc.numPages, maxPages ?? doc.numPages);
                 const list: PdfPage[] = [];
@@ -114,15 +197,13 @@ export function TemplatePdfPreview({
         return () => {
             cancelled = true;
         };
-    }, [templateId, maxPages, onPageCount]);
+    }, [templateId, maxPages, inView]);
 
-    // Paint pages whenever the document, width, or zoom changes.
     const paint = useCallback(async () => {
         const doc = pdfDocRef.current;
         if (!doc || pages.length === 0 || containerWidth <= 0) return;
 
-        // Render at device pixel ratio so previews are crisp, not blurry.
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const dpr = compact ? 1 : Math.min(window.devicePixelRatio || 1, 2);
 
         for (const meta of pages) {
             const canvas = canvasRefs.current.get(meta.pageNumber);
@@ -143,7 +224,7 @@ export function TemplatePdfPreview({
             if (!ctx) continue;
             await page.render({ canvasContext: ctx, viewport, canvas }).promise;
         }
-    }, [pages, containerWidth, zoom]);
+    }, [pages, containerWidth, zoom, compact]);
 
     useEffect(() => {
         void paint();

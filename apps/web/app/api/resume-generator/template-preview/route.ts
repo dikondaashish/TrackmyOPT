@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { unstable_cache } from 'next/cache';
 import { getUserId } from '@/lib/auth/get-user-id';
 import {
     loadTemplateSource,
@@ -10,17 +11,33 @@ import { compileLatex } from '@/lib/resume/latex-compiler';
 /**
  * Renders a template's built-in demo resume to PDF.
  *
- * This deliberately compiles the same .tex file that the AI generation flow is
- * given, through the same compiler. That is what makes the selection-page
- * thumbnail and the quick-view preview a 1:1 match with the final generated
- * document — there is no second, hand-maintained HTML replica to drift.
+ * Compiles the same .tex file the AI generation flow uses, through the same
+ * compiler, so the selection-page thumbnail matches the final document.
  *
- * Results are cached in-process because the demo PDFs only change when a
- * template file changes (i.e. on deploy).
+ * Vercel serverless instances do not share process memory, so the in-process
+ * Map is only an L1. `unstable_cache` is the L2 that actually survives
+ * across invocations (demo PDFs only change on deploy).
  */
 
 const previewCache = new Map<string, ArrayBuffer>();
 const inFlight = new Map<string, Promise<ArrayBuffer | null>>();
+
+const compilePreviewPdf = unstable_cache(
+    async (templateId: string, accentHex: string | null): Promise<string | null> => {
+        const template = loadTemplateSource(templateId, accentHex);
+        if (!template) return null;
+
+        const result = await compileLatex(template.tex);
+        if (!result.ok) {
+            // Throw so Next does not cache a failed compile for 24h.
+            throw new Error(`[template-preview] ${templateId}: ${result.error}`);
+        }
+
+        return Buffer.from(result.pdf).toString('base64');
+    },
+    ['resume-template-preview'],
+    { revalidate: 86400 }
+);
 
 async function renderPreview(
     templateId: string,
@@ -30,22 +47,24 @@ async function renderPreview(
     const cached = previewCache.get(key);
     if (cached) return cached;
 
-    // Collapse concurrent requests for the same template into one compile.
     const pending = inFlight.get(key);
     if (pending) return pending;
 
     const task = (async () => {
-        const template = loadTemplateSource(templateId, accentHex);
-        if (!template) return null;
-
-        const result = await compileLatex(template.tex);
-        if (!result.ok) {
-            console.error(`[template-preview] ${templateId}: ${result.error}`);
+        try {
+            const b64 = await compilePreviewPdf(templateId, accentHex);
+            if (!b64) return null;
+            const bytes = Buffer.from(b64, 'base64');
+            const copy = bytes.buffer.slice(
+                bytes.byteOffset,
+                bytes.byteOffset + bytes.byteLength
+            );
+            previewCache.set(key, copy);
+            return copy;
+        } catch (err) {
+            console.error(err);
             return null;
         }
-
-        previewCache.set(key, result.pdf);
-        return result.pdf;
     })();
 
     inFlight.set(key, task);
@@ -81,8 +100,7 @@ export async function GET(req: NextRequest) {
         headers: {
             'Content-Type': 'application/pdf',
             'Content-Disposition': `inline; filename="${templateId}-preview.pdf"`,
-            // Demo previews only change on deploy.
-            'Cache-Control': 'private, max-age=86400',
+            'Cache-Control': 'private, max-age=86400, stale-while-revalidate=604800',
         },
     });
 }

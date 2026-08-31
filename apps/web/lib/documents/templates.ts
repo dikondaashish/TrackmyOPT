@@ -47,6 +47,8 @@ export const RESUME_TEMPLATE_SECTION_ORDER = [
     "Certifications",
 ] as const;
 
+export const DEFAULT_RESUME_TEMPLATE_ID = "tech";
+
 export const RESUME_TEMPLATES: Template[] = [
     {
         id: "modern",
