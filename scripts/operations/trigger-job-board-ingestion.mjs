@@ -10,6 +10,10 @@ async function request(url, options, timeoutMs) {
   });
 }
 
+export function schedulerRunId(now = new Date()) {
+  return `job-board-hour-${now.toISOString().slice(0, 13)}`;
+}
+
 export async function triggerJobBoardIngestion({
   apiUrl,
   apiKey,
@@ -17,6 +21,7 @@ export async function triggerJobBoardIngestion({
   healthAttempts = 3,
   retryDelayMs = 15_000,
   requestTimeoutMs = 120_000,
+  now = new Date(),
 } = {}) {
   if (!apiUrl) throw new Error('Render API URL is required');
   if (!apiKey) throw new Error('API secret is required');
@@ -57,7 +62,10 @@ export async function triggerJobBoardIngestion({
     ingestionUrl,
     {
       method: 'POST',
-      headers: { 'x-api-key': apiKey },
+      headers: {
+        'x-api-key': apiKey,
+        'x-scheduler-run-id': schedulerRunId(now),
+      },
     },
     30_000
   );

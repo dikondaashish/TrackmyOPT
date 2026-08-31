@@ -2,9 +2,10 @@ name: Job Board Ingestion
 
 on:
   schedule:
-    # Off-peak minute reduces GitHub's documented risk of dropped schedules.
-    # Hourly refresh stays well below each authorized source's daily limit.
-    - cron: '37 * * * *'
+    # GitHub schedules are best-effort and may be delayed or dropped. Four
+    # off-peak wake-ups give the free Render service recovery opportunities;
+    # the API's hourly idempotency key still queues at most one ingestion.
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
 permissions:

@@ -5,6 +5,7 @@ import { JobBoardProcessor } from './job-board.processor';
 import { JobBoardService } from './job-board.service';
 import { EmployerMatchService } from './employer-match.service';
 import { JobVisaSignalService } from './job-visa-signal.service';
+import { CompanyDiscoveryService } from './company-discovery.service';
 
 @Module({
   imports: [BullModule.registerQueue({ name: 'job-board' })],
@@ -14,6 +15,7 @@ import { JobVisaSignalService } from './job-visa-signal.service';
     JobBoardProcessor,
     EmployerMatchService,
     JobVisaSignalService,
+    CompanyDiscoveryService,
   ],
 })
 export class JobBoardModule {}

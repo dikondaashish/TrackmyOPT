@@ -36,6 +36,19 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
 
+      - name: Use Python for priority ATS parser fixtures
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: apps/api/requirements.job-board.txt
+
+      - name: Install pinned ATS adapter runtime
+        run: python -m pip install -r apps/api/requirements.job-board.txt
+
+      - name: Priority ATS raw-payload fixtures
+        run: python -m unittest discover -s scripts/job-board/tests -p 'test_*.py'
+
       - name: Job-board scheduler tests
         run: node --test scripts/operations/trigger-job-board-ingestion.test.mjs
 

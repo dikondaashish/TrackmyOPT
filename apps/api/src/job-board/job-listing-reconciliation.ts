@@ -18,8 +18,17 @@ export type ListingReconciliationPlan = {
 export function planListingReconciliation(
   persistedJobs: PersistedJobListing[],
   currentExternalJobIds: Iterable<string>,
+  response: { complete: boolean },
 ): ListingReconciliationPlan {
+  if (!response.complete) {
+    throw new Error('ATS response is not complete; reconciliation is unsafe');
+  }
   const currentIds = new Set(currentExternalJobIds);
+  if (persistedJobs.length > 0 && currentIds.size === 0) {
+    throw new Error(
+      'Ambiguous empty ATS response; existing listings were left unchanged',
+    );
+  }
   const plan: ListingReconciliationPlan = {
     staleJobIds: [],
     removedJobIds: [],

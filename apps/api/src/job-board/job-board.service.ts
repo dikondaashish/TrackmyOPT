@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as Bull from 'bull';
 import {
+  AtsScraperRunnerError,
   fetchAuthorizedAtsJobs,
   type ScrapedAtsJob,
 } from './ats-scrapers.runner';
@@ -13,6 +14,15 @@ import {
   planListingReconciliation,
   type PersistedJobListing,
 } from './job-listing-reconciliation';
+import { planSourceIngestionJobs } from './source-job-planning';
+import {
+  classifySourceError,
+  planSourceFailure,
+  planSourceSuccess,
+  shouldAttemptSource,
+  toSourceHealthDatabaseUpdate,
+} from './source-health';
+import { planIngestionOrchestratorOptions } from './scheduler-run-id';
 
 type AtsSource = {
   id: string;
@@ -45,6 +55,13 @@ type PersistenceResult = {
   jobsReopened: number;
 };
 
+type SourceBoardHealth = {
+  id: string;
+  consecutive_failures: number;
+  circuit_state: 'closed' | 'open';
+  next_retry_at: string | null;
+};
+
 @Injectable()
 export class JobBoardService {
   private readonly logger = new Logger(JobBoardService.name);
@@ -62,33 +79,50 @@ export class JobBoardService {
     ) as unknown as SupabaseClient;
   }
 
-  async queueEnabledSources() {
+  async queueEnabledSources(schedulerRunId: string | null = null) {
     return this.queue.add(
       'ingest-enabled-sources',
       {},
+      planIngestionOrchestratorOptions(schedulerRunId),
+    );
+  }
+
+  async queueCompanyDiscovery() {
+    return this.queue.add(
+      'discover-company-batch',
+      {},
       {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 30_000 },
+        attempts: 1,
         removeOnComplete: true,
         removeOnFail: false,
       },
     );
   }
 
-  async ingestEnabledSources() {
+  async enqueueEnabledSourceJobs() {
+    const { data, error } = await this.supabase
+      .from('ats_sources')
+      .select('id')
+      .eq('enabled', true);
+    if (error) throw new Error(error.message);
+    const jobs = planSourceIngestionJobs(
+      (data || []).map((source) => String(source.id)),
+    );
+    if (jobs.length) await this.queue.addBulk(jobs);
+    return { sourcesQueued: jobs.length };
+  }
+
+  async ingestSourceById(sourceId: string): Promise<IngestionResult> {
     const { data, error } = await this.supabase
       .from('ats_sources')
       .select(
         'id, ats_type, board_token, base_url, company_id, employer_board_name, enabled',
       )
-      .eq('enabled', true);
+      .eq('id', sourceId)
+      .maybeSingle();
     if (error) throw new Error(error.message);
-
-    const results: IngestionResult[] = [];
-    for (const source of (data || []) as AtsSource[]) {
-      results.push(await this.ingestSource(source));
-    }
-    return results;
+    if (!data) throw new Error(`Unknown ATS source ${sourceId}`);
+    return this.ingestSource(data as AtsSource);
   }
 
   private async ingestSource(source: AtsSource) {
@@ -98,6 +132,17 @@ export class JobBoardService {
       throw new Error(
         `Source ${source.id} requires employer_board_name before ingestion`,
       );
+    }
+    const sourceBoard = await this.getSourceBoardHealth(source.id);
+    if (
+      sourceBoard &&
+      !shouldAttemptSource({
+        circuitState: sourceBoard.circuit_state,
+        nextRetryAt: sourceBoard.next_retry_at,
+        now: new Date(),
+      })
+    ) {
+      return { sourceId: source.id, skipped: 'source_circuit_open' };
     }
 
     const { data: reservationRows, error: reservationError } =
@@ -116,14 +161,34 @@ export class JobBoardService {
       };
 
     try {
-      const scraped = await fetchAuthorizedAtsJobs(source);
-      const persistence = await this.persistSourceJobs(source, scraped);
+      const fetched = await fetchAuthorizedAtsJobs(source);
+      const persistence = await this.persistSourceJobs(
+        source,
+        fetched.jobs,
+        fetched.metadata.complete,
+      );
       await this.complete(
         reservation.audit_log_id,
-        scraped.length,
+        fetched.jobs.length,
         persistence,
+        fetched.metadata.requests_made,
       );
-      return { sourceId: source.id, jobsFound: scraped.length, ...persistence };
+      try {
+        await this.recordSourceSuccess(sourceBoard?.id);
+      } catch (healthError) {
+        const message =
+          healthError instanceof Error
+            ? healthError.message
+            : 'Unknown source health update error';
+        this.logger.error(
+          `Ingestion succeeded but source health could not be recorded for ${source.id}: ${message}`,
+        );
+      }
+      return {
+        sourceId: source.id,
+        jobsFound: fetched.jobs.length,
+        ...persistence,
+      };
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unknown ingestion error';
@@ -137,14 +202,20 @@ export class JobBoardService {
           jobsRemoved: 0,
           jobsReopened: 0,
         },
+        error instanceof AtsScraperRunnerError ? error.requestsMade : 0,
         message,
       );
+      await this.recordSourceFailure(sourceBoard, message);
       this.logger.error(`Job-board source ${source.id} failed: ${message}`);
       throw error;
     }
   }
 
-  private async persistSourceJobs(source: AtsSource, scraped: ScrapedAtsJob[]) {
+  private async persistSourceJobs(
+    source: AtsSource,
+    scraped: ScrapedAtsJob[],
+    responseComplete: boolean,
+  ) {
     const ids = [...new Set(scraped.map((job) => job.external_job_id))];
     const existing = await this.supabase
       .from('jobs')
@@ -156,7 +227,9 @@ export class JobBoardService {
     for (const job of persistedJobs) {
       existingByExternalId.set(String(job.external_job_id), String(job.id));
     }
-    const reconciliation = planListingReconciliation(persistedJobs, ids);
+    const reconciliation = planListingReconciliation(persistedJobs, ids, {
+      complete: responseComplete,
+    });
     const now = new Date().toISOString();
     const records = scraped.map((job) => ({
       ...job,
@@ -221,6 +294,7 @@ export class JobBoardService {
     id: string,
     found: number,
     result: PersistenceResult,
+    httpRequestsMade: number,
     failure?: string,
   ) {
     const { error } = await this.supabase.rpc('complete_ats_ingestion', {
@@ -231,11 +305,71 @@ export class JobBoardService {
       stale_count: result.jobsStale,
       removed_count: result.jobsRemoved,
       reopened_count: result.jobsReopened,
+      http_request_count: httpRequestsMade,
       failure_message: failure || null,
     });
     if (error)
       this.logger.error(
         `Could not complete ingestion audit ${id}: ${error.message}`,
       );
+  }
+
+  private async getSourceBoardHealth(sourceId: string) {
+    const { data, error } = await this.supabase
+      .from('ats_boards')
+      .select('id, consecutive_failures, circuit_state, next_retry_at')
+      .eq('legacy_source_id', sourceId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data as SourceBoardHealth | null;
+  }
+
+  private async recordSourceSuccess(boardId?: string) {
+    if (!boardId) return;
+    const now = new Date().toISOString();
+    const health = planSourceSuccess();
+    const { error } = await this.supabase
+      .from('ats_boards')
+      .update({
+        ...toSourceHealthDatabaseUpdate(health),
+        last_fetch_at: now,
+        last_success_at: now,
+      })
+      .eq('id', boardId);
+    if (error) throw new Error(error.message);
+  }
+
+  private async recordSourceFailure(
+    board: SourceBoardHealth | null,
+    message: string,
+  ) {
+    if (!board) return;
+    const now = new Date();
+    const plan = planSourceFailure({
+      consecutiveFailures: board.consecutive_failures,
+      now,
+    });
+    const classification = classifySourceError(message);
+    const nowIso = now.toISOString();
+    const update = await this.supabase
+      .from('ats_boards')
+      .update({
+        ...toSourceHealthDatabaseUpdate(plan),
+        last_fetch_at: nowIso,
+        last_failure_at: nowIso,
+      })
+      .eq('id', board.id);
+    if (update.error) throw new Error(update.error.message);
+    const errorLog = await this.supabase.from('source_errors').insert({
+      ats_board_id: board.id,
+      error_type: classification.errorType,
+      message,
+      retryable: classification.retryable,
+      metadata: {
+        consecutive_failures: plan.consecutiveFailures,
+        circuit_state: plan.circuitState,
+      },
+    });
+    if (errorLog.error) throw new Error(errorLog.error.message);
   }
 }

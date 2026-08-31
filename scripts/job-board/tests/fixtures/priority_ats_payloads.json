@@ -1,0 +1,280 @@
+{
+  "greenhouse": {
+    "jobs": [
+      {
+        "id": 101,
+        "internal_job_id": 9001,
+        "title": "Backend Software Engineer",
+        "absolute_url": "https://job-boards.greenhouse.io/acme/jobs/101",
+        "location": { "name": "New York, NY" },
+        "first_published": "2026-08-20T14:30:00Z",
+        "updated_at": "2026-08-21T09:00:00Z",
+        "departments": [{ "name": "Engineering" }],
+        "offices": [{ "name": "New York" }],
+        "content": "&lt;h2&gt;What you will do&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;Build APIs&lt;/li&gt;&lt;/ul&gt;",
+        "metadata": [{ "name": "Employment Type", "value": "Full-time", "value_type": "single_select" }],
+        "requisition_id": "ENG-101"
+      },
+      {
+        "id": 102,
+        "title": "Data Analyst",
+        "absolute_url": "https://job-boards.greenhouse.io/acme/jobs/102",
+        "location": { "name": "Remote - US" },
+        "updated_at": "2026-08-22T11:00:00Z",
+        "departments": []
+      }
+    ]
+  },
+  "lever": [
+    {
+      "id": "lev-201",
+      "text": "Frontend Engineer",
+      "hostedUrl": "https://jobs.lever.co/acme/lev-201",
+      "applyUrl": "https://jobs.lever.co/acme/lev-201/apply",
+      "categories": {
+        "location": "San Francisco, CA",
+        "department": "Engineering",
+        "team": "Web Platform",
+        "commitment": "Full-time"
+      },
+      "description": "<p>Build accessible product experiences.</p>",
+      "lists": [
+        { "text": "Requirements", "content": "<ul><li>TypeScript</li><li>React</li></ul>" }
+      ],
+      "workplaceType": "hybrid",
+      "salaryRange": {
+        "min": 140000,
+        "max": 180000,
+        "currency": "USD",
+        "interval": "1-YEAR"
+      },
+      "createdAt": 1787236200000
+    },
+    {
+      "id": "lev-202",
+      "text": "Cloud Support Engineer",
+      "hostedUrl": "https://jobs.lever.co/acme/lev-202",
+      "categories": { "location": "Remote", "commitment": "Contract" },
+      "descriptionPlain": "Support production cloud systems.",
+      "workplaceType": "remote",
+      "createdAt": 1787322600000
+    }
+  ],
+  "ashby": {
+    "jobs": [
+      {
+        "id": "ash-301",
+        "title": "Machine Learning Engineer",
+        "jobUrl": "https://jobs.ashbyhq.com/acme/ash-301",
+        "applyUrl": "https://jobs.ashbyhq.com/acme/ash-301/application",
+        "location": "Boston, MA",
+        "secondaryLocations": [{ "location": "Remote - US" }],
+        "workplaceType": "Hybrid",
+        "employmentType": "FullTime",
+        "department": "Engineering",
+        "team": "AI Platform",
+        "descriptionHtml": "<h2>About the role</h2><p>Build production ML systems.</p>",
+        "publishedAt": "2026-08-19T15:00:00Z",
+        "compensation": {
+          "compensationTierSummary": "$170K – $210K USD",
+          "compensationTiers": [
+            {
+              "components": [
+                {
+                  "compensationType": "Salary",
+                  "minValue": 170000,
+                  "maxValue": 210000,
+                  "currencyCode": "USD",
+                  "interval": "YEAR"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "ash-302",
+        "title": "Security Engineer",
+        "jobUrl": "https://jobs.ashbyhq.com/acme/ash-302",
+        "location": "Remote",
+        "isRemote": true,
+        "employmentType": "Contract",
+        "descriptionPlain": "Secure cloud infrastructure."
+      }
+    ]
+  },
+  "workday": {
+    "total": 2,
+    "jobPostings": [
+      {
+        "title": "Senior Data Engineer",
+        "externalPath": "/job/Austin-TX/Senior-Data-Engineer_R-401",
+        "bulletFields": ["R-401"],
+        "locationsText": "Austin, TX",
+        "locations": ["Austin, TX"],
+        "timeType": "Full time",
+        "remoteType": "Hybrid",
+        "jobFamilyGroup": "Technology",
+        "postedOn": "Posted 2 Days Ago"
+      },
+      {
+        "title": "IT Support Specialist",
+        "externalPath": "/job/Remote/IT-Support-Specialist_R-402",
+        "bulletFields": ["R-402"],
+        "locationsText": "Remote - United States",
+        "timeType": "Part time",
+        "remoteType": "Fully Remote",
+        "jobFamilyGroup": "Information Technology"
+      }
+    ]
+  },
+  "smartrecruiters": {
+    "totalFound": 2,
+    "content": [
+      {
+        "id": "sr-501",
+        "name": "DevOps Engineer",
+        "releasedDate": "2026-08-18T12:00:00Z",
+        "refNumber": "DEVOPS-501",
+        "location": {
+          "city": "Seattle",
+          "region": "Washington",
+          "country": "US",
+          "remote": false
+        },
+        "department": { "label": "Cloud Engineering" },
+        "function": { "label": "Engineering" },
+        "typeOfEmployment": { "id": "permanent", "label": "Full-time" }
+      },
+      {
+        "id": "sr-502",
+        "name": "Remote QA Engineer",
+        "releasedDate": "2026-08-17T12:00:00Z",
+        "location": { "country": "remote", "remote": true },
+        "function": { "label": "Quality Assurance" },
+        "typeOfEmployment": { "id": "contract", "label": "Contract" }
+      }
+    ]
+  },
+  "workable": {
+    "name": "Acme Systems",
+    "jobs": [
+      {
+        "id": 601,
+        "shortcode": "A1B2C3",
+        "title": "Full Stack Engineer",
+        "url": "https://apply.workable.com/acme/j/A1B2C3/",
+        "application_url": "https://apply.workable.com/acme/j/A1B2C3/apply/",
+        "locations": [{ "city": "Chicago", "region": "Illinois", "country": "United States" }],
+        "telecommuting": false,
+        "type": "Full-time",
+        "department": "Product Engineering",
+        "published_on": "2026-08-16T10:00:00Z"
+      },
+      {
+        "id": 602,
+        "shortcode": "D4E5F6",
+        "title": "Database Administrator",
+        "url": "https://apply.workable.com/acme/j/D4E5F6/",
+        "city": "Remote",
+        "country": "United States",
+        "remote": true,
+        "employment_type": "Contract"
+      }
+    ]
+  },
+  "recruitee": {
+    "offers": [
+      {
+        "id": 701,
+        "slug": "platform-engineer",
+        "title": "Platform Engineer",
+        "company_name": "Acme Cloud",
+        "careers_url": "https://acme.recruitee.com/o/platform-engineer",
+        "careers_apply_url": "https://acme.recruitee.com/o/platform-engineer/c/new",
+        "city": "Denver",
+        "state_code": "CO",
+        "country_code": "US",
+        "remote": true,
+        "employment_type_code": "fulltime_permanent",
+        "department": "Infrastructure",
+        "category": "Engineering",
+        "salary": { "min": 150000, "max": 190000, "currency": "USD" },
+        "description": "<p>Build our internal platform.</p>",
+        "requirements": "<ul><li>Kubernetes</li><li>Terraform</li></ul>",
+        "published_at": "2026-08-15 09:30:00 UTC"
+      },
+      {
+        "id": 702,
+        "slug": "data-intern",
+        "position": "Data Engineering Intern",
+        "location": { "name": "New York, NY", "lat": 40.7128, "lng": -74.006 },
+        "remote": false,
+        "employment_type": "internship"
+      }
+    ]
+  },
+  "personio": {
+    "data": [
+      {
+        "id": "801",
+        "name": "Business Intelligence Analyst",
+        "url": "https://acme.jobs.personio.com/job/801",
+        "office": { "name": "Berlin" },
+        "department": { "name": "Data" },
+        "employment_type": "Permanent full-time",
+        "schedule": "Full-time",
+        "createdAt": "2026-08-14T08:00:00Z"
+      },
+      {
+        "jobId": "802",
+        "title": "Mobile Engineer",
+        "location": { "city": "Munich" },
+        "employmentType": "Part-time"
+      }
+    ]
+  },
+  "bamboohr": {
+    "widget_html": "<ul><li id=\"bhrDepartmentID_1\" class=\"BambooHR-ATS-Department-Item\"><div class=\"BambooHR-ATS-Department-Header\">Engineering</div><ul><li id=\"bhrPositionID_901\" class=\"BambooHR-ATS-Jobs-Item\"><a href=\"/careers/901\">Cloud Engineer</a><span class=\"BambooHR-ATS-Location\">Portland, OR</span></li><li id=\"bhrPositionID_902\" class=\"BambooHR-ATS-Jobs-Item\"><a href=\"/careers/902\">QA Automation Engineer</a><span class=\"BambooHR-ATS-Location\">Remote</span></li></ul></li></ul>",
+    "detail": {
+      "result": {
+        "jobOpening": {
+          "description": "<h2>What you will do</h2><p>Operate cloud systems.</p>",
+          "employmentStatusLabel": "Full-time",
+          "compensation": "$130,000 - $165,000 USD",
+          "datePosted": "2026-08-13",
+          "location": { "city": "Portland", "state": "Oregon", "addressCountry": "United States" },
+          "locationType": "0"
+        }
+      }
+    }
+  },
+  "breezy": [
+    {
+      "id": "br-1001",
+      "name": "Cybersecurity Analyst",
+      "url": "https://acme.breezy.hr/p/br-1001-cybersecurity-analyst",
+      "published_date": "2026-08-12T10:00:00Z",
+      "type": { "id": "fullTime", "name": "Full-Time" },
+      "location": {
+        "name": "Washington, DC",
+        "city": "Washington",
+        "state": { "name": "District of Columbia" },
+        "country": { "name": "United States", "id": "US" },
+        "is_remote": false
+      },
+      "department": "Security",
+      "salary": "$120k - $155k",
+      "company": { "name": "Acme Security" },
+      "experience": "Mid-Senior"
+    },
+    {
+      "id": "br-1002",
+      "name": "Remote Data Scientist",
+      "url": "https://acme.breezy.hr/p/br-1002-remote-data-scientist",
+      "type": { "id": "contract", "name": "Contract" },
+      "location": { "name": "Remote", "is_remote": true },
+      "company": { "name": "Acme Security" }
+    }
+  ]
+}

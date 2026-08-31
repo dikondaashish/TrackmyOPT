@@ -1,4 +1,5 @@
-# Public Greenhouse/Ashby board adapter used by the authorized API worker.
+# Public ATS board adapters used by the authorized API worker. Source
+# activation remains separately gated by platform policy and board ownership.
 # Do not use the package's `scrapers` extra here: it brings unrelated
 # browser/proxy integrations, which are permanently out of scope.
 ats-scrapers @ git+https://github.com/kalil0321/ats-scrapers.git@f654221f5236f24360719008764b23c5939fbce8
