@@ -14,6 +14,7 @@ import {
 import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
+import { isUsableResumeLatex } from '@/lib/resume/latex-to-plain-text';
 import {
     JOB_DESCRIPTION_MAX_CHARS,
     prepareResumeText,
@@ -154,6 +155,9 @@ export async function POST(req: NextRequest) {
 
         // Clean Output
         latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
+        if (!isUsableResumeLatex(latex)) {
+            throw new Error('Model returned unusable resume latex');
+        }
 
         // ATS Validation
         const atsCheck = checkAtsCompliance(latex);

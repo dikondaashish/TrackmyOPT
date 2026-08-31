@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { PLAN_LIMITS } from '@/lib/pricing/plan-config';
+import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
 
 export const FREE_RESUME_LIMIT = PLAN_LIMITS.free.resumesPerMonth;
 export const PRO_RESUME_LIMIT = PLAN_LIMITS.pro.resumesPerMonth;
@@ -13,7 +14,11 @@ export const PRO_ATS_SCAN_LIMIT = PLAN_LIMITS.pro.atsScansPerMonth;
 export const DEDICATED_ATS_SCAN_LIMIT =
   PLAN_LIMITS.dedicated.atsScansPerMonth;
 
-/** Pure limit resolver — plan_tier only (no premium_status override). */
+/** Must match reserve_resume_generation in the credit-topups migration. */
+export const RESUME_GENERATE_CREDIT_COST = 1;
+export const RESUME_REGENERATE_CREDIT_COST = 0.5;
+
+/** Pure limit resolver — pass an already-resolved active tier, not a stale plan_tier. */
 export function resolveResumeLimitForTier(tier: string | null | undefined): number {
   const t = (tier || 'free').toLowerCase();
   if (t === 'dedicated') return DEDICATED_RESUME_LIMIT;
@@ -69,6 +74,28 @@ export function hasActivePaidResumePlan(profile: {
   );
 }
 
+export function resumeEntitlementFromProfile(profile: {
+  plan_tier?: string | null;
+  premium_status?: boolean | null;
+  subscription_expires_at?: string | null;
+} | null) {
+  const tier = resolveActivePlanTier(profile);
+  return {
+    tier,
+    limit: resolveResumeLimitForTier(tier),
+    canBuyCredits: hasActivePaidResumePlan(profile || {}),
+  };
+}
+
+export function canFundResumeAction(
+  usage: number,
+  limit: number,
+  creditBalance: number,
+  cost: number,
+): boolean {
+  return usage + cost <= limit || creditBalance >= cost;
+}
+
 async function getResumeEntitlement(userId: string) {
   const supabase = getServiceUsageClient();
   const { data: profile, error: profileError } = await supabase
@@ -82,13 +109,7 @@ async function getResumeEntitlement(userId: string) {
     throw new Error('Failed to verify resume entitlement');
   }
 
-  const tier = profile?.plan_tier || 'free';
-  return {
-    supabase,
-    tier,
-    limit: resolveResumeLimitForTier(tier),
-    canBuyCredits: hasActivePaidResumePlan(profile || {}),
-  };
+  return { supabase, ...resumeEntitlementFromProfile(profile) };
 }
 
 export async function checkResumeLimit(userId: string): Promise<ResumeUsageSummary> {
@@ -127,7 +148,12 @@ export async function checkResumeLimit(userId: string): Promise<ResumeUsageSumma
   const rawBalance =
     ledgerData?.reduce((total, row) => total + Number(row.credits_delta || 0), 0) || 0;
   const creditBalance = Math.max(0, rawBalance);
-  const allowed = usage < limit || (canBuyCredits && creditBalance >= 1);
+  const allowed = canFundResumeAction(
+    usage,
+    limit,
+    creditBalance,
+    RESUME_GENERATE_CREDIT_COST,
+  );
 
   return { allowed, limit, usage, tier, creditBalance, canBuyCredits };
 }
@@ -177,13 +203,16 @@ export async function releaseResumeGenerationReservation(
   reservationId: string,
 ): Promise<void> {
   const supabase = getServiceUsageClient();
-  const { error } = await supabase.rpc('release_resume_generation_reservation', {
-    p_user_id: userId,
-    p_reservation_id: reservationId,
-  });
-  if (error) {
-    console.error('Failed to release resume generation reservation:', error);
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { error } = await supabase.rpc('release_resume_generation_reservation', {
+      p_user_id: userId,
+      p_reservation_id: reservationId,
+    });
+    if (!error) return;
+    lastError = error;
   }
+  console.error('Failed to release resume generation reservation:', lastError);
 }
 
 // ATS routes accept the extension's custom Bearer JWT as well as web cookies.
@@ -196,19 +225,21 @@ export async function checkAtsScanLimit(userId: string) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('plan_tier')
+    .select('plan_tier, premium_status, subscription_expires_at')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (profileError) {
     console.error('Error fetching profile for ATS limit check:', profileError);
   }
 
-  const tier = profile?.plan_tier || 'free';
+  const tier = resolveActivePlanTier(profile);
   const limit = resolveAtsScanLimitForTier(tier);
 
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const startOfMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+  ).toISOString();
 
   const { data: usageData, error: usageError } = await supabase
     .from('resume_generations')

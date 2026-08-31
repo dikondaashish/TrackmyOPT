@@ -87,4 +87,13 @@ describe("POST /api/resume-generator/regenerate", () => {
     expect(response.status).toBe(500);
     expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
   });
+
+  it("releases a reserved generation when the model returns empty latex", async () => {
+    mocks.generateAiContent.mockResolvedValue({ text: "not a resume" });
+
+    const response = await POST(request(validBody()));
+
+    expect(response.status).toBe(500);
+    expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
+  });
 });

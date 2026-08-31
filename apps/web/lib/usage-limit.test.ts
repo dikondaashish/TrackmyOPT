@@ -4,11 +4,15 @@ import {
   DEDICATED_RESUME_LIMIT,
   FREE_ATS_SCAN_LIMIT,
   FREE_RESUME_LIMIT,
+  canFundResumeAction,
   hasActivePaidResumePlan,
   PRO_ATS_SCAN_LIMIT,
   PRO_RESUME_LIMIT,
+  RESUME_GENERATE_CREDIT_COST,
+  RESUME_REGENERATE_CREDIT_COST,
   resolveAtsScanLimitForTier,
   resolveResumeLimitForTier,
+  resumeEntitlementFromProfile,
 } from "@/lib/usage-limit";
 
 describe("resolveResumeLimitForTier", () => {
@@ -69,5 +73,49 @@ describe("resolveAtsScanLimitForTier", () => {
     expect(resolveAtsScanLimitForTier("pro")).toBeGreaterThan(FREE_ATS_SCAN_LIMIT);
     expect(resolveAtsScanLimitForTier("dedicated")).toBe(DEDICATED_ATS_SCAN_LIMIT);
     expect(DEDICATED_ATS_SCAN_LIMIT).toBeGreaterThan(PRO_ATS_SCAN_LIMIT);
+  });
+});
+
+describe("resumeEntitlementFromProfile", () => {
+  it("gives the free quota when plan_tier is still pro but the subscription is dead", () => {
+    const past = new Date(Date.now() - 60_000).toISOString();
+    expect(
+      resumeEntitlementFromProfile({
+        plan_tier: "pro",
+        premium_status: false,
+      })
+    ).toEqual({ tier: "free", limit: FREE_RESUME_LIMIT, canBuyCredits: false });
+    expect(
+      resumeEntitlementFromProfile({
+        plan_tier: "pro",
+        premium_status: true,
+        subscription_expires_at: past,
+      })
+    ).toEqual({ tier: "free", limit: FREE_RESUME_LIMIT, canBuyCredits: false });
+  });
+
+  it("keeps the dedicated quota only while premium is active", () => {
+    const future = new Date(Date.now() + 60_000).toISOString();
+    expect(
+      resumeEntitlementFromProfile({
+        plan_tier: "dedicated",
+        premium_status: true,
+        subscription_expires_at: future,
+      })
+    ).toEqual({
+      tier: "dedicated",
+      limit: DEDICATED_RESUME_LIMIT,
+      canBuyCredits: true,
+    });
+  });
+});
+
+describe("canFundResumeAction", () => {
+  it("uses the same cost math as reserve (usage + cost, leftover credits)", () => {
+    expect(canFundResumeAction(49.5, 50, 0, RESUME_GENERATE_CREDIT_COST)).toBe(false);
+    expect(canFundResumeAction(49.5, 50, 1, RESUME_GENERATE_CREDIT_COST)).toBe(true);
+    expect(canFundResumeAction(50, 50, 0.5, RESUME_REGENERATE_CREDIT_COST)).toBe(true);
+    expect(canFundResumeAction(50, 50, 0.5, RESUME_GENERATE_CREDIT_COST)).toBe(false);
+    expect(canFundResumeAction(0, 1, 0, RESUME_GENERATE_CREDIT_COST)).toBe(true);
   });
 });

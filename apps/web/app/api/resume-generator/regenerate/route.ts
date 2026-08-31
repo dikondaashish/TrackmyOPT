@@ -18,6 +18,7 @@ import {
     prepareResumeText,
     RESUME_TEXT_MAX_CHARS,
 } from '@/lib/resume/resume-text-limits';
+import { isUsableResumeLatex } from '@/lib/resume/latex-to-plain-text';
 
 // Rate limiter: 10 requests per minute per authenticated user. Do not make
 // students on the same campus or carrier share a generation bucket.
@@ -139,6 +140,9 @@ export async function POST(req: NextRequest) {
 
         // 6. Clean Output
         latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
+        if (!isUsableResumeLatex(latex)) {
+            throw new Error('Model returned unusable resume latex');
+        }
 
         // 7. ATS Validation
         const atsCheck = checkAtsCompliance(latex);

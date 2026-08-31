@@ -107,4 +107,13 @@ describe("POST /api/resume-generator/generate", () => {
     expect(response.status).toBe(500);
     expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
   });
+
+  it("releases a reservation when the model returns empty latex", async () => {
+    mocks.generateAiContent.mockResolvedValue({ text: "   " });
+
+    const response = await POST(request(validBody()));
+
+    expect(response.status).toBe(500);
+    expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
+  });
 });

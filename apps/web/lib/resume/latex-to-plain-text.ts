@@ -3,6 +3,11 @@
  * Not perfect — good enough for keyword matching and readability checks.
  */
 
+/** True when model output is a real resume document, not an empty or garbage string. */
+export function isUsableResumeLatex(latex: string): boolean {
+    return latex.includes("\\documentclass") && latex.length >= 16;
+}
+
 function decodeLatexEscapes(text: string): string {
     return text
         .replace(/\\%/g, "%")

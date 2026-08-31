@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { latexToPlainText, splitResumeSections } from "../latex-to-plain-text";
+import { isUsableResumeLatex, latexToPlainText, splitResumeSections } from "../latex-to-plain-text";
 
 describe("latexToPlainText", () => {
     it("extracts name and role from def commands", () => {
@@ -19,6 +19,14 @@ describe("latexToPlainText", () => {
 
     it("returns empty string for empty input", () => {
         expect(latexToPlainText("")).toBe("");
+    });
+});
+
+describe("isUsableResumeLatex", () => {
+    it("requires a documentclass body", () => {
+        expect(isUsableResumeLatex("")).toBe(false);
+        expect(isUsableResumeLatex("not a resume")).toBe(false);
+        expect(isUsableResumeLatex("\\documentclass{article}")).toBe(true);
     });
 });
 
