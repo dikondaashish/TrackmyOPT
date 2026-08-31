@@ -15,7 +15,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/auth/get-user-id", () => ({ getUserId: mocks.getUserId }));
 vi.mock("@/lib/upstash-redis", () => ({ hasUpstashRedisConfig: () => false }));
 vi.mock("@/lib/api/cors-policy", () => ({
-  corsHeadersConfiguredWebApp: () => ({ "Access-Control-Allow-Origin": "https://www.trackmyopt.com" }),
+  corsHeadersWebAndExtension: (req: NextRequest) => ({
+    "Access-Control-Allow-Origin": req.headers.get("origin") || "https://www.trackmyopt.com",
+  }),
 }));
 vi.mock("@/lib/documents/template-source", () => ({
   loadTemplateSource: mocks.loadTemplateSource,
@@ -31,10 +33,10 @@ vi.mock("@/lib/validators/ats-checker", () => ({ checkAtsCompliance: mocks.check
 
 const { POST } = await import("./route");
 
-function request(body: Record<string, unknown>) {
+function request(body: Record<string, unknown>, origin?: string) {
   return new NextRequest("https://www.trackmyopt.com/api/resume-generator/generate", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(origin ? { origin } : {}) },
     body: JSON.stringify(body),
   });
 }
@@ -66,6 +68,14 @@ describe("POST /api/resume-generator/generate", () => {
     const response = await POST(request(validBody()));
 
     expect(response.status).toBe(401);
+  });
+
+  it("returns the published extension origin on bearer-authenticated requests", async () => {
+    const response = await POST(request(validBody(), "chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm"));
+
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm",
+    );
   });
 
   it("generates a cleaned LaTeX response after reserving usage", async () => {

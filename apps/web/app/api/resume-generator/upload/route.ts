@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { normalizeResumeText, prepareResumeText } from '@/lib/resume/resume-text-limits';
 import { getUserId } from '@/lib/auth/get-user-id';
 
-const corsHeaders = corsHeadersConfiguredWebApp();
-
-export async function OPTIONS() {
-    return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+    return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
 export const runtime = 'nodejs';
@@ -20,6 +18,7 @@ export const runtime = 'nodejs';
  * needed to call it for the side panel's upload option.
  */
 export async function POST(req: NextRequest) {
+    const corsHeaders = corsHeadersWebAndExtension(req);
     try {
         const userId = await getUserId(req);
 

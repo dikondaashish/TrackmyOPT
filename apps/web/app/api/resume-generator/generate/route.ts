@@ -12,7 +12,7 @@ import {
     reserveResumeGeneration,
 } from '@/lib/usage-limit';
 import { getUserId } from '@/lib/auth/get-user-id';
-import { corsHeadersConfiguredWebApp } from '@/lib/api/cors-policy';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import {
     JOB_DESCRIPTION_MAX_CHARS,
@@ -45,13 +45,12 @@ const GenerateSchema = z.object({
     yearsOfExperience: z.number().int().min(0).max(60).optional(),
 });
 
-const corsHeaders = corsHeadersConfiguredWebApp();
-
-export async function OPTIONS() {
-    return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+    return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
 export async function POST(req: NextRequest) {
+    const corsHeaders = corsHeadersWebAndExtension(req);
     let reservationId: string | null = null;
     let reservationUserId: string | null = null;
     let reservationCommitted = false;
@@ -110,7 +109,7 @@ export async function POST(req: NextRequest) {
         const template = loadTemplateSource(templateId, accentHex);
         if (!template) {
             console.error(`Template not found for id "${templateId}" (and fallback missing).`);
-            return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Template not found' }, { status: 404, headers: corsHeaders });
         }
 
         // 4. Build Prompt

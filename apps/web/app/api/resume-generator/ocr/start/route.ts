@@ -4,6 +4,9 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { createClient } from '@supabase/supabase-js';
 
+const MAX_OCR_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_OCR_BASE64_CHARS = Math.ceil((MAX_OCR_FILE_BYTES * 4) / 3) + 4;
+
 // CORS headers — restrict to first-party origin; in-app users post via cookie auth
 const corsHeaders = {
     'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
@@ -13,6 +16,33 @@ const corsHeaders = {
 
 export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
+}
+
+function decodeScannedPdf(value: unknown): Buffer | null {
+    if (
+        typeof value !== 'string' ||
+        value.length === 0 ||
+        value.length > MAX_OCR_BASE64_CHARS ||
+        value.length % 4 !== 0 ||
+        !/^[A-Za-z0-9+/]+={0,2}$/.test(value)
+    ) {
+        return null;
+    }
+
+    const buffer = Buffer.from(value, 'base64');
+    return buffer.length > 0 && buffer.length <= MAX_OCR_FILE_BYTES && buffer.subarray(0, 5).toString() === '%PDF-'
+        ? buffer
+        : null;
+}
+
+function safePdfFilename(value: unknown): string {
+    if (typeof value !== 'string') return 'document.pdf';
+    const filename = value
+        .normalize('NFKC')
+        .replace(/[^a-zA-Z0-9._-]+/g, '_')
+        .replace(/^\.+/, '')
+        .slice(0, 120);
+    return filename || 'document.pdf';
 }
 
 /**
@@ -31,12 +61,18 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const body = await req.json();
-        const { fileBuffer, filename } = body;
+        const body: unknown = await req.json();
+        const fileBuffer = typeof body === 'object' && body !== null
+            ? (body as Record<string, unknown>).fileBuffer
+            : undefined;
+        const filename = typeof body === 'object' && body !== null
+            ? (body as Record<string, unknown>).filename
+            : undefined;
 
-        if (!fileBuffer) {
+        const buffer = decodeScannedPdf(fileBuffer);
+        if (!buffer) {
             return NextResponse.json(
-                { ok: false, error: 'No file buffer provided' },
+                { ok: false, error: 'A valid PDF file buffer is required' },
                 { status: 400, headers: corsHeaders }
             );
         }
@@ -72,9 +108,9 @@ export async function POST(req: NextRequest) {
                 },
             });
 
-            const buffer = Buffer.from(fileBuffer, 'base64');
             const timestamp = Date.now();
-            const s3Key = `ocr-documents/${userId}/${timestamp}_${filename || 'document.pdf'}`;
+            const safeFilename = safePdfFilename(filename);
+            const s3Key = `ocr-documents/${userId}/${timestamp}_${safeFilename}`;
 
             const uploadCommand = new PutObjectCommand({
                 Bucket: process.env.AWS_S3_BUCKET,
@@ -107,7 +143,7 @@ export async function POST(req: NextRequest) {
                 textract_job_id: textractJobId,
                 status: 'IN_PROGRESS',
                 s3_key: s3Key,
-                file_name: filename || null,
+                file_name: safeFilename,
             });
             if (persistError) {
                 console.error('[OCR] Failed to persist job ownership');

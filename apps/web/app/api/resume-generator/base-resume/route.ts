@@ -24,12 +24,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: cors });
   }
 
+  const mode = req.nextUrl.searchParams.get('mode');
+  const resumeId = req.nextUrl.searchParams.get('resumeId');
+  const isUuid = resumeId
+    ? /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(resumeId)
+    : false;
+  if (resumeId && !isUuid) {
+    return NextResponse.json(
+      { ok: false, error: 'Invalid resume selection' },
+      { status: 400, headers: cors }
+    );
+  }
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const mode = req.nextUrl.searchParams.get('mode');
   if (mode === 'list') {
     const { data, error } = await supabase
       .from('resumes')
@@ -56,17 +67,6 @@ export async function GET(req: NextRequest) {
         })),
       },
       { headers: cors }
-    );
-  }
-
-  const resumeId = req.nextUrl.searchParams.get('resumeId');
-  const isUuid = resumeId
-    ? /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(resumeId)
-    : false;
-  if (resumeId && !isUuid) {
-    return NextResponse.json(
-      { ok: false, error: 'Invalid resume selection' },
-      { status: 400, headers: cors }
     );
   }
 

@@ -67,13 +67,14 @@ const validAiAnalysis = {
   },
 };
 
-function request() {
+function request(overrides: Record<string, unknown> = {}) {
   return new NextRequest('https://www.trackmyopt.com/api/resume-generator/scan', {
     method: 'POST',
     body: JSON.stringify({
       generatedText: 'Built Linux systems and automated deployments.',
       jobDescription: 'Data Center Technician with Linux and Python.',
       latexCode: '\\begin{itemize}\\item Built Linux systems\\end{itemize}',
+      ...overrides,
     }),
   });
 }
@@ -101,6 +102,15 @@ describe('POST /api/resume-generator/scan', () => {
       code: 'ats_analysis_unavailable',
       scanConsumed: false,
     });
+    expect(mocks.trackAtsScan).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed request fields before contacting the model or quota service', async () => {
+    const response = await POST(request({ jobDescription: { unexpected: true } }));
+
+    expect(response.status).toBe(400);
+    expect(mocks.checkAtsScanLimit).not.toHaveBeenCalled();
+    expect(mocks.generateAiContent).not.toHaveBeenCalled();
     expect(mocks.trackAtsScan).not.toHaveBeenCalled();
   });
 

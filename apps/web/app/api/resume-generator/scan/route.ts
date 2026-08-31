@@ -10,6 +10,11 @@ import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { analyzeLatexBulletMetrics } from '@/lib/resume/bullet-metrics';
 import { calculateAtsFinalScore } from '@/lib/resume/ats-score';
 import { parseAtsScanAiResponse } from '@/lib/resume/ats-analysis-schema';
+import {
+    JOB_DESCRIPTION_MAX_CHARS,
+    prepareResumeText,
+    RESUME_TEXT_MAX_CHARS,
+} from '@/lib/resume/resume-text-limits';
 
 export async function OPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
@@ -23,10 +28,16 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const body = await req.json();
-        const { resumeText, jobDescription, latexCode, generatedText } = body;
+        const body: unknown = await req.json();
+        if (typeof body !== 'object' || body === null) {
+            return NextResponse.json(
+                { error: 'Invalid request body' },
+                { status: 400, headers: corsHeaders }
+            );
+        }
+        const { resumeText, jobDescription, latexCode, generatedText } = body as Record<string, unknown>;
 
-        if (!jobDescription) {
+        if (typeof jobDescription !== 'string' || !jobDescription.trim()) {
             return NextResponse.json(
                 { error: 'Missing job description' },
                 { status: 400, headers: corsHeaders }
@@ -34,13 +45,16 @@ export async function POST(req: NextRequest) {
         }
 
         // Prefer extracted generated resume text for keyword matching (Phase 1.1)
-        const scanResumeText =
+        const rawScanResumeText =
             (typeof generatedText === 'string' && generatedText.trim()) ||
-            (latexCode ? latexToPlainText(latexCode) : '') ||
-            resumeText ||
+            (typeof latexCode === 'string' && latexCode.trim() ? latexToPlainText(latexCode) : '') ||
+            (typeof resumeText === 'string' ? resumeText : '') ||
             '';
+        const scanResumePrep = prepareResumeText(rawScanResumeText, RESUME_TEXT_MAX_CHARS);
+        const jobDescriptionPrep = prepareResumeText(jobDescription, JOB_DESCRIPTION_MAX_CHARS);
+        const safeLatexCode = typeof latexCode === 'string' ? latexCode : '';
 
-        if (!scanResumeText.trim()) {
+        if (!scanResumePrep.text) {
             return NextResponse.json(
                 { error: 'Missing resume text to scan' },
                 { status: 400, headers: corsHeaders }
@@ -62,10 +76,10 @@ export async function POST(req: NextRequest) {
 
         // 1. Static Analysis (Format Check)
         // We use the existing validator for "Basic" checks (tables, images, etc.)
-        const basicCheck = checkAtsCompliance(latexCode || '');
+        const basicCheck = checkAtsCompliance(safeLatexCode);
 
         // 2. AI Deep Analysis
-        const prompt = buildAtsScanPrompt(scanResumeText, jobDescription);
+        const prompt = buildAtsScanPrompt(scanResumePrep.text, jobDescriptionPrep.text);
 
         let response;
         try {
@@ -112,10 +126,10 @@ export async function POST(req: NextRequest) {
             issues: basicCheck.issues,
         });
         const finalScore = scoreBreakdown.finalScore;
-        const bulletMetrics = analyzeLatexBulletMetrics(latexCode || '');
+        const bulletMetrics = analyzeLatexBulletMetrics(safeLatexCode);
 
         const foundKeywords = aiAnalysis.keywordMatch?.found ?? [];
-        const keywordPlacement = computeKeywordPlacement(scanResumeText, foundKeywords);
+        const keywordPlacement = computeKeywordPlacement(scanResumePrep.text, foundKeywords);
 
         const finalAnalysis = {
             passed: basicCheck.passed && finalScore >= 75,
