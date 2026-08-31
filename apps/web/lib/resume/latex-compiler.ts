@@ -15,6 +15,13 @@ type CompileResult =
     | { ok: true; pdf: ArrayBuffer; compiler: string }
     | { ok: false; error: string };
 
+/** Auth, upstream, or timeout failures — not bad LaTeX in the document. */
+export function isCompilerTransportError(error: string): boolean {
+    return /\(401\)|\(403\)|\(502\)|\(503\)|\(504\)|Exception: (?:aborted|AbortError|timeout)/i.test(
+        error,
+    );
+}
+
 type CompilerConfig = {
     name: string;
     url: (code: string) => string;

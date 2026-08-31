@@ -100,6 +100,7 @@ export default function ResumeEditorPage() {
     const [pdfParseOk, setPdfParseOk] = useState<boolean | null>(null);
     const [isAutoFixing, setIsAutoFixing] = useState(false);
     const [compiledPdfBlob, setCompiledPdfBlob] = useState<Blob | null>(null);
+    const [compileFailed, setCompileFailed] = useState(false);
     const [pdfHighlightQuery, setPdfHighlightQuery] = useState<string | null>(null);
     const [pendingHandoffLatex, setPendingHandoffLatex] = useState<string | null>(null);
 
@@ -607,6 +608,7 @@ export default function ResumeEditorPage() {
         if (!code) return;
         const seq = ++compileSeqRef.current;
         setIsCompiling(true);
+        setCompileFailed(false);
         setPdfHighlightQuery(null);
         try {
             const response = await fetch('/api/resume-generator/compile', {
@@ -664,6 +666,7 @@ export default function ResumeEditorPage() {
 
         } catch (error: unknown) {
             if (seq !== compileSeqRef.current) return;
+            setCompileFailed(true);
             console.error(error);
             const message = error instanceof Error ? error.message : "";
             toast({
@@ -1292,6 +1295,19 @@ export default function ResumeEditorPage() {
                                             onTextSelect={handlePdfTextSelect}
                                             highlightQuery={pdfHighlightQuery}
                                         />
+                                    </div>
+                                ) : compileFailed && generatedLatex ? (
+                                    <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-8 text-center text-gray-600 dark:text-gray-400">
+                                        <p className="max-w-sm">PDF preview could not be generated. Try Refresh PDF, or edit the LaTeX and compile again.</p>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => compilePdf(generatedLatex, 0, false, false)}
+                                            disabled={isCompiling}
+                                        >
+                                            <RefreshCw className={`mr-2 h-4 w-4 ${isCompiling ? 'animate-spin' : ''}`} />
+                                            Retry compile
+                                        </Button>
                                     </div>
                                 ) : (
                                     <div className="flex h-full w-full flex-col items-center justify-center p-8 text-gray-500">

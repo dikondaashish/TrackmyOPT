@@ -49,6 +49,12 @@ describe.each(RESUME_TEMPLATES.map((t) => [t.id, t] as const))(
             expect(tex).toContain('\\pdfgentounicode=1');
         });
 
+        it('uses TeX Live core fonts only (no optional PSNFSS metric files)', () => {
+            expect(tex).not.toMatch(/\\IfFileExists\{helvet\.sty\}/);
+            expect(tex).not.toMatch(/\\IfFileExists\{charter\.sty\}/);
+            expect(tex).toContain('\\usepackage{lmodern}');
+        });
+
         it('uses the shared macro vocabulary', () => {
             for (const macro of REQUIRED_MACROS) {
                 expect(tex).toContain(macro);

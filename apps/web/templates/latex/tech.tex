@@ -9,14 +9,14 @@
 %   * Section order is fixed:
 %       Contact -> Summary -> Skills -> Experience -> Projects -> Education
 %       -> Certifications
-%   * Body text 10pt, margins 0.6in, Helvetica-class sans face.
+%   * Body text 10pt, margins 0.6in, Latin Modern Sans (core TeX Live).
 %     Slightly denser than Modern to fit a deeper skills matrix.
 %==============================================================================
 \documentclass[letterpaper,10pt]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\IfFileExists{helvet.sty}{\usepackage[scaled]{helvet}}{\usepackage{lmodern}}
+\usepackage{lmodern}
 \renewcommand{\familydefault}{\sfdefault}
 \usepackage[protrusion=true,expansion=false]{microtype}
 \usepackage[left=0.6in,right=0.6in,top=0.5in,bottom=0.5in]{geometry}

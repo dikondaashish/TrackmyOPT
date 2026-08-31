@@ -44,4 +44,10 @@ describe("compileLatex", () => {
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(String(fetchMock.mock.calls[0][0])).toContain("api.trackmyopt.com");
   });
+
+  it("classifies transport failures separately from LaTeX errors", async () => {
+    const { isCompilerTransportError } = await import("./latex-compiler");
+    expect(isCompilerTransportError("Private (TrackMyOPT API) (401): unauthorized")).toBe(true);
+    expect(isCompilerTransportError("Private (TrackMyOPT API) (422): ! Font T1/phv")).toBe(false);
+  });
 });

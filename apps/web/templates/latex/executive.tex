@@ -9,14 +9,14 @@
 %   * Section order is fixed:
 %       Contact -> Summary -> Skills -> Experience -> Projects -> Education
 %       -> Certifications
-%   * Body text 11pt, margins 0.75in, Georgia-class serif face (Charter).
+%   * Body text 11pt, margins 0.75in, Latin Modern Roman (core TeX Live).
 %     Airier than Professional; sized for 10+ year careers across two pages.
 %==============================================================================
 \documentclass[letterpaper,11pt]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\IfFileExists{charter.sty}{\usepackage{charter}}{\usepackage{lmodern}}
+\usepackage{lmodern}
 \usepackage[protrusion=true,expansion=false]{microtype}
 \usepackage[left=0.75in,right=0.75in,top=0.65in,bottom=0.65in]{geometry}
 \usepackage{titlesec}
