@@ -40,9 +40,7 @@ export function detectAllowedDocumentType(
 ): 'application/pdf' | 'image/jpeg' | 'image/png' | 'image/webp' | null {
   if (hasPrefix(buffer, Buffer.from('%PDF-'))) return 'application/pdf';
   if (hasPrefix(buffer, [0xff, 0xd8, 0xff])) return 'image/jpeg';
-  if (
-    hasPrefix(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
-  ) {
+  if (hasPrefix(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) {
     return 'image/png';
   }
   if (
@@ -76,10 +74,7 @@ function extensionOf(filename: string): string {
   return dot >= 0 ? name.slice(dot) : '';
 }
 
-export function scanUploadBytes(
-  buffer: Buffer,
-  filename: string,
-): ScanResult {
+export function scanUploadBytes(buffer: Buffer, filename: string): ScanResult {
   if (!buffer.length) return { safe: false, threat: 'empty-file' };
   if (buffer.length > MAX_BYTES) return { safe: false, threat: 'too-large' };
 
