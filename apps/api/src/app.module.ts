@@ -7,6 +7,7 @@ import { OcrModule } from './ocr/ocr.module';
 import { UscisModule } from './uscis/uscis.module';
 import { ResumeModule } from './resume/resume.module';
 import { JobBoardModule } from './job-board/job-board.module';
+import { DocumentSecurityModule } from './document-security/document-security.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
@@ -41,6 +42,8 @@ export const appConfigValidationSchema = Joi.object({
   // Optional: notification fan-out skips when unset (uscis.processor).
   NEXT_PUBLIC_SITE_URL: Joi.string().uri().optional(),
   CRON_SECRET: Joi.string().min(8).optional(),
+  MALWARE_SCAN_TOKEN: Joi.string().min(16).optional(),
+  LATEX_COMPILER_TOKEN: Joi.string().min(16).optional(),
 });
 
 /** Fail fast on bad Redis instead of hanging Render health checks for ~15m. */
@@ -103,6 +106,7 @@ const runtimeImports =
         UscisModule,
         ResumeModule,
         JobBoardModule,
+        DocumentSecurityModule,
       ];
 
 @Module({

@@ -114,13 +114,13 @@ export function ExtensionDemo() {
                             </div>
                             <div>
                                 <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                                    Sponsorship Verified
+                                    Sponsorship signal from this listing
                                     <span className="text-[10px] bg-emerald-100 dark:bg-emerald-800/50 px-1.5 py-0.5 rounded text-emerald-700 dark:text-emerald-300 font-normal">TrackMyOPT Intel</span>
                                 </h4>
                                 <div className="flex gap-4 mt-1.5 text-xs text-emerald-700 dark:text-emerald-400/80">
-                                    <span className="flex items-center gap-1"><strong>245</strong> H-1B Approvals (2025)</span>
+                                    <span>Visa sponsorship not stated</span>
                                     <span className="w-1 h-1 bg-emerald-300 rounded-full self-center" />
-                                    <span>E-Verify Enrolled</span>
+                                    <span>Review with the employer</span>
                                 </div>
                             </div>
                         </div>

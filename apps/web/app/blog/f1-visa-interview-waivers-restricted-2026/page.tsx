@@ -135,7 +135,7 @@ export default function InterviewWaiverPage() {
                 <h2>What Should You Do?</h2>
                 <ol>
                     <li><strong>Check Wait Times Before You Book Flights:</strong> Use the State Department's website to check the estimated wait time for an in-person student visa appointment in your city.</li>
-                    <li><strong>Clear Travel with Your Employer:</strong> If you are on OPT, you must inform your employer that you may be delayed in returning. Under the <Link href="/blog/end-of-duration-of-status-f1-visa-rule">new Duration of Status rules</Link>, gaps in employment or prolonged time outside the country can have severe consequences for your status.</li>
+                    <li><strong>Clear Travel with Your Employer:</strong> If you are on OPT, you must inform your employer that you may be delayed in returning. Under the <Link href="/blog/september-2026-f1-fixed-admission-rule-opt">new fixed-admission rules</Link>, your Form I-94 and travel timing can affect which requirements apply to you.</li>
                     <li><strong>Gather Strong Documentation:</strong> In-person interviews mean higher scrutiny. Bring your valid EAD card, a recent employment verification letter, your I-20 endorsed for travel, and paystubs to prove you are legitimately employed on OPT.</li>
                 </ol>
 

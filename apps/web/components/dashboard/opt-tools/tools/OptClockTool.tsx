@@ -314,7 +314,7 @@ export function OptClockTool() {
                   <Timer className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">OPT Clock Tracker</h1>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">OPT Clock Tracker</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Track your 90-day unemployment limit</p>
                 </div>
               </div>

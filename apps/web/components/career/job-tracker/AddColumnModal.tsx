@@ -65,11 +65,14 @@ export function AddColumnModal({ isOpen, onClose }: AddColumnModalProps) {
                         <Label>Color Code</Label>
                         <div className="flex gap-2">
                             {['bg-blue-100', 'bg-purple-100', 'bg-pink-100', 'bg-orange-100', 'bg-emerald-100', 'bg-indigo-100'].map(c => (
-                                <div
+                                <button
+                                    type="button"
                                     key={c}
                                     onClick={() => setColor(c)}
                                     className={`w-8 h-8 rounded-full cursor-pointer transition-all ${c} ${color === c ? 'ring-2 ring-offset-2 ring-black' : 'hover:ring-2 hover:ring-gray-300'}`}
-                                ></div>
+                                    aria-label={`Use ${c.replace('bg-', '').replace('-100', '')} for this stage`}
+                                    aria-pressed={color === c}
+                                />
                             ))}
                         </div>
                     </div>

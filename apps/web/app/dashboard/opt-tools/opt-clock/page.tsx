@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { OptClockTool } from "@/components/dashboard/opt-tools/tools/OptClockTool";
+import { PublicOptToolPageIntro } from "@/components/seo/PublicOptToolPageIntro";
 
 // Comprehensive SEO for OPT Unemployment Calculator
 export const metadata: Metadata = {
-  title: "OPT Unemployment Days Calculator | 90-Day Rule Tracker | Free Tool",
+  title: "OPT 90-Day Unemployment Calculator",
   description:
-    "Free OPT unemployment days calculator. Track your 90-day unemployment limit on F-1 OPT. Know exactly how many days you've used and how many remain. Avoid falling out of status.",
+    "Track OPT unemployment days, compare them with the 90-day limit, and keep an organized record of employment periods.",
   keywords: [
     // Primary Keywords
     "OPT unemployment days calculator",
@@ -116,6 +117,27 @@ export default function OptClockPage() {
           dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(schema) }}
         />
       ))}
+      <PublicOptToolPageIntro
+        title="OPT 90-Day Unemployment Calculator"
+        description="Record employment periods and use this calculator to plan around the unemployment limit for post-completion OPT."
+      >
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Track the dates that matter</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            Add your OPT start date and each employment period so you can see a
+            clear planning estimate. Save supporting records separately and
+            report updates through the process required by your school.
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Use the 90-day limit carefully</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            Post-completion OPT has a 90-day unemployment limit. This tool is a
+            planning aid, not an official status determination, so confirm how
+            your employment qualifies and any reporting deadlines with your DSO.
+          </p>
+        </div>
+      </PublicOptToolPageIntro>
       <OptClockTool />
     </>
   );

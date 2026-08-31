@@ -120,12 +120,12 @@ export function ActionableReminders() {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden h-full">
       {/* Header */}
-      <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+      <button
+        type="button"
+        className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-controls="actionable-reminders-content"
       >
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary/10 rounded-lg">
@@ -157,11 +157,11 @@ export function ActionableReminders() {
             <ChevronDown className="w-5 h-5 text-muted-foreground" />
           )}
         </div>
-      </div>
+      </button>
 
       {/* Content */}
       {isExpanded && (
-        <div className="border-t border-border">
+        <div id="actionable-reminders-content" className="border-t border-border">
           {/* Add new reminder form */}
           <div className="p-4 bg-muted/20">
             {showAddForm ? (

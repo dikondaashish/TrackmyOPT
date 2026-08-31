@@ -212,30 +212,27 @@ const SidebarNavSection = memo(({
     const router = useRouter();
     const Icon = section.icon;
     const hasActiveChild = section.links.some(link => isActiveCheck(link.href));
+    const submenuId = `sidebar-section-${section.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
+    const handleSectionAction = () => {
+        if (isCollapsed) {
+            onToggleCollapse?.();
+            if (!isExpanded) onToggle(section.label);
+            return;
+        }
+
+        if (isExpanded && section.href) {
+            onLinkClick?.();
+            router.push(section.href);
+            return;
+        }
+
+        onToggle(section.label);
+    };
 
     return (
         <div>
             <div
-                role="button"
-                tabIndex={0}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (isCollapsed) {
-                        if (onToggleCollapse) onToggleCollapse();
-                        // Also open the section so it's ready
-                        if (!isExpanded) onToggle(section.label);
-                    } else {
-                        // If already expanded and has an href, navigate
-                        // If it's a section header that navigates (rare), we might want to close mobile menu
-                        // But typically sections just toggle. If it has href, it navigates.
-                        if (isExpanded && section.href) {
-                            if (onLinkClick) onLinkClick();
-                            router.push(section.href);
-                        } else {
-                            onToggle(section.label);
-                        }
-                    }
-                }}
                 onMouseEnter={(e) => {
                     onTooltipEnter(e, section.label);
                     onSubmenuEnter(e, section);
@@ -245,38 +242,46 @@ const SidebarNavSection = memo(({
                     onSubmenuLeave();
                 }}
                 className={cn(
-                    "w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer",
+                    "w-full group relative flex items-center gap-1 rounded-lg text-sm font-medium",
                     hasActiveChild
                         ? "text-blue-700 dark:text-blue-400"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
-                    isCollapsed && "justify-center cursor-default px-0 w-10 h-10 mx-auto"
+                    isCollapsed && "justify-center w-11 h-11 mx-auto"
                 )}
             >
-                <Icon className="w-5 h-5 flex-shrink-0" />
+                <button
+                    type="button"
+                    onClick={handleSectionAction}
+                    aria-expanded={isExpanded}
+                    aria-controls={submenuId}
+                    className={cn(
+                        "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-blue-500/20",
+                        isCollapsed && "h-11 w-11 flex-none justify-center px-0"
+                    )}
+                >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    {!isCollapsed && <span className="flex-1">{section.label}</span>}
+                </button>
                 {!isCollapsed && (
-                    <>
-                        <span className="flex-1 text-left">{section.label}</span>
-                        <div
-                            role="button"
-                            tabIndex={0}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onToggle(section.label);
-                            }}
-                            className="p-1 -mr-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        >
-                            <ChevronDown className={cn(
-                                "w-4 h-4 transition-transform",
-                                isExpanded && "rotate-180"
-                            )} />
-                        </div>
-                    </>
+                    <button
+                        type="button"
+                        aria-label={`Toggle ${section.label} submenu`}
+                        aria-expanded={isExpanded}
+                        aria-controls={submenuId}
+                        onClick={() => onToggle(section.label)}
+                        className="m-1 min-h-11 min-w-11 rounded-md transition-colors hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:hover:bg-gray-700"
+                    >
+                        <ChevronDown className={cn(
+                            "mx-auto w-4 h-4 transition-transform",
+                            isExpanded && "rotate-180"
+                        )} />
+                    </button>
                 )}
             </div>
 
             {/* Expanded Links */}
             {!isCollapsed && isExpanded && (
-                <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
+                <div id={submenuId} className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
                     {section.links.map(link => (
                         <SidebarNavLink
                             key={link.href}
@@ -512,7 +517,7 @@ export function Sidebar({
                                 onClick={onToggleCollapse}
                                 onMouseEnter={(e) => handleTooltipEnter(e, isCollapsed ? "Expand" : "Collapse")}
                                 onMouseLeave={handleTooltipLeave}
-                                className="hidden lg:flex group relative flex-shrink-0 items-center justify-center p-2 rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
+                                className="hidden lg:flex group relative min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-gray-900 dark:text-gray-100 hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900 transition-colors"
                                 aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                             >
                                 <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg" className={cn("transition-transform duration-200", isCollapsed && "rotate-180")}>

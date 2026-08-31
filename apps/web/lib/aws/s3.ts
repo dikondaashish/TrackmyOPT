@@ -15,17 +15,27 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createHash } from 'crypto';
 
 // Initialize S3 client with credentials from environment
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim();
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim();
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
+  // When static keys are not supplied, let the AWS SDK use its standard
+  // runtime credential chain (for example an attached IAM role).
+  ...(accessKeyId && secretAccessKey
+    ? { credentials: { accessKeyId, secretAccessKey } }
+    : {}),
 });
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || 'all-in-one-career-ashish';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const SIGNED_URL_EXPIRY = 300; // 5 minutes
+
+function getBucketName(): string {
+  const bucket = process.env.AWS_S3_BUCKET?.trim();
+  if (!bucket) {
+    throw new Error('AWS_S3_BUCKET is not configured');
+  }
+  return bucket;
+}
 
 /**
  * Generate a unique S3 key for a document
@@ -59,7 +69,7 @@ export async function uploadToS3(
 
 
     const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: getBucketName(),
       Key: key,
       Body: file,
       ContentType: contentType,
@@ -92,7 +102,7 @@ export async function generateSignedUrl(key: string): Promise<string> {
   try {
 
     const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: getBucketName(),
       Key: key,
     });
 
@@ -116,7 +126,7 @@ export async function deleteFromS3(key: string): Promise<void> {
   try {
 
     const command = new DeleteObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: getBucketName(),
       Key: key,
     });
 
@@ -140,10 +150,7 @@ export function isValidDocumentType(contentType: string): boolean {
     'image/jpg',
     'image/png',
     'image/webp',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   ];
 
   return validTypes.includes(contentType.toLowerCase());
 }
-

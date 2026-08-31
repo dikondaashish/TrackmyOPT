@@ -44,9 +44,10 @@ export function JobStageColumn({
                     </h3>
                     {onDelete && (
                         <button
+                            type="button"
                             onClick={handleDeleteClick}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
-                            title="Delete Column"
+                            className="min-h-11 min-w-11 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                            aria-label={`Delete ${column.title} column`}
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>

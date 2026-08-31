@@ -179,8 +179,15 @@ export async function DELETE(
     try {
       await deleteFromS3(document.s3_key);
     } catch (s3Error) {
-      console.error('⚠️  S3 deletion failed:', s3Error);
-      // Continue anyway - DB cleanup is more important
+      console.error('❌ S3 deletion failed; database record preserved:', s3Error);
+      return NextResponse.json(
+        {
+          error:
+            'Your document could not be deleted from secure storage. Please try again later.',
+          code: 'document_storage_delete_failed',
+        },
+        { status: 502 }
+      );
     }
 
     // Delete from database (cascade will delete reminders)
@@ -209,4 +216,3 @@ export async function DELETE(
     );
   }
 }
-

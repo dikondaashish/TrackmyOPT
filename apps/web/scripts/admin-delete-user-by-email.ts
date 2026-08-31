@@ -120,7 +120,7 @@ async function main() {
 
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const stripe = stripeKey
-    ? new Stripe(stripeKey, { apiVersion: "2025-09-30.clover" })
+    ? new Stripe(stripeKey, { apiVersion: "2026-08-26.dahlia" })
     : null;
 
   for (const email of emails) {

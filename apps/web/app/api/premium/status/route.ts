@@ -129,7 +129,7 @@ export async function GET(req: NextRequest) {
     // been incorrectly revoked. Check Stripe directly to self-heal before returning false.
     if (!data.premium_status && data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
       try {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-09-30.clover' });
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2026-08-26.dahlia' });
         const validSubs = await listValidCustomerSubscriptions(stripe, data.stripe_customer_id);
         const foundSub = pickBestSubscription(validSubs);
         if (foundSub) {
@@ -213,7 +213,7 @@ export async function GET(req: NextRequest) {
     if (data.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
       try {
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-          apiVersion: '2025-09-30.clover',
+          apiVersion: '2026-08-26.dahlia',
         });
         const validSubs = await listValidCustomerSubscriptions(stripe, data.stripe_customer_id);
         stripeBestSub = pickBestSubscription(validSubs) as

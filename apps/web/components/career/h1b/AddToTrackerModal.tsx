@@ -50,18 +50,19 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-6">
+            <div role="dialog" aria-modal="true" aria-labelledby="add-job-tracker-title" className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-6">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Add to Job Tracker</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition">
+                    <h3 id="add-job-tracker-title" className="text-xl font-bold text-gray-900 dark:text-white">Add to Job Tracker</h3>
+                    <button type="button" onClick={onClose} aria-label="Close add to job tracker dialog" className="min-h-11 min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition">
                         <X className="w-5 h-5 text-gray-500" />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company</label>
+                        <label htmlFor="job-tracker-company" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company</label>
                         <input
+                            id="job-tracker-company"
                             type="text"
                             value={companyName}
                             disabled
@@ -70,8 +71,9 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role Title <span className="text-red-500">*</span></label>
+                        <label htmlFor="job-tracker-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role Title <span className="text-red-500">*</span></label>
                         <input
+                            id="job-tracker-title"
                             type="text"
                             required
                             placeholder="e.g. Software Engineer"
@@ -83,10 +85,11 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                            <label htmlFor="job-tracker-status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                             <select
+                                id="job-tracker-status"
                                 value={status}
-                                onChange={(e) => setStatus(e.target.value as any)}
+                                onChange={(e) => setStatus(e.target.value as JobTrackerItem["status"])}
                                 className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
                             >
                                 <option value="Wishlist">Wishlist</option>
@@ -94,8 +97,9 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location (Optional)</label>
+                            <label htmlFor="job-tracker-location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location (Optional)</label>
                             <input
+                                id="job-tracker-location"
                                 type="text"
                                 placeholder="e.g. Remote"
                                 value={location}
@@ -106,8 +110,9 @@ export function AddToTrackerModal({ isOpen, onClose, companyName, onSave }: AddT
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Job Link (Optional)</label>
+                        <label htmlFor="job-tracker-link" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Job Link (Optional)</label>
                         <input
+                            id="job-tracker-link"
                             type="url"
                             placeholder="https://..."
                             value={link}

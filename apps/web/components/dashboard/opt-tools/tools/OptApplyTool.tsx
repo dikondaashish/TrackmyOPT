@@ -188,7 +188,7 @@ export function OptApplyTool() {
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">OPT Apply Dates</h1>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">OPT Apply Dates</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Calculate your I-765 filing window</p>
                 </div>
               </div>

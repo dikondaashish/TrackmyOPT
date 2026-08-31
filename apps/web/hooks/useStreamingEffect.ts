@@ -3,12 +3,20 @@ import { useState, useEffect, useCallback, useRef } from "react";
 interface UseStreamingEffectProps {
     text: string;
     isEnabled: boolean;
-    /** Milliseconds between ticks; each tick appends 1–3 chars (lower = faster). */
+    /** Milliseconds between render updates. */
     speed?: number;
+    /** Characters appended per update to keep large documents smooth on slower devices. */
+    chunkSize?: number;
     onComplete?: () => void;
 }
 
-export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: UseStreamingEffectProps) {
+export function useStreamingEffect({
+    text,
+    isEnabled,
+    speed = 16,
+    chunkSize = 48,
+    onComplete,
+}: UseStreamingEffectProps) {
     const [displayedText, setDisplayedText] = useState("");
     const [isStreaming, setIsStreaming] = useState(false);
 
@@ -47,12 +55,6 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
 
         timerRef.current = setInterval(() => {
             if (indexRef.current < fullTextRef.current.length) {
-                // Variable chunk size for natural feel (1–3 chars per tick)
-
-                // Randomize chunk size slightly (1 to 3 chars)
-                // This makes it look like it's "thinking" or processing tokens
-                const chunkSize = Math.floor(Math.random() * 3) + 1;
-
                 const chunk = fullTextRef.current.slice(indexRef.current, indexRef.current + chunkSize);
                 setDisplayedText(prev => prev + chunk);
                 indexRef.current += chunkSize;
@@ -61,7 +63,7 @@ export function useStreamingEffect({ text, isEnabled, speed = 8, onComplete }: U
                 stopStreaming();
             }
         }, speed);
-    }, [speed, stopStreaming]);
+    }, [chunkSize, speed, stopStreaming]);
 
     // Effect to trigger stream when `isEnabled` becomes true or text changes significantly while enabled
     // We need a way to distinguish "correction" vs "new generation". 

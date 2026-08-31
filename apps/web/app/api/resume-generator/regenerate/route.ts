@@ -19,7 +19,8 @@ import {
     RESUME_TEXT_MAX_CHARS,
 } from '@/lib/resume/resume-text-limits';
 
-// Rate Limiter: 10 requests per minute per IP
+// Rate limiter: 10 requests per minute per authenticated user. Do not make
+// students on the same campus or carrier share a generation bucket.
 const limiter = rateLimit({
     interval: 60 * 1000,
     name: 'resume-regenerate',
@@ -56,8 +57,11 @@ export async function POST(req: NextRequest) {
         reservationUserId = userId;
 
         // 1. Rate Limiting
-        const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-        const { isRateLimited, unavailable } = await limiter.check(req, 10, ip);
+        const { isRateLimited, unavailable } = await limiter.check(
+            req,
+            10,
+            `resume-regenerate:${userId}`,
+        );
 
         if (isRateLimited) {
             return NextResponse.json(

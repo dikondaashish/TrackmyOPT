@@ -128,7 +128,9 @@ export function StemClockTool() {
     }
 
     const used = Math.max(0, totalDays - employedDays);
-    const max = 60; // STEM OPT has 60-day unemployment limit (separate from initial OPT 90 days)
+    // This calculator tracks the STEM extension period only. Users must also
+    // account for their initial OPT history against the 150-day combined limit.
+    const max = 60;
     const remaining = Math.max(0, max - used);
 
     setResults({ used, remaining, max });
@@ -221,8 +223,8 @@ export function StemClockTool() {
                   <Timer className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">STEM Clock Tracker</h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Track your 60-day unemployment limit</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">STEM Clock Tracker</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Track STEM extension unemployment time</p>
                 </div>
               </div>
             </div>
@@ -243,10 +245,10 @@ export function StemClockTool() {
                     <AlertTriangle className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold mb-2">STEM OPT 60-Day Unemployment Limit</h2>
+                    <h2 className="text-lg font-bold mb-2">STEM OPT Unemployment Planning</h2>
                     <p className="text-purple-100 leading-relaxed">
-                      During your STEM OPT extension, you have <span className="font-semibold text-white">60 days of unemployment</span> allowed.
-                      This is separate from initial OPT (90 days) - each period has its own limit.
+                      The STEM extension can add up to <span className="font-semibold text-white">60 days of unemployment</span>.
+                      Across post-completion OPT and STEM OPT, the combined limit is <span className="font-semibold text-white">150 days</span>.
                     </p>
                   </div>
                 </div>
@@ -352,12 +354,14 @@ export function StemClockTool() {
 
             {/* Employment History - Collapsible */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
-              <button
-                onClick={() => setShowEmploymentHistory(!showEmploymentHistory)}
-                className="w-full p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
-                  <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-4 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 dark:border-gray-800">
+                  <button
+                    type="button"
+                    onClick={() => setShowEmploymentHistory((visible) => !visible)}
+                    aria-expanded={showEmploymentHistory}
+                    aria-controls="stem-employment-history"
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
                     <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
                       <Briefcase className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     </div>
@@ -367,30 +371,35 @@ export function StemClockTool() {
                         {employmentSpans.length === 0 ? 'Add your STEM OPT jobs' : `${employmentSpans.length} job${employmentSpans.length > 1 ? 's' : ''} added`}
                       </p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-                    <div // Wrapper for button stopPropagation
-                      onClick={(e) => { e.stopPropagation(); addEmploymentSpan(); }}
-                      className="flex-1 sm:flex-none"
+                  </button>
+                  <div className="flex w-full items-center gap-3 sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={addEmploymentSpan}
+                      className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-600 hover:to-violet-600 sm:flex-none"
                     >
-                      <span
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl shadow-lg shadow-purple-500/25 transition-all cursor-pointer"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Add Job
-                      </span>
-                    </div>
+                      <Plus className="w-4 h-4" />
+                      Add Job
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowEmploymentHistory((visible) => !visible)}
+                      aria-expanded={showEmploymentHistory}
+                      aria-controls="stem-employment-history"
+                      aria-label={showEmploymentHistory ? "Collapse employment history" : "Expand employment history"}
+                      className="min-h-11 min-w-11 text-gray-400"
+                    >
                     {showEmploymentHistory ? (
                       <ChevronUp className="w-5 h-5 text-gray-400" />
                     ) : (
                       <ChevronDown className="w-5 h-5 text-gray-400" />
                     )}
+                    </button>
                   </div>
-                </div>
-              </button>
+              </div>
 
               {showEmploymentHistory && (
-                <div className="p-4 sm:p-6">
+                <div id="stem-employment-history" className="p-4 sm:p-6">
                   {employmentSpans.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">
                       <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">

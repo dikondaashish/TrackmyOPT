@@ -51,5 +51,3 @@ export function AuthorBio({ compact = false }: AuthorBioProps) {
         </div>
     );
 }
-
-

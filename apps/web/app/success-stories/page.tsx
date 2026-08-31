@@ -51,19 +51,12 @@ function SuccessStatsVisual() {
 
                 <div className="flex items-center justify-center gap-1 mb-4">
                     {[1, 2, 3, 4, 5].map((i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.4 + i * 0.1 }}
-                        >
+                        <motion.div key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.1 }}>
                             <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
                         </motion.div>
                     ))}
                 </div>
-                <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
-                    <span className="font-bold text-gray-900 dark:text-white">4.9/5</span> from 500+ reviews
-                </p>
+                <p className="text-center text-gray-600 dark:text-gray-400 text-sm"><span className="font-bold text-gray-900 dark:text-white">4.9/5</span> from 500+ reviews</p>
             </div>
         </div>
     );
@@ -81,7 +74,6 @@ function StatsSection() {
         { value: "85%", label: "Found H-1B" },
         { value: "4.9/5", label: "Rating" },
     ];
-
     return (
         <section className="py-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,14 +83,7 @@ function StatsSection() {
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         {stats.map((stat, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className="text-center"
-                            >
+                            <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="text-center">
                                 <p className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.value}</p>
                                 <p className="text-green-100 text-sm">{stat.label}</p>
                             </motion.div>

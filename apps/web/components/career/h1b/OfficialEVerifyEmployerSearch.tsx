@@ -1,9 +1,9 @@
-import { ExternalLink, Landmark } from "lucide-react";
+import { ExternalLink, Landmark } from 'lucide-react';
 
 const USCIS_EVERIFY_SEARCH_URL =
-  "https://bigdataanalyticspub-sb.uscis.dhs.gov/views/E-VerifyEmployerSearch_17259895596010/Dashboard?:embed=y&:showVizHome=no&:toolbar=bottom";
+  'https://bigdataanalyticspub-sb.uscis.dhs.gov/views/E-VerifyEmployerSearch_17259895596010/Dashboard?:embed=y&:showVizHome=no&:toolbar=bottom';
 const USCIS_EVERIFY_PAGE_URL =
-  "https://www.e-verify.gov/e-verify-employer-search";
+  'https://www.e-verify.gov/e-verify-employer-search';
 
 export function OfficialEVerifyEmployerSearch() {
   return (
@@ -23,16 +23,14 @@ export function OfficialEVerifyEmployerSearch() {
                   id="official-everify-search-heading"
                   className="text-lg font-bold text-gray-950 dark:text-white"
                 >
-                  Official USCIS E-Verify Employer Search
+                  Official USCIS E-Verify search
                 </h3>
                 <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-                  Official public tool
+                  USCIS source
                 </span>
               </div>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-                Search directly in the USCIS public employer database without
-                leaving TrackMyOPT. This tool and its results are controlled by
-                USCIS, not TrackMyOPT.
+                Search official USCIS employer records.
               </p>
             </div>
           </div>
@@ -61,8 +59,7 @@ export function OfficialEVerifyEmployerSearch() {
       </div>
 
       <p className="border-t border-slate-200 px-5 py-3 text-xs leading-5 text-gray-600 dark:border-slate-700 dark:text-gray-400 sm:px-6">
-        If the embedded search does not load, use “Open on USCIS” above. USCIS
-        publishes and updates this public tool independently.
+        If the search does not load, use “Open on USCIS” above.
       </p>
     </section>
   );

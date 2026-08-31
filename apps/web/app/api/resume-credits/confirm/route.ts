@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     requireLiveStripeKeyInProduction();
     if (!process.env.STRIPE_SECRET_KEY) throw new Error("Stripe is not configured");
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2025-09-30.clover",
+      apiVersion: "2026-08-26.dahlia",
     });
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ["payment_intent"],

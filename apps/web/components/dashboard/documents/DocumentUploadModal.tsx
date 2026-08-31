@@ -145,8 +145,10 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
           <h2 className="text-2xl font-bold">Upload Document</h2>
           {stage === 'select' && (
             <button
+              type="button"
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="min-h-11 min-w-11 text-gray-400 hover:text-gray-600"
+              aria-label="Close document upload"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -161,6 +163,15 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
             {/* Drop Zone */}
             <div
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="Select a document to upload"
               className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-cyan-500 transition-colors"
             >
               <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -618,4 +629,3 @@ function AnimatedProcessingState({ progress, stage }: { progress: number; stage:
     </div>
   );
 }
-

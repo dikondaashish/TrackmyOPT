@@ -7,7 +7,10 @@ import { researchArticles } from "@/data/blog-series";
  * does not see "Page with redirect" for sitemap-submitted URLs.
  */
 const BLOG_REDIRECT_SLUGS = new Set([
-    "how-to-track-uscis-case-status-guide",
+  "federal-court-vacates-100k-h1b-fee-2026",
+  "end-of-duration-of-status-f1-visa-rule",
+  "f1-visa-duration-of-status-ds-ending-2026",
+  "how-to-track-uscis-case-status-guide",
     "f1-student-tax-filing-guide",
     "opt-health-insurance-guide",
     "ats-resume-international-students",

@@ -151,6 +151,36 @@ export const source = {
     publisher: 'U.S. Department of Labor',
     url: 'https://www.dol.gov/agencies/eta/foreign-labor/performance',
   },
+  h1bFeeProposal: {
+    label: 'Fee for Certain H-1B Petitions (proposed rule, 91 FR 54817)',
+    publisher: 'U.S. Department of Homeland Security / USCIS',
+    url: 'https://www.federalregister.gov/documents/2026/08/25/2026-17324/fee-for-certain-h-1b-petitions',
+  },
+  h1bFeeBulletin: {
+    label: 'DHS Proposes Additional H-1B Fee',
+    publisher: 'USCIS',
+    url: 'https://content.govdelivery.com/accounts/USDHSCIS/bulletins/42688fc?reqfrom=share',
+  },
+  uscisHqPhoto: {
+    label: 'USCIS HQ Groundbreaking Ceremony (official DHS photo, public domain)',
+    publisher: 'U.S. Department of Homeland Security',
+    url: 'https://commons.wikimedia.org/wiki/File:USCIS_HQ_Groundbreaking_Ceremony_(38096350621).jpg',
+  },
+  fixedAdmissionRule: {
+    label: 'Establishing a Fixed Time Period of Admission and an Extension of Stay Procedure (final rule)',
+    publisher: 'U.S. Department of Homeland Security / ICE',
+    url: 'https://www.federalregister.gov/documents/2026/07/17/2026-14439/establishing-a-fixed-time-period-of-admission-and-an-extension-of-stay-procedure-for',
+  },
+  fixedAdmissionUniversityGuide: {
+    label: 'DHS Final Rule: Fixed Period of Admission and Extension of Stay',
+    publisher: 'University of Arizona International Student Services',
+    url: 'https://international.arizona.edu/international-students/dhs-final-rule',
+  },
+  campusStudentsPhoto: {
+    label: 'Students 0006.JPG (Bastyr University campus, public domain)',
+    publisher: 'Bastyr University',
+    url: 'https://commons.wikimedia.org/wiki/File:Students_0006.JPG',
+  },
 } as const;
 
 export function defineArticle(

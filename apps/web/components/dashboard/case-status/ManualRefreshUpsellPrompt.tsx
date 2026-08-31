@@ -42,7 +42,7 @@ export function ManualRefreshUpsellPrompt({
         <button
           type="button"
           onClick={onDismiss}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0"
+          className="min-h-11 min-w-11 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0"
           aria-label="Dismiss"
         >
           <X className="w-4 h-4" />

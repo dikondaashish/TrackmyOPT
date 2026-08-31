@@ -81,7 +81,7 @@ export function LandingComparison() {
                                     <span>Risk Level: High</span>
                                 </div>
                                 <p className="text-xs text-red-800 dark:text-red-300">
-                                    One missed deadline can lead to immediate status termination.
+                                    Keep important dates visible and plan ahead.
                                 </p>
                             </div>
                         </div>

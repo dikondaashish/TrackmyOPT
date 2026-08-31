@@ -35,5 +35,11 @@ export type ResearchArticle = {
   cta: BlogProductCtaVariant;
   statusNote?: string;
   dataNote?: string;
+  /** Explicit editorial approval for the short-lived Google News sitemap. */
+  newsSitemapEligible?: boolean;
+  /** ISO timestamp used to remove an approved news article after 48 hours. */
+  newsPublishedAt?: string;
   image?: string;
+  imageAlt?: string;
+  imageCaption?: string;
 };

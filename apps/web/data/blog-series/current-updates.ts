@@ -2,6 +2,276 @@ import { defineArticle, source, standardRelated } from './shared';
 
 export const currentUpdateArticles = [
   defineArticle({
+    slug: 'september-2026-f1-fixed-admission-rule-opt',
+    title:
+      'September 15, 2026 F-1 Rule: I-94 Dates, OPT, and Travel Explained',
+    seoTitle: 'September 2026 F-1 Rule: I-94, OPT & Travel',
+    description:
+      'DHS is scheduled to replace F-1 Duration of Status with fixed I-94 admission dates on September 15, 2026. Learn the transition rules, 30-day grace period, OPT deadline, and travel effect.',
+    category: 'F-1 Policy Update',
+    tags: [
+      'F-1 Visa Rule 2026',
+      'Duration of Status',
+      'I-94 Admit Until Date',
+      'OPT Travel',
+      'STEM OPT',
+    ],
+    readTime: '11 min read',
+    publishedDate: '2026-08-27',
+    modifiedDate: '2026-08-27',
+    newsSitemapEligible: true,
+    newsPublishedAt: '2026-08-27T15:00:00Z',
+    cta: 'opt-timeline',
+    image: '/blog/students-campus-public-domain.jpg',
+    imageAlt: 'Students studying on the lawn at Bastyr University campus',
+    imageCaption:
+      'Students on the Bastyr University campus. Public-domain photograph released by Bastyr University.',
+    statusNote:
+      'Status as of August 27, 2026: DHS published this as a final rule scheduled to take effect September 15, 2026. Litigation and implementation guidance can change the timeline or details. Before travel, an I-539 filing, a transfer, or an OPT decision, check your DSO’s current instructions and the official rule.',
+    directAnswer:
+      'Starting September 15, 2026, DHS is scheduled to replace F-1 “Duration of Status” admissions with a date-specific Form I-94 Admit Until Date (AUD), generally tied to the I-20 program end date for no more than four years plus a 30-day grace period. Students already in the United States under D/S have transition rules. For many of them, a timely OPT or STEM OPT I-765 filed by March 18, 2027 does not also require Form I-539—but travel or a later filing can change that result.',
+    keyTakeaways: [
+      'The new framework is scheduled to begin September 15, 2026; a newly issued I-94 will show a date-specific AUD rather than D/S.',
+      'For new F-1 admissions, the AUD is generally the I-20 program end date, up to four years, plus a 30-day grace period.',
+      'F-1 students already in the United States under D/S on September 15 may keep transition protections, including the legacy 60-day grace period in the described circumstances.',
+      'For the transition exception, an F-1 student under D/S who remains in the United States and timely files OPT or STEM OPT I-765 by March 18, 2027 does not also file I-539; reentry or filing later can require both filings.',
+    ],
+    sections: [
+      {
+        heading: 'What Changes on September 15, 2026?',
+        paragraphs: [
+          'DHS published a final rule scheduled to end Duration of Status (D/S) admissions for F, J, and I nonimmigrants. For F-1 students, an I-94 issued on or after the effective date is expected to show an Admit Until Date (AUD): a specific end date for authorized stay rather than the notation D/S.',
+          'For a new F-1 admission, the rule generally ties the admission period to the program end date on Form I-20, for no more than four years, and adds a 30-day departure grace period. A fixed AUD is not your visa-expiration date; it is the deadline that controls your authorized stay after entry. Read the I-94 issued for your own admission.',
+        ],
+      },
+      {
+        heading: 'If You Are Already in the United States Under D/S',
+        paragraphs: [
+          'The transition rules matter most for current students. University guidance interpreting the final rule says an F-1 student admitted for D/S and physically present in the United States on September 15 may remain through the program end date or EAD end date, plus the existing 60-day F-1 grace period, subject to the transition maximum.',
+          'That transition does not last forever. The guidance calculates the outer transition endpoint as November 14, 2030 for F-1 students. More importantly for near-term planning, travel and reentry after September 15 can end the D/S transition and produce a date-specific AUD on the new I-94.',
+        ],
+        note:
+          'Do not assume your I-94 will change automatically on September 15. Check the I-94 after every entry to the United States. Your physical location, entry date, and the document CBP issues to you matter.',
+      },
+      {
+        heading: 'OPT and STEM OPT: The March 18, 2027 Transition Deadline',
+        paragraphs: [
+          'The final rule includes a temporary exception for certain students who were admitted for D/S and remain in the United States through the transition. If they timely file Form I-765 for post-completion OPT or STEM OPT by March 18, 2027, they do not also need to file Form I-539 for an extension of stay under that exception.',
+          'The exception is fact-specific. The University of Arizona’s implementation guidance says a student who leaves the United States before filing I-765 will receive an AUD upon reentry and must then file both the I-765 and I-539. Students who apply after March 18, 2027 may also need both filings. Do not treat another student’s travel history as an answer for your case.',
+        ],
+        bullets: [
+          'Potential transition exception: D/S admission, in the United States on September 15, no departure before filing, and a timely I-765 by March 18, 2027',
+          'Potential added filing: travel and reentry after the effective date before the I-765 filing',
+          'Potential added filing: OPT or STEM OPT I-765 submitted after March 18, 2027',
+        ],
+      },
+      {
+        heading: 'Travel, Program Extensions, Transfers, and Grace Periods',
+        paragraphs: [
+          'The final rule does not ban international travel, but returning after September 15 can change the admission framework that applies to you. Ask your DSO to review your I-20, travel dates, pending filings, and expected program or EAD end date before you depart. A valid visa stamp alone does not tell you what AUD CBP will issue.',
+          'The rule also reduces the standard F-1 grace period after completion of study or post-completion practical training from 60 days to 30 days for students subject to the new fixed-AUD framework. The transition rules may preserve a 60-day grace period for qualifying current D/S students until they travel and reenter or receive an extension of stay.',
+          'DHS also added restrictions on certain transfers and educational-objective changes. Because those rules depend on degree level, timing, and narrow exceptions, confirm the plan with your school before changing programs or transferring.',
+        ],
+      },
+      {
+        heading: 'A Safe Planning Checklist for F-1 Students',
+        paragraphs: [
+          'This rule makes personal dates more important, not less. Your I-20, I-94, EAD, SEVIS history, travel date, and filing date can all affect the next step. Track those documents before you book a flight or start an application.',
+          'This guide is educational, not individual legal advice. If an AUD could expire, your OPT filing is close to March 18, 2027, or you have a pending change of status or cap-gap question, get case-specific guidance from your DSO and qualified immigration counsel before the deadline.',
+        ],
+      },
+    ],
+    checklist: [
+      'Download your current I-94 and save it with your passport, I-20, EAD, and USCIS notices.',
+      'If you are considering travel on or after September 15, ask your DSO how reentry could affect your AUD and OPT filing plan.',
+      'If you expect to file OPT or STEM OPT, calendar both the ordinary filing window and the March 18, 2027 transition deadline.',
+      'After each entry, confirm the new I-94 record before relying on a prior D/S admission.',
+    ],
+    mistakes: [
+      'Confusing the visa-stamp expiration date with the I-94 Admit Until Date.',
+      'Assuming every current F-1 student automatically moves to a 30-day grace period on September 15.',
+      'Traveling or filing after the transition deadline without reviewing whether I-539 is also needed.',
+      'Using a general internet answer instead of the DSO’s advice for a transfer, program extension, or change of level.',
+    ],
+    faq: [
+      {
+        question: 'Do current F-1 students need to leave the United States on September 15, 2026?',
+        answer:
+          'No. Current students admitted for D/S who are physically present in the United States on the effective date have transition rules. Their exact authorized stay depends on their program or EAD dates, travel, and other actions, so they should review the rule with their DSO.',
+      },
+      {
+        question: 'Will my I-94 automatically change from D/S to a date?',
+        answer:
+          'Not necessarily. Guidance for current D/S students says the I-94 does not automatically change immediately. Travel and reentry after September 15, a later OPT filing, or other actions can result in a new date-specific AUD.',
+      },
+      {
+        question: 'Do I need I-539 with my OPT I-765?',
+        answer:
+          'It depends. The transition exception can remove the I-539 requirement for qualifying D/S students who remain in the United States and timely file by March 18, 2027. Travel before filing or a later filing may require both. Confirm your facts with your DSO and counsel.',
+      },
+      {
+        question: 'Does this rule eliminate H-1B cap-gap?',
+        answer:
+          'The rule does not itself eliminate the general cap-gap policy. A fixed AUD can add timing questions, so eligible students should coordinate early with the DSO, employer, and qualified immigration counsel.',
+      },
+    ],
+    sources: [
+      source.fixedAdmissionRule,
+      source.fixedAdmissionUniversityGuide,
+      source.campusStudentsPhoto,
+    ],
+    related: [
+      {
+        label: 'Complete OPT application checklist',
+        href: '/blog/opt-application-checklist-2026',
+      },
+      {
+        label: 'Can you travel while on OPT?',
+        href: '/blog/can-you-travel-on-opt-complete-guide',
+      },
+      {
+        label: 'H-1B cap-gap extension guide',
+        href: '/blog/h1b-cap-gap-extension',
+      },
+    ],
+  }),
+  defineArticle({
+    slug: 'dhs-proposes-103265-h1b-fee-2026',
+    title:
+      'DHS Proposes a $103,265 H-1B Fee: What OPT Students Should Know',
+    seoTitle: 'New $103,265 H-1B Fee Proposal: OPT Impact',
+    description:
+      'DHS published a proposed $103,265 additional fee for cap-subject H-1B petitions. It is not in effect today. See who may be affected, what has not changed for OPT, and what to watch next.',
+    category: 'H-1B Policy Update',
+    tags: [
+      'H-1B Fee Proposal',
+      'H-1B Cap',
+      'OPT to H-1B',
+      'USCIS',
+      'H-1B 2026',
+    ],
+    readTime: '8 min read',
+    publishedDate: '2026-08-27',
+    modifiedDate: '2026-08-27',
+    newsSitemapEligible: true,
+    newsPublishedAt: '2026-08-27T15:00:00Z',
+    cta: 'sponsors',
+    image: '/blog/uscis-hq-dhs-public-domain.jpg',
+    imageAlt:
+      'Officials at the 2017 groundbreaking ceremony for the USCIS headquarters in Camp Springs, Maryland',
+    imageCaption:
+      'USCIS headquarters groundbreaking, Camp Springs, Maryland (2017). Official DHS photograph by Jetta Disco; public-domain U.S. government work.',
+    statusNote:
+      'Status as of August 27, 2026: this is a notice of proposed rulemaking, not a fee currently due from OPT students or H-1B petitioners. The Federal Register notice says comments are due September 24, 2026. Do not make filing, job, or travel decisions based on a proposal alone.',
+    directAnswer:
+      'DHS has proposed an additional $103,265 fee for H-1B petitions that are subject to the annual cap, including the U.S. advanced-degree exemption. The proposal does not change OPT or STEM OPT today, and it is not a final rule. If it is finalized in its current form, it could materially affect an employer’s cost to file a future cap-subject H-1B petition; it would not apply to cap-exempt petitions described in the proposal.',
+    keyTakeaways: [
+      'The proposal was published in the Federal Register on August 25, 2026; it is not effective merely because it was proposed.',
+      'The proposed $103,265 amount would be additional to other applicable H-1B fees and payments.',
+      'The proposed scope is cap-subject H-1B petitions: the 65,000 regular cap and the 20,000 U.S. advanced-degree exemption.',
+      'The proposal says cap-exempt petitions, such as filings by certain institutions of higher education and research organizations, would not be subject to this additional fee.',
+    ],
+    sections: [
+      {
+        heading: 'What DHS Proposed—and What It Did Not Do',
+        paragraphs: [
+          'On August 25, 2026, DHS published a notice of proposed rulemaking for an additional $103,265 fee on H-1B petitions subject to the annual cap. The agency says the fee would be paid when the petition is filed and would be separate from other applicable fees or payments.',
+          'A proposal starts a rulemaking process; it is not the same thing as a final, effective requirement. The notice invites public comments through September 24, 2026. Until DHS completes the rulemaking process and establishes an effective rule, readers should not describe this as a fee that is currently payable.',
+        ],
+      },
+      {
+        heading: 'Does the Proposed H-1B Fee Change OPT or STEM OPT?',
+        paragraphs: [
+          'No. The proposed rule concerns a potential employer filing fee for cap-subject H-1B petitions. It does not change the eligibility rules, filing windows, employment requirements, unemployment limits, or EAD validity rules for OPT or STEM OPT.',
+          'For an F-1 student, the practical issue is future sponsorship: a cap-subject employer may reassess its hiring plans if the proposal becomes final. That does not mean every employer will make the same decision, and it does not alter your current authorization to work on OPT.',
+        ],
+        note:
+          'Separate two questions: “Am I authorized to work on OPT now?” and “Could an employer’s future H-1B filing cost change?” Your OPT documents and your employer’s petition strategy are not the same legal question.',
+      },
+      {
+        heading: 'Which H-1B Cases Would the Proposal Cover?',
+        paragraphs: [
+          'DHS states that the proposed fee would apply to all cap-subject petitions, including petitions counted against the U.S. advanced-degree exemption. Congress sets the annual numerical limits at 65,000 regular-cap visas plus 20,000 visas for certain beneficiaries with a U.S. master’s degree or higher.',
+          'The proposal states that it would not apply to H-1B petitions that are not subject to the cap. Its examples include certain nonprofit research organizations, governmental research organizations, and institutions of higher education. Whether a particular employer or petition is cap-exempt depends on the facts, so applicants should not self-classify from a job title or a company name alone.',
+        ],
+        bullets: [
+          'Potentially covered if finalized: regular-cap H-1B petitions',
+          'Potentially covered if finalized: advanced-degree-exemption H-1B petitions',
+          'Described as excluded: cap-exempt petitions, including the examples named in the proposal',
+        ],
+      },
+      {
+        heading: 'What an OPT Student Can Do Now',
+        paragraphs: [
+          'Do not tell an employer that a $103,265 charge is already required. Instead, keep your own work authorization and graduation records organized, ask a recruiter whether the role has a history of H-1B sponsorship, and let the employer’s immigration counsel assess any future petition.',
+          'If you are choosing between a cap-subject and a potentially cap-exempt employer, confirm the organization’s status with the employer—not an internet list. If your case involves a pending change of status, cap-gap, prior H-1B time, or a nonprofit affiliation, consult qualified immigration counsel before relying on a general article.',
+        ],
+        numbered: [
+          'Save your I-20s, EAD, I-94, and USCIS notices in one place.',
+          'Ask prospective employers factual questions about whether they sponsor H-1B petitions and who handles immigration filings.',
+          'Use public filing-history data as a research signal, not as a promise that an employer will sponsor you.',
+          'Watch the Federal Register docket for a final rule or other official agency update.',
+        ],
+      },
+      {
+        heading: 'Why the Date and Status Language Matters',
+        paragraphs: [
+          'A large dollar figure makes fast headlines, but immigration reporting is useful only when it separates a proposal, a final rule, and a fee that is actually due. The Federal Register identifies this action as a proposed rule and provides the docket number USCIS-2026-0298 for comments and updates.',
+          'TrackMyOPT will update this page if DHS publishes a final rule, changes the proposed scope or amount, or announces a different effective date. Until then, the safest conclusion is straightforward: monitor the proposal, but follow the current OPT and H-1B rules that apply to your own case.',
+        ],
+      },
+    ],
+    checklist: [
+      'Read the Federal Register notice, not only a social-media headline or repost.',
+      'Keep your OPT or STEM OPT dates and employment records current with your DSO and employer.',
+      'Ask the employer—not a public database—to confirm whether it sponsors and whether a role is cap-subject or cap-exempt.',
+      'Recheck the official docket before H-1B registration or petition-filing decisions.',
+    ],
+    mistakes: [
+      'Treating a notice of proposed rulemaking as a fee already in force.',
+      'Assuming the fee is paid by an OPT student rather than understanding the petition is employer-filed.',
+      'Assuming every university-affiliated or nonprofit role is cap-exempt without an employer and counsel review.',
+      'Making job, OPT, travel, or status decisions based on a single news headline.',
+    ],
+    faq: [
+      {
+        question: 'Is the $103,265 H-1B fee in effect now?',
+        answer:
+          'No. As of August 27, 2026, DHS has published a proposed rule. The proposal is open for comments through September 24, 2026; it is not itself a final fee requirement.',
+      },
+      {
+        question: 'Would an OPT student pay the proposed $103,265 fee?',
+        answer:
+          'The proposal describes a fee paid at the time the H-1B petition is filed. H-1B petitions are filed by employers, not by the student. Do not assume an employer may lawfully shift a particular immigration cost to you; ask qualified counsel about the specific filing and employment arrangement.',
+      },
+      {
+        question: 'Does this proposal change my OPT or STEM OPT EAD?',
+        answer:
+          'No. The proposed rule concerns an additional fee for cap-subject H-1B petitions. It does not revise current OPT or STEM OPT work-authorization rules.',
+      },
+      {
+        question: 'Are cap-exempt H-1B petitions included?',
+        answer:
+          'The proposal says the additional fee would not apply to H-1B petitions that are not subject to the cap, and names certain higher-education and research organizations as examples. Confirm the classification of a specific employer or petition with the employer and qualified counsel.',
+      },
+    ],
+    sources: [source.h1bFeeProposal, source.h1bFeeBulletin, source.uscisHqPhoto],
+    related: [
+      {
+        label: 'OPT to H-1B transition guide',
+        href: '/blog/opt-to-h1b-transition',
+      },
+      {
+        label: 'H-1B sponsor companies and how to research them',
+        href: '/blog/top-h1b-sponsor-companies-2026',
+      },
+      {
+        label: 'H-1B cap-gap extension guide',
+        href: '/blog/h1b-cap-gap-extension',
+      },
+    ],
+  }),
+  defineArticle({
     slug: 'opt-biometrics-appointment-2026',
     title:
       'OPT Biometrics Appointment in 2026: Why USCIS Scheduled You, What to Bring, and What Happens Next',

@@ -221,12 +221,14 @@ export function ProfileTab({
                           <div className="flex items-center gap-2">
                             <span className="text-xs opacity-70">Force override:</span>
                             <button 
+                              type="button"
                               onClick={() => setProfile({...profile, isStemEligible: !profile.isStemEligible})}
-                              className={`text-xs px-2 py-1 rounded transition-colors ${
+                              className={`min-h-11 px-2 py-1 text-xs rounded transition-colors ${
                                 profile.isStemEligible 
                                   ? 'bg-emerald-200 text-emerald-900 hover:bg-emerald-300 dark:bg-emerald-800 dark:text-emerald-100'
                                   : 'bg-amber-200 text-amber-900 hover:bg-amber-300 dark:bg-amber-800 dark:text-amber-100'
                               }`}
+                              aria-pressed={profile.isStemEligible}
                             >
                               {profile.isStemEligible ? 'Disable' : 'Enable'}
                             </button>

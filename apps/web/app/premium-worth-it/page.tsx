@@ -9,7 +9,6 @@ import {
   Briefcase,
   CheckCircle2,
   AlertTriangle,
-  Star,
 } from 'lucide-react';
 
 const faqSchema = {
@@ -21,7 +20,7 @@ const faqSchema = {
       name: 'Is TrackMyOPT premium worth it?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes — for F-1 students on OPT or STEM OPT, TrackMyOPT Premium is worth it because it automates unemployment day tracking, sends deadline alerts before USCIS cutoffs, and consolidates job tracking, resume tools, and I-983 planning in one place. Missing an OPT deadline can result in status termination, making the cost of premium negligible compared to the risk.',
+        text: 'TrackMyOPT Pro is useful for students who want daily reminders, daily USCIS case checks with change alerts, a document vault, and higher career-tool limits in one place.',
       },
     },
     {
@@ -29,7 +28,7 @@ const faqSchema = {
       name: "What does TrackMyOPT premium include that the free plan doesn't?",
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Premium (Pro) adds automated deadline reminders, unemployment day alerts, daily USCIS case auto-checks, employer tracking, higher AI resume limits, secure document vault, and STEM OPT extension planning — designed to reduce manual USCIS monitoring and compliance risk.',
+        text: 'Pro adds daily 9:00 AM ET OPT-tool reminders, unemployment alerts, daily USCIS case checks with change alerts, a document vault, full H-1B sponsor access, and higher career-tool limits.',
       },
     },
     {
@@ -37,7 +36,7 @@ const faqSchema = {
       name: 'Can I track OPT without TrackMyOPT premium?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'You can track basic dates manually with the free plan, but premium removes the risk of human error for unemployment day counts, which directly affect your F-1 status. A single miscalculation could push you over the 90-day limit and trigger status termination.',
+        text: 'Yes. Free includes core OPT tools, manual case refresh, the first 25 H-1B sponsor profiles, and step-by-step Chrome prefill. Pro adds automation and higher limits.',
       },
     },
     {
@@ -45,7 +44,7 @@ const faqSchema = {
       name: 'Is TrackMyOPT free enough for OPT students?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'The free plan is a solid starting point for basic OPT date tracking. However, OPT students managing unemployment limits, job transitions, or STEM OPT extensions benefit significantly from premium automation to stay compliant and avoid costly errors.',
+        text: 'The free plan is a good starting point for core OPT tools and manual tracking. Pro may be useful if you want daily reminders, case monitoring, full sponsor access, or higher career-tool limits.',
       },
     },
     {
@@ -156,18 +155,17 @@ export default function PremiumWorthItPage() {
             Bottom Line
           </p>
           <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-            For most F-1 students on OPT or STEM OPT, TrackMyOPT Pro is worth it
-            if you want daily 9:00 AM ET reminders, unemployment day tracking
-            with alerts, and USCIS case monitoring in one place — without
-            spreadsheets. At $4.99/month, it helps you stay organized before
-            deadlines sneak up. Always confirm requirements with your DSO.
+            Free covers core OPT tools and manual case checks. Pro adds daily
+            reminders, daily USCIS checks with change alerts, a Document Vault,
+            full H-1B sponsor access, and higher career-tool limits. Confirm
+            filing requirements with your DSO.
           </p>
         </div>
 
         {/* Key Reasons */}
         <section className="key-reasons mb-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            5 Reasons Premium Is Worth the Investment
+            What Pro helps you manage
           </h2>
 
           <div className="space-y-6">
@@ -177,15 +175,11 @@ export default function PremiumWorthItPage() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                  1. Missing the 90-Day Limit Ends Your OPT
+                  1. Unemployment-day tracking
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  F-1 students on post-completion OPT are limited to 90
-                  cumulative days of unemployment (150 for STEM OPT). Exceeding
-                  this limit results in automatic status termination — not a
-                  warning, not a second chance. Premium tracks your unemployment
-                  days in real time and sends alerts at 60, 75, and 85 days so
-                  you always have time to act.
+                  Track the 90-day initial OPT limit and the 150-day STEM OPT
+                  limit. Pro adds automated unemployment alerts.
                 </p>
               </div>
             </div>
@@ -196,14 +190,11 @@ export default function PremiumWorthItPage() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                  2. Daily USCIS Monitoring Catches Changes Instantly
+                  2. USCIS case updates
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Premium checks your USCIS case status every morning and emails
-                  you the moment anything changes. If you receive an RFE
-                  (Request for Evidence), you have limited time to respond.
-                  Finding out days late can mean the difference between approval
-                  and denial.
+                  Pro checks your USCIS case status daily and emails you when a
+                  status changes.
                 </p>
               </div>
             </div>
@@ -214,14 +205,12 @@ export default function PremiumWorthItPage() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                  3. STEM OPT Compliance Is Too Complex for Manual Tracking
+                  3. STEM OPT tasks
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  STEM OPT students must track the 150-day unemployment limit
-                  across a 36-month period, maintain an I-983 training plan,
-                  verify E-Verify employer enrollment, and report changes within
-                  10 days. Premium automates all of this and sends proactive
-                  reminders for each requirement.
+                  Keep your STEM OPT timeline, unemployment clock, and relevant
+                  reminders together. Confirm employer E-Verify requirements
+                  directly with the employer and your DSO.
                 </p>
               </div>
             </div>
@@ -232,13 +221,11 @@ export default function PremiumWorthItPage() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                  4. Career Tools Accelerate Your Job Search
+                  4. Career tools
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Pro includes 50 AI resumes and 100 ATS scans per month, job
-                  application tracking, and full access to the H-1B sponsor
-                  database with approval rate data. The faster you find
-                  employment, the fewer unemployment days you accumulate.
+                  Use higher AI resume and ATS scan limits, continuous Chrome
+                  prefill, Guided Autopilot, and full H-1B sponsor research.
                 </p>
               </div>
             </div>
@@ -249,14 +236,11 @@ export default function PremiumWorthItPage() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                  5. The Cost vs Risk Math Is Obvious
+                  5. A plan that fits your needs
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Pro costs $4.99/month. A missed OPT deadline can cost you your
-                  legal status, your job, and your ability to remain in the
-                  United States. The Sprintax partner coupon is available to all
-                  users; premium pays for automation that protects your status
-                  every day.
+                  Compare current plans and choose the level of reminders,
+                  monitoring, and career support you want.
                 </p>
               </div>
             </div>
@@ -272,13 +256,13 @@ export default function PremiumWorthItPage() {
             <ul className="space-y-3">
               {[
                 'Automated unemployment day tracking with alerts at 60, 75, and 85 days',
-                'Daily USCIS case status auto-checks with instant email notifications',
-                'Daily 9AM email reminders for all upcoming deadlines',
-                'Secure encrypted document vault with expiry reminders',
+                'Daily USCIS case status auto-checks with email alerts when a scheduled check detects a change',
+                'Daily 9:00 AM ET reminders for OPT-tool deadlines',
+                'Document Vault with expiry reminders',
                 '50 AI resumes and 100 ATS scans per month',
-                'Unlimited job application tracking',
-                'Full H-1B sponsor database with approval rate data',
-                'STEM OPT I-983 training plan tracking and E-Verify verification',
+                'Continuous Chrome prefill and Guided Autopilot, which never submits an application',
+                'Full H-1B sponsor profiles with historical activity, trends, and LCA filing details',
+                'STEM OPT calculator and timeline tools',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
@@ -297,9 +281,7 @@ export default function PremiumWorthItPage() {
             Who Should Get Premium?
           </h2>
           <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-            TrackMyOPT Premium is the responsible default for any F-1 student
-            who is actively on OPT or STEM OPT. If you fall into any of these
-            categories, premium pays for itself:
+            Pro may be a good fit if any of these situations applies to you:
           </p>
           <ul className="space-y-2 text-gray-700 dark:text-gray-300">
             <li className="flex items-start gap-2">
@@ -313,8 +295,7 @@ export default function PremiumWorthItPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 font-bold">•</span>
-              You have a pending USCIS case and need to know immediately when it
-              updates
+              You have a pending USCIS case and want email updates
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 font-bold">•</span>
@@ -322,54 +303,9 @@ export default function PremiumWorthItPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-600 font-bold">•</span>
-              You want peace of mind that no deadline will slip through the
-              cracks
+              You prefer reminders rather than tracking dates manually
             </li>
           </ul>
-        </section>
-
-        {/* Testimonials */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            What Students Say
-          </h2>
-          <div className="space-y-4">
-            {[
-              {
-                quote:
-                  'I was manually tracking my unemployment days in a spreadsheet and almost missed the 90-day limit. Premium alerts saved my OPT status.',
-                name: 'Priya S.',
-                detail: 'CS Graduate, University of Illinois',
-              },
-              {
-                quote:
-                  'The daily USCIS auto-check caught my case status change the same morning it happened. Worth every penny for the peace of mind.',
-                name: 'Wei L.',
-                detail: 'ECE Graduate, Georgia Tech',
-              },
-            ].map((t, i) => (
-              <div
-                key={i}
-                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6"
-              >
-                <div className="flex gap-1 mb-3">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <Star
-                      key={j}
-                      className="w-4 h-4 text-amber-400 fill-amber-400"
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 italic mb-3">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  — {t.name},{' '}
-                  <span className="font-normal text-gray-500">{t.detail}</span>
-                </p>
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* Internal Links */}
@@ -417,12 +353,11 @@ export default function PremiumWorthItPage() {
       <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-            Protect Your OPT Status Today
+            Stay organized through OPT
           </h2>
           <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
             Eligible accounts start Pro for $0.99 for 7 days, then regular
-            billing begins unless canceled. Cancel anytime. Because your F-1
-            status is too important to leave to a spreadsheet.
+            billing begins unless canceled. Cancel anytime.
           </p>
           <Link
             href="/login"

@@ -5,13 +5,18 @@ const mocks = vi.hoisted(() => ({ getUserId: vi.fn() }));
 
 vi.mock("@/lib/auth/get-user-id", () => ({ getUserId: mocks.getUserId }));
 vi.mock("@/lib/posthog-server", () => ({ captureServerEvent: vi.fn() }));
+vi.mock("@/lib/api/cors-policy", () => ({
+  corsHeadersWebAndExtension: (req: NextRequest) => ({
+    "Access-Control-Allow-Origin": req.headers.get("origin") || "https://www.trackmyopt.com",
+  }),
+}));
 
 const { POST } = await import("./route");
 
-function request(body: unknown) {
+function request(body: unknown, origin?: string) {
   return new NextRequest("https://www.trackmyopt.com/api/resume-generator/compile", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(origin ? { origin } : {}) },
     body: JSON.stringify(body),
   });
 }
@@ -26,6 +31,17 @@ describe("POST /api/resume-generator/compile", () => {
     mocks.getUserId.mockResolvedValue(null);
 
     expect((await POST(request({ latexCode: "\\documentclass{article}" }))).status).toBe(401);
+  });
+
+  it("keeps extension CORS headers on compile errors", async () => {
+    const response = await POST(
+      request({ latexCode: "" }, "chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm"),
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "chrome-extension://hfljbefkccdmlnhclfojlafipjnjbajm",
+    );
   });
 
   it("rejects empty LaTeX before calling the compiler", async () => {

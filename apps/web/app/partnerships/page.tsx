@@ -51,7 +51,7 @@ function PartnershipVisual() {
                     transition={{ delay: 0.5 }}
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-4 text-white text-center"
                 >
-                    <p className="text-sm opacity-80 mb-1">Students Helped</p>
+                    <p className="text-sm opacity-80 mb-1">Registered Users</p>
                     <p className="text-3xl font-bold">2,500+</p>
                 </motion.div>
             </div>

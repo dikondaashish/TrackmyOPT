@@ -3,7 +3,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "OPT & STEM OPT Compliance Tracker — Automated Alerts for F-1 Students | TrackMyOPT",
     description:
-        "Automated OPT unemployment day tracking, USCIS deadline alerts, and STEM OPT compliance monitoring. Prevent F-1 status termination with real-time alerts at 60, 75, and 85 days.",
+        "Track OPT unemployment days, deadline alerts, and STEM OPT tasks in one place, with reminders at 60, 75, and 85 days.",
     keywords: [
         "OPT compliance tracker",
         "90-day unemployment rule OPT",

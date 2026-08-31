@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { StemApplyTool } from "@/components/dashboard/opt-tools/tools/StemApplyTool";
+import { PublicOptToolPageIntro } from "@/components/seo/PublicOptToolPageIntro";
 
 // Comprehensive SEO for STEM OPT Extension Application Guide
 export const metadata: Metadata = {
-  title: "How to Apply for STEM OPT Extension | 24-Month Extension Guide 2026",
+  title: "STEM OPT Extension Application Guide",
   description:
-    "Complete guide to apply for STEM OPT 24-month extension. I-765 instructions, I-983 Training Plan requirements, E-Verify employer requirements, and filing timeline. Updated 2026.",
+    "Prepare a STEM OPT extension application with a filing-window calculator, I-983 reminders, and E-Verify planning steps.",
   keywords: [
     // Primary Keywords
     "STEM OPT extension",
@@ -121,6 +122,29 @@ export default function StemApplyPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(jsonLd) }}
       />
+      <PublicOptToolPageIntro
+        title="STEM OPT Extension Application Guide"
+        description="Use this planning tool to organize your STEM OPT extension deadline and prepare for the documents and employer details involved."
+      >
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Confirm STEM OPT eligibility</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            STEM OPT extension eligibility includes a qualifying STEM degree,
+            an E-Verify employer, and a completed Form I-983 training plan.
+            Your DSO reviews the information and issues the required I-20
+            recommendation.
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Build a complete filing plan</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            USCIS permits a STEM OPT extension filing up to 90 days before your
+            current OPT expires. Use the date below to plan early, and verify
+            current filing instructions, fees, and document requirements before
+            submitting Form I-765.
+          </p>
+        </div>
+      </PublicOptToolPageIntro>
       <StemApplyTool />
     </>
   );

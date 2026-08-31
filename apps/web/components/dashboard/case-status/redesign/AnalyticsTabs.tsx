@@ -191,6 +191,12 @@ export function AnalyticsTabs({
   const isPro = isPremium === true;
   const upgrade = isPremium === false ? onUpgrade : undefined;
 
+  const selectAdjacentTab = (current: TabId, direction: -1 | 1) => {
+    const currentIndex = TABS.findIndex((tab) => tab.id === current);
+    const nextIndex = (currentIndex + direction + TABS.length) % TABS.length;
+    setActive(TABS[nextIndex].id);
+  };
+
   return (
     <div>
       {/* Segmented control rather than underlined tabs: on a phone the row is
@@ -206,8 +212,26 @@ export function AnalyticsTabs({
             <button
               key={tab.id}
               role="tab"
+              id={`analytics-tab-${tab.id}`}
+              aria-controls={`analytics-panel-${tab.id}`}
               aria-selected={selected}
+              tabIndex={selected ? 0 : -1}
               onClick={() => setActive(tab.id)}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowRight") {
+                  event.preventDefault();
+                  selectAdjacentTab(tab.id, 1);
+                } else if (event.key === "ArrowLeft") {
+                  event.preventDefault();
+                  selectAdjacentTab(tab.id, -1);
+                } else if (event.key === "Home") {
+                  event.preventDefault();
+                  setActive(TABS[0].id);
+                } else if (event.key === "End") {
+                  event.preventDefault();
+                  setActive(TABS[TABS.length - 1].id);
+                }
+              }}
               className={cn(
                 "flex-1 flex items-center justify-center gap-1.5 px-1.5 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer",
                 selected
@@ -231,7 +255,12 @@ export function AnalyticsTabs({
         })}
       </div>
 
-      <div className="min-h-[200px]">
+      <div
+        id={`analytics-panel-${active}`}
+        role="tabpanel"
+        aria-labelledby={`analytics-tab-${active}`}
+        className="min-h-[200px]"
+      >
         {active === "prediction" && (
           <div className="space-y-5">
             {estimateLoading && !prediction && !summary ? (

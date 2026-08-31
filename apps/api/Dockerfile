@@ -20,7 +20,10 @@ COPY . .
 # The authorized ATS worker invokes the pinned, public-API ATS adapter through
 # a small Python bridge. Keep this list separate from root browser tooling:
 # this image never runs a browser worker or Playwright.
-RUN apk add --no-cache python3 py3-pip git
+RUN apk add --no-cache python3 py3-pip git \
+  texlive \
+  texmf-dist-latexextra \
+  texmf-dist-fontsrecommended
 RUN pip3 install --no-cache-dir --break-system-packages -r apps/api/requirements.job-board.txt
 
 # Build API

@@ -248,6 +248,10 @@ export default function ResumeGeneratorPage() {
 
     // Auto-fill last resume
     useEffect(() => {
+        let cancelled = false;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
         const fetchLastResume = async () => {
             // Only fetch if resumeText is empty (don't overwrite if user already typed/uploaded)
             if (resumeText) return;
@@ -256,16 +260,11 @@ export default function ResumeGeneratorPage() {
                 const { data: { user }, error: authError } = await supabase.auth.getUser();
                 if (authError || !user) return;
 
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
                 const response = await fetch(`/api/proxy/resume/list?userId=${user.id}`, {
                     signal: controller.signal
                 });
 
-                clearTimeout(timeoutId);
-
-                if (response.ok) {
+                if (!cancelled && response.ok) {
                     const data = await response.json();
                     const resumes = Array.isArray(data) ? data : (data.data ?? []);
                     
@@ -281,13 +280,22 @@ export default function ResumeGeneratorPage() {
                     }
                 }
             } catch (error) {
+                if (cancelled || controller.signal.aborted) return;
                 console.error("Failed to auto-fill resume:", error);
+            } finally {
+                clearTimeout(timeoutId);
             }
         };
 
         fetchLastResume();
+        return () => {
+            cancelled = true;
+            clearTimeout(timeoutId);
+            controller.abort();
+        };
+        // Run once on mount: this is intentionally an initial best-effort restore.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Run once on mount
+    }, []);
 
 
 
@@ -372,9 +380,7 @@ export default function ResumeGeneratorPage() {
 
                     // Auto-save if checked
                     if (saveResume) {
-                        if (saveResume) {
-                            handleSaveResume(result.text, result.filename, result.s3Key);
-                        }
+                        handleSaveResume(result.text, result.filename, result.s3Key);
                     }
                 } else {
                     setJobDescription(result.text, result.filename);
@@ -429,9 +435,7 @@ export default function ResumeGeneratorPage() {
 
                     // Auto-save if checked
                     if (saveResume) {
-                        if (saveResume) {
-                            handleSaveResume(result.content, result.title); // URLs typically don't fail, but we don't have s3Key yet unless we upload it
-                        }
+                        handleSaveResume(result.content, result.title); // URLs typically don't fail, but we don't have s3Key yet unless we upload it
                     }
                 } else {
                     setJobDescription(result.content, result.title);
@@ -663,8 +667,10 @@ export default function ResumeGeneratorPage() {
                                 />
                                 {resumeText && (
                                     <button
+                                        type="button"
                                         onClick={clearResume}
-                                        className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                        className="absolute top-1 right-1 min-h-11 min-w-11 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                        aria-label="Clear resume text"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -780,6 +786,15 @@ export default function ResumeGeneratorPage() {
                                 onDragOver={handleDragOver}
                                 onDrop={handleResumeDrop}
                                 onClick={() => resumeFileInputRef.current?.click()}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault();
+                                        resumeFileInputRef.current?.click();
+                                    }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label="Upload a resume file"
                                 className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer group"
                             >
                                 <input
@@ -901,8 +916,10 @@ export default function ResumeGeneratorPage() {
                             />
                             {jobDescription && (
                                 <button
+                                    type="button"
                                     onClick={clearJob}
-                                    className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                    className="absolute top-1 right-1 min-h-11 min-w-11 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                    aria-label="Clear job description"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
@@ -1018,6 +1035,15 @@ export default function ResumeGeneratorPage() {
                             onDragOver={handleDragOver}
                             onDrop={handleJobDrop}
                             onClick={() => jobFileInputRef.current?.click()}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    jobFileInputRef.current?.click();
+                                }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Upload a job description file"
                             className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 transition-all cursor-pointer group"
                         >
                             <input

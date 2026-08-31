@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { extractJobTitle, isLikelyFilename, normalizeRoleTitle } from '@/lib/resume/extract-job-title';
-import type { AtsAnalysis } from '@/lib/resume/ats-analysis-types';
+import { normalizeAtsAnalysis, type AtsAnalysis } from '@/lib/resume/ats-analysis-types';
 import type { TemplateColor } from '@/lib/documents/templates';
 
 export type { AtsAnalysis };
@@ -95,7 +95,8 @@ export const useResumeStore = create<ResumeState>()(
             setSelectedColor: (color: TemplateColor | null) => set({ selectedColor: color }),
             setGeneratedLatex: (latex: string) => set({ generatedLatex: latex }),
             setCompiledPdfUrl: (url: string) => set({ compiledPdfUrl: url }),
-            setAtsAnalysis: (analysis: AtsAnalysis | null) => set({ atsAnalysis: analysis }),
+            setAtsAnalysis: (analysis: AtsAnalysis | null) =>
+                set({ atsAnalysis: normalizeAtsAnalysis(analysis) }),
             setIsGenerating: (isGenerating: boolean) => set({ isGenerating }),
             setIsCompiling: (isCompiling: boolean) => set({ isCompiling }),
             reset: () => set({
@@ -126,6 +127,10 @@ export const useResumeStore = create<ResumeState>()(
                 generatedLatex: state.generatedLatex,
                 atsAnalysis: state.atsAnalysis
             }),
+            onRehydrateStorage: () => (state) => {
+                if (!state) return;
+                state.setAtsAnalysis(state.atsAnalysis);
+            },
         } as PersistOptions<ResumeState, PersistedResumeState>
     )
 );

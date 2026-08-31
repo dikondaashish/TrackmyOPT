@@ -92,7 +92,10 @@ export default function robots(): MetadataRoute.Robots {
 
     return {
         host: "https://www.trackmyopt.com",
-        sitemap: "https://www.trackmyopt.com/sitemap.xml",
+        sitemap: [
+            "https://www.trackmyopt.com/sitemap.xml",
+            "https://www.trackmyopt.com/news-sitemap.xml",
+        ],
         rules: [
             ...aiAndSearchBots.map(botRule),
             {

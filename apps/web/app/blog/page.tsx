@@ -101,17 +101,6 @@ const blogPosts = [
         image: "/blog/opt-premium-processing-fee-increase-1780.png"
     },
     {
-        slug: "end-of-duration-of-status-f1-visa-rule",
-        title: "End of 'Duration of Status': What the New DHS 4-Year Visa Rule Means for OPT Students",
-        description: "DHS announced a final rule ending 'Duration of Status' for F-1 visas. Learn how the new 4-year cap, mandatory USCIS extensions, and 30-day grace period impact you.",
-        category: "Important",
-        readTime: "8 min read",
-        date: "February 9, 2026",
-        tags: ["F-1 Visa", "Duration of Status", "OPT Rules", "DHS"],
-        featured: true,
-        image: "/blog/dhs-visa-rule.png"
-    },
-    {
         slug: "form-i9-complete-guide",
         title: "Form I-9: The Complete 2026 Guide for Employees & Employers",
         description: "Everything you need to know about Form I-9 Employment Eligibility Verification — who fills it out, what documents are accepted, deadlines, and how OPT/STEM OPT students complete it.",
@@ -189,17 +178,6 @@ const blogPosts = [
         image: "/blog/green-card-processing.png"
     },
     {
-        slug: "f1-visa-duration-of-status-ds-ending-2026",
-        title: "Is 'Duration of Status' Ending for F-1 Students? What the New 2026 Rule Means",
-        description: "The proposed rule to end 'Duration of Status' (D/S) for F-1 and J-1 students is under final OMB review. Learn how fixed expiration dates will change OPT.",
-        category: "Important",
-        readTime: "8 min read",
-        date: "May 14, 2026",
-        tags: ["F-1 Visa", "Duration of Status", "OPT"],
-        featured: true,
-        image: "/blog/duration-of-status.png"
-    },
-    {
         slug: "dol-prevailing-wage-hikes-h1b-impact-2026",
         title: "DOL Proposes Massive Prevailing Wage Hikes for H-1B: What It Means (2026)",
         description: "The Department of Labor has proposed significant hikes to prevailing wage thresholds for H-1B, E-3, and PERM programs. Learn how this impacts international graduates.",
@@ -220,17 +198,6 @@ const blogPosts = [
         tags: ["OPT", "STEM OPT", "Congress"],
         featured: true,
         image: "/blog/opt-congress-bills.png"
-    },
-    {
-        slug: "federal-court-vacates-100k-h1b-fee-2026",
-        title: "Federal Court Vacates $100,000 H-1B Fee: What It Means for Employers (June 2026)",
-        description: "A major June 2026 ruling by a US District Court in Massachusetts has vacated the controversial $100,000 H-1B fee. Read the full details and next steps.",
-        category: "Important",
-        readTime: "4 min read",
-        date: "May 26, 2026",
-        tags: ["H-1B", "Fee", "Update", "2026"],
-        featured: true,
-        image: "/blog/h1b-fee-vacated.png"
     },
     {
         slug: "h1b-weighted-selection-process-fy2027",

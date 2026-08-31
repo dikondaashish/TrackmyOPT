@@ -1,124 +1,133 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { captureServerEvent } from '@/lib/posthog-server';
 import { getUserId } from '@/lib/auth/get-user-id';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 
-// CORS headers (restricted to same-origin; extension uses Bearer auth)
-const corsHeaders = {
-    'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const MAX_LATEX_CHARS = 200_000;
+const COMPILER_TIMEOUT_MS = 45_000;
 
-export async function OPTIONS() {
-    return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
+}
+
+function unavailableResponse(corsHeaders: Record<string, string>) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: 'Resume compilation is temporarily unavailable. Please try again later.',
+      code: 'resume_compiler_unavailable',
+    },
+    { status: 503, headers: corsHeaders },
+  );
+}
+
+function getPrivateCompilerUrl(): URL | null {
+  const configured = process.env.LATEX_COMPILER_URL?.trim();
+  if (!configured) return null;
+  try {
+    const url = new URL(configured);
+    return url.protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: NextRequest) {
-    const userId = await getUserId(req);
-    if (!userId) {
-        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  const corsHeaders = corsHeadersWebAndExtension(req);
+  const userId = await getUserId(req);
+  if (!userId) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized' },
+      { status: 401, headers: corsHeaders },
+    );
+  }
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Invalid request body.' },
+      { status: 400, headers: corsHeaders },
+    );
+  }
+
+  const latexCode =
+    typeof body === 'object' && body !== null && 'latexCode' in body
+      ? (body as { latexCode?: unknown }).latexCode
+      : null;
+  if (typeof latexCode !== 'string' || !latexCode.trim()) {
+    return NextResponse.json(
+      { success: false, error: 'No LaTeX code provided.' },
+      { status: 400, headers: corsHeaders },
+    );
+  }
+  if (latexCode.length > MAX_LATEX_CHARS) {
+    return NextResponse.json(
+      { success: false, error: 'Resume source is too large to compile.' },
+      { status: 413, headers: corsHeaders },
+    );
+  }
+
+  const compilerUrl = getPrivateCompilerUrl();
+  if (!compilerUrl) return unavailableResponse(corsHeaders);
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), COMPILER_TIMEOUT_MS);
+  try {
+    const token = process.env.LATEX_COMPILER_TOKEN?.trim();
+    const response = await fetch(compilerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        compiler: 'pdflatex',
+        resources: [{ main: true, content: latexCode }],
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      // Compiler responses can include the submitted resume. Do not reflect or
+      // persist their body in logs or in the client response.
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'The resume could not be compiled. Please check the content and try again.',
+          code: 'resume_compile_failed',
+        },
+        { status: 422, headers: corsHeaders },
+      );
     }
 
-    try {
-        const body = await req.json();
-        const { latexCode } = body;
-
-        if (!latexCode) {
-            return NextResponse.json(
-                { success: false, error: 'No LaTeX code provided' },
-                { status: 400, headers: corsHeaders }
-            );
-        }
-
-        // Use external LaTeX compiler (latex-on-http or similar)
-        // For production, we recommend a robust service like LaTeX.Online or your own container
-        // Using a public reliable API endpoint for demonstration/MVP
-        // NOTE: If using a paid/private service, add API key here
-
-        // This is a common public latex compiler endpoint (Ytotech) or similar
-        // If this is flaky, you can use: https://latex.online/compile
-        // Compiler Endpoints (Primary + Fallback)
-        const COMPILERS = [
-            {
-                name: 'Primary (Ytotech)',
-                url: process.env.LATEX_COMPILER_URL || 'https://latex.ytotech.com/builds/sync',
-                payload: (code: string) => ({
-                    compiler: 'pdflatex',
-                    resources: [{ main: true, content: code }],
-                })
-            },
-            {
-                name: 'Fallback (LaTeX.Online)',
-                url: 'https://latex.online/compile?text=' + encodeURIComponent(latexCode),
-                method: 'GET', // Latex.online supports GET for text
-                // payload: null // GET request
-            }
-        ];
-
-        let pdfBuffer: ArrayBuffer | null = null;
-        let lastError = "";
-
-        for (const compiler of COMPILERS) {
-            try {
-                console.log(`Attempting compilation with ${compiler.name}...`);
-
-                let response;
-                if (compiler.method === 'GET') {
-                    response = await fetch(compiler.url);
-                } else {
-                    response = await fetch(compiler.url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(compiler.payload ? compiler.payload(latexCode) : {})
-                    });
-                }
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.warn(`${compiler.name} failed: ${response.status} - ${errorText.substring(0, 100)}`);
-                    // Keep the compiler's actual log (truncated) — fix-latex needs
-                    // the real error to repair the LaTeX, not just the status text.
-                    lastError = `${compiler.name} (${response.status}): ${errorText.substring(0, 800)}`;
-                    continue; // Try next compiler
-                }
-
-                pdfBuffer = await response.arrayBuffer();
-                console.log(`Success with ${compiler.name}!`);
-
-                const distinctId = userId;
-                await captureServerEvent(distinctId, 'resume_compiled', {
-                    compiler: compiler.name,
-                    latex_size_bytes: latexCode.length,
-                });
-
-                break; // Stop loop on success
-
-            } catch (err: any) {
-                console.warn(`${compiler.name} network error:`, err.message);
-                lastError = `${compiler.name} Exception: ${err.message}`;
-            }
-        }
-
-        if (!pdfBuffer) {
-            throw new Error(`All compilers failed. Last error: ${lastError}`);
-        }
-
-        // Return PDF as binary stream
-        return new NextResponse(pdfBuffer, {
-            status: 200,
-            headers: {
-                ...corsHeaders,
-                'Content-Type': 'application/pdf',
-                'Content-Disposition': 'inline; filename="resume.pdf"',
-            },
-        });
-
-    } catch (error: any) {
-        console.error('Compilation Error:', error);
-        return NextResponse.json(
-            { success: false, error: error.message || 'Failed to compile LaTeX' },
-            { status: 500, headers: corsHeaders }
-        );
+    const pdfBuffer = await response.arrayBuffer();
+    const pdfBytes = new Uint8Array(pdfBuffer);
+    if (
+      pdfBytes.length < 5 ||
+      String.fromCharCode(...pdfBytes.subarray(0, 5)) !== '%PDF-'
+    ) {
+      return unavailableResponse(corsHeaders);
     }
+
+    await captureServerEvent(userId, 'resume_compiled', {
+      compiler: 'private_compiler',
+      latex_size_bytes: latexCode.length,
+    });
+
+    return new NextResponse(pdfBuffer, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'inline; filename="resume.pdf"',
+        'Cache-Control': 'no-store',
+      },
+    });
+  } catch {
+    return unavailableResponse(corsHeaders);
+  } finally {
+    clearTimeout(timeout);
+  }
 }

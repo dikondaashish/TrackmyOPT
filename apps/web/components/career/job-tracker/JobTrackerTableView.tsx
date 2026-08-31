@@ -100,22 +100,24 @@ export function JobTrackerTableView({
         });
     }, [applications, sortField, sortDirection]);
 
-    const SortHeader = ({ field, children, className }: { field: SortField; children: React.ReactNode; className?: string }) => (
+    const renderSortHeader = (field: SortField, label: string, className?: string) => (
         <th
-            onClick={() => handleSort(field)}
-            className={cn(
-                "px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors",
-                className
-            )}
+            scope="col"
+            aria-sort={sortField === field ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            className={cn("p-0 text-left", className)}
         >
-            <div className="flex items-center gap-1">
-                {children}
+            <button
+                type="button"
+                onClick={() => handleSort(field)}
+                className="flex w-full items-center gap-1 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700/50"
+            >
+                {label}
                 {sortField === field && (
                     sortDirection === "asc"
                         ? <ChevronUp className="w-3.5 h-3.5" />
                         : <ChevronDown className="w-3.5 h-3.5" />
                 )}
-            </div>
+            </button>
         </th>
     );
 
@@ -139,13 +141,13 @@ export function JobTrackerTableView({
                 <table className="w-full min-w-[560px] lg:min-w-[900px]">
                     <thead className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
                         <tr>
-                            <SortHeader field="company">Company</SortHeader>
-                            <SortHeader field="role">Role</SortHeader>
-                            <SortHeader field="stage">Stage</SortHeader>
-                            <SortHeader field="location" className="hidden lg:table-cell">Location</SortHeader>
-                            <SortHeader field="applied">Applied</SortHeader>
-                            <SortHeader field="followup" className="hidden md:table-cell">Follow-up</SortHeader>
-                            <SortHeader field="interviews" className="hidden lg:table-cell">Interviews</SortHeader>
+                            {renderSortHeader("company", "Company")}
+                            {renderSortHeader("role", "Role")}
+                            {renderSortHeader("stage", "Stage")}
+                            {renderSortHeader("location", "Location", "hidden lg:table-cell")}
+                            {renderSortHeader("applied", "Applied")}
+                            {renderSortHeader("followup", "Follow-up", "hidden md:table-cell")}
+                            {renderSortHeader("interviews", "Interviews", "hidden lg:table-cell")}
                             <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Status
                             </th>
@@ -214,15 +216,17 @@ export function JobTrackerTableView({
                                                 ))}
                                             </select>
                                         ) : (
-                                            <span
+                                            <button
+                                                type="button"
+                                                aria-label={`Change status for ${app.company_name}`}
                                                 onClick={() => setEditingStage(app.id)}
                                                 className={cn(
-                                                    "inline-block px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer hover:ring-2 hover:ring-blue-400",
+                                                    "inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium hover:ring-2 hover:ring-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500",
                                                     STAGE_COLORS[app.status as JobStage]
                                                 )}
                                             >
                                                 {app.status}
-                                            </span>
+                                            </button>
                                         )}
                                     </td>
 
@@ -287,20 +291,24 @@ export function JobTrackerTableView({
                                                     href={app.job_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
+                                                    aria-label={`Open ${app.company_name} job listing`}
                                                     className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                                                 >
                                                     <ExternalLink className="w-4 h-4" />
                                                 </a>
                                             )}
                                             <button
+                                                type="button"
+                                                aria-label={`Open ${app.company_name} application`}
                                                 onClick={() => onCardClick(app)}
                                                 className="p-1.5 max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
                                             {onDelete && (
-                                                <button
-                                                    type="button"
+                                            <button
+                                                type="button"
+                                                aria-label={`Delete ${app.company_name} application`}
                                                     onClick={async () => {
                                                         if (!confirm("Delete this application?")) return;
                                                         try {

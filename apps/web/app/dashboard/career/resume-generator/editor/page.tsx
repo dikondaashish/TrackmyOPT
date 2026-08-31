@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { triggerUrlDownload } from "@/lib/browser-download";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +67,8 @@ export default function ResumeEditorPage() {
             ? "pro"
             : "free";
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const generationStartedRef = useRef(false);
+    const router = useRouter();
     const searchParams = useSearchParams();
     const autoRegenAttempts = useRef(0);
     const skipNextAutoRegen = useRef(false);
@@ -80,7 +82,8 @@ export default function ResumeEditorPage() {
         setResumeText, setJobDescription, setSelectedTemplateId,
         setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis, setApplicationId,
         isGenerating, setIsGenerating,
-        isCompiling, setIsCompiling
+        isCompiling, setIsCompiling,
+        reset
     } = useResumeStore();
 
     // Local UI State
@@ -149,7 +152,8 @@ export default function ResumeEditorPage() {
     const { displayedText, isStreaming, stopStreaming } = useStreamingEffect({
         text: generatedLatex,
         isEnabled: isStreamingEnabled,
-        speed: 3, // ~4× faster than 12ms; interval between chunk ticks (1–3 chars each)
+        speed: 16,
+        chunkSize: 48,
         onComplete: () => {
             setIsStreamingEnabled(false);
             // Sync history with the full generated text once streaming is done/stopped
@@ -247,8 +251,16 @@ export default function ResumeEditorPage() {
                     .join(" "),
             });
         }
-        if (resumePrep.text && jobPrep.text && selectedTemplateId && !generatedLatex && !isGenerating) {
-            generateResume(resumePrep.text, jobPrep.text, selectedTemplateId);
+        if (
+            resumePrep.text &&
+            jobPrep.text &&
+            selectedTemplateId &&
+            !generatedLatex &&
+            !isGenerating &&
+            !generationStartedRef.current
+        ) {
+            generationStartedRef.current = true;
+            void generateResume(resumePrep.text, jobPrep.text, selectedTemplateId);
         } else if (generatedLatex && !compiledPdfUrl && !isCompiling) {
             compilePdf(generatedLatex);
         }
@@ -938,6 +950,18 @@ export default function ResumeEditorPage() {
         }
     }, [atsAnalysis, generatedLatex, compilePdf, jobDescription, jobTitle, pdfParseOk, performDownload, compiledPdfUrl, selectedTemplateId, toast]);
 
+    const handleStartOver = useCallback(() => {
+        if (!window.confirm("Clear this in-progress resume and start again? Your saved resumes will not be deleted.")) {
+            return;
+        }
+
+        stopStreaming();
+        const currentUrl = useResumeStore.getState().compiledPdfUrl;
+        if (currentUrl) URL.revokeObjectURL(currentUrl);
+        reset();
+        router.replace("/dashboard/career/resume-generator");
+    }, [reset, router, stopStreaming]);
+
     const handleFixAndDownload = useCallback(async () => {
         setShowDownloadGate(false);
         if (atsAnalysis) {
@@ -1030,6 +1054,16 @@ export default function ResumeEditorPage() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleStartOver}
+                                disabled={isGenerating || isCompiling}
+                                className="hidden xl:flex items-center gap-1 text-gray-600"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Start over
+                            </Button>
                             <Button
                                 variant="outline"
                                 size="sm"

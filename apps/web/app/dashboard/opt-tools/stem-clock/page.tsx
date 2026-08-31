@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { StemClockTool } from "@/components/dashboard/opt-tools/tools/StemClockTool";
+import { PublicOptToolPageIntro } from "@/components/seo/PublicOptToolPageIntro";
 
 // Comprehensive SEO for STEM OPT Unemployment Calculator
 export const metadata: Metadata = {
-  title: "STEM OPT Unemployment Calculator | 90 + 60 Day Limit Tracker | Free Tool",
+  title: "STEM OPT Unemployment Calculator",
   description:
-    "Free STEM OPT unemployment days calculator. Track your unemployment days. Know how many days remain on your STEM OPT extension. Avoid status violation.",
+    "Track STEM OPT unemployment days and plan around the additional 60-day allowance and 150-day combined OPT limit.",
   keywords: [
     // Primary Keywords
     "STEM OPT unemployment calculator",
@@ -33,9 +34,9 @@ export const metadata: Metadata = {
   // Public tool page — override the dashboard layout's noindex
   robots: { index: true, follow: true },
   openGraph: {
-    title: "STEM OPT Unemployment Calculator | 90 + 60 Day Unlimited Tracker",
+    title: "STEM OPT Unemployment Calculator",
     description:
-      "Free tool to calculate your STEM OPT unemployment days. Track 90-day initial + 60-day stem extension limits.",
+      "Track STEM OPT unemployment days and plan around the 150-day combined OPT limit.",
     url: "https://www.trackmyopt.com/dashboard/opt-tools/stem-clock",
     siteName: "TrackMyOPT",
     type: "website",
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "STEM OPT Unemployment Calculator",
     description:
-      "Track your STEM OPT unemployment days. Monitor your 90-day initial and 60-day stem allowances.",
+      "Track STEM OPT unemployment days and plan around the 150-day combined OPT limit.",
   },
   alternates: {
     canonical: "https://www.trackmyopt.com/dashboard/opt-tools/stem-clock",
@@ -65,11 +66,11 @@ const jsonLd = [
       priceCurrency: "USD",
     },
     description:
-      "Free calculator to track STEM OPT unemployment days. F-1 students on STEM OPT have a 90-day initial limit plus an additional 60-day extension allowance.",
+      "Free calculator to track STEM OPT extension unemployment days. F-1 students may not exceed 150 days of unemployment across post-completion OPT and a STEM OPT extension.",
     featureList: [
       "Track unemployment days",
       "Visual progress indicator",
-      "Include initial OPT days used",
+      "Plan around the 150-day combined OPT limit",
       "Email alerts before limit",
     ],
   },
@@ -82,7 +83,7 @@ const jsonLd = [
         name: "How many unemployment days are allowed on STEM OPT?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "STEM OPT provides a separate 60-day unemployment allowance. This is independent of your initial 90-day limit.",
+          text: "F-1 students may not exceed 150 days of unemployment across post-completion OPT and a STEM OPT extension. The STEM extension can add up to 60 days beyond the regular OPT period.",
         },
       },
       {
@@ -90,7 +91,7 @@ const jsonLd = [
         name: "Is the STEM OPT unemployment limit 60 days or 150 days?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "The STEM OPT extension grants a separate 60-day unemployment allowance. Unused days from your initial 90-day OPT period do not carry forward to the STEM period.",
+          text: "The STEM extension period has up to 60 days of unemployment time, while the maximum across regular OPT and STEM OPT together is 150 days. Review your full OPT employment history when planning.",
         },
       },
       {
@@ -98,7 +99,7 @@ const jsonLd = [
         name: "What happens if I exceed my unemployment limit on STEM OPT?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Exceeding the unemployment limit terminates your STEM OPT and F-1 status. You would need to leave the United States. This violation can affect future visa applications, so tracking your days accurately is critical.",
+          text: "Exceeding an unemployment limit can affect F-1 status and future immigration benefits. Contact your DSO or a qualified immigration professional promptly if you are close to a limit or are unsure how employment is counted.",
         },
       },
     ],
@@ -115,6 +116,27 @@ export default function StemClockPage() {
           dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(schema) }}
         />
       ))}
+      <PublicOptToolPageIntro
+        title="STEM OPT Unemployment Calculator"
+        description="Record STEM extension employment dates and use this planning tool to monitor the unemployment time that may apply to your F-1 status."
+      >
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Understand the combined limit</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            STEM OPT adds up to 60 days of unemployment time. Across regular
+            OPT and the STEM extension, the combined unemployment limit is 150
+            days. Keep your initial OPT history in mind when planning.
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Keep your records current</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            Track employment changes promptly and retain supporting information.
+            Your DSO is the right source for how a particular role, start date,
+            or reporting update affects your SEVIS record and STEM OPT status.
+          </p>
+        </div>
+      </PublicOptToolPageIntro>
       <StemClockTool />
     </>
   );

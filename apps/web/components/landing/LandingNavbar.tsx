@@ -87,6 +87,7 @@ export function LandingNavbar() {
                                 src="/TrackMyOPT Logo/Favicon.png"
                                 alt="TrackMyOPT Logo"
                                 fill
+                                sizes="(min-width: 640px) 2.5rem, 2rem"
                                 className="object-contain"
                                 priority
                             />
@@ -97,7 +98,7 @@ export function LandingNavbar() {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center gap-6">
+                    <div className="hidden lg:flex items-center gap-6">
                         {/* Home */}
                         <Link
                             href="/"
@@ -240,7 +241,7 @@ export function LandingNavbar() {
                     </div>
 
                     {/* Desktop CTAs */}
-                    <div className="hidden md:flex items-center gap-4">
+                    <div className="hidden lg:flex items-center gap-4">
                         {user ? (
                             <>
                                 <Link
@@ -285,7 +286,9 @@ export function LandingNavbar() {
                     <button
                         type="button"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="md:hidden flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
+                        aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                        aria-expanded={isMobileMenuOpen}
+                        className="lg:hidden flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
                     >
                         {isMobileMenuOpen ? (
                             <X className="w-6 h-6" />
@@ -304,7 +307,7 @@ export function LandingNavbar() {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={prefersReducedMotion ? { duration: 0.15 } : undefined}
-                        className="flex max-h-[min(85dvh,calc(100dvh-7rem))] flex-col overflow-hidden border-b border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 md:hidden"
+                        className="flex max-h-[min(85dvh,calc(100dvh-7rem))] flex-col overflow-hidden border-b border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:hidden"
                     >
                         <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-4">
                             {/* Home */}

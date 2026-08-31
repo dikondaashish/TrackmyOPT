@@ -190,7 +190,7 @@ export default function H1BWeightedSelectionArticle() {
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Updates</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
-                    <Link href="/blog/federal-court-vacates-100k-h1b-fee-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Federal Court Vacates $100k H-1B Fee</Link>
+                    <Link href="/blog/dhs-proposes-103265-h1b-fee-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ $103,265 H-1B Fee Proposal: What It Means</Link>
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company</Link>
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The OPT to H-1B Transition Guide</Link>
                 </div>

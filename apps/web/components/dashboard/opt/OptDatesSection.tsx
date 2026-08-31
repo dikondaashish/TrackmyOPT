@@ -228,7 +228,7 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
         <button
           type="button"
           onClick={handlePrevMonth}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+          className="min-h-11 min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Previous month"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -239,7 +239,7 @@ function DatePicker({ value, onSelect }: { value: string; onSelect: (date: strin
         <button
           type="button"
           onClick={handleNextMonth}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+          className="min-h-11 min-w-11 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           aria-label="Next month"
         >
           <ChevronRight className="h-4 w-4" />
@@ -859,4 +859,3 @@ export function OptDatesSection() {
     </div>
   );
 }
-

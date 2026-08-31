@@ -73,7 +73,10 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         <div className="relative aspect-[1200/630] overflow-hidden rounded-2xl shadow-xl">
           <Image
             src={image}
-            alt={`International student reviewing documents for ${article.title}`}
+            alt={
+              article.imageAlt ??
+              `International student reviewing documents for ${article.title}`
+            }
             fill
             priority
             sizes="(min-width: 768px) 896px, 100vw"
@@ -81,8 +84,8 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           />
         </div>
         <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
-          A practical TrackMyOPT guide: confirm the rule, document your dates,
-          and act before the deadline.
+          {article.imageCaption ??
+            'A practical TrackMyOPT guide: confirm the rule, document your dates, and act before the deadline.'}
         </figcaption>
       </figure>
 

@@ -65,7 +65,7 @@ export function FeatureWhyMatters({
     const styles = accentStyles[accentColor];
 
     return (
-        <section className="py-24 relative bg-gray-50/50 dark:bg-zinc-900/50">
+        <section className="relative overflow-hidden bg-gray-50/50 py-24 dark:bg-zinc-900/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid lg:grid-cols-2 gap-16 items-center">
                     {/* Content */}

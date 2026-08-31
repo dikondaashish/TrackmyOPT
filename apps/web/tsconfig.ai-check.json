@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": { "@/*": ["./*"] }
+  },
+  "include": [
+    "next-env.d.ts",
+    "lib/ai/google-ai.ts",
+    "lib/ai/google-ai.test.ts",
+    "lib/ai/gemini-ai.ts",
+    "lib/ai/generate-grounded-text.ts",
+    "lib/resume/extract-autofill-snapshot.ts",
+    "app/api/resume-generator/generate/route.ts",
+    "app/api/resume-generator/regenerate/route.ts",
+    "app/api/resume-generator/scan/route.ts",
+    "app/api/resume-generator/fix-latex/route.ts",
+    "app/api/resume-generator/rewrite-bullet/route.ts",
+    "app/api/resume-generator/analyze-gap/route.ts",
+    "app/api/documents/upload/route.ts",
+    "app/api/extension/screening-answer/route.ts"
+  ]
+}

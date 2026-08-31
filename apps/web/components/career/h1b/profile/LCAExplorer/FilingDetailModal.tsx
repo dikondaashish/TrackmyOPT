@@ -159,6 +159,9 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
             onClick={onClose}
         >
             <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="lca-case-details-title"
                 className="bg-white dark:bg-gray-900 w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 border border-gray-200 dark:border-gray-800"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -166,7 +169,7 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
                     <div>
                         <div className="flex items-center gap-3 mb-1">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">LCA Case Details</h2>
+                            <h2 id="lca-case-details-title" className="text-xl font-bold text-gray-900 dark:text-white">LCA Case Details</h2>
                             <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${filing.status === "Certified"
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                                 : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
@@ -177,8 +180,10 @@ export function FilingDetailModal({ filing, isOpen, onClose }: FilingDetailModal
                         <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">Case #: {filing.case_number}</p>
                     </div>
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                        className="min-h-11 min-w-11 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                        aria-label="Close LCA case details"
                     >
                         <X className="w-5 h-5 text-gray-500" />
                     </button>

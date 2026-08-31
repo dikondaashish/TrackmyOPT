@@ -28,7 +28,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
     const scoreData = calculateSponsorScore(sponsor);
     const scoreColors = getScoreColor(scoreData.score);
     const approvals = sponsor.approvals_2025 || 0;
-    const isActivelyHiring = approvals > 0;
+    const hasRecentRecordedActivity = approvals > 0;
 
     const handleCardClick = () => {
         router.push(`/dashboard/career/h1b-sponsors/${sponsor.id}`);
@@ -36,8 +36,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
 
     return (
         <div
-            onClick={handleCardClick}
-            className="group relative bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-200/80 dark:border-gray-700/50 overflow-hidden hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-600/50 transition-all duration-300 cursor-pointer"
+            className="group relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white transition-all duration-300 hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-500/10 dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-blue-600/50"
         >
 
             {/* Top Color Bar - Visual Indicator */}
@@ -101,12 +100,14 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
 
                     {/* Save Button */}
                     <button
+                        type="button"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSave(sponsor.id); }}
-                        className={`p-2 rounded-lg transition-all shrink-0 ${isSaved
+                        className={`min-h-11 min-w-11 p-2 rounded-lg transition-all shrink-0 ${isSaved
                             ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm"
                             : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-700"
                             }`}
-                        title={isSaved ? "Saved" : "Save"}
+                        aria-label={isSaved ? `Remove ${sponsor.name} from saved sponsors` : `Save ${sponsor.name}`}
+                        aria-pressed={isSaved}
                     >
                         <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
                     </button>
@@ -136,11 +137,11 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                             ) : (
                                 <div className="w-3.5 h-3.5" />
                             )}
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">FY25Q4</span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">FY2025</span>
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-bold text-gray-900 dark:text-white">{approvals.toLocaleString()}</span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">visas</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">records</span>
                         </div>
                     </div>
                 </div>
@@ -166,18 +167,18 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                 {/* Status Badge */}
                 {!((sponsor.is_virtual_office || (sponsor.entry_level_percent || 0) > 0.7)) && (
                     <div className="mb-4">
-                        {isActivelyHiring ? (
+                        {hasRecentRecordedActivity ? (
                             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30">
                                 <span className="relative flex h-2 w-2">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                 </span>
-                                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Actively Sponsoring H-1B</span>
+                                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">FY2025 activity recorded</span>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/30">
                                 <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">No recent FY25 activity</span>
+                                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">No FY2025 activity recorded</span>
                             </div>
                         )}
                     </div>
@@ -187,12 +188,13 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                 <div className="flex items-center gap-2">
                     {/* Overview Button */}
                     <button
+                        type="button"
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             handleCardClick();
                         }}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold transition-all"
+                        className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
                     >
                         Overview
                     </button>
@@ -226,16 +228,17 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white transition-colors shadow-md shrink-0"
-                        title="Find on LinkedIn"
+                        className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-[#0A66C2] p-2.5 text-white shadow-md transition-colors hover:bg-[#004182] shrink-0"
+                        aria-label={`Find ${sponsor.name} on LinkedIn`}
                     >
                         <Linkedin className="w-4 h-4" />
                     </a>
 
                     <button
+                        type="button"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToTracker(sponsor); }}
-                        className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors shrink-0"
-                        title="Add to Job Tracker"
+                        className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gray-100 p-2.5 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 shrink-0"
+                        aria-label={`Add ${sponsor.name} to job tracker`}
                     >
                         <Briefcase className="w-4 h-4" />
                     </button>

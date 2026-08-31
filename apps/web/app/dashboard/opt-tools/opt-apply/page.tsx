@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import { OptApplyTool } from "@/components/dashboard/opt-tools/tools/OptApplyTool";
+import { PublicOptToolPageIntro } from "@/components/seo/PublicOptToolPageIntro";
 
 // Comprehensive SEO for OPT Application Guide
 export const metadata: Metadata = {
-  title: "How to Apply for OPT | Complete I-765 Application Checklist 2026",
+  title: "OPT Application Guide & I-765 Checklist",
   description:
-    "Step-by-step guide to apply for OPT (Optional Practical Training) as an F-1 student. Complete I-765 application checklist, required documents, filing fees, and timeline. Updated for 2026.",
+    "Plan your OPT application with an I-765 checklist, filing-window calculator, and key steps for F-1 students.",
   keywords: [
     // Primary Keywords
     "how to apply for OPT",
@@ -116,6 +117,28 @@ export default function OptApplyPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(jsonLd) }}
       />
+      <PublicOptToolPageIntro
+        title="OPT Application Guide & I-765 Deadline Calculator"
+        description="Use the calculator to organize your post-completion OPT filing dates, then work through the steps below before you submit Form I-765."
+      >
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Plan your filing window</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            USCIS instructions generally allow post-completion OPT filings up to
+            90 days before the program end date and no later than 60 days after
+            it. Your DSO recommendation date is also essential to the timeline.
+          </p>
+        </div>
+        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+          <h2 className="font-semibold text-slate-950 dark:text-white">Prepare before you file</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            Review your I-20, coordinate the OPT recommendation with your DSO,
+            and gather the identity, status, and prior authorization documents
+            required for your application. Check the current USCIS instructions
+            before submission.
+          </p>
+        </div>
+      </PublicOptToolPageIntro>
       <OptApplyTool />
     </>
   );

@@ -156,10 +156,7 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden">
       {/* Header */}
-      <div
-        className={`flex items-center justify-between p-4 bg-gradient-to-r ${config.gradient} cursor-pointer lg:cursor-default`}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+      <div className={`flex items-center justify-between p-4 bg-gradient-to-r ${config.gradient}`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
             {config.icon}
@@ -172,19 +169,27 @@ export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps
         <div className="flex items-center gap-2">
           <button
             onClick={(e) => { e.stopPropagation(); fetchStats(true); }}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+            className="min-h-11 min-w-11 p-2 hover:bg-white/20 rounded-lg transition-colors"
             disabled={isRefreshing}
+            aria-label="Refresh community report statistics"
           >
             <RefreshCw className={`w-4 h-4 text-white ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
-          <button className="lg:hidden p-1 text-white">
+          <button
+            type="button"
+            className="lg:hidden min-h-11 min-w-11 p-2 text-white"
+            onClick={() => setIsExpanded((expanded) => !expanded)}
+            aria-expanded={isExpanded}
+            aria-controls="live-stats-content"
+            aria-label={isExpanded ? "Collapse statistics" : "Expand statistics"}
+          >
             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className={`${isExpanded ? 'block' : 'hidden lg:block'}`}>
+      <div id="live-stats-content" className={`${isExpanded ? 'block' : 'hidden lg:block'}`}>
         {stats && (
           <div className="p-4 space-y-4">
             {/* Main Stat */}

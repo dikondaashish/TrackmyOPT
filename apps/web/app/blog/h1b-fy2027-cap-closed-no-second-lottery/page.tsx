@@ -151,7 +151,7 @@ export default function H1BCapClosedPage() {
 
                 <h2>Track Your Deadlines Carefully</h2>
                 <p>
-                    With the H-1B door closed for this year, managing your remaining OPT days is more critical than ever. Remember that under the new <Link href="/blog/end-of-duration-of-status-f1-visa-rule">2026 Duration of Status rules</Link>, your grace period upon completion of OPT is now just 30 days. 
+                    With the H-1B door closed for this year, managing your remaining OPT days is more critical than ever. Under the new <Link href="/blog/september-2026-f1-fixed-admission-rule-opt">2026 fixed-admission rules</Link>, the grace period and filing steps can depend on whether you remain in the D/S transition or receive a date-specific I-94.
                 </p>
 
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 text-white my-12 shadow-xl">

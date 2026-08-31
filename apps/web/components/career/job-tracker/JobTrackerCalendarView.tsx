@@ -211,8 +211,10 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
                     </h3>
                     {selectedDate && (
                         <button
+                            type="button"
                             onClick={() => setSelectedDate(null)}
-                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                            className="min-h-11 min-w-11 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                            aria-label="Clear selected date"
                         >
                             <X className="w-4 h-4 text-gray-400" />
                         </button>
@@ -223,10 +225,12 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
                     selectedDateEvents.length > 0 ? (
                         <div className="space-y-3">
                             {selectedDateEvents.map(event => (
-                                <div
+                                <button
+                                    type="button"
                                     key={event.id}
                                     onClick={() => onCardClick(event.application)}
-                                    className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                                    className="flex w-full items-start gap-3 rounded-lg bg-gray-50 p-3 text-left transition-colors hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700"
+                                    aria-label={`Open ${event.title} at ${event.company}`}
                                 >
                                     <div className={cn(
                                         "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
@@ -248,7 +252,7 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
                                             {event.company}
                                         </p>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     ) : (

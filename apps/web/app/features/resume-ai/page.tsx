@@ -110,7 +110,7 @@ export default function ResumeAIPage() {
                   {question: "Can I upload my resume in any format?", answer: "Yes! We accept PDF, DOCX, and plain text formats. PDF is recommended as it preserves formatting while remaining ATS-friendly."},
                   {question: "How is this different from other resume tools?", answer: "We specifically optimize for the job market international students face—including H-1B-friendly company language, visa sponsorship keywords, and OPT/CPT terminology that recruiters search for."},
                   {question: "Is my resume data kept private?", answer: "Absolutely. Your resume is encrypted, never shared with third parties, and automatically deleted after 30 days of inactivity. We never use your data to train our models."},
-                  {question: "How many times can I analyze my resume?", answer: "Free users get 3 analyses per month. Premium subscribers get unlimited analyses plus job-specific tailoring for each application."}
+                  {question: "How many times can I analyze my resume?", answer: "Free includes 1 ATS scan per month. Pro includes 100 scans per month and Dedicated includes 250; resume credits can add more generation capacity."}
                 ]}
             />
             {/* Hero */}
@@ -260,7 +260,7 @@ export default function ResumeAIPage() {
                     },
                     {
                         question: "How many times can I analyze my resume?",
-                        answer: "Free users get 3 analyses per month. Premium subscribers get unlimited analyses plus job-specific tailoring for each application."
+                        answer: "Free includes 1 ATS scan per month. Pro includes 100 scans per month and Dedicated includes 250; resume credits can add more generation capacity."
                     },
                 ]}
             />
@@ -283,4 +283,3 @@ export default function ResumeAIPage() {
             />
         </main>        </>    );
 }
-

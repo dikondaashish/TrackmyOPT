@@ -14,13 +14,18 @@ import { createClient } from '@/lib/supabase/server';
 import {
   uploadToS3,
   deleteFromS3,
-  isValidDocumentType,
   generateS3Key
 } from '@/lib/aws/s3';
 import { analyzeDocument, normalizeText } from '@/lib/ai/gemini-ai';
 import { generateRemindersForDocument } from '@/lib/notifications/reminders';
 import { checkDocumentUploadRateLimit, getTimeUntilReset } from '@/lib/auth/rate-limit';
-import { scanFileForViruses, checkSuspiciousFileType } from '@/lib/aws/virus-scan';
+import {
+  checkSuspiciousFileType,
+  detectDocumentMimeType,
+  hasMatchingDocumentExtension,
+  isValidDocumentType,
+  scanFileForViruses,
+} from '@/lib/aws/virus-scan';
 import { captureServerEvent } from '@/lib/posthog-server';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -99,16 +104,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!isValidDocumentType(file.type)) {
-      return NextResponse.json(
-        { error: 'Invalid file type. Only PDF, JPEG, PNG, and WebP are allowed.' },
-        { status: 400 }
-      );
-    }
-
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    const detectedMimeType = detectDocumentMimeType(buffer);
+    if (
+      !detectedMimeType ||
+      !isValidDocumentType(file.type) ||
+      !hasMatchingDocumentExtension(file.name, detectedMimeType)
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid file. Upload a valid PDF, JPEG, PNG, or WebP document.' },
+        { status: 400 }
+      );
+    }
 
     // Quick heuristic check for suspicious file types
     if (checkSuspiciousFileType(file.name, file.type)) {
@@ -119,15 +129,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Scan for viruses (if enabled)
-    const virusScanResult = await scanFileForViruses(buffer, file.name);
+    const virusScanResult = await scanFileForViruses(
+      buffer,
+      file.name,
+      detectedMimeType,
+    );
     
     if (!virusScanResult.safe) {
       return NextResponse.json(
-        { 
-          error: 'File failed virus scan',
-          threat: virusScanResult.threat,
-        },
-        { status: 400 }
+        virusScanResult.unavailable
+          ? {
+              error: 'Document scanning is temporarily unavailable. Please try again later.',
+              code: 'document_scan_unavailable',
+            }
+          : { error: 'File failed the security scan.', code: 'document_scan_failed' },
+        { status: virusScanResult.unavailable ? 503 : 400 }
       );
     }
     
@@ -135,10 +151,10 @@ export async function POST(request: NextRequest) {
     // Step 1: Upload to S3
     const s3Key = generateS3Key(user.id, file.name);
     
-    await uploadToS3(buffer, s3Key, file.type);
+    await uploadToS3(buffer, s3Key, detectedMimeType);
 
     // Step 2: Analyze with Gemini AI (OCR + Classification + Extraction)
-    const analysis = await analyzeDocument(buffer, file.type, file.name, user.id);
+    const analysis = await analyzeDocument(buffer, detectedMimeType, file.name, user.id);
     const normalizedText = normalizeText(analysis.extractedText);
 
     // Step 3: Save to database
@@ -148,7 +164,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         file_name: file.name, // Original column from migration 005
         filename: file.name, // New column from migration 006
-        file_type: file.type,
+        file_type: detectedMimeType,
         file_size: file.size,
         s3_key: s3Key,
         s3_bucket: process.env.AWS_S3_BUCKET!,
@@ -190,7 +206,7 @@ export async function POST(request: NextRequest) {
 
     await captureServerEvent(user.id, "document_uploaded", {
       document_type: document.document_type || analysis.documentType || 'other',
-      file_type: file.type,
+      file_type: detectedMimeType,
       file_size_bytes: file.size,
       ai_confidence: analysis.confidence,
       has_expiry_date: !!analysis.expiryDate,

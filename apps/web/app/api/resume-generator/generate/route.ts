@@ -20,7 +20,9 @@ import {
     RESUME_TEXT_MAX_CHARS,
 } from '@/lib/resume/resume-text-limits';
 
-// Rate Limiter: 10 requests per minute per IP using Upstash
+// Rate limiter: 10 requests per minute per authenticated user using Upstash.
+// Using the user ID avoids one campus, office, or mobile carrier blocking other
+// signed-in students who happen to share its public IP address.
 const ratelimit = hasUpstashRedisConfig()
   ? new Ratelimit({
       redis: Redis.fromEnv(),
@@ -64,9 +66,8 @@ export async function POST(req: NextRequest) {
         reservationUserId = userId;
 
         // 1. Rate Limiting
-        const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
         if (ratelimit) {
-            const { success } = await ratelimit.limit(ip);
+            const { success } = await ratelimit.limit(`resume-generate:${userId}`);
             if (!success) {
                 return NextResponse.json(
                     { error: 'Too many requests. Please try again later.' },

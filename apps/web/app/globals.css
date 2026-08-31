@@ -4,6 +4,13 @@
 
 @layer base {
   :root {
+    /* Shared product type scale. These are anchored to the Verified Jobs page
+       so headings and copy read consistently across every TrackMyOPT surface. */
+    --tmopt-font-caption: 0.75rem;
+    --tmopt-font-body: 0.875rem;
+    --tmopt-font-title: 1.5rem;
+    --tmopt-font-title-wide: 1.875rem;
+
     /* Apple-inspired Light Mode - Clean, bright, airy */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -139,9 +146,79 @@
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: var(--tmopt-font-body);
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* A page title is the same size everywhere: 24px on compact screens and
+     30px from the small breakpoint up, matching the Verified Jobs reference. */
+  h1,
+  h1[class] {
+    font-size: var(--tmopt-font-title) !important;
+    line-height: 2rem !important;
+  }
+
+  p,
+  p[class] {
+    font-size: var(--tmopt-font-body) !important;
+    line-height: 1.5rem !important;
+  }
+
+  @media (min-width: 640px) {
+    h1,
+    h1[class] {
+      font-size: var(--tmopt-font-title-wide) !important;
+      line-height: 2.25rem !important;
+    }
+  }
+}
+
+/* Replace one-off, hard-to-read text sizes with the shared caption/body
+   scale. Attribute matching includes responsive variants (for example,
+   `sm:text-[10px]`) without requiring per-page styling changes. */
+@layer utilities {
+  :is(
+    [class*="text-[8px]"],
+    [class*="text-[9px]"],
+    [class*="text-[10px]"],
+    [class*="text-[11px]"],
+    [class*="text-[12px]"],
+    [class*="text-[12.5px]"],
+    [class*="text-[0.6rem]"],
+    [class*="text-[0.6875rem]"]
+  ) {
+    font-size: var(--tmopt-font-caption) !important;
+    line-height: 1rem !important;
+  }
+
+  :is(
+    [class*="text-[13px]"],
+    [class*="text-[15px]"],
+    [class*="text-[0.9375rem]"],
+    [class*="text-[1.05rem]"],
+    [class*="text-[16.5px]"]
+  ) {
+    font-size: var(--tmopt-font-body) !important;
+    line-height: 1.5rem !important;
+  }
+
+  :is(
+    [class*="text-[1.35rem]"],
+    [class*="text-[1.4rem]"],
+    [class*="text-[1.5rem]"],
+    [class*="text-[1.625rem]"],
+    [class*="text-[1.65rem]"]
+  ) {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  [class*="text-[1.75rem]"] {
+    font-size: var(--tmopt-font-title) !important;
+    line-height: 2rem !important;
   }
 }
 

@@ -1,212 +1,181 @@
 /**
- * Virus Scanning Utility
- * 
- * Framework for scanning uploaded files for viruses/malware
- * Currently disabled - enable by setting ENABLE_VIRUS_SCAN=true
- * 
- * Implementation Options:
- * 1. ClamAV (recommended for self-hosted)
- * 2. VirusTotal API (cloud-based, rate limited)
- * 3. MetaDefender API (cloud-based, paid)
+ * Document malware scanning and content-signature validation.
+ *
+ * Production uploads are deliberately fail-closed. Configure MALWARE_SCAN_URL
+ * to a private scanning service that accepts multipart `file` uploads and
+ * responds with `{ safe: boolean, threat?: string }`.
  */
+
+export type SafeDocumentMimeType =
+  | 'application/pdf'
+  | 'image/jpeg'
+  | 'image/png'
+  | 'image/webp';
 
 interface VirusScanResult {
   safe: boolean;
+  unavailable?: boolean;
   threat?: string;
   scanTime: number;
   scanner: string;
 }
 
+const SCAN_TIMEOUT_MS = 30_000;
+
+function unavailable(startTime: number, scanner: string): VirusScanResult {
+  return {
+    safe: false,
+    unavailable: true,
+    scanner,
+    scanTime: Date.now() - startTime,
+  };
+}
+
+function normalizeDocumentMimeType(value: string): SafeDocumentMimeType | null {
+  const normalized = value.toLowerCase().trim();
+  if (normalized === 'application/pdf') return 'application/pdf';
+  if (normalized === 'image/jpeg' || normalized === 'image/jpg') return 'image/jpeg';
+  if (normalized === 'image/png') return 'image/png';
+  if (normalized === 'image/webp') return 'image/webp';
+  return null;
+}
+
+/** Determine the actual type from the bytes, never the browser supplied MIME. */
+export function detectDocumentMimeType(buffer: Buffer): SafeDocumentMimeType | null {
+  if (buffer.length >= 5 && buffer.subarray(0, 5).toString('ascii') === '%PDF-') {
+    return 'application/pdf';
+  }
+  if (
+    buffer.length >= 3 &&
+    buffer[0] === 0xff &&
+    buffer[1] === 0xd8 &&
+    buffer[2] === 0xff
+  ) {
+    return 'image/jpeg';
+  }
+  if (
+    buffer.length >= 8 &&
+    buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+  ) {
+    return 'image/png';
+  }
+  if (
+    buffer.length >= 12 &&
+    buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+    buffer.subarray(8, 12).toString('ascii') === 'WEBP'
+  ) {
+    return 'image/webp';
+  }
+  return null;
+}
+
+export function isValidDocumentType(contentType: string): boolean {
+  return normalizeDocumentMimeType(contentType) !== null;
+}
+
+export function hasMatchingDocumentExtension(
+  filename: string,
+  contentType: SafeDocumentMimeType,
+): boolean {
+  const extension = filename.toLowerCase().trim().split('.').pop();
+  const expected = {
+    'application/pdf': ['pdf'],
+    'image/jpeg': ['jpg', 'jpeg'],
+    'image/png': ['png'],
+    'image/webp': ['webp'],
+  }[contentType];
+  return extension != null && expected.includes(extension);
+}
+
 /**
- * Scan file buffer for viruses
- * 
- * @param fileBuffer - File content as Buffer
- * @param filename - Original filename
- * @returns Scan result
+ * Scan an upload through the configured private malware-scanning service.
+ * Local development may opt out explicitly; production never may.
  */
 export async function scanFileForViruses(
   fileBuffer: Buffer,
-  filename: string
+  filename: string,
+  contentType: SafeDocumentMimeType,
 ): Promise<VirusScanResult> {
   const startTime = Date.now();
 
-  // Check if virus scanning is enabled
-  if (process.env.ENABLE_VIRUS_SCAN !== 'true') {
-    console.warn('[VirusScan] ⚠️ Virus scanning is DISABLED. File accepted without scan:', filename);
-    return {
-      safe: true,
-      scanner: 'disabled',
-      scanTime: Date.now() - startTime,
-    };
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.DOCUMENT_SCAN_MODE === 'disabled'
+  ) {
+    return { safe: true, scanner: 'development-disabled', scanTime: Date.now() - startTime };
   }
 
-  // Select scanner based on configuration
-  const scanner = process.env.VIRUS_SCANNER || 'clamav';
+  const endpoint = process.env.MALWARE_SCAN_URL?.trim();
+  if (!endpoint) return unavailable(startTime, 'not-configured');
 
-  switch (scanner) {
-    case 'clamav':
-      return await scanWithClamAV(fileBuffer, filename, startTime);
-    
-    case 'virustotal':
-      return await scanWithVirusTotal(fileBuffer, filename, startTime);
-    
-    default:
-      return {
-        safe: true,
-        scanner: 'none',
-        scanTime: Date.now() - startTime,
-      };
-  }
-}
-
-/**
- * Scan file using ClamAV
- * 
- * Requires:
- * - ClamAV installed on server
- * - clamd running
- * - node-clam package installed
- * 
- * Setup:
- * 1. Install ClamAV: apt-get install clamav clamav-daemon
- * 2. Start daemon: systemctl start clamav-daemon
- * 3. Install package: pnpm add clamscan
- * 4. Set env: CLAMAV_HOST=localhost, CLAMAV_PORT=3310
- */
-async function scanWithClamAV(
-  fileBuffer: Buffer,
-  filename: string,
-  startTime: number
-): Promise<VirusScanResult> {
-  // ClamAV integration is optional and requires manual setup
-  // To enable:
-  // 1. Install ClamAV: apt-get install clamav clamav-daemon
-  // 2. Install package: pnpm add clamscan
-  // 3. Set env: CLAMAV_HOST=localhost, CLAMAV_PORT=3310
-  // 4. Uncomment the implementation below
-  
-  
-  return {
-    safe: true,
-    scanner: 'clamav (not configured)',
-    scanTime: Date.now() - startTime,
-  };
-  
-  /* Uncomment to enable ClamAV scanning:
-  
+  let url: URL;
   try {
+    url = new URL(endpoint);
+  } catch {
+    return unavailable(startTime, 'invalid-configuration');
+  }
+  if (url.protocol !== 'https:') return unavailable(startTime, 'invalid-configuration');
 
-    const { default: NodeClam } = await import('clamscan');
-
-    const clamscan = await new NodeClam().init({
-      clamdscan: {
-        host: process.env.CLAMAV_HOST || 'localhost',
-        port: parseInt(process.env.CLAMAV_PORT || '3310'),
-        timeout: 30000,
-      },
-      preference: 'clamdscan',
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SCAN_TIMEOUT_MS);
+  try {
+    const form = new FormData();
+    form.append(
+      'file',
+      new Blob([new Uint8Array(fileBuffer)], { type: contentType }),
+      filename,
+    );
+    const token = process.env.MALWARE_SCAN_TOKEN?.trim();
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: form,
+      signal: controller.signal,
     });
+    if (!response.ok) return unavailable(startTime, 'scanner-unavailable');
 
-    const { isInfected, viruses } = await clamscan.scanStream(fileBuffer);
-
-
-    return {
-      safe: !isInfected,
-      threat: isInfected ? viruses.join(', ') : undefined,
-      scanner: 'clamav',
-      scanTime: Date.now() - startTime,
-    };
-
-  } catch (error) {
-    console.error('❌ ClamAV scan error:', error);
-    return {
-      safe: true,
-      scanner: 'clamav (error)',
-      scanTime: Date.now() - startTime,
-    };
-  }
-  */
-}
-
-/**
- * Scan file using VirusTotal API
- * 
- * Requires:
- * - VirusTotal API key
- * - virustotal-api package installed
- * 
- * Setup:
- * 1. Get API key from https://www.virustotal.com/gui/user/YOUR_USERNAME/apikey
- * 2. Install package: pnpm add virustotal-api
- * 3. Set env: VIRUSTOTAL_API_KEY=your-api-key
- * 
- * Note: Free tier has rate limits (4 requests/minute)
- */
-async function scanWithVirusTotal(
-  fileBuffer: Buffer,
-  filename: string,
-  startTime: number
-): Promise<VirusScanResult> {
-  try {
-
-    if (!process.env.VIRUSTOTAL_API_KEY) {
-      console.error('❌ VIRUSTOTAL_API_KEY not configured');
-      return {
-        safe: true,
-        scanner: 'virustotal (not configured)',
-        scanTime: Date.now() - startTime,
-      };
+    const result: unknown = await response.json();
+    if (
+      typeof result !== 'object' ||
+      result === null ||
+      !('safe' in result) ||
+      typeof result.safe !== 'boolean'
+    ) {
+      return unavailable(startTime, 'invalid-scanner-response');
     }
 
-    // VirusTotal requires file upload via multipart/form-data
-    // For production, implement full VirusTotal integration
-    // For now, return safe (fail open)
-    
-    
     return {
-      safe: true,
-      scanner: 'virustotal (not implemented)',
+      safe: result.safe,
+      threat:
+        'threat' in result && typeof result.threat === 'string'
+          ? result.threat.slice(0, 200)
+          : undefined,
+      scanner: 'private-malware-scanner',
       scanTime: Date.now() - startTime,
     };
-
-  } catch (error) {
-    console.error('❌ VirusTotal scan error:', error);
-    return {
-      safe: true,
-      scanner: 'virustotal (error)',
-      scanTime: Date.now() - startTime,
-    };
+  } catch {
+    return unavailable(startTime, 'scanner-unavailable');
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
-/**
- * Check if file type is commonly used for malware
- * Quick heuristic check before deep scan
- */
+/** Reject executable/archive extensions before any upload or scanner call. */
 export function checkSuspiciousFileType(filename: string, mimeType: string): boolean {
   const suspiciousExtensions = [
-    '.exe', '.bat', '.cmd', '.com', '.pif', '.scr',
-    '.vbs', '.js', '.jar', '.zip', '.rar', '.7z',
+    '.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar',
+    '.zip', '.rar', '.7z',
   ];
+  const normalizedName = filename.toLowerCase().trim();
+  const extension = normalizedName.includes('.')
+    ? normalizedName.slice(normalizedName.lastIndexOf('.'))
+    : '';
+  if (suspiciousExtensions.includes(extension)) return true;
 
-  const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
-  
-  if (suspiciousExtensions.includes(ext)) {
-    return true;
-  }
-
-  // Check for executable MIME types
-  const suspiciousMimeTypes = [
+  return [
     'application/x-msdownload',
     'application/x-msdos-program',
     'application/x-executable',
     'application/x-sh',
-  ];
-
-  if (suspiciousMimeTypes.includes(mimeType)) {
-    return true;
-  }
-
-  return false;
+  ].includes(mimeType.toLowerCase());
 }
-
