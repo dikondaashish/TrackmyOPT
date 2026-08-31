@@ -9,7 +9,7 @@ describe("EVerifyEmployerSearchPage", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "E-Verify Employer Search for STEM OPT",
+        name: "E-Verify employer search",
       })
     ).toBeInTheDocument();
     expect(

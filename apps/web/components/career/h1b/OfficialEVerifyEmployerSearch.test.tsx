@@ -8,7 +8,7 @@ describe("OfficialEVerifyEmployerSearch", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Official USCIS E-Verify Employer Search",
+        name: "Official USCIS E-Verify search",
       })
     ).toBeInTheDocument();
     expect(
