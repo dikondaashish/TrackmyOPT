@@ -31,6 +31,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useResumeStore } from "@/store/resume-store";
 import { extractJobTitle } from "@/lib/resume/extract-job-title";
+import { hasResumeGenerationInputs } from "@/lib/resume/generation-inputs";
 import { useToast } from "@/hooks/useToast";
 
 import {
@@ -514,7 +515,7 @@ export default function ResumeGeneratorPage() {
 
     // Navigate to template selection
     const handleSelectTemplate = () => {
-        if (!resumeText || !jobDescription) return;
+        if (!hasResumeGenerationInputs(resumeText, jobDescription)) return;
 
         // Data is already in Zustand store and persisted
         router.push("/dashboard/career/resume-generator/templates");
@@ -540,7 +541,7 @@ export default function ResumeGeneratorPage() {
         if (file) handleFileUpload(file, "job");
     };
 
-    const canProceed = resumeText.length > 50 && jobDescription.length > 50;
+    const canProceed = hasResumeGenerationInputs(resumeText, jobDescription);
     const isPlanLimitReached =
         !!usageLimit && usageLimit.resumeUsage >= usageLimit.resumeLimit;
     const canUsePurchasedCredit =

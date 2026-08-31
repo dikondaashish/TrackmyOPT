@@ -4,14 +4,15 @@ import { generateAiContent } from '@/lib/ai/google-ai';
 import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildRegeneratePrompt } from '@/lib/ai/prompts/regenerate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
+import { REGENERATION_FEEDBACK_MAX_CHARS } from '@/lib/resume/ats-analysis-types';
 import { z } from 'zod';
 import rateLimit from '@/lib/auth/rate-limit';
 import {
     releaseResumeGenerationReservation,
     reserveResumeGeneration,
 } from '@/lib/usage-limit';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { getUserId } from '@/lib/auth/get-user-id';
+import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import {
     JOB_DESCRIPTION_MAX_CHARS,
     prepareResumeText,
@@ -30,38 +31,29 @@ const RegenerateSchema = z.object({
     jobDescription: z.string().min(1).max(JOB_DESCRIPTION_MAX_CHARS, "Job description too long"),
     templateId: z.string().min(1).max(50),
     previousLatex: z.string().min(1).max(50000, "Previous LaTeX too long"),
-    userFeedback: z.string().optional().refine(val => !val || val.length <= 1000, {
-        message: "Feedback too long (max 1000 chars)"
+    userFeedback: z.string().optional().refine(val => !val || val.length <= REGENERATION_FEEDBACK_MAX_CHARS, {
+        message: `Feedback too long (max ${REGENERATION_FEEDBACK_MAX_CHARS} chars)`
     }),
     atsAnalysis: z.any().optional(),
 });
+
+export async function OPTIONS(req: NextRequest) {
+    return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
+}
 
 export async function POST(req: NextRequest) {
     let reservationId: string | null = null;
     let reservationUserId: string | null = null;
     let reservationCommitted = false;
+    const corsHeaders = corsHeadersWebAndExtension(req);
     try {
-        // 0. Auth Check
-        const cookieStore = await cookies();
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value;
-                    },
-                },
-            }
-        );
-
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        // Accept the dashboard cookie session or the extension's bearer token.
+        const userId = await getUserId(req);
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
         }
 
-        reservationUserId = user.id;
+        reservationUserId = userId;
 
         // 1. Rate Limiting
         const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
@@ -70,7 +62,7 @@ export async function POST(req: NextRequest) {
         if (isRateLimited) {
             return NextResponse.json(
                 { error: 'Too many requests. Please try again later.' },
-                { status: unavailable ? 503 : 429 }
+                { status: unavailable ? 503 : 429, headers: corsHeaders }
             );
         }
 
@@ -91,7 +83,7 @@ export async function POST(req: NextRequest) {
         if (!validation.success) {
             return NextResponse.json(
                 { error: 'Invalid input', details: validation.error.format() },
-                { status: 400 }
+                { status: 400, headers: corsHeaders }
             );
         }
 
@@ -101,7 +93,7 @@ export async function POST(req: NextRequest) {
         const template = loadTemplateSource(templateId, normalizeAccentHex(body.accentHex));
         if (!template) {
             console.error(`Template not found for id "${templateId}" (and fallback missing).`);
-            return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Template not found' }, { status: 404, headers: corsHeaders });
         }
 
         // 4. Build Prompt
@@ -113,7 +105,7 @@ export async function POST(req: NextRequest) {
             atsAnalysis
         );
 
-        const entitlement = await reserveResumeGeneration(user.id, 'regenerate');
+        const entitlement = await reserveResumeGeneration(userId, 'regenerate');
         if (!entitlement.allowed || !entitlement.reservationId) {
             return NextResponse.json(
                 {
@@ -128,7 +120,7 @@ export async function POST(req: NextRequest) {
                     creditBalance: entitlement.creditBalance,
                     canBuyCredits: entitlement.canBuyCredits,
                 },
-                { status: 403 }
+                { status: 403, headers: corsHeaders }
             );
         }
         reservationId = entitlement.reservationId;
@@ -137,7 +129,7 @@ export async function POST(req: NextRequest) {
         const response = await generateAiContent({
             task: 'resume_regenerate',
             contents: prompt,
-            userId: user.id,
+            userId,
         });
         let latex = response.text || '';
 
@@ -149,28 +141,31 @@ export async function POST(req: NextRequest) {
 
         reservationCommitted = true;
 
-        return NextResponse.json({
-            latex,
-            atsCheck,
-            ...(resumePrep.truncated || jobPrep.truncated
-                ? {
-                      warnings: [
-                          resumePrep.truncated
-                              ? `Resume trimmed from ${resumePrep.originalLength.toLocaleString()} to ${resumePrep.text.length.toLocaleString()} characters.`
-                              : null,
-                          jobPrep.truncated
-                              ? `Job description trimmed from ${jobPrep.originalLength.toLocaleString()} to ${jobPrep.text.length.toLocaleString()} characters.`
-                              : null,
-                      ].filter(Boolean),
-                  }
-                : {}),
-        });
+        return NextResponse.json(
+            {
+                latex,
+                atsCheck,
+                ...(resumePrep.truncated || jobPrep.truncated
+                    ? {
+                          warnings: [
+                              resumePrep.truncated
+                                  ? `Resume trimmed from ${resumePrep.originalLength.toLocaleString()} to ${resumePrep.text.length.toLocaleString()} characters.`
+                                  : null,
+                              jobPrep.truncated
+                                  ? `Job description trimmed from ${jobPrep.originalLength.toLocaleString()} to ${jobPrep.text.length.toLocaleString()} characters.`
+                                  : null,
+                          ].filter(Boolean),
+                      }
+                    : {}),
+            },
+            { headers: corsHeaders }
+        );
 
     } catch (error: any) {
         console.error('Regeneration Error:', error);
         return NextResponse.json(
             { error: 'Failed to regenerate resume' },
-            { status: 500 }
+            { status: 500, headers: corsHeaders }
         );
     } finally {
         if (reservationId && reservationUserId && !reservationCommitted) {

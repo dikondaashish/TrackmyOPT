@@ -18,6 +18,7 @@ import { TemplatePreviewModal } from "./TemplatePreviewModal";
 import { TemplatePdfPreview } from "./TemplatePdfPreview";
 import { useResumeStore } from "@/store/resume-store";
 import { RESUME_TEMPLATES, Template, TemplateColor } from "@/lib/documents/templates";
+import { hasResumeGenerationInputs } from "@/lib/resume/generation-inputs";
 
 /** Soft tint behind the card copy only — never applied to the resume preview. */
 const TEMPLATE_INFO_BG: Record<string, string> = {
@@ -55,7 +56,7 @@ export default function TemplateSelectionPage() {
 
     const handleContinue = (templateId?: string, color?: TemplateColor) => {
         const idToUse = templateId || selectedTemplateId;
-        if (!idToUse) return;
+        if (!idToUse || !hasResumeGenerationInputs(resumeText, jobDescription)) return;
 
         // Store template selection
         if (color) {
@@ -74,6 +75,8 @@ export default function TemplateSelectionPage() {
             : "/dashboard/career/resume-generator/editor";
         router.push(editorPath);
     };
+
+    const canContinue = Boolean(selectedTemplateId) && hasResumeGenerationInputs(resumeText, jobDescription);
 
     return (
         <div className="min-w-0 overflow-x-hidden">
@@ -217,7 +220,7 @@ export default function TemplateSelectionPage() {
                 <div className="mt-12 flex justify-center pb-12">
                     <Button
                         onClick={() => handleContinue()}
-                        disabled={!selectedTemplateId}
+                        disabled={!canContinue}
                         className="px-10 py-7 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group rounded-2xl"
                     >
                         <Sparkles className="w-5 h-5 mr-3" />
@@ -226,9 +229,9 @@ export default function TemplateSelectionPage() {
                     </Button>
                 </div>
 
-                {!selectedTemplateId && (
+                {!canContinue && (
                     <p className="text-center text-sm text-gray-500 dark:text-gray-400 animate-pulse">
-                        Select a template above to continue
+                        Add a resume and job description (at least 50 characters each) to continue
                     </p>
                 )}
             </div>

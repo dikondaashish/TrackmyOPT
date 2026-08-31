@@ -47,6 +47,20 @@ export interface AtsAnalysis {
 }
 
 export const ATS_PASS_SCORE = 75;
+export const REGENERATION_FEEDBACK_MAX_CHARS = 1_000;
+
+/** Keep generated ATS guidance within the regenerate API's feedback limit. */
+export function limitRegenerationFeedback(feedback: string): string {
+    const normalized = feedback.trim();
+    if (normalized.length <= REGENERATION_FEEDBACK_MAX_CHARS) return normalized;
+
+    const cut = normalized.slice(0, REGENERATION_FEEDBACK_MAX_CHARS);
+    const lastSentence = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("\n"));
+    return (lastSentence > REGENERATION_FEEDBACK_MAX_CHARS * 0.7
+        ? cut.slice(0, lastSentence + 1)
+        : cut
+    ).trim();
+}
 
 export function buildAutoRegenFeedback(analysis: AtsAnalysis | null): string {
     if (!analysis) {
@@ -67,5 +81,5 @@ export function buildAutoRegenFeedback(analysis: AtsAnalysis | null): string {
     }
     parts.push("Keep all company names, dates, and degrees exactly as in the source resume.");
 
-    return parts.join("\n\n");
+    return limitRegenerationFeedback(parts.join("\n\n"));
 }

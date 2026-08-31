@@ -41,6 +41,19 @@ interface ResumeState {
     reset: () => void;
 }
 
+type PersistedResumeState = Pick<
+    ResumeState,
+    | 'resumeText'
+    | 'resumeFilename'
+    | 'jobDescription'
+    | 'jobTitle'
+    | 'applicationId'
+    | 'selectedTemplateId'
+    | 'selectedColor'
+    | 'generatedLatex'
+    | 'atsAnalysis'
+>;
+
 export const useResumeStore = create<ResumeState>()(
     persist(
         (set) => ({
@@ -113,6 +126,6 @@ export const useResumeStore = create<ResumeState>()(
                 generatedLatex: state.generatedLatex,
                 atsAnalysis: state.atsAnalysis
             }),
-        } as PersistOptions<ResumeState>
+        } as PersistOptions<ResumeState, PersistedResumeState>
     )
 );

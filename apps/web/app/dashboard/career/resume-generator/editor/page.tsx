@@ -41,7 +41,12 @@ import {
     RESUME_TEXT_MAX_CHARS,
 } from "@/lib/resume/resume-text-limits";
 import { isDownloadGateRequired } from "@/lib/resume/apply-readiness";
-import { ATS_PASS_SCORE, buildAutoRegenFeedback, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
+import {
+    ATS_PASS_SCORE,
+    buildAutoRegenFeedback,
+    limitRegenerationFeedback,
+    type AtsAnalysis,
+} from "@/lib/resume/ats-analysis-types";
 import { captureClientEvent, captureUpgradePromptShown } from "@/lib/posthog-client";
 import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
 import { PricingModal } from "@/components/pricing/PricingModal";
@@ -438,7 +443,7 @@ export default function ResumeEditorPage() {
                         jobDescription,
                         templateId: selectedTemplateId || "professional",
                         previousLatex: generatedLatex,
-                        userFeedback: feedback,
+                        userFeedback: limitRegenerationFeedback(feedback),
                         atsAnalysis: analysis,
                     }),
                 });
@@ -753,7 +758,7 @@ export default function ResumeEditorPage() {
                     jobDescription,
                     templateId: selectedTemplateId || "professional",
                     previousLatex: generatedLatex,
-                    userFeedback: feedback,
+                    userFeedback: limitRegenerationFeedback(feedback),
                     // A just-completed scan is not guaranteed to be visible in React state yet.
                     // Prefer it so this regeneration receives the exact gaps the user saw.
                     atsAnalysis: analysisOverride ?? atsAnalysis,
@@ -830,10 +835,10 @@ export default function ResumeEditorPage() {
             source: "resume_editor",
         });
 
-        await handleRegenerate([
-            buildAutoRegenFeedback(analysis),
+        await handleRegenerate(limitRegenerationFeedback([
             "Improve ATS readability, keyword placement, and bullet quality for this job description. Only use skills, experience, employers, dates, degrees, credentials, and metrics supported by the source resume. Do not invent, exaggerate, or rename anything.",
-        ].join("\n\n"), analysis);
+            buildAutoRegenFeedback(analysis),
+        ].join("\n\n")), analysis);
     };
 
     const handleLatexSelectionSync = useCallback(() => {

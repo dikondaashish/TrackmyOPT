@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, Zap, Scissors, Rocket, BarChart3, Cog, Target, Ruler, Link2, type LucideIcon } from "lucide-react";
+import { REGENERATION_FEEDBACK_MAX_CHARS } from "@/lib/resume/ats-analysis-types";
 
 interface OptimizationFeedbackModalProps {
     isOpen: boolean;
@@ -95,10 +96,14 @@ export function OptimizationFeedbackModal({
                             placeholder="e.g. 'Make bullet points stronger' or 'Focus on React & AWS'"
                             value={feedback}
                             onChange={(e) => setFeedback(e.target.value)}
+                            maxLength={REGENERATION_FEEDBACK_MAX_CHARS}
                             disabled={isGenerating}
                             rows={2}
                             className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all disabled:opacity-50"
                         />
+                        <p className="mt-1 text-right text-[11px] text-gray-400 dark:text-gray-500">
+                            {feedback.length}/{REGENERATION_FEEDBACK_MAX_CHARS}
+                        </p>
                     </div>
 
                     {/* Quick Suggestions */}
