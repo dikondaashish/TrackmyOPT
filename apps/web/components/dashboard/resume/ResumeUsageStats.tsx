@@ -40,8 +40,8 @@ export function ResumeUsageStats({
             <button
                 type="button"
                 onClick={onBuyCredits}
-                className={`font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ${
-                    compact ? 'text-[10px] text-left' : 'text-xs'
+                className={`shrink-0 font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ${
+                    compact ? 'text-[9px] leading-none whitespace-nowrap' : 'text-xs'
                 }`}
             >
                 Load credits
@@ -50,8 +50,8 @@ export function ResumeUsageStats({
             <button
                 type="button"
                 onClick={onUpgrade}
-                className={`font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ${
-                    compact ? 'text-[10px] text-left' : 'text-xs'
+                className={`shrink-0 font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ${
+                    compact ? 'text-[9px] leading-none whitespace-nowrap' : 'text-xs'
                 }`}
             >
                 Upgrade for more
@@ -60,32 +60,32 @@ export function ResumeUsageStats({
 
     return (
         <div
-            className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm transition-all ${compact ? 'px-3 py-2' : 'p-4 mb-6 block'}`}
+            className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all ${compact ? 'rounded-lg px-2 py-1.5 shadow-none' : 'rounded-xl p-4 mb-6 block shadow-sm'}`}
             title={compact ? "Resumes generated this month" : undefined}
         >
             {compact ? (
-                <div className="flex min-w-[200px] flex-col gap-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-semibold uppercase leading-tight tracking-wider text-gray-400 dark:text-gray-500">
+                <div className="flex w-[168px] flex-col gap-1">
+                    <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-[9px] font-semibold uppercase leading-none tracking-wide text-gray-400 dark:text-gray-500">
                             Monthly Usage
                         </span>
-                        <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                            {Math.round(percentage)}% used
+                        <span className="text-[9px] font-medium leading-none text-gray-500 dark:text-gray-400">
+                            {Math.round(percentage)}%
                         </span>
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-baseline gap-1.5 font-mono">
-                            <span className={`text-sm font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-baseline gap-1 font-mono leading-none">
+                            <span className={`text-xs font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
                                 {resumeUsage}
                             </span>
-                            <span className="text-[10px] font-medium text-gray-400">/ {resumeLimit}</span>
+                            <span className="text-[9px] font-medium text-gray-400">/ {resumeLimit}</span>
                         </div>
                         {loadCreditsAction}
                     </div>
                     <Progress
                         value={percentage}
                         aria-label={`${resumeUsage} of ${resumeLimit} resumes used this month`}
-                        className={`h-2.5 w-full ${
+                        className={`h-1 w-full ${
                             isLimitReached
                                 ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600'
                                 : isNearLimit
@@ -94,8 +94,8 @@ export function ResumeUsageStats({
                         }`}
                     />
                     {resumeCreditBalance > 0 && (
-                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                            {resumeCreditBalance} credits loaded
+                        <span className="text-[9px] font-medium leading-none text-emerald-600 dark:text-emerald-400">
+                            +{resumeCreditBalance} loaded
                         </span>
                     )}
                 </div>
