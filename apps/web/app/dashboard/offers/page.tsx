@@ -669,7 +669,6 @@ function getCatalogSavings(offers: Offer[], fuelDeals: FuelDeal[]) {
     return {
         totalUsd: offerTotal + fuelTotal,
         dealCount: offers.length + fuelDeals.length,
-        pricedDealCount: [...offers, ...fuelDeals].filter((deal) => (ESTIMATED_SAVINGS_USD[deal.id] ?? 0) > 0).length,
     };
 }
 
@@ -736,16 +735,9 @@ export default function OffersPage() {
                         </h1>
 
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                            With your college email, unlock partner perks worth up to{" "}
-                            <strong className="tabular-nums text-foreground">{savingsLabel}</strong> across{" "}
-                            {catalogSavings.dealCount} deals curated for international students and OPT workers.
-                        </p>
-
-                        <p className="mt-3 text-sm text-muted-foreground max-w-xl mx-auto">
-                            By using TrackMyOPT, you can save{" "}
-                            <strong className="tabular-nums text-green-600 dark:text-green-400">{savingsLabel}</strong> with
-                            verified student discounts — {catalogSavings.pricedDealCount} offers with documented savings,
-                            updated from our live catalog.
+                            Use your college email to save up to{" "}
+                            <strong className="tabular-nums text-green-600 dark:text-green-400">{savingsLabel}</strong> across{" "}
+                            {catalogSavings.dealCount} deals for international students and OPT workers.
                         </p>
                     </div>
                 </div>
