@@ -22,6 +22,8 @@ export async function triggerJobBoardIngestion({
   retryDelayMs = 15_000,
   requestTimeoutMs = 120_000,
   now = new Date(),
+  schedulerId = schedulerRunId(now),
+  triggerOrigin = 'github_actions',
 } = {}) {
   if (!apiUrl) throw new Error('Render API URL is required');
   if (!apiKey) throw new Error('API secret is required');
@@ -64,7 +66,8 @@ export async function triggerJobBoardIngestion({
       method: 'POST',
       headers: {
         'x-api-key': apiKey,
-        'x-scheduler-run-id': schedulerRunId(now),
+        'x-scheduler-run-id': schedulerId,
+        'x-trigger-origin': triggerOrigin,
       },
     },
     30_000
@@ -75,8 +78,11 @@ export async function triggerJobBoardIngestion({
   }
 
   const result = await response.json();
-  if (result?.status !== 'queued' || result.jobId == null) {
-    throw new Error('Ingestion endpoint did not return a queued job ID');
+  if (
+    !['queued', 'suppressed'].includes(result?.status) ||
+    result.jobId == null
+  ) {
+    throw new Error('Ingestion endpoint did not return a scheduler job ID');
   }
 
   return { status: result.status, jobId: String(result.jobId) };
@@ -86,9 +92,13 @@ async function main() {
   const result = await triggerJobBoardIngestion({
     apiUrl: process.env.RENDER_API_URL,
     apiKey: process.env.API_SECRET_KEY,
+    schedulerId: process.env.SCHEDULER_RUN_ID,
+    triggerOrigin: process.env.TRIGGER_ORIGIN || 'github_actions',
   });
 
-  console.log(`Job-board ingestion queued successfully (job ${result.jobId})`);
+  console.log(
+    `Job-board ingestion ${result.status} successfully (job ${result.jobId})`
+  );
 }
 
 if (

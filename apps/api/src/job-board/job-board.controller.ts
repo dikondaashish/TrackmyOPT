@@ -1,6 +1,9 @@
-import { Controller, Headers, Post } from '@nestjs/common';
+import { BadRequestException, Controller, Headers, Post } from '@nestjs/common';
 import { JobBoardService } from './job-board.service';
-import { normalizeSchedulerRunId } from './scheduler-run-id';
+import {
+  normalizeSchedulerRunId,
+  normalizeTriggerOrigin,
+} from './scheduler-run-id';
 
 @Controller('job-board')
 export class JobBoardController {
@@ -11,11 +14,18 @@ export class JobBoardController {
   @Post('ingest-enabled-sources')
   async queueEnabledSources(
     @Headers('x-scheduler-run-id') schedulerRunId?: string,
+    @Headers('x-trigger-origin') triggerOrigin?: string,
   ) {
-    const job = await this.jobBoard.queueEnabledSources(
-      normalizeSchedulerRunId(schedulerRunId),
-    );
-    return { status: 'queued', jobId: job.id };
+    const normalizedRunId = normalizeSchedulerRunId(schedulerRunId);
+    if (!normalizedRunId) {
+      throw new BadRequestException(
+        'A valid x-scheduler-run-id header is required',
+      );
+    }
+    return this.jobBoard.queueEnabledSources({
+      schedulerRunId: normalizedRunId,
+      triggerOrigin: normalizeTriggerOrigin(triggerOrigin),
+    });
   }
 
   // Discovery is deliberately review-only: it records candidates in

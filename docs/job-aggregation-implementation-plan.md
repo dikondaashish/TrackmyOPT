@@ -8,7 +8,7 @@
   depth; unrelated billing, blog, USCIS, insurance, and extension features were
   excluded from deep review.
 - Stack: Next.js 16 web application, NestJS 11 API, Supabase/Postgres, Bull/Redis,
-  a pinned Python `ats-scrapers` bridge, GitHub Actions scheduling, Vercel, and
+  a pinned Python `ats-scrapers` bridge, cron-jobs.org scheduling, Vercel, and
   Render. There is no Prisma layer.
 - Clean remote baseline: GitHub CI passed scheduler tests, web lint/typecheck/tests/
   build, extension checks, API lint/unit/e2e tests/build at `3e9a222`.
@@ -25,17 +25,18 @@ and 1,257 have a careers URL.
 Only two ATS sources are enabled:
 
 - Greenhouse: North Beam, Inc. (`northbeam`) — 15 open jobs.
-- Ashby: Also, Inc. (`Ridealso`) — 42 open jobs.
+- Ashby: Also, Inc. (`Ridealso`) — 41 open jobs.
 
-All 57 jobs have `first_seen_at`, `last_confirmed_at`, `listing_status`,
+All 56 active jobs have `first_seen_at`, `last_confirmed_at`, `listing_status`,
 `employer_board_name`, and `source_trust_tier`. Recent runs for both sources
-succeeded and deduplicated all returned jobs. No authoritative board has yet
-produced a genuine stale/removed transition, so the existing closure lifecycle is
-implemented but its production exit criterion remains open.
+succeeded and deduplicated all returned jobs. Three jobs are retained as removed
+history and are absent from the active feed; the latest Ashby removal completed a
+genuine stale-to-removed transition across consecutive authoritative runs.
 
 ## Existing architecture to preserve
 
-1. GitHub Actions wakes the free Render API hourly.
+1. cron-jobs.org wakes the Vercel cron route at :07, :22, :37, and :52 each hour;
+   GitHub Actions is a manual-dispatch-only fallback.
 2. Nest queues one `ingest-enabled-sources` Bull job.
 3. The worker reads enabled `ats_sources`, reserves an audited run in Postgres,
    invokes the pinned Python adapter, and persists normalized rows.
@@ -49,13 +50,13 @@ are introduced additively.
 
 ## Reuse decisions
 
-| Reference | Decision | Reason |
-| --- | --- | --- |
-| `kalil0321/ats-scrapers` at pinned commit `f654221...` | Reuse as the fetch-adapter runtime | MIT; already deployed; typed canonical model; async adapters, retries, error mapping, and the requested priority ATS classes already exist. Do not import its company CSV datasets without a separate data-license decision. |
-| `Ramcharan747/careerscout` at `eee84fa...` | Port small discovery/detection ideas only | MIT; useful career-path probes, attribute-scoped ATS detection, Workday parsing, checkpoints, and per-domain politeness. Its Go/Rust/Redpanda/browser architecture is too large for the current free Nest/Supabase stack. Browser/eBPF tiers remain out of scope. |
-| `YvetteZheng0812/ats-job-scraper` at `0dbc9f1...` | Reference only | MIT; useful separation of discovery and fetch plus deterministic relevance scoring. SerpAPI must remain optional and its apply-assistant code is out of scope. |
-| `zachproffitt/builder-jobs-scraper` at `a1a85da...` | Architecture reference only; copy nothing | No license file was present, so neither code nor datasets may be incorporated. Its incremental detail-fetch and deterministic prefilter concepts may be independently implemented. |
-| `conorscode/ats-api-reference` | Technical behavior reference only | Confirms nine company-specific, public endpoints and their pagination/empty-result quirks. Each employer and ATS still requires the configured authorization/ToS policy before activation. |
+| Reference                                              | Decision                                  | Reason                                                                                                                                                                                                                                                            |
+| ------------------------------------------------------ | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kalil0321/ats-scrapers` at pinned commit `f654221...` | Reuse as the fetch-adapter runtime        | MIT; already deployed; typed canonical model; async adapters, retries, error mapping, and the requested priority ATS classes already exist. Do not import its company CSV datasets without a separate data-license decision.                                      |
+| `Ramcharan747/careerscout` at `eee84fa...`             | Port small discovery/detection ideas only | MIT; useful career-path probes, attribute-scoped ATS detection, Workday parsing, checkpoints, and per-domain politeness. Its Go/Rust/Redpanda/browser architecture is too large for the current free Nest/Supabase stack. Browser/eBPF tiers remain out of scope. |
+| `YvetteZheng0812/ats-job-scraper` at `0dbc9f1...`      | Reference only                            | MIT; useful separation of discovery and fetch plus deterministic relevance scoring. SerpAPI must remain optional and its apply-assistant code is out of scope.                                                                                                    |
+| `zachproffitt/builder-jobs-scraper` at `a1a85da...`    | Architecture reference only; copy nothing | No license file was present, so neither code nor datasets may be incorporated. Its incremental detail-fetch and deterministic prefilter concepts may be independently implemented.                                                                                |
+| `conorscode/ats-api-reference`                         | Technical behavior reference only         | Confirms nine company-specific, public endpoints and their pagination/empty-result quirks. Each employer and ATS still requires the configured authorization/ToS policy before activation.                                                                        |
 
 See `docs/THIRD_PARTY_LICENSES.md` for notice obligations.
 
@@ -200,7 +201,8 @@ APIs, authentication bypass, auto-apply, and submission workflows are excluded.
 
 - Add source/admin dashboards, manual overrides, health metrics, event counts,
   verification queues, failure classification, and resumable batches.
-- Keep GitHub Actions as the free scheduler. Partition high/normal/slow sources and
+- Keep cron-jobs.org as the free authoritative scheduler and GitHub Actions as a
+  manual fallback. Partition high/normal/slow sources and
   fetch details only for new/changed/missing-description jobs.
 - Exit: 10,000+ active relevant jobs from multiple verified companies/ATS types,
   freshness and removal evidence, acceptable failure isolation, no paid mandatory
@@ -235,18 +237,23 @@ larger system is introduced additively.
   upstream parsers for Greenhouse, Lever, Ashby, Workday, SmartRecruiters, Workable,
   Recruitee, Personio, BambooHR, and Breezy. Their process contracts cover success,
   pagination/multiple jobs, zero-result, malformed/missing/duplicate payloads, HTTP
-  4xx/5xx/429, timeout, retry, request accounting, and source isolation. The focused
-  Gate 4 suite passes 133 tests (118 Nest job-board tests, 10 raw-parser tests, and 5
-  scheduler tests); the isolated repository verification also passes web/API/extension
-  lint, typecheck, tests, and builds.
+  4xx/5xx/429, timeout, retry, request accounting, and source isolation. The scheduler
+  now requires deterministic hourly or explicit manual IDs, records a unique database
+  claim plus every suppressed attempt, and propagates trigger origin into source
+  audits. The focused Gate 4 suite passes 143 tests (128 Nest job-board tests, 10
+  raw-parser tests, and 5 scheduler tests); the isolated repository verification also
+  passes web/API/extension lint, typecheck, tests, and builds.
 
   Production removal proof is genuine rather than simulated. Greenhouse audit
   `6a0e7a44-2355-4cf0-95bb-5d7e83bad26e` marked external jobs `4250557006` and
   `4413815006` stale at 2026-08-31 18:15 UTC; successful audit
   `4201890a-aac6-4146-84dc-9132c7dfa608` removed both at 18:48 UTC. Both rows remain
   stored with `listing_status = 'removed'`, are absent from the active verified feed,
-  and are absent from the authoritative Greenhouse response. Production still has
-  exactly two enabled sources and 57 open verified jobs with no missing source or
-  freshness fields. No discovered board was automatically activated.
+  and are absent from the authoritative Greenhouse response. Ashby external job
+  `76d965e9-c270-49be-97f2-91256387e91c` subsequently completed the same genuine
+  transition, bringing removed history to three. Production still has exactly two
+  enabled sources and 56 open verified jobs with no missing source or freshness
+  fields. No discovered board was automatically activated.
+
 - **Gates 5–7 not started:** canonical enrichment/dedupe, indexed search migration,
   admin operations, and the 10,000-job scale exit are not claimed yet.

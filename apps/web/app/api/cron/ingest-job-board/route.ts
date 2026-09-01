@@ -5,6 +5,10 @@ import { sanitizeError, secureLog } from '@/lib/secure-logger';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
+export function jobBoardHourlyRunId(now = new Date()) {
+  return `job-board-hour-${now.toISOString().slice(0, 13)}`;
+}
+
 /** Queues only the enabled, previously authorized ATS sources. */
 export async function GET(req: NextRequest) {
   const denied = verifyCronAuth(req);
@@ -22,7 +26,11 @@ export async function GET(req: NextRequest) {
   try {
     const response = await fetch(`${apiUrl}/job-board/ingest-enabled-sources`, {
       method: 'POST',
-      headers: { 'x-api-key': apiKey },
+      headers: {
+        'x-api-key': apiKey,
+        'x-scheduler-run-id': jobBoardHourlyRunId(),
+        'x-trigger-origin': 'cron_jobs_org',
+      },
       signal: AbortSignal.timeout(55_000),
     });
 

@@ -13,6 +13,7 @@ let server;
 let healthAttempts = 0;
 let ingestionRequests = 0;
 let schedulerHeader;
+let triggerOriginHeader;
 
 before(async () => {
   server = createServer((request, response) => {
@@ -30,6 +31,7 @@ before(async () => {
       ingestionRequests += 1;
       assert.equal(request.headers['x-api-key'], 'test-secret');
       schedulerHeader = request.headers['x-scheduler-run-id'];
+      triggerOriginHeader = request.headers['x-trigger-origin'];
       response.writeHead(200, { 'content-type': 'application/json' });
       response.end(JSON.stringify({ status: 'queued', jobId: 'job-123' }));
       return;
@@ -64,6 +66,7 @@ test('waits for a sleeping API, then queues ingestion once', async () => {
   assert.equal(healthAttempts, 2);
   assert.equal(ingestionRequests, 1);
   assert.match(schedulerHeader, /^job-board-hour-\d{4}-\d{2}-\d{2}T\d{2}$/);
+  assert.equal(triggerOriginHeader, 'github_actions');
 });
 
 test('uses one deterministic idempotency key for every wake-up in an hour', () => {
@@ -101,11 +104,13 @@ test('fails closed when the API key is missing', async () => {
   );
 });
 
-test('schedules redundant off-peak wake-ups while server idempotency keeps ingestion hourly', async () => {
+test('keeps GitHub Actions as manual-dispatch-only fallback', async () => {
   const workflow = await readFile(
     new URL('../../.github/workflows/job-board-ingestion.yml', import.meta.url),
     'utf8'
   );
 
-  assert.match(workflow, /cron:\s*['"]7,22,37,52 \* \* \* \*['"]/);
+  assert.doesNotMatch(workflow, /schedule:/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /manual_run_id:/);
 });

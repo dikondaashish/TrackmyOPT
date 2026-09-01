@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import * as Bull from 'bull';
 import { JobBoardService } from './job-board.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
+import type { SchedulerContext } from './scheduler-run-id';
 
 @Processor('job-board')
 export class JobBoardProcessor {
@@ -14,8 +15,8 @@ export class JobBoardProcessor {
   ) {}
 
   @Process('ingest-enabled-sources')
-  async ingestEnabledSources() {
-    const result = await this.jobBoard.enqueueEnabledSourceJobs();
+  async ingestEnabledSources(job: Bull.Job<SchedulerContext>) {
+    const result = await this.jobBoard.enqueueEnabledSourceJobs(job.data);
     this.logger.log(
       `Queued ${result.sourcesQueued} independently retryable ATS source jobs`,
     );
@@ -23,8 +24,8 @@ export class JobBoardProcessor {
   }
 
   @Process('ingest-source')
-  async ingestSource(job: Bull.Job<{ sourceId: string }>) {
-    return this.jobBoard.ingestSourceById(job.data.sourceId);
+  async ingestSource(job: Bull.Job<{ sourceId: string } & SchedulerContext>) {
+    return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
   }
 
   @Process('discover-company-batch')

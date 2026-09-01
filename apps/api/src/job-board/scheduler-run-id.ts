@@ -1,27 +1,56 @@
-const SCHEDULER_RUN_ID = /^job-board-hour-\d{4}-\d{2}-\d{2}T\d{2}$/;
+const HOURLY_RUN_ID = /^job-board-hour-\d{4}-\d{2}-\d{2}T\d{2}$/;
+const MANUAL_RUN_ID = /^job-board-manual-[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
+
+export const TRIGGER_ORIGINS = [
+  'cron_jobs_org',
+  'github_actions',
+  'manual',
+  'unknown',
+] as const;
+
+export type TriggerOrigin = (typeof TRIGGER_ORIGINS)[number];
+
+export type SchedulerContext = {
+  schedulerRunId: string;
+  triggerOrigin: TriggerOrigin;
+};
+
+export function ingestionReservationParams(
+  sourceId: string,
+  context: SchedulerContext,
+) {
+  return {
+    source: sourceId,
+    scheduler_id: context.schedulerRunId,
+    origin: context.triggerOrigin,
+  };
+}
 
 export function normalizeSchedulerRunId(value: unknown): string | null {
-  return typeof value === 'string' && SCHEDULER_RUN_ID.test(value)
+  return typeof value === 'string' &&
+    (HOURLY_RUN_ID.test(value) || MANUAL_RUN_ID.test(value))
     ? value
     : null;
 }
 
-export function planIngestionOrchestratorOptions(
-  schedulerRunId: string | null,
-) {
+export function normalizeTriggerOrigin(value: unknown): TriggerOrigin {
+  return typeof value === 'string' &&
+    TRIGGER_ORIGINS.includes(value as TriggerOrigin)
+    ? (value as TriggerOrigin)
+    : 'unknown';
+}
+
+export function planIngestionOrchestratorOptions(schedulerRunId: string) {
   const retryOptions = {
     attempts: 3,
     backoff: { type: 'exponential' as const, delay: 30_000 },
     removeOnFail: false,
   };
 
-  return schedulerRunId
-    ? {
-        ...retryOptions,
-        jobId: schedulerRunId,
-        // Bull must retain recent completed job IDs for duplicate wake-ups
-        // in the same UTC hour to resolve to the existing job.
-        removeOnComplete: 3,
-      }
-    : { ...retryOptions, removeOnComplete: true };
+  return {
+    ...retryOptions,
+    jobId: schedulerRunId,
+    // Bull must retain recent completed job IDs as a second dedupe layer.
+    removeOnComplete: 3,
+  };
 }

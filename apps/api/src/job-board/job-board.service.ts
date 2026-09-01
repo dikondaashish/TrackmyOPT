@@ -22,7 +22,15 @@ import {
   shouldAttemptSource,
   toSourceHealthDatabaseUpdate,
 } from './source-health';
-import { planIngestionOrchestratorOptions } from './scheduler-run-id';
+import {
+  ingestionReservationParams,
+  planIngestionOrchestratorOptions,
+} from './scheduler-run-id';
+import type { SchedulerContext } from './scheduler-run-id';
+import {
+  queueSchedulerRun,
+  type SchedulerAttempt,
+} from './scheduler-run-ledger';
 
 type AtsSource = {
   id: string;
@@ -79,11 +87,23 @@ export class JobBoardService {
     ) as unknown as SupabaseClient;
   }
 
-  async queueEnabledSources(schedulerRunId: string | null = null) {
-    return this.queue.add(
-      'ingest-enabled-sources',
-      {},
-      planIngestionOrchestratorOptions(schedulerRunId),
+  async queueEnabledSources(context: SchedulerContext) {
+    return queueSchedulerRun(
+      context,
+      {
+        claim: (candidate) => this.claimSchedulerRun(candidate),
+        markQueued: (schedulerRunId, queuedAt) =>
+          this.markSchedulerRunQueued(schedulerRunId, queuedAt),
+        recordAttempt: (attempt) => this.recordSchedulerAttempt(attempt),
+        releaseClaim: (schedulerRunId) =>
+          this.releaseSchedulerRunClaim(schedulerRunId),
+      },
+      () =>
+        this.queue.add(
+          'ingest-enabled-sources',
+          context,
+          planIngestionOrchestratorOptions(context.schedulerRunId),
+        ),
     );
   }
 
@@ -99,7 +119,7 @@ export class JobBoardService {
     );
   }
 
-  async enqueueEnabledSourceJobs() {
+  async enqueueEnabledSourceJobs(context: SchedulerContext) {
     const { data, error } = await this.supabase
       .from('ats_sources')
       .select('id')
@@ -107,12 +127,16 @@ export class JobBoardService {
     if (error) throw new Error(error.message);
     const jobs = planSourceIngestionJobs(
       (data || []).map((source) => String(source.id)),
+      context,
     );
     if (jobs.length) await this.queue.addBulk(jobs);
     return { sourcesQueued: jobs.length };
   }
 
-  async ingestSourceById(sourceId: string): Promise<IngestionResult> {
+  async ingestSourceById(
+    sourceId: string,
+    context: SchedulerContext,
+  ): Promise<IngestionResult> {
     const { data, error } = await this.supabase
       .from('ats_sources')
       .select(
@@ -122,10 +146,10 @@ export class JobBoardService {
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!data) throw new Error(`Unknown ATS source ${sourceId}`);
-    return this.ingestSource(data as AtsSource);
+    return this.ingestSource(data as AtsSource, context);
   }
 
-  private async ingestSource(source: AtsSource) {
+  private async ingestSource(source: AtsSource, context: SchedulerContext) {
     if (!source.enabled)
       return { sourceId: source.id, skipped: 'source_disabled' };
     if (!source.employer_board_name?.trim()) {
@@ -146,9 +170,10 @@ export class JobBoardService {
     }
 
     const { data: reservationRows, error: reservationError } =
-      (await this.supabase.rpc('reserve_ats_ingestion', {
-        source: source.id,
-      })) as unknown as {
+      (await this.supabase.rpc(
+        'reserve_ats_ingestion',
+        ingestionReservationParams(source.id, context),
+      )) as unknown as {
         data: Reservation[] | null;
         error: { message: string } | null;
       };
@@ -371,5 +396,48 @@ export class JobBoardService {
       },
     });
     if (errorLog.error) throw new Error(errorLog.error.message);
+  }
+
+  private async claimSchedulerRun(context: SchedulerContext) {
+    const { error } = await this.supabase.from('scheduler_runs').insert({
+      scheduler_run_id: context.schedulerRunId,
+      trigger_origin: context.triggerOrigin,
+      bull_job_id: context.schedulerRunId,
+    });
+    if (!error) return true;
+    if ('code' in error && error.code === '23505') return false;
+    throw new Error(error.message);
+  }
+
+  private async markSchedulerRunQueued(
+    schedulerRunId: string,
+    queuedAt: string,
+  ) {
+    const { error } = await this.supabase
+      .from('scheduler_runs')
+      .update({ queued_at: queuedAt })
+      .eq('scheduler_run_id', schedulerRunId);
+    if (error) throw new Error(error.message);
+  }
+
+  private async recordSchedulerAttempt(attempt: SchedulerAttempt) {
+    const { error } = await this.supabase
+      .from('scheduler_run_attempts')
+      .insert({
+        scheduler_run_id: attempt.schedulerRunId,
+        trigger_origin: attempt.triggerOrigin,
+        bull_job_id: attempt.bullJobId,
+        outcome: attempt.outcome,
+        queued_at: attempt.queuedAt,
+      });
+    if (error) throw new Error(error.message);
+  }
+
+  private async releaseSchedulerRunClaim(schedulerRunId: string) {
+    const { error } = await this.supabase
+      .from('scheduler_runs')
+      .delete()
+      .eq('scheduler_run_id', schedulerRunId);
+    if (error) throw new Error(error.message);
   }
 }

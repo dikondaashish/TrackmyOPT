@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GET } from './route';
+import { GET, jobBoardHourlyRunId } from './route';
 
 describe('job board ingestion cron', () => {
   beforeEach(() => {
@@ -45,8 +45,20 @@ describe('job board ingestion cron', () => {
       'https://api.example.com/job-board/ingest-enabled-sources',
       expect.objectContaining({
         method: 'POST',
-        headers: { 'x-api-key': 'api-secret' },
+        headers: {
+          'x-api-key': 'api-secret',
+          'x-scheduler-run-id': expect.stringMatching(
+            /^job-board-hour-\d{4}-\d{2}-\d{2}T\d{2}$/
+          ),
+          'x-trigger-origin': 'cron_jobs_org',
+        },
       })
+    );
+  });
+
+  it('derives the exact UTC hourly ID used by the backend scheduler contract', () => {
+    expect(jobBoardHourlyRunId(new Date('2026-09-01T03:52:59.000Z'))).toBe(
+      'job-board-hour-2026-09-01T03'
     );
   });
 });

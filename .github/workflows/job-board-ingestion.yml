@@ -1,12 +1,12 @@
 name: Job Board Ingestion
 
 on:
-  schedule:
-    # GitHub schedules are best-effort and may be delayed or dropped. Four
-    # off-peak wake-ups give the free Render service recovery opportunities;
-    # the API's hourly idempotency key still queues at most one ingestion.
-    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
+    inputs:
+      manual_run_id:
+        description: 'Explicit ID: job-board-manual-<unique-token>'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -28,12 +28,17 @@ jobs:
         env:
           RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
+          SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
+          TRIGGER_ORIGIN: github_actions
         run: |
           test -n "$RENDER_API_URL" || { echo 'Missing RENDER_API_URL secret'; exit 1; }
           test -n "$API_SECRET_KEY" || { echo 'Missing API_SECRET_KEY secret'; exit 1; }
+          case "$SCHEDULER_RUN_ID" in job-board-manual-*) ;; *) echo 'Invalid manual run ID'; exit 1;; esac
 
       - name: Wake Render and queue ingestion
         env:
           RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
+          SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
+          TRIGGER_ORIGIN: github_actions
         run: node scripts/operations/trigger-job-board-ingestion.mjs
