@@ -6,6 +6,7 @@ import { Crown, Menu, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { formatUsd, OFFERS_CATALOG_TOTAL_SAVINGS_USD } from "@/lib/offers/catalog-savings";
 
 interface HeaderProps {
     userEmail?: string;
@@ -77,7 +78,7 @@ export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderP
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-100 dark:text-gray-100 leading-none mb-0.5">Deals</span>
                         <span className="text-[10px] font-medium text-gray-400 group-hover:text-gray-300 transition-colors leading-none">
-                            Get your premium back
+                            {formatUsd(OFFERS_CATALOG_TOTAL_SAVINGS_USD)} free for you
                         </span>
                     </div>
 

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { OfferBrandLogo } from "@/components/dashboard/offers/OfferBrandLogo";
+import { ESTIMATED_SAVINGS_USD, formatUsd } from "@/lib/offers/catalog-savings";
 
 // Fuel deal popup content
 interface FuelDeal {
@@ -632,37 +633,6 @@ const OFFERS: Offer[] = [
     },
 ];
 
-/** Documented first-year savings per partner (USD). Summed live in the hero. */
-const ESTIMATED_SAVINGS_USD: Record<string, number> = {
-    "kimber-health": 1200,
-    "chatgpt-student": 80,
-    "google-gemini-student": 240,
-    "figma-education": 180,
-    "autodesk-education": 600,
-    "rowzero-student": 120,
-    "github-student-pack": 1000,
-    "perplexity-education": 120,
-    "notion-education": 120,
-    "adobe-creative-cloud": 540,
-    "kickresume-student": 72,
-    "microsoft-office-education": 100,
-    "spotify-student": 156,
-    "google-gemini-youtube-bundle": 168,
-    "nordvpn-student": 100,
-    "amazon-prime-student": 110,
-    "linkedin-student-beans": 335,
-    "google-ai-career-certificates": 300,
-    "rowzero-scholarship": 1000,
-    "princeton-review": 600,
-    "kaplan-test-prep": 150,
-    "wise-students": 120,
-    "remitly": 25,
-    "uhaul-collegeboxes": 80,
-    "sprintax": 20,
-    "fuel-discount": 210,
-    "weekly-freebees": 390,
-};
-
 function getCatalogSavings(offers: Offer[], fuelDeals: FuelDeal[]) {
     const offerTotal = offers.reduce((sum, offer) => sum + (ESTIMATED_SAVINGS_USD[offer.id] ?? 0), 0);
     const fuelTotal = fuelDeals.reduce((sum, deal) => sum + (ESTIMATED_SAVINGS_USD[deal.id] ?? 0), 0);
@@ -670,10 +640,6 @@ function getCatalogSavings(offers: Offer[], fuelDeals: FuelDeal[]) {
         totalUsd: offerTotal + fuelTotal,
         dealCount: offers.length + fuelDeals.length,
     };
-}
-
-function formatUsd(amount: number) {
-    return amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
 function useAnimatedNumber(target: number, durationMs = 1400) {
