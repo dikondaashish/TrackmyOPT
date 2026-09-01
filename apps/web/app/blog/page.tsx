@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Clock, TrendingUp, BookOpen } from "lucide-react";
 import { researchBlogCards } from "@/data/blog-series";
+import { formatUsd, OFFERS_CATALOG_TOTAL_SAVINGS_USD } from "@/lib/offers/catalog-savings";
 
 export const metadata: Metadata = {
     title: "OPT & F-1 Visa Blog — Guides for International Students",
@@ -12,6 +13,16 @@ export const metadata: Metadata = {
 
 const blogPosts = [
     ...researchBlogCards,
+    {
+        slug: "trackmyopt-student-deals-guide",
+        title: `TrackMyOPT Student Deals: Save on AI, Health & Banking (Login Required)`,
+        description: `Unlock ${formatUsd(OFFERS_CATALOG_TOTAL_SAVINGS_USD)}+ in verified student perks for F-1 and OPT workers — GitHub, Google AI, Wise, LinkedIn, and more. Available inside your dashboard after sign-in.`,
+        category: "Student Life",
+        readTime: "6 min read",
+        date: "September 1, 2026",
+        tags: ["Student Deals", "OPT", "College Email", "Savings"],
+        featured: false,
+    },
     {
         slug: "f1-visa-interview-country-of-residence-rule-2026",
         title: "New F-1 Visa Interview Rule: Apply in Your Country of Nationality or Residence",
