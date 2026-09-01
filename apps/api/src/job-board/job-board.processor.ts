@@ -23,7 +23,7 @@ export class JobBoardProcessor {
     return result;
   }
 
-  @Process('ingest-source')
+  @Process({ name: 'ingest-source', concurrency: 10 })
   async ingestSource(job: Bull.Job<{ sourceId: string } & SchedulerContext>) {
     return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
   }

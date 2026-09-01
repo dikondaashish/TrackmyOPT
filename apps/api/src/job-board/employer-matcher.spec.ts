@@ -1,4 +1,9 @@
-import { decideEmployerMatch, type SponsorCandidate } from './employer-matcher';
+import {
+  decideEmployerMatch,
+  decideEmployerTokenMatch,
+  normalizeEmployerTokenKey,
+  type SponsorCandidate,
+} from './employer-matcher';
 
 type MatchCase = {
   sourceName: string;
@@ -78,5 +83,41 @@ describe('employer matcher', () => {
       expect(decision.canonicalH1bSponsorId).toBe(testCase.expectedId);
       expect(decision.reviewStatus).toBe(testCase.expectedStatus);
     }
+  });
+
+  it('collapses token and legal-name variants without weakening collisions', () => {
+    expect(normalizeEmployerTokenKey('ambiqmicroinc')).toBe('ambiqmicro');
+    expect(normalizeEmployerTokenKey('ambiq-micro')).toBe('ambiqmicro');
+    expect(normalizeEmployerTokenKey('AMBIQ MICRO, INC.')).toBe('ambiqmicro');
+    expect(
+      decideEmployerTokenMatch('ambiqmicroinc', [
+        { id: 'ambiq', name: 'AMBIQ MICRO, INC.' },
+      ]),
+    ).toMatchObject({
+      canonicalH1bSponsorId: 'ambiq',
+      confidence: 0.99,
+      reviewStatus: 'auto',
+    });
+    expect(
+      decideEmployerTokenMatch('ambiqmicroinc', [
+        { id: 'a', name: 'Ambiq Micro, Inc.' },
+        { id: 'b', name: 'Ambiq Micro LLC' },
+      ]),
+    ).toMatchObject({
+      canonicalH1bSponsorId: null,
+      confidence: 0,
+      reviewStatus: 'pending_review',
+    });
+    // `co` can be part of a brand token; do not turn BrainCo into Brain.
+    expect(normalizeEmployerTokenKey('brainco')).toBe('brainco');
+    expect(
+      decideEmployerTokenMatch('brainco', [
+        { id: 'brain-corporation', name: 'Brain Corporation' },
+      ]),
+    ).toMatchObject({
+      canonicalH1bSponsorId: null,
+      confidence: 0,
+      reviewStatus: 'pending_review',
+    });
   });
 });
