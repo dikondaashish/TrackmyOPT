@@ -11,8 +11,8 @@ export type SchedulerAttempt = SchedulerContext & {
 export interface SchedulerRunStore {
   claim(context: SchedulerContext): Promise<boolean>;
   markQueued(schedulerRunId: string, queuedAt: string): Promise<void>;
+  markFailed(schedulerRunId: string, errorMessage: string): Promise<void>;
   recordAttempt(attempt: SchedulerAttempt): Promise<void>;
-  releaseClaim(schedulerRunId: string): Promise<void>;
 }
 
 export async function queueSchedulerRun(
@@ -36,13 +36,14 @@ export async function queueSchedulerRun(
   try {
     job = await enqueue();
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Queue failed';
     await store.recordAttempt({
       ...context,
       bullJobId,
       outcome: 'failed',
       queuedAt: null,
     });
-    await store.releaseClaim(context.schedulerRunId);
+    await store.markFailed(context.schedulerRunId, message);
     throw error;
   }
 

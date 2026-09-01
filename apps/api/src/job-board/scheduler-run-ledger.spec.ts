@@ -19,13 +19,13 @@ class MemoryStore implements SchedulerRunStore {
     return Promise.resolve();
   }
 
-  recordAttempt(attempt: SchedulerAttempt) {
-    this.attempts.push(attempt);
+  markFailed(schedulerRunId: string) {
+    this.claimed.delete(schedulerRunId);
     return Promise.resolve();
   }
 
-  releaseClaim(schedulerRunId: string) {
-    this.claimed.delete(schedulerRunId);
+  recordAttempt(attempt: SchedulerAttempt) {
+    this.attempts.push(attempt);
     return Promise.resolve();
   }
 }
