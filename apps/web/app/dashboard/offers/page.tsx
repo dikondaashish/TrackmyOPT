@@ -1,6 +1,36 @@
 "use client";
 
-import { Shield, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Banknote, ClipboardList, ShoppingBag } from "lucide-react";
+import {
+    Shield,
+    Receipt,
+    Clock,
+    Star,
+    ExternalLink,
+    CreditCard,
+    Chrome,
+    Tag,
+    Fuel,
+    Gift,
+    X,
+    MapPin,
+    Banknote,
+    ClipboardList,
+    ShoppingBag,
+    Code2,
+    Sparkles,
+    StickyNote,
+    Palette,
+    FileUser,
+    Music,
+    Percent,
+    Briefcase,
+    GraduationCap,
+    BookOpen,
+    Wallet,
+    Send,
+    Truck,
+    type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 // Fuel deal popup content
@@ -69,83 +99,307 @@ const FUEL_DEALS: FuelDeal[] = [
 ];
 
 // Sample offers data - using consistent icons from the project (Sidebar, health insurance page)
-const OFFERS = [
+interface Offer {
+    id: string;
+    title: string;
+    description: string;
+    discount: string;
+    category: string;
+    section: "featured" | "essential" | "tech" | "lifestyle" | "career" | "finance";
+    badge: string;
+    badgeColor: string;
+    icon: LucideIcon;
+    link: string;
+}
+
+const OFFER_SECTIONS: { id: Offer["section"]; title: string; icon: LucideIcon }[] = [
+    { id: "tech", title: "Tech & AI Productivity", icon: Sparkles },
+    { id: "lifestyle", title: "Lifestyle & Streaming", icon: Music },
+    { id: "career", title: "Professional & Career Development", icon: Briefcase },
+    { id: "finance", title: "Relocation & Finance", icon: Wallet },
+];
+
+const OFFERS: Offer[] = [
     {
-        id: 1,
+        id: "iso-insurance",
         title: "ISO Insurance",
         description: "Get comprehensive health insurance designed for international students and OPT workers.",
         discount: "Starting $38/mo",
         category: "Health Insurance",
+        section: "featured",
         badge: "Popular",
         badgeColor: "from-blue-500 to-cyan-500",
         icon: Shield,
         link: "https://www.isoa.org/?ref=trackmyopt",
-        featured: true,
     },
     {
-        id: 2,
+        id: "kimber-health",
         title: "Kimber Health",
         description: "NY Essential Plan enrollment assistance - $0/month coverage for eligible residents.",
         discount: "FREE for NY",
         category: "Health Insurance",
+        section: "featured",
         badge: "Hot Deal",
         badgeColor: "from-orange-500 to-pink-500",
         icon: CreditCard,
         link: "https://www.kimberhealth.com/",
-        featured: true,
     },
     {
-        id: 7,
-        title: "Amazon Prime Student",
-        description: "6-month free trial for eligible students — fast shipping, Prime Video, and free Grubhub+ delivery on eligible orders.",
+        id: "github-student-pack",
+        title: "GitHub Student Developer Pack",
+        description: "Free $1,000+ bundle: Copilot, GitHub Pro, Azure credits, JetBrains IDEs, and more. School email or enrollment proof — no US .edu or SSN required.",
+        discount: "$1,000+ FREE",
+        category: "Tech & AI",
+        section: "tech",
+        badge: "Must-Have",
+        badgeColor: "from-gray-700 to-gray-900",
+        icon: Code2,
+        link: "https://education.github.com/pack",
+    },
+    {
+        id: "perplexity-education",
+        title: "Perplexity Education Pro",
+        description: "Discounted Pro (~$10/mo) with premium models for coursework, job research, and technical writing. SheerID verification; international students welcome.",
+        discount: "~$10/mo",
+        category: "Tech & AI",
+        section: "tech",
+        badge: "AI Tool",
+        badgeColor: "from-cyan-500 to-blue-600",
+        icon: Sparkles,
+        link: "https://www.perplexity.ai/students",
+    },
+    {
+        id: "notion-education",
+        title: "Notion Education Plus",
+        description: "Free Plus plan with unlimited uploads and version history. Organize job apps, visa tracking, and notes. Thousands of global school domains accepted.",
+        discount: "FREE Plus",
+        category: "Tech & AI",
+        section: "tech",
+        badge: "Productivity",
+        badgeColor: "from-slate-600 to-slate-800",
+        icon: StickyNote,
+        link: "https://www.notion.com/product/notion-for-education",
+    },
+    {
+        id: "adobe-creative-cloud",
+        title: "Adobe Creative Cloud Student",
+        description: "Up to 77% off All Apps (~$19.99–$24.99/mo first year). Build portfolios, resumes, and video content. SheerID verification; global students eligible.",
+        discount: "Up to 77% OFF",
+        category: "Tech & AI",
+        section: "tech",
+        badge: "Creative",
+        badgeColor: "from-red-500 to-rose-600",
+        icon: Palette,
+        link: "https://www.adobe.com/education/students/creativecloud.html",
+    },
+    {
+        id: "kickresume-student",
+        title: "Kickresume Student Premium",
+        description: "Full Premium free for up to 6 months. ATS-optimized resume templates and cover letters for OPT/CPT job searches. Verify via ISIC, ITIC, or UNiDAYS.",
         discount: "6 Months FREE",
-        category: "Student Perks",
+        category: "Tech & AI",
+        section: "tech",
+        badge: "Job Search",
+        badgeColor: "from-violet-500 to-purple-600",
+        icon: FileUser,
+        link: "https://www.kickresume.com/en/students",
+    },
+    {
+        id: "spotify-student",
+        title: "Spotify Premium Student",
+        description: "$6.99/mo bundled with Hulu (With Ads); first month free. Music and TV streaming in one bill for students at Title IV US institutions.",
+        discount: "$6.99/mo",
+        category: "Lifestyle",
+        section: "lifestyle",
+        badge: "Bundle",
+        badgeColor: "from-green-500 to-emerald-600",
+        icon: Music,
+        link: "https://www.spotify.com/us/student/",
+    },
+    {
+        id: "amazon-prime-student",
+        title: "Amazon Prime Student",
+        description: "6-month free trial, then 50% off Prime at $7.49/mo with free Grubhub+ delivery. Verify with .edu email or age 18–24; no SSN required.",
+        discount: "6 Months FREE",
+        category: "Lifestyle",
+        section: "lifestyle",
         badge: "Student Deal",
         badgeColor: "from-amber-500 to-orange-500",
         icon: ShoppingBag,
         link: "https://www.amazon.com/joinstudent",
-        featured: true,
     },
     {
-        id: 4,
+        id: "unidays",
+        title: "UNiDAYS",
+        description: "One free signup unlocks 300+ brand discounts — Apple, Uber Eats, Disney+, Nike, Samsung, and more. Accepts many international university domains.",
+        discount: "300+ Deals",
+        category: "Lifestyle",
+        section: "lifestyle",
+        badge: "Hub",
+        badgeColor: "from-indigo-500 to-purple-600",
+        icon: Percent,
+        link: "https://www.myunidays.com",
+    },
+    {
+        id: "microsoft-linkedin-bundle",
+        title: "Microsoft 365 + LinkedIn Premium",
+        description: "Up to 12 months free Microsoft 365 and LinkedIn Premium Career for eligible schools. InMail credits and salary insights for OPT networking.",
+        discount: "Up to 12 Mo FREE",
+        category: "Career",
+        section: "career",
+        badge: "Bundle",
+        badgeColor: "from-blue-600 to-sky-600",
+        icon: Briefcase,
+        link: "https://www.microsoft.com/en-us/education/products/office",
+    },
+    {
+        id: "linkedin-student-beans",
+        title: "LinkedIn Premium (Student Beans)",
+        description: "As low as $2.09/mo for extended terms vs $29.99/mo standard. Job insights and messaging tools for the OPT job hunt. International students eligible.",
+        discount: "From $2.09/mo",
+        category: "Career",
+        section: "career",
+        badge: "Networking",
+        badgeColor: "from-blue-700 to-indigo-700",
+        icon: Briefcase,
+        link: "https://www.studentbeans.com/student-discount/us/linkedin-premium",
+    },
+    {
+        id: "acm-student",
+        title: "ACM Student Membership",
+        description: "From $19/year with optional Digital Library access. Research library and networking credentials for CS students — global enrollment, no SSN.",
+        discount: "From $19/yr",
+        category: "Career",
+        section: "career",
+        badge: "CS",
+        badgeColor: "from-orange-500 to-amber-600",
+        icon: GraduationCap,
+        link: "https://www.acm.org/membership/membership-options",
+    },
+    {
+        id: "ieee-student",
+        title: "IEEE Student Membership",
+        description: "Around $32/year with discounted IEEE Xplore and conference access. Boosts credibility for engineering and CS students applying to technical roles.",
+        discount: "From $32/yr",
+        category: "Career",
+        section: "career",
+        badge: "Engineering",
+        badgeColor: "from-blue-500 to-cyan-600",
+        icon: GraduationCap,
+        link: "https://www.ieee.org/membership",
+    },
+    {
+        id: "princeton-review",
+        title: "The Princeton Review",
+        description: "Up to $600 off GRE, GMAT, and LSAT courses via ongoing promo codes. Open enrollment — international students welcome, no student ID required.",
+        discount: "Up to $600 OFF",
+        category: "Career",
+        section: "career",
+        badge: "Test Prep",
+        badgeColor: "from-teal-500 to-emerald-600",
+        icon: BookOpen,
+        link: "https://www.princetonreview.com/promo",
+    },
+    {
+        id: "kaplan-test-prep",
+        title: "Kaplan Test Prep",
+        description: "10–15% off GRE, GMAT, and MCAT courses with promo codes. Structured grad-school prep for international applicants — no SSN required.",
+        discount: "10–15% OFF",
+        category: "Career",
+        section: "career",
+        badge: "Test Prep",
+        badgeColor: "from-emerald-600 to-green-700",
+        icon: BookOpen,
+        link: "https://www.kaptest.com",
+    },
+    {
+        id: "wise-students",
+        title: "Wise International Student Account",
+        description: "$0 monthly fee with mid-market exchange rates. Receive tuition or family support from abroad without bank markup fees. Passport-based KYC, no US SSN.",
+        discount: "$0 Monthly Fee",
+        category: "Finance",
+        section: "finance",
+        badge: "Banking",
+        badgeColor: "from-lime-500 to-green-600",
+        icon: Wallet,
+        link: "https://wise.com/us/students",
+    },
+    {
+        id: "zolve",
+        title: "Zolve US Bank Account",
+        description: "No-fee checking plus a credit card with $0 annual fee and merchant discounts. Apply with passport + F-1 visa + I-20 — no SSN or US credit history.",
+        discount: "No Annual Fee",
+        category: "Finance",
+        section: "finance",
+        badge: "New Arrivals",
+        badgeColor: "from-fuchsia-500 to-pink-600",
+        icon: CreditCard,
+        link: "https://zolve.com",
+    },
+    {
+        id: "remitly",
+        title: "Remitly Money Transfer",
+        description: "Discounted or fee-free first transfer for new users. Low-cost alternative to bank wires for sending earnings home or receiving family support.",
+        discount: "First Transfer Deal",
+        category: "Finance",
+        section: "finance",
+        badge: "Remittance",
+        badgeColor: "from-sky-500 to-blue-600",
+        icon: Send,
+        link: "https://www.remitly.com",
+    },
+    {
+        id: "uhaul-collegeboxes",
+        title: "U-Haul Collegeboxes",
+        description: "No registration fee, up to 40% off shipping, plus periodic free self-storage offers. For students moving between dorms, internships, or after OPT placement.",
+        discount: "Up to 40% OFF",
+        category: "Finance",
+        section: "finance",
+        badge: "Moving",
+        badgeColor: "from-orange-500 to-red-500",
+        icon: Truck,
+        link: "https://www.uhaul.com/Discounts/",
+    },
+    {
+        id: "isi-insurance",
         title: "ISI Student Insurance",
         description: "Affordable student health coverage with United Healthcare network and 24/7 telemedicine.",
         discount: "From $35/mo",
         category: "Health Insurance",
+        section: "essential",
         badge: "Best Value",
         badgeColor: "from-green-500 to-emerald-500",
         icon: Shield,
         link: "https://www.internationalstudentinsurance.com/?Trackmyopt",
-        featured: false,
     },
     {
-        id: 5,
+        id: "sprintax",
         title: "Sprintax Tax Filing",
         description: "Partner coupon for all users. The #1 tax software for international students on F-1/OPT — get your code in Tax Filing.",
         discount: "$20 value",
         category: "Tax Services",
+        section: "essential",
         badge: "Tax Season",
         badgeColor: "from-emerald-500 to-teal-500",
         icon: Receipt,
         link: "/dashboard/tax-filing",
-        featured: false,
     },
     {
-        id: 6,
+        id: "chrome-extension",
         title: "Chrome Extension",
         description: "Quick access to your OPT countdown and case status right from your browser.",
         discount: "FREE",
         category: "Tools",
+        section: "essential",
         badge: "New",
         badgeColor: "from-cyan-500 to-blue-500",
         icon: Chrome,
         link: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb",
-        featured: false,
     },
 ];
 
 export default function OffersPage() {
-    const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [selectedFuelDeal, setSelectedFuelDeal] = useState<FuelDeal | null>(null);
     const [showStepsPopup, setShowStepsPopup] = useState(false);
 
@@ -193,7 +447,7 @@ export default function OffersPage() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6 mb-12">
-                    {OFFERS.filter(o => o.featured).map((offer) => (
+                    {OFFERS.filter(o => o.section === "featured").map((offer) => (
                         <a
                             key={offer.id}
                             href={offer.link}
@@ -326,14 +580,83 @@ export default function OffersPage() {
                     ))}
                 </div>
 
-                {/* All Offers */}
+                {/* Student Offers Directory */}
+                <div className="flex items-center gap-2 mb-2">
+                    <GraduationCap className="w-5 h-5 text-indigo-500" />
+                    <h2 className="text-xl font-semibold">Student Offers Directory</h2>
+                </div>
+                <p className="text-sm text-muted-foreground mb-8 max-w-3xl">
+                    Verified evergreen deals for international students and F-1/OPT holders — prioritized where no US SSN is required.
+                </p>
+
+                {OFFER_SECTIONS.map((section) => {
+                    const sectionOffers = OFFERS.filter(o => o.section === section.id);
+                    if (sectionOffers.length === 0) return null;
+
+                    return (
+                        <div key={section.id} className="mb-12">
+                            <div className="flex items-center gap-2 mb-6">
+                                <section.icon className="w-5 h-5 text-purple-500" />
+                                <h3 className="text-lg font-semibold">{section.title}</h3>
+                            </div>
+
+                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {sectionOffers.map((offer) => (
+                                    <a
+                                        key={offer.id}
+                                        href={offer.link}
+                                        target={offer.link.startsWith("http") ? "_blank" : "_self"}
+                                        rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                                        className="group relative overflow-hidden rounded-xl bg-card border border-border p-5 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-200 hover:scale-[1.02]"
+                                    >
+                                        <div className={`absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold uppercase text-white rounded-full bg-gradient-to-r ${offer.badgeColor}`}>
+                                            {offer.badge}
+                                        </div>
+
+                                        <div className="flex items-start gap-3">
+                                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${offer.badgeColor} flex items-center justify-center flex-shrink-0`}>
+                                                <offer.icon className="w-5 h-5 text-white" />
+                                            </div>
+
+                                            <div className="flex-1 min-w-0">
+                                                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+                                                    {offer.category}
+                                                </span>
+                                                <h3 className="font-semibold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                                    {offer.title}
+                                                </h3>
+                                            </div>
+                                        </div>
+
+                                        <p className="text-sm text-muted-foreground mt-3 line-clamp-3">
+                                            {offer.description}
+                                        </p>
+
+                                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                                            <span className="text-base font-bold text-green-600 dark:text-green-400">
+                                                {offer.discount}
+                                            </span>
+
+                                            <span className="inline-flex items-center gap-1 text-xs font-medium text-purple-600 dark:text-purple-400">
+                                                Claim Offer
+                                                <ExternalLink className="w-3 h-3" />
+                                            </span>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {/* Essential Services */}
                 <div className="flex items-center gap-2 mb-6">
                     <Tag className="w-5 h-5 text-purple-500" />
-                    <h2 className="text-xl font-semibold">All Offers</h2>
+                    <h2 className="text-xl font-semibold">Essential Services</h2>
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {OFFERS.filter(o => !o.featured).map((offer) => (
+                    {OFFERS.filter(o => o.section === "essential").map((offer) => (
                         <a
                             key={offer.id}
                             href={offer.link}
