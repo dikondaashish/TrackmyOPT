@@ -111,14 +111,10 @@ const OFFER_SECTIONS: { id: Offer["section"]; title: string; icon: LucideIcon }[
 const FEATURED_OFFER_IDS = [
     "iso-insurance",
     "kimber-health",
-    "sprintax",
-    "zolve",
-    "wise-students",
-    "github-student-pack",
-    "kickresume-student",
     "google-gemini-student",
     "linkedin-student-beans",
-    "nordvpn-student",
+    "wise-students",
+    "chatgpt-student",
 ] as const;
 
 function getFeaturedOffers(offers: Offer[]): Offer[] {
