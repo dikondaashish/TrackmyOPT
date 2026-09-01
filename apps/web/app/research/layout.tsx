@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { LandingFooter } from '@/components/landing/LandingFooter';
+import { RESEARCH_HUB_HERO_IMAGE } from '@/data/research-hub';
 
 export const metadata: Metadata = {
   title: 'TrackMyOPT Research — What We Have Actually Seen on OPT Job Search',
@@ -24,6 +25,14 @@ export const metadata: Metadata = {
     url: 'https://www.trackmyopt.com/research',
     siteName: 'TrackMyOPT',
     type: 'website',
+    images: [
+      {
+        url: `https://www.trackmyopt.com${RESEARCH_HUB_HERO_IMAGE}`,
+        width: 1200,
+        height: 750,
+        alt: 'TrackMyOPT Research — hiring intelligence for OPT students',
+      },
+    ],
   },
 };
 

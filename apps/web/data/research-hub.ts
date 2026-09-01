@@ -8,6 +8,7 @@ export type ResearchPost = {
   teaser: string;
   readTime: string;
   publishedDate: string;
+  image: string;
 };
 
 export const RESEARCH_POSTS: ResearchPost[] = [
@@ -20,6 +21,7 @@ export const RESEARCH_POSTS: ResearchPost[] = [
       'No, most resumes are not auto-rejected. Here is what actually happens after you hit submit — and which advice to ignore.',
     readTime: '5 min read',
     publishedDate: '2026-09-01',
+    image: '/research/biggest-ats-myths.png',
   },
   {
     slug: 'not-getting-interviews',
@@ -30,8 +32,11 @@ export const RESEARCH_POSTS: ResearchPost[] = [
       'What recruiters actually screen for, what only you can put on the page, and how to use the hours TrackMyOPT saves you.',
     readTime: '8 min read',
     publishedDate: '2026-09-01',
+    image: '/research/not-getting-interviews.png',
   },
 ];
+
+export const RESEARCH_HUB_HERO_IMAGE = '/research/research-hub-hero.png';
 
 export type ResearchBrief = {
   id: string;
@@ -42,6 +47,7 @@ export type ResearchBrief = {
   publishedDate: string;
   readTime: string;
   featured?: boolean;
+  image?: string;
   paragraphs?: string[];
   takeaways?: string[];
   cta?: { label: string; href: string };
@@ -59,6 +65,7 @@ export const RESEARCH_BRIEFS: ResearchBrief[] = [
     publishedDate: '2026-09-01',
     readTime: '3 min read',
     featured: true,
+    image: '/research/september-hiring-surge-2026.png',
     paragraphs: [
       'If you are on OPT and job hunting right now, you are roughly a week out from the September surge — when managers are back, budgets are fresh, and recruiters try to fill seats before November slows everything down.',
       'Quiet August does not mean a dead market. It means prep week, not panic week. When volume returns, the bottleneck is speed: tailoring, sponsor checks, unemployment tracking, and follow-ups all compete for the same evening.',

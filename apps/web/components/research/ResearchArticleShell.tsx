@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Clock } from 'lucide-react';
 
 type ResearchArticleShellProps = {
@@ -7,6 +8,7 @@ type ResearchArticleShellProps = {
   description: string;
   readTime: string;
   publishedDate: string;
+  image?: string;
   children: React.ReactNode;
   next?: { href: string; label: string };
 };
@@ -17,6 +19,7 @@ export function ResearchArticleShell({
   description,
   readTime,
   publishedDate,
+  image,
   children,
   next,
 }: ResearchArticleShellProps) {
@@ -48,6 +51,18 @@ export function ResearchArticleShell({
           <span>•</span>
           <span>Written by the TrackMyOPT team</span>
         </div>
+        {image && (
+          <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl border border-gray-200 dark:border-zinc-800">
+            <Image
+              src={image}
+              alt=""
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
+            />
+          </div>
+        )}
       </header>
 
       <div className="prose prose-lg prose-gray dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400">

@@ -1,12 +1,18 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { ResearchArticleShell } from '@/components/research/ResearchArticleShell';
+import { RESEARCH_POSTS } from '@/data/research-hub';
+
+const post = RESEARCH_POSTS.find((p) => p.slug === 'not-getting-interviews')!;
 
 export const metadata: Metadata = {
   title: 'Read This If You Are Not Getting Interviews on OPT | TrackMyOPT Research',
   description:
     'TrackMyOPT is not a magic bullet. What recruiters actually screen for, what only you can write on your resume, and how to spend the hours our tools give back.',
   alternates: { canonical: 'https://www.trackmyopt.com/research/not-getting-interviews' },
+  openGraph: {
+    images: [{ url: `https://www.trackmyopt.com${post.image}`, width: 1200, height: 675, alt: post.title }],
+  },
 };
 
 export default function NotGettingInterviewsPage() {
@@ -17,6 +23,7 @@ export default function NotGettingInterviewsPage() {
       description="Our job tracker and Chrome extension save you hours. They do not invent qualifications you never earned. Here is how to spend the time we give back."
       readTime="8 min read"
       publishedDate="September 1, 2026"
+      image={post.image}
       next={{
         href: '/research/biggest-ats-myths',
         label: 'The biggest ATS myths',

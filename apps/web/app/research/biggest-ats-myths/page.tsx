@@ -1,12 +1,18 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { ResearchArticleShell } from '@/components/research/ResearchArticleShell';
+import { RESEARCH_POSTS } from '@/data/research-hub';
+
+const post = RESEARCH_POSTS.find((p) => p.slug === 'biggest-ats-myths')!;
 
 export const metadata: Metadata = {
   title: 'The Biggest ATS Myths (From People Who Actually Hire) | TrackMyOPT Research',
   description:
     'No, most resumes are not auto-rejected by a robot. We talked to students, recruiters, and our own hiring stack — here is what really happens after you hit submit on OPT.',
   alternates: { canonical: 'https://www.trackmyopt.com/research/biggest-ats-myths' },
+  openGraph: {
+    images: [{ url: `https://www.trackmyopt.com${post.image}`, width: 1200, height: 675, alt: post.title }],
+  },
 };
 
 export default function BiggestAtsMythsPage() {
@@ -17,6 +23,7 @@ export default function BiggestAtsMythsPage() {
       description="We have watched thousands of OPT applications move through real hiring systems. Most of the advice floating around Reddit is fiction. Here is what actually happens after you click apply."
       readTime="5 min read"
       publishedDate="September 1, 2026"
+      image={post.image}
       next={{
         href: '/research/not-getting-interviews',
         label: 'Read this if you are not getting interviews',
