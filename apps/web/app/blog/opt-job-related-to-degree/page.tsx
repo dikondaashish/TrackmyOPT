@@ -8,22 +8,23 @@ import { AuthorBio } from "@/components/blog/AuthorBio";
 const CANONICAL = "https://www.trackmyopt.com/blog/opt-job-related-to-degree";
 
 export const metadata: Metadata = {
-  title: "How to Explain That Your OPT Job Is Related to Your Degree—with Examples",
+  title: "How to Explain How Your OPT Job Relates to Your Degree (SEVP Examples)",
   description:
-    "Learn how to document the relationship between your OPT job and your degree field using duties, skills, coursework, and a practical statement format. Includes real examples for CS, Business, Biology, Engineering, and more.",
+    "The SEVP portal asks you to explain how your job relates to the degree that qualified you for OPT. Copy-ready examples for CS, Business, Biology, Engineering, and a step-by-step duty-based template.",
   keywords: [
+    "explain how this job relates to the degree that qualified you for this opt",
+    "relation to field of study OPT",
     "OPT job related to degree",
+    "SEVP employment relationship",
     "explain employment related to field of study",
     "OPT degree relationship letter",
     "how to prove OPT job is related",
-    "SEVP employment relationship",
-    "OPT related field of study examples",
     "DSO job approval OPT",
   ],
   alternates: { canonical: CANONICAL },
   openGraph: {
-    title: "How to Explain That Your OPT Job Is Related to Your Degree—with Examples",
-    description: "Duty-based degree relationship statements for OPT — with real examples across CS, Business, Biology, Engineering, and more.",
+    title: "Explain How Your OPT Job Relates to Your Degree — SEVP Examples",
+    description: "What to write in the SEVP 'relation to field of study' field — with copy-ready examples for CS, Business, Biology, and more.",
     url: CANONICAL,
     type: "article",
     images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Job Degree Relationship Guide" }],
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
 export default function OptJobRelatedToDegreePage() {
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-07-27" modifiedDate="2026-07-27" author="TrackMyOPT Immigration Team" canonicalUrl={CANONICAL} />
+      <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-07-27" modifiedDate="2026-09-01" author="TrackMyOPT Immigration Team" canonicalUrl={CANONICAL} />
       <BreadcrumbSchema items={[{ name: "Home", url: "https://www.trackmyopt.com" }, { name: "Blog", url: "https://www.trackmyopt.com/blog" }, { name: "OPT Job Related to Degree", url: CANONICAL }]} />
 
       <header className="mb-10">
@@ -41,17 +42,15 @@ export default function OptJobRelatedToDegreePage() {
           <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">OPT Employment</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
-          How to Explain That Your OPT Job Is Related to Your Degree—with Examples
+          How to Explain How Your OPT Job Relates to Your Degree (SEVP Field + Examples)
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300">
-          &quot;Related to your degree&quot; is not a job-title test. It is a duties test. This guide explains
-          the standard, shows you how to write a relationship statement, and gives real examples
-          across seven fields of study.
+          When reporting employment in the SEVP portal, you may see: <em>&quot;Explain how this job relates to the degree that qualified you for this OPT.&quot;</em> This is a duties test, not a job-title test. Below: what to write, copy-ready examples, and common mistakes.
         </p>
         <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 12 min read</span>
           <span>•</span>
-          <span>Updated July 27, 2026</span>
+          <span>Updated September 1, 2026</span>
         </div>
       </header>
 
@@ -73,6 +72,36 @@ export default function OptJobRelatedToDegreePage() {
       </div>
 
       <div className="prose prose-lg dark:prose-invert max-w-none">
+
+        <h2>What to Write in the SEVP Portal &quot;Relation to Field of Study&quot; Field</h2>
+        <p>
+          When you report a new employer in the{" "}
+          <a href="https://sevp.ice.gov/opt" target="_blank" rel="noopener noreferrer">SEVP portal</a>,
+          the form may require a free-text explanation of how your employment relates to your qualifying degree.
+          The prompt often reads exactly:
+        </p>
+        <blockquote className="border-l-4 border-primary pl-4 italic text-gray-700 dark:text-gray-300 my-4">
+          &quot;Explain how this job relates to the degree that qualified you for this OPT.&quot;
+        </blockquote>
+        <p>
+          Write 3–5 sentences using this structure:
+        </p>
+        <ol>
+          <li><strong>Degree:</strong> Name your degree and 2–3 relevant courses or skill areas.</li>
+          <li><strong>Duties:</strong> List 3–5 recurring job tasks (not the job title alone).</li>
+          <li><strong>Connection:</strong> For each duty, name the specific coursework or degree skill it uses.</li>
+        </ol>
+        <div className="not-prose bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-5 my-6">
+          <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase mb-2">Copy-ready SEVP field example (Computer Science)</p>
+          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+            I hold an MS in Computer Science with coursework in Database Systems, Software Engineering, and Data Structures. As a Software Engineer at [Company], I design REST APIs and write backend services in Python (applying Software Engineering and algorithm design), optimize SQL queries and data models (applying Database Systems), and participate in code reviews using object-oriented design patterns from my degree program. Each core duty requires technical knowledge from my qualifying degree.
+          </p>
+        </div>
+        <p>
+          Portal walkthrough:{" "}
+          <Link href="/blog/sevp-portal-guide-opt">SEVP portal guide for OPT students</Link>.
+          Keep a longer version with employer letterhead for your personal records and future H-1B filings.
+        </p>
 
         <h2>The Legal Standard: What &quot;Related&quot; Actually Means</h2>
         <p>
@@ -290,8 +319,12 @@ export default function OptJobRelatedToDegreePage() {
               a: "A supervisor, hiring manager, or other person familiar with your technical duties and with standing to write on company letterhead. Include their full name, title, contact information, and the date. For future visa purposes, the letter has more weight when it comes from someone with actual knowledge of your work.",
             },
             {
+              q: "What should I write in the SEVP portal 'relation to field of study' field?",
+              a: "Write 3–5 sentences: (1) your degree and 2–3 relevant courses, (2) 3–5 actual job duties, and (3) how each duty uses knowledge from those courses. Do not copy only the job title. The field often asks: 'Explain how this job relates to the degree that qualified you for this OPT.'",
+            },
+            {
               q: "Should I upload my degree-relationship statement to the SEVP Portal?",
-              a: "Keep it in your personal records and provide it to your DSO through whatever process your school uses. The SEVP Portal does not typically include a field for degree-relationship statements, but your DSO may have a separate intake form or document submission process.",
+              a: "Type the explanation directly in the portal's employment reporting form when prompted. Also keep a longer signed version in your personal records and provide copies to your DSO if your school requires a separate intake process.",
             },
             {
               q: "What if my employer does not understand why a relationship statement is needed?",

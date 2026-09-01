@@ -6,12 +6,12 @@ import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export const metadata: Metadata = {
-    title: "OPT Health Insurance Guide 2026: Best Plans & How to Choose",
-    description: "Complete guide to health insurance for F-1 students on OPT in 2026. Compare marketplace plans, COBRA, international student plans, and state requirements.",
-    keywords: ["OPT health insurance", "international student health insurance", "health insurance after graduation", "F-1 health insurance", "marketplace health insurance", "COBRA insurance"],
+    title: "Health Insurance While on OPT (2026): Plans, Costs & Options",
+    description: "Lost school coverage after graduation? Compare health insurance while on OPT: employer plans, COBRA, ACA marketplace, and international student insurance — with typical costs for F-1 workers.",
+    keywords: ["health insurance while on opt", "opt health insurance", "opt student insurance", "opt insurance", "health insurance after graduation opt", "F-1 health insurance opt", "international student health insurance opt", "COBRA opt"],
     openGraph: {
-        title: "OPT Health Insurance Guide 2026: Best Plans & How to Choose | TrackMyOPT",
-        description: "Compare OPT health insurance options including marketplace plans, COBRA, and international insurance with costs and coverage details.",
+        title: "Health Insurance While on OPT (2026): Plans & Costs | TrackMyOPT",
+        description: "Your university plan ends at graduation. Here is how to get health insurance on OPT — employer coverage, COBRA, marketplace, and budget international plans compared.",
         url: "https://www.trackmyopt.com/blog/opt-health-insurance-guide-2026",
         type: "article",
         images: [
@@ -36,7 +36,7 @@ export default function OPTHealthInsuranceArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "OPT Health Insurance Guide 2026", url: "https://www.trackmyopt.com/blog/opt-health-insurance-guide-2026" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-27" modifiedDate="2026-05-27" author="Vinay Kumar" faqItems={[
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-27" modifiedDate="2026-09-01" author="Vinay Kumar" faqItems={[
                 { question: "Do F-1 students on OPT need health insurance?", answer: "While federal law doesn't mandate health insurance for F-1 OPT students, most employers offer coverage, and many states require minimum coverage. More importantly, going without insurance could result in medical debt that devastates your finances." },
                 { question: "Can F-1 students buy health insurance on the marketplace?", answer: "Yes, F-1 students can purchase plans on the ACA marketplace (Healthcare.gov). As a nonresident alien, you don't qualify for subsidies, but you can buy full-price plans. Enrollment typically occurs during open enrollment (November-December)." },
                 { question: "What is COBRA health insurance?", answer: "COBRA allows you to continue your employer's health insurance for up to 18 months after leaving a job or graduating. You pay the full premium (typically $400-800+/month) plus a 2% administrative fee, but coverage is often better than marketplace plans." },
@@ -68,26 +68,29 @@ export default function OPTHealthInsuranceArticle() {
                     </span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                    OPT Health Insurance Guide 2026: Best Plans & How to Choose
+                    Health Insurance While on OPT: Plans, Costs & What You Need (2026)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                    Navigate health insurance options for OPT students: marketplace plans, COBRA, international plans, and employer coverage explained with costs and comparisons.
+                    When your university plan ends at graduation, you need new coverage before your first OPT paycheck — or a single ER visit can wipe out months of savings. Here is every realistic option for F-1 workers.
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span>Published: May 26, 2026</span>
                     <span>•</span>
-                    <span>Updated by TrackMyOPT Benefits Team</span>
+                    <span>Updated: September 1, 2026</span>
                 </div>
             </header>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                <span>Last Updated: February 2026</span>
-            </div>
-
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-10">
+                <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
-                    F-1 students on OPT should secure health insurance immediately, as university student health plans typically end upon graduation. Options include employer-sponsored plans, ACA marketplace plans (available during Special Enrollment after losing student coverage), and short-term health insurance.
+                    Your university health plan usually ends at graduation. On OPT, get coverage through <strong>employer insurance</strong> (best value), <strong>COBRA</strong> (bridge after leaving a job), the <strong>ACA marketplace</strong> (special enrollment after losing student coverage), or a <strong>budget international student plan</strong> ($50–$150/mo). Going uninsured risks five-figure medical debt.
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                    Verified student plans: see{" "}
+                    <Link href="/blog/trackmyopt-student-deals-guide" className="text-red-600 dark:text-red-400 font-semibold hover:underline">
+                        TrackMyOPT partner health insurance deals
+                    </Link>{" "}
+                    (ISO, Kimber Health) inside your dashboard.
                 </p>
             </div>
 
