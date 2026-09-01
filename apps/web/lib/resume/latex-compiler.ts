@@ -11,7 +11,7 @@
  * compilers.
  */
 
-type CompileResult =
+export type CompileResult =
     | { ok: true; pdf: ArrayBuffer; compiler: string }
     | { ok: false; error: string };
 
