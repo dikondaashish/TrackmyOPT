@@ -255,5 +255,17 @@ larger system is introduced additively.
   enabled sources and 56 open verified jobs with no missing source or freshness
   fields. No discovered board was automatically activated.
 
+  **Gate 4 release verification (UTC hour 16, 2026-09-01):** cron-job.org jobs
+  `8362843`, `8362863`, `8362868`, and `8362879` returned `202 Accepted` in
+  `1.01s`, `1.05s`, `1.46s`, and `2.22s`, respectively. Scheduler run
+  `job-board-hour-2026-09-01T16` has one queued dispatch at
+  `2026-09-01 16:07:09.268+00`; attempts at 16:22, 16:37, and 16:52 are
+  suppressed, with no failed attempt. Successful audits
+  `e8a3b882-ba0d-48c9-b7fd-cfe7dac56258` (Greenhouse, 15 jobs, 1 request) and
+  `0fe14dc6-b62f-4ce2-a026-a23df28f74ed` (Ashby, 41 jobs, 1 request) both record
+  `trigger_origin = cron_jobs_org`. The live database reports 56 open, 3
+  removed, 0 removed rows in the active feed, exactly 2 enabled sources, and 0
+  active jobs missing source/freshness fields. Gate 4 is release-complete.
+
 - **Gates 5–7 not started:** canonical enrichment/dedupe, indexed search migration,
   admin operations, and the 10,000-job scale exit are not claimed yet.
