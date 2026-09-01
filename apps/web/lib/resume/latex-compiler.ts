@@ -32,6 +32,10 @@ type CompilerConfig = {
     payload?: (code: string) => unknown;
 };
 
+export function hasPrivateCompilerConfigured(): boolean {
+    return getPrivateCompilerUrl() !== null;
+}
+
 function getPrivateCompilerUrl(): string | null {
     const configured = process.env.LATEX_COMPILER_URL?.trim();
     if (!configured) return null;

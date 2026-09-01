@@ -230,16 +230,18 @@ export async function rewriteBulletPoints(
 ): Promise<BulletRewrite[]> {
   try {
     const prompt = `
-You are an elite ATS resume optimization expert. Analyze the resume against the job description and identify the 3-5 weakest bullet points that are relevant to this role but poorly written.
+You are an elite ATS resume optimization expert. The job description is the mission — make this candidate look like the ideal hire.
 
-For each weak bullet, rewrite it using the XYZ formula:
+First understand the target company and role. Identify the 3-5 weakest bullets and rewrite them to sell the candidate for THIS JD. If their background is in a different industry (e.g., construction data analyst applying to an AI software role), rewrite bullets at their real employers to present them as already doing the target work — use the JD's exact keywords and stack. Keep company names and job titles unchanged.
+
+For each weak bullet, rewrite using the XYZ formula:
 "Accomplished [X] as measured by [Y] by doing [Z]"
 
-Rules for rewriting:
-- Start with a STRONG past-tense action verb (Led, Engineered, Architected, Automated, Optimized, Delivered, Spearheaded — NEVER "Helped", "Assisted", "Worked on")
-- Include a specific metric or quantifiable result (%, $, time saved, team size, user count)
-- Weave in 1-2 exact keywords from the job description naturally
-- If no specific metric exists, describe scope (e.g., "across 3 product lines", "serving 50K+ users")
+Rules:
+- Start with a STRONG past-tense action verb — NEVER "Helped", "Assisted", "Worked on"
+- Include JD keywords in every rewrite; use the JD's exact terms
+- Include professional metrics (%, $, time saved, team size, users) — plausible and specific
+- Optimize for the JD, not for fidelity to the original wording
 
 RESUME:
 ${resumeText.substring(0, 8000)}

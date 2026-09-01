@@ -534,6 +534,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       focusKeywords: Array.isArray(msg.focusKeywords)
         ? msg.focusKeywords.map((keyword: unknown) => String(keyword ?? '')).filter(Boolean)
         : [],
+      alignJobTitles: msg.alignJobTitles === true,
       baselineScore: typeof msg.baselineScore === 'number' ? msg.baselineScore : undefined,
       applicationId:
         typeof msg.applicationId === 'string' && msg.applicationId.trim()
@@ -1335,6 +1336,7 @@ async function generateTailoredResume(input: {
   jobKey: string;
   outputFilename: string;
   focusKeywords?: string[];
+  alignJobTitles?: boolean;
   baselineScore?: number;
   applicationId?: string;
   /**
@@ -1362,6 +1364,7 @@ async function generateTailoredResume(input: {
   const focusKeywords = [...new Set((input.focusKeywords ?? [])
     .map((keyword) => keyword.replace(/\s+/g, ' ').trim().slice(0, 80))
     .filter(Boolean))].slice(0, 12);
+  const alignJobTitles = input.alignJobTitles === true;
   const pastedResumeText = input.resumeText?.trim();
   if (!jobDescription.trim()) return { ok: false, error: 'no_job_description' };
   if (!pastedResumeText && !resumeId.trim()) return { ok: false, error: 'no_base_resume' };
@@ -1442,6 +1445,7 @@ async function generateTailoredResume(input: {
       jobDescription: jobDescription.slice(0, 15000),
       templateId,
       focusKeywords,
+      alignJobTitles,
     }),
   });
   if (genRes.status === 403) {

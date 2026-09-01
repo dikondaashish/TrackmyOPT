@@ -10,6 +10,10 @@ const mocks = vi.hoisted(() => ({
   releaseResumeGenerationReservation: vi.fn(),
   generateAiContent: vi.fn(),
   checkAtsCompliance: vi.fn(),
+  stripModelLatexOutput: vi.fn(),
+  validateGeneratedResumeOutput: vi.fn(),
+  hasPrivateCompilerConfigured: vi.fn(),
+  compileLatexWithRepair: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/get-user-id", () => ({ getUserId: mocks.getUserId }));
@@ -30,6 +34,16 @@ vi.mock("@/lib/usage-limit", () => ({
 }));
 vi.mock("@/lib/ai/google-ai", () => ({ generateAiContent: mocks.generateAiContent }));
 vi.mock("@/lib/validators/ats-checker", () => ({ checkAtsCompliance: mocks.checkAtsCompliance }));
+vi.mock("@/lib/resume/model-latex-output", () => ({
+  stripModelLatexOutput: mocks.stripModelLatexOutput,
+  validateGeneratedResumeOutput: mocks.validateGeneratedResumeOutput,
+}));
+vi.mock("@/lib/resume/latex-compiler", () => ({
+  hasPrivateCompilerConfigured: mocks.hasPrivateCompilerConfigured,
+}));
+vi.mock("@/lib/resume/compile-latex-with-repair", () => ({
+  compileLatexWithRepair: mocks.compileLatexWithRepair,
+}));
 
 const { POST } = await import("./route");
 
@@ -60,6 +74,11 @@ describe("POST /api/resume-generator/generate", () => {
     mocks.reserveResumeGeneration.mockResolvedValue({ allowed: true, reservationId: "reservation-1" });
     mocks.generateAiContent.mockResolvedValue({ text: "```latex\n\\documentclass{article}\n```" });
     mocks.checkAtsCompliance.mockReturnValue({ passed: true, issues: [] });
+    mocks.stripModelLatexOutput.mockImplementation((text: string) =>
+      text.replace(/^```(?:latex)?\n?/, "").replace(/\n?```$/, "").trim()
+    );
+    mocks.validateGeneratedResumeOutput.mockReturnValue({ ok: true, issues: [] });
+    mocks.hasPrivateCompilerConfigured.mockReturnValue(false);
   });
 
   it("requires an authenticated user", async () => {
@@ -101,6 +120,38 @@ describe("POST /api/resume-generator/generate", () => {
 
   it("releases a reservation when generation fails", async () => {
     mocks.generateAiContent.mockRejectedValue(new Error("provider unavailable"));
+
+    const response = await POST(request(validBody()));
+
+    expect(response.status).toBe(500);
+    expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
+  });
+
+  it("runs compile repair when a private compiler is configured", async () => {
+    mocks.hasPrivateCompilerConfigured.mockReturnValue(true);
+    mocks.compileLatexWithRepair.mockResolvedValue({
+      ok: true,
+      finalLatex: "\\documentclass{article}\\begin{document}Fixed\\end{document}",
+      repaired: true,
+      repairAttempts: 1,
+      pdf: new ArrayBuffer(8),
+      compiler: "test",
+    });
+
+    const response = await POST(request(validBody()));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.latex).toContain("Fixed");
+    expect(body.compileRepaired).toBe(true);
+    expect(mocks.compileLatexWithRepair).toHaveBeenCalledOnce();
+  });
+
+  it("releases a reservation when validation fails", async () => {
+    mocks.validateGeneratedResumeOutput.mockReturnValue({
+      ok: false,
+      issues: ["preamble mismatch"],
+    });
 
     const response = await POST(request(validBody()));
 

@@ -25,6 +25,7 @@ type ModelChoice = {
   model: string;
   thinkingLevel: ThinkingLevel;
   maxOutputTokens: number;
+  temperature?: number;
 };
 
 export type AiModelPolicy = {
@@ -36,6 +37,7 @@ const FLASH_37_LOW: ModelChoice = {
   model: 'gemini-3.7-flash',
   thinkingLevel: ThinkingLevel.LOW,
   maxOutputTokens: 16_384,
+  temperature: 0.3,
 };
 
 const FLASH_37_MEDIUM: ModelChoice = {
@@ -281,6 +283,9 @@ function requestConfig(
   return {
     ...override,
     maxOutputTokens: override?.maxOutputTokens ?? choice.maxOutputTokens,
+    ...(choice.temperature !== undefined && override?.temperature === undefined
+      ? { temperature: choice.temperature }
+      : {}),
     thinkingConfig: {
       thinkingLevel: choice.thinkingLevel,
       includeThoughts: false,

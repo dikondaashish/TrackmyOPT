@@ -68,6 +68,7 @@ describe('AI model policies', () => {
     expect(AI_MODEL_POLICIES.resume_generate.primary.model).toBe(
       'gemini-3.7-flash'
     );
+    expect(AI_MODEL_POLICIES.resume_generate.primary.temperature).toBe(0.3);
     expect(AI_MODEL_POLICIES.resume_generate.fallback?.model).toBe(
       'gemini-3.1-pro-preview'
     );

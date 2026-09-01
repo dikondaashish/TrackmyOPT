@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAiContent } from '@/lib/ai/google-ai';
+import { buildFixSyntaxPrompt } from '@/lib/ai/prompts/fix-syntax';
 import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildGeneratePrompt } from '@/lib/ai/prompts/generate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
@@ -15,6 +16,15 @@ import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import { isUsableResumeLatex } from '@/lib/resume/latex-to-plain-text';
+import { compileLatexWithRepair } from '@/lib/resume/compile-latex-with-repair';
+import {
+    stripModelLatexOutput,
+    validateGeneratedResumeOutput,
+} from '@/lib/resume/model-latex-output';
+import {
+    compileLatex,
+    hasPrivateCompilerConfigured,
+} from '@/lib/resume/latex-compiler';
 import {
     JOB_DESCRIPTION_MAX_CHARS,
     prepareResumeText,
@@ -40,13 +50,23 @@ const GenerateSchema = z.object({
     focusKeywords: z.array(z.string().trim().min(1).max(80)).max(12).optional().default([]),
     /** Optional accent override chosen on the template selection page. */
     accentHex: z.string().trim().max(7).optional(),
-    /**
-     * Optional total years of professional experience. Passed to the model as
-     * context only — page count is driven by the volume of the candidate's
-     * actual content, never by a years threshold. Safe to omit.
-     */
-    yearsOfExperience: z.number().int().min(0).max(60).optional(),
+    /** Rewrite employment titles as a career ladder toward the JD role. Default off. */
+    alignJobTitles: z.boolean().optional().default(false),
 });
+
+async function repairLatexSyntax(
+    latexCode: string,
+    errorMessage: string,
+    userId: string,
+): Promise<string | undefined> {
+    const response = await generateAiContent({
+        task: 'latex_fix',
+        contents: buildFixSyntaxPrompt(latexCode, errorMessage),
+        userId,
+    });
+    const fixed = stripModelLatexOutput(response.text || '');
+    return isUsableResumeLatex(fixed) ? fixed : undefined;
+}
 
 export async function OPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
@@ -103,7 +123,7 @@ export async function POST(req: NextRequest) {
             jobDescription,
             templateId,
             focusKeywords,
-            yearsOfExperience,
+            alignJobTitles,
         } = validation.data;
         const accentHex = normalizeAccentHex(validation.data.accentHex);
 
@@ -114,13 +134,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Template not found' }, { status: 404, headers: corsHeaders });
         }
 
-        // 4. Build Prompt
+        // 4. Build Prompt (inputs first, rules after — Gemini weights the tail)
         const prompt = buildGeneratePrompt(
             resumeText,
             jobDescription,
             template.tex,
-            focusKeywords,
-            yearsOfExperience
+            { focusKeywords, alignJobTitles },
         );
 
         // Reserve included allowance or a purchased credit atomically before
@@ -151,12 +170,33 @@ export async function POST(req: NextRequest) {
             userId,
         });
 
-        let latex = response.text || '';
-
-        // Clean Output
-        latex = latex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
+        let latex = stripModelLatexOutput(response.text || '');
         if (!isUsableResumeLatex(latex)) {
             throw new Error('Model returned unusable resume latex');
+        }
+
+        const structureCheck = validateGeneratedResumeOutput({
+            latex,
+            templateTex: template.tex,
+            resumeText,
+        });
+        if (!structureCheck.ok) {
+            throw new Error(`Generated resume failed validation: ${structureCheck.issues.join('; ')}`);
+        }
+
+        let compileRepaired = false;
+        if (hasPrivateCompilerConfigured()) {
+            const compiled = await compileLatexWithRepair({
+                initialLatex: latex,
+                maxRepairs: 2,
+                compile: (code) => compileLatex(code, { publicFallback: true }),
+                repair: (code, error) => repairLatexSyntax(code, error, userId),
+            });
+            latex = compiled.finalLatex;
+            compileRepaired = compiled.repaired;
+            if (!compiled.ok) {
+                throw new Error(compiled.error || 'Resume failed to compile after repair attempts');
+            }
         }
 
         // ATS Validation
@@ -169,6 +209,7 @@ export async function POST(req: NextRequest) {
                 success: true,
                 latex,
                 atsCheck,
+                ...(compileRepaired ? { compileRepaired: true } : {}),
                 ...(resumePrep.truncated || jobPrep.truncated
                     ? {
                           warnings: [

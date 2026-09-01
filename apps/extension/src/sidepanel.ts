@@ -24,6 +24,10 @@ import { AgentRunClient } from './agent/run-client';
 import { RESUME_TEMPLATES_FOR_PANEL } from './agent/panel-templates';
 import { WEBSITE_URL } from './config';
 import {
+    getAlignJobTitlesPreference,
+    setAlignJobTitlesPreference,
+} from './resume-generation-preferences';
+import {
     arrayBufferToBase64,
     describeOversizedResumeFile,
     describeUnsupportedResumeFile,
@@ -184,6 +188,25 @@ function renderJob(context: JobContext): void {
         options: RESUME_TEMPLATES_FOR_PANEL.map((t) => ({ value: t.id, label: `${t.name} — ${t.hint}` })),
     });
 
+    const alignJobTitlesCheckbox = document.createElement('input');
+    alignJobTitlesCheckbox.type = 'checkbox';
+    alignJobTitlesCheckbox.id = 'tmo-sidepanel-align-job-titles';
+    void getAlignJobTitlesPreference().then((enabled) => {
+        alignJobTitlesCheckbox.checked = enabled;
+    });
+    alignJobTitlesCheckbox.addEventListener('change', () => {
+        void setAlignJobTitlesPreference(alignJobTitlesCheckbox.checked);
+    });
+    const alignJobTitlesLabel = document.createElement('label');
+    alignJobTitlesLabel.htmlFor = 'tmo-sidepanel-align-job-titles';
+    alignJobTitlesLabel.textContent = 'Align job titles to this role';
+    alignJobTitlesLabel.style.cssText = 'font-size:var(--tmo-text-sm);cursor:pointer;';
+    const alignJobTitlesHelp = text({
+        text: 'Rewrites titles as a career ladder toward this job. Companies and dates stay the same. Off by default.',
+        size: 'xs',
+        tone: 'muted',
+    });
+
     /* ---- generate -------------------------------------------------------------- */
     const runSlot = stack({ gap: '3' });
     const tailorButton = button({
@@ -197,6 +220,7 @@ function renderJob(context: JobContext): void {
             resumeSource,
             resumeId: savedSelect.value,
             resumeText: pasteBox.value,
+            alignJobTitles: alignJobTitlesCheckbox.checked,
         }, runSlot, tailorButton),
     });
 
@@ -252,7 +276,23 @@ function renderJob(context: JobContext): void {
                 card({
                     padding: '3',
                     label: 'Template',
-                    children: [field({ label: 'Template', control: templateSelect })],
+                    children: [
+                        stack({
+                            gap: '2',
+                            children: [
+                                field({ label: 'Template', control: templateSelect }),
+                                field({
+                                    label: 'Title alignment',
+                                    control: row({
+                                        gap: '2',
+                                        align: 'center',
+                                        children: [alignJobTitlesCheckbox, alignJobTitlesLabel],
+                                    }),
+                                }),
+                                alignJobTitlesHelp,
+                            ],
+                        }),
+                    ],
                 }),
                 tailorButton,
                 runSlot,
@@ -433,6 +473,7 @@ interface StartRunInput {
     resumeSource: ResumeSource;
     resumeId: string;
     resumeText: string;
+    alignJobTitles?: boolean;
 }
 
 function startRun(input: StartRunInput, slot: HTMLElement, trigger: HTMLButtonElement): void {
@@ -463,6 +504,7 @@ function startRun(input: StartRunInput, slot: HTMLElement, trigger: HTMLButtonEl
                 jobContext.roleTitle,
             ].join('|'),
             outputFilename: 'TrackMyOPT-resume.pdf',
+            alignJobTitles: input.alignJobTitles === true,
             ...(jobContext.applicationId
                 ? { applicationId: jobContext.applicationId }
                 : {}),

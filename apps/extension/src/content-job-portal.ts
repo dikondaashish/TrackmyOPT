@@ -6,6 +6,7 @@
  * site / all sites. Auto-adds job to TrackMyOPT on application-success pages.
  */
 
+import { mountAlignJobTitlesControl } from './align-job-titles-control';
 import { RESUME_TEMPLATES_FOR_PANEL } from './agent/panel-templates';
 import { hardenInteractiveElements, ensureWidgetAnnouncer } from './design/a11y';
 import {
@@ -178,6 +179,7 @@ type LastResumeGenerationRequest = {
   templateId: string;
   jobDescription: string;
   focusKeywords: string[];
+  alignJobTitles?: boolean;
   baselineScore?: number;
 };
 
@@ -1945,7 +1947,8 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
         prior.templateId,
         prior.jobDescription,
         prior.focusKeywords,
-        prior.baselineScore
+        prior.baselineScore,
+        prior.alignJobTitles,
       );
     } else {
       resumeBtn.click();
@@ -3410,7 +3413,9 @@ function openResumeChooserWithDescription(
     }
     if (event.key !== 'Tab') return;
     const focusable = Array.from(
-      dialog.querySelectorAll<HTMLElement>('button:not([disabled]),select:not([disabled])')
+      dialog.querySelectorAll<HTMLElement>(
+        'button:not([disabled]),select:not([disabled]),input:not([disabled])'
+      )
     )
       .filter((element) => element.offsetParent !== null);
     if (focusable.length === 0) return;
@@ -3543,6 +3548,8 @@ function openResumeChooserWithDescription(
       jdSection.appendChild(jdHeader);
       jdSection.appendChild(jdPreview);
 
+      const alignJobTitlesControl = mountAlignJobTitlesControl();
+
       const actions = document.createElement('div');
       actions.style.cssText = 'display:flex;gap:9px;margin-top:17px;';
       const cancel = resumeMiniBtn('<span>Cancel</span>', false);
@@ -3561,6 +3568,7 @@ function openResumeChooserWithDescription(
           jobDescription,
           focusKeywords,
           rememberedJobFitScore(job),
+          alignJobTitlesControl.getValue(),
         );
       });
       actions.appendChild(cancel);
@@ -3572,6 +3580,7 @@ function openResumeChooserWithDescription(
       body.appendChild(jobContext);
       if (focusKeywords.length > 0) body.appendChild(analysisContext);
       body.appendChild(jdSection);
+      body.appendChild(alignJobTitlesControl.row);
       body.appendChild(actions);
       resumeSelect.focus();
     }
@@ -3785,6 +3794,7 @@ function openResumePanel(
   jobDescription: string,
   focusKeywords: string[] = [],
   baselineScore?: number,
+  alignJobTitles = false,
 ): void {
   lastResumeGenerationRequest = {
     job: { ...job },
@@ -3792,6 +3802,7 @@ function openResumePanel(
     templateId,
     jobDescription,
     focusKeywords: [...focusKeywords],
+    alignJobTitles,
     baselineScore,
   };
   card.querySelector('.' + RESUME_PANEL_CLASS)?.remove();
@@ -3850,6 +3861,7 @@ function openResumePanel(
       focusKeywords,
       baselineScore,
       applicationId: trackerApplicationIdFor(job),
+      alignJobTitles,
     },
     (
       res: {

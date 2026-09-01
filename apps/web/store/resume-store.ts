@@ -19,6 +19,7 @@ interface ResumeState {
     resumeFilename: string | null;
     jobDescription: string;
     jobTitle: string | null;
+    alignJobTitles: boolean;
     applicationId: string | null;
     selectedTemplateId: string | null;
     selectedColor: TemplateColor | null;
@@ -30,6 +31,7 @@ interface ResumeState {
 
     setResumeText: (text: string, filename?: string) => void;
     setJobDescription: (text: string, title?: string) => void;
+    setAlignJobTitles: (enabled: boolean) => void;
     setApplicationId: (id: string | null) => void;
     setSelectedTemplateId: (id: string) => void;
     setSelectedColor: (color: TemplateColor | null) => void;
@@ -47,6 +49,7 @@ type PersistedResumeState = Pick<
     | 'resumeFilename'
     | 'jobDescription'
     | 'jobTitle'
+    | 'alignJobTitles'
     | 'applicationId'
     | 'selectedTemplateId'
     | 'selectedColor'
@@ -61,6 +64,7 @@ export const useResumeStore = create<ResumeState>()(
             resumeFilename: null,
             jobDescription: '',
             jobTitle: null,
+            alignJobTitles: false,
             applicationId: null,
             selectedTemplateId: DEFAULT_RESUME_TEMPLATE_ID,
             selectedColor: null,
@@ -90,6 +94,7 @@ export const useResumeStore = create<ResumeState>()(
                         jobTitle: extractJobTitle(text) ?? state.jobTitle,
                     };
                 }),
+            setAlignJobTitles: (enabled: boolean) => set({ alignJobTitles: enabled }),
             setApplicationId: (id: string | null) => set({ applicationId: id }),
             setSelectedTemplateId: (id: string) => set({ selectedTemplateId: id }),
             setSelectedColor: (color: TemplateColor | null) => set({ selectedColor: color }),
@@ -104,6 +109,7 @@ export const useResumeStore = create<ResumeState>()(
                 resumeFilename: null,
                 jobDescription: '',
                 jobTitle: null,
+                alignJobTitles: false,
                 applicationId: null,
                 selectedTemplateId: DEFAULT_RESUME_TEMPLATE_ID,
                 selectedColor: null,
@@ -116,16 +122,27 @@ export const useResumeStore = create<ResumeState>()(
         }),
         {
             name: 'resume-storage',
-            version: 2,
-            migrate: (persistedState) => ({
-                ...(persistedState as PersistedResumeState),
-                selectedTemplateId: DEFAULT_RESUME_TEMPLATE_ID,
-            }),
+            version: 3,
+            migrate: (persistedState, version) => {
+                const state = persistedState as PersistedResumeState;
+                if (version < 3) {
+                    return {
+                        ...state,
+                        alignJobTitles: false,
+                        selectedTemplateId: state.selectedTemplateId ?? DEFAULT_RESUME_TEMPLATE_ID,
+                    };
+                }
+                return {
+                    ...state,
+                    selectedTemplateId: state.selectedTemplateId ?? DEFAULT_RESUME_TEMPLATE_ID,
+                };
+            },
             partialize: (state) => ({
                 resumeText: state.resumeText,
                 resumeFilename: state.resumeFilename,
                 jobDescription: state.jobDescription,
                 jobTitle: state.jobTitle,
+                alignJobTitles: state.alignJobTitles,
                 applicationId: state.applicationId,
                 selectedTemplateId: state.selectedTemplateId,
                 selectedColor: state.selectedColor,

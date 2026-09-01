@@ -22,6 +22,7 @@
 \usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
+\usepackage{ragged2e}
 
 % ATS: emit a Unicode-mapped text layer so parsers extract clean text.
 \input{glyphtounicode}
@@ -35,7 +36,7 @@
 \pagestyle{empty}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
-\raggedright
+\justifying
 \raggedbottom
 
 %------------------------------------------------------------------
@@ -81,6 +82,7 @@
   {\begin{itemize}[leftmargin=13pt,itemsep=2pt,parsep=0pt,topsep=2pt,
                    partopsep=0pt,label=\textbullet]}
   {\end{itemize}}
+\setlist[itemize]{justification=justifying}
 
 %------------------------------------------------------------------
 % CONTACT INFORMATION

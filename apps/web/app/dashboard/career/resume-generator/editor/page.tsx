@@ -80,6 +80,7 @@ export default function ResumeEditorPage() {
     // Store
     const {
         resumeText, jobDescription, selectedTemplateId, selectedColor, jobTitle, applicationId,
+        alignJobTitles,
         generatedLatex, compiledPdfUrl, atsAnalysis,
         setResumeText, setJobDescription, setSelectedTemplateId,
         setGeneratedLatex, setCompiledPdfUrl, setAtsAnalysis, setApplicationId,
@@ -460,6 +461,7 @@ export default function ResumeEditorPage() {
                         previousLatex: generatedLatex,
                         userFeedback: limitRegenerationFeedback(feedback),
                         atsAnalysis: analysis,
+                        alignJobTitles,
                     }),
                 });
 
@@ -489,7 +491,7 @@ export default function ResumeEditorPage() {
                 setIsAutoFixing(false);
             }
         },
-        [generatedLatex, handleGenerationLimitResponse, jobDescription, resumeText, selectedTemplateId, setAtsAnalysis, toast, trackAtsScored, updateText]
+        [generatedLatex, handleGenerationLimitResponse, jobDescription, resumeText, selectedTemplateId, alignJobTitles, setAtsAnalysis, toast, trackAtsScored, updateText]
     );
 
     const postCompilePipeline = useCallback(
@@ -531,6 +533,7 @@ export default function ResumeEditorPage() {
                     resumeText: resume,
                     jobDescription: job,
                     templateId: template,
+                    alignJobTitles,
                     // Accent chosen on the template selection page, if any.
                     ...(selectedColor?.hex ? { accentHex: selectedColor.hex } : {})
                 })
@@ -795,6 +798,7 @@ export default function ResumeEditorPage() {
                     // A just-completed scan is not guaranteed to be visible in React state yet.
                     // Prefer it so this regeneration receives the exact gaps the user saw.
                     atsAnalysis: analysisOverride ?? atsAnalysis,
+                    alignJobTitles,
                 })
             });
 

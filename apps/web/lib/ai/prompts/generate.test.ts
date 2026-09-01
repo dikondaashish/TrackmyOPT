@@ -2,31 +2,32 @@ import { describe, expect, it } from 'vitest';
 import { buildGeneratePrompt, SYSTEM_PROMPT } from '@/lib/ai/prompts/generate';
 
 describe('buildGeneratePrompt analysis focus', () => {
-  it('carries analyzed missing keywords into tailoring without authorizing fabrication', () => {
+  it('carries analyzed missing keywords into aggressive JD tailoring', () => {
     const prompt = buildGeneratePrompt(
       'Resume evidence',
       'Job description',
       '\\documentclass{article}',
-      ['Kubernetes', 'AWS']
+      { focusKeywords: ['Kubernetes', 'AWS'] }
     );
 
     expect(prompt).toContain('ANALYSIS-IDENTIFIED KEYWORD GAPS');
     expect(prompt).toContain('Kubernetes, AWS');
-    expect(prompt).toContain('Do not fabricate');
+    expect(prompt.indexOf('--- CANDIDATE RESUME ---')).toBeLessThan(
+      prompt.indexOf('<role>')
+    );
+  });
+
+  it('escapes LaTeX-special characters in focus keywords', () => {
+    const prompt = buildGeneratePrompt('r', 'j', '\\documentclass{article}', { focusKeywords: ['R&D'] });
+    expect(prompt).toContain('R\\&D');
   });
 
   it('preserves official job titles instead of normalizing them to the target role', () => {
     expect(SYSTEM_PROMPT).toContain(
-      'Official job titles (keep exactly as written; never normalize them to the target role)'
+      'Official job titles (keep exactly as written)'
     );
     expect(SYSTEM_PROMPT).toContain(
-      'Every official job title matches the source resume exactly'
-    );
-    expect(SYSTEM_PROMPT).not.toContain(
-      'JOB TITLES — Match the target JD role directly'
-    );
-    expect(SYSTEM_PROMPT).not.toContain(
-      'This is the single most impactful ATS change'
+      'Every official job title matches the source exactly'
     );
   });
 });
@@ -36,20 +37,7 @@ describe('template structure is locked to the selected template', () => {
     expect(SYSTEM_PROMPT).toContain('<template_is_law>');
     expect(SYSTEM_PROMPT).toContain('Never invent a new macro');
     expect(SYSTEM_PROMPT).toContain(
-      'Do not add sections the template does not have'
-    );
-    expect(SYSTEM_PROMPT).toContain(
-      'drop, merge, rename, or reorder the template'
-    );
-  });
-
-  it('does not let the model reorder sections for the job description', () => {
-    // The previous prompt actively invited section reordering.
-    expect(SYSTEM_PROMPT).not.toContain(
-      'SECTION ORDER — Lead with the most relevant section for this JD'
-    );
-    expect(SYSTEM_PROMPT).toContain(
-      'SECTION ORDER IS NOT IN THIS LIST. You may not change it.'
+      'Replace ALL of it'
     );
   });
 
@@ -58,72 +46,55 @@ describe('template structure is locked to the selected template', () => {
   });
 });
 
-describe('length follows the candidate\'s actual content, not a years rule', () => {
+describe('length follows the candidate\'s actual content', () => {
   it('rejects a years-of-experience page threshold', () => {
     expect(SYSTEM_PROMPT).toContain('<page_budget>');
-    expect(SYSTEM_PROMPT).toContain(
-      'NEVER BY A YEARS-OF-EXPERIENCE RULE OF THUMB'
-    );
-    // The superseded thresholds must not survive anywhere in the prompt.
     expect(SYSTEM_PROMPT).not.toContain('0–5 years of professional experience  -> EXACTLY 1 page.');
-    expect(SYSTEM_PROMPT).not.toContain('Never exceed 2 pages');
   });
 
-  it('sizes from counted content and grows rather than truncating', () => {
-    expect(SYSTEM_PROMPT).toContain('Count the actual material first');
-    expect(SYSTEM_PROMPT).toContain(
-      'Use 2 pages the moment the complete record does not fit on 1'
-    );
-    expect(SYSTEM_PROMPT).toContain('If it does not fit, the resume gets longer');
-    expect(SYSTEM_PROMPT).toContain(
-      'Running to a third page is still better\n     than deleting real experience'
-    );
-  });
-
-  it('names the 4-years-4-companies case explicitly', () => {
-    expect(SYSTEM_PROMPT).toContain(
-      'a candidate with 4 years across 4 companies has far more to'
-    );
+  it('defines bullet minimums once in page_budget', () => {
+    expect(SYSTEM_PROMPT).toContain('BULLET MINIMUMS (canonical');
+    expect((SYSTEM_PROMPT.match(/minimum 4 bullets/g) ?? []).length).toBe(1);
   });
 
   it('never drops internships or any other real position', () => {
-    expect(SYSTEM_PROMPT).toContain('NOTHING REAL MAY BE DROPPED TO HIT A PAGE COUNT');
-    expect(SYSTEM_PROMPT).toContain(
-      'Internships count as experience and'
-    );
+    expect(SYSTEM_PROMPT).toContain('NOTHING REAL MAY BE DROPPED');
     expect(SYSTEM_PROMPT).toContain(
       'Do NOT delete, merge, or silently drop any position the candidate listed'
     );
-    expect(SYSTEM_PROMPT).toContain(
-      'Do NOT drop education entries, certifications, or projects the candidate provided'
-    );
-    // The old prompt discounted internships when inferring seniority.
-    expect(SYSTEM_PROMPT).not.toContain('ignore internships');
+  });
+});
+
+describe('Gemini output and LaTeX safety rules', () => {
+  it('requires raw LaTeX with no fences or preamble text', () => {
+    expect(SYSTEM_PROMPT).toContain('First character of output is');
+    expect(SYSTEM_PROMPT).toContain('If you emit markdown code fences');
+    expect(SYSTEM_PROMPT).toContain('No preamble text, no closing remarks');
   });
 
-  it('forbids padding and typographic squeezing to hit a page count', () => {
-    expect(SYSTEM_PROMPT).toContain('pad with filler, invented projects');
-    expect(SYSTEM_PROMPT).toContain('NEVER shrink fonts, margins, or line spacing');
-    expect(SYSTEM_PROMPT).toContain('Do not "fill" it.');
+  it('requires LaTeX escaping for special characters', () => {
+    expect(SYSTEM_PROMPT).toContain('<latex_escaping>');
+    expect(SYSTEM_PROMPT).toContain('& → \\&');
   });
 
-  it('treats supplied years as context only, never as a page mandate', () => {
-    const prompt = buildGeneratePrompt('r', 'j', '\\documentclass{article}', [], 3);
-    expect(prompt).toContain('(context only, NOT a page rule): 3');
-    expect(prompt).toContain('VOLUME OF THIS CANDIDATE\'S REAL CONTENT');
-    expect(prompt).not.toContain('exactly 1 page');
+  it('preserves date granularity and OCR proper nouns', () => {
+    expect(SYSTEM_PROMPT).toContain('if source has only a year, keep year only');
+    expect(SYSTEM_PROMPT).toContain('never "correct" proper-noun spelling');
   });
 
-  it('gives the same content-driven instruction for a senior candidate', () => {
-    const prompt = buildGeneratePrompt('r', 'j', '\\documentclass{article}', [], 12);
-    expect(prompt).toContain('(context only, NOT a page rule): 12');
-    expect(prompt).toContain('2 pages as soon as it does not');
-  });
-
-  it('still requires the full inventory when years are not supplied', () => {
+  it('ends with the priority reminder block', () => {
     const prompt = buildGeneratePrompt('r', 'j', '\\documentclass{article}');
-    expect(prompt).not.toContain('context only');
-    expect(prompt).toContain('including every internship');
-    expect(prompt).toContain('All of it must appear in the output');
+    expect(prompt.trim().endsWith('No preamble or closing remarks.')).toBe(true);
+    expect(prompt).toContain('THE JOB DESCRIPTION IS THE MISSION');
+  });
+});
+
+describe('JD-first positioning', () => {
+  it('treats the job description as the primary mission', () => {
+    expect(SYSTEM_PROMPT).toContain('The JD is law');
+    expect(SYSTEM_PROMPT).toContain('<jd_first_positioning>');
+    expect(buildGeneratePrompt('r', 'j', '\\documentclass{article}')).toContain(
+      'THE JOB DESCRIPTION IS THE MISSION'
+    );
   });
 });

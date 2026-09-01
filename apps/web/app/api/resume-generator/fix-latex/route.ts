@@ -5,6 +5,8 @@ import { buildFixSyntaxPrompt } from '@/lib/ai/prompts/fix-syntax';
 import rateLimit from '@/lib/auth/rate-limit';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
+import { stripModelLatexOutput } from '@/lib/resume/model-latex-output';
+import { isUsableResumeLatex } from '@/lib/resume/latex-to-plain-text';
 
 // Rate Limiter: 10 requests per minute per user
 const limiter = rateLimit({
@@ -52,10 +54,13 @@ export async function POST(req: NextRequest) {
             contents: prompt,
             userId,
         });
-        let fixedLatex = response.text || '';
-
-        // Clean output
-        fixedLatex = fixedLatex.replace(/^```(?:latex)?\n?/, '').replace(/\n?```$/, '').trim();
+        let fixedLatex = stripModelLatexOutput(response.text || '');
+        if (!isUsableResumeLatex(fixedLatex)) {
+            return NextResponse.json(
+                { error: 'Model returned unusable LaTeX' },
+                { status: 502, headers: corsHeaders }
+            );
+        }
 
         return NextResponse.json({ latex: fixedLatex }, { headers: corsHeaders });
 

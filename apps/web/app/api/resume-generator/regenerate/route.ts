@@ -37,6 +37,7 @@ const RegenerateSchema = z.object({
         message: `Feedback too long (max ${REGENERATION_FEEDBACK_MAX_CHARS} chars)`
     }),
     atsAnalysis: z.any().optional(),
+    alignJobTitles: z.boolean().optional().default(false),
 });
 
 export async function OPTIONS(req: NextRequest) {
@@ -92,7 +93,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { jobDescription, templateId, previousLatex, userFeedback, atsAnalysis } = validation.data;
+        const { jobDescription, templateId, previousLatex, userFeedback, atsAnalysis, alignJobTitles } =
+            validation.data;
 
         // 3. Load Template
         const template = loadTemplateSource(templateId, normalizeAccentHex(body.accentHex));
@@ -107,7 +109,8 @@ export async function POST(req: NextRequest) {
             template.tex,
             previousLatex,
             userFeedback,
-            atsAnalysis
+            atsAnalysis,
+            { alignJobTitles },
         );
 
         const entitlement = await reserveResumeGeneration(userId, 'regenerate');

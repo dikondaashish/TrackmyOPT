@@ -61,6 +61,7 @@ export default function ResumeGeneratorPage() {
     const {
         resumeText, resumeFilename, setResumeText,
         jobDescription, jobTitle, setJobDescription,
+        alignJobTitles, setAlignJobTitles,
         setApplicationId,
     } = useResumeStore();
 
@@ -926,6 +927,46 @@ export default function ResumeGeneratorPage() {
                                     <X className="w-4 h-4" />
                                 </button>
                             )}
+                        </div>
+
+                        <div className="mt-4 flex items-center gap-3 rounded-xl border border-amber-100 bg-amber-50/60 p-3 dark:border-amber-900/40 dark:bg-amber-950/20">
+                            <Checkbox
+                                id="align-job-titles"
+                                checked={alignJobTitles}
+                                onCheckedChange={(checked) => setAlignJobTitles(checked === true)}
+                            />
+                            <label
+                                htmlFor="align-job-titles"
+                                className="flex-1 cursor-pointer text-sm text-gray-700 dark:text-gray-300"
+                            >
+                                Align job titles to this role
+                            </label>
+                            <div className="relative group shrink-0">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-gray-400"
+                                    aria-label="What does align job titles mean?"
+                                >
+                                    <HelpCircle className="w-4 h-4" />
+                                </Button>
+                                <div className="absolute bottom-full right-0 z-10 mb-2 w-64 rounded-lg bg-gray-800 p-3 text-xs text-white opacity-0 transition-opacity pointer-events-none group-hover:opacity-100">
+                                    <div className="mb-1 font-medium">Align job titles:</div>
+                                    <p className="leading-relaxed text-gray-200">
+                                        Rewrites your employment titles as a career progression toward the role in
+                                        this job description.
+                                    </p>
+                                    <p className="mt-2 leading-relaxed text-gray-300">
+                                        Example: if the posting is Senior Data Analyst and your resume says Software
+                                        Engineer, titles may become Junior Data Analyst → Data Analyst → Lead Data
+                                        Analyst → Senior Data Analyst.
+                                    </p>
+                                    <p className="mt-2 leading-relaxed text-gray-400">
+                                        Company names and dates stay the same. Off by default.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Error Message */}
