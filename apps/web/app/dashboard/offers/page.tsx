@@ -29,6 +29,7 @@ import {
     Wallet,
     Send,
     Truck,
+    Bot,
     type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -143,6 +144,18 @@ const OFFERS: Offer[] = [
         badgeColor: "from-orange-500 to-pink-500",
         icon: CreditCard,
         link: "https://www.kimberhealth.com/",
+    },
+    {
+        id: "chatgpt-student",
+        title: "ChatGPT Work for Students",
+        description: "4 months of ChatGPT Work free ($80 value) — study guides, docs, quizzes, voice mode, and connected apps. U.S. college students verify via SheerID; claim by Oct 31.",
+        discount: "4 Months FREE",
+        category: "Tech & AI",
+        section: "tech",
+        badge: "Limited Time",
+        badgeColor: "from-emerald-600 to-teal-700",
+        icon: Bot,
+        link: "https://chatgpt.com/students/2026/",
     },
     {
         id: "github-student-pack",
