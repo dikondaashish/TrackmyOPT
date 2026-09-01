@@ -59,6 +59,7 @@ export function LandingFooter() {
             { label: "Glossary", href: "/glossary" },
             { label: "Answers (Q&A)", href: "/answers" },
             { label: "Comparisons", href: "/compare" },
+            { label: "Research", href: "/research" },
             { label: "Immigration Facts", href: "/ai-facts" },
             { label: "FAQ", href: "/faq" },
             { label: "Help Center", href: "/dashboard/help" },

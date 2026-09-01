@@ -55,6 +55,7 @@ export function LandingNavbar() {
     ];
 
     const navLinks = [
+        { name: "Research", href: "/research" },
         { name: "Blog", href: "/blog" },
         { name: "Contact Us", href: "/contact" },
     ];
