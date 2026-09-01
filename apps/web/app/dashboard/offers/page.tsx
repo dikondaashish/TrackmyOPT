@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Briefcase, Banknote, ClipboardList } from "lucide-react";
+import { Shield, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Banknote, ClipboardList } from "lucide-react";
 import { useState } from "react";
 
 // Fuel deal popup content
@@ -92,18 +92,6 @@ const OFFERS = [
         badgeColor: "from-orange-500 to-pink-500",
         icon: CreditCard,
         link: "https://www.kimberhealth.com/",
-        featured: true,
-    },
-    {
-        id: 3,
-        title: "Migrate Mate",
-        description: "Find 500,000+ verified jobs at companies that sponsor H-1B, OPT, TN, E-3, J-1 & Green Cards. Land your dream job in the U.S.",
-        discount: "30 Days FREE",
-        category: "Job Search",
-        badge: "New Partner",
-        badgeColor: "from-indigo-500 to-purple-500",
-        icon: Briefcase,
-        link: "https://www.migratemate.co/trackmyopt",
         featured: true,
     },
     {
