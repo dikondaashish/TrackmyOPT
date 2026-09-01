@@ -1210,6 +1210,9 @@ export default function ResumeGeneratorPage() {
             open={showCreditModal}
             onClose={() => setShowCreditModal(false)}
             currentBalance={usageLimit?.resumeCreditBalance ?? 0}
+            resumeUsage={usageLimit?.resumeUsage}
+            resumeLimit={usageLimit?.resumeLimit}
+            onUsageUpdated={setUsageLimit}
         />
         </>
     );

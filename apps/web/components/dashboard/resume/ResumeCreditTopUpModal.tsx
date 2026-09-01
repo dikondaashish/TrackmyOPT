@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, Coins, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -12,19 +12,81 @@ import {
   RESUME_CREDIT_MAX_DOLLARS,
   RESUME_CREDIT_MIN_DOLLARS,
 } from '@/lib/resume-credits/config';
+import type { ResumeUsageData } from '@/components/dashboard/resume/ResumeUsageStats';
+
+type LiveUsage = Pick<
+  ResumeUsageData,
+  'resumeUsage' | 'resumeLimit' | 'resumeCreditBalance'
+>;
 
 export function ResumeCreditTopUpModal({
   open,
   onClose,
   currentBalance,
+  resumeUsage,
+  resumeLimit,
+  onUsageUpdated,
 }: {
   open: boolean;
   onClose: () => void;
   currentBalance: number;
+  resumeUsage?: number;
+  resumeLimit?: number;
+  onUsageUpdated?: (usage: ResumeUsageData) => void;
 }) {
   const [amountInput, setAmountInput] = useState('5');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [liveUsage, setLiveUsage] = useState<LiveUsage | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    let cancelled = false;
+    setIsRefreshing(true);
+
+    (async () => {
+      try {
+        const response = await fetch('/api/user/usage', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        if (!response.ok || cancelled) return;
+
+        const data = await response.json();
+        const next: LiveUsage = {
+          resumeUsage: Number(data.resumeUsage) || 0,
+          resumeLimit: Number(data.resumeLimit) || 0,
+          resumeCreditBalance: Number(data.resumeCreditBalance) || 0,
+        };
+        if (cancelled) return;
+
+        setLiveUsage(next);
+        onUsageUpdated?.({
+          resumeUsage: next.resumeUsage,
+          resumeLimit: next.resumeLimit,
+          resumeCreditBalance: next.resumeCreditBalance,
+          canBuyResumeCredits: data.canBuyResumeCredits === true,
+        });
+      } catch {
+        // Fall back to props below.
+      } finally {
+        if (!cancelled) setIsRefreshing(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, onUsageUpdated]);
+
+  const usage = liveUsage?.resumeUsage ?? resumeUsage ?? 0;
+  const limit = liveUsage?.resumeLimit ?? resumeLimit ?? 0;
+  const balance = liveUsage?.resumeCreditBalance ?? currentBalance;
+  const monthlyRemaining = Math.max(0, limit - usage);
+  const monthlyExhausted = limit > 0 && usage >= limit;
+
   const amount = Number(amountInput);
   const isValidAmount = isAllowedResumeCreditPackQuantity(amount);
   const credits = isValidAmount ? creditsForPackQuantity(amount) : 0;
@@ -71,21 +133,49 @@ export function ResumeCreditTopUpModal({
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
             <Coins className="h-6 w-6" aria-hidden="true" />
           </div>
-          <h2 className="mt-4 text-2xl font-bold">Keep generating resumes</h2>
+          <h2 className="mt-4 text-2xl font-bold">
+            {monthlyExhausted ? 'Keep generating resumes' : 'Load resume credits'}
+          </h2>
           <p className="mt-1 text-sm text-blue-100">
-            Your monthly allowance is used. Add credits without changing your
-            subscription.
+            {monthlyExhausted
+              ? 'Your monthly allowance is used. Add credits without changing your subscription.'
+              : 'Preload credits now. They are used automatically after your monthly allowance runs out.'}
           </p>
         </div>
 
         <div className="space-y-5 p-6">
-          <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 text-sm dark:bg-gray-900">
-            <span className="text-gray-600 dark:text-gray-300">
-              Current credit balance
-            </span>
-            <span className="font-bold text-gray-950 dark:text-white">
-              {currentBalance}
-            </span>
+          <div className="space-y-2 rounded-xl bg-gray-50 px-4 py-3 text-sm dark:bg-gray-900">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-gray-600 dark:text-gray-300">
+                Monthly allowance
+              </span>
+              <span className="font-semibold text-gray-950 dark:text-white">
+                {isRefreshing && !liveUsage ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : limit > 0 ? (
+                  `${usage} / ${limit} used`
+                ) : (
+                  '—'
+                )}
+              </span>
+            </div>
+            {limit > 0 && !monthlyExhausted && (
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {monthlyRemaining} included resume{monthlyRemaining === 1 ? '' : 's'} left this month
+              </p>
+            )}
+            <div className="flex items-center justify-between gap-3 border-t border-gray-200 pt-2 dark:border-gray-800">
+              <span className="text-gray-600 dark:text-gray-300">
+                Loaded credits
+              </span>
+              <span className="font-bold text-gray-950 dark:text-white">
+                {isRefreshing && !liveUsage ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  balance
+                )}
+              </span>
+            </div>
           </div>
 
           <div>

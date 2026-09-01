@@ -1062,6 +1062,9 @@ export default function ResumeEditorPage() {
                 open={showCreditModal}
                 onClose={() => setShowCreditModal(false)}
                 currentBalance={resumeCreditBalance}
+                onUsageUpdated={(usage) =>
+                    setResumeCreditBalance(usage.resumeCreditBalance)
+                }
             />
 
             {/* Header */}
