@@ -93,7 +93,7 @@ interface Offer {
     description: string;
     discount: string;
     category: string;
-    section: "featured" | "essential" | "tech" | "lifestyle" | "career" | "finance";
+    section: "essential" | "tech" | "lifestyle" | "career" | "finance";
     badge: string;
     badgeColor: string;
     logoDomain: string;
@@ -107,6 +107,28 @@ const OFFER_SECTIONS: { id: Offer["section"]; title: string; icon: LucideIcon }[
     { id: "finance", title: "Relocation & Finance", icon: Wallet },
 ];
 
+/** Top picks for TrackMyOPT users — F-1, OPT, and international students. */
+const FEATURED_OFFER_IDS = [
+    "iso-insurance",
+    "kimber-health",
+    "sprintax",
+    "zolve",
+    "wise-students",
+    "github-student-pack",
+    "kickresume-student",
+    "google-gemini-student",
+    "linkedin-student-beans",
+    "nordvpn-student",
+] as const;
+
+function getFeaturedOffers(offers: Offer[]): Offer[] {
+    const byId = new Map(offers.map((offer) => [offer.id, offer]));
+    return FEATURED_OFFER_IDS.flatMap((id) => {
+        const offer = byId.get(id);
+        return offer ? [offer] : [];
+    });
+}
+
 const OFFERS: Offer[] = [
     {
         id: "iso-insurance",
@@ -114,7 +136,7 @@ const OFFERS: Offer[] = [
         description: "Get comprehensive health insurance designed for international students and OPT workers.",
         discount: "Starting $38/mo",
         category: "Health Insurance",
-        section: "featured",
+        section: "essential",
         badge: "Popular",
         badgeColor: "from-blue-500 to-cyan-500",
         logoDomain: "isoa.org",
@@ -126,7 +148,7 @@ const OFFERS: Offer[] = [
         description: "NY Essential Plan enrollment assistance - $0/month coverage for eligible residents.",
         discount: "FREE for NY",
         category: "Health Insurance",
-        section: "featured",
+        section: "essential",
         badge: "Hot Deal",
         badgeColor: "from-orange-500 to-pink-500",
         logoDomain: "kimberhealth.com",
@@ -657,13 +679,18 @@ export default function OffersPage() {
 
             {/* Featured Offers */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex items-center gap-2 mb-6">
-                    <Star className="w-5 h-5 text-yellow-500" />
-                    <h2 className="text-xl font-semibold">Featured Offers</h2>
+                <div className="mb-6">
+                    <div className="flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-500" />
+                        <h2 className="text-xl font-semibold">Featured Offers</h2>
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground max-w-3xl">
+                        Hand-picked for international students and OPT workers — health coverage, taxes, banking without an SSN, and job-search essentials.
+                    </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6 mb-12">
-                    {OFFERS.filter(o => o.section === "featured").map((offer) => (
+                    {getFeaturedOffers(OFFERS).map((offer) => (
                         <a
                             key={offer.id}
                             href={offer.link}

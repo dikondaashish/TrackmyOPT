@@ -1,14 +1,16 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { companyLogoUrl } from '@/components/career/jobs/JobBrandLogo.utils';
+import { brandLogoCandidates } from '@/components/career/jobs/JobBrandLogo.utils';
 
 const SIZE_CLASSES = {
-    lg: 'size-12 rounded-xl p-1.5 text-sm',
-    md: 'size-10 rounded-lg p-1 text-xs',
+    lg: 'size-14 rounded-xl p-2 text-sm',
+    md: 'size-12 rounded-lg p-1.5 text-xs',
 } as const;
+
+const RENDER_PX = { lg: 112, md: 96 } as const;
 
 function initials(name: string) {
     return name
@@ -28,8 +30,16 @@ interface OfferBrandLogoProps {
 }
 
 export function OfferBrandLogo({ name, domain, size = 'md', className }: OfferBrandLogoProps) {
+    const candidates = useMemo(() => brandLogoCandidates(domain), [domain]);
+    const [candidateIndex, setCandidateIndex] = useState(0);
     const [failed, setFailed] = useState(false);
-    const src = companyLogoUrl(domain);
+
+    useEffect(() => {
+        setCandidateIndex(0);
+        setFailed(false);
+    }, [domain]);
+
+    const src = candidates[candidateIndex];
 
     if (!src || failed) {
         return (
@@ -46,6 +56,8 @@ export function OfferBrandLogo({ name, domain, size = 'md', className }: OfferBr
         );
     }
 
+    const renderPx = RENDER_PX[size];
+
     return (
         <span
             className={cn(
@@ -57,10 +69,20 @@ export function OfferBrandLogo({ name, domain, size = 'md', className }: OfferBr
             <Image
                 src={src}
                 alt={`${name} logo`}
-                width={256}
-                height={256}
+                width={512}
+                height={512}
+                sizes={`${renderPx}px`}
                 className="size-full object-contain"
-                onError={() => setFailed(true)}
+                onError={() => {
+                    if (src.includes('clearbit') && typeof window !== 'undefined') {
+                        localStorage.setItem('trackmyopt_clearbit_blocked', 'true');
+                    }
+                    if (candidateIndex < candidates.length - 1) {
+                        setCandidateIndex((index) => index + 1);
+                        return;
+                    }
+                    setFailed(true);
+                }}
                 unoptimized
             />
         </span>
