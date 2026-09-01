@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Banknote, ClipboardList } from "lucide-react";
+import { Shield, Receipt, Clock, Star, ExternalLink, CreditCard, Chrome, Tag, Fuel, Gift, X, MapPin, Banknote, ClipboardList, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 
 // Fuel deal popup content
@@ -92,6 +92,18 @@ const OFFERS = [
         badgeColor: "from-orange-500 to-pink-500",
         icon: CreditCard,
         link: "https://www.kimberhealth.com/",
+        featured: true,
+    },
+    {
+        id: 7,
+        title: "Amazon Prime Student",
+        description: "6-month free trial for eligible students — fast shipping, Prime Video, and free Grubhub+ delivery on eligible orders.",
+        discount: "6 Months FREE",
+        category: "Student Perks",
+        badge: "Student Deal",
+        badgeColor: "from-amber-500 to-orange-500",
+        icon: ShoppingBag,
+        link: "https://www.amazon.com/joinstudent",
         featured: true,
     },
     {
