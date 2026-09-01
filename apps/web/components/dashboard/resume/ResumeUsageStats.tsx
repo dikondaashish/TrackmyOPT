@@ -35,53 +35,37 @@ export function ResumeUsageStats({
 
     return (
         <div
-            className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm transition-all ${compact ? 'px-3 py-1.5 mr-4 flex items-center justify-between gap-3 min-w-[140px]' : 'p-4 mb-6 block'}`}
+            className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm transition-all ${compact ? 'px-3 py-2' : 'p-4 mb-6 block'}`}
             title={compact ? "Resumes generated this month" : undefined}
         >
             {compact ? (
-                <>
-                    <div className="flex flex-col items-end">
-                        <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500 leading-tight mb-0.5">
-                            Monthly Usage
+                <div className="flex min-w-[148px] flex-col gap-1.5">
+                    <span className="text-[10px] font-semibold uppercase leading-tight tracking-wider text-gray-400 dark:text-gray-500">
+                        Monthly Usage
+                    </span>
+                    <div className="flex items-baseline gap-1.5 font-mono">
+                        <span className={`text-sm font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                            {resumeUsage}
                         </span>
-                        <div className="flex items-baseline gap-1.5 font-mono">
-                            <span className={`text-sm font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
-                                {resumeUsage}
-                            </span>
-                            <span className="text-[10px] text-gray-400 font-medium">/ {resumeLimit}</span>
-                        </div>
-                        {resumeCreditBalance > 0 && (
-                            <span className="mt-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                + {resumeCreditBalance} purchased credits
-                            </span>
-                        )}
+                        <span className="text-[10px] font-medium text-gray-400">/ {resumeLimit}</span>
                     </div>
-                    <div className="relative flex items-center justify-center">
-                        <svg className="w-9 h-9 transform -rotate-90">
-                            <circle
-                                className="text-gray-100 dark:text-gray-800"
-                                strokeWidth="3"
-                                stroke="currentColor"
-                                fill="transparent"
-                                r="16"
-                                cx="18"
-                                cy="18"
-                            />
-                            <circle
-                                className={isLimitReached ? 'text-red-500' : 'text-blue-600 dark:text-blue-500'}
-                                strokeWidth="3"
-                                strokeDasharray={2 * Math.PI * 16}
-                                strokeDashoffset={(2 * Math.PI * 16) - (percentage / 100) * (2 * Math.PI * 16)}
-                                strokeLinecap="round"
-                                stroke="currentColor"
-                                fill="transparent"
-                                r="16"
-                                cx="18"
-                                cy="18"
-                            />
-                        </svg>
-                    </div>
-                </>
+                    <Progress
+                        value={percentage}
+                        aria-label={`${resumeUsage} of ${resumeLimit} resumes used this month`}
+                        className={`h-1.5 ${
+                            isLimitReached
+                                ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600'
+                                : isNearLimit
+                                  ? 'bg-amber-100 dark:bg-amber-900/30 [&>div]:bg-amber-500'
+                                  : 'bg-blue-100 dark:bg-blue-900/30 [&>div]:bg-blue-600'
+                        }`}
+                    />
+                    {resumeCreditBalance > 0 && (
+                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                            + {resumeCreditBalance} purchased credits
+                        </span>
+                    )}
+                </div>
             ) : (
                 <>
                     <div className="flex items-center justify-between mb-3">
