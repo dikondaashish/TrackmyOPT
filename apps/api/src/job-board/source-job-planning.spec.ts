@@ -47,15 +47,20 @@ describe('source ingestion job planning', () => {
       'source-c',
     ]);
     expect(jobs.every((job) => typeof job.opts.delay === 'number')).toBe(true);
-    expect(jobs[0].opts.delay).toBeLessThan(jobs[1].opts.delay as number);
-    expect(jobs[1].opts.delay).toBeLessThan(jobs[2].opts.delay as number);
+    expect(jobs[0].opts.delay).toBeLessThan(jobs[1].opts.delay);
+    expect(jobs[1].opts.delay).toBeLessThan(jobs[2].opts.delay);
   });
 
-  it('does not delay manual source runs', () => {
-    const [job] = planSourceIngestionJobs(['source-a'], {
+  it('paces manual source runs while keeping their IDs independent of hourly dedupe', () => {
+    const jobs = planSourceIngestionJobs(['source-b', 'source-a'], {
       schedulerRunId: 'job-board-manual-smoke',
       triggerOrigin: 'manual',
     });
-    expect(job.opts.delay).toBeUndefined();
+    expect(jobs.map((job) => job.data.sourceId)).toEqual([
+      'source-a',
+      'source-b',
+    ]);
+    expect(jobs.every((job) => typeof job.opts.delay === 'number')).toBe(true);
+    expect(jobs[0].opts.jobId).toBe('job-board-manual-smoke:source-a');
   });
 });

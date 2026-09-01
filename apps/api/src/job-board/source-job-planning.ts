@@ -23,20 +23,22 @@ function staggerDelayMs(sourceId: string, index: number, total: number) {
 
 export function planSourceIngestionJobs(
   sourceIds: string[],
-  context: SchedulerContext,
+  context: SchedulerContext = {
+    schedulerRunId: 'job-board-manual-adhoc',
+    triggerOrigin: 'manual',
+  },
 ) {
-  const orderedSourceIds = context.schedulerRunId.startsWith('job-board-hour-')
-    ? [...sourceIds].sort()
-    : sourceIds;
+  // Every trigger uses the same deterministic pacing. Manual runs are exempt
+  // from hourly deduplication, not from the source concurrency/rate budget.
+  const orderedSourceIds = [...sourceIds].sort();
   return orderedSourceIds.map((sourceId, index) => ({
     name: 'ingest-source',
     data: { sourceId, ...context },
     opts: {
+      jobId: `${context.schedulerRunId}:${sourceId}`,
       attempts: 3,
       backoff: { type: 'exponential', delay: 30_000 },
-      ...(context.schedulerRunId.startsWith('job-board-hour-')
-        ? { delay: staggerDelayMs(sourceId, index, orderedSourceIds.length) }
-        : {}),
+      delay: staggerDelayMs(sourceId, index, orderedSourceIds.length),
       removeOnComplete: true,
       removeOnFail: false,
     },

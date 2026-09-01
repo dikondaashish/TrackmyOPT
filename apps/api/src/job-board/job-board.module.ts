@@ -8,7 +8,16 @@ import { JobVisaSignalService } from './job-visa-signal.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
 
 @Module({
-  imports: [BullModule.registerQueue({ name: 'job-board' })],
+  imports: [
+    BullModule.registerQueue({
+      name: 'job-board',
+      settings: {
+        lockDuration: 30_000,
+        stalledInterval: 30_000,
+        maxStalledCount: 1,
+      },
+    }),
+  ],
   controllers: [JobBoardController],
   providers: [
     JobBoardService,

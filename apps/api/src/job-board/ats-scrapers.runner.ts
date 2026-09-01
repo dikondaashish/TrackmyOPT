@@ -17,6 +17,7 @@ export interface AuthorizedAtsSourceInput {
   ats_type: string;
   board_token: string;
   base_url: string;
+  employer_board_name?: string | null;
 }
 
 export interface AtsScraperFetchMetadata {
@@ -50,6 +51,156 @@ export class AtsScraperRunnerError extends Error {
 const DEFAULT_TIMEOUT_MS = 2 * 60_000;
 const DEFAULT_MAX_OUTPUT_BYTES = 64 * 1024 * 1024;
 
+type NativeAtsPayload = Record<string, unknown>;
+
+function stringValue(value: unknown): string | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function nestedName(value: unknown): string | null {
+  if (typeof value === 'string') return stringValue(value);
+  if (value && typeof value === 'object') {
+    return stringValue((value as { name?: unknown }).name);
+  }
+  return null;
+}
+
+function joinNames(value: unknown): string | null {
+  if (!Array.isArray(value)) return nestedName(value);
+  const names = value.map(nestedName).filter((name): name is string => !!name);
+  return names.length ? names.join(', ') : null;
+}
+
+function normalizeNativeJobs(
+  atsType: 'greenhouse' | 'ashby',
+  payload: NativeAtsPayload,
+  employerBoardName?: string | null,
+): ScrapedAtsJob[] {
+  const rawJobs = payload.jobs;
+  if (!Array.isArray(rawJobs)) {
+    throw new Error(`Invalid ${atsType} response: jobs array missing`);
+  }
+  const ids = new Set<string>();
+  const jobs: ScrapedAtsJob[] = [];
+  for (const raw of rawJobs) {
+    if (!raw || typeof raw !== 'object') {
+      throw new Error('Invalid normalized job schema');
+    }
+    const item = raw as Record<string, unknown>;
+    const externalId = stringValue(item.id ?? item.jobId ?? item.externalJobId);
+    const title = stringValue(item.title);
+    if (!externalId || !title) throw new Error('Invalid normalized job schema');
+    if (ids.has(externalId)) {
+      throw new Error(`Duplicate external_job_id ${externalId}`);
+    }
+    ids.add(externalId);
+
+    if (atsType === 'greenhouse') {
+      jobs.push({
+        external_job_id: externalId,
+        title,
+        company_name:
+          nestedName(item.company) || stringValue(item.company_name) || '',
+        location: nestedName(item.location),
+        department: joinNames(item.departments) || joinNames(item.department),
+        description: stringValue(item.content),
+        job_url: stringValue(item.absolute_url ?? item.url),
+        posted_at: stringValue(item.first_published ?? item.updated_at),
+      });
+    } else {
+      jobs.push({
+        external_job_id: externalId,
+        title,
+        company_name:
+          stringValue(item.companyName) ||
+          stringValue(item.company_name) ||
+          stringValue(employerBoardName) ||
+          '',
+        location: stringValue(item.location),
+        department: stringValue(item.department) || stringValue(item.team),
+        description:
+          stringValue(item.descriptionHtml) ||
+          stringValue(item.descriptionPlain) ||
+          stringValue(item.description),
+        job_url: stringValue(item.applyUrl ?? item.jobUrl ?? item.url),
+        posted_at: stringValue(item.publishedAt ?? item.updatedAt),
+      });
+    }
+  }
+  return jobs;
+}
+
+async function fetchNativeAtsJobs(
+  source: AuthorizedAtsSourceInput,
+  timeoutMs: number,
+  maxOutputBytes: number,
+): Promise<AtsScraperFetchResult> {
+  const encodedToken = encodeURIComponent(source.board_token);
+  const url =
+    source.ats_type === 'greenhouse'
+      ? `https://boards-api.greenhouse.io/v1/boards/${encodedToken}/jobs?content=true`
+      : `https://api.ashbyhq.com/posting-api/job-board/${encodedToken}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      headers: { accept: 'application/json', 'user-agent': 'TrackMyOPT/1.0' },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : 'request failed';
+    throw new AtsScraperRunnerError(
+      `${source.ats_type} request failed: ${reason}`,
+      1,
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
+  if (!response.ok) {
+    throw new AtsScraperRunnerError(
+      `${source.ats_type} HTTP ${response.status}`,
+      1,
+    );
+  }
+  const body = await response.text();
+  if (Buffer.byteLength(body) > maxOutputBytes) {
+    throw new AtsScraperRunnerError(
+      `${source.ats_type} response exceeded the ${maxOutputBytes}-byte output limit`,
+      1,
+    );
+  }
+  let payload: NativeAtsPayload;
+  try {
+    payload = JSON.parse(body) as NativeAtsPayload;
+  } catch {
+    throw new AtsScraperRunnerError(
+      `Invalid ${source.ats_type} JSON response`,
+      1,
+    );
+  }
+  try {
+    return {
+      jobs: normalizeNativeJobs(
+        source.ats_type as 'greenhouse' | 'ashby',
+        payload,
+        source.employer_board_name,
+      ),
+      metadata: {
+        adapter: source.ats_type,
+        complete: true,
+        requests_made: 1,
+      },
+    };
+  } catch (error) {
+    throw new AtsScraperRunnerError(
+      error instanceof Error ? error.message : 'Invalid normalized job schema',
+      1,
+    );
+  }
+}
+
 function positiveInteger(value: string | undefined, fallback: number) {
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
@@ -59,6 +210,24 @@ export function fetchAuthorizedAtsJobs(
   source: AuthorizedAtsSourceInput,
   options: AtsScraperRunnerOptions = {},
 ): Promise<AtsScraperFetchResult> {
+  const timeoutMs =
+    options.timeoutMs ||
+    positiveInteger(
+      process.env.ATS_SCRAPERS_RUNNER_TIMEOUT_MS,
+      DEFAULT_TIMEOUT_MS,
+    );
+  const maxOutputBytes =
+    options.maxOutputBytes ||
+    positiveInteger(
+      process.env.ATS_SCRAPERS_MAX_OUTPUT_BYTES,
+      DEFAULT_MAX_OUTPUT_BYTES,
+    );
+  if (
+    !options.scriptPath &&
+    (source.ats_type === 'greenhouse' || source.ats_type === 'ashby')
+  ) {
+    return fetchNativeAtsJobs(source, timeoutMs, maxOutputBytes);
+  }
   return new Promise((resolve, reject) => {
     const scriptPath =
       options.scriptPath ||
@@ -74,18 +243,6 @@ export function fetchAuthorizedAtsJobs(
       return;
     }
 
-    const timeoutMs =
-      options.timeoutMs ||
-      positiveInteger(
-        process.env.ATS_SCRAPERS_RUNNER_TIMEOUT_MS,
-        DEFAULT_TIMEOUT_MS,
-      );
-    const maxOutputBytes =
-      options.maxOutputBytes ||
-      positiveInteger(
-        process.env.ATS_SCRAPERS_MAX_OUTPUT_BYTES,
-        DEFAULT_MAX_OUTPUT_BYTES,
-      );
     const child = spawn(
       options.pythonCommand || process.env.ATS_SCRAPERS_PYTHON || 'python3',
       [scriptPath],

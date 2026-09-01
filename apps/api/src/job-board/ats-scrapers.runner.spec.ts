@@ -21,6 +21,7 @@ describe('ats-scrapers process runner', () => {
 
   afterEach(() => {
     rmSync(fixtureDirectory, { recursive: true, force: true });
+    jest.restoreAllMocks();
   });
 
   function fixture(source: string) {
@@ -152,5 +153,130 @@ describe('ats-scrapers process runner', () => {
         maxOutputBytes: 32,
       }),
     ).rejects.toThrow('exceeded the 32-byte output limit');
+  });
+
+  it('fetches and normalizes a Greenhouse board natively', async () => {
+    const request = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: () =>
+        JSON.stringify({
+          jobs: [
+            {
+              id: 42,
+              title: 'Platform Engineer',
+              company: { name: 'Example Co' },
+              location: { name: 'Remote - US' },
+              departments: [{ name: 'Engineering' }],
+              content: '<p>Build platforms</p>',
+              absolute_url: 'https://boards.greenhouse.io/example/jobs/42',
+              first_published: '2026-09-01T12:00:00Z',
+            },
+          ],
+        }),
+    } as Response);
+
+    await expect(
+      fetchAuthorizedAtsJobs({ ...SOURCE, employer_board_name: 'Example Co' }),
+    ).resolves.toMatchObject({
+      jobs: [
+        expect.objectContaining({
+          external_job_id: '42',
+          title: 'Platform Engineer',
+          company_name: 'Example Co',
+          location: 'Remote - US',
+          department: 'Engineering',
+        }),
+      ],
+      metadata: { adapter: 'greenhouse', complete: true, requests_made: 1 },
+    });
+    expect(request.mock.calls[0]?.[0]).toBe(
+      'https://boards-api.greenhouse.io/v1/boards/example/jobs?content=true',
+    );
+  });
+
+  it('fetches and normalizes an Ashby board using its board name fallback', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: () =>
+        JSON.stringify({
+          jobs: [
+            {
+              id: 'ashby-1',
+              title: 'Data Engineer',
+              location: 'New York, NY',
+              team: 'Data',
+              descriptionHtml: '<p>SQL</p>',
+              applyUrl: 'https://jobs.ashbyhq.com/example/ashby-1',
+            },
+          ],
+        }),
+    } as Response);
+
+    await expect(
+      fetchAuthorizedAtsJobs({
+        ats_type: 'ashby',
+        board_token: 'example',
+        base_url: 'https://jobs.ashbyhq.com/example',
+        employer_board_name: 'Example Co',
+      }),
+    ).resolves.toMatchObject({
+      jobs: [
+        expect.objectContaining({
+          external_job_id: 'ashby-1',
+          company_name: 'Example Co',
+          department: 'Data',
+        }),
+      ],
+      metadata: { adapter: 'ashby', complete: true, requests_made: 1 },
+    });
+  });
+
+  it('reports native HTTP, malformed, duplicate, and timeout failures safely', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      text: () => Promise.resolve(''),
+    } as Response);
+    await expect(fetchAuthorizedAtsJobs(SOURCE)).rejects.toThrow('HTTP 429');
+
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: () => Promise.resolve(JSON.stringify({ jobs: [{ id: '1' }] })),
+    } as Response);
+    await expect(fetchAuthorizedAtsJobs(SOURCE)).rejects.toThrow(
+      'Invalid normalized job schema',
+    );
+
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: () =>
+        Promise.resolve(
+          JSON.stringify({
+            jobs: [
+              { id: '1', title: 'A' },
+              { id: '1', title: 'B' },
+            ],
+          }),
+        ),
+    } as Response);
+    await expect(fetchAuthorizedAtsJobs(SOURCE)).rejects.toThrow(
+      'Duplicate external_job_id 1',
+    );
+
+    jest.spyOn(global, 'fetch').mockImplementation(
+      (_input, init) =>
+        new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () =>
+            reject(new Error('aborted')),
+          );
+        }),
+    );
+    await expect(
+      fetchAuthorizedAtsJobs(SOURCE, { timeoutMs: 5 }),
+    ).rejects.toThrow('request failed: aborted');
   });
 });

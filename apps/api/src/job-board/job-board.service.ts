@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as Bull from 'bull';
@@ -71,9 +71,11 @@ type SourceBoardHealth = {
 };
 
 @Injectable()
-export class JobBoardService {
+export class JobBoardService implements OnModuleDestroy {
   private readonly logger = new Logger(JobBoardService.name);
   private readonly supabase: SupabaseClient;
+  private shuttingDown = false;
+  private readonly inFlightAuditIds = new Set<string>();
 
   constructor(
     private readonly config: ConfigService,
@@ -88,6 +90,8 @@ export class JobBoardService {
   }
 
   async queueEnabledSources(context: SchedulerContext) {
+    if (this.shuttingDown) throw new Error('Job-board worker is restarting');
+    await this.finalizeStaleAudits();
     return queueSchedulerRun(
       context,
       {
@@ -150,6 +154,8 @@ export class JobBoardService {
   }
 
   private async ingestSource(source: AtsSource, context: SchedulerContext) {
+    if (this.shuttingDown)
+      return { sourceId: source.id, skipped: 'instance_restarting' };
     if (!source.enabled)
       return { sourceId: source.id, skipped: 'source_disabled' };
     if (!source.employer_board_name?.trim()) {
@@ -185,6 +191,7 @@ export class JobBoardService {
         skipped: reservation?.reason || 'not_reserved',
       };
 
+    this.inFlightAuditIds.add(reservation.audit_log_id);
     try {
       const fetched = await fetchAuthorizedAtsJobs(source);
       const persistence = await this.persistSourceJobs(
@@ -233,7 +240,80 @@ export class JobBoardService {
       await this.recordSourceFailure(sourceBoard, message);
       this.logger.error(`Job-board source ${source.id} failed: ${message}`);
       throw error;
+    } finally {
+      this.inFlightAuditIds.delete(reservation.audit_log_id);
     }
+  }
+
+  /** Mark a source audit terminal when Bull reports a stall or exhausted retry. */
+  async markSourceAuditFailed(
+    sourceId: string,
+    context: SchedulerContext,
+    reason: string,
+  ) {
+    const { data, error } = await this.supabase
+      .from('ingestion_audit_log')
+      .select('id')
+      .eq('source_id', sourceId)
+      .eq('scheduler_run_id', context.schedulerRunId)
+      .eq('status', 'started')
+      .order('run_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data?.id) return false;
+    const update = await this.supabase
+      .from('ingestion_audit_log')
+      .update({
+        status: 'failed',
+        error_message: reason.slice(0, 500),
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', data.id)
+      .eq('status', 'started');
+    if (update.error) throw new Error(update.error.message);
+    this.inFlightAuditIds.delete(String(data.id));
+    return true;
+  }
+
+  /** Finalize in-flight work before Nest closes the worker on SIGTERM. */
+  async onModuleDestroy() {
+    this.shuttingDown = true;
+    const auditIds = [...this.inFlightAuditIds];
+    await Promise.all(
+      auditIds.map(async (id) => {
+        await this.complete(
+          id,
+          0,
+          {
+            jobsNew: 0,
+            jobsDuplicate: 0,
+            jobsStale: 0,
+            jobsRemoved: 0,
+            jobsReopened: 0,
+          },
+          0,
+          'instance restarted',
+        );
+      }),
+    );
+    this.inFlightAuditIds.clear();
+  }
+
+  /** Recover audits stranded by a hard restart or lost Bull worker heartbeat. */
+  private async finalizeStaleAudits() {
+    const cutoff = new Date(Date.now() - 5 * 60_000).toISOString();
+    const { error } = await this.supabase
+      .from('ingestion_audit_log')
+      .update({
+        status: 'failed',
+        error_message: 'worker heartbeat expired',
+        completed_at: new Date().toISOString(),
+      })
+      .eq('status', 'started')
+      .lt('run_at', cutoff);
+    if (error)
+      this.logger.warn(`Could not finalize stale audits: ${error.message}`);
   }
 
   private async persistSourceJobs(
