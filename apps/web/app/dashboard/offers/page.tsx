@@ -1,13 +1,9 @@
 "use client";
 
 import {
-    Shield,
-    Receipt,
     Clock,
     Star,
     ExternalLink,
-    CreditCard,
-    Chrome,
     Tag,
     Fuel,
     Gift,
@@ -15,24 +11,15 @@ import {
     MapPin,
     Banknote,
     ClipboardList,
-    ShoppingBag,
-    Code2,
     Sparkles,
-    StickyNote,
-    Palette,
-    FileUser,
     Music,
-    Percent,
     Briefcase,
-    GraduationCap,
-    BookOpen,
     Wallet,
-    Send,
-    Truck,
-    Bot,
+    GraduationCap,
     type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { OfferBrandLogo } from "@/components/dashboard/offers/OfferBrandLogo";
 
 // Fuel deal popup content
 interface FuelDeal {
@@ -109,7 +96,7 @@ interface Offer {
     section: "featured" | "essential" | "tech" | "lifestyle" | "career" | "finance";
     badge: string;
     badgeColor: string;
-    icon: LucideIcon;
+    logoDomain: string;
     link: string;
 }
 
@@ -130,7 +117,7 @@ const OFFERS: Offer[] = [
         section: "featured",
         badge: "Popular",
         badgeColor: "from-blue-500 to-cyan-500",
-        icon: Shield,
+        logoDomain: "isoa.org",
         link: "https://www.isoa.org/?ref=trackmyopt",
     },
     {
@@ -142,7 +129,7 @@ const OFFERS: Offer[] = [
         section: "featured",
         badge: "Hot Deal",
         badgeColor: "from-orange-500 to-pink-500",
-        icon: CreditCard,
+        logoDomain: "kimberhealth.com",
         link: "https://www.kimberhealth.com/",
     },
     {
@@ -154,7 +141,7 @@ const OFFERS: Offer[] = [
         section: "tech",
         badge: "Limited Time",
         badgeColor: "from-emerald-600 to-teal-700",
-        icon: Bot,
+        logoDomain: "openai.com",
         link: "https://chatgpt.com/students/2026/",
     },
     {
@@ -166,7 +153,7 @@ const OFFERS: Offer[] = [
         section: "tech",
         badge: "Must-Have",
         badgeColor: "from-gray-700 to-gray-900",
-        icon: Code2,
+        logoDomain: "github.com",
         link: "https://education.github.com/pack",
     },
     {
@@ -178,7 +165,7 @@ const OFFERS: Offer[] = [
         section: "tech",
         badge: "AI Tool",
         badgeColor: "from-cyan-500 to-blue-600",
-        icon: Sparkles,
+        logoDomain: "perplexity.ai",
         link: "https://www.perplexity.ai/students",
     },
     {
@@ -190,7 +177,7 @@ const OFFERS: Offer[] = [
         section: "tech",
         badge: "Productivity",
         badgeColor: "from-slate-600 to-slate-800",
-        icon: StickyNote,
+        logoDomain: "notion.com",
         link: "https://www.notion.com/product/notion-for-education",
     },
     {
@@ -202,7 +189,7 @@ const OFFERS: Offer[] = [
         section: "tech",
         badge: "Creative",
         badgeColor: "from-red-500 to-rose-600",
-        icon: Palette,
+        logoDomain: "adobe.com",
         link: "https://www.adobe.com/education/students/creativecloud.html",
     },
     {
@@ -214,7 +201,7 @@ const OFFERS: Offer[] = [
         section: "tech",
         badge: "Job Search",
         badgeColor: "from-violet-500 to-purple-600",
-        icon: FileUser,
+        logoDomain: "kickresume.com",
         link: "https://www.kickresume.com/en/students",
     },
     {
@@ -226,7 +213,7 @@ const OFFERS: Offer[] = [
         section: "lifestyle",
         badge: "Bundle",
         badgeColor: "from-green-500 to-emerald-600",
-        icon: Music,
+        logoDomain: "spotify.com",
         link: "https://www.spotify.com/us/student/",
     },
     {
@@ -238,7 +225,7 @@ const OFFERS: Offer[] = [
         section: "lifestyle",
         badge: "Student Deal",
         badgeColor: "from-amber-500 to-orange-500",
-        icon: ShoppingBag,
+        logoDomain: "amazon.com",
         link: "https://www.amazon.com/joinstudent",
     },
     {
@@ -250,7 +237,7 @@ const OFFERS: Offer[] = [
         section: "lifestyle",
         badge: "Hub",
         badgeColor: "from-indigo-500 to-purple-600",
-        icon: Percent,
+        logoDomain: "myunidays.com",
         link: "https://www.myunidays.com",
     },
     {
@@ -262,7 +249,7 @@ const OFFERS: Offer[] = [
         section: "career",
         badge: "Bundle",
         badgeColor: "from-blue-600 to-sky-600",
-        icon: Briefcase,
+        logoDomain: "microsoft.com",
         link: "https://www.microsoft.com/en-us/education/products/office",
     },
     {
@@ -274,7 +261,7 @@ const OFFERS: Offer[] = [
         section: "career",
         badge: "Networking",
         badgeColor: "from-blue-700 to-indigo-700",
-        icon: Briefcase,
+        logoDomain: "linkedin.com",
         link: "https://www.studentbeans.com/student-discount/us/linkedin-premium",
     },
     {
@@ -286,7 +273,7 @@ const OFFERS: Offer[] = [
         section: "career",
         badge: "CS",
         badgeColor: "from-orange-500 to-amber-600",
-        icon: GraduationCap,
+        logoDomain: "acm.org",
         link: "https://www.acm.org/membership/membership-options",
     },
     {
@@ -298,7 +285,7 @@ const OFFERS: Offer[] = [
         section: "career",
         badge: "Engineering",
         badgeColor: "from-blue-500 to-cyan-600",
-        icon: GraduationCap,
+        logoDomain: "ieee.org",
         link: "https://www.ieee.org/membership",
     },
     {
@@ -310,7 +297,7 @@ const OFFERS: Offer[] = [
         section: "career",
         badge: "Test Prep",
         badgeColor: "from-teal-500 to-emerald-600",
-        icon: BookOpen,
+        logoDomain: "princetonreview.com",
         link: "https://www.princetonreview.com/promo",
     },
     {
@@ -322,7 +309,7 @@ const OFFERS: Offer[] = [
         section: "career",
         badge: "Test Prep",
         badgeColor: "from-emerald-600 to-green-700",
-        icon: BookOpen,
+        logoDomain: "kaptest.com",
         link: "https://www.kaptest.com",
     },
     {
@@ -334,7 +321,7 @@ const OFFERS: Offer[] = [
         section: "finance",
         badge: "Banking",
         badgeColor: "from-lime-500 to-green-600",
-        icon: Wallet,
+        logoDomain: "wise.com",
         link: "https://wise.com/us/students",
     },
     {
@@ -346,7 +333,7 @@ const OFFERS: Offer[] = [
         section: "finance",
         badge: "New Arrivals",
         badgeColor: "from-fuchsia-500 to-pink-600",
-        icon: CreditCard,
+        logoDomain: "zolve.com",
         link: "https://zolve.com",
     },
     {
@@ -358,7 +345,7 @@ const OFFERS: Offer[] = [
         section: "finance",
         badge: "Remittance",
         badgeColor: "from-sky-500 to-blue-600",
-        icon: Send,
+        logoDomain: "remitly.com",
         link: "https://www.remitly.com",
     },
     {
@@ -370,7 +357,7 @@ const OFFERS: Offer[] = [
         section: "finance",
         badge: "Moving",
         badgeColor: "from-orange-500 to-red-500",
-        icon: Truck,
+        logoDomain: "uhaul.com",
         link: "https://www.uhaul.com/Discounts/",
     },
     {
@@ -382,7 +369,7 @@ const OFFERS: Offer[] = [
         section: "essential",
         badge: "Best Value",
         badgeColor: "from-green-500 to-emerald-500",
-        icon: Shield,
+        logoDomain: "internationalstudentinsurance.com",
         link: "https://www.internationalstudentinsurance.com/?Trackmyopt",
     },
     {
@@ -394,7 +381,7 @@ const OFFERS: Offer[] = [
         section: "essential",
         badge: "Tax Season",
         badgeColor: "from-emerald-500 to-teal-500",
-        icon: Receipt,
+        logoDomain: "sprintax.com",
         link: "/dashboard/tax-filing",
     },
     {
@@ -406,7 +393,7 @@ const OFFERS: Offer[] = [
         section: "essential",
         badge: "New",
         badgeColor: "from-cyan-500 to-blue-500",
-        icon: Chrome,
+        logoDomain: "trackmyopt.com",
         link: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb",
     },
 ];
@@ -477,9 +464,7 @@ export default function OffersPage() {
 
                             {/* Content */}
                             <div className="flex items-start gap-4">
-                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${offer.badgeColor} flex items-center justify-center flex-shrink-0`}>
-                                    <offer.icon className="w-6 h-6 text-white" />
-                                </div>
+                                <OfferBrandLogo name={offer.title} domain={offer.logoDomain} size="lg" />
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
@@ -627,9 +612,7 @@ export default function OffersPage() {
                                         </div>
 
                                         <div className="flex items-start gap-3">
-                                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${offer.badgeColor} flex items-center justify-center flex-shrink-0`}>
-                                                <offer.icon className="w-5 h-5 text-white" />
-                                            </div>
+                                            <OfferBrandLogo name={offer.title} domain={offer.logoDomain} />
 
                                             <div className="flex-1 min-w-0">
                                                 <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
@@ -683,9 +666,7 @@ export default function OffersPage() {
                             </div>
 
                             <div className="flex items-start gap-3">
-                                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${offer.badgeColor} flex items-center justify-center flex-shrink-0`}>
-                                    <offer.icon className="w-5 h-5 text-white" />
-                                </div>
+                                <OfferBrandLogo name={offer.title} domain={offer.logoDomain} />
 
                                 <div className="flex-1 min-w-0">
                                     <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
