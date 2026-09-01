@@ -39,10 +39,15 @@ export function ResumeUsageStats({
             title={compact ? "Resumes generated this month" : undefined}
         >
             {compact ? (
-                <div className="flex min-w-[148px] flex-col gap-1.5">
-                    <span className="text-[10px] font-semibold uppercase leading-tight tracking-wider text-gray-400 dark:text-gray-500">
-                        Monthly Usage
-                    </span>
+                <div className="flex min-w-[180px] flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-semibold uppercase leading-tight tracking-wider text-gray-400 dark:text-gray-500">
+                            Monthly Usage
+                        </span>
+                        <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                            {Math.round(percentage)}% used
+                        </span>
+                    </div>
                     <div className="flex items-baseline gap-1.5 font-mono">
                         <span className={`text-sm font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
                             {resumeUsage}
@@ -52,7 +57,7 @@ export function ResumeUsageStats({
                     <Progress
                         value={percentage}
                         aria-label={`${resumeUsage} of ${resumeLimit} resumes used this month`}
-                        className={`h-1.5 ${
+                        className={`h-2.5 w-full ${
                             isLimitReached
                                 ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600'
                                 : isNearLimit
@@ -90,7 +95,20 @@ export function ResumeUsageStats({
                         </div>
                     </div>
 
-                    <Progress value={percentage} className={`h-2 mb-3 ${isLimitReached ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600' : ''}`} />
+                    <Progress
+                        value={percentage}
+                        aria-label={`${resumeUsage} of ${resumeLimit} resumes used this month`}
+                        className={`h-2.5 mb-1 w-full ${
+                            isLimitReached
+                                ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600'
+                                : isNearLimit
+                                  ? 'bg-amber-100 dark:bg-amber-900/30 [&>div]:bg-amber-500'
+                                  : 'bg-blue-100 dark:bg-blue-900/30 [&>div]:bg-blue-600'
+                        }`}
+                    />
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                        {Math.round(percentage)}% of monthly allowance used
+                    </p>
 
                     {isNearLimit && !isLimitReached && (
                         <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">

@@ -589,7 +589,7 @@ export default function ResumeGeneratorPage() {
 
                         {/* Right Actions */}
                         <div className="flex items-center justify-end gap-3">
-                            <div className="hidden xl:block">
+                            <div className="hidden lg:block">
                                 <ResumeUsageStats
                                     compact
                                     stats={usageLimit}
@@ -612,7 +612,7 @@ export default function ResumeGeneratorPage() {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 max-md:px-3 py-6 sm:py-8">
-                <div className="xl:hidden">
+                <div className="lg:hidden">
                     <ResumeUsageStats
                         stats={usageLimit}
                         onBuyCredits={() => setShowCreditModal(true)}
