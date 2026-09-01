@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Clock, TrendingUp, BookOpen } from "lucide-react";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import { researchBlogCards } from "@/data/blog-series";
 import { formatUsd, OFFERS_CATALOG_TOTAL_SAVINGS_USD } from "@/lib/offers/catalog-savings";
 
@@ -1180,9 +1180,9 @@ function CategoryBadge({ category }: { category: string }) {
 }
 
 function getPostImage(post: (typeof blogPosts)[number]) {
-    return "image" in post && typeof post.image === "string"
-        ? post.image
-        : "/blog/default.jpg";
+    if ("image" in post && typeof post.image === "string") return post.image;
+    const slugPath = `/blog/${post.slug}.png`;
+    return slugPath;
 }
 
 export default function BlogIndexPage() {
@@ -1233,10 +1233,9 @@ export default function BlogIndexPage() {
                     <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
                         <article className="flex flex-col h-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-zinc-900 dark:to-zinc-800 rounded-2xl border border-blue-100 dark:border-zinc-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                             <div className="relative w-full h-48 sm:h-56 bg-blue-100 dark:bg-zinc-800">
-                                <Image 
+                                <BlogPostImage 
                                     src={getPostImage(post)}
                                     alt={post.title} 
-                                    fill 
                                     className="object-cover group-hover:scale-105 transition-transform duration-500" 
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                 />
@@ -1278,10 +1277,9 @@ export default function BlogIndexPage() {
                     <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
                         <article className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:shadow-lg transition-all duration-300 overflow-hidden">
                             <div className="relative w-full h-40 bg-gray-100 dark:bg-zinc-800">
-                                <Image 
+                                <BlogPostImage 
                                     src={getPostImage(post)}
                                     alt={post.title} 
-                                    fill 
                                     className="object-cover group-hover:scale-105 transition-transform duration-500" 
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                 />
