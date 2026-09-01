@@ -33,6 +33,24 @@ function copyArrayBuffer(buffer: ArrayBuffer): ArrayBuffer {
     return buffer.slice(0);
 }
 
+/** Minimum canvas pixel width — card thumbs ~2K, modal/quick view ~4K. */
+const PREVIEW_TARGET_PX = { compact: 2048, full: 3840 } as const;
+/** Max supersample factor per mode — full view targets ~3840px canvas width. */
+const MAX_RENDER_DPR = { compact: 6, full: 4 } as const;
+
+function previewRenderDpr(
+    cssPixelWidth: number,
+    pdfPageWidth: number,
+    compact: boolean,
+): number {
+    const baseScale = cssPixelWidth / pdfPageWidth;
+    if (baseScale <= 0) return 1;
+    const target = compact ? PREVIEW_TARGET_PX.compact : PREVIEW_TARGET_PX.full;
+    const neededDpr = target / (pdfPageWidth * baseScale);
+    const maxDpr = compact ? MAX_RENDER_DPR.compact : MAX_RENDER_DPR.full;
+    return Math.max(1, Math.min(neededDpr, maxDpr));
+}
+
 // ponytail: global slot cap, raise if the compiler is dedicated and idle
 const MAX_PARALLEL_PREVIEWS = 2;
 let activePreviews = 0;
@@ -212,14 +230,14 @@ export function TemplatePdfPreview({
         const doc = pdfDocRef.current;
         if (!doc || pages.length === 0 || containerWidth <= 0) return;
 
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const cssWidth = containerWidth * zoom;
 
         for (const meta of pages) {
             const canvas = canvasRefs.current.get(meta.pageNumber);
             if (!canvas) continue;
 
-            const cssWidth = containerWidth * zoom;
             const scale = cssWidth / meta.width;
+            const dpr = previewRenderDpr(cssWidth, meta.width, compact);
             const page = await doc.getPage(meta.pageNumber);
             const viewport = page.getViewport({ scale: scale * dpr });
 
@@ -233,7 +251,7 @@ export function TemplatePdfPreview({
             if (!ctx) continue;
             await page.render({ canvasContext: ctx, viewport, canvas }).promise;
         }
-    }, [pages, containerWidth, zoom]);
+    }, [pages, containerWidth, zoom, compact]);
 
     useEffect(() => {
         void paint();
