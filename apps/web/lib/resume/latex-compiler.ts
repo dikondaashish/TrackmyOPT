@@ -15,6 +15,8 @@ type CompileResult =
     | { ok: true; pdf: ArrayBuffer; compiler: string }
     | { ok: false; error: string };
 
+const COMPILER_TIMEOUT_MS = 45_000;
+
 /** Auth, upstream, or timeout failures — not bad LaTeX in the document. */
 export function isCompilerTransportError(error: string): boolean {
     return /\(401\)|\(403\)|\(502\)|\(503\)|\(504\)|Exception: (?:aborted|AbortError|timeout)/i.test(
@@ -95,15 +97,18 @@ export async function compileLatex(latexCode: string): Promise<CompileResult> {
     let lastError = '';
 
     for (const compiler of buildCompilers()) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), COMPILER_TIMEOUT_MS);
         try {
             const headers = compiler.headers?.() ?? {};
             const response =
                 compiler.method === 'GET'
-                    ? await fetch(compiler.url(latexCode), { headers })
+                    ? await fetch(compiler.url(latexCode), { headers, signal: controller.signal })
                     : await fetch(compiler.url(latexCode), {
                           method: 'POST',
                           headers,
                           body: JSON.stringify(compiler.payload?.(latexCode) ?? {}),
+                          signal: controller.signal,
                       });
 
             if (!response.ok) {
@@ -121,6 +126,8 @@ export async function compileLatex(latexCode: string): Promise<CompileResult> {
             return { ok: true, pdf, compiler: compiler.name };
         } catch (err) {
             lastError = `${compiler.name} Exception: ${err instanceof Error ? err.message : String(err)}`;
+        } finally {
+            clearTimeout(timeout);
         }
     }
 

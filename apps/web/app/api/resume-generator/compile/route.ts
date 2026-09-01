@@ -21,6 +21,16 @@ function unavailableResponse(corsHeaders: Record<string, string>) {
   );
 }
 
+function hasValidPrivateCompilerUrl(): boolean {
+  const configured = process.env.LATEX_COMPILER_URL?.trim();
+  if (!configured) return false;
+  try {
+    return new URL(configured).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
   const corsHeaders = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
@@ -58,7 +68,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!process.env.LATEX_COMPILER_URL?.trim()) {
+  if (!hasValidPrivateCompilerUrl()) {
     return unavailableResponse(corsHeaders);
   }
 
