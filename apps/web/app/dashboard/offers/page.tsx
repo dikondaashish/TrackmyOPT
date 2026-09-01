@@ -18,7 +18,7 @@ import {
     GraduationCap,
     type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { OfferBrandLogo } from "@/components/dashboard/offers/OfferBrandLogo";
 
 // Fuel deal popup content
@@ -632,10 +632,79 @@ const OFFERS: Offer[] = [
     },
 ];
 
+/** Documented first-year savings per partner (USD). Summed live in the hero. */
+const ESTIMATED_SAVINGS_USD: Record<string, number> = {
+    "kimber-health": 1200,
+    "chatgpt-student": 80,
+    "google-gemini-student": 240,
+    "figma-education": 180,
+    "autodesk-education": 600,
+    "rowzero-student": 120,
+    "github-student-pack": 1000,
+    "perplexity-education": 120,
+    "notion-education": 120,
+    "adobe-creative-cloud": 540,
+    "kickresume-student": 72,
+    "microsoft-office-education": 100,
+    "spotify-student": 156,
+    "google-gemini-youtube-bundle": 168,
+    "nordvpn-student": 100,
+    "amazon-prime-student": 110,
+    "linkedin-student-beans": 335,
+    "google-ai-career-certificates": 300,
+    "rowzero-scholarship": 1000,
+    "princeton-review": 600,
+    "kaplan-test-prep": 150,
+    "wise-students": 120,
+    "remitly": 25,
+    "uhaul-collegeboxes": 80,
+    "sprintax": 20,
+    "fuel-discount": 210,
+    "weekly-freebees": 390,
+};
+
+function getCatalogSavings(offers: Offer[], fuelDeals: FuelDeal[]) {
+    const offerTotal = offers.reduce((sum, offer) => sum + (ESTIMATED_SAVINGS_USD[offer.id] ?? 0), 0);
+    const fuelTotal = fuelDeals.reduce((sum, deal) => sum + (ESTIMATED_SAVINGS_USD[deal.id] ?? 0), 0);
+    return {
+        totalUsd: offerTotal + fuelTotal,
+        dealCount: offers.length + fuelDeals.length,
+        pricedDealCount: [...offers, ...fuelDeals].filter((deal) => (ESTIMATED_SAVINGS_USD[deal.id] ?? 0) > 0).length,
+    };
+}
+
+function formatUsd(amount: number) {
+    return amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+
+function useAnimatedNumber(target: number, durationMs = 1400) {
+    const [value, setValue] = useState(0);
+
+    useEffect(() => {
+        const start = performance.now();
+        let frame = 0;
+
+        const tick = (now: number) => {
+            const progress = Math.min((now - start) / durationMs, 1);
+            const eased = 1 - (1 - progress) ** 3;
+            setValue(Math.round(target * eased));
+            if (progress < 1) frame = requestAnimationFrame(tick);
+        };
+
+        frame = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frame);
+    }, [target, durationMs]);
+
+    return value;
+}
+
 export default function OffersPage() {
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [selectedFuelDeal, setSelectedFuelDeal] = useState<FuelDeal | null>(null);
     const [showStepsPopup, setShowStepsPopup] = useState(false);
+    const catalogSavings = useMemo(() => getCatalogSavings(OFFERS, FUEL_DEALS), []);
+    const animatedSavings = useAnimatedNumber(catalogSavings.totalUsd);
+    const savingsLabel = formatUsd(animatedSavings);
 
     const handleClaimDeal = (link: string) => {
         window.open(link, "_blank", "noopener,noreferrer");
@@ -667,7 +736,16 @@ export default function OffersPage() {
                         </h1>
 
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                            Explore exclusive deals and personalized offers curated for international students and OPT workers.
+                            With your college email, unlock partner perks worth up to{" "}
+                            <strong className="tabular-nums text-foreground">{savingsLabel}</strong> across{" "}
+                            {catalogSavings.dealCount} deals curated for international students and OPT workers.
+                        </p>
+
+                        <p className="mt-3 text-sm text-muted-foreground max-w-xl mx-auto">
+                            By using TrackMyOPT, you can save{" "}
+                            <strong className="tabular-nums text-green-600 dark:text-green-400">{savingsLabel}</strong> with
+                            verified student discounts — {catalogSavings.pricedDealCount} offers with documented savings,
+                            updated from our live catalog.
                         </p>
                     </div>
                 </div>
