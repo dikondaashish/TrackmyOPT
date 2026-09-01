@@ -594,6 +594,7 @@ export default function ResumeGeneratorPage() {
                                     compact
                                     stats={usageLimit}
                                     onBuyCredits={() => setShowCreditModal(true)}
+                                    onUpgrade={() => setShowPricingModal(true)}
                                 />
                             </div>
 
@@ -616,6 +617,7 @@ export default function ResumeGeneratorPage() {
                     <ResumeUsageStats
                         stats={usageLimit}
                         onBuyCredits={() => setShowCreditModal(true)}
+                        onUpgrade={() => setShowPricingModal(true)}
                     />
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

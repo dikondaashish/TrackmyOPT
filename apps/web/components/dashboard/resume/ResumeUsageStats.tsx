@@ -16,10 +16,12 @@ export function ResumeUsageStats({
     compact = false,
     stats,
     onBuyCredits,
+    onUpgrade,
 }: {
     compact?: boolean;
     stats: ResumeUsageData | null;
     onBuyCredits?: () => void;
+    onUpgrade?: () => void;
 }) {
     if (!stats) return null;
 
@@ -32,6 +34,29 @@ export function ResumeUsageStats({
     const percentage = Math.min((resumeUsage / resumeLimit) * 100, 100);
     const isLimitReached = resumeUsage >= resumeLimit;
     const isNearLimit = percentage >= 80;
+
+    const loadCreditsAction =
+        canBuyResumeCredits && onBuyCredits ? (
+            <button
+                type="button"
+                onClick={onBuyCredits}
+                className={`font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ${
+                    compact ? 'text-[10px] text-left' : 'text-xs'
+                }`}
+            >
+                Load credits
+            </button>
+        ) : onUpgrade ? (
+            <button
+                type="button"
+                onClick={onUpgrade}
+                className={`font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ${
+                    compact ? 'text-[10px] text-left' : 'text-xs'
+                }`}
+            >
+                Upgrade for more
+            </button>
+        ) : null;
 
     return (
         <div
@@ -65,11 +90,16 @@ export function ResumeUsageStats({
                                   : 'bg-blue-100 dark:bg-blue-900/30 [&>div]:bg-blue-600'
                         }`}
                     />
-                    {resumeCreditBalance > 0 && (
-                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                            + {resumeCreditBalance} purchased credits
-                        </span>
-                    )}
+                    <div className="flex items-center justify-between gap-2">
+                        {resumeCreditBalance > 0 ? (
+                            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                {resumeCreditBalance} credits loaded
+                            </span>
+                        ) : (
+                            <span />
+                        )}
+                        {loadCreditsAction}
+                    </div>
                 </div>
             ) : (
                 <>
@@ -108,7 +138,12 @@ export function ResumeUsageStats({
                     />
                     <p className="text-[11px] text-gray-500 dark:text-gray-400">
                         {Math.round(percentage)}% of monthly allowance used
+                        {resumeCreditBalance > 0 ? ` · ${resumeCreditBalance} credits loaded` : ''}
                     </p>
+
+                    {loadCreditsAction && (
+                        <div className="mt-2">{loadCreditsAction}</div>
+                    )}
 
                     {isNearLimit && !isLimitReached && (
                         <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
