@@ -56,47 +56,52 @@ function isPdf(bytes: ArrayBuffer): boolean {
     return header.length >= 5 && String.fromCharCode(...header) === '%PDF-';
 }
 
-function buildCompilers(): CompilerConfig[] {
+const PUBLIC_COMPILERS: CompilerConfig[] = [
+    {
+        name: 'Primary (Ytotech)',
+        url: () => 'https://latex.ytotech.com/builds/sync',
+        method: 'POST',
+        headers: () => ({ 'Content-Type': 'application/json' }),
+        payload: (code: string) => ({
+            compiler: 'pdflatex',
+            resources: [{ main: true, content: code }],
+        }),
+    },
+    {
+        name: 'Fallback (LaTeX.Online)',
+        url: (code: string) =>
+            'https://latex.online/compile?text=' + encodeURIComponent(code),
+        method: 'GET',
+    },
+];
+
+function buildCompilers(options?: { publicFallback?: boolean }): CompilerConfig[] {
     const privateUrl = getPrivateCompilerUrl();
     if (privateUrl) {
-        return [
-            {
-                name: 'Private (TrackMyOPT API)',
-                url: () => privateUrl,
-                method: 'POST',
-                headers: privateCompilerHeaders,
-                payload: (code: string) => ({
-                    compiler: 'pdflatex',
-                    resources: [{ main: true, content: code }],
-                }),
-            },
-        ];
-    }
-
-    return [
-        {
-            name: 'Primary (Ytotech)',
-            url: () => 'https://latex.ytotech.com/builds/sync',
+        const privateCompiler: CompilerConfig = {
+            name: 'Private (TrackMyOPT API)',
+            url: () => privateUrl,
             method: 'POST',
-            headers: () => ({ 'Content-Type': 'application/json' }),
+            headers: privateCompilerHeaders,
             payload: (code: string) => ({
                 compiler: 'pdflatex',
                 resources: [{ main: true, content: code }],
             }),
-        },
-        {
-            name: 'Fallback (LaTeX.Online)',
-            url: (code: string) =>
-                'https://latex.online/compile?text=' + encodeURIComponent(code),
-            method: 'GET',
-        },
-    ];
+        };
+        if (!options?.publicFallback) return [privateCompiler];
+        return [privateCompiler, ...PUBLIC_COMPILERS];
+    }
+
+    return PUBLIC_COMPILERS;
 }
 
-export async function compileLatex(latexCode: string): Promise<CompileResult> {
+export async function compileLatex(
+    latexCode: string,
+    options?: { publicFallback?: boolean },
+): Promise<CompileResult> {
     let lastError = '';
 
-    for (const compiler of buildCompilers()) {
+    for (const compiler of buildCompilers(options)) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), COMPILER_TIMEOUT_MS);
         try {
@@ -114,7 +119,12 @@ export async function compileLatex(latexCode: string): Promise<CompileResult> {
             if (!response.ok) {
                 const errorText = await response.text();
                 lastError = `${compiler.name} (${response.status}): ${errorText.substring(0, 800)}`;
-                continue;
+                // ponytail: public fallback is transport-only; never ship user LaTeX to a
+                // third party just because the private compiler rejected the source.
+                if (!options?.publicFallback || isCompilerTransportError(lastError)) {
+                    continue;
+                }
+                break;
             }
 
             const pdf = await response.arrayBuffer();

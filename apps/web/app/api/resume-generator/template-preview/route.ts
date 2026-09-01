@@ -27,7 +27,9 @@ const compilePreviewPdf = unstable_cache(
         const template = loadTemplateSource(templateId, accentHex);
         if (!template) return null;
 
-        const result = await compileLatex(template.tex);
+        // Demo templates contain no PII — fall back to public compilers when the
+        // private API is misconfigured or temporarily unavailable.
+        const result = await compileLatex(template.tex, { publicFallback: true });
         if (!result.ok) {
             // Throw so Next does not cache a failed compile for 24h.
             throw new Error(`[template-preview] ${templateId}: ${result.error}`);

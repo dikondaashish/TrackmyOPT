@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     return unavailableResponse(corsHeaders);
   }
 
-  const result = await compileLatex(latexCode);
+  const result = await compileLatex(latexCode, { publicFallback: true });
   if (!result.ok) {
     if (isCompilerTransportError(result.error)) {
       return unavailableResponse(corsHeaders);

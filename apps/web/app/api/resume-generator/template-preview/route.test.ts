@@ -47,6 +47,10 @@ describe('GET /api/resume-generator/template-preview', () => {
     mocks.compileLatex.mockResolvedValue({ ok: false, error: 'boom' });
     const response = await GET(new NextRequest('https://www.trackmyopt.com/api/resume-generator/template-preview?templateId=tech'));
     expect(response.status).toBe(503);
+    expect(mocks.compileLatex).toHaveBeenCalledWith(
+      '\\documentclass{article}\\begin{document}x\\end{document}',
+      { publicFallback: true },
+    );
   });
 
   it('compiles a known template only once', async () => {

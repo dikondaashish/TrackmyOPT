@@ -619,8 +619,18 @@ export default function ResumeEditorPage() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
+                const errorData = await response.json().catch(() => ({})) as {
+                    error?: string;
+                    code?: string;
+                };
                 const errorMessage = errorData.error || 'Compilation failed';
+                const isCompilerUnavailable =
+                    response.status === 503 ||
+                    errorData.code === 'resume_compiler_unavailable';
+
+                if (isCompilerUnavailable) {
+                    throw new Error(errorMessage);
+                }
 
                 if (retryCount === 0) {
                     toast({
