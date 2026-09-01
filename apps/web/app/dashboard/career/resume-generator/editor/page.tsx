@@ -1319,18 +1319,20 @@ export default function ResumeEditorPage() {
                                             Retry compile
                                         </Button>
                                     </div>
-                                ) : (
+                                ) : isGenerating || isCompiling ? null : (
                                     <div className="flex h-full w-full flex-col items-center justify-center p-8 text-gray-500">
-                                        <div className="flex animate-pulse flex-col items-center">
+                                        <div className="flex flex-col items-center">
                                             <RefreshCw className="mb-4 h-12 w-12 opacity-50" />
                                             <p>Waiting for compilation...</p>
                                         </div>
                                     </div>
                                 )}
                                 {(isGenerating || isCompiling) && (
-                                    <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-gray-600 ${compiledPdfBlob ? "bg-white/70 dark:bg-gray-950/70" : "bg-transparent"}`}>
+                                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 p-8 text-gray-600 dark:bg-gray-950/95 dark:text-gray-300">
                                         <Loader2 className="mb-4 h-10 w-10 animate-spin text-blue-500" />
-                                        <p>{isGenerating ? "Generating tailored resume…" : "Compiling PDF…"}</p>
+                                        <p className="text-sm font-medium">
+                                            {isGenerating ? "Generating tailored resume…" : "Compiling PDF…"}
+                                        </p>
                                     </div>
                                 )}
                             </div>
