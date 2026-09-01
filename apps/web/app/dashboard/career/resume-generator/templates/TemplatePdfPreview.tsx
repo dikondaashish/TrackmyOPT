@@ -28,6 +28,11 @@ interface TemplatePdfPreviewProps {
 const previewBytesCache = new Map<string, ArrayBuffer>();
 const previewInflight = new Map<string, Promise<ArrayBuffer>>();
 
+/** pdf.js transfers `data` to its worker and detaches it — never hand out the cached original. */
+function copyArrayBuffer(buffer: ArrayBuffer): ArrayBuffer {
+    return buffer.slice(0);
+}
+
 // ponytail: global slot cap, raise if the compiler is dedicated and idle
 const MAX_PARALLEL_PREVIEWS = 2;
 let activePreviews = 0;
@@ -69,10 +74,10 @@ function loadPdfjs() {
 
 function fetchPreviewPdf(templateId: string): Promise<ArrayBuffer> {
     const cached = previewBytesCache.get(templateId);
-    if (cached) return Promise.resolve(cached);
+    if (cached) return Promise.resolve(copyArrayBuffer(cached));
 
     const pending = previewInflight.get(templateId);
-    if (pending) return pending;
+    if (pending) return pending.then(copyArrayBuffer);
 
     const task = (async () => {
         await acquirePreviewSlot();
@@ -89,8 +94,9 @@ function fetchPreviewPdf(templateId: string): Promise<ArrayBuffer> {
         }
     })();
 
-    previewInflight.set(templateId, task);
-    return task.finally(() => {
+    const shared = task.then(copyArrayBuffer);
+    previewInflight.set(templateId, shared);
+    return shared.finally(() => {
         previewInflight.delete(templateId);
     });
 }
