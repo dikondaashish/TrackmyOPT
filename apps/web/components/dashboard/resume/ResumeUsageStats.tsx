@@ -64,7 +64,7 @@ export function ResumeUsageStats({
             title={compact ? "Resumes generated this month" : undefined}
         >
             {compact ? (
-                <div className="flex min-w-[180px] flex-col gap-1.5">
+                <div className="flex min-w-[200px] flex-col gap-1.5">
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-[10px] font-semibold uppercase leading-tight tracking-wider text-gray-400 dark:text-gray-500">
                             Monthly Usage
@@ -73,11 +73,14 @@ export function ResumeUsageStats({
                             {Math.round(percentage)}% used
                         </span>
                     </div>
-                    <div className="flex items-baseline gap-1.5 font-mono">
-                        <span className={`text-sm font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
-                            {resumeUsage}
-                        </span>
-                        <span className="text-[10px] font-medium text-gray-400">/ {resumeLimit}</span>
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-baseline gap-1.5 font-mono">
+                            <span className={`text-sm font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                                {resumeUsage}
+                            </span>
+                            <span className="text-[10px] font-medium text-gray-400">/ {resumeLimit}</span>
+                        </div>
+                        {loadCreditsAction}
                     </div>
                     <Progress
                         value={percentage}
@@ -90,16 +93,11 @@ export function ResumeUsageStats({
                                   : 'bg-blue-100 dark:bg-blue-900/30 [&>div]:bg-blue-600'
                         }`}
                     />
-                    <div className="flex items-center justify-between gap-2">
-                        {resumeCreditBalance > 0 ? (
-                            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                {resumeCreditBalance} credits loaded
-                            </span>
-                        ) : (
-                            <span />
-                        )}
-                        {loadCreditsAction}
-                    </div>
+                    {resumeCreditBalance > 0 && (
+                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                            {resumeCreditBalance} credits loaded
+                        </span>
+                    )}
                 </div>
             ) : (
                 <>
@@ -118,10 +116,13 @@ export function ResumeUsageStats({
                             </div>
                         </div>
                         <div className="text-right">
-                            <span className={`text-lg font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
-                                {resumeUsage}
-                            </span>
-                            <span className="text-gray-400 text-sm"> / {resumeLimit}</span>
+                            <div className="flex items-baseline justify-end gap-1.5">
+                                <span className={`text-lg font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
+                                    {resumeUsage}
+                                </span>
+                                <span className="text-gray-400 text-sm">/ {resumeLimit}</span>
+                            </div>
+                            <div className="mt-1 flex justify-end">{loadCreditsAction}</div>
                         </div>
                     </div>
 
@@ -140,10 +141,6 @@ export function ResumeUsageStats({
                         {Math.round(percentage)}% of monthly allowance used
                         {resumeCreditBalance > 0 ? ` · ${resumeCreditBalance} credits loaded` : ''}
                     </p>
-
-                    {loadCreditsAction && (
-                        <div className="mt-2">{loadCreditsAction}</div>
-                    )}
 
                     {isNearLimit && !isLimitReached && (
                         <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
