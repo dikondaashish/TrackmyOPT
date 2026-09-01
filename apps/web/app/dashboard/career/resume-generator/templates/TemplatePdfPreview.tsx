@@ -112,9 +112,12 @@ export function TemplatePdfPreview({
     const pdfDocRef = useRef<PDFDocumentProxy | null>(null);
     const generationRef = useRef(0);
     const onPageCountRef = useRef(onPageCount);
-    onPageCountRef.current = onPageCount;
 
     const [pages, setPages] = useState<PdfPage[]>([]);
+
+    useEffect(() => {
+        onPageCountRef.current = onPageCount;
+    }, [onPageCount]);
     const [containerWidth, setContainerWidth] = useState(0);
     const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
     const [inView, setInView] = useState(!compact);
