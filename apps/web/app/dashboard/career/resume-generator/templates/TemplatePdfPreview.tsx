@@ -212,7 +212,7 @@ export function TemplatePdfPreview({
         const doc = pdfDocRef.current;
         if (!doc || pages.length === 0 || containerWidth <= 0) return;
 
-        const dpr = compact ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
         for (const meta of pages) {
             const canvas = canvasRefs.current.get(meta.pageNumber);
@@ -229,11 +229,11 @@ export function TemplatePdfPreview({
             canvas.style.height = "auto";
             canvas.style.maxWidth = `${cssWidth}px`;
 
-            const ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext("2d", { alpha: false });
             if (!ctx) continue;
             await page.render({ canvasContext: ctx, viewport, canvas }).promise;
         }
-    }, [pages, containerWidth, zoom, compact]);
+    }, [pages, containerWidth, zoom]);
 
     useEffect(() => {
         void paint();
