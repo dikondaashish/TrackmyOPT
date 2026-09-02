@@ -1,24 +1,15 @@
 import type { SchedulerContext } from './scheduler-run-id';
 
-const STAGGER_WINDOW_MS = 60 * 60 * 1000;
-const JITTER_MS = 1_500;
+/** Keep source starts below a burst while targeting a roughly 40-minute run. */
+export const PACING_TARGET_WINDOW_MS = 40 * 60 * 1000;
+export const MIN_INTER_REQUEST_GAP_MS = 3_500;
 
-function stableHash(value: string) {
-  let hash = 2166136261;
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
-}
-
-function staggerDelayMs(sourceId: string, index: number, total: number) {
-  if (total <= 1) return 0;
-  const evenlySpaced = Math.floor(
-    (index * (STAGGER_WINDOW_MS - 1)) / (total - 1),
+export function calculatePacingGapMs(sourceCount: number) {
+  if (sourceCount <= 1) return MIN_INTER_REQUEST_GAP_MS;
+  return Math.max(
+    MIN_INTER_REQUEST_GAP_MS,
+    Math.floor(PACING_TARGET_WINDOW_MS / (sourceCount - 1)),
   );
-  const jitter = (stableHash(sourceId) % (JITTER_MS * 2 + 1)) - JITTER_MS;
-  return Math.max(0, Math.min(STAGGER_WINDOW_MS - 1, evenlySpaced + jitter));
 }
 
 export function planSourceIngestionJobs(
@@ -27,18 +18,21 @@ export function planSourceIngestionJobs(
     schedulerRunId: 'job-board-manual-adhoc',
     triggerOrigin: 'manual',
   },
+  pacingGapMs = calculatePacingGapMs(sourceIds.length),
 ) {
-  // Every trigger uses the same deterministic pacing. Manual runs are exempt
-  // from hourly deduplication, not from the source concurrency/rate budget.
+  // Every trigger uses the same pacing. Manual runs are exempt from hourly
+  // deduplication, not from the source concurrency/rate budget. The worker
+  // reserves the next request slot when it is ready, so completed sources do
+  // not leave a fixed-delay queue idling.
   const orderedSourceIds = [...sourceIds].sort();
-  return orderedSourceIds.map((sourceId, index) => ({
+  return orderedSourceIds.map((sourceId) => ({
     name: 'ingest-source',
-    data: { sourceId, ...context },
+    data: { sourceId, pacingGapMs, ...context },
     opts: {
       jobId: `${context.schedulerRunId}:${sourceId}`,
       attempts: 3,
       backoff: { type: 'exponential', delay: 30_000 },
-      delay: staggerDelayMs(sourceId, index, orderedSourceIds.length),
+      delay: 0,
       removeOnComplete: true,
       removeOnFail: false,
     },

@@ -34,14 +34,20 @@ export class JobBoardProcessor {
     return result;
   }
 
-  @Process({ name: 'ingest-source', concurrency: 3 })
-  async ingestSource(job: Bull.Job<{ sourceId: string } & SchedulerContext>) {
+  @Process({ name: 'ingest-source', concurrency: 2 })
+  async ingestSource(
+    job: Bull.Job<
+      { sourceId: string; pacingGapMs?: number } & SchedulerContext
+    >,
+  ) {
     return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
   }
 
   @OnQueueStalled({ name: 'ingest-source' })
   async onSourceStalled(
-    job: Bull.Job<{ sourceId: string } & SchedulerContext>,
+    job: Bull.Job<
+      { sourceId: string; pacingGapMs?: number } & SchedulerContext
+    >,
   ) {
     this.logger.warn(
       `ATS source job ${job.id} stalled; Bull will allow one bounded replay`,
@@ -57,7 +63,9 @@ export class JobBoardProcessor {
 
   @OnQueueFailed({ name: 'ingest-source' })
   async onSourceFailed(
-    job: Bull.Job<{ sourceId: string } & SchedulerContext>,
+    job: Bull.Job<
+      { sourceId: string; pacingGapMs?: number } & SchedulerContext
+    >,
     error: Error,
   ) {
     const attempts = job.opts.attempts || 3;
@@ -88,13 +96,19 @@ export class SlowJobBoardProcessor {
   constructor(private readonly jobBoard: JobBoardService) {}
 
   @Process({ name: 'ingest-source', concurrency: 1 })
-  async ingestSource(job: Bull.Job<{ sourceId: string } & SchedulerContext>) {
+  async ingestSource(
+    job: Bull.Job<
+      { sourceId: string; pacingGapMs?: number } & SchedulerContext
+    >,
+  ) {
     return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
   }
 
   @OnQueueStalled({ name: 'ingest-source' })
   async onSourceStalled(
-    job: Bull.Job<{ sourceId: string } & SchedulerContext>,
+    job: Bull.Job<
+      { sourceId: string; pacingGapMs?: number } & SchedulerContext
+    >,
   ) {
     this.logger.warn(`Slow ATS source job ${job.id} stalled`);
     if (job.attemptsMade >= (job.opts.attempts || 3)) {
@@ -108,7 +122,9 @@ export class SlowJobBoardProcessor {
 
   @OnQueueFailed({ name: 'ingest-source' })
   async onSourceFailed(
-    job: Bull.Job<{ sourceId: string } & SchedulerContext>,
+    job: Bull.Job<
+      { sourceId: string; pacingGapMs?: number } & SchedulerContext
+    >,
     error: Error,
   ) {
     const attempts = job.opts.attempts || 3;

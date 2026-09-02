@@ -14,7 +14,11 @@ import {
   planListingReconciliation,
   type PersistedJobListing,
 } from './job-listing-reconciliation';
-import { planSourceIngestionJobs } from './source-job-planning';
+import {
+  calculatePacingGapMs,
+  MIN_INTER_REQUEST_GAP_MS,
+  planSourceIngestionJobs,
+} from './source-job-planning';
 import {
   classifySourceError,
   planSourceFailure,
@@ -72,6 +76,8 @@ type SourceBoardHealth = {
 };
 
 const UPSERT_CHUNK_SIZE = 250;
+const sleep = (durationMs: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, durationMs));
 
 @Injectable()
 export class JobBoardService implements OnModuleDestroy {
@@ -79,6 +85,8 @@ export class JobBoardService implements OnModuleDestroy {
   private readonly supabase: SupabaseClient;
   private shuttingDown = false;
   private readonly inFlightAuditIds = new Set<string>();
+  private pacingTail: Promise<void> = Promise.resolve();
+  private nextRequestAt = 0;
 
   constructor(
     private readonly config: ConfigService,
@@ -142,7 +150,11 @@ export class JobBoardService implements OnModuleDestroy {
       },
       async () => {
         const slow = (await this.getSlowSourceIds([sourceId])).has(sourceId);
-        const planned = planSourceIngestionJobs([sourceId], context)[0];
+        const planned = planSourceIngestionJobs(
+          [sourceId],
+          context,
+          MIN_INTER_REQUEST_GAP_MS,
+        )[0];
         // Retain the completed ID so a repeated recovery request is suppressed.
         const options = { ...planned.opts, delay: 0, removeOnComplete: 3 };
         return (slow ? this.slowQueue : this.queue).add(
@@ -184,8 +196,17 @@ export class JobBoardService implements OnModuleDestroy {
     const sourceIds = (data || []).map((source) => String(source.id));
     const slowSourceIds = await this.getSlowSourceIds(sourceIds);
     const fastSourceIds = sourceIds.filter((id) => !slowSourceIds.has(id));
-    const fastJobs = planSourceIngestionJobs(fastSourceIds, context);
-    const slowJobs = planSourceIngestionJobs([...slowSourceIds], context);
+    const pacingGapMs = calculatePacingGapMs(sourceIds.length);
+    const fastJobs = planSourceIngestionJobs(
+      fastSourceIds,
+      context,
+      pacingGapMs,
+    );
+    const slowJobs = planSourceIngestionJobs(
+      [...slowSourceIds],
+      context,
+      pacingGapMs,
+    );
     if (fastJobs.length) await this.queue.addBulk(fastJobs);
     if (slowJobs.length) await this.slowQueue.addBulk(slowJobs);
     return {
@@ -317,6 +338,11 @@ export class JobBoardService implements OnModuleDestroy {
 
     this.inFlightAuditIds.add(reservation.audit_log_id);
     try {
+      await this.waitForRequestSlot(
+        'pacingGapMs' in context && typeof context.pacingGapMs === 'number'
+          ? context.pacingGapMs
+          : MIN_INTER_REQUEST_GAP_MS,
+      );
       const fetched = await fetchAuthorizedAtsJobs(source);
       const persistence = await this.persistSourceJobs(
         source,
@@ -366,6 +392,24 @@ export class JobBoardService implements OnModuleDestroy {
       throw error;
     } finally {
       this.inFlightAuditIds.delete(reservation.audit_log_id);
+    }
+  }
+
+  /** Reserve a process-wide request slot without delaying jobs at enqueue time. */
+  private async waitForRequestSlot(gapMs: number) {
+    let release!: () => void;
+    const previous = this.pacingTail;
+    this.pacingTail = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await previous;
+    try {
+      const waitMs = Math.max(0, this.nextRequestAt - Date.now());
+      if (waitMs > 0) await sleep(waitMs);
+      this.nextRequestAt =
+        Date.now() + Math.max(MIN_INTER_REQUEST_GAP_MS, gapMs);
+    } finally {
+      release();
     }
   }
 
