@@ -23,7 +23,7 @@ export class JobBoardProcessor {
   async ingestEnabledSources(job: Bull.Job<SchedulerContext>) {
     const result = await this.jobBoard.enqueueEnabledSourceJobs(job.data);
     this.logger.log(
-      `Queued ${result.sourcesQueued} independently retryable ATS source jobs`,
+      `Queued ${result.sourcesQueued} independently retryable ATS source jobs (${result.slowSourcesQueued} slow-lane)`,
     );
     return result;
   }
@@ -70,5 +70,47 @@ export class JobBoardProcessor {
       `Company discovery checked ${result.companiesAttempted} companies and queued ${result.boardsQueuedForReview} boards`,
     );
     return result;
+  }
+}
+
+/** Slow boards run in an isolated lane so one large response cannot consume
+ * both normal worker slots for the rest of the hourly window. */
+@Processor('job-board-slow')
+export class SlowJobBoardProcessor {
+  private readonly logger = new Logger(SlowJobBoardProcessor.name);
+
+  constructor(private readonly jobBoard: JobBoardService) {}
+
+  @Process({ name: 'ingest-source', concurrency: 1 })
+  async ingestSource(job: Bull.Job<{ sourceId: string } & SchedulerContext>) {
+    return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
+  }
+
+  @OnQueueStalled({ name: 'ingest-source' })
+  async onSourceStalled(
+    job: Bull.Job<{ sourceId: string } & SchedulerContext>,
+  ) {
+    this.logger.warn(`Slow ATS source job ${job.id} stalled`);
+    if (job.attemptsMade >= (job.opts.attempts || 3)) {
+      await this.jobBoard.markSourceAuditFailed(
+        job.data.sourceId,
+        job.data,
+        'stalled job exceeded retry limit',
+      );
+    }
+  }
+
+  @OnQueueFailed({ name: 'ingest-source' })
+  async onSourceFailed(
+    job: Bull.Job<{ sourceId: string } & SchedulerContext>,
+    error: Error,
+  ) {
+    const attempts = job.opts.attempts || 3;
+    if (job.attemptsMade < attempts) return;
+    await this.jobBoard.markSourceAuditFailed(
+      job.data.sourceId,
+      job.data,
+      `source job exhausted retries: ${error.message}`,
+    );
   }
 }

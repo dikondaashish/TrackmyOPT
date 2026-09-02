@@ -31,6 +31,7 @@ import {
   queueSchedulerRun,
   type SchedulerAttempt,
 } from './scheduler-run-ledger';
+import { fetchAllPages } from './paginate';
 
 type AtsSource = {
   id: string;
@@ -80,6 +81,7 @@ export class JobBoardService implements OnModuleDestroy {
   constructor(
     private readonly config: ConfigService,
     @InjectQueue('job-board') private readonly queue: Bull.Queue,
+    @InjectQueue('job-board-slow') private readonly slowQueue: Bull.Queue,
     private readonly employerMatches: EmployerMatchService,
     private readonly visaSignals: JobVisaSignalService,
   ) {
@@ -124,17 +126,98 @@ export class JobBoardService implements OnModuleDestroy {
   }
 
   async enqueueEnabledSourceJobs(context: SchedulerContext) {
+    if (context.schedulerRunId.startsWith('job-board-hour-')) {
+      const priorRunActive = await this.hasActiveHourlySourceWork(context);
+      if (priorRunActive) {
+        this.logger.warn(
+          `Deferring ${context.schedulerRunId}: a prior hourly source run is still active`,
+        );
+        return { sourcesQueued: 0, slowSourcesQueued: 0, deferred: true };
+      }
+    }
     const { data, error } = await this.supabase
       .from('ats_sources')
       .select('id')
       .eq('enabled', true);
     if (error) throw new Error(error.message);
-    const jobs = planSourceIngestionJobs(
-      (data || []).map((source) => String(source.id)),
-      context,
+    const sourceIds = (data || []).map((source) => String(source.id));
+    const slowSourceIds = await this.getSlowSourceIds(sourceIds);
+    const fastSourceIds = sourceIds.filter((id) => !slowSourceIds.has(id));
+    const fastJobs = planSourceIngestionJobs(fastSourceIds, context);
+    const slowJobs = planSourceIngestionJobs([...slowSourceIds], context);
+    if (fastJobs.length) await this.queue.addBulk(fastJobs);
+    if (slowJobs.length) await this.slowQueue.addBulk(slowJobs);
+    return {
+      sourcesQueued: sourceIds.length,
+      slowSourcesQueued: slowJobs.length,
+      deferred: false,
+    };
+  }
+
+  private async getSlowSourceIds(sourceIds: string[]) {
+    if (!sourceIds.length) return new Set<string>();
+    const latestDurationBySource = new Map<string, number>();
+    const rows = await fetchAllPages(async (from, to) => {
+      const result = await this.supabase
+        .from('ingestion_audit_log')
+        .select('source_id, run_at, completed_at, status')
+        .eq('status', 'succeeded')
+        .not('completed_at', 'is', null)
+        .order('run_at', { ascending: false })
+        .range(from, to);
+      return {
+        data: result.data || [],
+        error: result.error ? { message: result.error.message } : null,
+      };
+    });
+    for (const row of rows) {
+      const sourceId = String(row.source_id || '');
+      if (!sourceId || latestDurationBySource.has(sourceId)) continue;
+      const started = Date.parse(String(row.run_at));
+      const completed = Date.parse(String(row.completed_at));
+      if (Number.isFinite(started) && Number.isFinite(completed)) {
+        latestDurationBySource.set(sourceId, Math.max(0, completed - started));
+      }
+    }
+    return new Set(
+      sourceIds.filter(
+        (sourceId) => (latestDurationBySource.get(sourceId) || 0) > 60_000,
+      ),
     );
-    if (jobs.length) await this.queue.addBulk(jobs);
-    return { sourcesQueued: jobs.length };
+  }
+
+  private async hasActiveHourlySourceWork(context: SchedulerContext) {
+    const { data, error } = await this.supabase
+      .from('ingestion_audit_log')
+      .select('id')
+      .eq('status', 'started')
+      .like('scheduler_run_id', 'job-board-hour-%')
+      .neq('scheduler_run_id', context.schedulerRunId)
+      .limit(1);
+    if (error) throw new Error(error.message);
+    if (data?.length) return true;
+
+    const pendingStates: Bull.JobStatus[] = [
+      'waiting',
+      'active',
+      'delayed',
+      'paused',
+    ];
+    const pendingJobs = await Promise.all([
+      this.queue.getJobs(pendingStates),
+      this.slowQueue.getJobs(pendingStates),
+    ]);
+    return pendingJobs.some((jobs) =>
+      jobs.some((job) => {
+        const schedulerRunId = (job.data as SchedulerContext | undefined)
+          ?.schedulerRunId;
+        return (
+          typeof schedulerRunId === 'string' &&
+          schedulerRunId.startsWith('job-board-hour-') &&
+          schedulerRunId !== context.schedulerRunId
+        );
+      }),
+    );
   }
 
   async ingestSourceById(
@@ -322,12 +405,19 @@ export class JobBoardService implements OnModuleDestroy {
     responseComplete: boolean,
   ) {
     const ids = [...new Set(scraped.map((job) => job.external_job_id))];
-    const existing = await this.supabase
-      .from('jobs')
-      .select('id, external_job_id, listing_status')
-      .eq('source_id', source.id);
-    if (existing.error) throw new Error(existing.error.message);
-    const persistedJobs = (existing.data || []) as PersistedJobListing[];
+    const persistedJobs = await fetchAllPages<PersistedJobListing>(
+      async (from, to) => {
+        const existing = await this.supabase
+          .from('jobs')
+          .select('id, external_job_id, listing_status')
+          .eq('source_id', source.id)
+          .range(from, to);
+        return {
+          data: (existing.data || []) as PersistedJobListing[],
+          error: existing.error ? { message: existing.error.message } : null,
+        };
+      },
+    );
     const existingByExternalId = new Map<string, string>();
     for (const job of persistedJobs) {
       existingByExternalId.set(String(job.external_job_id), String(job.id));
