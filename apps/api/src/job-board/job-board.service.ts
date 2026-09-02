@@ -442,17 +442,10 @@ export class JobBoardService implements OnModuleDestroy {
     const fresh = records.filter(
       (job) => !existingByExternalId.has(job.external_job_id),
     );
-    if (fresh.length) {
-      const { error } = await this.supabase.from('jobs').insert(fresh);
-      if (error) throw new Error(error.message);
-    }
-    for (const job of records.filter((row) =>
-      existingByExternalId.has(row.external_job_id),
-    )) {
-      const { error } = await this.supabase
-        .from('jobs')
-        .update(job)
-        .eq('id', existingByExternalId.get(job.external_job_id));
+    if (records.length) {
+      const { error } = await this.supabase.from('jobs').upsert(records, {
+        onConflict: 'source_ats,board_token,external_job_id',
+      });
       if (error) throw new Error(error.message);
     }
 
