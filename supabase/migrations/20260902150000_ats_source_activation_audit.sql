@@ -24,7 +24,10 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 BEGIN
-  IF NEW.enabled AND (TG_OP = 'INSERT' OR NOT COALESCE(OLD.enabled, false)) THEN
+  IF NEW.enabled AND (
+    TG_OP = 'INSERT'
+    OR (TG_OP = 'UPDATE' AND NOT COALESCE(OLD.enabled, false))
+  ) THEN
     NEW.enabled_at := COALESCE(NEW.enabled_at, now());
     NEW.enabled_by := COALESCE(NULLIF(NEW.enabled_by, ''), 'unknown');
     NEW.activation_reason := COALESCE(NULLIF(NEW.activation_reason, ''), 'unknown');
