@@ -84,7 +84,7 @@ export default function VolunteerWorkPage() {
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <Link href="/blog/fall-out-of-f1-status-reinstatement-options" className="group block h-full">
+                    <Link href="/blog/fall-out-of-f1-status-options" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Falling Out of Status</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">What happens if you exceed 90 days of unemployment? Learn your options.</p>

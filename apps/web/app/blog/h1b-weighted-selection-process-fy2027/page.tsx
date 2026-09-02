@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, TrendingUp, FileText, Download } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -58,9 +59,12 @@ export default function H1BWeightedSelectionArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: March 8, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <img 
+            <Image
                 src="/blog/h1b-weighted-selection.png" 
                 alt="Executives reviewing data for H-1B weighted selection" 
+                width={1200}
+                height={630}
+                sizes="(max-width: 896px) 100vw, 896px"
                 className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" 
             />
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -199,7 +203,7 @@ export default function H1BWeightedSelectionArticle() {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Optimize Your Job Search for the New Rules</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">Use TrackMyOPT's AI Resume Builder to target higher-level roles and use our sponsor database to find cap-exempt employers.</p>
-                <Link href="/features/resume-builder" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                <Link href="/features/resume-ai" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
                     Build a Stronger Resume <ArrowRight className="w-4 h-4" />
                 </Link>
             </div>

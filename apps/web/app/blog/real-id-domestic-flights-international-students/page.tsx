@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, IdCard, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -57,9 +58,11 @@ export default function RealIdPage() {
             </header>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img
+                <Image
                     src="/blog/real-id-domestic-flights-international-students.png"
                     alt="Domestic airline boarding pass with a REAL ID driver's license and an I-20 document"
+                    fill
+                    sizes="(max-width: 896px) 100vw, 896px"
                     className="object-cover w-full h-full"
                 />
             </div>
@@ -173,7 +176,7 @@ export default function RealIdPage() {
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <Link href="/blog/travel-on-opt-documents-checklist" className="group block h-full">
+                    <Link href="/blog/can-you-travel-on-opt-complete-guide" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 International Travel Checklist

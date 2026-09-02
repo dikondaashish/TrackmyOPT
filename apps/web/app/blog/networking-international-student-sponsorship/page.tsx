@@ -90,7 +90,7 @@ export default function NetworkingPage() {
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
-                    <Link href="/blog/answering-sponsorship-questions-interviews" className="group block h-full">
+                    <Link href="/blog/how-to-answer-sponsorship-question" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Acing the Interview</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Once your networking lands you the interview, here is exactly how to answer the dreaded sponsorship question.</p>

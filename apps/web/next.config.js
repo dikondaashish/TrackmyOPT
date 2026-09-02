@@ -155,6 +155,16 @@ const nextConfig = {
         destination: '/blog/fall-out-of-f1-status-options',
         permanent: true,
       },
+      {
+        source: '/blog/stem-opt-extension-guide-2026',
+        destination: '/blog/stem-opt-extension-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/travel-on-opt-documents-checklist',
+        destination: '/blog/can-you-travel-on-opt-complete-guide',
+        permanent: true,
+      },
 
       // ── Old search URL → answers ─────────────────────────────────────────────
       // /search was indexed from the site's former SearchAction markup
@@ -232,6 +242,21 @@ const nextConfig = {
       {
         source: '/blog/top-h1b-sponsor-companies-2026-rankings',
         destination: '/blog/top-h1b-sponsor-companies-2026',
+        permanent: true,
+      },
+      {
+        source: '/tools/opt-tax-calculator',
+        destination: '/features/tax-filing',
+        permanent: true,
+      },
+      {
+        source: '/features/h1b-database',
+        destination: '/features/sponsors',
+        permanent: true,
+      },
+      {
+        source: '/features/resume-builder',
+        destination: '/features/resume-ai',
         permanent: true,
       },
       // Malformed URLs from old SearchAction / crawler noise

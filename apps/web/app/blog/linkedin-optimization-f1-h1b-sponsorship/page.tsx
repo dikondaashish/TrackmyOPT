@@ -91,14 +91,14 @@ export default function LinkedInOptimizationPage() {
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <Link href="/blog/answering-sponsorship-questions-interviews" className="group block h-full">
+                    <Link href="/blog/how-to-answer-sponsorship-question" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Answering Sponsorship Questions</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">Once LinkedIn lands you the interview, here is exactly how to answer "Do you need sponsorship?"</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
-                    <Link href="/blog/h1b-visa-alternatives-opt-expires" className="group block h-full">
+                    <Link href="/blog/h1b-alternatives-work-visas" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">H-1B Alternatives</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">What happens if you don't get selected in the H-1B lottery? Learn your backup options.</p>

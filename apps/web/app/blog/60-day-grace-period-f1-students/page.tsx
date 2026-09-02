@@ -86,14 +86,14 @@ export default function GracePeriodPage() {
             <div className="mt-16">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
-                    <Link href="/blog/fall-out-of-f1-status-reinstatement-options" className="group block h-full">
+                    <Link href="/blog/fall-out-of-f1-status-options" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Falling Out of Status</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">What happens if you stay past your 60-day grace period? Understand the severe consequences of overstaying.</p>
                             <span className="text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>
                         </div>
                     </Link>
-                    <Link href="/blog/h1b-cap-gap-extension-guide" className="group block h-full">
+                    <Link href="/blog/h1b-cap-gap-extension" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">Cap-Gap Extension</h4>
                             <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">If your employer filed for an H-1B, learn how the Cap-Gap extension legally bridges the gap after your OPT expires.</p>

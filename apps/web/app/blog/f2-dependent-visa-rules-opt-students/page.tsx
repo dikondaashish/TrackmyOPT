@@ -189,7 +189,7 @@ export default function F2DependentPage() {
                             </span>
                         </div>
                     </Link>
-                    <Link href="/blog/opt-unemployment-rules-90-day-limit" className="group block h-full">
+                    <Link href="/blog/90-day-unemployment-rule-opt" className="group block h-full">
                         <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The 90-Day Unemployment Rule

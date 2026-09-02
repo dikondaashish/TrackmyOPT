@@ -11,10 +11,9 @@ const CRAWL_DISALLOW = [
     "/admin/",
     "/auth/extension",
     "/auth/reset-password",
-    "/dashboard/",
 ] as const;
 
-/** Public dashboard tool pages that remain crawlable (see proxy.ts). */
+/** Public dashboard tool pages that remain indexable (see proxy.ts). */
 const PUBLIC_DASHBOARD_ALLOW = [
     "/dashboard/help",
     "/dashboard/opt-tools/opt-apply",

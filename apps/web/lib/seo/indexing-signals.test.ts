@@ -22,11 +22,21 @@ function blogPageFiles(): string[] {
 
 describe("indexing signals", () => {
     it("lets crawlers see login noindex while protecting private routes", () => {
-        const serializedRules = JSON.stringify(robots().rules);
+        const rules = robots().rules as Array<{
+            disallow?: string | string[];
+        }>;
+        const serializedRules = JSON.stringify(rules);
+        const disallowedPaths = rules.reduce<string[]>((paths, rule) => {
+            const disallow = rule.disallow;
+            if (Array.isArray(disallow)) return [...paths, ...disallow];
+            if (disallow) return [...paths, disallow];
+            return paths;
+        }, []);
 
         expect(serializedRules).not.toContain('"/login"');
         expect(serializedRules).not.toContain('"/auth/"');
-        expect(serializedRules).toContain('"/dashboard/"');
+        expect(disallowedPaths).not.toContain("/dashboard/");
+        expect(serializedRules).toContain('"/dashboard/help"');
         expect(serializedRules).toContain('"/api/"');
     });
 
@@ -70,6 +80,17 @@ describe("indexing signals", () => {
                     "/blog/fall-out-of-f1-status-reinstatement-options",
                     "/blog/fall-out-of-f1-status-options",
                 ],
+                [
+                    "/blog/stem-opt-extension-guide-2026",
+                    "/blog/stem-opt-extension-guide",
+                ],
+                [
+                    "/blog/travel-on-opt-documents-checklist",
+                    "/blog/can-you-travel-on-opt-complete-guide",
+                ],
+                ["/tools/opt-tax-calculator", "/features/tax-filing"],
+                ["/features/h1b-database", "/features/sponsors"],
+                ["/features/resume-builder", "/features/resume-ai"],
                 ["/register", "/login"],
                 ["/auth/sign-up", "/login"],
             ]),

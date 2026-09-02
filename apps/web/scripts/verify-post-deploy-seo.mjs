@@ -34,6 +34,11 @@ const REDIRECT_CHECKS = [
   ["/blog/form-i983-stem-opt-training-plan-guide", "/blog/i-983-training-plan-guide"],
   ["/blog/f1-student-tax-filing-guide", "/blog/f1-student-tax-filing-guide-2026"],
   ["/search", "/answers"],
+  ["/blog/stem-opt-extension-guide-2026", "/blog/stem-opt-extension-guide"],
+  ["/blog/travel-on-opt-documents-checklist", "/blog/can-you-travel-on-opt-complete-guide"],
+  ["/tools/opt-tax-calculator", "/features/tax-filing"],
+  ["/features/h1b-database", "/features/sponsors"],
+  ["/features/resume-builder", "/features/resume-ai"],
 ];
 
 function extractJsonLdBlocks(html) {

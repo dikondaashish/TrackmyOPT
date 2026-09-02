@@ -5,7 +5,7 @@ const taxRelated = [
     label: 'F-1 student tax filing guide',
     href: '/blog/f1-student-tax-filing-guide-2026',
   },
-  { label: 'OPT tax calculator', href: '/tools/opt-tax-calculator' },
+  { label: 'OPT tax tools', href: '/features/tax-filing' },
   {
     label: 'FICA exemption guide',
     href: '/blog/f1-opt-stem-opt-tax-filing-mistakes',
