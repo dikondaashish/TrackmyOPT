@@ -554,8 +554,14 @@ export default function ResumeEditorPage() {
                               .join("; ")
                         : "";
                 const refundNote = data.creditRefunded ? " Your credit was not charged." : "";
+                const detailNote =
+                    typeof data.details === "string" && data.details.trim()
+                        ? ` ${data.details.trim()}`
+                        : "";
                 throw new Error(
-                    (detail ? `${data.error || "Failed to generate resume"} (${detail})` : data.error || "Failed to generate resume") + refundNote
+                    (detail ? `${data.error || "Failed to generate resume"} (${detail})` : data.error || "Failed to generate resume") +
+                        detailNote +
+                        refundNote
                 );
             }
 

@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   generateAiContent: vi.fn(),
   checkAtsCompliance: vi.fn(),
   stripModelLatexOutput: vi.fn(),
+  mergeModelLatexWithTemplate: vi.fn(),
   validateGeneratedResumeOutput: vi.fn(),
   hasPrivateCompilerConfigured: vi.fn(),
   compileLatexWithRepair: vi.fn(),
@@ -38,6 +39,7 @@ vi.mock("@/lib/ai/google-ai", () => ({ generateAiContent: mocks.generateAiConten
 vi.mock("@/lib/validators/ats-checker", () => ({ checkAtsCompliance: mocks.checkAtsCompliance }));
 vi.mock("@/lib/resume/model-latex-output", () => ({
   stripModelLatexOutput: mocks.stripModelLatexOutput,
+  mergeModelLatexWithTemplate: mocks.mergeModelLatexWithTemplate,
   validateGeneratedResumeOutput: mocks.validateGeneratedResumeOutput,
 }));
 vi.mock("@/lib/resume/latex-compiler", () => ({
@@ -81,6 +83,7 @@ describe("POST /api/resume-generator/generate", () => {
     mocks.stripModelLatexOutput.mockImplementation((text: string) =>
       text.replace(/^```(?:latex)?\n?/, "").replace(/\n?```$/, "").trim()
     );
+    mocks.mergeModelLatexWithTemplate.mockImplementation((_template: string, latex: string) => latex);
     mocks.validateGeneratedResumeOutput.mockReturnValue({ ok: true, issues: [] });
     mocks.hasPrivateCompilerConfigured.mockReturnValue(false);
   });

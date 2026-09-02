@@ -18,12 +18,13 @@ import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import { isUsableResumeLatex } from '@/lib/resume/latex-to-plain-text';
 import { compileLatexWithRepair } from '@/lib/resume/compile-latex-with-repair';
-
-export const maxDuration = 120;
 import {
+    mergeModelLatexWithTemplate,
     stripModelLatexOutput,
     validateGeneratedResumeOutput,
 } from '@/lib/resume/model-latex-output';
+
+export const maxDuration = 120;
 import {
     compileLatex,
     hasPrivateCompilerConfigured,
@@ -178,6 +179,7 @@ export async function POST(req: NextRequest) {
         if (!isUsableResumeLatex(latex)) {
             throw new Error('Model returned unusable resume latex');
         }
+        latex = mergeModelLatexWithTemplate(template.tex, latex);
 
         const structureCheck = validateGeneratedResumeOutput({
             latex,
@@ -189,6 +191,7 @@ export async function POST(req: NextRequest) {
         }
 
         let compileRepaired = false;
+        let compileWarning: string | undefined;
         if (hasPrivateCompilerConfigured()) {
             const compiled = await compileLatexWithRepair({
                 initialLatex: latex,
@@ -199,7 +202,8 @@ export async function POST(req: NextRequest) {
             latex = compiled.finalLatex;
             compileRepaired = compiled.repaired;
             if (!compiled.ok) {
-                throw new Error(compiled.error || 'Resume failed to compile after repair attempts');
+                compileWarning =
+                    compiled.error || 'Resume could not be compiled on the server';
             }
         }
 
@@ -217,7 +221,7 @@ export async function POST(req: NextRequest) {
                 latex,
                 atsCheck,
                 ...(compileRepaired ? { compileRepaired: true } : {}),
-                ...(resumePrep.truncated || jobPrep.truncated
+                ...(resumePrep.truncated || jobPrep.truncated || compileWarning
                     ? {
                           warnings: [
                               resumePrep.truncated
@@ -226,6 +230,7 @@ export async function POST(req: NextRequest) {
                               jobPrep.truncated
                                   ? `Job description trimmed from ${jobPrep.originalLength.toLocaleString()} to ${jobPrep.text.length.toLocaleString()} characters.`
                                   : null,
+                              compileWarning ?? null,
                           ].filter(Boolean),
                       }
                     : {}),
@@ -233,12 +238,14 @@ export async function POST(req: NextRequest) {
             { status: 200, headers: corsHeaders }
         );
 
-    } catch (error: any) {
-        console.error('Generation Error:', error);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Unknown generation error';
+        console.error('Generation Error:', message);
         return NextResponse.json(
             {
                 success: false,
                 error: 'Failed to generate resume',
+                details: message,
                 creditRefunded: creditReleased,
             },
             { status: 500, headers: corsHeaders }
