@@ -1,4 +1,10 @@
-import { BadRequestException, Controller, Headers, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Headers,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { JobBoardService } from './job-board.service';
 import {
   normalizeSchedulerRunId,
@@ -23,6 +29,28 @@ export class JobBoardController {
       );
     }
     return this.jobBoard.queueEnabledSources({
+      schedulerRunId: normalizedRunId,
+      triggerOrigin: normalizeTriggerOrigin(triggerOrigin),
+    });
+  }
+
+  /** Targeted recovery endpoint; authentication is provided by the app-wide API-key guard. */
+  @Post('ingest-source/:sourceId')
+  async queueSingleSource(
+    @Param('sourceId') sourceId: string,
+    @Headers('x-scheduler-run-id') schedulerRunId?: string,
+    @Headers('x-trigger-origin') triggerOrigin?: string,
+  ) {
+    const normalizedRunId = normalizeSchedulerRunId(schedulerRunId);
+    if (!normalizedRunId) {
+      throw new BadRequestException(
+        'A valid x-scheduler-run-id header is required',
+      );
+    }
+    if (!sourceId?.trim()) {
+      throw new BadRequestException('sourceId is required');
+    }
+    return this.jobBoard.queueSingleSource(sourceId, {
       schedulerRunId: normalizedRunId,
       triggerOrigin: normalizeTriggerOrigin(triggerOrigin),
     });

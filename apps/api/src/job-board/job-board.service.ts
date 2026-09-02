@@ -71,6 +71,8 @@ type SourceBoardHealth = {
   next_retry_at: string | null;
 };
 
+const UPSERT_CHUNK_SIZE = 250;
+
 @Injectable()
 export class JobBoardService implements OnModuleDestroy {
   private readonly logger = new Logger(JobBoardService.name);
@@ -110,6 +112,45 @@ export class JobBoardService implements OnModuleDestroy {
           context,
           planIngestionOrchestratorOptions(context.schedulerRunId),
         ),
+    );
+  }
+
+  /** Queue one enabled source for targeted recovery without touching other boards. */
+  async queueSingleSource(sourceId: string, context: SchedulerContext) {
+    if (this.shuttingDown) throw new Error('Job-board worker is restarting');
+    await this.finalizeStaleAudits();
+    const { data: source, error } = await this.supabase
+      .from('ats_sources')
+      .select(
+        'id, ats_type, board_token, base_url, company_id, employer_board_name, enabled',
+      )
+      .eq('id', sourceId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!source) throw new Error(`Unknown ATS source ${sourceId}`);
+    if (!source.enabled) throw new Error(`ATS source ${sourceId} is disabled`);
+
+    return queueSchedulerRun(
+      context,
+      {
+        claim: (candidate) => this.claimSchedulerRun(candidate),
+        markQueued: (schedulerRunId, queuedAt) =>
+          this.markSchedulerRunQueued(schedulerRunId, queuedAt),
+        markFailed: (schedulerRunId, errorMessage) =>
+          this.markSchedulerRunFailed(schedulerRunId, errorMessage),
+        recordAttempt: (attempt) => this.recordSchedulerAttempt(attempt),
+      },
+      async () => {
+        const slow = (await this.getSlowSourceIds([sourceId])).has(sourceId);
+        const planned = planSourceIngestionJobs([sourceId], context)[0];
+        // Retain the completed ID so a repeated recovery request is suppressed.
+        const options = { ...planned.opts, delay: 0, removeOnComplete: 3 };
+        return (slow ? this.slowQueue : this.queue).add(
+          planned.name,
+          planned.data,
+          options,
+        );
+      },
     );
   }
 
@@ -442,8 +483,9 @@ export class JobBoardService implements OnModuleDestroy {
     const fresh = records.filter(
       (job) => !existingByExternalId.has(job.external_job_id),
     );
-    if (records.length) {
-      const { error } = await this.supabase.from('jobs').upsert(records, {
+    for (let offset = 0; offset < records.length; offset += UPSERT_CHUNK_SIZE) {
+      const chunk = records.slice(offset, offset + UPSERT_CHUNK_SIZE);
+      const { error } = await this.supabase.from('jobs').upsert(chunk, {
         onConflict: 'source_ats,board_token,external_job_id',
       });
       if (error) throw new Error(error.message);
