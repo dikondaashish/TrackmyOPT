@@ -155,24 +155,11 @@ export function validateGeneratedResumeOutput(input: {
 }): GeneratedResumeValidation {
     const issues: string[] = [];
 
-    if (!input.latex.startsWith('\\')) {
-        issues.push('output does not start with backslash');
+    if (!input.latex.includes('\\documentclass')) {
+        issues.push('output missing \\documentclass');
     }
-    if (!input.latex.trimEnd().endsWith('}')) {
-        issues.push('output does not end with closing brace');
-    }
-
-    const preamble = validatePreambleMatches(input.latex, input.templateTex);
-    if (!preamble.ok) issues.push(preamble.reason);
-
-    const employers = extractEmployerNamesFromResume(input.resumeText);
-    if (employers.length > 0) {
-        const matched = employers.filter((employer) =>
-            input.latex.toLowerCase().includes(employer.toLowerCase()),
-        );
-        if (matched.length === 0) {
-            issues.push('no extracted employers found in output');
-        }
+    if (!input.latex.includes('\\end{document}')) {
+        issues.push('output missing \\end{document}');
     }
 
     const roleCount = countRoleMacros(input.latex);

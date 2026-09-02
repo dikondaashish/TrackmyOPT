@@ -35,7 +35,8 @@ describe('escapeLatexForPromptInjection', () => {
 
 describe('mergeModelLatexWithTemplate', () => {
     it('replaces the model preamble with the shipped template preamble', () => {
-        const template = String.raw`\documentclass{article}
+        const template = String.raw`% TrackMyOPT template header
+\documentclass{article}
 \newcommand{\rRole}[4]{#1}
 \begin{document}
 demo
@@ -49,6 +50,11 @@ demo
         expect(merged).toContain(String.raw`\newcommand{\rRole}[4]{#1}`);
         expect(merged).toContain(String.raw`\rRole{Engineer}{Acme}{}{}`);
         expect(merged).not.toContain(String.raw`\documentclass{report}`);
+        expect(validateGeneratedResumeOutput({
+            latex: merged,
+            templateTex: template,
+            resumeText: 'Engineer at Acme 2021 -- Present',
+        }).ok).toBe(true);
     });
 });
 
