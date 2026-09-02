@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   normalizeAccentHex: vi.fn(),
   buildGeneratePrompt: vi.fn(),
   reserveResumeGeneration: vi.fn(),
+  commitResumeGeneration: vi.fn(),
   releaseResumeGenerationReservation: vi.fn(),
   generateAiContent: vi.fn(),
   checkAtsCompliance: vi.fn(),
@@ -30,6 +31,7 @@ vi.mock("@/lib/documents/template-source", () => ({
 vi.mock("@/lib/ai/prompts/generate", () => ({ buildGeneratePrompt: mocks.buildGeneratePrompt }));
 vi.mock("@/lib/usage-limit", () => ({
   reserveResumeGeneration: mocks.reserveResumeGeneration,
+  commitResumeGeneration: mocks.commitResumeGeneration,
   releaseResumeGenerationReservation: mocks.releaseResumeGenerationReservation,
 }));
 vi.mock("@/lib/ai/google-ai", () => ({ generateAiContent: mocks.generateAiContent }));
@@ -72,6 +74,8 @@ describe("POST /api/resume-generator/generate", () => {
     mocks.normalizeAccentHex.mockReturnValue(null);
     mocks.buildGeneratePrompt.mockReturnValue("prompt");
     mocks.reserveResumeGeneration.mockResolvedValue({ allowed: true, reservationId: "reservation-1" });
+    mocks.commitResumeGeneration.mockResolvedValue(true);
+    mocks.releaseResumeGenerationReservation.mockResolvedValue(true);
     mocks.generateAiContent.mockResolvedValue({ text: "```latex\n\\documentclass{article}\n```" });
     mocks.checkAtsCompliance.mockReturnValue({ passed: true, issues: [] });
     mocks.stripModelLatexOutput.mockImplementation((text: string) =>
@@ -107,6 +111,7 @@ describe("POST /api/resume-generator/generate", () => {
       atsCheck: { passed: true },
     });
     expect(mocks.reserveResumeGeneration).toHaveBeenCalledWith("user-1", "generate");
+    expect(mocks.commitResumeGeneration).toHaveBeenCalledWith("user-1", "reservation-1");
   });
 
   it("rejects more than 12 focus keywords before reserving usage", async () => {
@@ -125,6 +130,7 @@ describe("POST /api/resume-generator/generate", () => {
 
     expect(response.status).toBe(500);
     expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
+    expect(mocks.commitResumeGeneration).not.toHaveBeenCalled();
   });
 
   it("runs compile repair when a private compiler is configured", async () => {
@@ -157,6 +163,7 @@ describe("POST /api/resume-generator/generate", () => {
 
     expect(response.status).toBe(500);
     expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
+    expect(mocks.commitResumeGeneration).not.toHaveBeenCalled();
   });
 
   it("releases a reservation when the model returns empty latex", async () => {
@@ -166,5 +173,6 @@ describe("POST /api/resume-generator/generate", () => {
 
     expect(response.status).toBe(500);
     expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
+    expect(mocks.commitResumeGeneration).not.toHaveBeenCalled();
   });
 });

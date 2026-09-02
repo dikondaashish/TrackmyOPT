@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import {
+    commitResumeGeneration,
     releaseResumeGenerationReservation,
     reserveResumeGeneration,
 } from '@/lib/usage-limit';
@@ -17,6 +18,8 @@ import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import { isUsableResumeLatex } from '@/lib/resume/latex-to-plain-text';
 import { compileLatexWithRepair } from '@/lib/resume/compile-latex-with-repair';
+
+export const maxDuration = 120;
 import {
     stripModelLatexOutput,
     validateGeneratedResumeOutput,
@@ -77,6 +80,7 @@ export async function POST(req: NextRequest) {
     let reservationId: string | null = null;
     let reservationUserId: string | null = null;
     let reservationCommitted = false;
+    let creditReleased = false;
     try {
         // 0. Auth Check — accepts the web cookie session OR the extension's
         // Bearer token (getUserId handles both).
@@ -202,6 +206,9 @@ export async function POST(req: NextRequest) {
         // ATS Validation
         const atsCheck = checkAtsCompliance(latex);
 
+        if (!(await commitResumeGeneration(userId, reservationId))) {
+            throw new Error('Failed to commit resume generation entitlement');
+        }
         reservationCommitted = true;
 
         return NextResponse.json(
@@ -229,12 +236,19 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         console.error('Generation Error:', error);
         return NextResponse.json(
-            { success: false, error: 'Failed to generate resume' },
+            {
+                success: false,
+                error: 'Failed to generate resume',
+                creditRefunded: creditReleased,
+            },
             { status: 500, headers: corsHeaders }
         );
     } finally {
         if (reservationId && reservationUserId && !reservationCommitted) {
-            await releaseResumeGenerationReservation(reservationUserId, reservationId);
+            creditReleased = await releaseResumeGenerationReservation(
+                reservationUserId,
+                reservationId,
+            );
         }
     }
 }

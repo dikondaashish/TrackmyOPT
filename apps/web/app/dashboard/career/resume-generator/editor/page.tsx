@@ -553,8 +553,9 @@ export default function ResumeEditorPage() {
                               .filter(Boolean)
                               .join("; ")
                         : "";
+                const refundNote = data.creditRefunded ? " Your credit was not charged." : "";
                 throw new Error(
-                    detail ? `${data.error || "Failed to generate resume"} (${detail})` : data.error || "Failed to generate resume"
+                    (detail ? `${data.error || "Failed to generate resume"} (${detail})` : data.error || "Failed to generate resume") + refundNote
                 );
             }
 

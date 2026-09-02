@@ -198,21 +198,40 @@ export async function reserveResumeGeneration(
   };
 }
 
+export async function commitResumeGeneration(
+  userId: string,
+  reservationId: string,
+): Promise<boolean> {
+  const supabase = getServiceUsageClient();
+  const { data, error } = await supabase.rpc('commit_resume_generation', {
+    p_user_id: userId,
+    p_reservation_id: reservationId,
+  });
+
+  if (error) {
+    console.error('Failed to commit resume generation reservation:', error);
+    return false;
+  }
+
+  return data === true;
+}
+
 export async function releaseResumeGenerationReservation(
   userId: string,
   reservationId: string,
-): Promise<void> {
+): Promise<boolean> {
   const supabase = getServiceUsageClient();
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 3; attempt++) {
-    const { error } = await supabase.rpc('release_resume_generation_reservation', {
+    const { data, error } = await supabase.rpc('release_resume_generation_reservation', {
       p_user_id: userId,
       p_reservation_id: reservationId,
     });
-    if (!error) return;
+    if (!error) return data === true;
     lastError = error;
   }
   console.error('Failed to release resume generation reservation:', lastError);
+  return false;
 }
 
 // ATS routes accept the extension's custom Bearer JWT as well as web cookies.

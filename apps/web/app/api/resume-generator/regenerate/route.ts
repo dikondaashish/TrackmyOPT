@@ -8,6 +8,7 @@ import { REGENERATION_FEEDBACK_MAX_CHARS } from '@/lib/resume/ats-analysis-types
 import { z } from 'zod';
 import rateLimit from '@/lib/auth/rate-limit';
 import {
+    commitResumeGeneration,
     releaseResumeGenerationReservation,
     reserveResumeGeneration,
 } from '@/lib/usage-limit';
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
     let reservationId: string | null = null;
     let reservationUserId: string | null = null;
     let reservationCommitted = false;
+    let creditReleased = false;
     const corsHeaders = corsHeadersWebAndExtension(req);
     try {
         // Accept the dashboard cookie session or the extension's bearer token.
@@ -150,6 +152,9 @@ export async function POST(req: NextRequest) {
         // 7. ATS Validation
         const atsCheck = checkAtsCompliance(latex);
 
+        if (!(await commitResumeGeneration(userId, reservationId))) {
+            throw new Error('Failed to commit resume generation entitlement');
+        }
         reservationCommitted = true;
 
         return NextResponse.json(
@@ -175,12 +180,18 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         console.error('Regeneration Error:', error);
         return NextResponse.json(
-            { error: 'Failed to regenerate resume' },
+            {
+                error: 'Failed to regenerate resume',
+                creditRefunded: creditReleased,
+            },
             { status: 500, headers: corsHeaders }
         );
     } finally {
         if (reservationId && reservationUserId && !reservationCommitted) {
-            await releaseResumeGenerationReservation(reservationUserId, reservationId);
+            creditReleased = await releaseResumeGenerationReservation(
+                reservationUserId,
+                reservationId,
+            );
         }
     }
 }

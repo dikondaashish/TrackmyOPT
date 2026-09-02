@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   normalizeAccentHex: vi.fn(),
   buildRegeneratePrompt: vi.fn(),
   reserveResumeGeneration: vi.fn(),
+  commitResumeGeneration: vi.fn(),
   releaseResumeGenerationReservation: vi.fn(),
   generateAiContent: vi.fn(),
   checkAtsCompliance: vi.fn(),
@@ -26,6 +27,7 @@ vi.mock("@/lib/ai/prompts/regenerate", () => ({
 }));
 vi.mock("@/lib/usage-limit", () => ({
   reserveResumeGeneration: mocks.reserveResumeGeneration,
+  commitResumeGeneration: mocks.commitResumeGeneration,
   releaseResumeGenerationReservation: mocks.releaseResumeGenerationReservation,
 }));
 vi.mock("@/lib/ai/google-ai", () => ({ generateAiContent: mocks.generateAiContent }));
@@ -61,6 +63,8 @@ describe("POST /api/resume-generator/regenerate", () => {
     mocks.normalizeAccentHex.mockReturnValue(null);
     mocks.buildRegeneratePrompt.mockReturnValue("prompt");
     mocks.reserveResumeGeneration.mockResolvedValue({ allowed: true, reservationId: "reservation-1" });
+    mocks.commitResumeGeneration.mockResolvedValue(true);
+    mocks.releaseResumeGenerationReservation.mockResolvedValue(true);
     mocks.generateAiContent.mockResolvedValue({ text: "```latex\n\\documentclass{article}\n```" });
     mocks.checkAtsCompliance.mockReturnValue({ passed: true, issues: [] });
   });

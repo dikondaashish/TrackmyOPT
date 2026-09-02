@@ -2145,6 +2145,10 @@ export type Database = {
         Args: { ref_code: string }
         Returns: undefined
       }
+      commit_resume_generation: {
+        Args: { p_reservation_id: string; p_user_id: string }
+        Returns: boolean
+      }
       release_resume_generation_reservation: {
         Args: { p_reservation_id: string; p_user_id: string }
         Returns: boolean
