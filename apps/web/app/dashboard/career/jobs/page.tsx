@@ -70,10 +70,11 @@ export default async function VerifiedJobsPage() {
   const [jobsResult, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
     supabase
       .from('jobs')
-      .select('id, title, company_name, employer_board_name, location, department, description, job_url, posted_at, first_seen_at, last_confirmed_at, source_ats, employer_match:employer_matches(canonical_h1b_sponsor_id, confidence, review_status), visa_signals:job_visa_signals(signal_type, evidence_snippet, source_url, observed_date, confidence, source)')
+      .select('id, title, company_name, employer_board_name, location, department, job_url, posted_at, first_seen_at, last_confirmed_at, source_ats, employer_match:employer_matches(canonical_h1b_sponsor_id, confidence, review_status), visa_signals:job_visa_signals(signal_type, evidence_snippet, source_url, observed_date, confidence, source)', { count: 'exact' })
       .eq('listing_status', 'open')
       .eq('source_trust_tier', 'verified_ats')
-      .order('posted_at', { ascending: false, nullsFirst: false }),
+      .order('posted_at', { ascending: false, nullsFirst: false })
+      .range(0, 49),
     supabase
       .from('opt_status')
       .select('opt_start_date, opt_ead_end_date, stem_start_date')
@@ -108,6 +109,7 @@ export default async function VerifiedJobsPage() {
   const trackerEntries = trackerResult.data || [];
   const matchedJobs = ((jobsResult.data || []) as FeedJobQueryResult[]).map((job) => ({
     ...job,
+    description: null,
     employer_match: Array.isArray(job.employer_match) ? job.employer_match[0] || null : job.employer_match,
   }));
   const sponsorIds = [...new Set(matchedJobs.map((job) => job.employer_match?.canonical_h1b_sponsor_id).filter((id): id is string => Boolean(id)))];
@@ -143,7 +145,7 @@ export default async function VerifiedJobsPage() {
           </span>
         </div>
         <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-          Browse jobs and add them to your resume queue. {jobs.length} results.
+          Browse jobs and add them to your resume queue. {jobsResult.count || 0} results.
         </p>
       </header>
 
@@ -151,6 +153,8 @@ export default async function VerifiedJobsPage() {
 
       <JobBoardExplorer
         jobs={jobs}
+        totalJobs={jobsResult.count || 0}
+        serverMode
         runway={runway}
         asOf={now.toISOString()}
         savedResumes={savedResumeRows.map((resume) => ({

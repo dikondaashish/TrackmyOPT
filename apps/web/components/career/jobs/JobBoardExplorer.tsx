@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Bookmark, ChevronDown, FileText, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
 import { EmployerEvidencePanel } from '@/components/career/jobs/EmployerEvidencePanel';
 import { AtsSourceLogo, JobCompanyLogo } from '@/components/career/jobs/JobBrandLogo';
@@ -53,6 +53,7 @@ type ExplorerJob = FilterableJob & {
     review_status: string;
   } | null;
   visa_signals: VisaSignal[];
+  resume_match?: ResumeJobMatch | null;
 };
 
 const EMPTY_SAVED_RESUMES: SavedResumeOption[] = [];
@@ -127,6 +128,30 @@ function JobListItem({
   onSaved: () => void;
   resumeMatch: ResumeJobMatch | null;
 }) {
+  const [description, setDescription] = useState(job.description);
+  const [descriptionLoading, setDescriptionLoading] = useState(false);
+
+  useEffect(() => {
+    if (!expanded || description !== null || descriptionLoading) return;
+    let cancelled = false;
+    // This state mirrors an external fetch and is intentionally toggled at request start.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDescriptionLoading(true);
+    fetch(`/api/job-board/jobs/${encodeURIComponent(job.id)}/description`, { cache: 'no-store' })
+      .then(async (response) => {
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error || 'Unable to load job description');
+        if (!cancelled) setDescription(typeof body.description === 'string' ? body.description : '');
+      })
+      .catch(() => {
+        if (!cancelled) setDescription('Unable to load the job description right now.');
+      })
+      .finally(() => {
+        if (!cancelled) setDescriptionLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [description, descriptionLoading, expanded, job.id]);
+
   const companyName = job.company_name || job.employer_board_name || 'Employer';
   const requirements = requirementLabel(facts);
   const employerHistory = hasSourceBackedEmployerHistory(job);
@@ -170,7 +195,7 @@ function JobListItem({
             <div>
               <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950 dark:text-white"><FileText className="size-4 text-blue-700 dark:text-blue-300" aria-hidden="true" /> Job description</h3>
               <div className="mt-2 max-h-[34rem] overflow-y-auto rounded-lg border border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950 sm:px-5">
-                <JobDescriptionContent description={job.description} />
+                {descriptionLoading ? <p className="text-sm text-slate-500">Loading description…</p> : <JobDescriptionContent description={description} />}
               </div>
             </div>
             <aside className="space-y-2.5 border-t border-slate-200 pt-4 dark:border-slate-800 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
@@ -204,39 +229,93 @@ function JobListItem({
 
 export function JobBoardExplorer({
   jobs,
+  totalJobs = jobs.length,
+  serverMode = false,
   runway,
   asOf,
   savedResumes = EMPTY_SAVED_RESUMES,
   initialResumeMatch = null,
 }: {
   jobs: ExplorerJob[];
+  totalJobs?: number;
+  serverMode?: boolean;
   runway: RunwayContext | null;
   asOf: string;
   savedResumes?: SavedResumeOption[];
   initialResumeMatch?: ActiveResumeMatch | null;
 }) {
-  const locations = useMemo(() => [...new Set(jobs.map((job) => job.location).filter((value): value is string => Boolean(value)))].sort(), [jobs]);
+  const [displayJobs, setDisplayJobs] = useState(jobs);
+  const [totalCount, setTotalCount] = useState(totalJobs);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const locations = useMemo(() => [...new Set(displayJobs.map((job) => job.location).filter((value): value is string => Boolean(value)))].sort(), [displayJobs]);
   const initialFilters = useMemo(
     () => initialResumeMatch ? deriveResumeJobFilters(initialResumeMatch.profile, locations) : EMPTY_JOB_FILTERS,
     [initialResumeMatch, locations],
   );
   const [draft, setDraft] = useState<JobFilters>(initialFilters);
   const [filters, setFilters] = useState<JobFilters>(initialFilters);
-  const [savedJobIds, setSavedJobIds] = useState(() => initialSavedJobIds(jobs));
+  const [savedJobIds, setSavedJobIds] = useState(() => initialSavedJobIds(displayJobs));
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
   const [activeResumeMatch, setActiveResumeMatch] = useState<ActiveResumeMatch | null>(initialResumeMatch);
   const asOfDate = useMemo(() => new Date(asOf), [asOf]);
 
-  const factsByJob = useMemo(() => new Map(jobs.map((job) => [job.id, inferJobFacts(job)])), [jobs]);
-  const companies = useMemo(() => [...new Set(jobs.map((job) => job.company_name || job.employer_board_name).filter((value): value is string => Boolean(value)))].sort(), [jobs]);
-  const resumeMatches = useMemo(() => new Map(jobs.map((job) => [
+  const factsByJob = useMemo(() => new Map(displayJobs.map((job) => [job.id, inferJobFacts(job)])), [displayJobs]);
+  const companies = useMemo(() => [...new Set(displayJobs.map((job) => job.company_name || job.employer_board_name).filter((value): value is string => Boolean(value)))].sort(), [displayJobs]);
+  const resumeMatches = useMemo(() => new Map(displayJobs.map((job) => [
     job.id,
-    activeResumeMatch ? scoreJobForResume(activeResumeMatch.profile, job, factsByJob.get(job.id)!) : null,
-  ])), [activeResumeMatch, factsByJob, jobs]);
-  const visibleJobs = useMemo(() => jobs
-    .filter((job) => matchesJobFilters(job, factsByJob.get(job.id)!, filters, savedJobIds.has(job.id), asOfDate))
-    .sort((left, right) => activeResumeMatch ? (resumeMatches.get(right.id)?.score || 0) - (resumeMatches.get(left.id)?.score || 0) : 0),
-  [activeResumeMatch, asOfDate, factsByJob, filters, jobs, resumeMatches, savedJobIds]);
+    activeResumeMatch ? job.resume_match || scoreJobForResume(activeResumeMatch.profile, job, factsByJob.get(job.id)!) : null,
+  ])), [activeResumeMatch, displayJobs, factsByJob]);
+  const visibleJobs = useMemo(() => serverMode
+    ? [...displayJobs].sort((left, right) => activeResumeMatch ? (resumeMatches.get(right.id)?.score || 0) - (resumeMatches.get(left.id)?.score || 0) : 0)
+    : displayJobs
+      .filter((job) => matchesJobFilters(job, factsByJob.get(job.id)!, filters, savedJobIds.has(job.id), asOfDate))
+      .sort((left, right) => activeResumeMatch ? (resumeMatches.get(right.id)?.score || 0) - (resumeMatches.get(left.id)?.score || 0) : 0),
+  [activeResumeMatch, asOfDate, displayJobs, factsByJob, filters, resumeMatches, savedJobIds, serverMode]);
+
+  const loadServerPage = async (page: number, nextFilters: JobFilters, resumeIdOverride?: string) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      searchScope: nextFilters.searchScope,
+      query: nextFilters.query,
+      exclude: nextFilters.exclude,
+      date: nextFilters.date,
+      location: nextFilters.location,
+      workplace: nextFilters.workplace,
+      company: nextFilters.company,
+      degree: nextFilters.degree,
+      experience: nextFilters.experience,
+      evidence: nextFilters.evidence,
+      role: nextFilters.role,
+      jobType: nextFilters.jobType,
+      employmentType: nextFilters.employmentType,
+      tracker: nextFilters.tracker,
+    });
+    if (resumeIdOverride || activeResumeMatch?.resumeId) params.set('resumeId', resumeIdOverride || activeResumeMatch!.resumeId);
+    try {
+      const response = await fetch(`/api/job-board/jobs?${params.toString()}`, { cache: 'no-store' });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || 'Unable to load verified jobs');
+    setDisplayJobs((body.jobs || []).map((job: ExplorerJob) => ({ ...job, description: null })));
+      setTotalCount(Number(body.total || 0));
+      setCurrentPage(Number(body.page || page));
+      setSavedJobIds(initialSavedJobIds(body.jobs || []));
+      setServerError(null);
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : 'Unable to load verified jobs');
+    }
+  };
+
+  useEffect(() => {
+    if (!serverMode || !initialResumeMatch) return;
+    const resumeFilters = deriveResumeJobFilters(initialResumeMatch.profile, locations);
+    // The initial profile is stable for the lifetime of this explorer.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraft(resumeFilters);
+    setFilters(resumeFilters);
+    void loadServerPage(1, resumeFilters, initialResumeMatch.resumeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverMode, initialResumeMatch]);
 
   const updateDraft = <K extends keyof JobFilters>(key: K, value: JobFilters[K]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -245,6 +324,7 @@ export function JobBoardExplorer({
   const clearFilters = () => {
     setDraft(EMPTY_JOB_FILTERS);
     setFilters(EMPTY_JOB_FILTERS);
+    if (serverMode) void loadServerPage(1, EMPTY_JOB_FILTERS);
   };
 
   const applyResumeMatch = (match: ActiveResumeMatch) => {
@@ -252,6 +332,7 @@ export function JobBoardExplorer({
     setActiveResumeMatch(match);
     setDraft(resumeFilters);
     setFilters(resumeFilters);
+    if (serverMode) void loadServerPage(1, resumeFilters, match.resumeId);
   };
 
   const clearResumeMatch = () => {
@@ -267,6 +348,7 @@ export function JobBoardExplorer({
         onSubmit={(event) => {
           event.preventDefault();
           setFilters(draft);
+          if (serverMode) void loadServerPage(1, draft);
           event.currentTarget.querySelector<HTMLDetailsElement>('[data-advanced-filters]')?.removeAttribute('open');
         }}
       >
@@ -352,7 +434,7 @@ export function JobBoardExplorer({
       </form>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-slate-600 dark:text-slate-300" aria-live="polite">{visibleJobs.length} {visibleJobs.length === 1 ? 'job' : 'jobs'}{activeResumeMatch ? ' ranked for your resume' : ''}</p>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300" aria-live="polite">{serverMode ? `${totalCount} ${totalCount === 1 ? 'job' : 'jobs'}` : `${visibleJobs.length} ${visibleJobs.length === 1 ? 'job' : 'jobs'}`}{activeResumeMatch ? ' ranked for your resume on this page' : ''}</p>
         <span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300"><Bookmark className="size-3.5" aria-hidden="true" /> Saved {savedJobIds.size}</span>
       </div>
 
@@ -384,6 +466,14 @@ export function JobBoardExplorer({
           })}
         </div>
       )}
+      {serverMode && totalCount > 0 && (
+        <nav className="flex items-center justify-between gap-3 pt-2" aria-label="Job pages">
+          <button type="button" disabled={currentPage <= 1} onClick={() => void loadServerPage(currentPage - 1, filters)} className="min-h-10 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-200">Previous</button>
+          <span className="text-xs text-slate-500">Page {currentPage} of {Math.max(1, Math.ceil(totalCount / 50))}</span>
+          <button type="button" disabled={currentPage >= Math.ceil(totalCount / 50)} onClick={() => void loadServerPage(currentPage + 1, filters)} className="min-h-10 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-200">Next</button>
+        </nav>
+      )}
+      {serverMode && serverError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{serverError}</p>}
     </section>
   );
 }
