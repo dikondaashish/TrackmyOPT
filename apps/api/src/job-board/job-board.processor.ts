@@ -22,13 +22,19 @@ export class JobBoardProcessor {
   @Process('ingest-enabled-sources')
   async ingestEnabledSources(job: Bull.Job<SchedulerContext>) {
     const result = await this.jobBoard.enqueueEnabledSourceJobs(job.data);
+    if (result.deferred) {
+      await this.jobBoard.markSchedulerRunDeferred(
+        job.data.schedulerRunId,
+        'overlap guard: prior hourly source run is still active',
+      );
+    }
     this.logger.log(
       `Queued ${result.sourcesQueued} independently retryable ATS source jobs (${result.slowSourcesQueued} slow-lane)`,
     );
     return result;
   }
 
-  @Process({ name: 'ingest-source', concurrency: 2 })
+  @Process({ name: 'ingest-source', concurrency: 3 })
   async ingestSource(job: Bull.Job<{ sourceId: string } & SchedulerContext>) {
     return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
   }

@@ -665,6 +665,17 @@ export class JobBoardService implements OnModuleDestroy {
     if (error) throw new Error(error.message);
   }
 
+  async markSchedulerRunDeferred(schedulerRunId: string, reason: string) {
+    const { error } = await this.supabase
+      .from('scheduler_runs')
+      .update({
+        dispatch_status: 'deferred',
+        error_message: reason.slice(0, 500),
+      })
+      .eq('scheduler_run_id', schedulerRunId);
+    if (error) throw new Error(error.message);
+  }
+
   private async markSchedulerRunFailed(
     schedulerRunId: string,
     errorMessage: string,

@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { detectPostingVisaSignals } from './job-visa-signal';
+import { fetchAllPages } from './paginate';
 
 const DOL_H1B_DATA_URL =
   'https://www.dol.gov/agencies/eta/foreign-labor/performance';
+const SIGNAL_BATCH_SIZE = 250;
 
 type QueryError = { message: string };
 type JobVisaRow = {
@@ -37,24 +39,28 @@ export class JobVisaSignalService {
   }
 
   async syncSource(sourceId: string) {
-    const { data: jobs, error: jobsError } = (await this.supabase
-      .from('jobs')
-      .select('id, description, job_url, employer_match_id')
-      .eq('source_id', sourceId)) as unknown as {
-      data: JobVisaRow[] | null;
-      error: QueryError | null;
-    };
-    if (jobsError) throw new Error(jobsError.message);
+    const jobs = await fetchAllPages<JobVisaRow>(async (from, to) => {
+      const result = await this.supabase
+        .from('jobs')
+        .select('id, description, job_url, employer_match_id')
+        .eq('source_id', sourceId)
+        .range(from, to);
+      return {
+        data: (result.data || []) as JobVisaRow[],
+        error: result.error ? { message: result.error.message } : null,
+      };
+    });
 
     const jobIds = (jobs || []).map((job) => String(job.id));
     if (!jobIds.length) return;
-    const { error: removePostingSignalsError } = await this.supabase
-      .from('job_visa_signals')
-      .delete()
-      .in('job_id', jobIds)
-      .eq('source', 'employer_posting');
-    if (removePostingSignalsError)
-      throw new Error(removePostingSignalsError.message);
+    for (let offset = 0; offset < jobIds.length; offset += SIGNAL_BATCH_SIZE) {
+      const { error } = await this.supabase
+        .from('job_visa_signals')
+        .delete()
+        .in('job_id', jobIds.slice(offset, offset + SIGNAL_BATCH_SIZE))
+        .eq('source', 'employer_posting');
+      if (error) throw new Error(error.message);
+    }
 
     const observedDate = new Date().toISOString().slice(0, 10);
     const postingSignals = (jobs || []).flatMap((job) => {
@@ -69,10 +75,14 @@ export class JobVisaSignalService {
         source: 'employer_posting',
       }));
     });
-    if (postingSignals.length) {
+    for (
+      let offset = 0;
+      offset < postingSignals.length;
+      offset += SIGNAL_BATCH_SIZE
+    ) {
       const { error } = await this.supabase
         .from('job_visa_signals')
-        .insert(postingSignals);
+        .insert(postingSignals.slice(offset, offset + SIGNAL_BATCH_SIZE));
       if (error) throw new Error(error.message);
     }
 
@@ -138,10 +148,14 @@ export class JobVisaSignalService {
         },
       ];
     });
-    if (historicalSignals.length) {
+    for (
+      let offset = 0;
+      offset < historicalSignals.length;
+      offset += SIGNAL_BATCH_SIZE
+    ) {
       const { error } = await this.supabase
         .from('job_visa_signals')
-        .upsert(historicalSignals, {
+        .upsert(historicalSignals.slice(offset, offset + SIGNAL_BATCH_SIZE), {
           onConflict: 'job_id,signal_type,source,source_url',
         });
       if (error) throw new Error(error.message);
