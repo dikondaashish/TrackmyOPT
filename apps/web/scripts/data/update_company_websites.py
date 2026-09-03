@@ -8,12 +8,15 @@ load_dotenv('web/.env.local')
 
 url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
 key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+filings_url = os.environ.get("SUPABASE_FILINGS_URL")
+filings_key = os.environ.get("SUPABASE_FILINGS_SERVICE_ROLE_KEY")
 
-if not url or not key:
+if not url or not key or not filings_url or not filings_key:
     print("Error: Missing credentials")
     exit(1)
 
 supabase: Client = create_client(url, key)
+filings_supabase: Client = create_client(filings_url, filings_key)
 
 BLACKLIST_DOMAINS = {
     'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com',
@@ -74,7 +77,7 @@ def main():
             try:
                 # Fetch ONE filing for this sponsor to get the email
                 # We assume filings are linked by sponsor_id
-                filing = supabase.table("h1b_filings")\
+                filing = filings_supabase.table("h1b_filings")\
                     .select("employer_poc_email")\
                     .eq("sponsor_id", sponsor_id)\
                     .not_.is_("employer_poc_email", "null")\

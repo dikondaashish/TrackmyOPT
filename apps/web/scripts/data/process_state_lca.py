@@ -17,8 +17,10 @@ load_dotenv("web/.env.local")
 DATA_DIR = require_h1b_raw_data_dir() / "State_H1B_Jobs"
 SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+FILINGS_URL = os.getenv("SUPABASE_FILINGS_URL")
+FILINGS_KEY = os.getenv("SUPABASE_FILINGS_SERVICE_ROLE_KEY")
 
-if not SUPABASE_URL or not SUPABASE_KEY:
+if not SUPABASE_URL or not SUPABASE_KEY or not FILINGS_URL or not FILINGS_KEY:
     raise ValueError("Missing Supabase credentials in .env.local")
 
 BATCH_SIZE = 1000  # Upload in batches
@@ -115,11 +117,18 @@ def process_file(filepath):
 
 def upload_batch(table, data):
     if not data: return
-    
+    target_url = FILINGS_URL if table == "h1b_filings" else SUPABASE_URL
+    target_key = FILINGS_KEY if table == "h1b_filings" else SUPABASE_KEY
+    target_headers = {
+        "apikey": target_key,
+        "Authorization": f"Bearer {target_key}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
     req = urllib.request.Request(
-        f"{API_URL}/{table}",
+        f"{target_url}/rest/v1/{table}",
         data=json.dumps(data).encode('utf-8'),
-        headers=HEADERS,
+        headers=target_headers,
         method='POST'
     )
     try:

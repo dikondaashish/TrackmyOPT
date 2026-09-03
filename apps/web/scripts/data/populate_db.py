@@ -17,12 +17,15 @@ load_dotenv(env_path)
 # Use service role key to bypass RLS for inserts
 url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
 key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+filings_url = os.environ.get("SUPABASE_FILINGS_URL")
+filings_key = os.environ.get("SUPABASE_FILINGS_SERVICE_ROLE_KEY")
 
-if not url or not key:
+if not url or not key or not filings_url or not filings_key:
     print("Error: Missing credentials (need SUPABASE_SERVICE_ROLE_KEY)")
     exit(1)
 
 supabase: Client = create_client(url, key)
+filings_supabase: Client = create_client(filings_url, filings_key)
 
 
 CSV_PATH = str(require_h1b_raw_data_dir() / "Data" / "LCA_Disclosure_Data_FY2025_Q4.csv")
@@ -185,7 +188,7 @@ def process_file(csv_file_path):
     
     # Check current count
     try:
-        count_response = supabase.table("h1b_filings").select("count", count="exact").execute()
+        count_response = filings_supabase.table("h1b_filings").select("count", count="exact").execute()
         print(f"Current rows in h1b_filings: {count_response.count}")
     except Exception as e:
         print(f"Error checking count: {e}")
@@ -230,7 +233,7 @@ def process_file(csv_file_path):
             
             if len(rows_to_insert) >= BATCH_SIZE:
                 try:
-                    result = supabase.table("h1b_filings").insert(rows_to_insert).execute()
+                    result = filings_supabase.table("h1b_filings").insert(rows_to_insert).execute()
                     print(f"Inserted batch ending at row {i}")
                     rows_to_insert = []
                 except Exception as e:
@@ -239,7 +242,7 @@ def process_file(csv_file_path):
 
     if rows_to_insert:
          try:
-            result = supabase.table("h1b_filings").insert(rows_to_insert).execute()
+            result = filings_supabase.table("h1b_filings").insert(rows_to_insert).execute()
             print(f"Inserted final batch.")
          except Exception as e:
             print(f"Error inserting final batch: {e}")

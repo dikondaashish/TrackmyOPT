@@ -8,20 +8,30 @@ import dotenv from 'dotenv';
 const envPath = path.resolve(__dirname, '../.env.local');
 dotenv.config({ path: envPath });
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error("Missing Supabase credentials in .env.local");
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.SUPABASE_FILINGS_URL || !process.env.SUPABASE_FILINGS_SERVICE_ROLE_KEY) {
+    console.error("Missing primary or filings Supabase credentials in .env.local");
     process.exit(1);
 }
 
+const primaryUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const primaryKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const filingsUrl = process.env.SUPABASE_FILINGS_URL;
+const filingsKey = process.env.SUPABASE_FILINGS_SERVICE_ROLE_KEY;
+
 const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    primaryUrl,
+    primaryKey,
     {
         auth: {
             autoRefreshToken: false,
             persistSession: false
         }
     }
+);
+const filingsSupabase = createClient(
+    filingsUrl,
+    filingsKey,
+    { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
 // Load Suspicious Addresses
@@ -88,9 +98,12 @@ async function main() {
 
         const sponsorIds = sponsors.map(s => s.id);
 
-        // 2. Fetch Aggregated Data for these IDs via RPC Function (Optimized)
-        const { data: intelData, error: intelError } = await supabase
-            .rpc('get_sponsor_intelligence', { target_ids: sponsorIds });
+        // 2. Fetch filing aggregates from the server-only filings project.
+        // The secondary project intentionally has no cross-project FK to sponsors.
+        const { data: intelData, error: intelError } = await filingsSupabase
+            .from('filing_intelligence_agg')
+            .select('sponsor_id, employer_address1, employer_city, employer_state, top_law_firm, entry_level_percent')
+            .in('sponsor_id', sponsorIds);
 
         if (intelError) {
             console.error("Error fetching intelligence RPC:", intelError);

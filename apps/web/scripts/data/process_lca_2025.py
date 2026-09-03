@@ -18,9 +18,11 @@ load_dotenv(".env.local")
 INPUT_FILE = require_h1b_raw_data_dir() / "Data" / "LCA_Disclosure_Data_FY2025_Q4.csv"
 SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL", "https://deknauqkqqzwuvopqott.supabase.co")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+FILINGS_URL = os.getenv("SUPABASE_FILINGS_URL")
+FILINGS_KEY = os.getenv("SUPABASE_FILINGS_SERVICE_ROLE_KEY")
 
-if not SUPABASE_KEY:
-    raise ValueError("SUPABASE_SERVICE_ROLE_KEY not found in environment variables.")
+if not SUPABASE_KEY or not FILINGS_KEY:
+    raise ValueError("Primary and filings Supabase service keys are required.")
 
 FILINGS_TABLE = "h1b_filings"
 SPONSORS_TABLE = "h1b_sponsors"
@@ -61,10 +63,12 @@ def format_date(text):
         return None
 
 def upload_batch(table, batch):
-    url = f"{SUPABASE_URL}/rest/v1/{table}"
+    base_url = FILINGS_URL if table == FILINGS_TABLE else SUPABASE_URL
+    api_key = FILINGS_KEY if table == FILINGS_TABLE else SUPABASE_KEY
+    url = f"{base_url}/rest/v1/{table}"
     headers = {
-        "apikey": SUPABASE_KEY,
-        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "apikey": api_key,
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
         "Prefer": "resolution=ignore-duplicates" 
     }
@@ -214,4 +218,3 @@ def process_data():
 
 if __name__ == "__main__":
     process_data()
-

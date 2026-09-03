@@ -10,11 +10,14 @@ load_dotenv('web/.env.local')
 
 url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
 key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+filings_url = os.environ.get("SUPABASE_FILINGS_URL")
+filings_key = os.environ.get("SUPABASE_FILINGS_SERVICE_ROLE_KEY")
 
-if not url or not key:
+if not url or not key or not filings_url or not filings_key:
     raise ValueError("Supabase credentials not found in .env.local")
 
 supabase: Client = create_client(url, key)
+filings_supabase: Client = create_client(filings_url, filings_key)
 
 BATCH_SIZE = 50
 
@@ -33,7 +36,7 @@ def get_top_location(sponsor_id):
     """
     # Query filings linked to this sponsor
     # We only care about filings that actually have a city
-    response = supabase.table('h1b_filings')\
+    response = filings_supabase.table('h1b_filings')\
         .select('employer_city, employer_state')\
         .eq('sponsor_id', sponsor_id)\
         .not_.is_('employer_city', 'null')\
