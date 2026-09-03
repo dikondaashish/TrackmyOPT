@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Building2, BookOpen, Phone, Bell,
   ChevronRight, ExternalLink, CheckCircle2, XCircle, Crown
@@ -117,17 +118,13 @@ function EVerifyPanel() {
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        STEM OPT employers must participate in E-Verify. Use the official employer search and confirm the legal entity and E-Verify company ID with HR.
+        STEM OPT employers must participate in E-Verify. Search the official USCIS employer database in TrackMyOPT and confirm the legal entity and E-Verify company ID with HR.
       </p>
       <Button asChild size="sm" variant="outline" className="min-h-11 gap-2">
-        <a
-          href="https://www.e-verify.gov/employers/enrolling-in-e-verify"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Open official E-Verify search
-          <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-        </a>
+        <Link href="/e-verify-employer-search">
+          Open E-Verify employer search
+          <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+        </Link>
       </Button>
       <p className="text-[10px] text-muted-foreground">
         The public search may omit locations or use a company&apos;s legal name. Absence from search results does not prove non-enrollment.
