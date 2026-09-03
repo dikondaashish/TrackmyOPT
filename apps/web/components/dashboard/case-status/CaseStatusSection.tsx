@@ -1231,6 +1231,8 @@ export function CaseStatusSection() {
               }))}
               selectedId={selectedCaseId ?? caseStatus.id}
               onSelect={selectCase}
+              onDeleteCase={requestDeleteCase}
+              deletingCaseId={isRemoving}
               onAddCase={handleStartAddCase}
               canAddMore={canAddMoreCases}
             />
@@ -1377,6 +1379,8 @@ export function CaseStatusSection() {
                   setReceiptNumber(caseStatus.receipt_number);
                   setFilingCategory(normalizeFilingCategory(caseStatus.filing_category));
                 }}
+                onDelete={handleRemove}
+                isDeleting={isRemoving === caseStatus.id}
                 refreshError={error}
               />
             </CaseStatusPanelErrorBoundary>

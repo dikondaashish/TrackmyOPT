@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw, Copy, Settings2, CheckCircle2, Loader2 } from "lucide-react";
+import { RefreshCw, Copy, Settings2, CheckCircle2, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
@@ -64,6 +64,8 @@ interface CaseHeroCardProps {
   isRefreshing?: boolean;
   onRefresh?: () => void;
   onManageCase?: () => void;
+  onDelete?: () => void;
+  isDeleting?: boolean;
   refreshError?: string | null;
 }
 
@@ -76,6 +78,8 @@ export function CaseHeroCard({
   isRefreshing = false,
   onRefresh,
   onManageCase,
+  onDelete,
+  isDeleting = false,
   refreshError,
 }: CaseHeroCardProps) {
   const [copied, setCopied] = useState(false);
@@ -198,6 +202,21 @@ export function CaseHeroCard({
           <Settings2 className="w-3.5 h-3.5" />
           Manage case
         </Button>
+
+        {onDelete && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onDelete}
+            disabled={isDeleting}
+            className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-900 dark:hover:bg-red-950/40"
+          >
+            {isDeleting
+              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              : <Trash2 className="w-3.5 h-3.5" />}
+            {isDeleting ? "Removing…" : "Delete"}
+          </Button>
+        )}
       </div>
 
       {refreshError && (

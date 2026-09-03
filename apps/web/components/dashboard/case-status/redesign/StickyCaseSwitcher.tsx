@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Star } from "lucide-react";
+import { Plus, Star, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getFilingCategoryShortLabel } from "@/lib/case-status/filing-category";
 
@@ -19,8 +19,10 @@ interface StickyCaseSwitcherProps {
   cases: CaseTab[];
   selectedId: string;
   onSelect: (id: string) => void;
+  onDeleteCase?: (id: string) => void;
   onAddCase?: () => void;
   canAddMore?: boolean;
+  deletingCaseId?: string | null;
 }
 
 const STATE_CONFIG: Record<CaseState, { dot: string; bg: string; activeBg: string; border: string; label: string }> = {
@@ -44,7 +46,15 @@ export function deriveCaseState(currentStatus: string | null | undefined): CaseS
   return "pending";
 }
 
-export function StickyCaseSwitcher({ cases, selectedId, onSelect, onAddCase, canAddMore = true }: StickyCaseSwitcherProps) {
+export function StickyCaseSwitcher({
+  cases,
+  selectedId,
+  onSelect,
+  onDeleteCase,
+  onAddCase,
+  canAddMore = true,
+  deletingCaseId = null,
+}: StickyCaseSwitcherProps) {
   const sorted = [...cases].sort(
     (a, b) => STATE_ORDER.indexOf(a.caseState) - STATE_ORDER.indexOf(b.caseState)
   );
@@ -59,23 +69,47 @@ export function StickyCaseSwitcher({ cases, selectedId, onSelect, onAddCase, can
           const typeLabel = getFilingCategoryShortLabel(c.filingCategory);
 
           return (
-            <button
+            <div
               key={c.id}
-              onClick={() => onSelect(c.id)}
-              aria-pressed={isActive}
               className={cn(
-                "flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 cursor-pointer min-h-[36px]",
+                "group flex-shrink-0 flex items-center rounded-full border transition-all duration-150 min-h-[36px]",
                 isActive
                   ? cn(cfg.activeBg, cfg.border, "shadow-sm ring-1 ring-inset ring-current/10")
                   : cn(cfg.bg, "border-transparent hover:border-current/20")
               )}
             >
-              <span className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot, isActive && "animate-pulse")} />
-              <span className="font-mono text-xs font-semibold tracking-wide">
-                {typeLabel} · {short}
-              </span>
-              {c.isPrimary && <Star className="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" />}
-            </button>
+              <button
+                type="button"
+                onClick={() => onSelect(c.id)}
+                aria-pressed={isActive}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium cursor-pointer min-h-[36px] rounded-l-full"
+              >
+                <span className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot, isActive && "animate-pulse")} />
+                <span className="font-mono text-xs font-semibold tracking-wide whitespace-nowrap">
+                  {typeLabel} · {short}
+                </span>
+                {c.isPrimary && <Star className="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" />}
+              </button>
+              {onDeleteCase && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteCase(c.id);
+                  }}
+                  disabled={deletingCaseId === c.id}
+                  aria-label={`Stop tracking ${c.receiptNumber}`}
+                  className={cn(
+                    "flex items-center justify-center w-7 h-7 mr-1 rounded-full shrink-0",
+                    "opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity",
+                    "text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40",
+                    "disabled:opacity-40 disabled:cursor-not-allowed"
+                  )}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           );
         })}
 

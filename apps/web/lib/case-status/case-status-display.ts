@@ -13,21 +13,29 @@ export function formatDaysAgoLabel(dateString: string | null | undefined): strin
   return `${days} days ago`;
 }
 
-export function getServiceCenterLabel(receiptNumber: string | null | undefined): string {
+const SERVICE_CENTER_BY_PREFIX: Record<string, { name: string; location: string }> = {
+  IOE: { name: "National Benefits Center", location: "Lee's Summit, MO" },
+  EAC: { name: "Vermont Service Center", location: "St. Albans, VT" },
+  WAC: { name: "California Service Center", location: "Laguna Niguel, CA" },
+  LIN: { name: "Nebraska Service Center", location: "Lincoln, NE" },
+  SRC: { name: "Texas Service Center", location: "Irving, TX" },
+  MSC: { name: "National Benefits Center", location: "Lee's Summit, MO" },
+  NBC: { name: "National Benefits Center", location: "Lee's Summit, MO" },
+  YSC: { name: "Potomac Service Center", location: "Arlington, VA" },
+};
+
+function getServiceCenterFromReceipt(receiptNumber: string | null | undefined) {
   const normalized = (receiptNumber ?? "").trim().toUpperCase();
-  if (normalized.length < 3) return "USCIS Service Center";
-  const prefix = normalized.substring(0, 3);
-  const centerMap: Record<string, string> = {
-    IOE: "National Benefits Center",
-    EAC: "Vermont Service Center",
-    WAC: "California Service Center",
-    LIN: "Nebraska Service Center",
-    SRC: "Texas Service Center",
-    MSC: "National Benefits Center",
-    NBC: "National Benefits Center",
-    YSC: "Potomac Service Center",
-  };
-  return centerMap[prefix] ?? "USCIS Service Center";
+  if (normalized.length < 3) return null;
+  return SERVICE_CENTER_BY_PREFIX[normalized.substring(0, 3)] ?? null;
+}
+
+export function getServiceCenterLabel(receiptNumber: string | null | undefined): string {
+  return getServiceCenterFromReceipt(receiptNumber)?.name ?? "USCIS Service Center";
+}
+
+export function getServiceCenterLocation(receiptNumber: string | null | undefined): string | null {
+  return getServiceCenterFromReceipt(receiptNumber)?.location ?? null;
 }
 
 export function formatStatusLabel(
