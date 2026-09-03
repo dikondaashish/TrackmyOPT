@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
             contents: prompt,
             userId,
         });
-        let fixedLatex = stripModelLatexOutput(response.text || '');
+        const fixedLatex = stripModelLatexOutput(response.text || '');
         if (!isUsableResumeLatex(fixedLatex)) {
             return NextResponse.json(
                 { error: 'Model returned unusable LaTeX' },
