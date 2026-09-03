@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
 import Link from "next/link";
-import { type FilingCategory } from "@/lib/case-status/filing-category";
+import { type FilingCategory, normalizeFilingCategory } from "@/lib/case-status/filing-category";
 import { FilingCategorySelect } from "@/components/dashboard/case-status/FilingCategorySelect";
 
 type CaseStatusReceiptPanelProps = {
@@ -76,6 +76,14 @@ export function CaseStatusReceiptPanel({
   }
 
   const isOnboarding = mode === "onboarding";
+  const isStemExtension =
+    normalizeFilingCategory(filingCategory) === "stem_extension";
+  const filingWindowHref = isStemExtension
+    ? "/dashboard/opt-tools/stem-apply"
+    : "/dashboard/opt-tools/opt-apply";
+  const filingWindowLabel = isStemExtension
+    ? "Check your STEM OPT filing window"
+    : "Check your OPT filing window";
 
   return (
     <Card className="px-[24px] py-[22px] bg-white dark:bg-zinc-950 border border-black/5 dark:border-white/5 rounded-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
@@ -117,10 +125,10 @@ export function CaseStatusReceiptPanel({
                 <li>
                   Haven&apos;t filed yet?{" "}
                   <Link
-                    href="/dashboard/opt-tools/opt-apply"
+                    href={filingWindowHref}
                     className="text-[#0A84FF] font-semibold hover:underline"
                   >
-                    Check your OPT filing window
+                    {filingWindowLabel}
                   </Link>
                 </li>
               </ul>

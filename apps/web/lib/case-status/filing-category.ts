@@ -111,6 +111,21 @@ export function getCommunityCaseKindLabel(
   return COMMUNITY_CASE_KIND_LABEL.initial_opt;
 }
 
+/** Subtitle suffix for analytics charts (case kind + PP segment). */
+export function communityChartSegmentSuffix(input: {
+  caseKind?: CommunityCaseKind | string | null;
+  premiumProcessing?: boolean;
+}): string {
+  const parts: string[] = [];
+  if (input.caseKind) parts.push(getCommunityCaseKindLabel(input.caseKind));
+  if (input.premiumProcessing !== undefined) {
+    parts.push(
+      input.premiumProcessing ? "premium processing" : "standard processing"
+    );
+  }
+  return parts.length ? ` · ${parts.join(" · ")}` : "";
+}
+
 /** Live stats widget key for community reports on the case status page. */
 export function communityStatsToolType(
   category: FilingCategory | string | null | undefined

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   communityStatsToolType,
+  communityChartSegmentSuffix,
   filingCategoryFromJourneyStatus,
   filingCategoryToCaseKind,
   getCommunityCaseKindLabel,
@@ -25,6 +26,13 @@ assert.equal(isOptFilingCategory("stem_extension"), true);
 assert.equal(communityStatsToolType("stem_extension"), "stem-apply");
 assert.equal(communityStatsToolType("initial_opt"), "opt-apply");
 assert.equal(getCommunityCaseKindLabel("stem_extension"), "STEM OPT extension");
+assert.equal(
+  communityChartSegmentSuffix({
+    caseKind: "stem_extension",
+    premiumProcessing: false,
+  }),
+  " · STEM OPT extension · standard processing"
+);
 assert.equal(isOptFilingCategory("h1b"), false);
 assert.equal(
   inferCaseKind({ caseType: "I-765", filingCategory: "stem_extension" }),

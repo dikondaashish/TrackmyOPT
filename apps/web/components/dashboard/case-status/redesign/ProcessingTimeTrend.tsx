@@ -11,6 +11,8 @@ import {
   YAxis,
 } from "recharts";
 import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
+import type { CommunityCaseKind } from "@/lib/community-opt/types";
+import { communityChartSegmentSuffix } from "@/lib/case-status/filing-category";
 import { CHART } from "@/lib/community-opt/chart-theme";
 
 interface ProcessingTimeTrendProps {
@@ -18,6 +20,7 @@ interface ProcessingTimeTrendProps {
   /** Highlights the bar for the week the user filed. */
   filedWeekStart?: string | null;
   premiumProcessing?: boolean;
+  caseKind?: CommunityCaseKind;
 }
 
 function TrendTooltip({
@@ -48,6 +51,7 @@ export function ProcessingTimeTrend({
   points,
   filedWeekStart,
   premiumProcessing,
+  caseKind = "initial_opt",
 }: ProcessingTimeTrendProps) {
   if (points.length < 2) {
     return (
@@ -74,11 +78,7 @@ export function ProcessingTimeTrend({
       </div>
       <p className="text-xs text-muted-foreground mb-4">
         Days from filing to approval, by week filed
-        {premiumProcessing !== undefined
-          ? premiumProcessing
-            ? " · premium processing cases"
-            : " · regular (non-PP) cases"
-          : ""}
+        {communityChartSegmentSuffix({ caseKind, premiumProcessing })}
       </p>
 
       <div className="h-56">

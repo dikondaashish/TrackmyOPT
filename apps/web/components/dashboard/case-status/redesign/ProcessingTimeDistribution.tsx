@@ -12,6 +12,8 @@ import {
   YAxis,
 } from "recharts";
 import type { HistogramBin, ProcessingHistogram } from "@/lib/community-opt/estimate";
+import type { CommunityCaseKind } from "@/lib/community-opt/types";
+import { communityChartSegmentSuffix } from "@/lib/case-status/filing-category";
 import { CHART } from "@/lib/community-opt/chart-theme";
 
 interface ProcessingTimeDistributionProps {
@@ -19,6 +21,7 @@ interface ProcessingTimeDistributionProps {
   /** Days since the user filed, used to mark where they currently sit. */
   daysSinceFiled?: number;
   premiumProcessing?: boolean;
+  caseKind?: CommunityCaseKind;
 }
 
 function DistributionTooltip({
@@ -50,6 +53,7 @@ export function ProcessingTimeDistribution({
   histogram,
   daysSinceFiled = 0,
   premiumProcessing,
+  caseKind = "initial_opt",
 }: ProcessingTimeDistributionProps) {
   if (!histogram) {
     return (
@@ -84,11 +88,7 @@ export function ProcessingTimeDistribution({
       </div>
       <p className="text-xs text-muted-foreground mb-4">
         How many cases were approved within each time range
-        {premiumProcessing !== undefined
-          ? premiumProcessing
-            ? " · premium processing cases"
-            : " · regular (non-PP) cases"
-          : ""}
+        {communityChartSegmentSuffix({ caseKind, premiumProcessing })}
       </p>
 
       <div className="h-56">

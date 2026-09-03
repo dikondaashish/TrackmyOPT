@@ -311,6 +311,7 @@ export function AnalyticsTabs({
                 peers={similarFiling}
                 receivedDate={receivedDate}
                 premiumProcessing={premiumProcessing}
+                caseKind={caseKind}
                 loading={estimateLoading}
               />
             ) : (
@@ -352,6 +353,7 @@ export function AnalyticsTabs({
               points={weeklyTrend}
               filedWeekStart={isoWeekStart(receivedDate)}
               premiumProcessing={premiumProcessing}
+              caseKind={caseKind}
             />
           ))}
 
@@ -375,6 +377,7 @@ export function AnalyticsTabs({
               histogram={histogram}
               daysSinceFiled={daysSinceFiled}
               premiumProcessing={premiumProcessing}
+              caseKind={caseKind}
             />
           ))}
 

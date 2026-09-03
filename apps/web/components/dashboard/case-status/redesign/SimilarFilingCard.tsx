@@ -2,12 +2,15 @@
 
 import { CalendarRange } from "lucide-react";
 import { formatDisplayDateShort } from "@/lib/case-status/safe-dates";
+import { communityChartSegmentSuffix } from "@/lib/case-status/filing-category";
+import type { CommunityCaseKind } from "@/lib/community-opt/types";
 import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
 
 interface SimilarFilingCardProps {
   peers: SimilarFilingPeers | null;
   receivedDate?: string | null;
   premiumProcessing?: boolean;
+  caseKind?: CommunityCaseKind;
   loading?: boolean;
 }
 
@@ -17,15 +20,11 @@ function formatDayOfYear(iso: string | null | undefined): string {
   return full === "—" ? full : full.replace(/,\s*\d{4}$/, "");
 }
 
-function segmentLabel(premiumProcessing?: boolean): string {
-  if (premiumProcessing === undefined) return "";
-  return premiumProcessing ? " · premium" : " · regular";
-}
-
 export function SimilarFilingCard({
   peers,
   receivedDate,
   premiumProcessing,
+  caseKind = "initial_opt",
   loading = false,
 }: SimilarFilingCardProps) {
   if (loading && !peers) {
@@ -101,7 +100,7 @@ export function SimilarFilingCard({
                   {formatDisplayDateShort(receivedDate)}
                 </>
               )}
-              {segmentLabel(premiumProcessing)}
+              {communityChartSegmentSuffix({ caseKind, premiumProcessing })}
             </p>
           </div>
         </div>
