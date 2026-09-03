@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import {
+  communityStatsToolType,
   filingCategoryFromJourneyStatus,
   filingCategoryToCaseKind,
+  getCommunityCaseKindLabel,
   getFilingCategoryFormMismatch,
   getFilingCategoryLabel,
   getFilingCategoryShortLabel,
@@ -20,6 +22,9 @@ assert.equal(normalizeFilingCategory("bogus"), "initial_opt");
 assert.equal(filingCategoryFromJourneyStatus("stem_opt"), "stem_extension");
 assert.equal(filingCategoryToCaseKind("h1b"), "initial_opt");
 assert.equal(isOptFilingCategory("stem_extension"), true);
+assert.equal(communityStatsToolType("stem_extension"), "stem-apply");
+assert.equal(communityStatsToolType("initial_opt"), "opt-apply");
+assert.equal(getCommunityCaseKindLabel("stem_extension"), "STEM OPT extension");
 assert.equal(isOptFilingCategory("h1b"), false);
 assert.equal(
   inferCaseKind({ caseType: "I-765", filingCategory: "stem_extension" }),

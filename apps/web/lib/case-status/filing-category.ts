@@ -99,6 +99,27 @@ export function normalizeFilingCategory(
   return DEFAULT_FILING_CATEGORY;
 }
 
+export const COMMUNITY_CASE_KIND_LABEL: Record<CommunityCaseKind, string> = {
+  initial_opt: "initial OPT",
+  stem_extension: "STEM OPT extension",
+};
+
+export function getCommunityCaseKindLabel(
+  kind: CommunityCaseKind | string | null | undefined
+): string {
+  if (kind === "stem_extension") return COMMUNITY_CASE_KIND_LABEL.stem_extension;
+  return COMMUNITY_CASE_KIND_LABEL.initial_opt;
+}
+
+/** Live stats widget key for community reports on the case status page. */
+export function communityStatsToolType(
+  category: FilingCategory | string | null | undefined
+): "opt-apply" | "stem-apply" {
+  return normalizeFilingCategory(category) === "stem_extension"
+    ? "stem-apply"
+    : "opt-apply";
+}
+
 export function isOptFilingCategory(
   category: FilingCategory | string | null | undefined
 ): boolean {

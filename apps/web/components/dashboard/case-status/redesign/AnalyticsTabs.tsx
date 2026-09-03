@@ -13,6 +13,8 @@ import { JourneyStagesCard } from "@/components/dashboard/case-status/redesign/J
 import { LockedAnalyticsPanel } from "@/components/dashboard/case-status/redesign/LockedAnalyticsPanel";
 import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
 import type { CommunityEstimate, CommunitySummary } from "@/lib/community-opt/types";
+import { filingCategoryToCaseKind } from "@/lib/case-status/filing-category";
+import type { FilingCategory } from "@/lib/case-status/filing-category";
 import type { JourneyPhase, JourneyStages } from "@/lib/community-opt/stages";
 import { sequentialCell } from "@/lib/community-opt/chart-theme";
 import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
@@ -43,6 +45,7 @@ interface AnalyticsTabsProps {
   estimateLoading?: boolean;
   /** False for non-OPT filing types — community estimates are OPT-only. */
   estimatesAvailable?: boolean;
+  filingCategory?: FilingCategory | string | null;
 }
 
 interface Tab {
@@ -186,7 +189,9 @@ export function AnalyticsTabs({
   premiumProcessing,
   estimateLoading = false,
   estimatesAvailable = true,
+  filingCategory = null,
 }: AnalyticsTabsProps) {
+  const caseKind = filingCategoryToCaseKind(filingCategory);
   const [active, setActive] = useState<TabId>("prediction");
 
   // Treat an unresolved plan as free: the server has already withheld the Pro
@@ -276,7 +281,11 @@ export function AnalyticsTabs({
                 Loading community timeline estimate…
               </p>
             ) : isPro ? (
-              <PredictionPanel daysSinceFiled={daysSinceFiled} prediction={prediction} />
+              <PredictionPanel
+                daysSinceFiled={daysSinceFiled}
+                prediction={prediction}
+                caseKind={prediction?.caseKind ?? caseKind}
+              />
             ) : (
               <CommunitySummaryCard
                 summary={summary}
@@ -291,6 +300,7 @@ export function AnalyticsTabs({
               stages={stages}
               phase={phase}
               premiumProcessing={premiumProcessing}
+              caseKind={caseKind}
               isPro={isPro}
               onUpgrade={upgrade}
               loading={estimateLoading}
@@ -315,7 +325,7 @@ export function AnalyticsTabs({
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                 Community Reports
               </p>
-              <CaseProcessingBenchmarks />
+              <CaseProcessingBenchmarks filingCategory={filingCategory} />
             </div>
               </>
             )}

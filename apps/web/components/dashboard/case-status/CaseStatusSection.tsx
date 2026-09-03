@@ -1143,6 +1143,8 @@ export function CaseStatusSection() {
   const serviceCenterLocation = getServiceCenterLocation(caseStatus?.receipt_number);
 
   const isOptCase = isOptFilingCategory(caseStatus?.filing_category);
+  const isStemExtension =
+    normalizeFilingCategory(caseStatus?.filing_category) === "stem_extension";
 
   const formTypeMismatch = getFilingCategoryFormMismatch(
     caseStatus?.filing_category,
@@ -1461,6 +1463,7 @@ export function CaseStatusSection() {
                 premiumProcessing={Boolean(caseStatus.pp_start_date)}
                 estimateLoading={communityEstimateLoading}
                 estimatesAvailable={isOptCase}
+                filingCategory={caseStatus.filing_category}
               />
             </CaseStatusPanelErrorBoundary>
           </Card>
@@ -1469,9 +1472,15 @@ export function CaseStatusSection() {
           {isOptCase && (
             <CaseStatusPanelErrorBoundary area="opt_journey">
               <OptJourneySection
-                optFiledDate={caseStatus.received_date ?? null}
+                filingCategory={caseStatus.filing_category}
+                optFiledDate={
+                  isStemExtension ? null : caseStatus.received_date ?? null
+                }
                 eadProjected={null}
                 stemWindowOpens={null}
+                stemFiled={
+                  isStemExtension ? caseStatus.received_date ?? null : null
+                }
               />
             </CaseStatusPanelErrorBoundary>
           )}

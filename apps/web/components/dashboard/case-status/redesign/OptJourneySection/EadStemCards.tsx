@@ -2,32 +2,47 @@
 
 import { CalendarDays, Shield } from "lucide-react";
 import { addMonthsIso, formatDisplayMonthYear } from "@/lib/case-status/safe-dates";
+import type { FilingCategory } from "@/lib/case-status/filing-category";
+import { normalizeFilingCategory } from "@/lib/case-status/filing-category";
 
 interface EadStemCardsProps {
+  filingCategory?: FilingCategory | string | null;
   eadProjected: string | null;
   stemWindowOpens: string | null;
   capGapActive: boolean | null;
 }
 
-export function EadStemCards({ eadProjected, stemWindowOpens, capGapActive }: EadStemCardsProps) {
-  const eadExpiry = addMonthsIso(eadProjected, 12);
+export function EadStemCards({
+  filingCategory = null,
+  eadProjected,
+  stemWindowOpens,
+  capGapActive,
+}: EadStemCardsProps) {
+  const isStemExtension = normalizeFilingCategory(filingCategory) === "stem_extension";
+  const eadExpiry = addMonthsIso(eadProjected, isStemExtension ? 24 : 12);
   const stemWindowFromEad = addMonthsIso(eadExpiry, -3);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-      {/* OPT EAD Card */}
+      {/* EAD card */}
       <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20 p-4">
         <div className="flex items-center gap-2 mb-3">
           <CalendarDays className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-400">OPT EAD</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+            {isStemExtension ? "STEM OPT EAD" : "OPT EAD"}
+          </p>
         </div>
         <p className="text-sm font-semibold text-foreground">
           {eadProjected
             ? `${formatDisplayMonthYear(eadProjected)} – ${formatDisplayMonthYear(eadExpiry)}`
             : "Pending decision"}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">12-month post-completion OPT period</p>
-        {stemWindowFromEad && (
+        <p className="text-xs text-muted-foreground mt-1">
+          {isStemExtension
+            ? "24-month STEM OPT extension period"
+            : "12-month post-completion OPT period"}
+        </p>
+        {!isStemExtension && stemWindowFromEad && (
           <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
             STEM window opens:{" "}
             {formatDisplayMonthYear(stemWindowOpens ?? stemWindowFromEad)}

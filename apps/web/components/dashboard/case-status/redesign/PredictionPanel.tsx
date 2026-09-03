@@ -5,12 +5,15 @@ import { cn } from "@/lib/utils";
 import { formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 import { MIN_COHORT_FOR_ESTIMATE } from "@/lib/community-opt/estimate";
 import type { CommunityEstimate } from "@/lib/community-opt/types";
+import type { CommunityCaseKind } from "@/lib/community-opt/types";
+import { getCommunityCaseKindLabel } from "@/lib/case-status/filing-category";
 
 interface PredictionPanelProps {
   daysSinceFiled: number;
   prediction?: CommunityEstimate;
   /** Minimum cohort size to show predictions */
   minCohort?: number;
+  caseKind?: CommunityCaseKind;
 }
 
 function DataGate({ minCohort }: { minCohort: number }) {
@@ -149,6 +152,7 @@ export function PredictionPanel({
   daysSinceFiled,
   prediction,
   minCohort = MIN_COHORT_FOR_ESTIMATE,
+  caseKind = "initial_opt",
 }: PredictionPanelProps) {
   if (!prediction || prediction.cohortSize < minCohort) {
     return <DataGate minCohort={minCohort} />;
@@ -162,7 +166,10 @@ export function PredictionPanel({
     cohortPosition,
     cohortSize,
     fastestDays,
+    caseKind: predictionCaseKind,
   } = prediction;
+
+  const cohortLabel = getCommunityCaseKindLabel(predictionCaseKind ?? caseKind);
 
   const low = p25Days ?? medianDays;
   const high = p75Days ?? medianDays;
@@ -195,7 +202,7 @@ export function PredictionPanel({
         <p className="mt-1.5 text-xs text-muted-foreground">
           {sameDay
             ? "You are already past the typical window for cases like yours."
-            : `Based on when ${cohortSize.toLocaleString()} comparable community cases were decided.`}
+            : `Based on ${cohortSize.toLocaleString()} comparable ${cohortLabel} community cases.`}
         </p>
       </div>
 
@@ -225,7 +232,7 @@ export function PredictionPanel({
         <span className="font-semibold text-foreground">
           {cohortPosition.ahead.toLocaleString()}
         </span>{" "}
-        of {cohortSize.toLocaleString()} comparable cases were already decided by
+        of {cohortSize.toLocaleString()} comparable {cohortLabel} cases were already decided by
         day {daysSinceFiled}.
       </p>
     </div>

@@ -2,6 +2,7 @@
 
 import { ArrowRight, LockKeyhole, Users } from 'lucide-react';
 import type { CommunitySummary } from '@/lib/community-opt/types';
+import { getCommunityCaseKindLabel } from '@/lib/case-status/filing-category';
 import { CASE_STATUS_MESSAGING } from '@/lib/messaging/product-copy';
 
 interface CommunitySummaryCardProps {
@@ -9,11 +10,6 @@ interface CommunitySummaryCardProps {
   daysSinceFiled?: number;
   onUpgrade?: () => void;
 }
-
-const KIND_LABEL: Record<CommunitySummary["caseKind"], string> = {
-  initial_opt: "initial OPT",
-  stem_extension: "STEM OPT extension",
-};
 
 /**
  * The headline community wait, shown on every plan.
@@ -54,8 +50,8 @@ export function CommunitySummaryCard({
           </span>
         </p>
         <p className="text-xs text-muted-foreground pb-1">
-          median for {summary.premiumProcessing ? "premium" : "regular"}{" "}
-          {KIND_LABEL[summary.caseKind]} · {summary.cohortSize.toLocaleString()}{" "}
+          median for {summary.premiumProcessing ? "premium" : "standard"}{" "}
+          {getCommunityCaseKindLabel(summary.caseKind)} · {summary.cohortSize.toLocaleString()}{" "}
           reports
         </p>
       </div>

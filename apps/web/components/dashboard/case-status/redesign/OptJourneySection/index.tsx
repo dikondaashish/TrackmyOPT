@@ -9,9 +9,14 @@ import {
   buildOptComplianceActions,
   type OptComplianceAction,
 } from "@/lib/case-status/opt-compliance-actions";
+import {
+  normalizeFilingCategory,
+  type FilingCategory,
+} from "@/lib/case-status/filing-category";
 import { useClientDate } from "@/hooks/useClientDate";
 
 interface OptJourneySectionProps {
+  filingCategory?: FilingCategory | string | null;
   optFiledDate: string | null;
   eadProjected?: string | null;
   stemWindowOpens?: string | null;
@@ -25,6 +30,7 @@ interface OptJourneySectionProps {
 }
 
 export function OptJourneySection({
+  filingCategory = null,
   optFiledDate,
   eadProjected = null,
   stemWindowOpens = null,
@@ -35,6 +41,8 @@ export function OptJourneySection({
   capGapActive = null,
   dsoTasks,
 }: OptJourneySectionProps) {
+  const normalizedCategory = normalizeFilingCategory(filingCategory);
+  const isStemExtension = normalizedCategory === "stem_extension";
   // Client-only date — null during SSR/hydration to avoid error #418.
   const clientNow = useClientDate();
   const milestones = buildMilestones(optFiledDate, eadProjected, stemWindowOpens, stemFiled, clientNow);
@@ -54,8 +62,14 @@ export function OptJourneySection({
           <Route className="w-4 h-4 text-white" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-foreground">OPT Journey</h2>
-          <p className="text-xs text-muted-foreground">Your F-1 → OPT → STEM → H-1B timeline</p>
+          <h2 className="text-base font-bold text-foreground">
+            {isStemExtension ? "STEM OPT Journey" : "OPT Journey"}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {isStemExtension
+              ? "Your STEM extension filing and what comes next"
+              : "Your F-1 → OPT → STEM → H-1B timeline"}
+          </p>
         </div>
       </div>
 
@@ -64,6 +78,7 @@ export function OptJourneySection({
 
       {/* EAD + Cap-gap cards */}
       <EadStemCards
+        filingCategory={normalizedCategory}
         eadProjected={eadProjected}
         stemWindowOpens={stemWindowOpens}
         capGapActive={capGapActive}

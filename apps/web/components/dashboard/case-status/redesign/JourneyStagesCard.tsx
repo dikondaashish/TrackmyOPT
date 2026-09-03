@@ -8,11 +8,14 @@ import type {
   StageId,
   StageStat,
 } from "@/lib/community-opt/stages";
+import type { CommunityCaseKind } from "@/lib/community-opt/types";
+import { getCommunityCaseKindLabel } from "@/lib/case-status/filing-category";
 
 interface JourneyStagesCardProps {
   stages: JourneyStages | null;
   phase: JourneyPhase;
   premiumProcessing?: boolean;
+  caseKind?: CommunityCaseKind;
   isPro: boolean;
   onUpgrade?: () => void;
   loading?: boolean;
@@ -75,6 +78,7 @@ export function JourneyStagesCard({
   stages,
   phase,
   premiumProcessing,
+  caseKind = "initial_opt",
   isPro,
   onUpgrade,
   loading = false,
@@ -102,12 +106,12 @@ export function JourneyStagesCard({
       <div>
         <p className="text-sm font-semibold text-foreground">What comes next</p>
         <p className="text-xs text-muted-foreground">
-          Typical community timings for the steps ahead of you
+          Typical {getCommunityCaseKindLabel(caseKind)} timings for the steps ahead of you
           {premiumProcessing === undefined
             ? ""
             : premiumProcessing
-              ? " · premium"
-              : " · regular"}
+              ? " · premium processing"
+              : " · standard processing"}
         </p>
       </div>
 
