@@ -41,6 +41,8 @@ interface AnalyticsTabsProps {
   receivedDate?: string | null;
   premiumProcessing?: boolean;
   estimateLoading?: boolean;
+  /** False for non-OPT filing types — community estimates are OPT-only. */
+  estimatesAvailable?: boolean;
 }
 
 interface Tab {
@@ -183,6 +185,7 @@ export function AnalyticsTabs({
   receivedDate,
   premiumProcessing,
   estimateLoading = false,
+  estimatesAvailable = true,
 }: AnalyticsTabsProps) {
   const [active, setActive] = useState<TabId>("prediction");
 
@@ -263,7 +266,12 @@ export function AnalyticsTabs({
       >
         {active === "prediction" && (
           <div className="space-y-5">
-            {estimateLoading && !prediction && !summary ? (
+            {!estimatesAvailable ? (
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                Community approval-time estimates are available for Initial OPT and STEM OPT cases.
+                Status tracking still works for all USCIS forms.
+              </p>
+            ) : estimateLoading && !prediction && !summary ? (
               <p className="text-sm text-muted-foreground py-8 text-center">
                 Loading community timeline estimate…
               </p>
@@ -277,6 +285,8 @@ export function AnalyticsTabs({
               />
             )}
 
+            {estimatesAvailable && (
+              <>
             <JourneyStagesCard
               stages={stages}
               phase={phase}
@@ -307,11 +317,17 @@ export function AnalyticsTabs({
               </p>
               <CaseProcessingBenchmarks />
             </div>
+              </>
+            )}
           </div>
         )}
 
         {active === "trend" &&
-          (!isPro ? (
+          (!estimatesAvailable ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">
+              Community trends are available for Initial OPT and STEM OPT cases.
+            </p>
+          ) : !isPro ? (
             <LockedAnalyticsPanel
               title="Is processing speeding up or slowing down?"
               description="Weekly median wait by filing week, with your own week marked, so you can see which way the queue is moving instead of guessing."
@@ -330,7 +346,11 @@ export function AnalyticsTabs({
           ))}
 
         {active === "spread" &&
-          (!isPro ? (
+          (!estimatesAvailable ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">
+              Community processing spreads are available for Initial OPT and STEM OPT cases.
+            </p>
+          ) : !isPro ? (
             <LockedAnalyticsPanel
               title="The full spread, not just the middle"
               description="Every reported wait binned by week, with your own position marked — including how long the slow tail actually runs."
@@ -349,7 +369,11 @@ export function AnalyticsTabs({
           ))}
 
         {active === "heatmap" &&
-          (!isPro ? (
+          (!estimatesAvailable ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">
+              Filing-month heatmaps are available for Initial OPT and STEM OPT cases.
+            </p>
+          ) : !isPro ? (
             <LockedAnalyticsPanel
               title="Does filing month matter?"
               description="Approvals by filing month and speed bucket, so you can see how the season you filed in compares with the rest of the year."

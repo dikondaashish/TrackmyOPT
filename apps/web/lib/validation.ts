@@ -128,6 +128,18 @@ export const caseStatusRequestSchema = z.object({
     notifications_enabled: z.boolean().optional().default(true),
     label: z.string().max(100, 'Label too long').nullable().optional().default(null),
     case_type: z.string().max(20, 'Case type too long').optional().default('I-765'),
+    filing_category: z.enum([
+        'initial_opt',
+        'stem_extension',
+        'h1b',
+        'h4',
+        'h4_ead',
+        'i485',
+        'i130',
+        'i140',
+        'i131',
+        'other',
+    ]).optional(),
     set_primary: z.boolean().optional().default(false),
 });
 export type CaseStatusRequest = z.infer<typeof caseStatusRequestSchema>;

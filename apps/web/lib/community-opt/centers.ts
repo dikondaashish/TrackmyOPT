@@ -51,7 +51,11 @@ export function inferCaseKind(input: {
   partnerType?: string | null;
   caseType?: string | null;
   label?: string | null;
+  filingCategory?: string | null;
 }): CommunityCaseKind {
+  if (input.filingCategory === "stem_extension") return "stem_extension";
+  if (input.filingCategory === "initial_opt") return "initial_opt";
+
   const blob = [input.partnerType, input.caseType, input.label]
     .filter(Boolean)
     .join(" ")

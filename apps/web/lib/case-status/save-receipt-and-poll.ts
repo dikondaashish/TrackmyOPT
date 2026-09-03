@@ -3,10 +3,13 @@
  * Used by onboarding wizard and case-status dashboard (single save path).
  */
 
+import type { FilingCategory } from "@/lib/case-status/filing-category";
+
 export type CaseStatusRecord = {
   receipt_number: string;
   current_status: string | null;
   last_checked_at: string | null;
+  filing_category?: FilingCategory | string | null;
   [key: string]: unknown;
 };
 
@@ -16,6 +19,7 @@ type SaveReceiptAndPollResult =
 
 type SaveReceiptOptions = {
   notificationsEnabled?: boolean;
+  filingCategory?: FilingCategory;
   maxAttempts?: number;
   pollIntervalMs?: number;
 };
@@ -50,6 +54,7 @@ export async function saveReceiptAndPoll(
 ): Promise<SaveReceiptAndPollResult> {
   const {
     notificationsEnabled = true,
+    filingCategory,
     maxAttempts = 10,
     pollIntervalMs = 2000,
   } = options;
@@ -61,6 +66,7 @@ export async function saveReceiptAndPoll(
     body: JSON.stringify({
       receipt_number: receiptNumber,
       notifications_enabled: notificationsEnabled,
+      ...(filingCategory ? { filing_category: filingCategory } : {}),
     }),
   });
 

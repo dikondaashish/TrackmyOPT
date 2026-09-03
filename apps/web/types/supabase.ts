@@ -42,6 +42,8 @@ export type Database = {
           consecutive_failures: number
           created_at: string | null
           current_status: string | null
+          filing_category: string
+          filing_category_confirmed_at: string | null
           id: string
           last_check_error_code: string | null
           last_check_error_message: string | null
@@ -68,6 +70,8 @@ export type Database = {
           consecutive_failures?: number
           created_at?: string | null
           current_status?: string | null
+          filing_category?: string
+          filing_category_confirmed_at?: string | null
           id?: string
           last_check_error_code?: string | null
           last_check_error_message?: string | null
@@ -94,6 +98,8 @@ export type Database = {
           consecutive_failures?: number
           created_at?: string | null
           current_status?: string | null
+          filing_category?: string
+          filing_category_confirmed_at?: string | null
           id?: string
           last_check_error_code?: string | null
           last_check_error_message?: string | null

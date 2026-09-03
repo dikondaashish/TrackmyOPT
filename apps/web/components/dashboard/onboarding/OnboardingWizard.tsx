@@ -33,6 +33,12 @@ import {
   shouldDeferReceiptStep,
 } from "@/lib/posthog/onboarding-receipt-variant";
 import { saveReceiptAndPoll, type CaseStatusRecord } from "@/lib/case-status/save-receipt-and-poll";
+import {
+  DEFAULT_FILING_CATEGORY,
+  filingCategoryFromJourneyStatus,
+  type FilingCategory,
+} from "@/lib/case-status/filing-category";
+import { FilingCategorySelect } from "@/components/dashboard/case-status/FilingCategorySelect";
 import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
 import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
@@ -91,6 +97,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
 
   // Receipt step
   const [receiptNumber, setReceiptNumber] = useState("");
+  const [filingCategory, setFilingCategory] = useState<FilingCategory>(DEFAULT_FILING_CATEGORY);
   const [receiptError, setReceiptError] = useState<string | null>(null);
   const [isReceiptSaving, setIsReceiptSaving] = useState(false);
   const [savedCaseStatus, setSavedCaseStatus] = useState<CaseStatusRecord | null>(null);
@@ -330,6 +337,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
           await finishOnboarding(false);
           return;
         }
+        setFilingCategory(filingCategoryFromJourneyStatus(status));
         setStep("receipt");
       } else {
         throw new Error(result.error || "Failed to save dates");
@@ -354,7 +362,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     try {
       setIsReceiptSaving(true);
       setReceiptStatusPending(true);
-      const saveResult = await saveReceiptAndPoll(validation.normalized);
+      const saveResult = await saveReceiptAndPoll(validation.normalized, {
+        filingCategory,
+      });
 
       if (!saveResult.ok) {
         if (saveResult.code === "case_limit_reached") {
@@ -753,6 +763,22 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
               </p>
 
               <div className="space-y-4 flex-1">
+                <div>
+                  <label htmlFor="onboarding-filing-category" className="block text-sm font-medium mb-2">
+                    What are you tracking?
+                  </label>
+                  <FilingCategorySelect
+                    id="onboarding-filing-category"
+                    value={filingCategory}
+                    onChange={setFilingCategory}
+                    disabled={isReceiptSaving || Boolean(savedCaseStatus)}
+                    className="h-10 rounded-md"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Used for approval-time estimates. USCIS form is typically I-765 for both.
+                  </p>
+                </div>
+
                 <div>
                   <label htmlFor="onboarding-receipt-input" className="block text-sm font-medium mb-2">
                     USCIS Receipt Number

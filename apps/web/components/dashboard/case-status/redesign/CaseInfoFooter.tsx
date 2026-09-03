@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { getServiceCenterLabel, formatStatusLabel } from "@/lib/case-status/case-status-display";
+import {
+  getServiceCenterLabel,
+  getServiceCenterLocation,
+  formatStatusLabel,
+} from "@/lib/case-status/case-status-display";
+import { getFilingCategoryLabel } from "@/lib/case-status/filing-category";
 import { daysSinceEpochMs, formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 import { CASE_STATUS_DISCLAIMER } from "@/lib/legal/legal-config";
 import { useClientDate } from "@/hooks/useClientDate";
@@ -11,6 +16,7 @@ interface CaseInfoFooterProps {
   caseStatus: {
     receipt_number: string;
     case_type?: string | null;
+    filing_category?: string | null;
     received_date?: string | null;
     last_status_change_at?: string | null;
     current_status?: string | null;
@@ -41,9 +47,22 @@ export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
         {open && (
           <div className="px-4 pb-4 text-xs border-t border-border space-y-2 pt-3">
             <Row label="Receipt" value={<span className="font-mono ph-mask" data-ph-mask>{caseStatus.receipt_number}</span>} />
-            <Row label="Type" value={caseStatus.case_type || "Form I-765"} />
+            <Row label="Filing Type" value={getFilingCategoryLabel(caseStatus.filing_category)} />
+            <Row label="USCIS Form" value={caseStatus.case_type || "I-765"} />
             <Row label="Filed" value={formatDisplayDateShort(caseStatus.received_date)} />
-            <Row label="Service Center" value={getServiceCenterLabel(caseStatus.receipt_number)} />
+            <Row
+              label="Service Center"
+              value={
+                <span>
+                  {getServiceCenterLabel(caseStatus.receipt_number)}
+                  {getServiceCenterLocation(caseStatus.receipt_number) && (
+                    <span className="block text-muted-foreground font-normal">
+                      {getServiceCenterLocation(caseStatus.receipt_number)}
+                    </span>
+                  )}
+                </span>
+              }
+            />
             <Row label="Current Status" value={formatStatusLabel(caseStatus.current_status, "Pending")} />
             {days !== null && days > 0 && <Row label="Days Since Filed" value={`${days} days`} />}
           </div>

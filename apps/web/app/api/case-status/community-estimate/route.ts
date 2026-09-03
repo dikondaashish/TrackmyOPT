@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
  * cohort, how the trend is moving, and the full spread. Withholding it in the
  * client would ship the numbers anyway and merely hide them.
  *
- * GET ?receipt_prefix=&case_type=&label=&pp_start=&received=&days=
+ * GET ?receipt_prefix=&case_type=&label=&filing_category=&pp_start=&received=&days=
  */
 export async function GET(req: NextRequest) {
   try {
@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
         receiptPrefix: sp.get("receipt_prefix")?.slice(0, 3),
         caseType: sp.get("case_type"),
         label: sp.get("label"),
+        filingCategory: sp.get("filing_category"),
         ppStartDate: sp.get("pp_start"),
         receivedDate: sp.get("received"),
         daysSinceFiled: Number.isFinite(daysSinceFiled) ? daysSinceFiled : 0,

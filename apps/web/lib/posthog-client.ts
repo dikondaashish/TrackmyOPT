@@ -269,6 +269,13 @@ export function captureCaseStatusCheckCompletedClient(
   });
 }
 
+export function captureFilingCategoryUpdated(properties: {
+  filing_category: string;
+  source: "confirm_banner" | "case_info" | "enrollment";
+}): void {
+  captureClientEvent("filing_category_updated", properties);
+}
+
 export type UniversityPartnerGroupProperties = {
   partner_name: string;
   referral_clicks?: number;

@@ -25,6 +25,7 @@ export type CommunityEstimateQuery = {
   receiptPrefix?: string | null;
   caseType?: string | null;
   label?: string | null;
+  filingCategory?: string | null;
   ppStartDate?: string | null;
   receivedDate?: string | null;
   daysSinceFiled?: number;
@@ -115,6 +116,7 @@ export async function getCommunityEstimate(
   const caseKind = inferCaseKind({
     caseType: query.caseType,
     label: query.label,
+    filingCategory: query.filingCategory,
   });
   const serviceCenter = serviceCenterFromReceipt(query.receiptPrefix);
   const premiumProcessing = Boolean(query.ppStartDate?.trim());

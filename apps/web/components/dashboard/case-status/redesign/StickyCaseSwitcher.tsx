@@ -2,6 +2,7 @@
 
 import { Plus, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getFilingCategoryShortLabel } from "@/lib/case-status/filing-category";
 
 export type CaseState = "urgent" | "actionNeeded" | "inProgress" | "pending" | "approved";
 
@@ -9,6 +10,7 @@ interface CaseTab {
   id: string;
   receiptNumber: string;
   formType?: string | null;
+  filingCategory?: string | null;
   caseState: CaseState;
   isPrimary?: boolean;
 }
@@ -54,6 +56,7 @@ export function StickyCaseSwitcher({ cases, selectedId, onSelect, onAddCase, can
           const cfg = STATE_CONFIG[c.caseState];
           const isActive = c.id === selectedId;
           const short = c.receiptNumber.slice(-7);
+          const typeLabel = getFilingCategoryShortLabel(c.filingCategory);
 
           return (
             <button
@@ -69,7 +72,7 @@ export function StickyCaseSwitcher({ cases, selectedId, onSelect, onAddCase, can
             >
               <span className={cn("w-2 h-2 rounded-full flex-shrink-0", cfg.dot, isActive && "animate-pulse")} />
               <span className="font-mono text-xs font-semibold tracking-wide">
-                {c.formType ? `${c.formType} ` : ""}{short}
+                {typeLabel} · {short}
               </span>
               {c.isPrimary && <Star className="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" />}
             </button>

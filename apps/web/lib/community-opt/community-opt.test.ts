@@ -67,6 +67,10 @@ describe("centers", () => {
     expect(serviceCenterFromReceipt("IOE1234567890")).toBe("nbc");
     expect(inferCaseKind({ label: "My STEM OPT" })).toBe("stem_extension");
     expect(inferCaseKind({ caseType: "I-765" })).toBe("initial_opt");
+    expect(inferCaseKind({ filingCategory: "stem_extension" })).toBe("stem_extension");
+    expect(inferCaseKind({ filingCategory: "initial_opt", label: "My STEM OPT" })).toBe(
+      "initial_opt"
+    );
     // opt-pulse uses "STEM OPT Extension" as opt_type
     expect(inferCaseKind({ partnerType: "STEM OPT Extension" })).toBe("stem_extension");
     expect(inferCaseKind({ partnerType: "Initial OPT" })).toBe("initial_opt");

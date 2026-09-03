@@ -14,11 +14,15 @@ import {
 } from "lucide-react";
 import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
 import Link from "next/link";
+import { type FilingCategory } from "@/lib/case-status/filing-category";
+import { FilingCategorySelect } from "@/components/dashboard/case-status/FilingCategorySelect";
 
 type CaseStatusReceiptPanelProps = {
   mode: "onboarding" | "edit";
   receiptNumber: string;
+  filingCategory: FilingCategory;
   onReceiptChange: (value: string) => void;
+  onFilingCategoryChange: (value: FilingCategory) => void;
   onSave: () => void;
   isSaving: boolean;
   isPolling: boolean;
@@ -32,7 +36,9 @@ type CaseStatusReceiptPanelProps = {
 export function CaseStatusReceiptPanel({
   mode,
   receiptNumber,
+  filingCategory,
   onReceiptChange,
+  onFilingCategoryChange,
   onSave,
   isSaving,
   isPolling,
@@ -124,6 +130,21 @@ export function CaseStatusReceiptPanel({
       )}
 
       <div className="space-y-[16px]">
+        <div>
+          <label htmlFor="filing-category-select" className="block text-[13px] font-bold mb-[8px] text-[#1D1D1F] dark:text-white">
+            What are you tracking?
+          </label>
+          <FilingCategorySelect
+            id="filing-category-select"
+            value={filingCategory}
+            onChange={onFilingCategoryChange}
+            describedBy="filing-category-help"
+          />
+          <p id="filing-category-help" className="text-[12px] text-[#86868B] mt-[8px]">
+            Used for approval-time estimates. USCIS form is typically I-765 for both.
+          </p>
+        </div>
+
         <div>
           <label htmlFor="receipt-number-input" className="block text-[13px] font-bold mb-[8px] text-[#1D1D1F] dark:text-white">
             USCIS Receipt Number

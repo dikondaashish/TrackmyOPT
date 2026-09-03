@@ -4,7 +4,11 @@ import { RefreshCw, Copy, Settings2, CheckCircle2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
-import { getServiceCenterLabel } from "@/lib/case-status/case-status-display";
+import {
+  getServiceCenterLabel,
+  getServiceCenterLocation,
+} from "@/lib/case-status/case-status-display";
+import { getFilingCategoryLabel } from "@/lib/case-status/filing-category";
 import {
   countBusinessDaysOverdue,
   daysSinceNow,
@@ -46,6 +50,7 @@ interface CaseHeroCardProps {
     id: string;
     receipt_number: string;
     case_type?: string | null;
+    filing_category?: string | null;
     received_date?: string | null;
     last_status_change_at?: string | null;
     current_status?: string | null;
@@ -77,6 +82,7 @@ export function CaseHeroCard({
 
   const days = daysSinceNow(caseStatus.received_date);
   const serviceCenter = getServiceCenterLabel(caseStatus.receipt_number);
+  const serviceCenterLocation = getServiceCenterLocation(caseStatus.receipt_number);
   const lastChangeDate = caseStatus.last_status_change_at
     ? formatDisplayDateShort(caseStatus.last_status_change_at)
     : "Not recorded";
@@ -96,11 +102,16 @@ export function CaseHeroCard({
       <div className="flex flex-wrap items-start justify-between gap-2 mb-5">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-            <span className="font-bold text-foreground text-base">{caseStatus.case_type || "I-765"}</span>
+            <span className="font-bold text-foreground text-base">
+              {getFilingCategoryLabel(caseStatus.filing_category)}
+            </span>
             <span className="text-gray-300 dark:text-gray-700">·</span>
             <span className="font-mono font-semibold ph-mask" data-ph-mask>{caseStatus.receipt_number}</span>
             <span className="text-gray-300 dark:text-gray-700">·</span>
-            <span>{serviceCenter}</span>
+            <span>
+              {serviceCenter}
+              {serviceCenterLocation ? ` · ${serviceCenterLocation}` : ""}
+            </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-muted-foreground">
             {caseStatus.received_date && (

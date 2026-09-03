@@ -32,7 +32,17 @@ import {
   formatDaysAgoLabel,
   formatStatusLabel,
   getServiceCenterLabel,
+  getServiceCenterLocation,
 } from '@/lib/case-status/case-status-display';
+import {
+  DEFAULT_FILING_CATEGORY,
+  getFilingCategoryFormMismatch,
+  isOptFilingCategory,
+  normalizeFilingCategory,
+  type FilingCategory,
+} from '@/lib/case-status/filing-category';
+import { FilingCategorySelect } from '@/components/dashboard/case-status/FilingCategorySelect';
+import { FilingCategoryConfirmBanner } from '@/components/dashboard/case-status/FilingCategoryConfirmBanner';
 import { Globe } from 'lucide-react';
 import { PremiumProcessingCountdown } from '@/components/dashboard/case-status/PremiumProcessingCountdown';
 import { CaseStatusReceiptPanel } from '@/components/dashboard/case-status/CaseStatusReceiptPanel';
@@ -57,6 +67,7 @@ import {
 } from '@/lib/case-status/free-case-insight-prompt';
 import {
   captureCaseStatusCheckCompletedClient,
+  captureFilingCategoryUpdated,
   captureUpgradePromptShown,
 } from "@/lib/posthog-client";
 import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
@@ -129,10 +140,13 @@ interface CaseStatus {
   consecutive_failures?: number;
   is_primary?: boolean;
   label?: string | null;
+  filing_category?: string | null;
+  filing_category_confirmed_at?: string | null;
 }
 
 export function CaseStatusSection() {
   const [receiptNumber, setReceiptNumber] = useState("");
+  const [filingCategory, setFilingCategory] = useState<FilingCategory>(DEFAULT_FILING_CATEGORY);
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
   const [communityPrediction, setCommunityPrediction] =
     useState<CommunityEstimate | null>(null);
@@ -191,6 +205,8 @@ export function CaseStatusSection() {
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
   const [filingDateInput, setFilingDateInput] = useState("");
   const [filingDateSaving, setFilingDateSaving] = useState(false);
+  const [filingCategorySaving, setFilingCategorySaving] = useState(false);
+  const [filingCategoryPromptDismissed, setFilingCategoryPromptDismissed] = useState(false);
 
   const showStatusChangeWedge = useMemo(() => {
     if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
@@ -436,6 +452,7 @@ export function CaseStatusSection() {
       setSelectedCaseId(active.id);
       setCaseStatus(active);
       setReceiptNumber(active.receipt_number);
+      setFilingCategory(normalizeFilingCategory(active.filing_category));
     },
     []
   );
@@ -447,6 +464,7 @@ export function CaseStatusSection() {
       setSelectedCaseId(caseId);
       setCaseStatus(withNormalizedStatusHistory(found));
       setReceiptNumber(found.receipt_number);
+      setFilingCategory(normalizeFilingCategory(found.filing_category));
       setIsAddingCase(false);
       setError(null);
       setSuccess(false);
@@ -527,6 +545,18 @@ export function CaseStatusSection() {
       return;
     }
 
+    if (!isOptFilingCategory(caseStatus.filing_category)) {
+      setCommunityPrediction(null);
+      setCommunitySummary(null);
+      setCommunityStages(null);
+      setCommunityHeatmap([]);
+      setCommunityWeeklyTrend([]);
+      setCommunityHistogram(null);
+      setCommunitySimilarFiling(null);
+      setCommunityEstimateLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
     const days =
       clientNowMs !== null
@@ -541,6 +571,9 @@ export function CaseStatusSection() {
     });
     if (caseStatus.case_type) params.set("case_type", caseStatus.case_type);
     if (caseStatus.label) params.set("label", caseStatus.label);
+    if (caseStatus.filing_category) {
+      params.set("filing_category", caseStatus.filing_category);
+    }
     if (caseStatus.pp_start_date) params.set("pp_start", caseStatus.pp_start_date);
     if (caseStatus.received_date) params.set("received", caseStatus.received_date);
 
@@ -592,10 +625,25 @@ export function CaseStatusSection() {
     caseStatus?.receipt_number,
     caseStatus?.case_type,
     caseStatus?.label,
+    caseStatus?.filing_category,
     caseStatus?.pp_start_date,
     caseStatus?.received_date,
     clientNowMs,
   ]);
+
+  const filingCategoryPromptKey = caseStatus?.id
+    ? `tmo_filing_prompt_dismissed_${caseStatus.id}`
+    : null;
+
+  useEffect(() => {
+    if (!filingCategoryPromptKey) {
+      setFilingCategoryPromptDismissed(false);
+      return;
+    }
+    setFilingCategoryPromptDismissed(
+      sessionStorage.getItem(filingCategoryPromptKey) === "1"
+    );
+  }, [filingCategoryPromptKey]);
 
   const checkPremiumStatus = async () => {
     try {
@@ -723,6 +771,7 @@ export function CaseStatusSection() {
           receipt_number: validation.normalized,
           notifications_enabled: caseStatus?.notifications_enabled ?? true,
           set_primary: trackedCases.length === 0,
+          filing_category: filingCategory,
         }),
       });
 
@@ -918,6 +967,7 @@ export function CaseStatusSection() {
     }
     setIsAddingCase(true);
     setReceiptNumber("");
+    setFilingCategory(DEFAULT_FILING_CATEGORY);
     setError(null);
     setSuccess(false);
     setIsEditingReceipt(true);
@@ -957,6 +1007,39 @@ export function CaseStatusSection() {
 
   const formatDateShort = (dateString: string) =>
     formatDisplayDateShort(dateString);
+
+  const handleFilingCategoryUpdate = async (
+    next: FilingCategory,
+    source: "confirm_banner" | "case_info" | "enrollment" = "case_info"
+  ) => {
+    if (!caseStatus || next === normalizeFilingCategory(caseStatus.filing_category)) return;
+
+    try {
+      setFilingCategorySaving(true);
+      setError(null);
+      const response = await fetch("/api/case-status/filing-category", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          case_id: caseStatus.id,
+          filing_category: next,
+        }),
+      });
+      const result = await response.json();
+      if (response.ok && result.ok) {
+        setFilingCategory(next);
+        captureFilingCategoryUpdated({ filing_category: next, source });
+        await loadCaseStatus();
+      } else {
+        setError(result.error || "Failed to update filing type.");
+      }
+    } catch {
+      setError("An error occurred while updating filing type.");
+    } finally {
+      setFilingCategorySaving(false);
+    }
+  };
 
   const handleSaveFilingDate = async () => {
     if (!caseStatus || !filingDateInput) {
@@ -1057,12 +1140,20 @@ export function CaseStatusSection() {
     clientNowMs !== null
       ? daysSinceEpochMs(caseStatus?.received_date, clientNowMs)
       : null;
+  const serviceCenterLocation = getServiceCenterLocation(caseStatus?.receipt_number);
 
-  const isOptCase = (() => {
-    const caseType = caseStatus?.case_type?.toLowerCase().trim();
-    if (!caseType) return true; // Existing TrackMyOPT enrollments predate case_type storage.
-    return caseType.includes("i-765") || caseType.includes("optional practical training") || caseType.includes("opt");
-  })();
+  const isOptCase = isOptFilingCategory(caseStatus?.filing_category);
+
+  const formTypeMismatch = getFilingCategoryFormMismatch(
+    caseStatus?.filing_category,
+    caseStatus?.case_type
+  );
+
+  const showFilingCategoryPrompt =
+    Boolean(caseStatus) &&
+    isOptFilingCategory(caseStatus?.filing_category) &&
+    !caseStatus?.filing_category_confirmed_at &&
+    !filingCategoryPromptDismissed;
 
   const rfeDate: string | null = (() => {
     const rfe = safeStatusHistory.find(
@@ -1114,7 +1205,9 @@ export function CaseStatusSection() {
         <CaseStatusReceiptPanel
           mode="onboarding"
           receiptNumber={receiptNumber}
+          filingCategory={filingCategory}
           onReceiptChange={setReceiptNumber}
+          onFilingCategoryChange={setFilingCategory}
           onSave={handleSave}
           isSaving={isSaving}
           isPolling={isPolling}
@@ -1132,6 +1225,7 @@ export function CaseStatusSection() {
                 id: c.id,
                 receiptNumber: c.receipt_number,
                 formType: c.case_type ?? null,
+                filingCategory: c.filing_category ?? null,
                 caseState: deriveCaseState(c.current_status),
                 isPrimary: c.is_primary,
               }))}
@@ -1223,18 +1317,50 @@ export function CaseStatusSection() {
             </Card>
           )}
 
+          {/* ── Filing type backfill (legacy users) ── */}
+          {showFilingCategoryPrompt && (
+            <FilingCategoryConfirmBanner
+              saving={filingCategorySaving}
+              onConfirm={(category) => void handleFilingCategoryUpdate(category, "confirm_banner")}
+              onDismiss={() => {
+                if (filingCategoryPromptKey) {
+                  sessionStorage.setItem(filingCategoryPromptKey, "1");
+                }
+                setFilingCategoryPromptDismissed(true);
+              }}
+            />
+          )}
+
+          {/* ── Form mismatch warning ── */}
+          {formTypeMismatch && (
+            <Card className="p-4 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800" role="status">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-900 dark:text-amber-100">{formTypeMismatch}</p>
+              </div>
+            </Card>
+          )}
+
           {/* ── 3. MAIN CASE HERO CARD ── */}
           {isEditingReceipt ? (
             <CaseStatusReceiptPanel
               mode="edit"
               receiptNumber={receiptNumber}
+              filingCategory={filingCategory}
               onReceiptChange={setReceiptNumber}
+              onFilingCategoryChange={setFilingCategory}
               onSave={handleSave}
               isSaving={isSaving}
               isPolling={isPolling}
               error={error}
               success={success}
-              onCancelEdit={() => { setIsEditingReceipt(false); setReceiptNumber(caseStatus.receipt_number); setError(null); setSuccess(false); }}
+              onCancelEdit={() => {
+                setIsEditingReceipt(false);
+                setReceiptNumber(caseStatus.receipt_number);
+                setFilingCategory(normalizeFilingCategory(caseStatus.filing_category));
+                setError(null);
+                setSuccess(false);
+              }}
             />
           ) : (
             <CaseStatusPanelErrorBoundary area="hero">
@@ -1246,7 +1372,11 @@ export function CaseStatusSection() {
                 updateCount={safeStatusHistory.length}
                 isRefreshing={isRefreshing}
                 onRefresh={handleRefresh}
-                onManageCase={() => setIsEditingReceipt(true)}
+                onManageCase={() => {
+                  setIsEditingReceipt(true);
+                  setReceiptNumber(caseStatus.receipt_number);
+                  setFilingCategory(normalizeFilingCategory(caseStatus.filing_category));
+                }}
                 refreshError={error}
               />
             </CaseStatusPanelErrorBoundary>
@@ -1326,6 +1456,7 @@ export function CaseStatusSection() {
                 receivedDate={caseStatus.received_date}
                 premiumProcessing={Boolean(caseStatus.pp_start_date)}
                 estimateLoading={communityEstimateLoading}
+                estimatesAvailable={isOptCase}
               />
             </CaseStatusPanelErrorBoundary>
           </Card>
@@ -1362,10 +1493,23 @@ export function CaseStatusSection() {
                 </div>
 
                 <div className="space-y-3">
+                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Filing Type</span>
+                    <div className="w-full sm:w-auto sm:min-w-[240px] max-md:w-full">
+                      <FilingCategorySelect
+                        id="case-info-filing-category"
+                        value={normalizeFilingCategory(caseStatus.filing_category)}
+                        onChange={(value) => void handleFilingCategoryUpdate(value)}
+                        disabled={filingCategorySaving}
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+
                   <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Case Type</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">USCIS Form</span>
                     <span className="text-sm font-semibold max-md:text-left text-right">
-                      {caseStatus.case_type || 'Form I-765 (OPT)'}
+                      {caseStatus.case_type || 'I-765'}
                     </span>
                   </div>
 
@@ -1406,9 +1550,14 @@ export function CaseStatusSection() {
 
                   <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
-                    <span className="text-sm font-semibold max-md:text-left text-right ph-mask" data-ph-mask>
-                      {getServiceCenterLabel(caseStatus.receipt_number)}
-                    </span>
+                    <div className="max-md:text-left text-right ph-mask" data-ph-mask>
+                      <p className="text-sm font-semibold">
+                        {getServiceCenterLabel(caseStatus.receipt_number)}
+                      </p>
+                      {serviceCenterLocation && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{serviceCenterLocation}</p>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">

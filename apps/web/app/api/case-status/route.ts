@@ -7,6 +7,7 @@ import { pickPrimaryCase } from '@/lib/case-status/select-primary-case';
 import { withNormalizedStatusHistory } from '@/lib/case-status/normalize-status-history';
 import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
 import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
+import { DEFAULT_FILING_CATEGORY } from '@/lib/case-status/filing-category';
 import { caseStatusRequestSchema, validateRequest } from '@/lib/validation';
 import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 import type { Database } from '@/types/supabase';
@@ -158,6 +159,7 @@ export async function POST(req: NextRequest) {
       notifications_enabled,
       label,
       case_type,
+      filing_category,
       set_primary,
     } = validation.data;
 
@@ -166,7 +168,7 @@ export async function POST(req: NextRequest) {
 
     const { data: userCases } = await supabaseAdmin
       .from('case_status')
-      .select('id, receipt_number, current_status, is_primary')
+      .select('id, receipt_number, current_status, is_primary, filing_category, case_type, filing_category_confirmed_at')
       .eq('user_id', userId);
 
     const existing = (userCases ?? []).find(
@@ -200,12 +202,28 @@ export async function POST(req: NextRequest) {
         .eq('user_id', userId);
     }
 
+    const resolvedFilingCategory =
+      filing_category ?? existing?.filing_category ?? DEFAULT_FILING_CATEGORY;
+    const resolvedCaseType =
+      existing?.case_type ??
+      (typeof case_type === 'string' ? case_type : 'I-765');
+    const filingCategoryExplicit =
+      body != null &&
+      typeof body === 'object' &&
+      'filing_category' in body &&
+      body.filing_category != null;
+    const resolvedConfirmedAt = filingCategoryExplicit
+      ? new Date().toISOString()
+      : (existing?.filing_category_confirmed_at ?? null);
+
     const upsertPayload = {
       user_id: userId,
       receipt_number: normalizedReceipt,
       notifications_enabled,
       label: typeof label === 'string' && label.trim() ? label.trim() : null,
-      case_type: typeof case_type === 'string' ? case_type : 'I-765',
+      case_type: resolvedCaseType,
+      filing_category: resolvedFilingCategory,
+      filing_category_confirmed_at: resolvedConfirmedAt,
       is_primary: shouldBePrimary,
       updated_at: new Date().toISOString(),
     };
@@ -252,6 +270,7 @@ export async function POST(req: NextRequest) {
         plan_tier: planTier,
         is_new_enrollment: isNewEnrollment,
         case_count: (userCases ?? []).length + (isNewReceipt ? 1 : 0),
+        filing_category: resolvedFilingCategory,
       }
     );
 

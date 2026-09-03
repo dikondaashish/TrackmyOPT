@@ -17,6 +17,7 @@ import {
   resolveAutofillPlanTier,
   type AutofillPlanEntitlements,
 } from './autofill-plan-entitlements';
+import { filingCategoryShortLabel } from './filing-category-labels';
 
 /** Escape untrusted values before interpolating them into innerHTML. */
 function escapeHtml(value: unknown): string {
@@ -123,6 +124,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       const caseCount = Array.isArray(caseData.cases) ? caseData.cases.length : primary ? 1 : 0;
       if (primary?.receipt_number) {
         const statusText = primary.current_status || 'Checking USCIS…';
+        const filingLabel = filingCategoryShortLabel(primary.filing_category);
         const moreCases =
           caseCount > 1 ? `<span class="case-more">+${caseCount - 1} more</span>` : '';
         caseStatusCard = `
@@ -131,6 +133,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
               <span class="case-status-label">${icon('fileText', 16)} Case Status</span>
               ${moreCases}
             </div>
+            <p class="case-status-type">${escapeHtml(filingLabel)}</p>
             <p class="case-status-receipt">${escapeHtml(primary.receipt_number)}</p>
             <p class="case-status-text">${escapeHtml(statusText)}</p>
           </a>
