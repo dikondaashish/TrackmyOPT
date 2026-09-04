@@ -6,6 +6,16 @@ content, trademarks, or hosted services.
 
 ## Incorporated dependency
 
+### node-oracledb
+
+- Project: <https://github.com/oracle/node-oracledb>
+- Package: `oracledb` 7.0.1
+- License: Apache-2.0 OR UPL-1.0
+- Use: server-only Oracle 26ai shadow job-store adapter; loaded lazily and not
+  wired into the production job-board module yet.
+- Notice obligation: retain the upstream Apache/UPL notices when distributing
+  the adapter and driver.
+
 ### ats-scrapers
 
 - Project: <https://github.com/kalil0321/ats-scrapers>

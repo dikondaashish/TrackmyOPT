@@ -93,8 +93,25 @@ describe('JD-first positioning', () => {
   it('treats the job description as the primary mission', () => {
     expect(SYSTEM_PROMPT).toContain('The JD is law');
     expect(SYSTEM_PROMPT).toContain('<jd_first_positioning>');
+    expect(SYSTEM_PROMPT).toContain('STRUCTURAL ANCHORS ARE IMMUTABLE');
     expect(buildGeneratePrompt('r', 'j', '\\documentclass{article}')).toContain(
       'THE JOB DESCRIPTION IS THE MISSION'
     );
+  });
+
+  it('strips template demo personas before sending the template to the model', () => {
+    const prompt = buildGeneratePrompt(
+      'Ashish Dikonda',
+      'Data Analyst role',
+      String.raw`\documentclass{article}
+\def\name{Marcus Feld}
+\begin{document}
+\rRole{Engineer}{Developer Tools Company}{}{}
+\end{document}`,
+    );
+
+    expect(prompt).not.toContain('Marcus Feld');
+    expect(prompt).not.toContain('Developer Tools Company');
+    expect(prompt).toContain('CANDIDATE NAME');
   });
 });

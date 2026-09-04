@@ -26,7 +26,9 @@
     "email-previews:dry-run": "npx tsx scripts/send-all-email-previews.ts --dry-run",
     "email-previews:send": "npx tsx scripts/send-all-email-previews.ts --to support@trackmyopt.com",
     "posthog:ops-closure": "npx tsx scripts/posthog-ops-closure.ts",
-    "posthog:ops-closure:dry-run": "npx tsx scripts/posthog-ops-closure.ts --dry-run"
+    "posthog:ops-closure:dry-run": "npx tsx scripts/posthog-ops-closure.ts --dry-run",
+    "posthog:ai-cost-dashboard": "npx tsx scripts/posthog-ai-cost-dashboard.ts",
+    "posthog:ai-cost-dashboard:dry-run": "npx tsx scripts/posthog-ai-cost-dashboard.ts --dry-run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1119.0",

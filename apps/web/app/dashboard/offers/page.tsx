@@ -713,8 +713,8 @@ export default function OffersPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-6">
                     <div className="flex items-center gap-2">
-                        <Star className="w-5 h-5 text-yellow-500" />
-                        <h2 className="text-xl font-semibold">Featured Offers</h2>
+                    <Star className="w-5 h-5 text-yellow-500" />
+                    <h2 className="text-xl font-semibold">Featured Offers</h2>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground max-w-3xl">
                         Hand-picked for international students and OPT workers — health coverage, taxes, banking without an SSN, and job-search essentials.

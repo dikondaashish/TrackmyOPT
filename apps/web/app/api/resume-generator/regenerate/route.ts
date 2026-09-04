@@ -1,9 +1,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAiContent } from '@/lib/ai/google-ai';
+import { runWithAiRequestContext, getAiRequestCostSummary } from '@/lib/ai/ai-request-context';
 import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildRegeneratePrompt } from '@/lib/ai/prompts/regenerate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
+import { captureResumeAiCostRecorded } from '@/lib/posthog/ai-cost-analytics';
 import { REGENERATION_FEEDBACK_MAX_CHARS } from '@/lib/resume/ats-analysis-types';
 import { z } from 'zod';
 import rateLimit from '@/lib/auth/rate-limit';
@@ -46,6 +48,10 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+    return runWithAiRequestContext(() => handleRegeneratePost(req));
+}
+
+async function handleRegeneratePost(req: NextRequest) {
     let reservationId: string | null = null;
     let reservationUserId: string | null = null;
     let reservationCommitted = false;
@@ -156,6 +162,21 @@ export async function POST(req: NextRequest) {
             throw new Error('Failed to commit resume generation entitlement');
         }
         reservationCommitted = true;
+
+        const costSummary = getAiRequestCostSummary();
+        if (costSummary) {
+            void captureResumeAiCostRecorded(userId, {
+                ai_request_id: costSummary.requestId,
+                ai_cost_usd: costSummary.totalCostUsd,
+                ai_cost_generate_usd: costSummary.byTask.resume_regenerate ?? 0,
+                ai_cost_latex_fix_usd: 0,
+                ai_call_count: costSummary.callCount,
+                ai_model: costSummary.primaryModel,
+                ai_fallback_used: costSummary.fallbackUsed,
+                template_id: templateId,
+                source: 'regenerate',
+            });
+        }
 
         return NextResponse.json(
             {

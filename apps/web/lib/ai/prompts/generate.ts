@@ -1,4 +1,4 @@
-import { escapeLatexForPromptInjection } from '@/lib/resume/model-latex-output';
+import { escapeLatexForPromptInjection, sanitizeTemplateForPrompt } from '@/lib/resume/model-latex-output';
 import { TITLE_LADDER_FINAL_REMINDER, TITLE_LADDER_MODE } from '@/lib/ai/prompts/title-ladder';
 
 export type BuildGeneratePromptOptions = {
@@ -85,15 +85,19 @@ Step 2 — JD-FIRST MAPPING (AGGRESSIVE):
   d) Industry mismatch → rewrite every bullet in the target company's language
 
 <jd_first_positioning>
-THE JD WINS. Optimize the resume so they look qualified.
+STRUCTURAL ANCHORS ARE IMMUTABLE — JD optimization applies to bullets, summary,
+skills, and project framing ONLY:
+- Candidate name, phone, email, LinkedIn, location
+- Every employer/company name exactly as written
+- Every official job title and employment date exactly as written
+- Every school, degree, and certification exactly as written
+- NEVER merge employers, invent companies, or replace real employers with generic labels
 
-Rules:
-- Company names, official job titles, and employment dates stay as written (structural anchors).
-- Everything else — bullets, summary, skills, project framing — is optimized for the JD.
+Within those anchors, optimize aggressively for the JD:
 - Skills section: list every major JD requirement. Put JD keywords first.
 - Summary: write as if this person is already doing this job at a high level.
-- Bullets: strong verbs + JD keywords + credible metrics.
-- If the JD wants AI and the source resume never says AI, put AI in the bullets at their real jobs.
+- Bullets: strong verbs + JD keywords + credible metrics from their real work.
+- If the JD wants a skill the source never names, show it through work at their real employers.
 </jd_first_positioning>
 
 Step 3 — INVENTORY AND LENGTH:
@@ -216,7 +220,7 @@ ${resumeText}
 ${jobDescription}
 ${analysisFocus}
 --- LATEX TEMPLATE (reproduce preamble, macros, and section order exactly; replace all demo content) ---
-${templateTex}
+${sanitizeTemplateForPrompt(templateTex)}
 
 ${SYSTEM_PROMPT}
 ${titleLadderBlock}

@@ -7,6 +7,7 @@ import { OcrModule } from './ocr/ocr.module';
 import { UscisModule } from './uscis/uscis.module';
 import { ResumeModule } from './resume/resume.module';
 import { JobBoardModule } from './job-board/job-board.module';
+import { OracleShadowProbeModule } from './job-board/oracle-shadow-probe.module';
 import { DocumentSecurityModule } from './document-security/document-security.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -44,6 +45,14 @@ export const appConfigValidationSchema = Joi.object({
   CRON_SECRET: Joi.string().min(8).optional(),
   MALWARE_SCAN_TOKEN: Joi.string().min(16).optional(),
   LATEX_COMPILER_TOKEN: Joi.string().min(16).optional(),
+  // Supabase remains the production default. Oracle is intentionally only a
+  // validated opt-in until its shadow adapter has passed production checks.
+  JOB_DATA_STORE: Joi.string().valid('supabase', 'oracle').default('supabase'),
+  ORACLE_SHADOW_PROBE_ON_BOOT: Joi.boolean().default(false),
+  ORACLE_JOB_DB_CONNECT_STRING: Joi.string().min(1).optional(),
+  ORACLE_JOB_DB_USER: Joi.string().min(1).optional(),
+  ORACLE_JOB_DB_PASSWORD: Joi.string().min(1).optional(),
+  ORACLE_JOB_DB_POOL_MAX: Joi.number().integer().min(1).max(10).default(4),
 });
 
 /** Fail fast on bad Redis instead of hanging Render health checks for ~15m. */
@@ -106,6 +115,7 @@ const runtimeImports =
         UscisModule,
         ResumeModule,
         JobBoardModule,
+        OracleShadowProbeModule,
         DocumentSecurityModule,
       ];
 

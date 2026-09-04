@@ -8,6 +8,10 @@ import {
 } from '@google/genai';
 
 import { captureServerEvent } from '@/lib/posthog-server';
+import {
+  getAiRequestId,
+  recordAiRequestCost,
+} from '@/lib/ai/ai-request-context';
 
 export type AiTask =
   | 'resume_generate'
@@ -33,6 +37,16 @@ export type AiModelPolicy = {
   fallback?: ModelChoice;
 };
 
+/** Headroom for 5+ roles with 4–6 bullets each in LaTeX (API supports 65k). */
+const RESUME_MAX_OUTPUT_TOKENS = 32_768;
+
+const FLASH_38_MEDIUM: ModelChoice = {
+  model: 'gemini-3.8-flash',
+  thinkingLevel: ThinkingLevel.MEDIUM,
+  maxOutputTokens: RESUME_MAX_OUTPUT_TOKENS,
+  temperature: 0.3,
+};
+
 const FLASH_37_LOW: ModelChoice = {
   model: 'gemini-3.7-flash',
   thinkingLevel: ThinkingLevel.LOW,
@@ -43,7 +57,8 @@ const FLASH_37_LOW: ModelChoice = {
 const FLASH_37_MEDIUM: ModelChoice = {
   model: 'gemini-3.7-flash',
   thinkingLevel: ThinkingLevel.MEDIUM,
-  maxOutputTokens: 16_384,
+  maxOutputTokens: RESUME_MAX_OUTPUT_TOKENS,
+  temperature: 0.3,
 };
 
 const PRO_31_LOW: ModelChoice = {
@@ -69,8 +84,8 @@ const FLASH_LITE_31: ModelChoice = {
  * never hard-code a model name.
  */
 export const AI_MODEL_POLICIES: Readonly<Record<AiTask, AiModelPolicy>> = {
-  resume_generate: { primary: FLASH_37_LOW, fallback: PRO_31_LOW },
-  resume_regenerate: { primary: FLASH_37_MEDIUM, fallback: PRO_31_LOW },
+  resume_generate: { primary: FLASH_38_MEDIUM, fallback: FLASH_37_MEDIUM },
+  resume_regenerate: { primary: FLASH_38_MEDIUM, fallback: FLASH_37_MEDIUM },
   ats_scan: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
   ats_gap: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
   latex_fix: { primary: FLASH_37_LOW, fallback: PRO_31_LOW },
@@ -205,20 +220,24 @@ type ModelPrice = {
   cachedInputPerMillion: number;
 };
 
+function geminiFlashPrice(at: Date): ModelPrice {
+  const promotional = at < new Date('2027-01-01T00:00:00Z');
+  return promotional
+    ? {
+        inputPerMillion: 0.75,
+        outputPerMillion: 3.75,
+        cachedInputPerMillion: 0.075,
+      }
+    : {
+        inputPerMillion: 1.5,
+        outputPerMillion: 7.5,
+        cachedInputPerMillion: 0.15,
+      };
+}
+
 function modelPrice(model: string, at: Date): ModelPrice | null {
-  if (model === 'gemini-3.7-flash') {
-    const promotional = at < new Date('2027-01-01T00:00:00Z');
-    return promotional
-      ? {
-          inputPerMillion: 0.75,
-          outputPerMillion: 3.75,
-          cachedInputPerMillion: 0.075,
-        }
-      : {
-          inputPerMillion: 1.5,
-          outputPerMillion: 7.5,
-          cachedInputPerMillion: 0.15,
-        };
+  if (model === 'gemini-3.8-flash' || model === 'gemini-3.7-flash') {
+    return geminiFlashPrice(at);
   }
   if (model === 'gemini-3.5-flash-lite') {
     return {
@@ -304,6 +323,7 @@ function emitUsageTelemetry(input: {
   userId?: string;
 }) {
   const estimatedCostUsd = estimateAiCostUsd(input.model, input.usage);
+  const aiRequestId = getAiRequestId();
   const properties = {
     ai_task: input.task,
     ai_model: input.model,
@@ -315,9 +335,16 @@ function emitUsageTelemetry(input: {
     ai_thought_tokens: input.usage?.thoughtsTokenCount ?? 0,
     ai_total_tokens: input.usage?.totalTokenCount ?? 0,
     ai_estimated_cost_usd: estimatedCostUsd,
+    ...(aiRequestId ? { ai_request_id: aiRequestId } : {}),
   };
 
   console.info('[ai-usage]', JSON.stringify(properties));
+  recordAiRequestCost({
+    task: input.task,
+    model: input.model,
+    costUsd: estimatedCostUsd,
+    fallbackUsed: input.fallbackUsed,
+  });
   if (input.userId) {
     void captureServerEvent(input.userId, 'ai_generation_completed', properties);
   }

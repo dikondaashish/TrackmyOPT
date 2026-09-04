@@ -48,7 +48,9 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 
 | Event | Source | Properties | Notes |
 |-------|--------|------------|-------|
-| `resume_generated` | Server | `template_id` | AI LaTeX returned |
+| `resume_generated` | Client | `template_id` | AI LaTeX returned in editor |
+| `resume_ai_cost_recorded` | Server | `ai_cost_usd`, `ai_cost_per_resume`, `ai_model`, `ai_call_count`, `template_id`, `source` | Unit economics — full pipeline cost per successful generate/regenerate |
+| `ai_generation_completed` | Server | `ai_task`, `ai_model`, `ai_estimated_cost_usd`, `ai_*_tokens`, `ai_request_id` | Per model call (generate, latex_fix, scan, …) |
 | `resume_downloaded` | Client | `ats_score` | PDF export |
 | `resume_ats_scored` | Client | `score` | Deep scan complete |
 | `nps_shown` | Client | `trigger`, `plan_tier`, `pathname`, `days_since_signup` | 0–10 NPS shown after a success milestone |
@@ -109,6 +111,7 @@ Set via `PostHogIdentify` / server identify:
 | North Star | [1802474](https://us.posthog.com/project/369087/dashboard/1802474) |
 | Blog → signup | [1802603](https://us.posthog.com/project/369087/dashboard/1802603) |
 | LTV / partners | [1802593](https://us.posthog.com/project/369087/dashboard/1802593) |
+| Resume AI unit economics | Run `pnpm posthog:ai-cost-dashboard` (creates dashboard) |
 | UX / Bug | [1707550](https://us.posthog.com/project/369087/dashboard/1707550) |
 
 ---

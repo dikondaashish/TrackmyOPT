@@ -36,6 +36,7 @@ import {
   type SchedulerAttempt,
 } from './scheduler-run-ledger';
 import { fetchAllPages } from './paginate';
+import { resolveJobDataStore } from './job-data-store.config';
 
 type AtsSource = {
   id: string;
@@ -95,6 +96,15 @@ export class JobBoardService implements OnModuleDestroy {
     private readonly employerMatches: EmployerMatchService,
     private readonly visaSignals: JobVisaSignalService,
   ) {
+    const jobDataStore = resolveJobDataStore(
+      this.config.get<string>('JOB_DATA_STORE'),
+    );
+    if (jobDataStore === 'oracle') {
+      throw new Error(
+        'Oracle job data store is not enabled yet; keep JOB_DATA_STORE=supabase until shadow validation completes',
+      );
+    }
+
     this.supabase = createClient(
       this.config.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
       this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',

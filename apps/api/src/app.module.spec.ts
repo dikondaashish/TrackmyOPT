@@ -46,6 +46,14 @@ describe('AppModule environment validation', () => {
     expect(appConfigValidationSchema.validate(config).error).toBeUndefined();
   });
 
+  it('defaults job data storage to Supabase', () => {
+    const result = appConfigValidationSchema.validate(completeConfig);
+    expect(result.error).toBeUndefined();
+    expect((result.value as { JOB_DATA_STORE?: string }).JOB_DATA_STORE).toBe(
+      'supabase',
+    );
+  });
+
   it.each([
     'NEXT_PUBLIC_SUPABASE_URL',
     'SUPABASE_SERVICE_ROLE_KEY',

@@ -4,8 +4,10 @@ import {
     escapeLatexForPromptInjection,
     extractEmployerNamesFromResume,
     extractLatexPreamble,
+    extractResumeStructuralAnchors,
     findLeakedTemplatePlaceholders,
     mergeModelLatexWithTemplate,
+    sanitizeTemplateForPrompt,
     stripModelLatexOutput,
     validateGeneratedResumeOutput,
     validatePreambleMatches,
@@ -50,11 +52,60 @@ demo
         expect(merged).toContain(String.raw`\newcommand{\rRole}[4]{#1}`);
         expect(merged).toContain(String.raw`\rRole{Engineer}{Acme}{}{}`);
         expect(merged).not.toContain(String.raw`\documentclass{report}`);
-        expect(validateGeneratedResumeOutput({
-            latex: merged,
-            templateTex: template,
-            resumeText: 'Engineer at Acme 2021 -- Present',
-        }).ok).toBe(true);
+    });
+
+    it('does not re-inject template demo contact macros', () => {
+        const template = String.raw`% header
+\documentclass{article}
+\newcommand{\rRole}[4]{#1}
+\def\name{Marcus Feld}
+\def\email{marcus.feld@example.com}
+\begin{document}
+demo
+\end{document}`;
+        const model = String.raw`\documentclass{article}
+\def\name{Ashish Dikonda}
+\def\email{dikondaashish7@gmail.com}
+\begin{document}
+\rRole{Analyst}{Zyene, Inc.}{}{}
+\end{document}`;
+
+        const merged = mergeModelLatexWithTemplate(template, model);
+        expect(merged).toContain(String.raw`\def\name{Ashish Dikonda}`);
+        expect(merged).not.toContain('Marcus Feld');
+        expect(merged).not.toContain('marcus.feld@example.com');
+    });
+});
+
+describe('sanitizeTemplateForPrompt', () => {
+    it('removes demo employers and contact values from the prompt template', () => {
+        const template = String.raw`\documentclass{article}
+\def\name{Marcus Feld}
+\begin{document}
+\rRole{Engineer}{Developer Tools Company}{}{}
+\end{document}`;
+
+        const sanitized = sanitizeTemplateForPrompt(template);
+        expect(sanitized).not.toContain('Marcus Feld');
+        expect(sanitized).not.toContain('Developer Tools Company');
+        expect(sanitized).toContain('CANDIDATE NAME');
+    });
+});
+
+describe('extractResumeStructuralAnchors', () => {
+    it('extracts the candidate name and employers from a plain-text resume', () => {
+        const resume = [
+            'Ashish Dikonda',
+            'Zyene, Inc.\t\tDec 2025 – Current',
+            'Bank of America\t\tSep 2025 – May 2026',
+            'OptumRx (UnitedHealth Group)\t\tMay 2024 – Aug 2025',
+        ].join('\n');
+
+        const anchors = extractResumeStructuralAnchors(resume);
+        expect(anchors.candidateName).toBe('Ashish Dikonda');
+        expect(anchors.employers.some((name) => /Zyene/i.test(name))).toBe(true);
+        expect(anchors.employers.some((name) => /Bank of America/i.test(name))).toBe(true);
+        expect(anchors.employers.some((name) => /OptumRx/i.test(name))).toBe(true);
     });
 });
 
@@ -114,16 +165,18 @@ describe('validateGeneratedResumeOutput', () => {
         );
     });
 
-    it('does not fail when one of several date ranges lacks a matching role macro', () => {
+    it('rejects fabricated employers and missing candidate name', () => {
         const resume = [
-            'Engineer, Foo Inc    2021 -- Present',
-            'Intern, Bar LLC    2019 -- 2020',
+            'Ashish Dikonda',
+            'Zyene, Inc.\t\tDec 2025 – Current',
+            'Bank of America\t\tSep 2025 – May 2026',
+            'OptumRx (UnitedHealth Group)\t\tMay 2024 – Aug 2025',
         ].join('\n');
         const latex = String.raw`\documentclass{article}
-\newcommand{\rRole}[4]{#1}
 \begin{document}
-\rRole{A}{Foo Inc}{}{}
-\rRole{B}{Bar LLC}{}{}
+\def\name{Marcus Feld}
+\rRole{Analyst}{Healthcare and Enterprise Solutions}{}{}
+\rRole{Analyst}{Technology and Analytics Solutions}{}{}
 \end{document}`;
 
         const result = validateGeneratedResumeOutput({
@@ -131,6 +184,31 @@ describe('validateGeneratedResumeOutput', () => {
             templateTex: latex,
             resumeText: resume,
         });
+        expect(result.ok).toBe(false);
+        expect(result.issues.some((issue) => issue.includes('Ashish Dikonda'))).toBe(true);
+        expect(result.issues.some((issue) => issue.includes('missing employers'))).toBe(true);
+    });
+
+    it('does not fail when one of several date ranges lacks a matching role macro', () => {
+        const resume = [
+            'Jane Candidate',
+            'Engineer, Foo Inc    2021 -- Present',
+            'Intern, Bar LLC    2019 -- 2020',
+        ].join('\n');
+        const latex = String.raw`\documentclass{article}
+\newcommand{\rRole}[4]{#1}
+\begin{document}
+\def\name{Jane Candidate}
+\rRole{A}{Foo Inc}{}{}
+\rRole{B}{Bar LLC}{}{}
+\end{document}`;
+
+        const result = validateGeneratedResumeOutput({
+            latex,
+            templateTex: String.raw`\documentclass{article}\begin{document}\end{document}`,
+            resumeText: resume,
+        });
+        expect(result.issues, result.issues.join('; ')).toEqual([]);
         expect(result.ok).toBe(true);
     });
 });
