@@ -3,8 +3,16 @@ import {
   MIN_INTER_REQUEST_GAP_MS,
   planSourceIngestionJobs,
 } from './source-job-planning';
+import {
+  JOB_BOARD_SOURCE_CONCURRENCY,
+  JOB_BOARD_SLOW_SOURCE_CONCURRENCY,
+} from './job-board.processor';
 
 describe('source ingestion job planning', () => {
+  it('keeps source workers bounded for the shared Oracle pool', () => {
+    expect(JOB_BOARD_SOURCE_CONCURRENCY).toBe(1);
+    expect(JOB_BOARD_SLOW_SOURCE_CONCURRENCY).toBe(1);
+  });
   it('creates one independently retryable queue job per enabled source', () => {
     const context = {
       schedulerRunId: 'job-board-hour-2026-09-01T03',

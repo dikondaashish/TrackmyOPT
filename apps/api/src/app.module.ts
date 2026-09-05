@@ -53,6 +53,10 @@ export const appConfigValidationSchema = Joi.object({
   ORACLE_JOB_DB_USER: Joi.string().min(1).optional(),
   ORACLE_JOB_DB_PASSWORD: Joi.string().min(1).optional(),
   ORACLE_JOB_DB_POOL_MAX: Joi.number().integer().min(1).max(10).default(4),
+  // Emergency-only operational guard for draining Bull safely after a
+  // restart. Disabled by default and scoped to the two job-board queues.
+  JOB_BOARD_QUEUE_CONTROL_ENABLED: Joi.boolean().default(false),
+  JOB_BOARD_QUEUE_PAUSE_ON_BOOT: Joi.boolean().default(false),
 });
 
 /** Fail fast on bad Redis instead of hanging Render health checks for ~15m. */

@@ -224,6 +224,62 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(executed[0]?.sql).toBe('SELECT 1 AS "ok" FROM dual');
   });
 
+  it('reuses one pool when concurrent first operations initialize the store', async () => {
+    const { connection } = setup();
+    let createPoolCalls = 0;
+    let releasePool!: () => void;
+    const poolReady = new Promise<void>((resolve) => {
+      releasePool = resolve;
+    });
+    const driver: OracleDriver = {
+      OUT_FORMAT_OBJECT: 4002,
+      createPool: async () => {
+        createPoolCalls += 1;
+        await poolReady;
+        return {
+          getConnection: () => Promise.resolve(connection),
+          close: () => Promise.resolve(),
+        };
+      },
+    };
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+
+    const first = store.healthCheck();
+    const second = store.healthCheck();
+    await Promise.resolve();
+    releasePool();
+    await Promise.all([first, second]);
+
+    expect(createPoolCalls).toBe(1);
+  });
+
+  it('does not recreate a pool after a clean shutdown', async () => {
+    const { driver } = setup();
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+
+    await store.close();
+
+    await expect(store.healthCheck()).rejects.toThrow(
+      'Oracle job store is closed',
+    );
+  });
+
   it('upserts rows with the source/external identity key and commits atomically', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(

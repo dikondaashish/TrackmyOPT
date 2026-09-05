@@ -119,6 +119,22 @@ export class JobBoardController {
     const job = await this.jobBoard.queueCompanyDiscovery();
     return { status: 'queued', jobId: job.id };
   }
+
+  /** Temporary API-key-protected operational controls, disabled by default. */
+  @Get('ops/ingestion-queue')
+  getIngestionQueueState() {
+    return this.jobBoard.getIngestionQueueState();
+  }
+
+  @Post('ops/ingestion-queue/pause')
+  pauseIngestionQueues() {
+    return this.jobBoard.pauseIngestionQueues();
+  }
+
+  @Post('ops/ingestion-queue/resume')
+  resumeIngestionQueues() {
+    return this.jobBoard.resumeIngestionQueues();
+  }
 }
 
 function positiveInteger(value: string | undefined, fallback: number) {

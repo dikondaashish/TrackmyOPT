@@ -1,5 +1,11 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -87,11 +93,12 @@ const sleep = (durationMs: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, durationMs));
 
 @Injectable()
-export class JobBoardService implements OnModuleDestroy {
+export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(JobBoardService.name);
   private readonly supabase: SupabaseClient;
   private shuttingDown = false;
   private readonly inFlightAuditIds = new Set<string>();
+  private readonly activeSourceWork = new Set<Promise<unknown>>();
   private pacingTail: Promise<void> = Promise.resolve();
   private nextRequestAt = 0;
 
@@ -107,6 +114,47 @@ export class JobBoardService implements OnModuleDestroy {
       this.config.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
       this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
     ) as unknown as SupabaseClient;
+  }
+
+  /** Emergency-only control for the two job-board Bull queues. */
+  async onModuleInit() {
+    if (this.config.get<boolean>('JOB_BOARD_QUEUE_PAUSE_ON_BOOT') !== true)
+      return;
+    await Promise.all([this.queue.pause(true), this.slowQueue.pause(true)]);
+    this.logger.warn('Job-board Bull queues paused by boot safety guard');
+  }
+
+  private assertQueueControlEnabled() {
+    if (this.config.get<boolean>('JOB_BOARD_QUEUE_CONTROL_ENABLED') !== true)
+      throw new Error('Job-board queue control is disabled');
+  }
+
+  async getIngestionQueueState() {
+    this.assertQueueControlEnabled();
+    const [normal, slow] = await Promise.all([
+      this.queue.getJobCounts(),
+      this.slowQueue.getJobCounts(),
+    ]);
+    return {
+      queues: {
+        'job-board': normal,
+        'job-board-slow': slow,
+      },
+      stalled: 0,
+      note: 'Bull does not retain stalled jobs as a persistent queue state; inspect worker logs for stall events.',
+    };
+  }
+
+  async pauseIngestionQueues() {
+    this.assertQueueControlEnabled();
+    await Promise.all([this.queue.pause(true), this.slowQueue.pause(true)]);
+    return this.getIngestionQueueState();
+  }
+
+  async resumeIngestionQueues() {
+    this.assertQueueControlEnabled();
+    await Promise.all([this.queue.resume(), this.slowQueue.resume()]);
+    return this.getIngestionQueueState();
   }
 
   async queueEnabledSources(context: SchedulerContext) {
@@ -305,6 +353,16 @@ export class JobBoardService implements OnModuleDestroy {
     sourceId: string,
     context: SchedulerContext,
   ): Promise<IngestionResult> {
+    if (this.shuttingDown) return { sourceId, skipped: 'instance_restarting' };
+    return this.trackSourceWork(() =>
+      this.ingestSourceByIdInternal(sourceId, context),
+    );
+  }
+
+  private async ingestSourceByIdInternal(
+    sourceId: string,
+    context: SchedulerContext,
+  ): Promise<IngestionResult> {
     const { data, error } = await this.supabase
       .from('ats_sources')
       .select(
@@ -315,6 +373,14 @@ export class JobBoardService implements OnModuleDestroy {
     if (error) throw new Error(error.message);
     if (!data) throw new Error(`Unknown ATS source ${sourceId}`);
     return this.ingestSource(data as AtsSource, context);
+  }
+
+  private trackSourceWork<T>(work: () => Promise<T>): Promise<T> {
+    const tracked = Promise.resolve()
+      .then(work)
+      .finally(() => this.activeSourceWork.delete(tracked));
+    this.activeSourceWork.add(tracked);
+    return tracked;
   }
 
   private async ingestSource(source: AtsSource, context: SchedulerContext) {
@@ -368,6 +434,11 @@ export class JobBoardService implements OnModuleDestroy {
         fetched.jobs,
         fetched.metadata.complete,
       );
+      // onModuleDestroy finalizes the audit as "instance restarted" before
+      // waiting for this promise to settle. Do not attempt to complete that
+      // already-terminal audit or record post-shutdown source health.
+      if (this.shuttingDown)
+        return { sourceId: source.id, skipped: 'instance_restarting' };
       await this.complete(
         reservation.audit_log_id,
         fetched.jobs.length,
@@ -393,6 +464,7 @@ export class JobBoardService implements OnModuleDestroy {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unknown ingestion error';
+      if (this.shuttingDown) throw error;
       await this.complete(
         reservation.audit_log_id,
         0,
@@ -487,6 +559,10 @@ export class JobBoardService implements OnModuleDestroy {
       );
       this.inFlightAuditIds.clear();
     } finally {
+      // Bull can deliver SIGTERM while a source is between its fetch and
+      // persistence steps. Wait for those promises to settle before closing
+      // the shared Oracle pool; otherwise active work receives NJS-064.
+      await Promise.allSettled([...this.activeSourceWork]);
       await this.jobStore.close?.();
     }
   }

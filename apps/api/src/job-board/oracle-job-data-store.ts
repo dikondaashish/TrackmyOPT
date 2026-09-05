@@ -321,6 +321,12 @@ function needsOracleExactCheck(value: string): boolean {
  */
 export class OracleJobDataStore implements JobDataStore {
   private pool: OraclePool | null = null;
+  /**
+   * Pool creation is asynchronous. Keep the in-flight promise so concurrent
+   * first requests share one pool instead of racing to create several pools.
+   */
+  private poolInitialization: Promise<OraclePool> | null = null;
+  private closed = false;
 
   constructor(
     private readonly config: OracleJobDataConfig,
@@ -340,20 +346,28 @@ export class OracleJobDataStore implements JobDataStore {
   }
 
   async initialize() {
+    if (this.closed) throw new Error('Oracle job store is closed');
     if (this.pool) return;
-    this.pool = await this.driver.createPool({
-      user: this.config.user,
-      password: this.config.password,
-      connectString: this.config.connectString,
-      poolMin: 0,
-      poolMax: this.config.poolMax,
-      poolIncrement: 1,
-      queueTimeout: 5_000,
-      // Bound a shadow probe's connection handshake without changing the
-      // database-neutral job-store contract or Supabase production path.
-      connectTimeout: 10,
-      stmtCacheSize: 30,
-    });
+    if (!this.poolInitialization) {
+      this.poolInitialization = this.driver.createPool({
+        user: this.config.user,
+        password: this.config.password,
+        connectString: this.config.connectString,
+        poolMin: 0,
+        poolMax: this.config.poolMax,
+        poolIncrement: 1,
+        queueTimeout: 5_000,
+        // Bound a shadow probe's connection handshake without changing the
+        // database-neutral job-store contract or Supabase production path.
+        connectTimeout: 10,
+        stmtCacheSize: 30,
+      });
+    }
+    try {
+      this.pool = await this.poolInitialization;
+    } finally {
+      this.poolInitialization = null;
+    }
   }
 
   async healthCheck() {
@@ -1180,9 +1194,21 @@ export class OracleJobDataStore implements JobDataStore {
   }
 
   async close() {
-    if (!this.pool) return;
-    await this.pool.close(5);
+    if (this.closed) return;
+    this.closed = true;
+    // Never close a pool while it is still being created. This also makes
+    // shutdown idempotent when Nest invokes multiple teardown hooks.
+    const initializing = this.poolInitialization;
+    if (initializing) {
+      try {
+        await initializing;
+      } catch {
+        // The initialization caller owns the original error.
+      }
+    }
+    const pool = this.pool;
     this.pool = null;
+    if (pool) await pool.close(5);
   }
 
   private async connection() {

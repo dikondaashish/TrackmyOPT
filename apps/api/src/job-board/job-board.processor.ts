@@ -10,6 +10,12 @@ import { JobBoardService } from './job-board.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
 import type { SchedulerContext } from './scheduler-run-id';
 
+// Oracle's Always Free service has a small connection budget. Keep one normal
+// source and one slow source in flight per process; the shared Oracle pool and
+// user-facing reads retain the remaining capacity.
+export const JOB_BOARD_SOURCE_CONCURRENCY = 1;
+export const JOB_BOARD_SLOW_SOURCE_CONCURRENCY = 1;
+
 @Processor('job-board')
 export class JobBoardProcessor {
   private readonly logger = new Logger(JobBoardProcessor.name);
@@ -34,7 +40,7 @@ export class JobBoardProcessor {
     return result;
   }
 
-  @Process({ name: 'ingest-source', concurrency: 2 })
+  @Process({ name: 'ingest-source', concurrency: JOB_BOARD_SOURCE_CONCURRENCY })
   async ingestSource(
     job: Bull.Job<
       { sourceId: string; pacingGapMs?: number } & SchedulerContext
@@ -95,7 +101,10 @@ export class SlowJobBoardProcessor {
 
   constructor(private readonly jobBoard: JobBoardService) {}
 
-  @Process({ name: 'ingest-source', concurrency: 1 })
+  @Process({
+    name: 'ingest-source',
+    concurrency: JOB_BOARD_SLOW_SOURCE_CONCURRENCY,
+  })
   async ingestSource(
     job: Bull.Job<
       { sourceId: string; pacingGapMs?: number } & SchedulerContext
