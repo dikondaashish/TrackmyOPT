@@ -37,7 +37,7 @@ describe('JobBoardService shutdown lifecycle', () => {
 
     await service.onModuleInit();
 
-    expect(queue.pause).toHaveBeenCalledWith(true);
+    expect(queue.pause).toHaveBeenCalledWith();
     expect(queue.pause).toHaveBeenCalledTimes(2);
   });
 

@@ -120,7 +120,9 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     if (this.config.get<boolean>('JOB_BOARD_QUEUE_PAUSE_ON_BOOT') !== true)
       return;
-    await Promise.all([this.queue.pause(true), this.slowQueue.pause(true)]);
+    // Pause globally so persisted Bull work cannot continue on another worker
+    // or resume while this process is being inspected/restarted.
+    await Promise.all([this.queue.pause(), this.slowQueue.pause()]);
     this.logger.warn('Job-board Bull queues paused by boot safety guard');
   }
 
@@ -147,7 +149,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
 
   async pauseIngestionQueues() {
     this.assertQueueControlEnabled();
-    await Promise.all([this.queue.pause(true), this.slowQueue.pause(true)]);
+    await Promise.all([this.queue.pause(), this.slowQueue.pause()]);
     return this.getIngestionQueueState();
   }
 
