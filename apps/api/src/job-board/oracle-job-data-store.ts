@@ -847,7 +847,7 @@ export class OracleJobDataStore implements JobDataStore {
          WHERE child.constraint_type = 'R'
            AND parent.table_name = 'JOBS'
            AND parent_cols.column_name = 'ID'`,
-        undefined,
+        {},
         outputOptions(this.driver),
       );
       for (const row of dependentConstraints.rows || []) {
