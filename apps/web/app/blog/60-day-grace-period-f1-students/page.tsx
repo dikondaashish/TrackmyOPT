@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function GracePeriodPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/60-day-grace-period-f1-students.jpg" alt="A calendar with a departure date circled, next to an I-20 and an airline itinerary" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/60-day-grace-period-f1-students.jpg" alt="A calendar with a departure date circled, next to an I-20 and an airline itinerary" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">The US immigration system provides a buffer for F-1 students transitioning out of their status. This buffer is known as the 60-day grace period. However, many students misunderstand when it applies, what they can do during this time, and how travel affects it.</p>

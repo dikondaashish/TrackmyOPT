@@ -449,7 +449,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
             Privacy choices
           </button>
           <span>·</span>
-          <a href="/dashboard/help" className="hover:text-foreground transition-colors">Help</a>
+          <a href="/help" className="hover:text-foreground transition-colors">Help</a>
         </div>
         <p>© {currentYear ?? ""} TrackMyOPT by Zyene, Inc. All rights reserved.</p>
       </footer>

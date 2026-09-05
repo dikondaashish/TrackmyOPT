@@ -12,6 +12,8 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { AuthorBio } from '@/components/blog/AuthorBio';
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 
@@ -612,7 +614,9 @@ export default function F1VisaSocialMediaScreeningPage() {
           </p>
         </section>
 
-        <AuthorBio />
+        
+            <RelatedPosts posts={getRelatedPostsForSlug("f1-visa-social-media-screening-2026")} />
+            <AuthorBio />
       </div>
     </article>
   );

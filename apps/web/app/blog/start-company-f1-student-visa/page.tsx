@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, AlertTriangle, FileText, Download, CheckCircle, Lightbulb } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -66,11 +69,9 @@ export default function F1StartupArticle() {
             </header>
 
             <figure className="mb-12">
-                <img 
-                    src="/blog/f1-startup.png" 
-                    alt="F-1 student reviewing incorporation documents in a library" 
-                    className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" 
-                />
+                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/f1-startup.png" alt="F-1 student reviewing incorporation documents in a library" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     While studying on an F-1 visa, your involvement in any U.S. business must remain strictly passive.
                 </figcaption>
@@ -198,6 +199,8 @@ export default function F1StartupArticle() {
                 </section>
             </div>
             
+            
+            <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-student-visa")} />
             <AuthorBio />
 
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">

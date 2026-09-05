@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, BookOpen, GraduationCap, Building2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -94,11 +95,9 @@ export default function CPTCompleteGuide() {
 
             {/* Hero Image */}
             <figure className="mb-12">
-                <img
-                    src="/blog/cpt-complete-guide.png"
-                    alt="University bulletin board with CPT application forms and internship flyers"
-                    className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800"
-                />
+                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/cpt-complete-guide.png" alt="University bulletin board with CPT application forms and internship flyers" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     CPT allows F-1 students to gain practical work experience while still enrolled in their degree program.
                 </figcaption>

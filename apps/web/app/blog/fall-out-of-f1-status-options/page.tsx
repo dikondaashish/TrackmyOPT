@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, Plane, RefreshCw, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -63,11 +64,7 @@ export default function FallOutOfStatusPage() {
             </header>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img
-                    src="/blog/fall-out-of-f1-status-options.png"
-                    alt="Stressed student desk with passport, I-20, and phone showing missed deadlines"
-                    className="object-cover w-full h-full"
-                />
+                <BlogPostImage src="/blog/fall-out-of-f1-status-options.png" alt="Stressed student desk with passport, I-20, and phone showing missed deadlines" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
             <div className="prose prose-lg dark:prose-invert max-w-none">

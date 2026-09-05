@@ -44,7 +44,7 @@ export function getStatusNextSteps(
       return [
         {
           label: "Review help resources",
-          href: "/dashboard/help",
+          href: "/help",
           description: "Next steps to discuss with your DSO or attorney.",
         },
       ];

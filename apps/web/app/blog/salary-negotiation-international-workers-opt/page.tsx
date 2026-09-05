@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function SalaryNegotiationPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/salary-negotiation-international-workers-opt.jpg" alt="A desk with an offer letter, a smartphone calculator, and financial documents" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/salary-negotiation-international-workers-opt.jpg" alt="A desk with an offer letter, a smartphone calculator, and financial documents" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">When an employer finally says "Yes, we will sponsor your H-1B," the immediate instinct for an international student is to sign the offer letter immediately. The fear is that if you push for more money, they will realize you are too "expensive" or "difficult" and rescind the offer. This fear costs international students thousands of dollars every year.</p>

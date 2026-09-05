@@ -115,7 +115,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                         SEVP portal
                     </a>{" "}
                     and model job gaps with{" "}
-                    <Link href="/dashboard/opt-tools/opt-clock" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                    <Link href="/tools/opt-clock" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
                         TrackMyOPT&apos;s OPT Clock
                     </Link>
                     .
@@ -242,7 +242,7 @@ export default function OptUnemploymentDaysCalculatorGuidePage() {
                     ))}
                 </ul>
                 <Link
-                    href="/dashboard/opt-tools/opt-clock"
+                    href="/tools/opt-clock"
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
                 >
                     Open OPT Clock <ArrowRight className="w-4 h-4" />

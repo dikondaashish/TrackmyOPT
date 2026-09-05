@@ -91,7 +91,7 @@ export default function CompliancePage() {
                 ctaHref="/login"
                 secondaryCta={{
                     text: "See Calculator",
-                    href: "/dashboard/opt-tools/opt-clock"
+                    href: "/tools/opt-clock"
                 }}
                 gradient="from-blue-600 to-indigo-600"
                 visual={<ComplianceShield />}
@@ -208,7 +208,7 @@ export default function CompliancePage() {
                                 submit SEVP updates, and prepare for status changes.
                             </P>
                             <Link
-                                href="/dashboard/opt-tools/opt-clock"
+                                href="/tools/opt-clock"
                                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
                             >
                                 Try the Calculator

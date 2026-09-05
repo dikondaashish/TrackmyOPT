@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, XCircle, CheckCircle2 } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -86,11 +89,7 @@ export default function USCISSignaturePage() {
             </header>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img
-                    src="/blog/uscis-new-strict-signature-requirements-2026.png"
-                    alt="Fountain pen signing a government document"
-                    className="w-full h-full object-cover"
-                />
+                <BlogPostImage src="/blog/uscis-new-strict-signature-requirements-2026.png" alt="Fountain pen signing a government document" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
             <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-a:text-primary hover:prose-a:text-blue-700">
@@ -178,7 +177,9 @@ export default function USCISSignaturePage() {
                     </div>
                 </section>
 
-                <AuthorBio />
+                
+            <RelatedPosts posts={getRelatedPostsForSlug("uscis-new-strict-signature-requirements-2026")} />
+            <AuthorBio />
             </div>
         </article>
     );

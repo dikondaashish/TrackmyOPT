@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, BookOpen, Award, Compass } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -90,11 +91,9 @@ export default function EB2NIWGuide() {
             </header>
 
             <figure className="mb-12">
-                <img
-                    src="/blog/eb2-niw-green-card-opt.png"
-                    alt="Academic research papers, laptop showing academic paper, and Form I-140 folder on library desk"
-                    className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800"
-                />
+                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/eb2-niw-green-card-opt.png" alt="Academic research papers, laptop showing academic paper, and Form I-140 folder on library desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Your academic papers, publications, and professional endeavor form the core of your EB-2 NIW petition.
                 </figcaption>

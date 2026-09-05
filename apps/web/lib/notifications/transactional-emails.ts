@@ -754,7 +754,7 @@ export function buildWelcomeFreeEmailBodies(firstName: string | null): {
   const settingsUrl = `${base}/dashboard/settings`;
   const resumeUrl = `${base}/dashboard/career/resume-generator`;
   const caseStatusUrl = `${base}/dashboard/case-status`;
-  const optToolsUrl = `${base}/dashboard/opt-tools/opt-apply`;
+  const optToolsUrl = `${base}/tools/opt-apply`;
   const chromeExtensionUrl =
     "https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm";
   const pricingUrl = `${base}/premium/checkout`;
@@ -1422,7 +1422,7 @@ export function buildPremiumWelcomeEmailBodies(firstName: string | null): {
   const settingsUrl = `${base}/dashboard/settings`;
   const resumeUrl = `${base}/dashboard/career/resume-generator`;
   const caseStatusUrl = `${base}/dashboard/case-status`;
-  const optToolsUrl = `${base}/dashboard/opt-tools/opt-apply`;
+  const optToolsUrl = `${base}/tools/opt-apply`;
   const documentsUrl = `${base}/dashboard/documents`;
   const sponsorsUrl = `${base}/dashboard/career/h1b-sponsors`;
   const chromeExtensionUrl =

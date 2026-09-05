@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, Briefcase, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -63,11 +64,7 @@ export default function H4EADPage() {
             </header>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img
-                    src="/blog/h4-ead-opt-spouse-work-authorization.jpg"
-                    alt="Two EAD cards and two passports with H-1B and H-4 visa stamps next to wedding rings"
-                    className="object-cover w-full h-full"
-                />
+                <BlogPostImage src="/blog/h4-ead-opt-spouse-work-authorization.jpg" alt="Two EAD cards and two passports with H-1B and H-4 visa stamps next to wedding rings" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
             <div className="prose prose-lg dark:prose-invert max-w-none">

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, UserCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -90,11 +91,9 @@ export default function GreenCardAfterOPT() {
             </header>
 
             <figure className="mb-12">
-                <img
-                    src="/blog/green-card-after-opt.png"
-                    alt="Application for Permanent Residence documents and US passport on a wooden desk"
-                    className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800"
-                />
+                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/green-card-after-opt.png" alt="Application for Permanent Residence documents and US passport on a wooden desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Understanding the immigration timeline and preparation steps is key to a successful transition.
                 </figcaption>

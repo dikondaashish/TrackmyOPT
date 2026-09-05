@@ -11,6 +11,8 @@ import {
   ShieldAlert,
   Timer,
 } from 'lucide-react';
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { AuthorBio } from '@/components/blog/AuthorBio';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
@@ -820,7 +822,9 @@ export default function USCISDenyWithoutRFEPolicyPage() {
           </p>
         </section>
 
-        <AuthorBio />
+        
+            <RelatedPosts posts={getRelatedPostsForSlug("uscis-deny-without-rfe-policy-2026")} />
+            <AuthorBio />
       </div>
     </article>
   );

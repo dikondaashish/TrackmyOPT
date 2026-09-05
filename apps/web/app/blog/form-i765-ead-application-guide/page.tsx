@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck, CreditCard, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -72,11 +73,9 @@ export default function FormI765GuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Published: February 21, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <img
-                src="/blog/form-i765.png"
-                alt="Form I-765 Application for Employment Authorization document with EAD card on office desk"
-                className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800"
-            />
+            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+                <BlogPostImage src="/blog/form-i765.png" alt="Form I-765 Application for Employment Authorization document with EAD card on office desk" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
+            </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
                 Form I-765 is the USCIS application F-1 OPT students file to receive their Employment Authorization Document (EAD card).
             </figcaption>

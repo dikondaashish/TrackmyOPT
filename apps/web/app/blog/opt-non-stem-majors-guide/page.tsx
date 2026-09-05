@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function NonStemOPTPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/opt-non-stem-majors-guide.jpg" alt="Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/opt-non-stem-majors-guide.jpg" alt="Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Let's address the elephant in the room: being a non-STEM international student in the US is playing the game on "Hard Mode." While your engineering peers get 3 years (36 months) of work authorization and 3 chances at the H-1B lottery, you get exactly 12 months. One year. One lottery chance. Here is how you survive and thrive.</p>

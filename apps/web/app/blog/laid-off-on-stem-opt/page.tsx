@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -86,7 +87,7 @@ export default function LaidOffOnStemOptPage() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/laid-off-on-stem-opt.png" alt="Form I-983 with 150-Day Rule sticky note, termination letter, and STEM OPT dashboard on laptop" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/laid-off-on-stem-opt.png" alt="Form I-983 with 150-Day Rule sticky note, termination letter, and STEM OPT dashboard on laptop" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
@@ -290,7 +291,7 @@ export default function LaidOffOnStemOptPage() {
         </div>
 
         <p>
-          Use the <Link href="/dashboard/opt-tools/opt-clock">TrackMyOPT unemployment clock</Link>{" "}
+          Use the <Link href="/tools/opt-clock">TrackMyOPT unemployment clock</Link>{" "}
           to maintain a running total across both OPT periods in one view.
         </p>
 

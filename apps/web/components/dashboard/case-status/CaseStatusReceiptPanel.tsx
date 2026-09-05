@@ -79,8 +79,8 @@ export function CaseStatusReceiptPanel({
   const isStemExtension =
     normalizeFilingCategory(filingCategory) === "stem_extension";
   const filingWindowHref = isStemExtension
-    ? "/dashboard/opt-tools/stem-apply"
-    : "/dashboard/opt-tools/opt-apply";
+    ? "/tools/stem-apply"
+    : "/tools/opt-apply";
   const filingWindowLabel = isStemExtension
     ? "Check your STEM OPT filing window"
     : "Check your OPT filing window";

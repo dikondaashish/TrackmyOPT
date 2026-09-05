@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function FirstPaycheckPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/first-us-paycheck-deductions-w4.jpg" alt="Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/first-us-paycheck-deductions-w4.jpg" alt="Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You started your OPT job, worked hard for two weeks, and excitedly opened your first pay stub. The gross pay says $3,000, but the net pay (what you actually received) is only $2,100. Where did the other $900 go? Let's break down every single deduction line by line.</p>

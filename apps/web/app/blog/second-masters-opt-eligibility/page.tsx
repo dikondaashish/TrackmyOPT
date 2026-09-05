@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, GraduationCap } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -98,11 +101,9 @@ export default function BlogPost() {
                 </header>
 
                 <figure className="mb-12">
-                    <img 
-                        src="/blog/second-masters-opt.png" 
-                        alt="International college student with two graduation caps studying at a library desk" 
-                        className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" 
-                    />
+                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/second-masters-opt.png" alt="International college student with two graduation caps studying at a library desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                </div>
                     <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                         OPT is awarded based on progressing to higher educational levels, not just for completing any new degree program.
                     </figcaption>
@@ -265,7 +266,9 @@ export default function BlogPost() {
                         </div>
                     </div>
 
-                    <AuthorBio />
+                    
+            <RelatedPosts posts={getRelatedPostsForSlug("second-masters-opt-eligibility")} />
+            <AuthorBio />
                 </div>
             </div>
         </article>

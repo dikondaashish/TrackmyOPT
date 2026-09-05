@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -64,7 +65,7 @@ export default function EadCardLostStolenPage() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/ead-card-lost-stolen-incorrect-never-delivered.png" alt="Open empty wallet, USCIS case status showing Card Was Mailed, USPS tracking printout and Form I-765" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/ead-card-lost-stolen-incorrect-never-delivered.png" alt="Open empty wallet, USCIS case status showing Card Was Mailed, USPS tracking printout and Form I-765" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}

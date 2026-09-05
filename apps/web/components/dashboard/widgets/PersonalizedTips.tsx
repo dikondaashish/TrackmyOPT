@@ -48,7 +48,7 @@ const ALL_TIPS: Tip[] = [
     type: "urgent",
     title: "Unemployment Limit Critical",
     message: "You're close to the unemployment day limit. Log employment on OPT Dates and talk to your DSO about next steps.",
-    action: { label: "Job Search Resources", href: "/dashboard/help#job-search" },
+    action: { label: "Job Search Resources", href: "/help#job-search" },
     condition: (data) => data.hasEmployment && data.unemploymentDays >= data.maxUnemploymentDays * 0.9,
   },
   {
@@ -72,7 +72,7 @@ const ALL_TIPS: Tip[] = [
     type: "success",
     title: "Filing Window is Open",
     message: "You can now submit your OPT application. Don't wait until the last minute!",
-    action: { label: "OPT Apply Tool", href: "/dashboard/opt-tools/opt-apply" },
+    action: { label: "OPT Apply Tool", href: "/tools/opt-apply" },
     condition: (data) => data.daysUntilFilingWindow !== null && data.daysUntilFilingWindow <= 0,
   },
   {
@@ -80,7 +80,7 @@ const ALL_TIPS: Tip[] = [
     type: "urgent",
     title: "OPT Expiring Soon",
     message: "Your OPT expires in less than 60 days. If you're STEM eligible, apply for the extension now.",
-    action: { label: "STEM Extension", href: "/dashboard/opt-tools/stem-apply" },
+    action: { label: "STEM Extension", href: "/tools/stem-apply" },
     condition: (data) => data.daysUntilOPTEnd !== null && data.daysUntilOPTEnd <= 60 && data.daysUntilOPTEnd > 0 && data.isStemEligible && !data.hasStemStarted,
   },
   {
@@ -88,7 +88,7 @@ const ALL_TIPS: Tip[] = [
     type: "info",
     title: "STEM Extension Available",
     message: "You're eligible for a 24-month STEM OPT extension. Learn about the requirements and timeline.",
-    action: { label: "Learn More", href: "/dashboard/opt-tools/stem-apply" },
+    action: { label: "Learn More", href: "/tools/stem-apply" },
     condition: (data) => data.isStemEligible && !data.hasStemStarted && (data.daysUntilOPTEnd === null || data.daysUntilOPTEnd > 60),
   },
   {
@@ -104,7 +104,7 @@ const ALL_TIPS: Tip[] = [
     type: "info",
     title: "STEM OPT Reporting Reminder",
     message: "On STEM OPT, validate employment in the SEVP Portal every 6 months. Set a calendar reminder with your DSO's guidance.",
-    action: { label: "Learn More", href: "/dashboard/help#stem-reporting" },
+    action: { label: "Learn More", href: "/help#stem-reporting" },
     condition: (data) => data.hasStemStarted,
   },
   {

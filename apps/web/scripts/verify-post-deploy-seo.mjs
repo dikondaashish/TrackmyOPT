@@ -27,7 +27,7 @@ const JSON_LD_PATHS = [
 const REDIRECT_CHECKS = [
   ["/community", "/features/community"],
   ["/signup", "/login"],
-  ["/help", "/dashboard/help"],
+  ["/help", "/help"],
   ["/blog/opt-processing-time", "/blog/opt-processing-time-2026"],
   ["/blog/uscis-case-status-tracking-guide", "/blog/uscis-case-status-tracking-guide"],
   ["/blog/can-you-travel-on-opt-complete-guide", "/blog/can-you-travel-on-opt-complete-guide"],

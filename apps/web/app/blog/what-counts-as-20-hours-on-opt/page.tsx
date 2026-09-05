@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -62,7 +63,7 @@ export default function WhatCountsAs20HoursPage() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/what-counts-as-20-hours-on-opt.png" alt="Weekly timesheet with hours tracked, two employee badges, and notebook showing combined hours calculation" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/what-counts-as-20-hours-on-opt.png" alt="Weekly timesheet with hours tracked, two employee badges, and notebook showing combined hours calculation" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}

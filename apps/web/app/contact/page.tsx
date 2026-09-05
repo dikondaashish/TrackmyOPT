@@ -333,7 +333,7 @@ export default function ContactPage() {
                 ctaHref="mailto:support@trackmyopt.com"
                 secondaryCta={{
                     text: "Help Center",
-                    href: "/dashboard/help"
+                    href: "/help"
                 }}
                 gradient="from-blue-600 to-indigo-600"
                 visual={<ContactVisual />}

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function MBAOPTPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/opt-mba-students-career-paths.jpg" alt="Laptop showing a business presentation, next to a sketchbook and an EAD card" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/opt-mba-students-career-paths.jpg" alt="Laptop showing a business presentation, next to a sketchbook and an EAD card" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Pursuing an MBA in the US as an international student is a massive financial and emotional investment. But graduating with that prestigious degree doesn't make you immune to the harsh realities of the US immigration system. Navigating OPT as an MBA requires a highly strategic approach to recruitment.</p>

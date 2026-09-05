@@ -11,6 +11,8 @@ import {
   FileClock,
 } from 'lucide-react';
 import { AuthorBio } from '@/components/blog/AuthorBio';
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 
@@ -582,7 +584,9 @@ export default function August2026VisaBulletinPage() {
           </p>
         </section>
 
-        <AuthorBio />
+        
+            <RelatedPosts posts={getRelatedPostsForSlug("august-2026-visa-bulletin-opt-workers")} />
+            <AuthorBio />
       </div>
     </article>
   );

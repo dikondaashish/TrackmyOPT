@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldCheck, FolderOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -62,7 +63,7 @@ export default function OptEmploymentEvidenceChecklistPage() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/opt-employment-evidence-checklist.png" alt="OPT evidence folder with pay stubs, W-2, EAD card, offer letter and evidence checklist on legal pad" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/opt-employment-evidence-checklist.png" alt="OPT evidence folder with pay stubs, W-2, EAD card, offer letter and evidence checklist on legal pad" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}

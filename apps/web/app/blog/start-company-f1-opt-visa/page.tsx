@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, AlertTriangle, FileText, Download, Briefcase } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -66,11 +69,9 @@ export default function OPTStartupArticle() {
             </header>
 
             <figure className="mb-12">
-                <img 
-                    src="/blog/f1-opt-startup.png" 
-                    alt="Young entrepreneur standing confidently in a modern coworking space" 
-                    className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" 
-                />
+                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/f1-opt-startup.png" alt="Young entrepreneur standing confidently in a modern coworking space" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     The initial 12-month OPT provides the only window where self-employment is explicitly permitted for F-1 students.
                 </figcaption>
@@ -184,6 +185,8 @@ export default function OPTStartupArticle() {
                 </section>
             </div>
 
+            
+            <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-opt-visa")} />
             <AuthorBio />
 
             <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function LinkedInOptimizationPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/linkedin-optimization-f1-h1b-sponsorship.jpg" alt="Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/linkedin-optimization-f1-h1b-sponsorship.jpg" alt="Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Most international students make a fatal mistake on LinkedIn: they try to look exactly like domestic applicants. But recruiters using LinkedIn Recruiter have filters specifically for work authorization. If you don't optimize your profile correctly, you will waste time interviewing with companies that have a strict "no sponsorship" policy.</p>

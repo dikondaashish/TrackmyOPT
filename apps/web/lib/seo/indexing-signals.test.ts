@@ -37,8 +37,26 @@ describe("indexing signals", () => {
         expect(serializedRules).not.toContain('"/auth/"');
         expect(disallowedPaths).toContain("/dashboard/");
         expect(disallowedPaths).toContain("/premium/");
-        expect(serializedRules).toContain('"/dashboard/help"');
+        expect(serializedRules).not.toContain('"/help"');
         expect(serializedRules).toContain('"/api/"');
+    });
+
+    it("redirects public tools off dashboard paths", async () => {
+        const redirects = await nextConfig.redirects();
+        const redirectMap = Object.fromEntries(
+            redirects.map(({ source, destination }) => [source, destination]),
+        );
+
+        expect(redirectMap).toMatchObject({
+            "/dashboard/help": "/help",
+            "/dashboard/opt-tools/opt-apply": "/tools/opt-apply",
+            "/dashboard/opt-tools/opt-clock": "/tools/opt-clock",
+            "/dashboard/opt-tools/stem-apply": "/tools/stem-apply",
+            "/dashboard/opt-tools/stem-clock": "/tools/stem-clock",
+        });
+        // Canonical public URLs are real pages, not identity redirects.
+        expect(redirectMap["/help"]).toBeUndefined();
+        expect(redirectMap["/tools/opt-apply"]).toBeUndefined();
     });
 
     it("redirects every stale URL reported by Search Console", async () => {

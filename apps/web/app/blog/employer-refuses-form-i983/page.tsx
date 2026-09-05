@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -63,7 +64,7 @@ export default function EmployerRefusesI983Page() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/employer-refuses-form-i983.png" alt="Form I-983 with empty employer signature, HR no-response email printout, and urgent sticky note" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/employer-refuses-form-i983.png" alt="Form I-983 with empty employer signature, HR no-response email printout, and urgent sticky note" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
@@ -274,7 +275,7 @@ export default function EmployerRefusesI983Page() {
           </li>
           <li>
             <strong>Use the{" "}</strong>
-            <Link href="/dashboard/opt-tools/opt-clock">TrackMyOPT unemployment clock</Link>{" "}
+            <Link href="/tools/opt-clock">TrackMyOPT unemployment clock</Link>{" "}
             to track remaining days and set urgent alerts.
           </li>
         </ol>

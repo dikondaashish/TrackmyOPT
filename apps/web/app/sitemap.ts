@@ -73,14 +73,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/features/health-insurance',
     ];
 
-    // Public dashboard tool pages — accessible without login (proxy.ts publicRoutes).
-    // Each page exports robots:{index:true} to override the dashboard layout's noindex.
+    // Public tool pages (moved off /dashboard for cleaner SEO URLs)
     const toolPages = [
-        '/dashboard/help',
-        '/dashboard/opt-tools/opt-apply',
-        '/dashboard/opt-tools/opt-clock',
-        '/dashboard/opt-tools/stem-apply',
-        '/dashboard/opt-tools/stem-clock',
+        '/help',
+        '/tools/opt-apply',
+        '/tools/opt-clock',
+        '/tools/stem-apply',
+        '/tools/stem-clock',
     ];
 
     // Legal pages — low priority, rarely change

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function MultipleJobsPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/multiple-jobs-opt-two-employers.jpg" alt="A desk split between a corporate laptop setup and a freelance tablet setup" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/multiple-jobs-opt-two-employers.jpg" alt="A desk split between a corporate laptop setup and a freelance tablet setup" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You landed a great 40-hour-per-week job in your field, but you also got an offer to consult part-time for a startup for 10 hours a week. Can you legally accept both? For F-1 students on OPT, the answer is usually yes, but with major caveats depending on whether you are on standard OPT or the STEM extension.</p>

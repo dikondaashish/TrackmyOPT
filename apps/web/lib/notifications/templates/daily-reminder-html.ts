@@ -52,7 +52,7 @@ export function renderDailyReminderEmailHtml(data: EmailReminderData): string {
             </p>
           </div>
           <div style="padding:20px 24px;text-align:center;border-top:1px solid ${EMAIL.border};">
-            ${emailPrimaryButton('https://www.trackmyopt.com/dashboard/opt-tools/opt-apply', 'Open dashboard')}
+            ${emailPrimaryButton('https://www.trackmyopt.com/tools/opt-apply', 'Open dashboard')}
           </div>
         </div>
         ${emailFooter()}

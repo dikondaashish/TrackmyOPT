@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function RelocatingPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/relocating-for-opt-job-moving-states.jpg" alt="Moving boxes with a laptop showing apartment listings and a US map with a route drawn" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/relocating-for-opt-job-moving-states.jpg" alt="Moving boxes with a laptop showing apartment listings and a US map with a route drawn" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Congratulations on landing your OPT job! But there is a catch: the job is in San Francisco, and you went to school in Boston. Moving across the country as an international student involves a lot more than just packing boxes. Here is the immigration-critical checklist you must follow.</p>

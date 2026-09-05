@@ -68,10 +68,10 @@ export const SIDEBAR_CONFIG: SidebarItem[] = [
             icon: Wrench,
             href: "/dashboard/opt-tools",
             links: [
-                { label: "OPT Apply", href: "/dashboard/opt-tools/opt-apply", icon: FileText },
-                { label: "OPT Clock", href: "/dashboard/opt-tools/opt-clock", icon: Clock },
-                { label: "STEM Apply", href: "/dashboard/opt-tools/stem-apply", icon: FileText },
-                { label: "STEM Clock", href: "/dashboard/opt-tools/stem-clock", icon: Clock },
+                { label: "OPT Apply", href: "/tools/opt-apply", icon: FileText },
+                { label: "OPT Clock", href: "/tools/opt-clock", icon: Clock },
+                { label: "STEM Apply", href: "/tools/stem-apply", icon: FileText },
+                { label: "STEM Clock", href: "/tools/stem-clock", icon: Clock },
             ]
         }
     },
@@ -98,7 +98,7 @@ export const SIDEBAR_CONFIG: SidebarItem[] = [
     { type: 'divider' },
     { type: 'link', item: { label: "Install Extension", href: "https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm", icon: Chrome } },
     { type: 'link', item: { label: "Settings", href: "/dashboard/settings", icon: Settings } },
-    { type: 'link', item: { label: "Help", href: "/dashboard/help", icon: HelpCircle } },
+    { type: 'link', item: { label: "Help", href: "/help", icon: HelpCircle } },
     { type: 'link', item: { label: "Chrome Job Prefill", href: "/dashboard/extension", icon: Chrome } },
 ];
 

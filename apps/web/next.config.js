@@ -215,8 +215,28 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/help',
-        destination: '/dashboard/help',
+        source: '/dashboard/help',
+        destination: '/help',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/opt-tools/opt-apply',
+        destination: '/tools/opt-apply',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/opt-tools/opt-clock',
+        destination: '/tools/opt-clock',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/opt-tools/stem-apply',
+        destination: '/tools/stem-apply',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/opt-tools/stem-clock',
+        destination: '/tools/stem-clock',
         permanent: true,
       },
       {

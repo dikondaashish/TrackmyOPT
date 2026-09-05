@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, ShieldCheck, Briefcase } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -86,11 +89,7 @@ export default function H1BCapClosedPage() {
             </header>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img
-                    src="/blog/h1b-fy2027-cap-closed-no-second-lottery.png"
-                    alt="Passport with H-1B stamp and CLOSED stamp"
-                    className="w-full h-full object-cover"
-                />
+                <BlogPostImage src="/blog/h1b-fy2027-cap-closed-no-second-lottery.png" alt="Passport with H-1B stamp and CLOSED stamp" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                     <p className="text-white/80 text-sm p-4">The FY 2027 H-1B Cap is officially closed.</p>
                 </div>
@@ -184,7 +183,9 @@ export default function H1BCapClosedPage() {
                     </div>
                 </section>
 
-                <AuthorBio />
+                
+            <RelatedPosts posts={getRelatedPostsForSlug("h1b-fy2027-cap-closed-no-second-lottery")} />
+            <AuthorBio />
             </div>
         </article>
     );

@@ -94,7 +94,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
         priority: optEndDaysLeft <= 30 ? "urgent" : optEndDaysLeft <= 90 ? "warning" : "normal",
         action: isStemEligible ? {
           label: "Apply STEM Extension",
-          href: "/dashboard/opt-tools/stem-apply",
+          href: "/tools/stem-apply",
         } : undefined,
       });
     }
@@ -114,7 +114,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
           priority: stemDeadlineDaysLeft <= 14 ? "urgent" : stemDeadlineDaysLeft <= 30 ? "warning" : "normal",
           action: {
             label: "Prepare I-983",
-            href: "/dashboard/opt-tools/stem-apply",
+            href: "/tools/stem-apply",
           },
         });
       }

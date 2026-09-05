@@ -567,7 +567,7 @@ export default function EVerifyEmployerSearchPage() {
                   text: 'Explore sponsorship history, filings, and employer signals.',
                 },
                 {
-                  href: '/dashboard/opt-tools/stem-apply',
+                  href: '/tools/stem-apply',
                   icon: BookOpen,
                   title: 'Calculate your STEM OPT window',
                   text: 'See your earliest and latest filing dates.',

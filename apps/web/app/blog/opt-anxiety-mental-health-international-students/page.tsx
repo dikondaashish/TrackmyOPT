@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, ShieldCheck, Heart } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function OPTAnxietyPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/opt-anxiety-mental-health-international-students.jpg" alt="A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/opt-anxiety-mental-health-international-students.jpg" alt="A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">No one warns you about the emotional toll of the US immigration system. The moment you graduate, a literal countdown clock begins. You have 90 days to find a job in a brutal market, all while answering to family expectations back home and facing the looming uncertainty of a random H-1B lottery. It is entirely normal to feel overwhelmed.</p>

@@ -15,19 +15,10 @@ const CRAWL_DISALLOW = [
     "/auth/reset-password",
 ] as const;
 
-/** Public dashboard tool pages that remain indexable (see proxy.ts). */
-const PUBLIC_DASHBOARD_ALLOW = [
-    "/dashboard/help",
-    "/dashboard/opt-tools/opt-apply",
-    "/dashboard/opt-tools/opt-clock",
-    "/dashboard/opt-tools/stem-apply",
-    "/dashboard/opt-tools/stem-clock",
-] as const;
-
 function botRule(userAgent: string) {
     return {
         userAgent,
-        allow: ["/", ...PUBLIC_DASHBOARD_ALLOW],
+        allow: ["/"],
         disallow: [...CRAWL_DISALLOW],
     };
 }
@@ -101,7 +92,7 @@ export default function robots(): MetadataRoute.Robots {
             ...aiAndSearchBots.map(botRule),
             {
                 userAgent: "*",
-                allow: ["/", ...PUBLIC_DASHBOARD_ALLOW],
+                allow: ["/"],
                 disallow: [...CRAWL_DISALLOW],
             },
         ],

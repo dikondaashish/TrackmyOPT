@@ -96,7 +96,7 @@ export function NotificationBanner({
         message: `You have used ${unemploymentDays} of ${maxUnemploymentDays} unemployment days. Consider finding employment soon.`,
         action: {
           label: "Track Employment",
-          href: "/dashboard/opt-tools/opt-clock",
+          href: "/tools/opt-clock",
         },
         dismissible: true,
       });
@@ -114,7 +114,7 @@ export function NotificationBanner({
           message: `Your OPT EAD expires in ${daysUntilEnd} days. If you're STEM eligible, apply for extension now.`,
           action: {
             label: "Apply for STEM OPT",
-            href: "/dashboard/opt-tools/stem-apply",
+            href: "/tools/stem-apply",
           },
           dismissible: false,
         });

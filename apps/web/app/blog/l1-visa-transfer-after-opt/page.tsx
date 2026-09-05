@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, Briefcase } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -63,11 +66,7 @@ export default function L1VisaPage() {
             </header>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img
-                    src="/blog/l1-visa-transfer-after-opt.png"
-                    alt="Laptop showing a world map next to a passport with an L-1 visa stamp and an employment transfer letter"
-                    className="object-cover w-full h-full"
-                />
+                <BlogPostImage src="/blog/l1-visa-transfer-after-opt.png" alt="Laptop showing a world map next to a passport with an L-1 visa stamp and an employment transfer letter" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
             <div className="prose prose-lg dark:prose-invert max-w-none">
@@ -211,6 +210,8 @@ export default function L1VisaPage() {
                     </Link>
                 </div>
             </div>
-        </article>
+        
+            <RelatedPosts posts={getRelatedPostsForSlug("l1-visa-transfer-after-opt")} />
+</article>
     );
 }

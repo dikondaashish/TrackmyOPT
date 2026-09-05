@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { ArrowRight, Clock, ExternalLink, ShieldCheck, Lightbulb } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -61,7 +62,7 @@ export default function OptJobRelatedToDegreePage() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/opt-job-related-to-degree.png" alt="Degree relationship statement letter, university diploma, and LinkedIn job posting on laptop" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/opt-job-related-to-degree.png" alt="Degree relationship statement letter, university diploma, and LinkedIn job posting on laptop" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}

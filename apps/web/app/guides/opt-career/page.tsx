@@ -295,7 +295,7 @@ export default function OPTCareerPillarGuide() {
                     <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mt-6">
                         <p className="text-amber-800 dark:text-amber-200 text-sm flex items-start gap-2">
                             <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <span><strong>Unemployment limits are strict.</strong> Exceeding 90 days (OPT) or 150 days (STEM OPT) of cumulative unemployment means your OPT automatically terminates and you must leave the US. Track every day with <Link href="/dashboard/opt-tools/opt-clock" className="text-amber-700 dark:text-amber-300 underline font-medium">TrackMyOPT's Unemployment Clock</Link>.</span>
+                            <span><strong>Unemployment limits are strict.</strong> Exceeding 90 days (OPT) or 150 days (STEM OPT) of cumulative unemployment means your OPT automatically terminates and you must leave the US. Track every day with <Link href="/tools/opt-clock" className="text-amber-700 dark:text-amber-300 underline font-medium">TrackMyOPT's Unemployment Clock</Link>.</span>
                         </p>
                     </div>
                 </section>
@@ -781,7 +781,7 @@ export default function OPTCareerPillarGuide() {
                             { name: "AI Resume Generator", desc: "Build ATS-optimized resumes tailored for each application. Auto-extracts keywords from job descriptions.", href: "/features/resume-ai", icon: FileText },
                             { name: "Job Application Tracker", desc: "Track every application, interview, and follow-up while monitoring your OPT unemployment days.", href: "/features/job-tracker", icon: Briefcase },
                             { name: "H-1B Sponsor Database", desc: "Search 25,000+ verified H-1B sponsors with approval rates, salary data, and fraud indicators.", href: "/features/sponsors", icon: Building2 },
-                            { name: "OPT Unemployment Clock", desc: "Real-time countdown of your 90-day (OPT) or 150-day (STEM OPT) cumulative unemployment limit.", href: "/dashboard/opt-tools/opt-clock", icon: Clock },
+                            { name: "OPT Unemployment Clock", desc: "Real-time countdown of your 90-day (OPT) or 150-day (STEM OPT) cumulative unemployment limit.", href: "/tools/opt-clock", icon: Clock },
                         ].map((tool, i) => (
                             <Link key={i} href={tool.href} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors group block">
                                 <div className="flex items-center gap-2 mb-1">

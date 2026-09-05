@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function NetworkingPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/networking-international-student-sponsorship.jpg" alt="A conference name tag, a stack of business cards, and a smartphone showing an email draft" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/networking-international-student-sponsorship.jpg" alt="A conference name tag, a stack of business cards, and a smartphone showing an email draft" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">If you are an international student spending 6 hours a day clicking "Easy Apply" on LinkedIn or submitting resumes to company portals, you are wasting your time. The moment you check the box that says "I will require sponsorship in the future," the ATS (Applicant Tracking System) automatically rejects or deprioritizes your application at most companies.</p>

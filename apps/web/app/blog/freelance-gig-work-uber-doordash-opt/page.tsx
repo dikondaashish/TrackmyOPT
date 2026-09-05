@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function FreelanceGigWorkPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/freelance-gig-work-uber-doordash-opt.jpg" alt="Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/freelance-gig-work-uber-doordash-opt.jpg" alt="Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Earning extra cash through side hustles is a huge part of American culture. But as an F-1 international student, strict rules govern how and where you can work. Let's break down exactly what is allowed regarding freelancing, 1099 independent contracting, and gig economy work.</p>

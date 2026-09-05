@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { ArrowRight, Clock, AlertTriangle } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -106,7 +109,7 @@ export default function OptUnemploymentClockStartArticle() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/when-does-opt-unemployment-clock-start.png" alt="Calendar with OPT start date circled in red, EAD card, countdown timer showing 78 days remaining, and SEVIS reporting confirmation on a rustic wooden desk" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/when-does-opt-unemployment-clock-start.png" alt="Calendar with OPT start date circled in red, EAD card, countdown timer showing 78 days remaining, and SEVIS reporting confirmation on a rustic wooden desk" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950/30">
@@ -156,7 +159,7 @@ export default function OptUnemploymentClockStartArticle() {
             <li>Check the receipt number in the <Link href="/dashboard/case-status">TrackMyOPT USCIS case tracker</Link> and save each status change.</li>
             <li>Verify the EAD production and mailing status with <a href="https://egov.uscis.gov/e-request/ndc" target="_blank" rel="noopener noreferrer">USCIS non-delivery guidance</a> if the card should already have arrived.</li>
             <li>Do not start work until you have valid authorization and an eligible start date.</li>
-            <li>Log the gap in your <Link href="/dashboard/opt-tools/opt-clock">OPT unemployment clock</Link> and set an alert before day 60, 75, and 90.</li>
+            <li>Log the gap in your <Link href="/tools/opt-clock">OPT unemployment clock</Link> and set an alert before day 60, 75, and 90.</li>
           </ol>
         </section>
 
@@ -222,7 +225,9 @@ export default function OptUnemploymentClockStartArticle() {
         </div>
       </div>
 
-      <AuthorBio />
+      
+            <RelatedPosts posts={getRelatedPostsForSlug("when-does-opt-unemployment-clock-start")} />
+            <AuthorBio />
 
       <div className="mt-12 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center text-white">
         <h2 className="mb-3 text-2xl font-bold">Know your remaining OPT buffer</h2>

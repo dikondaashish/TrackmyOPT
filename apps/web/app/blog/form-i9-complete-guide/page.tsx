@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck, XCircle } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -72,11 +75,9 @@ export default function FormI9GuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Published: February 23, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <img
-                src="/blog/form-i9.png"
-                alt="Form I-9 Employment Eligibility Verification on a corporate desk with a US passport"
-                className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800"
-            />
+            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+                <BlogPostImage src="/blog/form-i9.png" alt="Form I-9 Employment Eligibility Verification on a corporate desk with a US passport" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
+            </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
                 Form I-9 must be completed by every new employee at every US employer, including OPT and STEM OPT students.
             </figcaption>
@@ -367,6 +368,8 @@ export default function FormI9GuidePage() {
                 </div>
             </section>
 
+            
+            <RelatedPosts posts={getRelatedPostsForSlug("form-i9-complete-guide")} />
             <AuthorBio />
 
             {/* CTA */}

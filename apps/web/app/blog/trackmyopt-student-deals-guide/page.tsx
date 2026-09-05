@@ -12,6 +12,8 @@ import {
     Shield,
     LogIn,
 } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { formatUsd, OFFERS_CATALOG_TOTAL_SAVINGS_USD } from "@/lib/offers/catalog-savings";
 
@@ -255,6 +257,8 @@ export default function TrackMyOPTStudentDealsGuidePage() {
                     </em>
                 </p>
             </div>
-        </article>
+        
+            <RelatedPosts posts={getRelatedPostsForSlug("trackmyopt-student-deals-guide")} />
+</article>
     );
 }

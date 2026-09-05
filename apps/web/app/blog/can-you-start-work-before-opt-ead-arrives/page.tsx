@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -62,7 +63,7 @@ export default function StartWorkBeforeEadPage() {
       </header>
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-        <img src="/blog/can-you-start-work-before-opt-ead-arrives.png" alt="USCIS approval notice, sticky note saying Card NOT arrived - Do NOT start work, and USCIS case status on laptop" className="object-cover w-full h-full" />
+        <BlogPostImage src="/blog/can-you-start-work-before-opt-ead-arrives.png" alt="USCIS approval notice, sticky note saying Card NOT arrived - Do NOT start work, and USCIS case status on laptop" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function VolunteerWorkPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/volunteer-work-opt-employment-rules.jpg" alt="Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/volunteer-work-opt-employment-rules.jpg" alt="Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You are 60 days into your 90-day unemployment allowance, and you still haven't found a paid job. Panic is setting in. Before your SEVIS record is terminated, there is a legal lifeline: <strong>Unpaid volunteer work or unpaid internships count as employment on standard OPT.</strong> But you cannot just volunteer anywhere.</p>

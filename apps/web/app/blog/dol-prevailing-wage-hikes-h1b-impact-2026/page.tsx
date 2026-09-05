@@ -1,6 +1,9 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, AlertTriangle, FileText, Download, TrendingUp } from "lucide-react";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -65,11 +68,9 @@ export default function PrevailingWageArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 13, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <img 
-                src="/blog/prevailing-wage-hikes.png" 
-                alt="Financial chart showing wage increases on a corporate desk" 
-                className="w-full h-[400px] object-cover rounded-2xl mb-12 shadow-lg border border-gray-200 dark:border-zinc-800" 
-            />
+            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+                <BlogPostImage src="/blog/prevailing-wage-hikes.png" alt="Financial chart showing wage increases on a corporate desk" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
+            </div>
 
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
@@ -182,7 +183,9 @@ export default function PrevailingWageArticle() {
                     </p>
                 </section>
 
-                <AuthorBio />
+                
+            <RelatedPosts posts={getRelatedPostsForSlug("dol-prevailing-wage-hikes-h1b-impact-2026")} />
+            <AuthorBio />
             </div>
         </article>
     );

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck, Landmark } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function InvestingOnOPTPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/investing-stocks-crypto-401k-opt-tax.jpg" alt="Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/investing-stocks-crypto-401k-opt-tax.jpg" alt="Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">You just received your first US paycheck on OPT. After paying rent and groceries, you want to start investing. The good news: <strong>F-1 students on OPT are 100% legally allowed to invest</strong> in US stocks, bonds, ETFs, mutual funds, cryptocurrency, and even real estate. But the tax treatment is dramatically different from what US citizens and residents face.</p>

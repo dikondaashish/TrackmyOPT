@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function SendingMoneyHomePage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/sending-money-home-opt-remittance.jpg" alt="Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/sending-money-home-opt-remittance.jpg" alt="Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">When you start earning in US dollars on OPT, one of the first things you will want to do is send money back to support your family, repay education loans, or simply save in your home currency. Traditional bank wire transfers can cost $25-50 per transaction <em>plus</em> a 3-5% exchange rate markup. Here are much better options.</p>

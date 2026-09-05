@@ -13,11 +13,12 @@
  * - /dashboard/settings
  * 
  * Public routes (no login required):
- * - /dashboard/help
- * - /dashboard/opt-tools/opt-apply
- * - /dashboard/opt-tools/opt-clock
- * - /dashboard/opt-tools/stem-apply
- * - /dashboard/opt-tools/stem-clock
+ * - /help
+ * - /tools/opt-apply
+ * - /tools/opt-clock
+ * - /tools/stem-apply
+ * - /tools/stem-clock
+ *   (legacy /dashboard/... URLs 301 here via next.config)
  * 
  * This proxy runs before page rendering.
  */
@@ -30,14 +31,14 @@ import { DEFAULT_POST_AUTH_PATH } from '@/lib/auth/post-auth-landing';
 // Routes that require authentication (redirect to login if not logged in)
 const protectedRoutes = ['/dashboard', '/admin'];
 
-// Public routes that don't require authentication (exceptions within protected routes)
-// These pages are accessible without login
+// Legacy public tool URLs still under /dashboard — keep crawlable until 301s settle.
+// Prefer /help and /tools/* as the canonical public destinations.
 const publicRoutes = [
-  '/dashboard/help',
-  '/dashboard/opt-tools/opt-apply',      // OPT Apply tool - public
-  '/dashboard/opt-tools/opt-clock',      // OPT Clock Tracker - public
-  '/dashboard/opt-tools/stem-apply',     // STEM OPT Apply - public
-  '/dashboard/opt-tools/stem-clock',     // STEM Clock Tracker - public
+  '/help',
+  '/tools/opt-apply',
+  '/tools/opt-clock',
+  '/tools/stem-apply',
+  '/tools/stem-clock',
 ];
 
 // Routes that should redirect authenticated users (optional)

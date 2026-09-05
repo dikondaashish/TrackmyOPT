@@ -317,7 +317,7 @@ export default function NinetyDayRuleArticle() {
                         <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">1. TrackMyOPT (Recommended)</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
-                                Our <Link href="/dashboard/opt-tools/opt-clock" className="underline font-medium">OPT Unemployment Clock</Link> automatically counts your unemployment days, sends alerts when you're approaching the limit, and integrates with your USCIS case timeline.
+                                Our <Link href="/tools/opt-clock" className="underline font-medium">OPT Unemployment Clock</Link> automatically counts your unemployment days, sends alerts when you're approaching the limit, and integrates with your USCIS case timeline.
                             </p>
                             <Link href="/login" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
                                 Track Your Days Free <ArrowRight className="w-4 h-4" />

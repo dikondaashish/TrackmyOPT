@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, FileText, BookOpen, GraduationCap, Binary, Cpu } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -89,11 +90,9 @@ export default function CIPCodeGuide() {
             </header>
 
             <figure className="mb-12">
-                <img
-                    src="/blog/is-my-degree-stem-eligible-cip-code.png"
-                    alt="Laptop screen showing DHS STEM Designated Degree list with university catalogs on a desk"
-                    className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800"
-                />
+                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/is-my-degree-stem-eligible-cip-code.png" alt="Laptop screen showing DHS STEM Designated Degree list with university catalogs on a desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Your university registrar and DSO map school degree courses to official federal CIP codes.
                 </figcaption>

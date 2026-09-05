@@ -35,7 +35,7 @@ const VARIANTS: Record<
     title: "See your OPT timeline in one dashboard",
     description:
       "Track processing milestones, unemployment days, and deadlines alongside your case status.",
-    href: "/dashboard/opt-tools/opt-clock",
+    href: "/tools/opt-clock",
     cta: "Open OPT timeline",
   },
   unemployment: {
@@ -43,7 +43,7 @@ const VARIANTS: Record<
     title: "Count your OPT unemployment days",
     description:
       "Avoid the 90-day limit — live counter synced to your OPT dates with compliance reminders.",
-    href: "/dashboard/opt-tools/opt-clock",
+    href: "/tools/opt-clock",
     cta: "Check unemployment days",
   },
   sponsors: {

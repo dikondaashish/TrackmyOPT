@@ -1,5 +1,3 @@
-"use client";
-
 import { HeartPulse, FileText, ArrowRight, Gift, Shield } from "lucide-react";
 
 export function LandingToolkit() {

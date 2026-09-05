@@ -428,7 +428,7 @@ export function LandingNavbar() {
                                                 Settings
                                             </Link>
                                             <Link
-                                                href="/dashboard/help"
+                                                href="/help"
                                                 onClick={() => setIsMobileMenuOpen(false)}
                                                 className="flex min-h-[44px] items-center gap-3 rounded-lg px-2 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
                                             >

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
 import { Clock, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -40,7 +41,7 @@ export default function DriversLicensePage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <img src="/blog/drivers-license-opt-state-requirements.jpg" alt="US driver's license with REAL ID gold star next to an I-20 and passport" className="object-cover w-full h-full" />
+                <BlogPostImage src="/blog/drivers-license-opt-state-requirements.jpg" alt="US driver's license with REAL ID gold star next to an I-20 and passport" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">A US driver's license is more than just a license to drive. It is your primary form of identification in America. You will use it to open bank accounts, pick up packages, enter bars, board domestic flights (if REAL ID compliant), and verify your identity at job interviews. Here is how F-1 students on OPT can get one.</p>
