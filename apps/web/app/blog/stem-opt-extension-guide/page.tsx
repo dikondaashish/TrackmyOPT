@@ -16,9 +16,15 @@ export const metadata: Metadata = {
         description: "24-month STEM OPT extension timeline: eligibility, I-983, processing times, and free tracker.",
         url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Complete STEM OPT Guide 2026: Extension, Eligibility & Application" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Complete STEM OPT Guide 2026: Extension, Eligibility & Application" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/stem-opt-extension-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "STEM OPT Timeline & Processing Time 2026 | TrackMyOPT",
+        description: "24-month STEM OPT extension timeline: eligibility, I-983, processing times, and free tracker.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 const STEM_OPT_FAQS = [
@@ -48,7 +54,7 @@ export default function STEMOPTGuideArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Stem Opt Extension Guide", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-31" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...STEM_OPT_FAQS]} howToItems={[{step: 1, name: "Verify Your Degree Is STEM-Designated", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#eligibility", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Verify Your Employer's E-Verify Enrollment", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form I-983 Training Plan", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Get Your DSO to Recommend STEM Extension in SEVIS", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#dso", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "File Form I-765 for STEM OPT Extension", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Receive Your Extended EAD and Begin STEM OPT", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#approval", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-31" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...STEM_OPT_FAQS]} howToItems={[{step: 1, name: "Verify Your Degree Is STEM-Designated", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#eligibility", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 2, name: "Verify Your Employer's E-Verify Enrollment", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 3, name: "Complete Form I-983 Training Plan", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 4, name: "Get Your DSO to Recommend STEM Extension in SEVIS", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#dso", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 5, name: "File Form I-765 for STEM OPT Extension", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 6, name: "Receive Your Extended EAD and Begin STEM OPT", url: "https://www.trackmyopt.com/blog/stem-opt-extension-guide#approval", image: "https://www.trackmyopt.com/og-image.jpg"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>

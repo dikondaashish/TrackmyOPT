@@ -28,9 +28,15 @@ export const metadata: Metadata = {
             "Latest STEM OPT I-765 processing times for 2026. Typical 2–5 month wait, 180-day work authorization while pending, and free case tracker.",
         url: CANONICAL,
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "STEM OPT Processing Time 2026" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "STEM OPT Processing Time 2026" }],
     },
     alternates: { canonical: CANONICAL },
+    twitter: {
+        card: "summary_large_image",
+        title: "STEM OPT Processing Time 2026: Current Wait Times | TrackMyOPT",
+        description: "Latest STEM OPT I-765 processing times for 2026. Typical 2–5 month wait, 180-day work authorization while pending, and free case tracker.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 const FAQS = [

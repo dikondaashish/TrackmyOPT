@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "Understand common OPT denial reasons, whether a motion or new filing may be available, and the F-1 status rules that apply after denial.",
         url: "https://www.trackmyopt.com/blog/opt-application-denied",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Application Denied? What to Do Next (2026 Guide)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Application Denied? What to Do Next (2026 Guide)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-application-denied" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Can OPT Be Denied? Reasons & Next Steps | TrackMyOPT",
+        description: "Understand common OPT denial reasons, whether a motion or new filing may be available, and the F-1 status rules that apply after denial.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 const DENIAL_FAQS = [

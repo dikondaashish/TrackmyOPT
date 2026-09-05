@@ -55,6 +55,12 @@ export const metadata: Metadata = {
       },
     ],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: 'USCIS Can Deny Without an RFE: What Changed August 5, 2026',
+        description: "USCIS restored officers' discretion to deny incomplete cases without first sending an RFE or NOID. See the verified rule and filing checklist.",
+        images: ['https://www.trackmyopt.com/blog/uscis-deny-without-rfe-policy-2026.png'],
+    },
 };
 
 const faqItems = [

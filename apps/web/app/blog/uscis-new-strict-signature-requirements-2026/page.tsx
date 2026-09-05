@@ -25,7 +25,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/uscis-new-strict-signature-requirements-2026",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "USCIS Strict Signature Requirements 2026",
+        description: "USCIS is now rejecting applications with invalid signatures. Make sure your Form I-765 is signed perfectly.",
+        images: ["/blog/uscis-new-strict-signature-requirements-2026.png"],
+    },
 };
 
 const faqItems = [

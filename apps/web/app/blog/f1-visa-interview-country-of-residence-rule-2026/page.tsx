@@ -49,6 +49,12 @@ export const metadata: Metadata = {
       },
     ],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: 'New F-1 Visa Interview Location Rule: July 2026 Update',
+        description: 'F-1 applicants should now schedule visa interviews in their country of nationality or residence. Understand the exceptions, risks, and planning steps.',
+        images: ['https://www.trackmyopt.com/blog/f1-visa-interview-country-of-residence-rule-2026.png'],
+    },
 };
 
 const faqItems = [

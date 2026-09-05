@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "Explore the current legislative battle in Congress over the future of the Optional Practical Training (OPT) program.",
         url: "https://www.trackmyopt.com/blog/opt-stem-opt-legislation-congress-2026",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Dueling Congress Bills Target OPT & STEM OPT: What You Need to Know (2026)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Dueling Congress Bills Target OPT & STEM OPT: What You Need to Know (2026)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-stem-opt-legislation-congress-2026" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Dueling Congress Bills Target OPT & STEM OPT | TrackMyOPT",
+        description: "Explore the current legislative battle in Congress over the future of the Optional Practical Training (OPT) program.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function OPTCongressArticle() {

@@ -27,8 +27,14 @@ export const metadata: Metadata = {
     description: "The complete EAD card recovery guide — 4 issue types, the right remedy for each, USCIS form instructions, and what to do while you wait.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "EAD Card Recovery Guide" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "EAD Card Recovery Guide" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "EAD Card Lost, Stolen, Incorrect or Never Delivered? Complete Recovery Guide",
+        description: "The complete EAD card recovery guide — 4 issue types, the right remedy for each, USCIS form instructions, and what to do while you wait.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function EadCardLostStolenPage() {
@@ -401,7 +407,7 @@ export default function EadCardLostStolenPage() {
             {[
               { href: "/blog/can-you-start-work-before-opt-ead-arrives", title: "Can You Work Before Your EAD Arrives?", desc: "The authorization timing, I-9 requirements, and employer communication guide." },
               { href: "/blog/opt-ead-card-guide", title: "Complete OPT EAD Card Guide", desc: "Everything about the EAD card: categories, reading the card, and common questions." },
-              { href: "/blog/how-to-track-uscis-case-status-guide", title: "How to Track Your USCIS Case Status", desc: "Case status tools, inquiry timelines, and next steps for pending cases." },
+              { href: "/blog/uscis-case-status-tracking-guide", title: "How to Track Your USCIS Case Status", desc: "Case status tools, inquiry timelines, and next steps for pending cases." },
               { href: "/blog/opt-employment-evidence-checklist", title: "OPT Employment Evidence Checklist", desc: "Every document to keep — including your EAD approval notice and card copies." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">

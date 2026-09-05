@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "OPT EAD Still Pending? What to Do in 2026",
@@ -36,6 +36,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-ead-pending-processing-delays-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT EAD Still Pending After Months? What to Do in 2026 | TrackMyOPT",
+        description: "USCIS OPT processing delays are at record highs in 2026. If your I-765 has been pending for months, here is exactly what to do at each stage.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

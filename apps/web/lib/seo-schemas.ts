@@ -17,8 +17,8 @@ const nodeId = (fragment: string) => `${SITE_URL}/#${fragment}`;
 
 // Real files under `public/`. The space in the logo directory must stay
 // percent-encoded — a raw space makes the URL unparseable for crawlers.
-const LOGO_URL = `${SITE_URL}/TrackMyOPT%20Logo/Favicon.png`;
-const SCREENSHOT_URL = `${SITE_URL}/og-image.png`;
+export const LOGO_URL = `${SITE_URL}/TrackMyOPT%20Logo/Favicon.png`;
+const SCREENSHOT_URL = `${SITE_URL}/og-image.jpg`;
 
 export const organizationSchema = {
     "@context": "https://schema.org",

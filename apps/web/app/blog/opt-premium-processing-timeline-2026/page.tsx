@@ -27,9 +27,15 @@ export const metadata: Metadata = {
             "Stage-by-stage OPT premium processing timeline: I-907 filing, 30-day USCIS clock, approval to EAD delivery, and STEM OPT differences.",
         url: CANONICAL,
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Premium Processing Timeline 2026" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Premium Processing Timeline 2026" }],
     },
     alternates: { canonical: CANONICAL },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT Premium Processing Timeline 2026 | TrackMyOPT",
+        description: "Stage-by-stage OPT premium processing timeline: I-907 filing, 30-day USCIS clock, approval to EAD delivery, and STEM OPT differences.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 const FAQS = [

@@ -9,8 +9,14 @@ export const metadata: Metadata = {
     title: "OPT EAD Card 2026: How to Apply, Track & Renew Your Employment Authorization",
     description: "Everything about the OPT EAD card in 2026. How to apply with Form I-765, required documents, processing times, how to track your card, and what to do if it's lost or delayed.",
     keywords: ["OPT EAD card", "EAD card OPT", "OPT EAD application", "I-765 OPT", "OPT work permit", "employment authorization document"],
-    openGraph: { title: "OPT EAD Card Guide 2026 | TrackMyOPT", description: "Everything about your OPT EAD card — how to apply with Form I-765, track your case, what to do if it's delayed, and how to renew.", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide", type: "article", siteName: "TrackMyOPT", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT EAD Card 2026: How to Apply, Track & Renew Your Employment Authorization" }] },
+    openGraph: { title: "OPT EAD Card Guide 2026 | TrackMyOPT", description: "Everything about your OPT EAD card — how to apply with Form I-765, track your case, what to do if it's delayed, and how to renew.", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide", type: "article", siteName: "TrackMyOPT", images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT EAD Card 2026: How to Apply, Track & Renew Your Employment Authorization" }] },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-ead-card-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT EAD Card Guide 2026 | TrackMyOPT",
+        description: "Everything about your OPT EAD card — how to apply with Form I-765, track your case, what to do if it's delayed, and how to renew.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function OPTEADArticle() {
@@ -21,7 +27,7 @@ export default function OPTEADArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Opt Ead Card Guide", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-13" modifiedDate="2026-04-13" author="Vinay Kumar" howToItems={[{step: 1, name: "Request OPT I-20 from Your DSO", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#request-i20", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Form I-765 for EAD", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#form-i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#documents", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "File Your Application Online or by Mail", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Receive Your Receipt Notice (I-797C)", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#receipt", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Wait for USCIS Processing and Card Delivery", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#delivery", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-13" modifiedDate="2026-04-13" author="Vinay Kumar" howToItems={[{step: 1, name: "Request OPT I-20 from Your DSO", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#request-i20", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 2, name: "Complete Form I-765 for EAD", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#form-i765", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 3, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#documents", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 4, name: "File Your Application Online or by Mail", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#filing", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 5, name: "Receive Your Receipt Notice (I-797C)", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#receipt", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 6, name: "Wait for USCIS Processing and Card Delivery", url: "https://www.trackmyopt.com/blog/opt-ead-card-guide#delivery", image: "https://www.trackmyopt.com/og-image.jpg"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>

@@ -25,7 +25,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-premium-processing-fee-increase-1780",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "USCIS Increased Premium Processing to $1,780: Is It Worth It?",
+        description: "The fee to expedite your OPT or STEM OPT application is now $1,780. We analyze the current USCIS processing delays to help you decide.",
+        images: ["/blog/opt-premium-processing-fee-increase-1780.png"],
+    },
 };
 
 const faqItems = [

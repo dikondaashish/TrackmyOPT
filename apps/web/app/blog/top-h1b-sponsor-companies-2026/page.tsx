@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "Data-driven rankings of the top H-1B sponsor companies with approval rates, petition counts, and salary data from USCIS.",
         url: "https://www.trackmyopt.com/blog/top-h1b-sponsor-companies-2026",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Top H-1B Sponsor Companies 2026: Data-Driven Rankings & Analysis" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Top H-1B Sponsor Companies 2026: Data-Driven Rankings & Analysis" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/top-h1b-sponsor-companies-2026" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Top H-1B Sponsor Companies 2026 | TrackMyOPT",
+        description: "Data-driven rankings of the top H-1B sponsor companies with approval rates, petition counts, and salary data from USCIS.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function TopH1BSponsorArticle() {

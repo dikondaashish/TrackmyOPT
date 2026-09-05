@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Tax Filing Mistakes to Avoid on F-1 OPT/STEM OPT",
@@ -32,6 +32,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/f1-opt-stem-opt-tax-filing-mistakes",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Tax Filing Mistakes to Avoid on F-1 OPT/STEM OPT (2026) | TrackMyOPT",
+        description: "A practical checklist of F-1 OPT/STEM OPT tax filing mistakes and how to fix them before they cost you money.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

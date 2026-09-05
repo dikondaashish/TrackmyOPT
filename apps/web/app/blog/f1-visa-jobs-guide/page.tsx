@@ -9,8 +9,14 @@ export const metadata: Metadata = {
     title: "F-1 Visa Jobs 2026: How to Find Jobs as an International Student",
     description: "Complete guide to finding jobs on F-1 visa in 2026. OPT jobs, CPT employment, on-campus work, H-1B sponsor companies, and job search strategies for international students.",
     keywords: ["F-1 visa jobs", "international student jobs", "OPT jobs", "F-1 student employment", "jobs for international students", "H-1B sponsor jobs", "CPT employment"],
-    openGraph: { title: "F-1 Visa Jobs Guide 2026 | TrackMyOPT", description: "How to find jobs as an F-1 international student.", url: "https://www.trackmyopt.com/blog/f1-visa-jobs-guide", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "F-1 Visa Jobs 2026: How to Find Jobs as an International Student" }] },
+    openGraph: { title: "F-1 Visa Jobs Guide 2026 | TrackMyOPT", description: "How to find jobs as an F-1 international student.", url: "https://www.trackmyopt.com/blog/f1-visa-jobs-guide", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "F-1 Visa Jobs 2026: How to Find Jobs as an International Student" }] },
     alternates: { canonical: "https://www.trackmyopt.com/blog/f1-visa-jobs-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "F-1 Visa Jobs Guide 2026 | TrackMyOPT",
+        description: "How to find jobs as an F-1 international student.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function F1JobsArticle() {

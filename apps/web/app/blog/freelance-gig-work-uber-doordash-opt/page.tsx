@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt",
         images: [{ url: "/blog/freelance-gig-work-uber-doordash-opt.jpg", width: 1200, height: 630, alt: "Laptop showing Upwork, a phone showing Uber Driver app, and an IRS 1099 form" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/freelance-gig-work-uber-doordash-opt" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Freelancing and Gig Work on OPT: What's Legal?",
+        description: "Can you drive for Uber, deliver for DoorDash, or freelance on Upwork while on OPT? The answer depends entirely on your major and which OPT you are on.",
+        images: ["/blog/freelance-gig-work-uber-doordash-opt.jpg"],
+    },
 };
 
 export default function FreelanceGigWorkPage() {

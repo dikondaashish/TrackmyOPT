@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/drivers-license-opt-state-requirements",
         images: [{ url: "/blog/drivers-license-opt-state-requirements.jpg", width: 1200, height: 630, alt: "US driver's license with REAL ID gold star next to an I-20 and passport" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/drivers-license-opt-state-requirements" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/drivers-license-opt-state-requirements" },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Get a US Driver's License on OPT (2026 Guide)",
+        description: "Every state has different DMV requirements for F-1 students. Learn what documents to bring and how to get a REAL ID-compliant license.",
+        images: ["/blog/drivers-license-opt-state-requirements.jpg"],
+    },
 };
 
 export default function DriversLicensePage() {

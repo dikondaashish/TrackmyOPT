@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/j1-waiver-212e-two-year-home-residency",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "5 Ways to Waive the J-1 Two-Year Home Residency Requirement",
+        description: "The 212(e) requirement can trap you outside the US for 2 years. Here are the 5 legal ways to waive it and continue your US career.",
+        images: ["/blog/j1-waiver-212e-two-year-home-residency.jpg"],
+    },
 };
 
 export default function J1WaiverPage() {

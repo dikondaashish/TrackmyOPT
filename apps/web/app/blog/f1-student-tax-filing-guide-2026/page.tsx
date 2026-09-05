@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "F-1 Student Tax Filing Guide 2026: Forms, Deadlines & Step-by-Step",
@@ -25,6 +25,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/f1-student-tax-filing-guide-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "F-1 Student Tax Filing Guide 2026: Forms, Deadlines & Step-by-Step | TrackMyOPT",
+        description: "Complete guide to F-1 tax filing with step-by-step instructions, form requirements, and deadline information.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

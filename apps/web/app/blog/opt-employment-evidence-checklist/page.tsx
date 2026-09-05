@@ -26,8 +26,14 @@ export const metadata: Metadata = {
     description: "Every document to collect from every OPT employer — organized by category, with future H-1B and green card filing in mind.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Employment Evidence Checklist" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Employment Evidence Checklist" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT Employment Evidence Checklist: What to Save for USCIS and Future Visas",
+        description: "Every document to collect from every OPT employer — organized by category, with future H-1B and green card filing in mind.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function OptEmploymentEvidenceChecklistPage() {

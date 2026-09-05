@@ -25,7 +25,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/f1-visa-interview-waivers-restricted-2026",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "F-1 Visa Interview Waivers Severely Restricted in 2026",
+        description: "Planning to travel home and renew your F-1 visa while on OPT? Dropbox appointments are largely gone. You must now plan for an in-person interview.",
+        images: ["/blog/f1-visa-interview-waivers-restricted-2026.png"],
+    },
 };
 
 const faqItems = [

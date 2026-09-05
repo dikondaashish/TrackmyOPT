@@ -13,9 +13,15 @@ export const metadata: Metadata = {
         description: "Data-driven analysis of H-1B approval rates across 25,000+ companies. Find the most reliable sponsors.",
         url: "https://www.trackmyopt.com/blog/h1b-approval-rates-by-company",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "H-1B Approval Rates by Top Companies 2026" }]
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "H-1B Approval Rates by Top Companies 2026" }]
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/h1b-approval-rates-by-company" },
+    twitter: {
+        card: "summary_large_image",
+        title: "H-1B Approval Rates by Company 2026 | TrackMyOPT",
+        description: "Data-driven analysis of H-1B approval rates across 25,000+ companies. Find the most reliable sponsors.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function H1BApprovalRatesArticle() {

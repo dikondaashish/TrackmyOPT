@@ -24,7 +24,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/real-id-domestic-flights-international-students",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Domestic Travel on OPT: Passports, REAL ID, and TSA Rules",
+        description: "Flying from New York to LA for a weekend trip? Learn what documents TSA and Border Patrol require international students to carry for domestic flights.",
+        images: ["/blog/real-id-domestic-flights-international-students.png"],
+    },
 };
 
 export default function RealIdPage() {

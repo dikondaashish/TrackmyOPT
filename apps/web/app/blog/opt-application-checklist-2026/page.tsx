@@ -14,10 +14,16 @@ export const metadata: Metadata = {
         description: "Complete checklist for filing I-765. Every document, deadline, and tip to avoid delays.",
         url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Application Checklist 2026: Complete I-765 Filing Guide" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Application Checklist 2026: Complete I-765 Filing Guide" }],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-application-checklist-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT Application Checklist 2026 | TrackMyOPT",
+        description: "Complete checklist for filing I-765. Every document, deadline, and tip to avoid delays.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 
@@ -29,7 +35,7 @@ export default function OPTChecklistArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Opt Application Checklist 2026", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-25" modifiedDate="2026-05-25" author="Vinay Kumar" howToItems={[{step: 1, name: "Meet with Your DSO", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#dso", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Get Your OPT I-20", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#i20", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form I-765", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#documents", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "File Your OPT Application Online or by Mail", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#filing", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Receive Your Receipt Notice and Track Your Case", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#tracking", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-05-25" modifiedDate="2026-05-25" author="Vinay Kumar" howToItems={[{step: 1, name: "Meet with Your DSO", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#dso", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 2, name: "Get Your OPT I-20", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#i20", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 3, name: "Complete Form I-765", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#i765", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 4, name: "Gather All Required Documents", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#documents", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 5, name: "File Your OPT Application Online or by Mail", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#filing", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 6, name: "Receive Your Receipt Notice and Track Your Case", url: "https://www.trackmyopt.com/blog/opt-application-checklist-2026#tracking", image: "https://www.trackmyopt.com/og-image.jpg"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
                 <span>/</span>

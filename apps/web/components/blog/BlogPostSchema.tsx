@@ -2,6 +2,7 @@
 // Uses safeSerializeJsonLd — malformed props never crash SSR or client render.
 
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
+import { LOGO_URL } from "@/lib/seo-schemas";
 
 interface BlogPostSchemaProps {
   title?: string | null | { toString(): string };
@@ -32,7 +33,7 @@ export function BlogPostSchema({
   modifiedDate,
   author = "Vinay Kumar",
   canonicalUrl,
-  imageUrl = "https://www.trackmyopt.com/og-image.png",
+  imageUrl = "https://www.trackmyopt.com/og-image.jpg",
   faqItems = [],
   howToItems = [],
 }: BlogPostSchemaProps) {
@@ -78,7 +79,7 @@ export function BlogPostSchema({
       name: "TrackMyOPT",
       logo: {
         "@type": "ImageObject",
-        url: "https://www.trackmyopt.com/logo.png",
+        url: LOGO_URL,
         width: 256,
         height: 256,
       },

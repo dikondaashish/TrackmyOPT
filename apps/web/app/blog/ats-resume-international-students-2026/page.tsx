@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "ATS Resume for International Students 2026: Beat the Bots & Get Interviews",
@@ -25,6 +25,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/ats-resume-international-students-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "ATS Resume for International Students 2026: Beat the Bots & Get Interviews | TrackMyOPT",
+        description: "Complete guide to ATS-optimized resumes for international students and H-1B applicants with templates and formatting rules.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

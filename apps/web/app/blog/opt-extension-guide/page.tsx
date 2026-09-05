@@ -9,8 +9,14 @@ export const metadata: Metadata = {
     title: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization",
     description: "How to extend OPT in 2026. STEM OPT extension eligibility, cap-gap extension, 180-day auto extension, and what to do when your OPT is about to expire.",
     keywords: ["OPT extension", "extend OPT", "OPT extension 2026", "STEM OPT extension", "how to extend OPT", "OPT extension options", "OPT EAD extension"],
-    openGraph: { title: "OPT Extension Guide 2026 | TrackMyOPT", description: "All ways to extend your OPT work authorization.", url: "https://www.trackmyopt.com/blog/opt-extension-guide", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization" }] },
+    openGraph: { title: "OPT Extension Guide 2026 | TrackMyOPT", description: "All ways to extend your OPT work authorization.", url: "https://www.trackmyopt.com/blog/opt-extension-guide", type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Extension Guide 2026: How to Extend Your OPT Work Authorization" }] },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-extension-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT Extension Guide 2026 | TrackMyOPT",
+        description: "All ways to extend your OPT work authorization.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function OPTExtensionGuideArticle() {
@@ -21,7 +27,7 @@ export default function OPTExtensionGuideArticle() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Opt Extension Guide", url: "https://www.trackmyopt.com/blog/opt-extension-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-14" modifiedDate="2026-04-14" author="Vinay Kumar" howToItems={[{step: 1, name: "Verify You Have a STEM-Designated Degree", url: "https://www.trackmyopt.com/blog/opt-extension-guide#stem-eligibility", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Confirm Your Employer Is E-Verify Enrolled", url: "https://www.trackmyopt.com/blog/opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Complete Form I-983 With Your Employer", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "File Form I-765 for STEM Extension", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Wait for USCIS Processing and Approval", url: "https://www.trackmyopt.com/blog/opt-extension-guide#processing", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-04-14" modifiedDate="2026-04-14" author="Vinay Kumar" howToItems={[{step: 1, name: "Verify You Have a STEM-Designated Degree", url: "https://www.trackmyopt.com/blog/opt-extension-guide#stem-eligibility", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 2, name: "Confirm Your Employer Is E-Verify Enrolled", url: "https://www.trackmyopt.com/blog/opt-extension-guide#everify", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 3, name: "Complete Form I-983 With Your Employer", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i983", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 4, name: "File Form I-765 for STEM Extension", url: "https://www.trackmyopt.com/blog/opt-extension-guide#i765", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 5, name: "Wait for USCIS Processing and Approval", url: "https://www.trackmyopt.com/blog/opt-extension-guide#processing", image: "https://www.trackmyopt.com/og-image.jpg"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>

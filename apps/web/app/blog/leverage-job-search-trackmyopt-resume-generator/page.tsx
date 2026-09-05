@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Leverage Your Job Search with TrackMyOPT Resume Generator",
@@ -32,6 +32,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/leverage-job-search-trackmyopt-resume-generator",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Leverage Your Job Search with TrackMyOPT Resume Generator (2026) | TrackMyOPT",
+        description: "Step-by-step guide to using TrackMyOPT Resume Generator for ATS optimization, tailoring resumes for each role, and increasing interview chances.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

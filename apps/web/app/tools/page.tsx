@@ -12,7 +12,6 @@ import {
   ArrowRight,
   Building2,
 } from 'lucide-react';
-import { CanonicalURL } from '@/components/CanonicalURL';
 
 const TOOLS = {
   opt: {
@@ -182,7 +181,6 @@ const itemListSchema = {
 export default function ToolsPage() {
   return (
     <>
-      <CanonicalURL url="https://www.trackmyopt.com/tools" />
       <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
         {/* Hero */}
         <section className="pt-24 pb-12 sm:pt-28 sm:pb-16 text-center px-4">

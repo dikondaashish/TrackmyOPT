@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "E-Verify enrollment, I-983 training plan, wage rules, and reporting obligations for STEM OPT employers.",
         url: "https://www.trackmyopt.com/blog/stem-opt-employer-requirements",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "STEM OPT Employer Requirements 2026: E-Verify, I-983 & Compliance Checklist" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "STEM OPT Employer Requirements 2026: E-Verify, I-983 & Compliance Checklist" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/stem-opt-employer-requirements" },
+    twitter: {
+        card: "summary_large_image",
+        title: "STEM OPT Employer Requirements 2026: E-Verify, I-983 & Compliance | TrackMyOPT",
+        description: "E-Verify enrollment, I-983 training plan, wage rules, and reporting obligations for STEM OPT employers.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function STEMOPTEmployerRequirementsArticle() {

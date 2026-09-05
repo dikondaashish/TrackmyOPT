@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/opt-mba-students-career-paths",
         images: [{ url: "/blog/opt-mba-students-career-paths.jpg", width: 1200, height: 630, alt: "Laptop showing a business presentation, next to a sketchbook and an EAD card" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-mba-students-career-paths" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-mba-students-career-paths" },
+    twitter: {
+        card: "summary_large_image",
+        title: "The International MBA's Guide to OPT",
+        description: "You paid a premium for your MBA. Here is how international students can maximize their OPT to secure high-paying US roles and H-1B sponsorship.",
+        images: ["/blog/opt-mba-students-career-paths.jpg"],
+    },
 };
 
 export default function MBAOPTPage() {

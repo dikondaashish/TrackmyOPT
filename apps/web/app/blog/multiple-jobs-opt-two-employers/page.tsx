@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/multiple-jobs-opt-two-employers",
         images: [{ url: "/blog/multiple-jobs-opt-two-employers.jpg", width: 1200, height: 630, alt: "A desk split between a corporate laptop setup and a freelance tablet setup" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/multiple-jobs-opt-two-employers" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/multiple-jobs-opt-two-employers" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Working Multiple Jobs on OPT: The Complete Rules",
+        description: "Can you hold a full-time job and a part-time job simultaneously? Yes, but tracking your hours and SEVIS reporting gets complicated.",
+        images: ["/blog/multiple-jobs-opt-two-employers.jpg"],
+    },
 };
 
 export default function MultipleJobsPage() {

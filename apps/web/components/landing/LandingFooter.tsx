@@ -38,6 +38,7 @@ export function LandingFooter() {
         product: [
             { label: "Features", href: "/features" },
             { label: "Pricing", href: "/pricing" },
+            { label: "Free Tools", href: "/tools" },
             { label: "How It Works", href: "/how-it-works" },
             { label: "About Us", href: "/about" },
             { label: "Success Stories", href: "/success-stories" },

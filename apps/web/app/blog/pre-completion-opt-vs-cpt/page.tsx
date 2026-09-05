@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/pre-completion-opt-vs-cpt",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Pre-Completion OPT vs CPT: A Complete Comparison for F-1 Students",
+        description: "Deciding between Pre-Completion OPT and CPT for your internship? Understand the rules, costs, and impacts on your post-graduation OPT.",
+        images: ["/blog/pre-opt-vs-cpt.png"],
+    },
 };
 
 export default function PreCompletionOPTvsCPTPage() {

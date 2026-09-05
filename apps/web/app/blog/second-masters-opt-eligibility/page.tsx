@@ -24,6 +24,12 @@ export const metadata: Metadata = {
             },
         ],
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "Can I Apply for OPT Again After a Second Master's Degree? (2026 Guide)",
+        description: "Discover the USCIS rules on OPT eligibility when pursuing a second Master's degree. Learn about the 'once per higher degree level' rule and what it means for F-1 students.",
+        images: ["/blog/second-masters-opt.png"],
+    },
 };
 
 export default function BlogPost() {

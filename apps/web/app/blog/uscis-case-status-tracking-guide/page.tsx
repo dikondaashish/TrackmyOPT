@@ -16,10 +16,16 @@ export const metadata: Metadata = {
         description: "Check USCIS case status by receipt number. Status message decoder + TrackMyOPT free manual tracking; Pro adds daily auto-checks and email alerts for OPT and EAD.",
         url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "How to Track Your USCIS Case Status Online: Complete Guide (2026)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "How to Track Your USCIS Case Status Online: Complete Guide (2026)" }],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "USCIS Case Status Check Online (2026) | TrackMyOPT",
+        description: "Check USCIS case status by receipt number. Status message decoder + TrackMyOPT free manual tracking; Pro adds daily auto-checks and email alerts for OPT and EAD.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

@@ -36,8 +36,14 @@ export const metadata: Metadata = {
       "Step-by-step guide for F-1 STEM OPT students who lost their job: final I-983, SEVIS reporting, 150-day clock, and finding a compliant new employer.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Laid Off on STEM OPT Guide" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Laid Off on STEM OPT Guide" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "Laid Off on STEM OPT? I-983, Employer Changes & the 150-Day Rule",
+        description: "Step-by-step guide for F-1 STEM OPT students who lost their job: final I-983, SEVIS reporting, 150-day clock, and finding a compliant new employer.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function LaidOffOnStemOptPage() {

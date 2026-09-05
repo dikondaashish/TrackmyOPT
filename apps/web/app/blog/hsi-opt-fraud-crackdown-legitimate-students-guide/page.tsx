@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "HSI OPT Fraud Crackdown: What Every Legitimate OPT Student Must Know",
@@ -37,6 +37,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/hsi-opt-fraud-crackdown-legitimate-students-guide",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "HSI Is Cracking Down on OPT Fraud: What Legitimate OPT Students Must Know | TrackMyOPT",
+        description: "DHS has identified 10,000+ students connected to suspected fraudulent OPT employers. Here's how legitimate students can verify their employer and protect their F-1 status.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

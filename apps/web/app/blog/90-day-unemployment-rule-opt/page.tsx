@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "The 90-Day OPT Unemployment Rule: Everything You Need to Know (2026)",
@@ -26,6 +26,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/90-day-unemployment-rule-opt",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT 90-Day Unemployment Rule (2026) — Days Counter | TrackMyOPT",
+        description: "How OPT unemployment days are counted, STEM 150-day limit, and free tracker to stay compliant before SEVIS termination.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

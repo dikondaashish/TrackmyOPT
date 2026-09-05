@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "How to legally work for your own startup during your 12-month OPT.",
         url: "https://www.trackmyopt.com/blog/start-company-f1-opt-visa",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "The Founder's Guide to Starting a Company on F-1 OPT" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "The Founder's Guide to Starting a Company on F-1 OPT" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/start-company-f1-opt-visa" },
+    twitter: {
+        card: "summary_large_image",
+        title: "The Founder's Guide to Starting a Company on F-1 OPT | TrackMyOPT",
+        description: "How to legally work for your own startup during your 12-month OPT.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function OPTStartupArticle() {

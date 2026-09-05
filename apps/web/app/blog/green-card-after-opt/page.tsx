@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/green-card-after-opt",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "Green Card After OPT: Top 5 Pathways for F-1 Students | TrackMyOPT",
+        description: "Complete guide on transitioning from F-1 student status (OPT/STEM OPT) to a US Green Card. Learn about EB-2, EB-3, and family options.",
+        images: ["/blog/green-card-after-opt.png"],
+    },
 };
 
 export default function GreenCardAfterOPT() {

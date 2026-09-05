@@ -29,6 +29,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/how-to-answer-sponsorship-question",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Answer Visa Sponsorship Questions on OPT | TrackMyOPT",
+        description: "Truthful application answers and recruiter scripts for explaining current OPT work authorization and possible future sponsorship.",
+        images: ["/blog/how-to-answer-sponsorship-question.png"],
+    },
 };
 
 const SPONSORSHIP_FAQS = [

@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/withdrawing-from-classes-f1-visa",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Dropping a Class? Why You Must Talk to Your DSO First",
+        description: "If you drop a class and fall below a full-time course load, your SEVIS record will be terminated and your OPT eligibility destroyed. Read this before you hit 'Withdraw'.",
+        images: ["/blog/withdrawing-from-classes-f1-visa.png"],
+    },
 };
 
 export default function WithdrawingClassesPage() {

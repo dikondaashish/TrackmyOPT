@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/academic-probation-f1-student-opt",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "The Truth About Academic Probation and OPT",
+        description: "Falling below a 2.0 or 3.0 GPA can put you on academic probation. Learn the exact immigration consequences and how to protect your future US work authorization.",
+        images: ["/blog/academic-probation-f1-student-opt.png"],
+    },
 };
 
 export default function AcademicProbationPage() {

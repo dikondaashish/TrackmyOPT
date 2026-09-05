@@ -27,8 +27,14 @@ export const metadata: Metadata = {
     description: "What to write in the SEVP 'relation to field of study' field — with copy-ready examples for CS, Business, Biology, and more.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Job Degree Relationship Guide" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Job Degree Relationship Guide" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "Explain How Your OPT Job Relates to Your Degree — SEVP Examples",
+        description: "What to write in the SEVP 'relation to field of study' field — with copy-ready examples for CS, Business, Biology, and more.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function OptJobRelatedToDegreePage() {
@@ -380,7 +386,7 @@ export default function OptJobRelatedToDegreePage() {
             {[
               { href: "/blog/opt-employment-evidence-checklist", title: "OPT Employment Evidence Checklist", desc: "Every document to save for each employer — for DSO reporting and future visa filings." },
               { href: "/blog/what-counts-as-20-hours-on-opt", title: "What Counts as 20 Hours Per Week on OPT?", desc: "The 20-hour threshold, multiple jobs, variable schedules, and evidence requirements." },
-              { href: "/blog/form-i983-stem-opt-training-plan-guide", title: "Form I-983 Training Plan Guide", desc: "How to write a strong STEM OPT training plan with specific learning objectives." },
+              { href: "/blog/i-983-training-plan-guide", title: "Form I-983 Training Plan Guide", desc: "How to write a strong STEM OPT training plan with specific learning objectives." },
               { href: "/blog/laid-off-on-opt", title: "Laid Off on OPT", desc: "What to do if your OPT employment ends — reporting, tracking, and next steps." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">

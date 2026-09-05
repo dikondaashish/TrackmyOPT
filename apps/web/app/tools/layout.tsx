@@ -13,6 +13,13 @@ export const metadata: Metadata = {
         title: "Free OPT & Immigration Tools for F-1 Students | TrackMyOPT",
         description: "All the free tools international students need: OPT calculators, unemployment trackers, case status checkers, H-1B sponsor database, and AI resume builder.",
         url: "https://www.trackmyopt.com/tools",
+        images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "TrackMyOPT free tools" }],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Free OPT & Immigration Tools for F-1 Students | TrackMyOPT",
+        description: "All the free tools international students need: OPT calculators, unemployment trackers, case status checkers, H-1B sponsor database, and AI resume builder.",
+        images: ["/og-image.jpg"],
     },
 };
 

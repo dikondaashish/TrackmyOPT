@@ -25,7 +25,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/h1b-fy2027-cap-closed-no-second-lottery",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "USCIS Closes FY 2027 H-1B Cap: No Second Lottery",
+        description: "USCIS announced they have received enough petitions to meet the FY 2027 cap. No second lottery will be held. What should OPT students do next?",
+        images: ["/blog/h1b-fy2027-cap-closed-no-second-lottery.png"],
+    },
 };
 
 const faqItems = [

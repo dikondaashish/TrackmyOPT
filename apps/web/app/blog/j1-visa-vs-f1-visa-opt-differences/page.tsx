@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/j1-visa-vs-f1-visa-opt-differences",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "F-1 vs. J-1 Visa: The Ultimate Comparison for Students",
+        description: "Trying to decide between an F-1 or J-1 visa for your US studies? The wrong choice could force you to leave the US immediately after graduation.",
+        images: ["/blog/j1-visa-vs-f1-visa-opt-differences.png"],
+    },
 };
 
 export default function J1vsF1Page() {

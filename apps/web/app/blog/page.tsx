@@ -9,6 +9,30 @@ export const metadata: Metadata = {
     title: "OPT & F-1 Visa Blog — Guides for International Students",
     description: "Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors, USCIS case tracking, and unemployment day rules. Written by former F-1 students.",
     keywords: ["OPT blog", "F-1 visa guide", "STEM OPT blog", "H-1B guide", "international student blog", "OPT tips"],
+    alternates: {
+        canonical: "https://www.trackmyopt.com/blog",
+    },
+    openGraph: {
+        title: "OPT & F-1 Visa Blog — Guides for International Students",
+        description: "Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors, USCIS case tracking, and unemployment day rules.",
+        url: "https://www.trackmyopt.com/blog",
+        siteName: "TrackMyOPT",
+        type: "website",
+        images: [
+            {
+                url: "/og-image.jpg",
+                width: 1200,
+                height: 630,
+                alt: "TrackMyOPT Blog",
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT & F-1 Visa Blog — Guides for International Students",
+        description: "Expert guides on OPT timelines, STEM OPT extensions, H-1B sponsors, and USCIS case tracking.",
+        images: ["/og-image.jpg"],
+    },
 };
 
 const blogPosts = [

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "OPT Health Insurance Guide 2026: Best Plans & How to Choose",
@@ -25,6 +25,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-health-insurance-guide-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Health Insurance While on OPT (2026): Plans & Costs | TrackMyOPT",
+        description: "Your university plan ends at graduation. Here is how to get health insurance on OPT — employer coverage, COBRA, marketplace, and budget international plans compared.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

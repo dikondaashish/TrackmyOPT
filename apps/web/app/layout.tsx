@@ -43,9 +43,9 @@ export const metadata: Metadata = {
     siteName: 'TrackMyOPT',
     images: [
       {
-        url: '/og-image.png',
-        width: 1376,
-        height: 768,
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
         alt: 'TrackMyOPT Dashboard Preview',
       },
     ],
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: 'TrackMyOPT - The #1 App for F-1 Students',
     description: 'Track OPT deadlines, find H-1B jobs, and secure your future. Join thousands of students tackling their American Dream.',
     creator: '@trackmyopt',
-    images: ['/og-image.png'],
+    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -69,6 +69,9 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
+  },
+  alternates: {
+    canonical: 'https://www.trackmyopt.com',
   },
   other: {
     'google-adsense-account': 'ca-pub-4262248775973692',
@@ -91,13 +94,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://deknauqkqqzwuvopqott.supabase.co" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://randomuser.me" />
         <link rel="dns-prefetch" href="https://js.stripe.com" />
         <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
         <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
-        <link rel="dns-prefetch" href="https://randomuser.me" />
       </head>
       <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
         <ThemeProvider

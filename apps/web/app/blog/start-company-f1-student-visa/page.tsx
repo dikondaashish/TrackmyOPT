@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "The complete guide to legally starting a business as an international student.",
         url: "https://www.trackmyopt.com/blog/start-company-f1-student-visa",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "How to Start a Company on an F-1 Student Visa" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "How to Start a Company on an F-1 Student Visa" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/start-company-f1-student-visa" },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Start a Company on an F-1 Student Visa | TrackMyOPT",
+        description: "The complete guide to legally starting a business as an international student.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function F1StartupArticle() {

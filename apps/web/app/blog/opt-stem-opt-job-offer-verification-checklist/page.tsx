@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.trackmyopt.com/og-image.png",
+        url: "https://www.trackmyopt.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "OPT & STEM OPT Job Offer Verification Checklist",
@@ -36,6 +36,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.trackmyopt.com/blog/opt-stem-opt-job-offer-verification-checklist",
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT & STEM OPT Job Offer Verification Checklist | TrackMyOPT",
+        description: "A complete pre-acceptance checklist for F-1 students on OPT or STEM OPT: employer verification, DSO confirmation, and SEVIS/I-20 accuracy.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 const employerChecklist = [

@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   TriangleAlert,
 } from 'lucide-react';
-import { CanonicalURL } from '@/components/CanonicalURL';
 import { OfficialEVerifyEmployerSearch } from '@/components/career/h1b/OfficialEVerifyEmployerSearch';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
 
@@ -145,7 +144,6 @@ const interpretationRows = [
 export default function EVerifyEmployerSearchPage() {
   return (
     <>
-      <CanonicalURL url={canonicalUrl} />
       <main className="min-h-screen bg-slate-50 text-slate-950 dark:bg-zinc-950 dark:text-white">
         <section className="relative overflow-hidden border-b border-blue-100 bg-gradient-to-br from-white via-blue-50 to-indigo-100/70 px-4 pb-16 pt-28 dark:border-blue-950 dark:from-zinc-950 dark:via-slate-950 dark:to-blue-950/40 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
           <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:radial-gradient(circle_at_1px_1px,rgba(37,99,235,0.16)_1px,transparent_0)] [background-size:28px_28px] dark:opacity-20" />

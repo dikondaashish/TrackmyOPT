@@ -17,6 +17,12 @@ export const metadata: Metadata = {
         images: [{ url: "https://www.trackmyopt.com/blog/form-i765.png", width: 1200, height: 630, alt: "Form I-765 Application for Employment Authorization with EAD card on a desk" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/form-i765-ead-application-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Form I-765 Complete Guide: How to Apply for Your EAD Card | TrackMyOPT",
+        description: "The definitive 2026 guide to Form I-765 for F-1 students on OPT and STEM OPT — step-by-step instructions, fees, and processing times.",
+        images: ["https://www.trackmyopt.com/blog/form-i765.png"],
+    },
 };
 
 export default function FormI765GuidePage() {

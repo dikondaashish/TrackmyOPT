@@ -3,7 +3,6 @@ import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 import dynamic from "next/dynamic";
 import { PricingFinalCta } from "@/components/pricing/PricingFinalCta";
-import { CanonicalURL } from "@/components/CanonicalURL";
 import { LandingPricing } from "@/components/landing/LandingPricing";
 import { PricingHero } from "@/components/pricing/PricingHero";
 import { WhyPremium } from "@/components/pricing/WhyPremium";
@@ -66,7 +65,6 @@ export default function PricingPage() {
 
     return (
         <>
-            <CanonicalURL url="https://www.trackmyopt.com/pricing" />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: safeSerializeJsonLd(faqSchema) }}

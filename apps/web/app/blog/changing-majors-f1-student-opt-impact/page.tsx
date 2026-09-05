@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/changing-majors-f1-student-opt-impact",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "The OPT Impact of Changing Your Major as an F-1 Student",
+        description: "Switching to a STEM major can unlock 24 extra months of OPT, but doing it wrong can violate your SEVIS status. Learn the exact process for changing your major.",
+        images: ["/blog/changing-majors-f1-student-opt-impact.png"],
+    },
 };
 
 export default function ChangingMajorsPage() {

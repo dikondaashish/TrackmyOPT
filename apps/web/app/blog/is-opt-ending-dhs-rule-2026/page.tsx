@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Is OPT Really Ending in 2026?",
@@ -37,6 +37,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/is-opt-ending-dhs-rule-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Is OPT Really Ending? What DHS's 2026 Review Means for F-1 Students | TrackMyOPT",
+        description: "DHS confirmed it is re-evaluating OPT and STEM OPT. Here is what is real, what is speculation, and what every F-1 student should do right now.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

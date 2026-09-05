@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-reporting-requirements-dso",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT & STEM OPT Reporting Requirements: Complete DSO Guide | TrackMyOPT",
+        description: "Full guide on F-1 reporting rules during OPT & STEM OPT. Learn what to report, how to report, and critical deadlines.",
+        images: ["/blog/opt-reporting-requirements.png"],
+    },
 };
 
 export default function OPTReportingRequirements() {

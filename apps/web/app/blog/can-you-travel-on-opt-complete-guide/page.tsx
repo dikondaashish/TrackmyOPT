@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Can You Travel on OPT? Complete Travel Guide for F-1 Students",
@@ -25,6 +25,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/can-you-travel-on-opt-complete-guide",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Can I Travel on OPT? Re-Entry Rules & Documents | TrackMyOPT",
+        description: "Pending versus approved OPT, the documents needed for re-entry, employment evidence, visa rules, and when travel can end F-1 re-entry eligibility.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

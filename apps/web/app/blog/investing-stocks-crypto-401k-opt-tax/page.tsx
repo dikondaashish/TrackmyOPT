@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax",
         images: [{ url: "/blog/investing-stocks-crypto-401k-opt-tax.jpg", width: 1200, height: 630, alt: "Laptop showing a 401k contribution page next to a smartphone with a stock portfolio tracker" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/investing-stocks-crypto-401k-opt-tax" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Investing on OPT: Stocks, Crypto, 401(k) & Tax Rules for F-1 Students",
+        description: "You are earning a US salary on OPT. Can you invest it? Learn the tax rules for stocks, cryptocurrency, employer 401(k), and required FBAR filings.",
+        images: ["/blog/investing-stocks-crypto-401k-opt-tax.jpg"],
+    },
 };
 
 export default function InvestingOnOPTPage() {

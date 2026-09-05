@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "The complex rules of keeping your startup alive when transitioning to the 24-month STEM OPT extension.",
         url: "https://www.trackmyopt.com/blog/start-company-f1-stem-opt",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Can You Run a Startup on STEM OPT?" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Can You Run a Startup on STEM OPT?" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/start-company-f1-stem-opt" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Can You Run a Startup on STEM OPT? | TrackMyOPT",
+        description: "The complex rules of keeping your startup alive when transitioning to the 24-month STEM OPT extension.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function STEMOPTStartupArticle() {

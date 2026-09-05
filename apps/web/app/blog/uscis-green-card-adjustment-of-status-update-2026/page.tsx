@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "How the new 'discretionary grace' policy affects your path from H-1B to a Green Card.",
         url: "https://www.trackmyopt.com/blog/uscis-green-card-adjustment-of-status-update-2026",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "USCIS Adjustment of Status Policy Shift: Discretionary Grace Explained (2026)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "USCIS Adjustment of Status Policy Shift: Discretionary Grace Explained (2026)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/uscis-green-card-adjustment-of-status-update-2026" },
+    twitter: {
+        card: "summary_large_image",
+        title: "USCIS Adjustment of Status Policy Shift 2026 | TrackMyOPT",
+        description: "How the new 'discretionary grace' policy affects your path from H-1B to a Green Card.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function GreenCardUpdateArticle() {

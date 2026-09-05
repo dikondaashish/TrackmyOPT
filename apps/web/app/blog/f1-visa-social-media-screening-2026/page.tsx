@@ -53,6 +53,12 @@ export const metadata: Metadata = {
       },
     ],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: 'F-1 Visa Social Media Screening: What Students Should Know',
+        description: 'The State Department conducts online-presence review for F, M, and J visa applicants and instructs them to make profiles public. Prepare without guessing.',
+        images: ['https://www.trackmyopt.com/blog/f1-visa-social-media-screening-2026.png'],
+    },
 };
 
 const faqItems = [

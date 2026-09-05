@@ -35,7 +35,8 @@ describe("indexing signals", () => {
 
         expect(serializedRules).not.toContain('"/login"');
         expect(serializedRules).not.toContain('"/auth/"');
-        expect(disallowedPaths).not.toContain("/dashboard/");
+        expect(disallowedPaths).toContain("/dashboard/");
+        expect(disallowedPaths).toContain("/premium/");
         expect(serializedRules).toContain('"/dashboard/help"');
         expect(serializedRules).toContain('"/api/"');
     });
@@ -103,6 +104,23 @@ describe("indexing signals", () => {
 
             expect(source, file).not.toContain("https://trackmyopt.com");
             expect(source, file).not.toMatch(/href=["']\/(?:register|auth\/sign-up)["']/);
+        }
+    });
+
+    it("stubs redirected blog sources instead of serving duplicate content", () => {
+        const stubs = [
+            "how-to-track-uscis-case-status-guide",
+            "form-i983-stem-opt-training-plan-guide",
+            "f1-student-tax-filing-guide",
+            "opt-health-insurance-guide",
+            "ats-resume-international-students",
+            "can-you-travel-on-opt",
+        ];
+        for (const slug of stubs) {
+            const file = path.join(process.cwd(), "app", "blog", slug, "page.tsx");
+            const source = fs.readFileSync(file, "utf8");
+            expect(source, file).toContain("permanentRedirect");
+            expect(source, file).not.toContain("export const metadata");
         }
     });
 });

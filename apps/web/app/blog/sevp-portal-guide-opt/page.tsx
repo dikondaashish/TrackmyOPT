@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/sevp-portal-guide-opt",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "SEVP Portal Complete Guide: Setup, Unlock & Reporting | TrackMyOPT",
+        description: "Step-by-step guide on how to register, unlock, and manage your SEVP portal account to stay in status during your OPT and STEM OPT period.",
+        images: ["/blog/sevp-portal-guide.png"],
+    },
 };
 
 export default function SEVPortalGuide() {

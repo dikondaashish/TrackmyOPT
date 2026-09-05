@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/opt-non-stem-majors-guide",
         images: [{ url: "/blog/opt-non-stem-majors-guide.jpg", width: 1200, height: 630, alt: "Laptop showing a marketing strategy presentation next to a sketchbook and an EAD card" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-non-stem-majors-guide" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-non-stem-majors-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "The Non-STEM Student's Guide to Surviving OPT",
+        description: "You only get 12 months of OPT. No extensions. Here is how business, arts, and humanities majors can secure sponsorship before time runs out.",
+        images: ["/blog/opt-non-stem-majors-guide.jpg"],
+    },
 };
 
 export default function NonStemOPTPage() {

@@ -15,9 +15,15 @@ export const metadata: Metadata = {
         description: "Step-by-step I-983 for STEM OPT: employer requirements, training plan sections, and E-Verify checklist.",
         url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "I-983 Training Plan for STEM OPT: Complete Guide (2026)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "I-983 Training Plan for STEM OPT: Complete Guide (2026)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/i-983-training-plan-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Form I-983 STEM OPT Training Plan Guide (2026) | TrackMyOPT",
+        description: "Step-by-step I-983 for STEM OPT: employer requirements, training plan sections, and E-Verify checklist.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 const I983_FAQS = [
@@ -47,7 +53,7 @@ export default function I983Article() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "I 983 Training Plan Guide", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-17" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...I983_FAQS]} howToItems={[{step: 1, name: "Download the I-983 Form", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#download", image: "https://www.trackmyopt.com/og-image.png"}, {step: 2, name: "Complete Student Information Section", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#student-info", image: "https://www.trackmyopt.com/og-image.png"}, {step: 3, name: "Provide Employer Information and E-Verify Details", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#employer-info", image: "https://www.trackmyopt.com/og-image.png"}, {step: 4, name: "Detail the Training Plan and Job Duties", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#training-plan", image: "https://www.trackmyopt.com/og-image.png"}, {step: 5, name: "Have Employer Sign and Submit", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#sign", image: "https://www.trackmyopt.com/og-image.png"}, {step: 6, name: "Submit to Your DSO for SEVIS Recommendation", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#submit", image: "https://www.trackmyopt.com/og-image.png"}]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-03-17" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...I983_FAQS]} howToItems={[{step: 1, name: "Download the I-983 Form", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#download", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 2, name: "Complete Student Information Section", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#student-info", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 3, name: "Provide Employer Information and E-Verify Details", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#employer-info", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 4, name: "Detail the Training Plan and Job Duties", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#training-plan", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 5, name: "Have Employer Sign and Submit", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#sign", image: "https://www.trackmyopt.com/og-image.jpg"}, {step: 6, name: "Submit to Your DSO for SEVIS Recommendation", url: "https://www.trackmyopt.com/blog/i-983-training-plan-guide#submit", image: "https://www.trackmyopt.com/og-image.jpg"}]} />
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link><span>/</span>
                 <Link href="/blog" className="hover:text-blue-600">Blog</Link><span>/</span>

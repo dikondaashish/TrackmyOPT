@@ -16,10 +16,16 @@ export const metadata: Metadata = {
         description: "Latest OPT EAD processing times. USCIS currently takes 2-5 months. Tips to avoid delays and track your case.",
         url: "https://www.trackmyopt.com/blog/opt-processing-time-2026",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Processing Time 2026: Current Wait Times & How to Avoid Delays" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Processing Time 2026: Current Wait Times & How to Avoid Delays" }],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/opt-processing-time-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT Processing Time 2026: Current Wait Times | TrackMyOPT",
+        description: "Latest OPT EAD processing times. USCIS currently takes 2-5 months. Tips to avoid delays and track your case.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

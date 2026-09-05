@@ -68,7 +68,7 @@ export default function OPTCareerPillarGuide() {
                     "url": "https://www.trackmyopt.com",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://www.trackmyopt.com/logo.png"
+                        "url": "https://www.trackmyopt.com/TrackMyOPT%20Logo/Favicon.png"
                     }
                 },
                 "articleBody": "Complete career guide for F-1 students covering job search, OPT, H-1B sponsorship, salary negotiation, and immigration pathways."

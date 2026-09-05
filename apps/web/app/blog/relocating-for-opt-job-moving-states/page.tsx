@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/relocating-for-opt-job-moving-states",
         images: [{ url: "/blog/relocating-for-opt-job-moving-states.jpg", width: 1200, height: 630, alt: "Moving boxes with a laptop showing apartment listings and a US map with a route drawn" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/relocating-for-opt-job-moving-states" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/relocating-for-opt-job-moving-states" },
+    twitter: {
+        card: "summary_large_image",
+        title: "The Complete Relocation Checklist for OPT Workers",
+        description: "Moving from your college town to a new city for your OPT job? Do not forget the mandatory SEVIS address update. Here is the full checklist.",
+        images: ["/blog/relocating-for-opt-job-moving-states.jpg"],
+    },
 };
 
 export default function RelocatingPage() {

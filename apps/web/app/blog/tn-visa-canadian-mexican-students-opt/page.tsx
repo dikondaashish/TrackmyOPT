@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/tn-visa-canadian-mexican-students-opt",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "The TN Visa Advantage: Escaping the H-1B Lottery",
+        description: "Are you a Canadian or Mexican citizen on OPT? You have a secret weapon. Learn how to transition from F-1 to TN status and skip the H-1B lottery.",
+        images: ["/blog/tn-visa-canadian-mexican-students-opt.png"],
+    },
 };
 
 export default function TnVisaPage() {

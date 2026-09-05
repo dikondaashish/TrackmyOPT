@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     images: [{ url: "https://www.trackmyopt.com/blog/when-does-opt-unemployment-clock-start.png", width: 1200, height: 630, alt: "Calendar with OPT start date circled, EAD card, countdown timer showing 78 days remaining, and SEVIS reporting confirmation" }],
   },
   alternates: { canonical: CANONICAL_URL },
+    twitter: {
+        card: "summary_large_image",
+        title: "When Does the OPT Unemployment Clock Start? (2026)",
+        description: "A practical, source-backed guide to OPT unemployment start dates, EAD delays, job gaps, and remaining-day tracking.",
+        images: ["https://www.trackmyopt.com/blog/when-does-opt-unemployment-clock-start.png"],
+    },
 };
 
 const FAQS = [

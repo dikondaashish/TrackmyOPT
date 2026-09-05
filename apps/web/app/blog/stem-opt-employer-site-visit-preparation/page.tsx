@@ -26,8 +26,14 @@ export const metadata: Metadata = {
     description: "What SEVP site visits check, what documents to have ready, and how students and employers should each prepare for a STEM OPT worksite inspection.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "STEM OPT Employer Site Visit Preparation" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "STEM OPT Employer Site Visit Preparation" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "STEM OPT Employer Site Visits: How Students and Employers Should Prepare",
+        description: "What SEVP site visits check, what documents to have ready, and how students and employers should each prepare for a STEM OPT worksite inspection.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function StemOptEmployerSiteVisitPage() {

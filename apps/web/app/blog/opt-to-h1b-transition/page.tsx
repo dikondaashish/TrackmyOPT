@@ -12,9 +12,15 @@ export const metadata: Metadata = {
         description: "Step-by-step timeline for transitioning from OPT to H-1B status. Cap-gap, lottery, and backup plans.",
         url: "https://www.trackmyopt.com/blog/opt-to-h1b-transition",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-to-h1b-transition" },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT to H-1B Transition Guide 2026 | TrackMyOPT",
+        description: "Step-by-step timeline for transitioning from OPT to H-1B status. Cap-gap, lottery, and backup plans.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function OPTtoH1BArticle() {

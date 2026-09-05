@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -64,7 +63,6 @@ function CalculatorPreview() {
 export default function CompliancePage() {
     return (
         <>
-            <CanonicalURL url="https://www.trackmyopt.com/features/compliance" />
             <BreadcrumbSchema items={[
                 { name: "Home", url: "https://www.trackmyopt.com" },
                 { name: "Features", url: "https://www.trackmyopt.com/features" },

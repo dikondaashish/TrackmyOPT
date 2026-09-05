@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/eb2-niw-green-card-opt",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "EB-2 NIW Green Card Guide for OPT & STEM OPT Students | TrackMyOPT",
+        description: "Learn how to self-petition for a US Green Card via the EB-2 National Interest Waiver (NIW) while on OPT or STEM OPT. Step-by-step criteria breakdown.",
+        images: ["/blog/eb2-niw-green-card-opt.png"],
+    },
 };
 
 export default function EB2NIWGuide() {

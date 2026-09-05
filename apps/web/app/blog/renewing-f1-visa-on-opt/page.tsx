@@ -24,7 +24,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/renewing-f1-visa-on-opt",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "The Ultimate Guide to Renewing Your F-1 Visa on OPT",
+        description: "Your F-1 visa stamp has expired, but you want to visit home while working on OPT. Here is exactly what you need to know about renewing your visa abroad.",
+        images: ["/blog/renewing-f1-visa-on-opt.png"],
+    },
 };
 
 export default function RenewF1VisaPage() {

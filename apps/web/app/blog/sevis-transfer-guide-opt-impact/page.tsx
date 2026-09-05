@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/sevis-transfer-guide-opt-impact",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "How a SEVIS Transfer Instantly Cancels Your OPT",
+        description: "Accepted into a Master's program? Read this before you request a SEVIS transfer from your DSO, or you might accidentally lose your current OPT job.",
+        images: ["/blog/sevis-transfer-guide-opt-impact.png"],
+    },
 };
 
 export default function SevisTransferPage() {

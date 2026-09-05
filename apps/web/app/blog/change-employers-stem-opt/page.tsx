@@ -26,8 +26,14 @@ export const metadata: Metadata = {
     description: "Step-by-step STEM OPT employer change guide: close the old opportunity, vet the new employer, complete a new I-983, and stay within the 10-day reporting window.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "STEM OPT Employer Change Guide" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "STEM OPT Employer Change Guide" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Change Employers on STEM OPT: New I-983 and SEVIS Deadlines",
+        description: "Step-by-step STEM OPT employer change guide: close the old opportunity, vet the new employer, complete a new I-983, and stay within the 10-day reporting window.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function ChangeStemOptEmployerPage() {

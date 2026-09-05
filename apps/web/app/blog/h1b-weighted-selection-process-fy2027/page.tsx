@@ -14,9 +14,15 @@ export const metadata: Metadata = {
         description: "Everything you need to know about the new weighted selection process for the FY 2027 H-1B cap season.",
         url: "https://www.trackmyopt.com/blog/h1b-weighted-selection-process-fy2027",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "FY 2027 H-1B Weighted Selection Process Explained (2026 Update)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "FY 2027 H-1B Weighted Selection Process Explained (2026 Update)" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/h1b-weighted-selection-process-fy2027" },
+    twitter: {
+        card: "summary_large_image",
+        title: "FY 2027 H-1B Weighted Selection Process Explained | TrackMyOPT",
+        description: "Everything you need to know about the new weighted selection process for the FY 2027 H-1B cap season.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function H1BWeightedSelectionArticle() {

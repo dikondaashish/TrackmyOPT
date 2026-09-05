@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/first-us-paycheck-deductions-w4",
         images: [{ url: "/blog/first-us-paycheck-deductions-w4.jpg", width: 1200, height: 630, alt: "Pay stub showing gross pay and deductions next to a W-4 form and a phone with a direct deposit notification" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/first-us-paycheck-deductions-w4" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/first-us-paycheck-deductions-w4" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Your First US Paycheck on OPT: Where Did Your Money Go?",
+        description: "Expected $3,000 but got $2,100? Learn every deduction on your pay stub and which ones F-1 students on OPT are actually exempt from.",
+        images: ["/blog/first-us-paycheck-deductions-w4.jpg"],
+    },
 };
 
 export default function FirstPaycheckPage() {

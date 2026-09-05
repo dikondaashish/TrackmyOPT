@@ -38,6 +38,13 @@ export const metadata: Metadata = {
         url: canonical,
     },
     alternates: { canonical },
+    twitter: {
+        card: "summary_large_image",
+        title: `Save ${savingsLabel}+ With TrackMyOPT Student Deals (Login Required)`,
+        description:
+            "Verified student discounts on health insurance, AI tools, banking, and career perks — available inside your TrackMyOPT dashboard after sign-in.",
+        images: ["/og-image.jpg"],
+    },
 };
 
 const faqItems = [

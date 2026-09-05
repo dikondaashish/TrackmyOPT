@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/h4-ead-opt-spouse-work-authorization",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "H-4 EAD: Work Authorization for H-1B Spouses",
+        description: "Your spouse is on an H-4 visa and wants to work. Learn the exact eligibility rules, how to apply for the H-4 EAD, and when it might be revoked.",
+        images: ["/blog/h4-ead-opt-spouse-work-authorization.jpg"],
+    },
 };
 
 export default function H4EADPage() {

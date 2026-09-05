@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/is-my-degree-stem-eligible-cip-code",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "Is My Degree STEM Eligible? CIP Code Lookup Guide | TrackMyOPT",
+        description: "Complete guide to checking your major's CIP code on your Form I-20 against the DHS STEM Designated Degree List to verify STEM OPT eligibility.",
+        images: ["/blog/is-my-degree-stem-eligible-cip-code.png"],
+    },
 };
 
 export default function CIPCodeGuide() {

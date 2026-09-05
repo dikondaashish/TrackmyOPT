@@ -2,7 +2,6 @@
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 
 import { motion } from "framer-motion";
-import { CanonicalURL } from "@/components/CanonicalURL";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -143,7 +142,6 @@ const faqItems = [
 export default function HealthInsurancePage() {
     return (
         <>
-            <CanonicalURL url="https://www.trackmyopt.com/features/health-insurance" />
             <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-red-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="OPT Health Insurance Finder & Comparison Tool"

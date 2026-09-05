@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Indian Students on OPT/STEM OPT: Is Your Indian Bank Account Illegal?",
@@ -36,6 +36,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/indian-bank-account-nro-opt-students",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Indian Students on OPT/STEM OPT: Is Your Indian Bank Account Illegal? | TrackMyOPT",
+        description: "Holding a regular Indian savings account while on OPT or STEM OPT violates FEMA. Here's how to fix it without flying to India.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

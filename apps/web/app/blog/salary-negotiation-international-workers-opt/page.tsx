@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/salary-negotiation-international-workers-opt",
         images: [{ url: "/blog/salary-negotiation-international-workers-opt.jpg", width: 1200, height: 630, alt: "A desk with an offer letter, a smartphone calculator, and financial documents" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/salary-negotiation-international-workers-opt" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/salary-negotiation-international-workers-opt" },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Negotiate Salary When You Need Sponsorship",
+        description: "Many international students accept the first offer they get because they fear losing H-1B sponsorship. Here is how to negotiate without risking the offer.",
+        images: ["/blog/salary-negotiation-international-workers-opt.jpg"],
+    },
 };
 
 export default function SalaryNegotiationPage() {

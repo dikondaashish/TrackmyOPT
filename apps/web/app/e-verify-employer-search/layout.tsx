@@ -31,9 +31,9 @@ export const metadata: Metadata = {
     siteName: "TrackMyOPT",
     images: [
       {
-        url: "/og-image.png",
-        width: 1376,
-        height: 768,
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
         alt: "TrackMyOPT E-Verify Employer Search for STEM OPT",
       },
     ],
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: "Free E-Verify Employer Search for STEM OPT",
     description:
       "Search the official USCIS database and understand what the result means for STEM OPT.",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
   },
 };
 

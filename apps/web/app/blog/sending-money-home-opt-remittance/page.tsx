@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/sending-money-home-opt-remittance",
         images: [{ url: "/blog/sending-money-home-opt-remittance.jpg", width: 1200, height: 630, alt: "Smartphone showing a Wise money transfer app next to US dollar bills and a small globe" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/sending-money-home-opt-remittance" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/sending-money-home-opt-remittance" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Cheapest Ways to Send Money Home While on OPT",
+        description: "You are earning your first US salary. Here is exactly how to send money to your family back home without losing hundreds to bank wire fees.",
+        images: ["/blog/sending-money-home-opt-remittance.jpg"],
+    },
 };
 
 export default function SendingMoneyHomePage() {

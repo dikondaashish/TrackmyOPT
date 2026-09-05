@@ -26,7 +26,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/cpt-12-month-rule-opt-eligibility",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Should I Use 11 Months of CPT? The OPT 12-Month Rule",
+        description: "Understand the one-year full-time CPT bar, how part-time CPT is treated, and why your DSO should verify your authorization history before you approach the limit.",
+        images: ["/blog/cpt-12-month-rule.png"],
+    },
 };
 
 const CPT_FAQS = [

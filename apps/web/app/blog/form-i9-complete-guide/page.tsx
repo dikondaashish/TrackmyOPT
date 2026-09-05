@@ -17,6 +17,12 @@ export const metadata: Metadata = {
         images: [{ url: "https://www.trackmyopt.com/blog/form-i9.png", width: 1200, height: 630, alt: "Form I-9 Employment Eligibility Verification on a corporate desk" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/form-i9-complete-guide" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Form I-9 Complete Guide 2026 | TrackMyOPT",
+        description: "The definitive guide to Form I-9 for international students on OPT, STEM OPT, and F-1 visas.",
+        images: ["https://www.trackmyopt.com/blog/form-i9.png"],
+    },
 };
 
 export default function FormI9GuidePage() {

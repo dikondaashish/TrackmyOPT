@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/how-to-get-ssn-on-opt",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Get a Social Security Number (SSN) on OPT | TrackMyOPT",
+        description: "Step-by-step guide for F-1 students on OPT to get their Social Security Number. Documents, SSA office tips, and processing timeline.",
+        images: ["/blog/ssn-opt-guide.png"],
+    },
 };
 
 export default function HowToGetSSNOnOPT() {

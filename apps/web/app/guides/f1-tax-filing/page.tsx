@@ -54,7 +54,7 @@ export default function F1TaxFilingPillarGuide() {
                     "url": "https://www.trackmyopt.com",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://www.trackmyopt.com/logo.png"
+                        "url": "https://www.trackmyopt.com/TrackMyOPT%20Logo/Favicon.png"
                     }
                 },
                 "articleBody": "Complete guide to F-1 student tax filing, including forms, strategies, and compliance requirements."

@@ -51,6 +51,12 @@ export const metadata: Metadata = {
       },
     ],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: 'August 2026 Visa Bulletin: What OPT Workers Need to Know',
+        description: 'EB-2 India is unavailable for final action, EB-1 India is at risk, and October may reset annual limits. See the practical impact on OPT workers.',
+        images: ['https://www.trackmyopt.com/blog/august-2026-visa-bulletin-opt-workers.png'],
+    },
 };
 
 const faqItems = [

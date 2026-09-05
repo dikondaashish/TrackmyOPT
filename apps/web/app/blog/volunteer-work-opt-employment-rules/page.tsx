@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/volunteer-work-opt-employment-rules",
         images: [{ url: "/blog/volunteer-work-opt-employment-rules.jpg", width: 1200, height: 630, alt: "Clipboard with a volunteer sign-in sheet next to a volunteer agreement form and an EAD card" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/volunteer-work-opt-employment-rules" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/volunteer-work-opt-employment-rules" },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Stop the OPT Unemployment Clock with Volunteer Work",
+        description: "Running out of your 90 days of OPT unemployment? You can legally stop the clock by volunteering—if you follow these strict rules.",
+        images: ["/blog/volunteer-work-opt-employment-rules.jpg"],
+    },
 };
 
 export default function VolunteerWorkPage() {

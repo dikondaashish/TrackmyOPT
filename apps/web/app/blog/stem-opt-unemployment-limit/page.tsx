@@ -14,10 +14,16 @@ export const metadata: Metadata = {
         description: "Complete guide to the 150-day unemployment limit on STEM OPT. How days are counted and strategies to stay compliant.",
         url: "https://www.trackmyopt.com/blog/stem-opt-unemployment-limit",
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "STEM OPT Unemployment Limit: The 150-Day Rule Explained (2026)" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "STEM OPT Unemployment Limit: The 150-Day Rule Explained (2026)" }],
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/stem-opt-unemployment-limit",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "STEM OPT 150-Day Unemployment Rule | TrackMyOPT",
+        description: "Complete guide to the 150-day unemployment limit on STEM OPT. How days are counted and strategies to stay compliant.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

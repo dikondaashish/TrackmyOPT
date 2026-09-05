@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/cpt-complete-guide",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "CPT Complete Guide 2026: Eligibility, Application & Rules for F-1 Students | TrackMyOPT",
+        description: "Complete guide to Curricular Practical Training for F-1 students: eligibility, application, Day 1 CPT risks, and impact on OPT.",
+        images: ["/blog/cpt-complete-guide.png"],
+    },
 };
 
 export default function CPTCompleteGuide() {

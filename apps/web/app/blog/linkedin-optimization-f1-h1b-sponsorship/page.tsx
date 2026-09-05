@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship",
         images: [{ url: "/blog/linkedin-optimization-f1-h1b-sponsorship.jpg", width: 1200, height: 630, alt: "Laptop showing a LinkedIn profile page with an Open to Work badge next to a resume" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/linkedin-optimization-f1-h1b-sponsorship" },
+    twitter: {
+        card: "summary_large_image",
+        title: "How to Optimize Your LinkedIn for H-1B Sponsorship",
+        description: "Stop hiding your immigration status on LinkedIn. Learn how to strategically position yourself to attract recruiters who actually offer H-1B sponsorship.",
+        images: ["/blog/linkedin-optimization-f1-h1b-sponsorship.jpg"],
+    },
 };
 
 export default function LinkedInOptimizationPage() {

@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/networking-international-student-sponsorship",
         images: [{ url: "/blog/networking-international-student-sponsorship.jpg", width: 1200, height: 630, alt: "A conference name tag, a stack of business cards, and a smartphone showing an email draft" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/networking-international-student-sponsorship" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/networking-international-student-sponsorship" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Stop Cold Applying: How to Network for H-1B Sponsorship",
+        description: "The Applicant Tracking System (ATS) is designed to filter out international students. Here is how to bypass the algorithm through strategic networking.",
+        images: ["/blog/networking-international-student-sponsorship.jpg"],
+    },
 };
 
 export default function NetworkingPage() {

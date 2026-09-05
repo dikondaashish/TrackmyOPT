@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/o1-visa-international-students-opt",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "O-1 Visa for International Students: Can You Qualify After OPT?",
+        description: "The O-1 visa has no lottery, no prevailing wage requirements, and no cap. Discover the 8 criteria for the O-1 visa and how F-1 students can build a profile to qualify.",
+        images: ["/blog/o1-visa-international-students.png"],
+    },
 };
 
 export default function O1VisaGuidePage() {

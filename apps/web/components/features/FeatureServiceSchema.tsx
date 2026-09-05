@@ -2,6 +2,7 @@
 // Uses safeSerializeJsonLd — malformed props never crash SSR or client render.
 
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
+import { LOGO_URL } from "@/lib/seo-schemas";
 
 interface FeatureServiceSchemaProps {
   name: string;
@@ -32,7 +33,7 @@ export function FeatureServiceSchema({
       url: "https://www.trackmyopt.com",
       logo: {
         "@type": "ImageObject",
-        url: "https://www.trackmyopt.com/logo.png",
+        url: LOGO_URL,
         width: 256,
         height: 256,
       },

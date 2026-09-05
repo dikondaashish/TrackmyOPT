@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/fall-out-of-f1-status-options",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Fallen Out of F-1 Status? Here Are Your Options",
+        description: "Whether you missed a deadline, dropped below full-time, or exceeded unemployment days, here is exactly what happens when you lose F-1 status and how to fix it.",
+        images: ["/blog/fall-out-of-f1-status-options.png"],
+    },
 };
 
 export default function FallOutOfStatusPage() {

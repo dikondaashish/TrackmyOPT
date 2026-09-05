@@ -16,6 +16,12 @@ export const metadata: Metadata = {
         siteName: "TrackMyOPT",
         type: "website",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT & F-1 Visa Blog | TrackMyOPT",
+        description: "Expert guides on OPT, STEM OPT, H-1B sponsorship, and USCIS case tracking for international students.",
+        images: ["/og-image.jpg"],
+    },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog",
     },

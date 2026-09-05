@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/60-day-grace-period-f1-students",
         images: [{ url: "/blog/60-day-grace-period-f1-students.jpg", width: 1200, height: 630, alt: "A calendar with a departure date circled, next to an I-20 and an airline itinerary" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/60-day-grace-period-f1-students" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/60-day-grace-period-f1-students" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Navigating the 60-Day Grace Period on F-1",
+        description: "Whether your OPT naturally expired or you hit your 90-day unemployment limit, here is exactly what you can (and cannot) do during your 60-day grace period.",
+        images: ["/blog/60-day-grace-period-f1-students.jpg"],
+    },
 };
 
 export default function GracePeriodPage() {

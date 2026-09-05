@@ -112,7 +112,7 @@ export default function OPTHealthInsurancePillarGuide() {
                     "url": "https://www.trackmyopt.com",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://www.trackmyopt.com/logo.png"
+                        "url": "https://www.trackmyopt.com/TrackMyOPT%20Logo/Favicon.png"
                     }
                 },
                 "articleBody": "Comprehensive guide to health insurance options for F-1 students on OPT, including ACA marketplace, employer plans, COBRA, and state-specific resources."

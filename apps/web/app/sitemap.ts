@@ -1,9 +1,29 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { MetadataRoute } from 'next';
 import { getAllAnswers } from '@/lib/answers';
 import { ANSWER_CANONICAL_OVERRIDES } from '@/lib/answers/canonical-overrides';
 import { getPublicBlogRoutes } from '@/lib/blog-routes';
 
 export const revalidate = 3600;
+
+function blogLastModified(route: string): Date {
+  if (route === '/blog') {
+    const index = path.join(process.cwd(), 'app/blog/page.tsx');
+    try {
+      return fs.statSync(index).mtime;
+    } catch {
+      return new Date();
+    }
+  }
+  const slug = route.replace(/^\/blog\//, '');
+  const page = path.join(process.cwd(), 'app/blog', slug, 'page.tsx');
+  try {
+    return fs.statSync(page).mtime;
+  } catch {
+    return new Date();
+  }
+}
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://www.trackmyopt.com';
@@ -104,7 +124,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         })),
         ...blogPages.map((route) => ({
             url: `${baseUrl}${route}`,
-            lastModified: now,
+            lastModified: blogLastModified(route),
             changeFrequency: 'weekly' as const,
             priority: 0.9,
         })),

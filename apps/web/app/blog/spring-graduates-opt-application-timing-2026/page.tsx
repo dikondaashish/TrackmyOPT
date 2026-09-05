@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         type: "article",
         images: [
             {
-                url: "https://www.trackmyopt.com/og-image.png",
+                url: "https://www.trackmyopt.com/og-image.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Spring 2026 Graduates: OPT Application Timing Guide",
@@ -36,6 +36,12 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/spring-graduates-opt-application-timing-2026",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Spring 2026 Graduates: Time Your OPT Application to Avoid a Work Gap | TrackMyOPT",
+        description: "Graduating in May or June 2026? The timing of your OPT application directly determines whether you can start work on day one. Here is the exact timeline.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
     },
 };
 

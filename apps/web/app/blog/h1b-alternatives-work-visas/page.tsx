@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/h1b-alternatives-work-visas",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "H-1B Visa Alternatives: Top 8 Work Visas for F-1 OPT Students | TrackMyOPT",
+        description: "Explore the best alternative work visa paths if you miss the H-1B lottery. Detailed breakdown of O-1, L-1, TN, E-2, and Cap-Exempt pathways.",
+        images: ["/blog/h1b-alternatives-work-visas.png"],
+    },
 };
 
 export default function H1BAlternativesGuide() {

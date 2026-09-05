@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/buying-car-international-student-opt",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Buying a Car on OPT? Read This Before You Go to the Dealership",
+        description: "No US credit score? No problem. Learn how to secure an auto loan, get affordable insurance, and buy a car as an F-1 international student.",
+        images: ["/blog/buying-car-international-student-opt.png"],
+    },
 };
 
 export default function BuyingCarPage() {

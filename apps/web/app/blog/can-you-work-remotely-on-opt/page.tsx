@@ -28,6 +28,12 @@ export const metadata: Metadata = {
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/can-you-work-remotely-on-opt",
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "Can You Work Remotely on OPT? Remote Work Rules for F-1 Students | TrackMyOPT",
+        description: "Complete guide to remote work rules on OPT and STEM OPT. What's allowed, state compliance, and international remote work restrictions.",
+        images: ["/blog/remote-work-opt.png"],
+    },
 };
 
 export default function RemoteWorkOPTGuide() {

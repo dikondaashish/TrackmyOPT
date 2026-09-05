@@ -9,6 +9,8 @@ import type { MetadataRoute } from "next";
 const CRAWL_DISALLOW = [
     "/api/",
     "/admin/",
+    "/dashboard/",
+    "/premium/",
     "/auth/extension",
     "/auth/reset-password",
 ] as const;

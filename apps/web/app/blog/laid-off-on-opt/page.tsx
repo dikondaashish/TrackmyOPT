@@ -38,13 +38,19 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.trackmyopt.com/og-image.png",
+        url: "https://www.trackmyopt.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Laid Off on OPT — F-1 Student Guide",
       },
     ],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "Laid Off on OPT? Reporting Deadlines, Unemployment Days & Next Steps",
+        description: "Step-by-step guide for F-1 students who lost their OPT job: reporting to DSO, counting unemployment days, and finding a compliant new role before the clock runs out.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function LaidOffOnOPTPage() {

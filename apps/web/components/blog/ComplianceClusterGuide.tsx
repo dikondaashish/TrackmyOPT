@@ -79,7 +79,7 @@ function guide(
       description,
       keywords,
       alternates: { canonical },
-      openGraph: { title, description, url: canonical, type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: title }] },
+      openGraph: { title, description, url: canonical, type: "article", images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: title }] },
     },
     category,
     readTime: "10 min read",

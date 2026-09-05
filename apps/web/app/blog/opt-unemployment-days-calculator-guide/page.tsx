@@ -28,9 +28,15 @@ export const metadata: Metadata = {
             "Count remaining OPT unemployment days correctly. SEVP portal steps, weekend rules, STEM 150-day limit, and free tracker.",
         url: CANONICAL,
         type: "article",
-        images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT Unemployment Days Calculator Guide" }],
+        images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT Unemployment Days Calculator Guide" }],
     },
     alternates: { canonical: CANONICAL },
+    twitter: {
+        card: "summary_large_image",
+        title: "OPT Unemployment Days Calculator & SEVP Check (2026) | TrackMyOPT",
+        description: "Count remaining OPT unemployment days correctly. SEVP portal steps, weekend rules, STEM 150-day limit, and free tracker.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 const FAQS = [

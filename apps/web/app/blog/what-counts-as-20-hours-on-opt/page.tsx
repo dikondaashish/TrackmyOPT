@@ -26,8 +26,14 @@ export const metadata: Metadata = {
     description: "The 20-hour OPT threshold explained: qualifying work, multiple employers, variable schedules, evidence requirements, and STEM OPT differences.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "OPT 20-Hour Rule Explained" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "OPT 20-Hour Rule Explained" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "What Counts as 20 Hours per Week on OPT? Multiple Jobs, Gaps and Part-Time Work",
+        description: "The 20-hour OPT threshold explained: qualifying work, multiple employers, variable schedules, evidence requirements, and STEM OPT differences.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function WhatCountsAs20HoursPage() {

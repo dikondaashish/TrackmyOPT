@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/l1-visa-transfer-after-opt",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "The L-1 Visa Strategy: Surviving the H-1B Lottery",
+        description: "Your OPT is expiring and you lost the H-1B lottery. Here is exactly how to execute an L-1 transfer to a foreign branch and return to the US legally.",
+        images: ["/blog/l1-visa-transfer-after-opt.png"],
+    },
 };
 
 export default function L1VisaPage() {

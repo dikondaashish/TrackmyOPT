@@ -26,8 +26,14 @@ export const metadata: Metadata = {
     description: "When your STEM OPT employer won't sign Form I-983 — written request strategy, DSO escalation, documentation, and your options if the opportunity can't proceed.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Employer Refuses to Sign Form I-983" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Employer Refuses to Sign Form I-983" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "What If Your Employer Refuses to Complete or Sign Form I-983?",
+        description: "When your STEM OPT employer won't sign Form I-983 — written request strategy, DSO escalation, documentation, and your options if the opportunity can't proceed.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function EmployerRefusesI983Page() {

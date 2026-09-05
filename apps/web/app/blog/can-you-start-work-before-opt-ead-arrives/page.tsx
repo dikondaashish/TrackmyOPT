@@ -26,8 +26,14 @@ export const metadata: Metadata = {
     description: "The definitive answer on EAD timing, I-9 requirements, unemployment day counting during delays, and how to handle a late card with your employer.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "Can You Work Before Your OPT EAD Arrives" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Can You Work Before Your OPT EAD Arrives" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "Can You Start Working Before Your OPT EAD Arrives?",
+        description: "The definitive answer on EAD timing, I-9 requirements, unemployment day counting during delays, and how to handle a late card with your employer.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function StartWorkBeforeEadPage() {

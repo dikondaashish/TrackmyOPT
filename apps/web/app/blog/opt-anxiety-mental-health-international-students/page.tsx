@@ -14,7 +14,13 @@ export const metadata: Metadata = {
         url: "https://www.trackmyopt.com/blog/opt-anxiety-mental-health-international-students",
         images: [{ url: "/blog/opt-anxiety-mental-health-international-students.jpg", width: 1200, height: 630, alt: "A calm desk setup with a journal, herbal tea, and a smartphone showing a mindfulness app" }],
     },
-    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-anxiety-mental-health-international-students" }
+    alternates: { canonical: "https://www.trackmyopt.com/blog/opt-anxiety-mental-health-international-students" },
+    twitter: {
+        card: "summary_large_image",
+        title: "Managing the Silent Struggle of OPT Anxiety",
+        description: "The ticking unemployment clock and the H-1B lottery take a severe toll on international students' mental health. Here is how to cope and find support.",
+        images: ["/blog/opt-anxiety-mental-health-international-students.jpg"],
+    },
 };
 
 export default function OPTAnxietyPage() {

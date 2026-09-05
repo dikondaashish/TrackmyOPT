@@ -26,8 +26,14 @@ export const metadata: Metadata = {
     description: "Every STEM OPT reporting deadline on one calendar — six-month validations, 12-month evaluations, final evaluations, and change-triggered reports.",
     url: CANONICAL,
     type: "article",
-    images: [{ url: "https://www.trackmyopt.com/og-image.png", width: 1200, height: 630, alt: "STEM OPT Reporting Calendar" }],
+    images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "STEM OPT Reporting Calendar" }],
   },
+    twitter: {
+        card: "summary_large_image",
+        title: "STEM OPT 6-Month Validation Reports and Self-Evaluations: Complete Calendar",
+        description: "Every STEM OPT reporting deadline on one calendar — six-month validations, 12-month evaluations, final evaluations, and change-triggered reports.",
+        images: ["https://www.trackmyopt.com/og-image.jpg"],
+    },
 };
 
 export default function StemOptValidationReportPage() {
@@ -360,7 +366,7 @@ export default function StemOptValidationReportPage() {
               { href: "/blog/change-employers-stem-opt", title: "How to Change Employers on STEM OPT", desc: "The full employer-change sequence including I-983 and SEVIS reporting deadlines." },
               { href: "/blog/employer-refuses-form-i983", title: "Employer Refuses to Sign Form I-983", desc: "What to do when an employer won't complete or sign the required evaluation." },
               { href: "/blog/laid-off-on-stem-opt", title: "Laid Off on STEM OPT", desc: "Final evaluations, the 150-day combined limit, and finding a replacement employer." },
-              { href: "/blog/form-i983-stem-opt-training-plan-guide", title: "Form I-983 Training Plan Guide", desc: "How to write a strong training plan with genuine learning objectives." },
+              { href: "/blog/i-983-training-plan-guide", title: "Form I-983 Training Plan Guide", desc: "How to write a strong training plan with genuine learning objectives." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
                 <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">

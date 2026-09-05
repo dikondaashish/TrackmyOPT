@@ -23,7 +23,13 @@ export const metadata: Metadata = {
     },
     alternates: {
         canonical: "https://www.trackmyopt.com/blog/f2-dependent-visa-rules-opt-students",
-    }
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "The Complete F-2 Dependent Visa Guide for OPT Students",
+        description: "Your spouse and children came to the US on an F-2 visa. Learn the exact rules about employment, education, and how your OPT status affects their stay.",
+        images: ["/blog/f2-dependent-visa-rules-opt-students.jpg"],
+    },
 };
 
 export default function F2DependentPage() {
