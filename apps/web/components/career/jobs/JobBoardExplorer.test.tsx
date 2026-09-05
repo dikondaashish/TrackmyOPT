@@ -62,6 +62,21 @@ function applyFilters() {
 }
 
 describe('JobBoardExplorer', () => {
+  it('renders a lazily fetched description after expanding a job', async () => {
+    const description = '<p>Fetched from the description route</p>';
+    const lazyJob = job({ description: null });
+    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ description }), { status: 200, headers: { 'content-type': 'application/json' } }),
+    );
+
+    render(<JobBoardExplorer jobs={[lazyJob]} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.click(screen.getByRole('button', { name: lazyJob.title }));
+
+    expect(await screen.findByText('Fetched from the description route')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(`/api/job-board/jobs/${lazyJob.id}/description`, { cache: 'no-store' });
+    fetchMock.mockRestore();
+  });
   it('uses compact list rows and reveals posting details on demand', () => {
     render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
 

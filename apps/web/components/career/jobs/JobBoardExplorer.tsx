@@ -150,7 +150,7 @@ function JobListItem({
         if (!cancelled) setDescriptionLoading(false);
       });
     return () => { cancelled = true; };
-  }, [description, descriptionLoading, expanded, job.id]);
+  }, [description, expanded, job.id]);
 
   const companyName = job.company_name || job.employer_board_name || 'Employer';
   const requirements = requirementLabel(facts);
