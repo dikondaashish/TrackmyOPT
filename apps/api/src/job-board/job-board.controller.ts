@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { JobBoardService } from './job-board.service';
 import { JobVisaSignalService } from './job-visa-signal.service';
@@ -15,12 +16,15 @@ import {
   normalizeSchedulerRunId,
   normalizeTriggerOrigin,
 } from './scheduler-run-id';
+import { OracleIdentityRepairService } from './oracle-identity-repair.service';
 
 @Controller('job-board')
 export class JobBoardController {
   constructor(
     private readonly jobBoard: JobBoardService,
     private readonly visaSignals: JobVisaSignalService,
+    @Optional()
+    private readonly identityRepair?: OracleIdentityRepairService,
   ) {}
 
   /**
@@ -134,6 +138,17 @@ export class JobBoardController {
   @Post('ops/ingestion-queue/resume')
   resumeIngestionQueues() {
     return this.jobBoard.resumeIngestionQueues();
+  }
+
+  /**
+   * One-time, closed-set canonical-ID repair. The app-wide API-key guard
+   * protects this route; the service accepts no caller-supplied identifiers.
+   */
+  @Post('ops/oracle-identity-repair')
+  async repairOracleCanonicalIdentities() {
+    if (!this.identityRepair)
+      throw new BadRequestException('Repair unavailable');
+    return this.identityRepair.runOnce();
   }
 }
 

@@ -720,4 +720,138 @@ describe('OracleJobDataStore shadow adapter', () => {
       ),
     ).toBe(true);
   });
+
+  it('repairs a canonical ID while preserving dependent visa signals transactionally', async () => {
+    const calls: string[] = [];
+    const connection: OracleConnection = {
+      execute: <T>(sql: string) => {
+        calls.push(sql);
+        if (sql.includes('user_constraints')) {
+          return Promise.resolve({
+            rows: [{ TABLE_NAME: 'JOB_VISA_SIGNALS', COLUMN_NAME: 'JOB_ID' }],
+          } as { rows: T[] });
+        }
+        if (sql.includes('source_ats = :sourceAts'))
+          return Promise.resolve({ rows: [{ ID: 'old-job' }] } as {
+            rows: T[];
+          });
+        if (sql.includes('WHERE id = :canonicalId'))
+          return Promise.resolve({ rows: [] } as { rows: T[] });
+        if (sql.includes('FROM job_visa_signals'))
+          return Promise.resolve({
+            rows: [
+              {
+                ID: 'signal-1',
+                SIGNAL_TYPE: 'sponsor',
+                EVIDENCE_SNIPPET: 'evidence',
+                SOURCE_URL: 'https://example.test/source',
+                OBSERVED_DATE: '2026-09-04',
+                CONFIDENCE: 0.9,
+                SOURCE: 'employer_posting',
+              },
+            ],
+          } as { rows: T[] });
+        return Promise.resolve({ rows: [] } as { rows: T[] });
+      },
+      executeMany: (sql) => {
+        calls.push(sql);
+        return Promise.resolve({ rowsAffected: 1 });
+      },
+      commit: () => Promise.resolve(),
+      rollback: () => Promise.resolve(),
+      close: () => Promise.resolve(),
+    };
+    const driver: OracleDriver = {
+      OUT_FORMAT_OBJECT: 4002,
+      STRING: 2001,
+      NUMBER: 2010,
+      createPool: () =>
+        Promise.resolve({
+          getConnection: () => Promise.resolve(connection),
+          close: () => Promise.resolve(),
+        }),
+    };
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+
+    const result = await store.repairCanonicalIdentities([
+      {
+        sourceAts: 'ashby',
+        boardToken: 'angi',
+        externalJobId: 'external-1',
+        canonicalId: 'new-job',
+      },
+    ]);
+
+    expect(result).toEqual([
+      {
+        externalJobId: 'external-1',
+        previousId: 'old-job',
+        canonicalId: 'new-job',
+        dependentVisaSignals: 1,
+      },
+    ]);
+    expect(
+      calls.some((sql) => sql.startsWith('DELETE FROM job_visa_signals')),
+    ).toBe(true);
+    expect(calls.some((sql) => sql.startsWith('UPDATE jobs SET id'))).toBe(
+      true,
+    );
+    expect(
+      calls.some((sql) => sql.startsWith('INSERT INTO job_visa_signals')),
+    ).toBe(true);
+  });
+
+  it('rejects an unexpected JOBS foreign-key dependency before mutation', async () => {
+    const dependencyDriver: OracleDriver = {
+      OUT_FORMAT_OBJECT: 4002,
+      STRING: 2001,
+      NUMBER: 2010,
+      createPool: () =>
+        Promise.resolve({
+          getConnection: () =>
+            Promise.resolve({
+              execute: <T>(sql: string) =>
+                Promise.resolve(
+                  sql.includes('user_constraints')
+                    ? ({
+                        rows: [
+                          {
+                            TABLE_NAME: 'UNEXPECTED_TABLE',
+                            COLUMN_NAME: 'JOB_ID',
+                          },
+                        ],
+                      } as { rows: T[] })
+                    : ({ rows: [] } as { rows: T[] }),
+                ),
+              executeMany: () => Promise.resolve({ rowsAffected: 0 }),
+              commit: () => Promise.resolve(),
+              rollback: () => Promise.resolve(),
+              close: () => Promise.resolve(),
+            }),
+          close: () => Promise.resolve(),
+        }),
+    };
+    const store = new OracleJobDataStore(
+      { connectString: 'test', user: 'test', password: 'test', poolMax: 1 },
+      dependencyDriver,
+    );
+    await expect(
+      store.repairCanonicalIdentities([
+        {
+          sourceAts: 'ashby',
+          boardToken: 'angi',
+          externalJobId: 'external-1',
+          canonicalId: 'new-job',
+        },
+      ]),
+    ).rejects.toThrow('Unexpected Oracle JOBS foreign-key dependency');
+  });
 });

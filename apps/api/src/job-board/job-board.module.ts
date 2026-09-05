@@ -10,6 +10,7 @@ import { EmployerMatchService } from './employer-match.service';
 import { JobVisaSignalService } from './job-visa-signal.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
 import { jobDataStoreProvider } from './job-data-store.provider';
+import { OracleIdentityRepairService } from './oracle-identity-repair.service';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { jobDataStoreProvider } from './job-data-store.provider';
     EmployerMatchService,
     JobVisaSignalService,
     CompanyDiscoveryService,
+    OracleIdentityRepairService,
   ],
 })
 export class JobBoardModule {}
