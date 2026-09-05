@@ -1,6 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'node:crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as Bull from 'bull';
 import {
@@ -14,6 +15,7 @@ import {
   planListingReconciliation,
   type PersistedJobListing,
 } from './job-listing-reconciliation';
+import { fetchAllPages } from './paginate';
 import {
   calculatePacingGapMs,
   MIN_INTER_REQUEST_GAP_MS,
@@ -35,8 +37,13 @@ import {
   queueSchedulerRun,
   type SchedulerAttempt,
 } from './scheduler-run-ledger';
-import { fetchAllPages } from './paginate';
-import { resolveJobDataStore } from './job-data-store.config';
+import type {
+  JobDataStore,
+  JobStorePage,
+  JobStoreRecord,
+  JobStoreSearch,
+} from './job-data-store.contract';
+import { JOB_DATA_STORE } from './job-data-store.provider';
 
 type AtsSource = {
   id: string;
@@ -76,7 +83,6 @@ type SourceBoardHealth = {
   next_retry_at: string | null;
 };
 
-const UPSERT_CHUNK_SIZE = 250;
 const sleep = (durationMs: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, durationMs));
 
@@ -95,16 +101,8 @@ export class JobBoardService implements OnModuleDestroy {
     @InjectQueue('job-board-slow') private readonly slowQueue: Bull.Queue,
     private readonly employerMatches: EmployerMatchService,
     private readonly visaSignals: JobVisaSignalService,
+    @Inject(JOB_DATA_STORE) private readonly jobStore: JobDataStore,
   ) {
-    const jobDataStore = resolveJobDataStore(
-      this.config.get<string>('JOB_DATA_STORE'),
-    );
-    if (jobDataStore === 'oracle') {
-      throw new Error(
-        'Oracle job data store is not enabled yet; keep JOB_DATA_STORE=supabase until shadow validation completes',
-      );
-    }
-
     this.supabase = createClient(
       this.config.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
       this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
@@ -131,6 +129,17 @@ export class JobBoardService implements OnModuleDestroy {
           planIngestionOrchestratorOptions(context.schedulerRunId),
         ),
     );
+  }
+
+  /** Server-side job read boundary. The selected store owns filtering and
+   * pagination; callers never need to know whether records live in Postgres
+   * or Oracle. */
+  listJobs(query: JobStoreSearch): Promise<JobStorePage> {
+    return this.jobStore.listJobs(query);
+  }
+
+  getJob(id: string): Promise<JobStoreRecord | null> {
+    return this.jobStore.getJob(id);
   }
 
   /** Queue one enabled source for targeted recovery without touching other boards. */
@@ -458,24 +467,28 @@ export class JobBoardService implements OnModuleDestroy {
   async onModuleDestroy() {
     this.shuttingDown = true;
     const auditIds = [...this.inFlightAuditIds];
-    await Promise.all(
-      auditIds.map(async (id) => {
-        await this.complete(
-          id,
-          0,
-          {
-            jobsNew: 0,
-            jobsDuplicate: 0,
-            jobsStale: 0,
-            jobsRemoved: 0,
-            jobsReopened: 0,
-          },
-          0,
-          'instance restarted',
-        );
-      }),
-    );
-    this.inFlightAuditIds.clear();
+    try {
+      await Promise.all(
+        auditIds.map(async (id) => {
+          await this.complete(
+            id,
+            0,
+            {
+              jobsNew: 0,
+              jobsDuplicate: 0,
+              jobsStale: 0,
+              jobsRemoved: 0,
+              jobsReopened: 0,
+            },
+            0,
+            'instance restarted',
+          );
+        }),
+      );
+      this.inFlightAuditIds.clear();
+    } finally {
+      await this.jobStore.close?.();
+    }
   }
 
   /** Recover audits stranded by a hard restart or lost Bull worker heartbeat. */
@@ -500,71 +513,77 @@ export class JobBoardService implements OnModuleDestroy {
     responseComplete: boolean,
   ) {
     const ids = [...new Set(scraped.map((job) => job.external_job_id))];
-    const persistedJobs = await fetchAllPages<PersistedJobListing>(
-      async (from, to) => {
-        const existing = await this.supabase
-          .from('jobs')
-          .select('id, external_job_id, listing_status')
-          .eq('source_id', source.id)
-          .range(from, to);
-        return {
-          data: (existing.data || []) as PersistedJobListing[],
-          error: existing.error ? { message: existing.error.message } : null,
-        };
-      },
+    const persistedStoreJobs = await this.jobStore.listSourceJobs(source.id);
+    const persistedJobs: PersistedJobListing[] = persistedStoreJobs.map(
+      (job) => ({
+        id: job.id,
+        external_job_id: job.externalJobId,
+        listing_status: job.listingStatus,
+      }),
     );
-    const existingByExternalId = new Map<string, string>();
-    for (const job of persistedJobs) {
-      existingByExternalId.set(String(job.external_job_id), String(job.id));
-    }
+    const existingByExternalId = new Map(
+      persistedStoreJobs.map((job) => [job.externalJobId, job]),
+    );
     const reconciliation = planListingReconciliation(persistedJobs, ids, {
       complete: responseComplete,
     });
     const now = new Date().toISOString();
-    const records = scraped.map((job) => ({
-      ...job,
-      source_id: source.id,
-      source_ats: source.ats_type,
-      board_token: source.board_token,
-      company_name: job.company_name || source.employer_board_name,
-      employer_board_name: source.employer_board_name,
-      listing_status: 'open',
-      source_trust_tier: 'verified_ats',
-      last_confirmed_at: now,
-      missing_since_at: null,
-      removed_at: null,
-    }));
+    const records: JobStoreRecord[] = scraped.map((job) => {
+      const existing = existingByExternalId.get(job.external_job_id);
+      return {
+        id: existing?.id || randomUUID(),
+        sourceId: source.id,
+        sourceAts: source.ats_type,
+        boardToken: source.board_token,
+        externalJobId: job.external_job_id,
+        title: job.title,
+        companyName:
+          job.company_name ||
+          source.employer_board_name ||
+          existing?.companyName ||
+          '',
+        location: job.location,
+        department: job.department,
+        description: job.description,
+        jobUrl: job.job_url,
+        postedAt: job.posted_at,
+        updatedAt: now,
+        optEligible: existing?.optEligible ?? null,
+        stemOptEligible: existing?.stemOptEligible ?? null,
+        cptEligible: existing?.cptEligible ?? null,
+        h1bSponsorStatus: existing?.h1bSponsorStatus ?? null,
+        createdAt: existing?.createdAt || now,
+        firstSeenAt: existing?.firstSeenAt || now,
+        lastConfirmedAt: now,
+        listingStatus: 'open',
+        employerBoardName: source.employer_board_name,
+        sourceTrustTier: 'verified_ats',
+        employerMatchId: existing?.employerMatchId ?? null,
+        missingSinceAt: null,
+        removedAt: null,
+      };
+    });
     const fresh = records.filter(
-      (job) => !existingByExternalId.has(job.external_job_id),
+      (job) => !existingByExternalId.has(job.externalJobId),
     );
-    for (let offset = 0; offset < records.length; offset += UPSERT_CHUNK_SIZE) {
-      const chunk = records.slice(offset, offset + UPSERT_CHUNK_SIZE);
-      const { error } = await this.supabase.from('jobs').upsert(chunk, {
-        onConflict: 'source_ats,board_token,external_job_id',
-      });
-      if (error) throw new Error(error.message);
+    await this.jobStore.upsertJobs(records);
+    if (responseComplete) {
+      await this.jobStore.reconcileSource(source.id, ids);
     }
-
-    if (reconciliation.staleJobIds.length) {
-      const { error } = await this.supabase
-        .from('jobs')
-        .update({
-          listing_status: 'stale',
-          missing_since_at: now,
-          removed_at: null,
-        })
-        .in('id', reconciliation.staleJobIds);
-      if (error) throw new Error(error.message);
+    const employerMatchIds = await this.employerMatches.syncSource(
+      source,
+      records,
+    );
+    if (employerMatchIds.size) {
+      const linkedRecords = records.map((record) => ({
+        ...record,
+        employerMatchId:
+          employerMatchIds.get(record.companyName.trim()) ||
+          record.employerMatchId,
+      }));
+      await this.jobStore.upsertJobs(linkedRecords);
     }
-    if (reconciliation.removedJobIds.length) {
-      const { error } = await this.supabase
-        .from('jobs')
-        .update({ listing_status: 'removed', removed_at: now })
-        .in('id', reconciliation.removedJobIds);
-      if (error) throw new Error(error.message);
-    }
-    await this.employerMatches.syncSource(source);
-    await this.visaSignals.syncSource(source.id);
+    await this.visaSignals.syncSource(source.id, records);
     return {
       jobsNew: fresh.length,
       jobsDuplicate: records.length - fresh.length,

@@ -6,13 +6,13 @@ import {
   normalizeEmployerName,
   type SponsorCandidate,
 } from './employer-matcher';
+import type { JobStoreRecord } from './job-data-store.contract';
 
 export type EmployerMatchSource = {
   id: string;
   company_id: string | null;
 };
 
-type JobCompanyRow = { company_name: string | null };
 type EmployerMatchIdRow = { id: string };
 type QueryError = { message: string };
 
@@ -27,21 +27,20 @@ export class EmployerMatchService {
     ) as unknown as SupabaseClient;
   }
 
-  async syncSource(source: EmployerMatchSource) {
-    const { data: jobs, error: jobsError } = (await this.supabase
-      .from('jobs')
-      .select('company_name')
-      .eq('source_id', source.id)) as unknown as {
-      data: JobCompanyRow[] | null;
-      error: QueryError | null;
-    };
-    if (jobsError) throw new Error(jobsError.message);
-
+  /**
+   * Resolve employer evidence from the records already read by the selected
+   * job store. This is intentionally store-agnostic: Oracle jobs must not be
+   * looked up through Supabase, and Supabase remains the source of truth for
+   * the employer_matches evidence table.
+   */
+  async syncSource(
+    source: EmployerMatchSource,
+    jobs: readonly Pick<JobStoreRecord, 'companyName'>[],
+  ): Promise<Map<string, string>> {
     const names = [
-      ...new Set(
-        (jobs || []).map((job) => job.company_name?.trim()).filter(Boolean),
-      ),
+      ...new Set(jobs.map((job) => job.companyName?.trim()).filter(Boolean)),
     ] as string[];
+    const matchIds = new Map<string, string>();
     for (const jobSourceCompanyName of names) {
       const resolution = source.company_id
         ? {
@@ -77,14 +76,9 @@ export class EmployerMatchService {
       };
       if (matchError) throw new Error(matchError.message);
       if (!match) throw new Error('Employer match was not returned');
-
-      const { error: linkError } = await this.supabase
-        .from('jobs')
-        .update({ employer_match_id: match.id })
-        .eq('source_id', source.id)
-        .eq('company_name', jobSourceCompanyName);
-      if (linkError) throw new Error(linkError.message);
+      matchIds.set(jobSourceCompanyName, String(match.id));
     }
+    return matchIds;
   }
 
   private async resolveExactCandidate(jobSourceCompanyName: string) {

@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+import { describe, expect, it } from 'vitest';
 import {
   communityStatsToolType,
   communityChartSegmentSuffix,
@@ -10,36 +10,39 @@ import {
   getFilingCategoryShortLabel,
   isOptFilingCategory,
   normalizeFilingCategory,
-} from "./filing-category";
-import { inferCaseKind } from "@/lib/community-opt/centers";
+} from './filing-category';
+import { inferCaseKind } from '@/lib/community-opt/centers';
 
-assert.equal(getFilingCategoryLabel("initial_opt"), "Initial OPT (EAD)");
-assert.equal(getFilingCategoryLabel("stem_extension"), "STEM OPT Extension (EAD)");
-assert.equal(getFilingCategoryLabel("h1b"), "H-1B (I-129)");
-assert.equal(getFilingCategoryShortLabel("stem_extension"), "STEM");
-assert.equal(normalizeFilingCategory(null), "initial_opt");
-assert.equal(normalizeFilingCategory("h4_ead"), "h4_ead");
-assert.equal(normalizeFilingCategory("bogus"), "initial_opt");
-assert.equal(filingCategoryFromJourneyStatus("stem_opt"), "stem_extension");
-assert.equal(filingCategoryToCaseKind("h1b"), "initial_opt");
-assert.equal(isOptFilingCategory("stem_extension"), true);
-assert.equal(communityStatsToolType("stem_extension"), "stem-apply");
-assert.equal(communityStatsToolType("initial_opt"), "opt-apply");
-assert.equal(getCommunityCaseKindLabel("stem_extension"), "STEM OPT extension");
-assert.equal(
-  communityChartSegmentSuffix({
-    caseKind: "stem_extension",
-    premiumProcessing: false,
-  }),
-  " · STEM OPT extension · standard processing"
-);
-assert.equal(isOptFilingCategory("h1b"), false);
-assert.equal(
-  inferCaseKind({ caseType: "I-765", filingCategory: "stem_extension" }),
-  "stem_extension"
-);
-assert.equal(getFilingCategoryFormMismatch("h1b", "I-129"), null);
-assert.match(
-  getFilingCategoryFormMismatch("h1b", "I-539") ?? "",
-  /H-1B/
-);
+describe('filing category helpers', () => {
+  it('normalizes labels, journey mappings, and form validation', () => {
+    expect(getFilingCategoryLabel('initial_opt')).toBe('Initial OPT (EAD)');
+    expect(getFilingCategoryLabel('stem_extension')).toBe(
+      'STEM OPT Extension (EAD)'
+    );
+    expect(getFilingCategoryLabel('h1b')).toBe('H-1B (I-129)');
+    expect(getFilingCategoryShortLabel('stem_extension')).toBe('STEM');
+    expect(normalizeFilingCategory(null)).toBe('initial_opt');
+    expect(normalizeFilingCategory('h4_ead')).toBe('h4_ead');
+    expect(normalizeFilingCategory('bogus')).toBe('initial_opt');
+    expect(filingCategoryFromJourneyStatus('stem_opt')).toBe('stem_extension');
+    expect(filingCategoryToCaseKind('h1b')).toBe('initial_opt');
+    expect(isOptFilingCategory('stem_extension')).toBe(true);
+    expect(communityStatsToolType('stem_extension')).toBe('stem-apply');
+    expect(communityStatsToolType('initial_opt')).toBe('opt-apply');
+    expect(getCommunityCaseKindLabel('stem_extension')).toBe(
+      'STEM OPT extension'
+    );
+    expect(
+      communityChartSegmentSuffix({
+        caseKind: 'stem_extension',
+        premiumProcessing: false,
+      })
+    ).toBe(' · STEM OPT extension · standard processing');
+    expect(isOptFilingCategory('h1b')).toBe(false);
+    expect(
+      inferCaseKind({ caseType: 'I-765', filingCategory: 'stem_extension' })
+    ).toBe('stem_extension');
+    expect(getFilingCategoryFormMismatch('h1b', 'I-129')).toBeNull();
+    expect(getFilingCategoryFormMismatch('h1b', 'I-539')).toMatch(/H-1B/);
+  });
+});

@@ -7,6 +7,7 @@ import { JobBoardExplorer } from '@/components/career/jobs/JobBoardExplorer';
 import type { ActiveResumeMatch } from '@/components/career/jobs/ResumeJobMatcher';
 import { findActiveTrackerStatus } from '@/lib/job-board/filters';
 import { parseResumeJobProfile } from '@/lib/job-board/resume-match';
+import { listServerJobs } from '@/lib/job-board/server-job-store';
 import { getRunwayContext, type StoredOptStatus } from '@/lib/job-board/runway';
 import type { EmploymentSpan } from '@/lib/immigration/opt-calculations';
 
@@ -40,10 +41,6 @@ type FeedJob = {
   }>;
 };
 
-type FeedJobQueryResult = Omit<FeedJob, 'employer_match'> & {
-  employer_match: FeedJob['employer_match'] | FeedJob['employer_match'][];
-};
-
 function restoreResumeMatch(resumes: Array<{ id: string; filename: string | null; structured_data: unknown }>): ActiveResumeMatch | null {
   for (const resume of resumes) {
     if (!resume.structured_data || typeof resume.structured_data !== 'object' || Array.isArray(resume.structured_data)) continue;
@@ -67,14 +64,8 @@ export default async function VerifiedJobsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [jobsResult, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
-    supabase
-      .from('jobs')
-      .select('id, title, company_name, employer_board_name, location, department, job_url, posted_at, first_seen_at, last_confirmed_at, source_ats, employer_match:employer_matches(canonical_h1b_sponsor_id, confidence, review_status), visa_signals:job_visa_signals(signal_type, evidence_snippet, source_url, observed_date, confidence, source)', { count: 'exact' })
-      .eq('listing_status', 'open')
-      .eq('source_trust_tier', 'verified_ats')
-      .order('posted_at', { ascending: false, nullsFirst: false })
-      .range(0, 49),
+  const [serverPage, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
+    listServerJobs({ page: 1, pageSize: 50 }),
     supabase
       .from('opt_status')
       .select('opt_start_date, opt_ead_end_date, stem_start_date')
@@ -97,7 +88,7 @@ export default async function VerifiedJobsPage() {
       .order('updated_at', { ascending: false })
       .limit(50),
   ]);
-  if (jobsResult.error || trackerResult.error || resumesResult.error) throw new Error('Unable to load verified jobs');
+  if (trackerResult.error || resumesResult.error) throw new Error('Unable to load verified jobs');
   if (optStatusResult.error || employmentResult.error) throw new Error('Unable to load OPT runway');
 
   const now = new Date();
@@ -107,10 +98,45 @@ export default async function VerifiedJobsPage() {
     now,
   );
   const trackerEntries = trackerResult.data || [];
-  const matchedJobs = ((jobsResult.data || []) as FeedJobQueryResult[]).map((job) => ({
-    ...job,
+  const rows = serverPage.rows;
+  const matchIds = [...new Set(rows.map((row) => row.employerMatchId).filter(Boolean))] as string[];
+  const matchesResult = matchIds.length
+    ? await supabase.from('employer_matches').select('id, canonical_h1b_sponsor_id, confidence, review_status').in('id', matchIds)
+    : { data: [], error: null };
+  if (matchesResult.error) throw new Error('Unable to load verified job evidence');
+  const matchesById = new Map((matchesResult.data || []).map((match) => [String(match.id), {
+    canonical_h1b_sponsor_id: match.canonical_h1b_sponsor_id,
+    confidence: Number(match.confidence),
+    review_status: String(match.review_status),
+  }]));
+  const signalsByJobId = new Map<string, FeedJob['visa_signals']>();
+  for (const signal of serverPage.visaSignals || []) {
+    const list = signalsByJobId.get(String(signal.jobId)) || [];
+    list.push({
+      signal_type: String(signal.signalType),
+      evidence_snippet: String(signal.evidenceSnippet),
+      source_url: String(signal.sourceUrl),
+      observed_date: String(signal.observedDate),
+      confidence: Number(signal.confidence),
+      source: String(signal.source),
+    });
+    signalsByJobId.set(String(signal.jobId), list);
+  }
+  const matchedJobs: FeedJob[] = rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    company_name: row.companyName,
+    employer_board_name: row.employerBoardName,
+    location: row.location,
+    department: row.department,
     description: null,
-    employer_match: Array.isArray(job.employer_match) ? job.employer_match[0] || null : job.employer_match,
+    job_url: row.jobUrl,
+    posted_at: row.postedAt,
+    first_seen_at: row.firstSeenAt,
+    last_confirmed_at: row.lastConfirmedAt,
+    source_ats: row.sourceAts,
+    employer_match: row.employerMatchId ? matchesById.get(row.employerMatchId) || null : null,
+    visa_signals: signalsByJobId.get(row.id) || [],
   }));
   const sponsorIds = [...new Set(matchedJobs.map((job) => job.employer_match?.canonical_h1b_sponsor_id).filter((id): id is string => Boolean(id)))];
   const sponsorWebsiteById = new Map<string, string | null>();
@@ -145,7 +171,7 @@ export default async function VerifiedJobsPage() {
           </span>
         </div>
         <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-          Browse jobs and add them to your resume queue. {jobsResult.count || 0} results.
+          Browse jobs and add them to your resume queue. {serverPage.total} results.
         </p>
       </header>
 
@@ -153,7 +179,7 @@ export default async function VerifiedJobsPage() {
 
       <JobBoardExplorer
         jobs={jobs}
-        totalJobs={jobsResult.count || 0}
+        totalJobs={serverPage.total}
         serverMode
         runway={runway}
         asOf={now.toISOString()}

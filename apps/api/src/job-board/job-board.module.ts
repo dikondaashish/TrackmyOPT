@@ -9,6 +9,7 @@ import { JobBoardService } from './job-board.service';
 import { EmployerMatchService } from './employer-match.service';
 import { JobVisaSignalService } from './job-visa-signal.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
+import { jobDataStoreProvider } from './job-data-store.provider';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CompanyDiscoveryService } from './company-discovery.service';
   ],
   controllers: [JobBoardController],
   providers: [
+    jobDataStoreProvider,
     JobBoardService,
     JobBoardProcessor,
     SlowJobBoardProcessor,

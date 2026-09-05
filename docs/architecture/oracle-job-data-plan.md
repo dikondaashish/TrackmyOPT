@@ -1,7 +1,8 @@
 # Oracle 26ai job-data layer (staged, Supabase remains default)
 
-Status: foundation only. No production read/write path has been switched, no
-Supabase table has been changed, and no Oracle DDL has been executed.
+Status: cutover-preparation foundation. No production read/write path has been
+switched and no Supabase table has been changed. Oracle schema/user setup is
+operator-managed; this repository does not execute Oracle DDL automatically.
 The four external job-board schedules remain paused during validation.
 
 The operator bootstrap is prepared in
@@ -11,10 +12,12 @@ agent, and using Render's `DB_PASSWORD` would mean using the ADMIN account.
 
 ## Diagnosis and current boundary
 
-Render's `DATABASE_URL` and `DB_PASSWORD` are not referenced anywhere in the
-repository. The latter is an Oracle ADMIN credential and is deliberately not
-used. There is no `oracledb` dependency or Oracle connection in the API. Every
-job persistence and read path currently uses the Supabase service-role client.
+Render's `DATABASE_URL` and `DB_PASSWORD` are not used by the job layer. The
+latter is an Oracle ADMIN credential and is deliberately not used. The API now
+has a lazy, dedicated-user `oracledb` adapter selected only when
+`JOB_DATA_STORE=oracle`; Supabase remains the default and there is no automatic
+fallback. The adapter is covered by driver-mocked tests and is not selected in
+the current production configuration.
 
 The Render timeout is therefore a Supabase timeout, not an Oracle error. The
 failure stack resolves to two operations in `JobBoardService`:
@@ -62,7 +65,8 @@ unused gap):
 | `missing_since_at` | `timestamptz` |
 | `removed_at` | `timestamptz` |
 
-Current live verified/open count observed during this inspection: 10,902.
+The implementation audit observed 10,902 verified/open rows at that point in
+time; counts are expected to change as ingestion runs.
 
 Oracle's design-only DDL is in `apps/api/sql/oracle/jobs-schema.sql`. Oracle
 uses `VARCHAR2`, `CLOB`, `TIMESTAMP WITH TIME ZONE`, and `NUMBER(1)` for
@@ -76,12 +80,12 @@ and match IDs remain opaque identifiers.
 | Create/update jobs | `JobBoardService.persistSourceJobs`: chunked `jobs.upsert` on `(source_ats, board_token, external_job_id)` | Move job-row upsert behind `JobDataStore`; retain source/audit reservation in Supabase |
 | Existing-job diff | `jobs.select(id, external_job_id, listing_status)` with pagination by `source_id` | Oracle keyed read; keep complete-feed reconciliation |
 | Stale/removed lifecycle | `jobs.update` for missing IDs | Oracle updates; never delete tracked application history |
-| Job search | `apps/web/app/api/job-board/jobs/route.ts`: verified/open filters, joins, order, 50-row range | Serve through an API/repository boundary; user auth and tracker filters remain Supabase |
-| Initial dashboard page | `apps/web/app/dashboard/career/jobs/page.tsx`: 50-row range | API boundary later; no direct browser Oracle access |
-| Detail description | `/api/job-board/jobs/[id]/description` | API boundary later; Oracle read only after shadow parity |
+| Job search | `apps/web/app/api/job-board/jobs/route.ts`: verified/open filters, joins, order, 50-row range | Server API/repository boundary in both modes; user auth and tracker filters remain Supabase |
+| Initial dashboard page | `apps/web/app/dashboard/career/jobs/page.tsx`: first 50-row page | Calls the server API boundary; no direct browser/database access |
+| Detail description | `/api/job-board/jobs/[id]/description` | Calls the server API boundary; selected store owns the read |
 | Resume scoring | current-page job description read and deterministic score | Keep resume/profile data in Supabase; score the page returned by the selected job store |
 | Employer match | `EmployerMatchService`: source jobs read, `employer_matches` upsert, job link update, sponsor-candidate RPC | Keep evidence/match tables and RPC in Supabase; pass job IDs/company values across a controlled service boundary |
-| Visa signals | `JobVisaSignalService`: source jobs read, signal delete/insert/upsert, sponsor reads | Keep `job_visa_signals`, `employer_matches`, and `h1b_sponsors` in Supabase until a later evidence design |
+| Visa signals | `JobVisaSignalService`: source jobs read, signal delete/insert/upsert, sponsor reads | Posting signals use Oracle `job_visa_signals` when Oracle is selected; employer matches and H-1B sponsors remain Supabase and are composed server-side |
 | User tracker | `job_applications` reads/writes in dashboard actions and extension routes | Never move; it is user/account data in Supabase and stores copied job metadata/URL |
 
 The complete current call-site inventory is in the implementation review above:
@@ -101,11 +105,11 @@ mode, with a bounded pool and call timeout. Thick mode/wallet handling is not
 needed for the current TLS setup unless Oracle requires it for the chosen
 connection string.
 
-The official `oracledb` package is now included, but it is loaded lazily by the
-unregistered `OracleJobDataStore` shadow adapter in
-`apps/api/src/job-board/oracle-job-data-store.ts`. The adapter accepts only
-the dedicated Oracle configuration and is covered by driver-mocked CRUD/query
-tests; it is not constructed by the production `JobBoardModule`.
+The official `oracledb` package is loaded lazily by the `OracleJobDataStore` in
+`apps/api/src/job-board/oracle-job-data-store.ts`. The adapter accepts only the
+dedicated Oracle configuration and is covered by driver-mocked CRUD/query
+tests. `JobBoardModule` registers a factory that constructs it only for an
+explicit `JOB_DATA_STORE=oracle`; the current default remains Supabase.
 Once the dedicated user and schema exist, the real probe is
 `pnpm --filter api exec ts-node scripts/oracle-job-store-smoke.ts`; it writes
 only a clearly named sentinel row to the shadow database and never touches
@@ -131,7 +135,8 @@ connection.
 
 1. Run the operator bootstrap with a generated secret, execute the design-only
    DDL as the dedicated user, and revoke `CREATE TABLE` afterward. Do not use
-   `ADMIN` from the application.
+   `ADMIN` from the application. Apply `job-evidence-schema.sql` before an
+   Oracle-mode ingestion can persist posting visa signals.
 2. Keep `JOB_DATA_STORE=supabase`; after provisioning the user, run a
    controlled shadow batch through the Oracle adapter that writes
    the same normalized rows to Oracle in a non-authoritative transaction.
@@ -139,8 +144,9 @@ connection.
    the real search/filter/pagination queries against Supabase. Test duplicate
    upserts, retries, zero-job feeds, stale/removed transitions, and a restart.
 4. Expose Oracle only through authenticated Nest/Vercel API calls. Keep
-   `ats_sources`, ingestion audits, employer evidence, H-1B sponsors/filings,
-   and all user/application tables in Supabase.
+   `ats_sources`, ingestion audits, employer matches, H-1B sponsors/filings,
+   and all user/application tables in Supabase. Compose Oracle posting
+   signals with those Supabase evidence records by stable job/employer IDs.
 5. Enable Oracle reads for an internal cohort only after shadow parity and
    latency/error thresholds pass. Roll back with the flag to `supabase` without
    changing data or user records.
@@ -154,8 +160,10 @@ connection.
 * **Search differences:** Oracle `LIKE`/`INSTR` and pagination can differ from
   Postgres `ILIKE`/PostgREST joins. Shadow-test every current filter before any
   read switch.
-* **Evidence consistency:** employer matches and visa signals remain in
-  Supabase, so a job read must tolerate a missing/stale evidence row.
+* **Evidence consistency:** employer matches and sponsors remain in Supabase
+  while posting visa signals are local to Oracle when Oracle is selected. The
+  composed read must tolerate a missing/stale evidence row or a temporarily
+  unavailable evidence store without changing the job row itself.
 * **TLS/credential errors:** use a dedicated user, server-only env vars,
   bounded connect/call timeouts, and health checks; never log credentials.
 * **Capacity:** descriptions are CLOBs; size and index growth must be measured

@@ -1,18 +1,30 @@
 import { BadRequestException } from '@nestjs/common';
 import { JobBoardController } from './job-board.controller';
 import type { JobBoardService } from './job-board.service';
+import type { JobVisaSignalService } from './job-visa-signal.service';
 
 describe('JobBoardController scheduler contract', () => {
   const queueEnabledSources = jest.fn();
   const queueSingleSource = jest.fn();
-  const controller = new JobBoardController({
-    queueEnabledSources,
-    queueSingleSource,
-  } as unknown as JobBoardService);
+  const listJobs = jest.fn();
+  const getJob = jest.fn();
+  const listForJobs = jest.fn().mockResolvedValue([]);
+  const controller = new JobBoardController(
+    {
+      queueEnabledSources,
+      queueSingleSource,
+      listJobs,
+      getJob,
+    } as unknown as JobBoardService,
+    { listForJobs } as unknown as JobVisaSignalService,
+  );
 
   beforeEach(() => {
     queueEnabledSources.mockReset();
     queueSingleSource.mockReset();
+    listJobs.mockReset();
+    getJob.mockReset();
+    listForJobs.mockReset().mockResolvedValue([]);
   });
 
   it.each([undefined, '', 'job-board-hour-2026-09-01T03:15', 'arbitrary-id'])(
@@ -61,5 +73,30 @@ describe('JobBoardController scheduler contract', () => {
       controller.queueSingleSource('source-1', 'bad-id'),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(queueSingleSource).not.toHaveBeenCalled();
+  });
+
+  it('passes job filters to the selected server-side store', async () => {
+    listJobs.mockResolvedValue({ rows: [], total: 0 });
+    await controller.listJobs({
+      page: '2',
+      pageSize: '25',
+      query: 'engineer',
+      searchScope: 'title',
+      workplace: 'remote',
+      employerEvidence: 'source_backed',
+      includeJobUrls: 'https://example.test/a,https://example.test/b',
+    });
+    expect(listJobs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        page: 2,
+        pageSize: 25,
+        query: 'engineer',
+        searchScope: 'title',
+        workplace: 'remote',
+        employerEvidence: 'source_backed',
+        includeJobUrls: ['https://example.test/a', 'https://example.test/b'],
+      }),
+    );
+    expect(listForJobs).toHaveBeenCalledWith([]);
   });
 });

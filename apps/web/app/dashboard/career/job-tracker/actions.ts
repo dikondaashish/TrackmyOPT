@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"; // Ensure this matches you
 import { revalidatePath } from "next/cache";
 import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/career/job-tracker/types";
 import { captureServerEvent } from "@/lib/posthog-server";
+import { getServerJob } from "@/lib/job-board/server-job-store";
 
 const APP_PATH = "/dashboard/career/job-tracker";
 const VERIFIED_JOB_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -28,15 +29,17 @@ async function getVerifiedJobForTracker(jobId: string, userId: string): Promise<
     if (!VERIFIED_JOB_ID.test(jobId)) throw new Error("Invalid job");
 
     const supabase = await createClient();
-    const { data: job, error } = await supabase
-        .from("jobs")
-        .select("id, title, company_name, employer_board_name, location, job_url")
-        .eq("id", jobId)
-        .eq("listing_status", "open")
-        .eq("source_trust_tier", "verified_ats")
-        .maybeSingle();
-
-    if (error) throw new Error("Unable to load verified job");
+    const storeJob = await getServerJob(jobId);
+    const job: VerifiedJobForTracker | null = storeJob && storeJob.listingStatus === "open" && storeJob.sourceTrustTier === "verified_ats"
+        ? {
+            id: storeJob.id,
+            title: storeJob.title,
+            company_name: storeJob.companyName,
+            employer_board_name: storeJob.employerBoardName,
+            location: storeJob.location,
+            job_url: storeJob.jobUrl,
+        }
+        : null;
     if (!job) throw new Error("Verified job is no longer available");
 
     const companyName = job.company_name || job.employer_board_name;
