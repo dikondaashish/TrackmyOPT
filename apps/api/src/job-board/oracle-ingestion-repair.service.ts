@@ -11,6 +11,9 @@ import {
   mapSupabaseJobRow,
 } from './supabase-job-data-store';
 import { canonicalJobHash } from './oracle-backfill';
+
+const REPAIR_PAGE_SIZE = 500;
+const LOOKUP_CHUNK_SIZE = 100;
 import {
   compareIdentityRows,
   externalIdentity,
@@ -90,7 +93,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       !Number.isInteger(offset) ||
       offset < 0 ||
       offset > 20000 ||
-      offset % 100 !== 0
+      offset % REPAIR_PAGE_SIZE !== 0
     )
       throw new Error('invalid_page');
     if (this.busy) throw new Error('repair_busy');
@@ -103,11 +106,20 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       phase = 'health';
       await oracle.healthCheck();
       phase = 'source_page';
-      const left = await this.source.listSourceJobsPage(sourceId, offset, 100);
+      const left = await this.source.listSourceJobsPage(
+        sourceId,
+        offset,
+        REPAIR_PAGE_SIZE,
+      );
       phase = 'oracle_page';
-      const right = await oracle.listSourceJobsPage(sourceId, offset, 100);
+      const right = await oracle.listSourceJobsPage(
+        sourceId,
+        offset,
+        REPAIR_PAGE_SIZE,
+      );
       phase = 'natural_identity';
-      const matches = await oracle.getJobsByExternalIds(
+      const matches = await this.getOracleRowsByExternalIds(
+        oracle,
         sourceId,
         left.rows.map((row) => row.externalJobId),
       );
@@ -125,18 +137,11 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
             externalJobId: row.externalJobId,
           }));
         } else {
-          const lookup = await this.supabase
-            .from('jobs')
-            .select(SUPABASE_JOB_COLUMNS)
-            .eq('source_id', sourceId)
-            .in(
-              'external_job_id',
-              right.rows.map((row) => row.externalJobId),
-            );
-          if (lookup.error) throw new Error('source_identity_read_failed');
-          const keys = new Set(
-            (lookup.data || []).map(mapSupabaseJobRow).map(externalIdentity),
+          const lookupRows = await this.getSupabaseRowsByExternalIds(
+            sourceId,
+            right.rows.map((row) => row.externalJobId),
           );
+          const keys = new Set(lookupRows.map(externalIdentity));
           extra = right.rows
             .filter((row) => !keys.has(externalIdentity(row)))
             .map((row) => ({ id: row.id, externalJobId: row.externalJobId }));
@@ -168,7 +173,8 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       }
 
       const after = write
-        ? await oracle.getJobsByExternalIds(
+        ? await this.getOracleRowsByExternalIds(
+            oracle,
             sourceId,
             left.rows.map((row) => row.externalJobId),
           )
@@ -192,7 +198,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       );
       phase = 'oracle_evidence';
       const targetSignals = (
-        await oracle.listVisaSignals([...idMap.keys()])
+        await this.getOracleSignals(oracle, [...idMap.keys()])
       ).map((row) => ({ ...row, jobId: idMap.get(row.jobId)! }));
       const signalMap = new Map(
         targetSignals.map((row) => [signalIdentity(row), row]),
@@ -214,7 +220,10 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       }
       phase = 'evidence_readback';
       const finalSignals = write
-        ? await oracle.listVisaSignals(left.rows.map((row) => row.id))
+        ? await this.getOracleSignals(
+            oracle,
+            left.rows.map((row) => row.id),
+          )
         : targetSignals;
       const finalSignalMap = new Map(
         finalSignals.map((row) => [signalIdentity(row), signalHash(row)]),
@@ -240,8 +249,8 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
         sourceId,
         offset,
         nextOffset:
-          offset + 100 < Math.max(left.total, right.total)
-            ? offset + 100
+          offset + REPAIR_PAGE_SIZE < Math.max(left.total, right.total)
+            ? offset + REPAIR_PAGE_SIZE
             : null,
         sourceTotal: left.total,
         oracleTotalBefore: right.total,
@@ -290,26 +299,85 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
     }
   }
 
+  private async getOracleRowsByExternalIds(
+    oracle: OracleJobDataStore,
+    sourceId: string,
+    ids: readonly string[],
+  ) {
+    const rows = [] as Awaited<
+      ReturnType<OracleJobDataStore['getJobsByExternalIds']>
+    >;
+    for (let offset = 0; offset < ids.length; offset += LOOKUP_CHUNK_SIZE) {
+      rows.push(
+        ...(await oracle.getJobsByExternalIds(
+          sourceId,
+          ids.slice(offset, offset + LOOKUP_CHUNK_SIZE),
+        )),
+      );
+    }
+    return rows;
+  }
+
+  private async getSupabaseRowsByExternalIds(
+    sourceId: string,
+    ids: readonly string[],
+  ) {
+    const rows = [] as ReturnType<typeof mapSupabaseJobRow>[];
+    for (let offset = 0; offset < ids.length; offset += LOOKUP_CHUNK_SIZE) {
+      const lookup = await this.supabase
+        .from('jobs')
+        .select(SUPABASE_JOB_COLUMNS)
+        .eq('source_id', sourceId)
+        .in('external_job_id', ids.slice(offset, offset + LOOKUP_CHUNK_SIZE));
+      if (lookup.error) throw new Error('source_identity_read_failed');
+      rows.push(...(lookup.data || []).map(mapSupabaseJobRow));
+    }
+    return rows;
+  }
+
+  private async getOracleSignals(
+    oracle: OracleJobDataStore,
+    ids: readonly string[],
+  ) {
+    const rows = [] as Awaited<
+      ReturnType<OracleJobDataStore['listVisaSignals']>
+    >;
+    for (let offset = 0; offset < ids.length; offset += LOOKUP_CHUNK_SIZE) {
+      rows.push(
+        ...(await oracle.listVisaSignals(
+          ids.slice(offset, offset + LOOKUP_CHUNK_SIZE),
+        )),
+      );
+    }
+    return rows;
+  }
+
   private async readSourceSignals(
     ids: string[],
   ): Promise<JobStoreVisaSignal[]> {
     if (!ids.length) return [];
-    const result = await this.supabase
-      .from('job_visa_signals')
-      .select(
-        'job_id,signal_type,evidence_snippet,source_url,observed_date,confidence,source',
-      )
-      .in('job_id', ids);
-    if (result.error) throw new Error('source_evidence_read_failed');
-    return (result.data || []).map((row) => ({
-      jobId: String(row.job_id),
-      signalType: String(row.signal_type),
-      evidenceSnippet: String(row.evidence_snippet),
-      sourceUrl: String(row.source_url),
-      observedDate: String(row.observed_date),
-      confidence: Number(row.confidence),
-      source: String(row.source),
-    }));
+    const signals: JobStoreVisaSignal[] = [];
+    for (let offset = 0; offset < ids.length; offset += LOOKUP_CHUNK_SIZE) {
+      const result = await this.supabase
+        .from('job_visa_signals')
+        .select(
+          'job_id,signal_type,evidence_snippet,source_url,observed_date,confidence,source',
+        )
+        .in('job_id', ids.slice(offset, offset + LOOKUP_CHUNK_SIZE));
+      if (result.error) throw new Error('source_evidence_read_failed');
+      signals.push(
+        ...(result.data || []).map((row) => ({
+          jobId: String(row.job_id),
+          signalType: String(row.signal_type),
+          evidenceSnippet: String(row.evidence_snippet),
+          sourceUrl: String(row.source_url),
+          observedDate: String(row.observed_date),
+          confidence: Number(row.confidence),
+          source: String(row.source),
+        })),
+      );
+    }
+    return signals;
   }
 
   async onModuleDestroy() {
