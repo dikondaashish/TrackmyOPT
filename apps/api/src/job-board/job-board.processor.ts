@@ -31,7 +31,7 @@ export class JobBoardProcessor {
     if (result.deferred) {
       await this.jobBoard.markSchedulerRunDeferred(
         job.data.schedulerRunId,
-        'overlap guard: prior hourly source run is still active',
+        result.deferredReason || 'job-board work deferred',
       );
     }
     this.logger.log(

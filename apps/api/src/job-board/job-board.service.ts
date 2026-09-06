@@ -38,7 +38,11 @@ import {
   ingestionReservationParams,
   planIngestionOrchestratorOptions,
 } from './scheduler-run-id';
-import type { SchedulerContext } from './scheduler-run-id';
+import type {
+  IngestionStoreContext,
+  SchedulerContext,
+} from './scheduler-run-id';
+import { resolveJobDataStore } from './job-data-store.config';
 import {
   queueSchedulerRun,
   type SchedulerAttempt,
@@ -101,6 +105,25 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private readonly activeSourceWork = new Set<Promise<unknown>>();
   private pacingTail: Promise<void> = Promise.resolve();
   private nextRequestAt = 0;
+
+  private storeContext(context: SchedulerContext): IngestionStoreContext {
+    return {
+      ...context,
+      jobStoreKind: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
+      runStartedAt: new Date().toISOString(),
+    };
+  }
+
+  private acceptsStoreContext(
+    context: SchedulerContext & Partial<IngestionStoreContext>,
+  ) {
+    return (
+      context.jobStoreKind ===
+        resolveJobDataStore(this.config.get('JOB_DATA_STORE')) &&
+      typeof context.runStartedAt === 'string' &&
+      Number.isFinite(Date.parse(context.runStartedAt))
+    );
+  }
 
   constructor(
     private readonly config: ConfigService,
@@ -175,7 +198,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       () =>
         this.queue.add(
           'ingest-enabled-sources',
-          context,
+          this.storeContext(context),
           planIngestionOrchestratorOptions(context.schedulerRunId),
         ),
     );
@@ -221,7 +244,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         const slow = (await this.getSlowSourceIds([sourceId])).has(sourceId);
         const planned = planSourceIngestionJobs(
           [sourceId],
-          context,
+          this.storeContext(context),
           MIN_INTER_REQUEST_GAP_MS,
         )[0];
         // Retain the completed ID so a repeated recovery request is suppressed.
@@ -247,14 +270,30 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  async enqueueEnabledSourceJobs(context: SchedulerContext) {
+  async enqueueEnabledSourceJobs(
+    context: SchedulerContext & Partial<IngestionStoreContext>,
+  ) {
+    if (!this.acceptsStoreContext(context)) {
+      return {
+        sourcesQueued: 0,
+        slowSourcesQueued: 0,
+        deferred: true,
+        deferredReason: 'job_store_mismatch',
+      };
+    }
     if (context.schedulerRunId.startsWith('job-board-hour-')) {
       const priorRunActive = await this.hasActiveHourlySourceWork(context);
       if (priorRunActive) {
         this.logger.warn(
           `Deferring ${context.schedulerRunId}: a prior hourly source run is still active`,
         );
-        return { sourcesQueued: 0, slowSourcesQueued: 0, deferred: true };
+        return {
+          sourcesQueued: 0,
+          slowSourcesQueued: 0,
+          deferred: true,
+          deferredReason:
+            'overlap guard: prior hourly source run is still active',
+        };
       }
     }
     const { data, error } = await this.supabase
@@ -353,9 +392,11 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
 
   async ingestSourceById(
     sourceId: string,
-    context: SchedulerContext,
+    context: SchedulerContext & Partial<IngestionStoreContext>,
   ): Promise<IngestionResult> {
     if (this.shuttingDown) return { sourceId, skipped: 'instance_restarting' };
+    if (!this.acceptsStoreContext(context))
+      return { sourceId, skipped: 'job_store_mismatch' };
     return this.trackSourceWork(() =>
       this.ingestSourceByIdInternal(sourceId, context),
     );
@@ -431,16 +472,16 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
           : MIN_INTER_REQUEST_GAP_MS,
       );
       const fetched = await fetchAuthorizedAtsJobs(source);
+      if (this.shuttingDown)
+        throw new Error('instance restarting before persistence');
       const persistence = await this.persistSourceJobs(
         source,
         fetched.jobs,
         fetched.metadata.complete,
+        (context as IngestionStoreContext).runStartedAt,
       );
-      // onModuleDestroy finalizes the audit as "instance restarted" before
-      // waiting for this promise to settle. Do not attempt to complete that
-      // already-terminal audit or record post-shutdown source health.
-      if (this.shuttingDown)
-        return { sourceId: source.id, skipped: 'instance_restarting' };
+      // A completed persistence operation must retain its successful audit,
+      // including when SIGTERM arrived while persistence was in flight.
       await this.complete(
         reservation.audit_log_id,
         fetched.jobs.length,
@@ -448,7 +489,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         fetched.metadata.requests_made,
       );
       try {
-        await this.recordSourceSuccess(sourceBoard?.id);
+        if (!this.shuttingDown) await this.recordSourceSuccess(sourceBoard?.id);
       } catch (healthError) {
         const message =
           healthError instanceof Error
@@ -466,7 +507,6 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unknown ingestion error';
-      if (this.shuttingDown) throw error;
       await this.complete(
         reservation.audit_log_id,
         0,
@@ -480,7 +520,8 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         error instanceof AtsScraperRunnerError ? error.requestsMade : 0,
         message,
       );
-      await this.recordSourceFailure(sourceBoard, message);
+      if (!this.shuttingDown)
+        await this.recordSourceFailure(sourceBoard, message);
       this.logger.error(`Job-board source ${source.id} failed: ${message}`);
       throw error;
     } finally {
@@ -540,8 +581,10 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   /** Finalize in-flight work before Nest closes the worker on SIGTERM. */
   async onModuleDestroy() {
     this.shuttingDown = true;
-    const auditIds = [...this.inFlightAuditIds];
     try {
+      // Do not make a still-writing source reclaimable by another worker.
+      await Promise.allSettled([...this.activeSourceWork]);
+      const auditIds = [...this.inFlightAuditIds];
       await Promise.all(
         auditIds.map(async (id) => {
           await this.complete(
@@ -564,7 +607,6 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       // Bull can deliver SIGTERM while a source is between its fetch and
       // persistence steps. Wait for those promises to settle before closing
       // the shared Oracle pool; otherwise active work receives NJS-064.
-      await Promise.allSettled([...this.activeSourceWork]);
       await this.jobStore.close?.();
     }
   }
@@ -589,6 +631,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     source: AtsSource,
     scraped: ScrapedAtsJob[],
     responseComplete: boolean,
+    runStartedAt?: string,
   ) {
     const ids = [...new Set(scraped.map((job) => job.external_job_id))];
     const persistedStoreJobs = await this.jobStore.listSourceJobs(source.id);
@@ -597,6 +640,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         id: job.id,
         external_job_id: job.externalJobId,
         listing_status: job.listingStatus,
+        missing_since_at: job.missingSinceAt,
       }),
     );
     const existingByExternalId = new Map(
@@ -604,6 +648,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     );
     const reconciliation = planListingReconciliation(persistedJobs, ids, {
       complete: responseComplete,
+      runStartedAt,
     });
     const now = new Date().toISOString();
     const records: JobStoreRecord[] = scraped.map((job) => {
@@ -646,22 +691,22 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     );
     await this.jobStore.upsertJobs(records);
     if (responseComplete) {
-      await this.jobStore.reconcileSource(source.id, ids);
+      await this.jobStore.reconcileSource(source.id, ids, runStartedAt);
     }
     const employerMatchIds = await this.employerMatches.syncSource(
       source,
       records,
     );
+    const linkedRecords = records.map((record) => ({
+      ...record,
+      employerMatchId:
+        employerMatchIds.get(record.companyName.trim()) ||
+        record.employerMatchId,
+    }));
     if (employerMatchIds.size) {
-      const linkedRecords = records.map((record) => ({
-        ...record,
-        employerMatchId:
-          employerMatchIds.get(record.companyName.trim()) ||
-          record.employerMatchId,
-      }));
       await this.jobStore.upsertJobs(linkedRecords);
     }
-    await this.visaSignals.syncSource(source.id, records);
+    await this.visaSignals.syncSource(source.id, linkedRecords);
     return {
       jobsNew: fresh.length,
       jobsDuplicate: records.length - fresh.length,

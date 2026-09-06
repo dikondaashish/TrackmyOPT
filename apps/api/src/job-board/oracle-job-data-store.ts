@@ -814,6 +814,29 @@ export class OracleJobDataStore implements JobDataStore {
     }
   }
 
+  /** Bounded natural-identity lookup for canonical source synchronization. */
+  async getJobsByExternalIds(sourceId: string, ids: readonly string[]) {
+    if (!ids.length) return [];
+    if (ids.length > 100)
+      throw new Error('External identity batch exceeds 100');
+    const binds = {
+      sourceId,
+      ...Object.fromEntries(ids.map((id, index) => [`external${index}`, id])),
+    };
+    const connection = await this.connection();
+    try {
+      const result = await connection.execute<OracleJobRow>(
+        `SELECT ${JOB_COLUMNS} FROM jobs WHERE source_id = :sourceId
+         AND external_job_id IN (${ids.map((_, index) => `:external${index}`).join(',')})`,
+        binds,
+        outputOptions(this.driver),
+      );
+      return (result.rows || []).map(mapJobRow);
+    } finally {
+      await connection.close();
+    }
+  }
+
   /**
    * Repairs a source/external identity whose canonical Supabase UUID changed.
    *
@@ -1308,6 +1331,7 @@ export class OracleJobDataStore implements JobDataStore {
   async reconcileSource(
     sourceId: string,
     seenExternalJobIds: readonly string[],
+    runStartedAt?: string,
   ) {
     // An empty authoritative response must be handled by the caller's
     // empty-feed protection. Never turn an empty list into mass removals.
@@ -1346,8 +1370,14 @@ export class OracleJobDataStore implements JobDataStore {
            listing_status = CASE WHEN listing_status = 'open' THEN 'stale' ELSE 'removed' END,
            missing_since_at = COALESCE(missing_since_at, SYSTIMESTAMP),
            removed_at = CASE WHEN listing_status = 'stale' THEN SYSTIMESTAMP ELSE removed_at END
-         WHERE id = :id`,
-        missingIds.map((id) => ({ id })),
+         WHERE id = :id
+           AND (listing_status = 'open' OR :runStartedAt IS NULL
+             OR missing_since_at IS NULL
+             OR missing_since_at < TO_TIMESTAMP_TZ(:runStartedAt, '${ORACLE_ISO_TZ_FORMAT}'))`,
+        missingIds.map((id) => ({
+          id,
+          runStartedAt: runStartedAt ? toOracleTimestamp(runStartedAt) : null,
+        })),
         { autoCommit: false },
       );
       await connection.commit();

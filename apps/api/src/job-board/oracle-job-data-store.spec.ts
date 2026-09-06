@@ -129,6 +129,28 @@ function setup() {
 }
 
 describe('OracleJobDataStore shadow adapter', () => {
+  it('guards lifecycle promotion with the persisted run time in UTC', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(
+      { connectString: 'test', user: 'APP', password: 'test', poolMax: 1 },
+      driver,
+    );
+    await store.reconcileSource(
+      'source-1',
+      ['external-1'],
+      '2026-09-06T06:00:00.000-04:00',
+    );
+    const update = executed.find((entry) =>
+      entry.sql.includes('UPDATE jobs SET'),
+    );
+    expect(update?.sql).toContain(
+      'missing_since_at < TO_TIMESTAMP_TZ(:runStartedAt',
+    );
+    expect(update?.binds).toEqual({
+      id: 'job-2',
+      runStartedAt: '2026-09-06T10:00:00.000+00:00',
+    });
+  });
   it('upserts migration evidence without deleting, truncating, or losing the source identity', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(
@@ -675,7 +697,7 @@ describe('OracleJobDataStore shadow adapter', () => {
     const update = executed.find((entry) =>
       entry.sql.includes('UPDATE jobs SET'),
     );
-    expect(update?.binds).toEqual({ id: 'job-2' });
+    expect(update?.binds).toEqual({ id: 'job-2', runStartedAt: null });
 
     const beforeEmpty = executed.length;
     await store.reconcileSource('source-1', []);

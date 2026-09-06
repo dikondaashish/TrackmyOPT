@@ -104,5 +104,6 @@ export interface JobDataStore {
   reconcileSource(
     sourceId: string,
     seenExternalJobIds: readonly string[],
+    runStartedAt?: string,
   ): Promise<void>;
 }

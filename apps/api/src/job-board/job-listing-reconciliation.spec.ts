@@ -1,6 +1,28 @@
 import { planListingReconciliation } from './job-listing-reconciliation';
 
 describe('job listing reconciliation', () => {
+  it('does not treat a retry as a second missing observation, but permits a later run', () => {
+    const jobs = [
+      {
+        id: 'missing',
+        external_job_id: 'missing',
+        listing_status: 'stale' as const,
+        missing_since_at: '2026-09-06T10:10:00.000Z',
+      },
+    ];
+    expect(
+      planListingReconciliation(jobs, ['seen'], {
+        complete: true,
+        runStartedAt: '2026-09-06T10:00:00.000Z',
+      }).removedJobIds,
+    ).toEqual([]);
+    expect(
+      planListingReconciliation(jobs, ['seen'], {
+        complete: true,
+        runStartedAt: '2026-09-06T11:00:00.000Z',
+      }).removedJobIds,
+    ).toEqual(['missing']);
+  });
   const jobs = [
     {
       id: 'open-current',

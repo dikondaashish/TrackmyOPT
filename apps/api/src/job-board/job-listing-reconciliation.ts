@@ -2,6 +2,7 @@ export type PersistedJobListing = {
   id: string;
   external_job_id: string;
   listing_status: 'open' | 'stale' | 'removed';
+  missing_since_at?: string | null;
 };
 
 export type ListingReconciliationPlan = {
@@ -18,7 +19,7 @@ export type ListingReconciliationPlan = {
 export function planListingReconciliation(
   persistedJobs: PersistedJobListing[],
   currentExternalJobIds: Iterable<string>,
-  response: { complete: boolean },
+  response: { complete: boolean; runStartedAt?: string },
 ): ListingReconciliationPlan {
   if (!response.complete) {
     throw new Error('ATS response is not complete; reconciliation is unsafe');
@@ -42,7 +43,14 @@ export function planListingReconciliation(
     }
 
     if (job.listing_status === 'open') plan.staleJobIds.push(job.id);
-    if (job.listing_status === 'stale') plan.removedJobIds.push(job.id);
+    // A retry is the same observation, not a second absence.
+    if (
+      job.listing_status === 'stale' &&
+      (!response.runStartedAt ||
+        !job.missing_since_at ||
+        Date.parse(job.missing_since_at) < Date.parse(response.runStartedAt))
+    )
+      plan.removedJobIds.push(job.id);
   }
 
   return plan;

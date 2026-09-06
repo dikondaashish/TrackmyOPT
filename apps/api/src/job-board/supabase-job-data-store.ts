@@ -428,6 +428,7 @@ export class SupabaseJobDataStore implements JobDataStore {
   async reconcileSource(
     sourceId: string,
     seenExternalJobIds: readonly string[],
+    runStartedAt?: string,
   ) {
     if (!seenExternalJobIds.length) return;
     const persisted = await this.listSourceJobs(sourceId);
@@ -436,9 +437,10 @@ export class SupabaseJobDataStore implements JobDataStore {
         id: job.id,
         external_job_id: job.externalJobId,
         listing_status: job.listingStatus,
+        missing_since_at: job.missingSinceAt,
       })) as PersistedJobListing[],
       seenExternalJobIds,
-      { complete: true },
+      { complete: true, runStartedAt },
     );
     const now = new Date().toISOString();
     if (plan.staleJobIds.length) {
