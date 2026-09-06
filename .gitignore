@@ -11,6 +11,7 @@ test-results/
 
 # Build artifacts
 *.zip
+*.vsix
 
 # Next.js
 .next/
@@ -20,8 +21,12 @@ out/
 dist/
 build/
 
-# Environment variables
+# Environment variables / secrets
 .env
+.env.*
+!.env.example
+!**/.env.example
+!**/.env.*.example
 .env.local
 .env.development.local
 .env.test.local
@@ -78,9 +83,17 @@ __pycache__/
 # External Projects (DO NOT TRACK)
 all-in-one-career/
 AutoResumeDev/
-.cursor
-.claude/
 .vercel
+
+# Cursor / Claude local machine config (never push — may contain tokens)
+.cursor/
+.claude/
+
+# Local skill mirrors (canonical is .agents/skills — run scripts/sync-agent-skills.sh)
+.github/skills/
+
+# Personal / unrelated skill packs (keep local if present; not product skills)
+.agents/skills/hatch-pet/
 
 # Local scratch / generated assets
 tmp/

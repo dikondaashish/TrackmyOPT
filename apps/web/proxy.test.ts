@@ -40,7 +40,7 @@ describe('Supabase Auth Middleware', () => {
     expect(response?.headers.get('location')).toBeNull();
   });
 
-  it('redirects authenticated users away from /login to /dashboard/case-status', async () => {
+  it('redirects authenticated users away from /login to /dashboard', async () => {
     const request = new NextRequest('http://localhost:3000/login');
     // Simulate valid auth cookie
     request.cookies.set('sb-mock-auth-token', 'valid-token');
@@ -48,7 +48,7 @@ describe('Supabase Auth Middleware', () => {
     const response = await proxy(request);
 
     expect(response?.status).toBe(307);
-    expect(response?.headers.get('location')).toBe('http://localhost:3000/dashboard/case-status');
+    expect(response?.headers.get('location')).toBe('http://localhost:3000/dashboard');
   });
 
   it('allows authenticated users to access protected /dashboard routes', async () => {

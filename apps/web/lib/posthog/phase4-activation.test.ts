@@ -7,13 +7,13 @@ import {
 } from "@/lib/notifications/transactional/reengagement";
 
 describe("Phase 4 post-auth landing", () => {
-  it("defaults to case status after auth", () => {
-    expect(DEFAULT_POST_AUTH_PATH).toBe("/dashboard/case-status");
+  it("defaults to dashboard after auth", () => {
+    expect(DEFAULT_POST_AUTH_PATH).toBe("/dashboard");
   });
 
-  it("OAuth fallback lands on case status", () => {
+  it("OAuth fallback lands on dashboard", () => {
     const url = safeInternalRedirectTarget(null, "https://www.trackmyopt.com");
-    expect(url.pathname).toBe("/dashboard/case-status");
+    expect(url.pathname).toBe("/dashboard");
   });
 });
 

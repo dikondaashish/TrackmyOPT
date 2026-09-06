@@ -25,7 +25,7 @@ describe('safeInternalRedirectTarget', () => {
     const result = safeInternalRedirectTarget(candidate, baseUrl);
 
     expect(result.href).toBe(
-      'https://www.trackmyopt.com/dashboard/case-status'
+      'https://www.trackmyopt.com/dashboard'
     );
   });
 });

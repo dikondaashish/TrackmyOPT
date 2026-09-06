@@ -1,5 +1,5 @@
 /**
  * Default landing after login / OAuth / magic link.
- * Phase 4: send users to case status (add receipt), not the empty hub.
+ * Send users to the dashboard hub; Case Status stays a sidebar destination.
  */
-export const DEFAULT_POST_AUTH_PATH = "/dashboard/case-status" as const;
+export const DEFAULT_POST_AUTH_PATH = "/dashboard" as const;

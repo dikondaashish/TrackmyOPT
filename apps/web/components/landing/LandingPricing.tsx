@@ -84,7 +84,7 @@ export function LandingPricing() {
         className="!bg-transparent !py-0"
         buildPlanHref={({ planId, interval }) => {
           if (planId === 'free') {
-            return `/login?redirect=${encodeURIComponent('/dashboard/case-status')}`;
+            return `/login?redirect=${encodeURIComponent('/dashboard')}`;
           }
           return `/login?redirect=${encodeURIComponent(
             `/premium/checkout?planId=${planId}&interval=${interval}`
