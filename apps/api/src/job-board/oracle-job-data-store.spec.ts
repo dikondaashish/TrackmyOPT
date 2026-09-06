@@ -238,6 +238,26 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(jobDelete?.sql).toContain('id IN (:extraId0)');
   });
 
+  it('patches parity timestamps without rewriting job CLOB/search fields', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'test',
+        user: 'test',
+        password: 'test-only',
+        poolMax: 1,
+      },
+      driver,
+    );
+
+    await store.patchJobTimestamps([record()]);
+
+    expect(executed).toHaveLength(1);
+    expect(executed[0]?.sql).toContain('UPDATE jobs SET');
+    expect(executed[0]?.sql).toContain('updated_at = TO_TIMESTAMP_TZ');
+    expect(executed[0]?.sql).not.toContain('description =');
+  });
+
   it('rejects oversized evidence instead of silently truncating it', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(

@@ -902,6 +902,48 @@ export class OracleJobDataStore implements JobDataStore {
     }
   }
 
+  /** Updates only timestamps for parity rows whose other fields already match. */
+  async patchJobTimestamps(rows: readonly JobStoreRecord[]) {
+    if (!rows.length) return;
+    const connection = await this.connection();
+    try {
+      await connection.executeMany(
+        `UPDATE jobs SET
+           posted_at = TO_TIMESTAMP_TZ(:posted_at, '${ORACLE_ISO_TZ_FORMAT}'),
+           updated_at = TO_TIMESTAMP_TZ(:updated_at, '${ORACLE_ISO_TZ_FORMAT}'),
+           created_at = TO_TIMESTAMP_TZ(:created_at, '${ORACLE_ISO_TZ_FORMAT}'),
+           first_seen_at = TO_TIMESTAMP_TZ(:first_seen_at, '${ORACLE_ISO_TZ_FORMAT}'),
+           last_confirmed_at = TO_TIMESTAMP_TZ(:last_confirmed_at, '${ORACLE_ISO_TZ_FORMAT}'),
+           missing_since_at = TO_TIMESTAMP_TZ(:missing_since_at, '${ORACLE_ISO_TZ_FORMAT}'),
+           removed_at = TO_TIMESTAMP_TZ(:removed_at, '${ORACLE_ISO_TZ_FORMAT}')
+         WHERE id = :id AND source_id = :source_id
+           AND source_ats = :source_ats AND board_token = :board_token
+           AND external_job_id = :external_job_id`,
+        rows.map((row) => ({
+          id: row.id,
+          source_id: row.sourceId,
+          source_ats: row.sourceAts,
+          board_token: row.boardToken,
+          external_job_id: row.externalJobId,
+          posted_at: toOracleTimestamp(row.postedAt),
+          updated_at: toOracleTimestamp(row.updatedAt),
+          created_at: toOracleTimestamp(row.createdAt),
+          first_seen_at: toOracleTimestamp(row.firstSeenAt),
+          last_confirmed_at: toOracleTimestamp(row.lastConfirmedAt),
+          missing_since_at: toOracleTimestamp(row.missingSinceAt),
+          removed_at: toOracleTimestamp(row.removedAt),
+        })),
+        { autoCommit: false },
+      );
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      await connection.close();
+    }
+  }
+
   /**
    * Repairs a source/external identity whose canonical Supabase UUID changed.
    *

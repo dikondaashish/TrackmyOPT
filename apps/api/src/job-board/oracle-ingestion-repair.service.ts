@@ -14,6 +14,15 @@ import { canonicalJobHash } from './oracle-backfill';
 
 const REPAIR_PAGE_SIZE = 500;
 const LOOKUP_CHUNK_SIZE = 100;
+const TIMESTAMP_ONLY_FIELDS = new Set([
+  'postedAt',
+  'updatedAt',
+  'createdAt',
+  'firstSeenAt',
+  'lastConfirmedAt',
+  'missingSinceAt',
+  'removedAt',
+]);
 import {
   compareIdentityRows,
   externalIdentity,
@@ -159,6 +168,21 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       }
       const changedIds = new Set(differences.map((row) => row.id));
       const changed = left.rows.filter((row) => changedIds.has(row.id));
+      const timestampOnly = differences
+        .filter(
+          (difference) =>
+            !difference.missing &&
+            !difference.uuid &&
+            difference.fields.length > 0 &&
+            difference.fields.every((field) =>
+              TIMESTAMP_ONLY_FIELDS.has(field),
+            ),
+        )
+        .map((difference) => difference.id);
+      const timestampOnlyIds = new Set(timestampOnly);
+      const fullChanged = changed.filter(
+        (row) => !timestampOnlyIds.has(row.id),
+      );
       if (write && changed.length) {
         const repairs = differences
           .filter((row) => row.uuid)
@@ -169,7 +193,10 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
             externalJobId: row.externalJobId,
           }));
         await oracle.repairCanonicalIdentities(repairs);
-        await oracle.upsertJobs(changed);
+        await oracle.patchJobTimestamps(
+          changed.filter((row) => timestampOnlyIds.has(row.id)),
+        );
+        await oracle.upsertJobs(fullChanged);
       }
 
       const after = write
