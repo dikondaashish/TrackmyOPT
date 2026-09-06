@@ -12,148 +12,22 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-interface PrivateAnswersForm {
-  workAuthorization: string;
-  requiresSponsorship: string;
-  visaType: string;
-  visaOther: string;
-  visaStatus: string;
-  citizenship: string;
-  salaryExpectation: string;
-  expectedAnnualSalary: string;
-  expectedHourlyRate: string;
-  canWorkInPerson: string;
-  willingToRelocate: string;
-  canStartImmediately: string;
-  reliableTransportation: string;
-  needsAccommodations: string;
-  dateOfBirth: string;
-  sexGender: string;
-  hispanicLatino: string;
-  raceEthnicity: string;
-  veteranStatus: string;
-  disabilityStatus: string;
-  eeoPreference: string;
-  defaultJobPortalLogin: DefaultJobPortalLoginForm;
-}
-
-interface DefaultJobPortalLoginForm {
-  email: string;
-  password: string;
-  passwordConfirmation: string;
-}
-
-interface LegacyJobPortalLogin {
-  hostname: string;
-  email: string;
-  password: string;
-}
-
-const EMPTY: PrivateAnswersForm = {
-  workAuthorization: "",
-  requiresSponsorship: "",
-  visaType: "",
-  visaOther: "",
-  visaStatus: "",
-  citizenship: "",
-  salaryExpectation: "",
-  expectedAnnualSalary: "",
-  expectedHourlyRate: "",
-  canWorkInPerson: "",
-  willingToRelocate: "",
-  canStartImmediately: "",
-  reliableTransportation: "",
-  needsAccommodations: "",
-  dateOfBirth: "",
-  sexGender: "",
-  hispanicLatino: "",
-  raceEthnicity: "",
-  veteranStatus: "",
-  disabilityStatus: "",
-  eeoPreference: "",
-  defaultJobPortalLogin: {
-    email: "",
-    password: "",
-    passwordConfirmation: "",
-  },
-};
-
-function asForm(value: unknown): PrivateAnswersForm {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return EMPTY;
-  const data = value as Record<string, unknown>;
-  const read = (key: keyof PrivateAnswersForm) =>
-    typeof data[key] === "string" ? data[key] : "";
-  const savedDefault =
-    data.defaultJobPortalLogin &&
-    typeof data.defaultJobPortalLogin === "object" &&
-    !Array.isArray(data.defaultJobPortalLogin)
-      ? (data.defaultJobPortalLogin as Record<string, unknown>)
-      : null;
-  const defaultJobPortalLogin =
-    savedDefault &&
-    typeof savedDefault.email === "string" &&
-    typeof savedDefault.password === "string"
-      ? {
-          email: savedDefault.email,
-          password: savedDefault.password,
-          passwordConfirmation: savedDefault.password,
-        }
-      : {
-          email: "",
-          password: "",
-          passwordConfirmation: "",
-        };
-  return {
-    workAuthorization: read("workAuthorization"),
-    requiresSponsorship: read("requiresSponsorship"),
-    visaType: read("visaType"),
-    visaOther: read("visaOther"),
-    visaStatus: read("visaStatus"),
-    citizenship: read("citizenship"),
-    salaryExpectation: read("salaryExpectation"),
-    expectedAnnualSalary: read("expectedAnnualSalary"),
-    expectedHourlyRate: read("expectedHourlyRate"),
-    canWorkInPerson: read("canWorkInPerson"),
-    willingToRelocate: read("willingToRelocate"),
-    canStartImmediately: read("canStartImmediately"),
-    reliableTransportation: read("reliableTransportation"),
-    needsAccommodations: read("needsAccommodations"),
-    dateOfBirth: read("dateOfBirth"),
-    sexGender: read("sexGender"),
-    hispanicLatino: read("hispanicLatino"),
-    raceEthnicity: read("raceEthnicity"),
-    veteranStatus: read("veteranStatus"),
-    disabilityStatus: read("disabilityStatus"),
-    eeoPreference: read("eeoPreference"),
-    defaultJobPortalLogin,
-  };
-}
-
-function legacyLoginsFrom(value: unknown): LegacyJobPortalLogin[] {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return [];
-  const entries = (value as Record<string, unknown>).legacyJobPortalLogins;
-  if (!Array.isArray(entries)) return [];
-  return entries.slice(0, 5).flatMap((entry): LegacyJobPortalLogin[] => {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
-    const login = entry as Record<string, unknown>;
-    if (
-      typeof login.hostname !== "string" ||
-      typeof login.email !== "string" ||
-      typeof login.password !== "string"
-    ) {
-      return [];
-    }
-    return [{
-      hostname: login.hostname,
-      email: login.email,
-      password: login.password,
-    }];
-  });
-}
+import { DefaultJobPortalLoginPanel } from "./DefaultJobPortalLoginPanel";
+import {
+  PrivateAnswersField,
+  PrivateAnswersSelectField,
+} from "./PrivateAnswersField";
+import {
+  EMPTY_PRIVATE_ANSWERS_FORM,
+  asPrivateAnswersForm,
+  legacyJobPortalLoginsFrom,
+  type DefaultJobPortalLoginForm,
+  type LegacyJobPortalLogin,
+  type PrivateAnswersForm,
+} from "./private-application-answers-form";
 
 export function PrivateApplicationAnswersSection() {
-  const [form, setForm] = useState<PrivateAnswersForm>(EMPTY);
+  const [form, setForm] = useState<PrivateAnswersForm>(EMPTY_PRIVATE_ANSWERS_FORM);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -167,7 +41,7 @@ export function PrivateApplicationAnswersSection() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reviewAbortRef = useRef<AbortController | null>(null);
-  const decryptedFormRef = useRef<PrivateAnswersForm>(EMPTY);
+  const decryptedFormRef = useRef<PrivateAnswersForm>(EMPTY_PRIVATE_ANSWERS_FORM);
   const decryptedLegacyLoginsRef = useRef<LegacyJobPortalLogin[]>([]);
   const plaintextAllowedRef = useRef(false);
 
@@ -179,7 +53,7 @@ export function PrivateApplicationAnswersSection() {
     return () => {
       reviewAbortRef.current?.abort();
       reviewAbortRef.current = null;
-      decryptedFormRef.current = EMPTY;
+      decryptedFormRef.current = EMPTY_PRIVATE_ANSWERS_FORM;
       decryptedLegacyLoginsRef.current = [];
       plaintextAllowedRef.current = false;
     };
@@ -188,10 +62,10 @@ export function PrivateApplicationAnswersSection() {
   const clearDecryptedAnswers = useCallback(() => {
     reviewAbortRef.current?.abort();
     reviewAbortRef.current = null;
-    decryptedFormRef.current = EMPTY;
+    decryptedFormRef.current = EMPTY_PRIVATE_ANSWERS_FORM;
     decryptedLegacyLoginsRef.current = [];
     plaintextAllowedRef.current = false;
-    setForm(EMPTY);
+    setForm(EMPTY_PRIVATE_ANSWERS_FORM);
     setLegacyJobPortalLogins([]);
     setLegacyLoginDecisionMade(true);
     setConsent(false);
@@ -222,8 +96,8 @@ export function PrivateApplicationAnswersSection() {
         );
         return;
       }
-      const nextForm = body?.data ? asForm(body.data) : EMPTY;
-      const legacyLogins = body?.data ? legacyLoginsFrom(body.data) : [];
+      const nextForm = body?.data ? asPrivateAnswersForm(body.data) : EMPTY_PRIVATE_ANSWERS_FORM;
+      const legacyLogins = body?.data ? legacyJobPortalLoginsFrom(body.data) : [];
       decryptedFormRef.current = nextForm;
       decryptedLegacyLoginsRef.current = legacyLogins;
       setForm(nextForm);
@@ -367,7 +241,7 @@ export function PrivateApplicationAnswersSection() {
         );
         return;
       }
-      const savedForm = asForm(body.data);
+      const savedForm = asPrivateAnswersForm(body.data);
       if (plaintextAllowedRef.current) {
         setForm(savedForm);
         decryptedFormRef.current = savedForm;
@@ -408,8 +282,8 @@ export function PrivateApplicationAnswersSection() {
         setError(body?.error || "Could not delete private answers.");
         return;
       }
-      setForm(EMPTY);
-      decryptedFormRef.current = EMPTY;
+      setForm(EMPTY_PRIVATE_ANSWERS_FORM);
+      decryptedFormRef.current = EMPTY_PRIVATE_ANSWERS_FORM;
       decryptedLegacyLoginsRef.current = [];
       plaintextAllowedRef.current = false;
       setLegacyJobPortalLogins([]);
@@ -469,106 +343,16 @@ export function PrivateApplicationAnswersSection() {
             </button>
           </div>
 
-          <div className="rounded-xl border border-red-200 bg-white/80 p-4 dark:border-red-950 dark:bg-zinc-950/50">
-            <h4 className="text-sm font-semibold">
-              Default job-portal login
-            </h4>
-            <p className="mt-1 max-w-2xl text-xs leading-5 text-gray-600 dark:text-gray-400">
-              TrackMyOPT will offer this same login across all third-party job
-              portals where you choose Review, then Approve. It is never filled
-              silently, and credential prefill never clicks Login, Continue,
-              Next, Create Account, or Submit.
-            </p>
-            <p className="mt-3 rounded-lg bg-red-50 p-3 text-xs leading-5 text-red-800 dark:bg-red-950/30 dark:text-red-300">
-              Using the same password across unrelated employers and hiring
-              systems creates a security risk if any one portal is compromised.
-              Only save this login if you understand that tradeoff. Do not
-              enter your TrackMyOPT password. TrackMyOPT does not generate,
-              reset, or verify employer passwords.
-            </p>
-
-            {legacyJobPortalLogins.length > 0 && (
-              <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/30">
-                <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
-                  Action required for your older saved logins
-                </p>
-                <p className="mt-1 text-xs leading-5 text-amber-800 dark:text-amber-300">
-                  For safety, none of your older site-specific logins will be
-                  used across all portals automatically. Choose one below as
-                  the new default, enter a new default, or discard the older
-                  login entries.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {legacyJobPortalLogins.map((login) => (
-                    <Button
-                      key={`${login.hostname}:${login.email}`}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => chooseLegacyJobPortalLogin(login)}
-                    >
-                      Use {login.email} as default
-                    </Button>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={discardLegacyJobPortalLogins}
-                  >
-                    Do not use older logins
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Default login email">
-                <Input
-                  type="email"
-                  value={form.defaultJobPortalLogin.email}
-                  onChange={updateDefaultJobPortalLogin("email")}
-                  placeholder="you@example.com"
-                  autoComplete="username"
-                  spellCheck={false}
-                />
-              </Field>
-              <div className="hidden sm:block" aria-hidden="true" />
-              <Field label="Default password">
-                <Input
-                  type="password"
-                  value={form.defaultJobPortalLogin.password}
-                  onChange={updateDefaultJobPortalLogin("password")}
-                  minLength={8}
-                  maxLength={256}
-                  autoComplete="new-password"
-                  data-sensitive="true"
-                />
-              </Field>
-              <Field label="Default password (re-enter)">
-                <Input
-                  type="password"
-                  value={form.defaultJobPortalLogin.passwordConfirmation}
-                  onChange={updateDefaultJobPortalLogin(
-                    "passwordConfirmation"
-                  )}
-                  minLength={8}
-                  maxLength={256}
-                  autoComplete="new-password"
-                  data-sensitive="true"
-                />
-              </Field>
-            </div>
-            <p className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
-              Employer portals may require at least 8 characters, uppercase,
-              lowercase, a number, and a special character. TrackMyOPT stores
-              the password you provide; each employer portal decides its
-              actual password rules.
-            </p>
-          </div>
+          <DefaultJobPortalLoginPanel
+            login={form.defaultJobPortalLogin}
+            legacyJobPortalLogins={legacyJobPortalLogins}
+            onUpdate={updateDefaultJobPortalLogin}
+            onChooseLegacy={chooseLegacyJobPortalLogin}
+            onDiscardLegacy={discardLegacyJobPortalLogins}
+          />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <SelectField
+            <PrivateAnswersSelectField
               label="Authorized to work in the U.S.?"
               value={form.workAuthorization}
               onChange={update("workAuthorization")}
@@ -577,7 +361,7 @@ export function PrivateApplicationAnswersSection() {
                 ["no", "No"],
               ]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Need sponsorship now or later?"
               value={form.requiresSponsorship}
               onChange={update("requiresSponsorship")}
@@ -586,7 +370,7 @@ export function PrivateApplicationAnswersSection() {
                 ["no", "No"],
               ]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Visa / work status"
               value={form.visaType}
               onChange={update("visaType")}
@@ -606,24 +390,24 @@ export function PrivateApplicationAnswersSection() {
               ]}
             />
             {form.visaType === "other" && (
-              <Field label="Other visa / work status">
+              <PrivateAnswersField label="Other visa / work status">
                 <Input
                   value={form.visaOther}
                   onChange={update("visaOther")}
                   placeholder="Enter the exact status"
                   autoComplete="off"
                 />
-              </Field>
+              </PrivateAnswersField>
             )}
-            <Field label="Citizenship">
+            <PrivateAnswersField label="Citizenship">
               <Input
                 value={form.citizenship}
                 onChange={update("citizenship")}
                 placeholder="Exact answer to use"
                 autoComplete="off"
               />
-            </Field>
-            <Field label="Expected annual salary">
+            </PrivateAnswersField>
+            <PrivateAnswersField label="Expected annual salary">
               <Input
                 value={form.expectedAnnualSalary}
                 onChange={update("expectedAnnualSalary")}
@@ -631,8 +415,8 @@ export function PrivateApplicationAnswersSection() {
                 inputMode="decimal"
                 autoComplete="off"
               />
-            </Field>
-            <Field label="Expected hourly rate">
+            </PrivateAnswersField>
+            <PrivateAnswersField label="Expected hourly rate">
               <Input
                 value={form.expectedHourlyRate}
                 onChange={update("expectedHourlyRate")}
@@ -640,46 +424,46 @@ export function PrivateApplicationAnswersSection() {
                 inputMode="decimal"
                 autoComplete="off"
               />
-            </Field>
-            <SelectField
+            </PrivateAnswersField>
+            <PrivateAnswersSelectField
               label="Can work in-person?"
               value={form.canWorkInPerson}
               onChange={update("canWorkInPerson")}
               options={[["yes", "Yes"], ["no", "No"]]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Willing to relocate?"
               value={form.willingToRelocate}
               onChange={update("willingToRelocate")}
               options={[["yes", "Yes"], ["no", "No"]]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Can start immediately?"
               value={form.canStartImmediately}
               onChange={update("canStartImmediately")}
               options={[["yes", "Yes"], ["no", "No"]]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Has reliable transportation?"
               value={form.reliableTransportation}
               onChange={update("reliableTransportation")}
               options={[["yes", "Yes"], ["no", "No"]]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Needs accommodations?"
               value={form.needsAccommodations}
               onChange={update("needsAccommodations")}
               options={[["yes", "Yes"], ["no", "No"]]}
             />
-            <Field label="Date of birth">
+            <PrivateAnswersField label="Date of birth">
               <Input
                 type="date"
                 value={form.dateOfBirth}
                 onChange={update("dateOfBirth")}
                 autoComplete="bday"
               />
-            </Field>
-            <SelectField
+            </PrivateAnswersField>
+            <PrivateAnswersSelectField
               label="Gender (optional)"
               value={form.sexGender}
               onChange={update("sexGender")}
@@ -690,7 +474,7 @@ export function PrivateApplicationAnswersSection() {
                 ["prefer_not_to_answer", "Prefer not to answer"],
               ]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Ethnicity / race (optional)"
               value={form.raceEthnicity}
               onChange={update("raceEthnicity")}
@@ -714,7 +498,7 @@ export function PrivateApplicationAnswersSection() {
                 ["prefer_not_to_answer", "Prefer not to answer"],
               ]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Hispanic or Latino?"
               value={form.hispanicLatino}
               onChange={update("hispanicLatino")}
@@ -724,7 +508,7 @@ export function PrivateApplicationAnswersSection() {
                 ["prefer_not_to_answer", "Prefer not to answer"],
               ]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Veteran (optional)"
               value={form.veteranStatus}
               onChange={update("veteranStatus")}
@@ -734,7 +518,7 @@ export function PrivateApplicationAnswersSection() {
                 ["prefer_not_to_answer", "Prefer not to answer"],
               ]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Has disability (optional)"
               value={form.disabilityStatus}
               onChange={update("disabilityStatus")}
@@ -744,7 +528,7 @@ export function PrivateApplicationAnswersSection() {
                 ["prefer_not_to_answer", "Prefer not to answer"],
               ]}
             />
-            <SelectField
+            <PrivateAnswersSelectField
               label="Other EEO questions"
               value={form.eeoPreference}
               onChange={update("eeoPreference")}
@@ -833,49 +617,5 @@ export function PrivateApplicationAnswersSection() {
         </p>
       )}
     </section>
-  );
-}
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-medium">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: React.ChangeEventHandler<HTMLSelectElement>;
-  options: Array<[string, string]>;
-}) {
-  return (
-    <Field label={label}>
-      <select
-        value={value}
-        onChange={onChange}
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      >
-        <option value="">Leave unanswered</option>
-        {options.map(([optionValue, optionLabel]) => (
-          <option value={optionValue} key={optionValue}>
-            {optionLabel}
-          </option>
-        ))}
-      </select>
-    </Field>
   );
 }

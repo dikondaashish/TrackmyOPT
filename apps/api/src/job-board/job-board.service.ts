@@ -26,6 +26,7 @@ import {
   calculatePacingGapMs,
   MIN_INTER_REQUEST_GAP_MS,
   planSourceIngestionJobs,
+  selectSlowSourceIds,
 } from './source-job-planning';
 import {
   classifySourceError,
@@ -43,10 +44,8 @@ import type {
   SchedulerContext,
 } from './scheduler-run-id';
 import { resolveJobDataStore } from './job-data-store.config';
-import {
-  queueSchedulerRun,
-  type SchedulerAttempt,
-} from './scheduler-run-ledger';
+import { queueSchedulerRun } from './scheduler-run-ledger';
+import { SupabaseSchedulerRunStore } from './supabase-scheduler-run-store';
 import type {
   JobDataStore,
   JobStorePage,
@@ -100,6 +99,7 @@ const sleep = (durationMs: number) =>
 export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(JobBoardService.name);
   private readonly supabase: SupabaseClient;
+  private readonly schedulerRuns: SupabaseSchedulerRunStore;
   private shuttingDown = false;
   private readonly inFlightAuditIds = new Set<string>();
   private readonly activeSourceWork = new Set<Promise<unknown>>();
@@ -137,6 +137,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       this.config.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
       this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
     ) as unknown as SupabaseClient;
+    this.schedulerRuns = new SupabaseSchedulerRunStore(this.supabase);
   }
 
   /** Emergency-only control for the two job-board Bull queues. */
@@ -185,22 +186,12 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   async queueEnabledSources(context: SchedulerContext) {
     if (this.shuttingDown) throw new Error('Job-board worker is restarting');
     await this.finalizeStaleAudits();
-    return queueSchedulerRun(
-      context,
-      {
-        claim: (candidate) => this.claimSchedulerRun(candidate),
-        markQueued: (schedulerRunId, queuedAt) =>
-          this.markSchedulerRunQueued(schedulerRunId, queuedAt),
-        markFailed: (schedulerRunId, errorMessage) =>
-          this.markSchedulerRunFailed(schedulerRunId, errorMessage),
-        recordAttempt: (attempt) => this.recordSchedulerAttempt(attempt),
-      },
-      () =>
-        this.queue.add(
-          'ingest-enabled-sources',
-          this.storeContext(context),
-          planIngestionOrchestratorOptions(context.schedulerRunId),
-        ),
+    return queueSchedulerRun(context, this.schedulerRuns, () =>
+      this.queue.add(
+        'ingest-enabled-sources',
+        this.storeContext(context),
+        planIngestionOrchestratorOptions(context.schedulerRunId),
+      ),
     );
   }
 
@@ -230,32 +221,21 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     if (!source) throw new Error(`Unknown ATS source ${sourceId}`);
     if (!source.enabled) throw new Error(`ATS source ${sourceId} is disabled`);
 
-    return queueSchedulerRun(
-      context,
-      {
-        claim: (candidate) => this.claimSchedulerRun(candidate),
-        markQueued: (schedulerRunId, queuedAt) =>
-          this.markSchedulerRunQueued(schedulerRunId, queuedAt),
-        markFailed: (schedulerRunId, errorMessage) =>
-          this.markSchedulerRunFailed(schedulerRunId, errorMessage),
-        recordAttempt: (attempt) => this.recordSchedulerAttempt(attempt),
-      },
-      async () => {
-        const slow = (await this.getSlowSourceIds([sourceId])).has(sourceId);
-        const planned = planSourceIngestionJobs(
-          [sourceId],
-          this.storeContext(context),
-          MIN_INTER_REQUEST_GAP_MS,
-        )[0];
-        // Retain the completed ID so a repeated recovery request is suppressed.
-        const options = { ...planned.opts, delay: 0, removeOnComplete: 3 };
-        return (slow ? this.slowQueue : this.queue).add(
-          planned.name,
-          planned.data,
-          options,
-        );
-      },
-    );
+    return queueSchedulerRun(context, this.schedulerRuns, async () => {
+      const slow = (await this.getSlowSourceIds([sourceId])).has(sourceId);
+      const planned = planSourceIngestionJobs(
+        [sourceId],
+        this.storeContext(context),
+        MIN_INTER_REQUEST_GAP_MS,
+      )[0];
+      // Retain the completed ID so a repeated recovery request is suppressed.
+      const options = { ...planned.opts, delay: 0, removeOnComplete: 3 };
+      return (slow ? this.slowQueue : this.queue).add(
+        planned.name,
+        planned.data,
+        options,
+      );
+    });
   }
 
   async queueCompanyDiscovery() {
@@ -326,7 +306,6 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
 
   private async getSlowSourceIds(sourceIds: string[]) {
     if (!sourceIds.length) return new Set<string>();
-    const latestDurationBySource = new Map<string, number>();
     const rows = await fetchAllPages(async (from, to) => {
       const result = await this.supabase
         .from('ingestion_audit_log')
@@ -340,20 +319,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         error: result.error ? { message: result.error.message } : null,
       };
     });
-    for (const row of rows) {
-      const sourceId = String(row.source_id || '');
-      if (!sourceId || latestDurationBySource.has(sourceId)) continue;
-      const started = Date.parse(String(row.run_at));
-      const completed = Date.parse(String(row.completed_at));
-      if (Number.isFinite(started) && Number.isFinite(completed)) {
-        latestDurationBySource.set(sourceId, Math.max(0, completed - started));
-      }
-    }
-    return new Set(
-      sourceIds.filter(
-        (sourceId) => (latestDurationBySource.get(sourceId) || 0) > 60_000,
-      ),
-    );
+    return selectSlowSourceIds(sourceIds, rows);
   }
 
   private async hasActiveHourlySourceWork(context: SchedulerContext) {
@@ -799,103 +765,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     if (errorLog.error) throw new Error(errorLog.error.message);
   }
 
-  private async claimSchedulerRun(context: SchedulerContext) {
-    const { error } = await this.supabase.from('scheduler_runs').insert({
-      scheduler_run_id: context.schedulerRunId,
-      trigger_origin: context.triggerOrigin,
-      bull_job_id: context.schedulerRunId,
-      dispatch_status: 'dispatched',
-      dispatched_at: new Date().toISOString(),
-    });
-    if (!error) return true;
-    if ('code' in error && error.code === '23505') {
-      const { data, error: lookupError } = await this.supabase
-        .from('scheduler_runs')
-        .select('dispatch_status')
-        .eq('scheduler_run_id', context.schedulerRunId)
-        .maybeSingle();
-      if (lookupError) throw new Error(lookupError.message);
-      if (data?.dispatch_status === 'failed') {
-        const { error: retryError } = await this.supabase
-          .from('scheduler_runs')
-          .update({
-            dispatch_status: 'dispatched',
-            error_message: null,
-            dispatched_at: new Date().toISOString(),
-            queued_at: null,
-            bull_job_id: context.schedulerRunId,
-          })
-          .eq('scheduler_run_id', context.schedulerRunId)
-          .eq('dispatch_status', 'failed');
-        if (retryError) throw new Error(retryError.message);
-        return true;
-      }
-      if (data?.dispatch_status === 'dispatched') {
-        const { data: claimed, error: claimError } = await this.supabase
-          .from('scheduler_runs')
-          .update({ dispatch_status: 'queued', queued_at: null })
-          .eq('scheduler_run_id', context.schedulerRunId)
-          .eq('dispatch_status', 'dispatched')
-          .select('scheduler_run_id')
-          .maybeSingle();
-        if (claimError) throw new Error(claimError.message);
-        return Boolean(claimed);
-      }
-      return false;
-    }
-    throw new Error(error.message);
-  }
-
-  private async markSchedulerRunQueued(
-    schedulerRunId: string,
-    queuedAt: string,
-  ) {
-    const { error } = await this.supabase
-      .from('scheduler_runs')
-      .update({
-        dispatch_status: 'queued',
-        error_message: null,
-        queued_at: queuedAt,
-      })
-      .eq('scheduler_run_id', schedulerRunId);
-    if (error) throw new Error(error.message);
-  }
-
   async markSchedulerRunDeferred(schedulerRunId: string, reason: string) {
-    const { error } = await this.supabase
-      .from('scheduler_runs')
-      .update({
-        dispatch_status: 'deferred',
-        error_message: reason.slice(0, 500),
-      })
-      .eq('scheduler_run_id', schedulerRunId);
-    if (error) throw new Error(error.message);
-  }
-
-  private async markSchedulerRunFailed(
-    schedulerRunId: string,
-    errorMessage: string,
-  ) {
-    const { error } = await this.supabase
-      .from('scheduler_runs')
-      .update({
-        dispatch_status: 'failed',
-        error_message: errorMessage.slice(0, 500),
-      })
-      .eq('scheduler_run_id', schedulerRunId);
-    if (error) throw new Error(error.message);
-  }
-
-  private async recordSchedulerAttempt(attempt: SchedulerAttempt) {
-    const { error } = await this.supabase
-      .from('scheduler_run_attempts')
-      .insert({
-        scheduler_run_id: attempt.schedulerRunId,
-        trigger_origin: attempt.triggerOrigin,
-        bull_job_id: attempt.bullJobId,
-        outcome: attempt.outcome,
-        queued_at: attempt.queuedAt,
-      });
-    if (error) throw new Error(error.message);
+    await this.schedulerRuns.markDeferred(schedulerRunId, reason);
   }
 }

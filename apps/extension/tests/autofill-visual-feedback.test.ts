@@ -62,9 +62,10 @@ assert.match(source, /attachShadow/);
 assert.doesNotMatch(source, /innerHTML|textContent\s*=\s*.*value/);
 
 const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
+const engineForm = readFileSync('src/easy-apply-form.ts', 'utf8');
 assert.match(engine, /createAutofillVisualFeedback/);
 assert.match(engine, /visual\.markFieldFilled/);
-assert.match(engine, /visual\?\.markNeedsUser/);
+assert.match(engineForm, /visual\?\.markNeedsUser/);
 
 const sensitive = readFileSync('src/sensitive-autofill.ts', 'utf8');
 assert.match(sensitive, /flashAutofillField/);
@@ -72,11 +73,11 @@ assert.match(sensitive, /flashAutofillField/);
 const screening = readFileSync('src/screening-question-drafts.ts', 'utf8');
 assert.match(screening, /flashAutofillField/);
 
-const portal = readFileSync('src/content-job-portal.ts', 'utf8');
-assert.match(portal, /tmo-prefill-chip-pulse/);
-assert.match(portal, /prefillBtn\.setAttribute\('aria-busy', 'true'\)/);
-assert.match(portal, /prefillBtn\.classList\.add\('tmo-is-filling'\)/);
-assert.match(portal, /prefillBtn\.classList\.remove\('tmo-is-filling'\)/);
+const trackerWidget = readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
+assert.match(trackerWidget, /tmo-prefill-chip-pulse/);
+assert.match(trackerWidget, /prefillBtn\.setAttribute\('aria-busy', 'true'\)/);
+assert.match(trackerWidget, /prefillBtn\.classList\.add\('tmo-is-filling'\)/);
+assert.match(trackerWidget, /prefillBtn\.classList\.remove\('tmo-is-filling'\)/);
 
 console.log(
   'autofill-visual-feedback: accessible progress, field states, and reduced motion passed'

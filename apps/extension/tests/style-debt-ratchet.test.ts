@@ -24,25 +24,25 @@ const BUDGETS: Array<{ label: string; pattern: RegExp; max: number; why: string 
     {
         label: 'inline cssText assignments',
         pattern: /cssText/g,
-        max: 178,
+        max: 0,
         why: 'use the factories in src/design/primitives.ts instead',
     },
     {
         label: 'hardcoded 6-digit hex colours',
         pattern: /#[0-9a-fA-F]{6}\b/g,
-        max: 40,
+        max: 0,
         why: 'use var(--tmo-color-*) so the colour adapts to dark mode',
     },
     {
         label: 'hardcoded #fff',
         pattern: /#fff\b/g,
-        max: 15,
+        max: 0,
         why: 'use var(--tmo-color-surface) or var(--tmo-color-on-accent)',
     },
     {
         label: 'fractional font sizes',
         pattern: /font-size:\s*\d+\.\d+px/g,
-        max: 41,
+        max: 0,
         why: 'use the type scale: var(--tmo-text-xs) … var(--tmo-text-3xl)',
     },
 ];

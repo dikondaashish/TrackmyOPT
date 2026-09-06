@@ -5,7 +5,7 @@ pending. Completed implementation plans and duplicate completion reports were
 removed after the 2026-07-25 code/documentation audit.
 
 Start with
-[PENDING-IMPLEMENTATION-PLAN.md](./PENDING-IMPLEMENTATION-PLAN.md) for the
+[pending-implementation-plan.md](./pending-implementation-plan.md) for the
 ordered backlog and the audit disposition.
 
 ## Architecture
@@ -38,19 +38,19 @@ ordered backlog and the audit disposition.
 
 | Document | Purpose |
 |----------|---------|
-| [FREEMIUM-CONVERSION-PHASES.md](./marketing/FREEMIUM-CONVERSION-PHASES.md) | Day 1/7/30 measurement only |
+| [freemium-conversion-metrics.md](./marketing/freemium-conversion-metrics.md) | Day 1/7/30 measurement only |
 
 PostHog event definitions live with code in
-[`apps/web/lib/posthog/EVENT_TAXONOMY.md`](../apps/web/lib/posthog/EVENT_TAXONOMY.md).
+[`apps/web/lib/posthog/event-taxonomy.md`](../apps/web/lib/posthog/event-taxonomy.md).
 Outstanding PostHog operations are in the pending implementation plan.
 
 ## Growth assets and pending campaigns
 
 | Document | Purpose |
 |----------|---------|
-| [PHASE-1-COMMUNITY-ENGAGEMENT.md](./marketing/PHASE-1-COMMUNITY-ENGAGEMENT.md) | Community execution templates |
-| [PHASE-1-EMAIL-SEQUENCES.md](./marketing/PHASE-1-EMAIL-SEQUENCES.md) | Prepared marketing email copy; provider/opt-out required before use |
-| [PHASE-1-PAID-ADS.md](./marketing/PHASE-1-PAID-ADS.md) | Paid campaign plan |
+| [community-engagement-playbook.md](./marketing/community-engagement-playbook.md) | Community execution templates |
+| [email-sequences-playbook.md](./marketing/email-sequences-playbook.md) | Prepared marketing email copy; provider/opt-out required before use |
+| [paid-ads-playbook.md](./marketing/paid-ads-playbook.md) | Paid campaign plan |
 | [ENTITY-OPTIMIZATION-SETUP.md](./seo/ENTITY-OPTIMIZATION-SETUP.md) | Pending entity/profile work |
 | [GOOGLE-SEARCH-CONSOLE-SETUP.md](./seo/GOOGLE-SEARCH-CONSOLE-SETUP.md) | Search Console setup and monitoring |
 | [INDEXNOW-SETUP.md](./seo/INDEXNOW-SETUP.md) | IndexNow operating reference |
@@ -58,7 +58,7 @@ Outstanding PostHog operations are in the pending implementation plan.
 ## Documentation rules
 
 - Do not create a new phase report for completed work; use git history.
-- Add real pending work to `PENDING-IMPLEMENTATION-PLAN.md`.
+- Add real pending work to `pending-implementation-plan.md`.
 - Keep evidence logs and operational runbooks even after supporting code ships.
 - Remove a temporary plan once every remaining action has been completed or
   moved to the master backlog.

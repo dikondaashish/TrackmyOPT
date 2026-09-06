@@ -4,7 +4,13 @@ import { join } from "node:path";
 import { RISKY_MARKETING_PHRASES } from "@/lib/legal/legal-config";
 
 const WEB_ROOT = join(process.cwd());
-const PRICING_MODAL_PATH = join(WEB_ROOT, "components/pricing/PricingModal.tsx");
+const PRICING_MODAL_PATHS = [
+  join(WEB_ROOT, "components/pricing/PricingModal.tsx"),
+  join(WEB_ROOT, "components/pricing/PricingModalBenefitTicker.tsx"),
+  join(WEB_ROOT, "components/pricing/PricingModalPlanCard.tsx"),
+  join(WEB_ROOT, "components/pricing/PricingModalBillingToggle.tsx"),
+  join(WEB_ROOT, "components/pricing/PricingModalTrustFooter.tsx"),
+] as const;
 const PLAN_FEATURES_PATH = join(WEB_ROOT, "lib/pricing/plan-features.ts");
 
 const PRICING_UI_BLOCKED = [
@@ -15,12 +21,13 @@ const PRICING_UI_BLOCKED = [
   "3-day money-back period applies, then",
 ] as const;
 
+function readPricingModalTree(): string {
+  return PRICING_MODAL_PATHS.map((path) => readFileSync(path, "utf8")).join("\n");
+}
+
 describe("pricing modal copy compliance", () => {
   it("pricing UI avoids blocked marketing phrases", () => {
-    const content = [
-      readFileSync(PRICING_MODAL_PATH, "utf8"),
-      readFileSync(PLAN_FEATURES_PATH, "utf8"),
-    ]
+    const content = [readPricingModalTree(), readFileSync(PLAN_FEATURES_PATH, "utf8")]
       .join("\n")
       .toLowerCase();
     const violations: string[] = [];
@@ -41,7 +48,7 @@ describe("pricing modal copy compliance", () => {
   });
 
   it("PricingModal links Terms, Privacy, and Refund Policy near consent", () => {
-    const content = readFileSync(PRICING_MODAL_PATH, "utf8");
+    const content = readPricingModalTree();
     expect(content).toContain('href="/terms"');
     expect(content).toContain('href="/privacy"');
     expect(content).toContain('href="/refund-policy"');
@@ -49,7 +56,7 @@ describe("pricing modal copy compliance", () => {
   });
 
   it("PricingModal still gates checkout on consent and recurringBillingAccepted", () => {
-    const content = readFileSync(PRICING_MODAL_PATH, "utf8");
+    const content = readPricingModalTree();
     expect(content).toContain("!proConsent");
     expect(content).toContain("!dedicatedConsent");
     expect(content).toContain("recurringBillingAccepted: true");

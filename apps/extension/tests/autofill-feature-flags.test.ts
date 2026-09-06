@@ -24,6 +24,7 @@ assert.deepEqual(resolveAutofillFeatureFlags({ skills: true }), {
 
 const background = readFileSync('src/background.ts', 'utf8');
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
+const trackerWidget = readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
 const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
 
 for (const flag of [
@@ -36,7 +37,7 @@ for (const flag of [
 }
 assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.continuousMode/);
 assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.aiScreeningDrafts/);
-assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.coverLetter/);
+assert.match(trackerWidget, /AUTOFILL_FEATURE_FLAGS\.coverLetter/);
 assert.match(portal, /AUTOFILL_FEATURE_FLAGS\.guidedAutopilot/);
 assert.match(
   portal,
@@ -45,16 +46,16 @@ assert.match(
 );
 assert.match(
   portal,
-  /resolvedJobDescription \|\|\s*lastResumeGenerationRequest\?\.jobDescription \|\|\s*scrapeJobDescription\(\)/,
+  /resolvedJobDescription \|\|\s*getLastResumeJobDescription\(\) \|\|\s*scrapeJobDescription\(\)/,
   'screening drafts must prefer the job description bound to the resolved resume artifact',
 );
 assert.match(
-  portal,
-  /if \(artifact\) \{\s*setCurrentGeneratedArtifact\(artifact\)/,
+  trackerWidget,
+  /if \(artifact\) \{\s*host\.setCurrentGeneratedArtifact\(artifact\)/,
   'disabled cover letters must not discard the deterministic resume artifact'
 );
 assert.match(
-  portal,
+  trackerWidget,
   /if \(artifact && AUTOFILL_FEATURE_FLAGS\.coverLetter\) \{\s*mountCoverLetterReviewUi/
 );
 assert.match(engine, /featureFlags\.historyFields/);

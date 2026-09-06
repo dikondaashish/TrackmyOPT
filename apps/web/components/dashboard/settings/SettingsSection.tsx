@@ -10,12 +10,14 @@ import {
   Check,
   AlertCircle,
   Lock,
-  Download,
   Chrome,
   Database,
   CreditCard} from "lucide-react";
 import { useDocumentPasscode } from "./useDocumentPasscode";
 import { useDataExport } from "./useDataExport";
+import { useSettingsExtension } from "./useSettingsExtension";
+import { useSettingsNotificationEmails } from "./useSettingsNotificationEmails";
+import { SettingsZipExportUpgradeModal } from "./SettingsZipExportUpgradeModal";
 import { ProfileTab } from "./tabs/ProfileTab";
 import { SecurityTab } from "./tabs/SecurityTab";
 import { SubscriptionTab } from "./tabs/SubscriptionTab";
@@ -28,7 +30,6 @@ import type {
   UserProfile,
   PremiumStatus,
   CaseStatusSettings,
-  ExtensionStatus,
 } from "./settings-types";
 
 export function SettingsSection() {
@@ -73,28 +74,9 @@ export function SettingsSection() {
   const [caseStatusAlerts, setCaseStatusAlerts] = useState(true);
   const [documentReminders, setDocumentReminders] = useState(true);
 
-  // Tool email reminders (synced with OPT Dates)
-  const [toolEmails, setToolEmails] = useState<{
-    opt_apply: string;
-    opt_clock: string;
-    stem_apply: string;
-    stem_clock: string;
-  }>({
-    opt_apply: '',
-    opt_clock: '',
-    stem_apply: '',
-    stem_clock: '',
-  });
-
-  // Case Status & Document Vault share the same notification email (from profiles.notification_email)
-  const [sharedNotificationEmail, setSharedNotificationEmail] = useState('');
-  const [editingSharedEmail, setEditingSharedEmail] = useState<'case' | 'document' | null>(null);
-  const [tempEmail, setTempEmail] = useState('');
-
   // Security
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [recentLogins, setRecentLogins] = useState<{ device: string; location: string; time: string }[]>([]);
 
   // Case Status Settings
   const [caseSettings, setCaseSettings] = useState<CaseStatusSettings>({
@@ -103,12 +85,6 @@ export function SettingsSection() {
     notifyOnChange: true,
   });
 
-
-  // Extension Status
-  const [extensionStatus, setExtensionStatus] = useState<ExtensionStatus>({
-    isConnected: false,
-    lastSyncTime: null,
-  });
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -162,6 +138,31 @@ export function SettingsSection() {
     setError,
     setShowUpgradeModal,
   });
+
+  const {
+    toolEmails,
+    setToolEmails,
+    sharedNotificationEmail,
+    editingSharedEmail,
+    setEditingSharedEmail,
+    tempEmail,
+    setTempEmail,
+    loadToolEmails,
+    handleSaveToolEmail,
+    handleDeleteToolEmail,
+    loadSharedNotificationEmail,
+    handleSaveSharedEmail,
+    handleDeleteSharedEmail,
+    startEditingSharedEmail,
+  } = useSettingsNotificationEmails({ setSuccess, setError, setIsSaving });
+
+  const {
+    extensionStatus,
+    recentLogins,
+    loadExtensionStatus,
+    loadRecentLogins,
+    handleDisconnectExtension,
+  } = useSettingsExtension({ setSuccess });
 
   const handleManageSubscription = async () => {
     try {
@@ -255,267 +256,6 @@ export function SettingsSection() {
     }
   };
 
-
-  // Load tool email reminders (synced with OPT Dates page)
-  const loadToolEmails = async () => {
-    try {
-      const res = await fetch('/api/user/tool-email', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.emails) {
-          setToolEmails({
-            opt_apply: data.emails.opt_apply || '',
-            opt_clock: data.emails.opt_clock || '',
-            stem_apply: data.emails.stem_apply || '',
-            stem_clock: data.emails.stem_clock || '',
-          });
-        }
-      }
-    } catch {
-      // Silently fail
-    }
-  };
-
-  // Save tool email (syncs with OPT Dates page)
-  const handleSaveToolEmail = async (toolKey: string) => {
-    const email = toolEmails[toolKey as keyof typeof toolEmails];
-    if (!email || !email.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      setError(null);
-
-      const res = await fetch('/api/user/tool-email', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool: toolKey, email }),
-      });
-
-      if (res.ok) {
-        setSuccess(`Email saved for ${toolKey.replace('_', ' ').toUpperCase()}`);
-        setTimeout(() => setSuccess(null), 2000);
-      } else {
-        throw new Error('Failed to save');
-      }
-    } catch {
-      setError('Failed to save email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Delete tool email
-  const handleDeleteToolEmail = async (toolKey: string) => {
-    try {
-      setIsSaving(true);
-      const res = await fetch('/api/user/tool-email', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tool: toolKey, email: '' }),
-      });
-
-      if (res.ok) {
-        setToolEmails(prev => ({ ...prev, [toolKey]: '' }));
-        setSuccess('Email removed');
-        setTimeout(() => setSuccess(null), 2000);
-      }
-    } catch {
-      setError('Failed to remove email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Load shared notification email (used by Case Status & Document Vault)
-  // This syncs with CaseStatusSection and DocumentVaultClient
-  const loadSharedNotificationEmail = async () => {
-    try {
-      const res = await fetch('/api/user/notification-email', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setSharedNotificationEmail(data.email || '');
-      }
-    } catch {
-      // Silently fail
-    }
-  };
-
-  // Save shared notification email (syncs with Case Status & Document Vault pages)
-  const handleSaveSharedEmail = async () => {
-    if (!tempEmail || !tempEmail.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      const res = await fetch('/api/user/notification-email', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: tempEmail }),
-      });
-
-      if (res.ok) {
-        setSharedNotificationEmail(tempEmail);
-        setEditingSharedEmail(null);
-        setTempEmail('');
-        setSuccess('Notification email saved');
-        setTimeout(() => setSuccess(null), 2000);
-      }
-    } catch {
-      setError('Failed to save email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Delete shared notification email
-  const handleDeleteSharedEmail = async () => {
-    try {
-      setIsSaving(true);
-      // Save empty email to clear it
-      const res = await fetch('/api/user/notification-email', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: '' }),
-      });
-
-      if (res.ok) {
-        setSharedNotificationEmail('');
-        setSuccess('Notification email removed');
-        setTimeout(() => setSuccess(null), 2000);
-      }
-    } catch {
-      setError('Failed to remove email');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Start editing shared email
-  const startEditingSharedEmail = (source: 'case' | 'document') => {
-    setEditingSharedEmail(source);
-    setTempEmail(sharedNotificationEmail);
-  };
-
-  const loadExtensionStatus = async () => {
-    try {
-      // Method 1: Check localStorage for extension marker (set by extension)
-      const extensionConnected = localStorage.getItem('tmo_extension_connected');
-      const extensionVersion = localStorage.getItem('tmo_extension_version');
-      const lastSync = localStorage.getItem('tmo_extension_last_sync');
-
-      if (extensionConnected === 'true') {
-        setExtensionStatus({
-          isConnected: true,
-          lastSyncTime: lastSync,
-          version: extensionVersion || undefined,
-        });
-        return;
-      }
-
-      // Method 2: Check server sessions API
-      const res = await fetch('/api/user/sessions', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.ok && data.extensionStatus?.isConnected) {
-          setExtensionStatus({
-            isConnected: true,
-            lastSyncTime: data.extensionStatus?.lastActiveAt || null,
-            version: data.extensionStatus?.version || undefined,
-          });
-          return;
-        }
-      }
-
-      // Method 3: Try to detect extension via custom event
-      // The extension should listen for this and respond
-      window.postMessage({ type: 'TMO_CHECK_EXTENSION' }, '*');
-
-      // Listen for response (extension will reply if installed)
-      const handleExtensionResponse = (event: MessageEvent) => {
-        if (event.data?.type === 'TMO_EXTENSION_PRESENT') {
-          setExtensionStatus({
-            isConnected: true,
-            lastSyncTime: new Date().toISOString(),
-            version: event.data.version || undefined,
-          });
-          // Also store in localStorage for future checks
-          localStorage.setItem('tmo_extension_connected', 'true');
-          if (event.data.version) {
-            localStorage.setItem('tmo_extension_version', event.data.version);
-          }
-          localStorage.setItem('tmo_extension_last_sync', new Date().toISOString());
-        }
-      };
-
-      window.addEventListener('message', handleExtensionResponse);
-
-      // Clean up listener after 2 seconds
-      setTimeout(() => {
-        window.removeEventListener('message', handleExtensionResponse);
-      }, 2000);
-
-    } catch {
-      // Silently fail - extension status not critical
-    }
-  };
-
-  const loadRecentLogins = async () => {
-    try {
-      const res = await fetch('/api/user/sessions', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.ok && data.sessions) {
-          const formattedLogins = data.sessions.map((session: {
-            device_type: string;
-            device_info?: string;
-            location?: string;
-            last_active_at: string;
-          }) => {
-            // Format time ago
-            const lastActive = new Date(session.last_active_at);
-            const now = new Date();
-            const diffMs = now.getTime() - lastActive.getTime();
-            const diffMins = Math.floor(diffMs / (1000 * 60));
-            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-            let timeAgo = 'Just now';
-            if (diffDays > 0) {
-              timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-            } else if (diffHours > 0) {
-              timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-            } else if (diffMins > 5) {
-              timeAgo = `${diffMins} minutes ago`;
-            }
-
-            // Format device name
-            const device = session.device_type === 'extension'
-              ? 'Chrome Extension'
-              : session.device_info || 'Web Browser';
-
-            return {
-              device,
-              location: session.location || 'Unknown location',
-              time: timeAgo,
-            };
-          });
-          setRecentLogins(formattedLogins);
-        }
-      }
-    } catch {
-      // If API fails, show empty state
-      setRecentLogins([]);
-    }
-  };
 
   const loadUserData = async () => {
     try {
@@ -747,36 +487,6 @@ export function SettingsSection() {
 
 
 
-  // Disconnect Extension
-  const handleDisconnectExtension = async () => {
-    try {
-      // Clear localStorage markers
-      localStorage.removeItem('tmo_extension_connected');
-      localStorage.removeItem('tmo_extension_version');
-      localStorage.removeItem('tmo_extension_last_sync');
-
-      // Also clear server session
-      const res = await fetch('/api/user/sessions?device_type=extension', {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      setExtensionStatus({ isConnected: false, lastSyncTime: null });
-      setSuccess('Extension disconnected');
-      setTimeout(() => setSuccess(null), 3000);
-
-      if (!res.ok) {
-        console.error('Failed to clear server session');
-      }
-    } catch {
-      // Still update UI even if server call fails
-      setExtensionStatus({ isConnected: false, lastSyncTime: null });
-      setSuccess('Extension disconnected');
-      setTimeout(() => setSuccess(null), 3000);
-    }
-  };
-
-
   // Tab configuration - Updated with all new tabs
   // Documents tab only visible for premium users
   const tabs: { id: SettingsTab; label: string; icon: React.ReactNode; isPro?: boolean }[] = [
@@ -979,61 +689,10 @@ export function SettingsSection() {
 
       </div>
 
-      {/* Upgrade Modal for Non-Pro Users */}
-      {showUpgradeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            {/* Icon */}
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Download className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-            </div>
-
-            {/* Title */}
-            <h3 className="text-xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
-              Upgrade to Pro
-            </h3>
-            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-              ZIP export with documents is a Pro feature. Upgrade to download all your data including uploaded documents.
-            </p>
-
-            {/* Features */}
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-6 space-y-3">
-              <div className="flex items-center gap-3 text-sm">
-                <Check className="w-5 h-5 text-green-500" />
-                <span className="text-gray-700 dark:text-gray-300">Export profile, OPT dates & case status</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Check className="w-5 h-5 text-green-500" />
-                <span className="text-gray-700 dark:text-gray-300">Download all uploaded documents</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Check className="w-5 h-5 text-green-500" />
-                <span className="text-gray-700 dark:text-gray-300">Everything in one ZIP file</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Check className="w-5 h-5 text-green-500" />
-                <span className="text-gray-700 dark:text-gray-300">Secure OTP verification</span>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowUpgradeModal(false)}
-                className="flex-1 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
-              >
-                Maybe Later
-              </button>
-              <a
-                href="/pricing"
-                className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all font-medium text-center"
-              >
-                Upgrade to Pro
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+      <SettingsZipExportUpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
 
       {/* Footer */}
       <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
