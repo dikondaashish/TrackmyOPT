@@ -156,6 +156,29 @@ describe('job board ingestion cron', () => {
     );
   });
 
+  it('does not attempt enqueue when the Render wake request is not reachable', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('warming up', { status: 503 })),
+    );
+    const request = new NextRequest(
+      'https://app.example.com/api/cron/ingest-job-board',
+      { headers: { authorization: 'Bearer cron-secret' } },
+    );
+
+    const response = await GET(request);
+    expect(response.status).toBe(202);
+    await pendingCallbacks[0]();
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(supabaseInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dispatch_status: 'failed',
+        error_message: 'Render wake returned 503',
+      }),
+    );
+  });
+
   it('keeps duplicate-hour suppression in the backend contract', async () => {
     const request = new NextRequest(
       'https://app.example.com/api/cron/ingest-job-board',

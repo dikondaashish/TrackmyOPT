@@ -6,8 +6,12 @@ import { sanitizeError, secureLog } from '@/lib/secure-logger';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-const RENDER_WAKE_TIMEOUT_MS = 5_000;
-const ENQUEUE_TIMEOUT_MS = 30_000;
+// Render Free services may be asleep when the hourly trigger runs. Reserve a
+// bounded portion of the Vercel after() window to wake the API first, then
+// enqueue only after the health request is reachable. This prevents the
+// enqueue request from consuming the whole window while the service is cold.
+const RENDER_WAKE_TIMEOUT_MS = 30_000;
+const ENQUEUE_TIMEOUT_MS = 25_000;
 
 export function jobBoardHourlyRunId(now = new Date()) {
   return `job-board-hour-${now.toISOString().slice(0, 13)}`;
@@ -69,15 +73,14 @@ async function dispatchInBackground(
   try {
     await recordDispatch(schedulerRunId);
 
-    // Render's configured health path is `/`; this wakes a sleeping free-tier
-    // instance without coupling the response to cold-start latency.
-    try {
-      await fetch(apiUrl, {
-        method: 'GET',
-        signal: AbortSignal.timeout(RENDER_WAKE_TIMEOUT_MS),
-      });
-    } catch (error) {
-      secureLog.warn('[job-board-cron] Render wake ping failed:', sanitizeError(error));
+    // Render's configured health path is `/`; wait for the sleeping free-tier
+    // instance to become reachable before attempting the enqueue request.
+    const wakeResponse = await fetch(apiUrl, {
+      method: 'GET',
+      signal: AbortSignal.timeout(RENDER_WAKE_TIMEOUT_MS),
+    });
+    if (!wakeResponse.ok) {
+      throw new Error(`Render wake returned ${wakeResponse.status}`);
     }
 
     const response = await fetch(`${apiUrl}/job-board/ingest-enabled-sources`, {
