@@ -226,7 +226,11 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       phase = 'oracle_evidence';
       const targetSignals = (
         await this.getOracleSignals(oracle, [...idMap.keys()])
-      ).map((row) => ({ ...row, jobId: idMap.get(row.jobId)! }));
+      ).map((row) => ({
+        ...row,
+        oracleJobId: row.jobId,
+        jobId: idMap.get(row.jobId)!,
+      }));
       const signalMap = new Map(
         targetSignals.map((row) => [signalIdentity(row), row]),
       );
@@ -239,8 +243,18 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       const evidenceExtra = targetSignals.filter(
         (row) => !sourceKeys.has(signalIdentity(row)),
       );
-      if (write && evidenceExtra.length)
-        throw new Error('unexpected_oracle_evidence');
+      let deletedEvidence = 0;
+      if (write && evidenceExtra.length) {
+        phase = 'evidence_cleanup';
+        deletedEvidence = await oracle.deleteVerifiedEvidenceExtras(
+          evidenceExtra.map((row) => ({
+            jobId: row.oracleJobId,
+            signalType: row.signalType,
+            source: row.source,
+            sourceUrl: row.sourceUrl,
+          })),
+        );
+      }
       if (write && evidenceChanges.length) {
         phase = 'evidence_write';
         await oracle.upsertVisaSignals(evidenceChanges);
@@ -289,6 +303,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
         extra,
         written: write ? changed.length : 0,
         deletedExtras,
+        deletedEvidence,
         verified: left.rows.length - remaining.length,
         remaining: remaining.length,
         sourceHash: left.rows.map(canonicalJobHash),

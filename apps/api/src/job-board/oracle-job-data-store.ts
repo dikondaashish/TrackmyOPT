@@ -905,6 +905,59 @@ export class OracleJobDataStore implements JobDataStore {
     }
   }
 
+  /** Deletes only Oracle signals proven absent from the Supabase source page. */
+  async deleteVerifiedEvidenceExtras(
+    entries: readonly {
+      jobId: string;
+      signalType: string;
+      source: string;
+      sourceUrl: string;
+    }[],
+  ) {
+    if (!entries.length) return 0;
+    if (entries.length > 100)
+      throw new Error('Verified evidence batch exceeds 100');
+    const binds = Object.fromEntries(
+      entries.flatMap((entry, index) => [
+        [`evidenceJob${index}`, entry.jobId],
+        [`evidenceSignal${index}`, entry.signalType],
+        [`evidenceSource${index}`, entry.source],
+        [`evidenceUrl${index}`, entry.sourceUrl],
+      ]),
+    );
+    const predicates = entries
+      .map(
+        (_, index) =>
+          `(job_id = :evidenceJob${index} AND signal_type = :evidenceSignal${index}
+            AND source = :evidenceSource${index} AND source_url = :evidenceUrl${index})`,
+      )
+      .join(' OR ');
+    const connection = await this.connection();
+    try {
+      const verified = await connection.execute(
+        `SELECT job_id FROM job_visa_signals WHERE ${predicates}`,
+        binds,
+        outputOptions(this.driver),
+      );
+      if ((verified.rows || []).length !== entries.length)
+        throw new Error('Verified evidence identity changed');
+      const deleted = await connection.execute(
+        `DELETE FROM job_visa_signals WHERE ${predicates}`,
+        binds,
+        { autoCommit: false },
+      );
+      if ((deleted.rowsAffected || 0) !== entries.length)
+        throw new Error('Verified evidence delete count mismatch');
+      await connection.commit();
+      return entries.length;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      await connection.close();
+    }
+  }
+
   /** Updates only timestamps for parity rows whose other fields already match. */
   async patchJobTimestamps(rows: readonly JobStoreRecord[]) {
     if (!rows.length) return;
