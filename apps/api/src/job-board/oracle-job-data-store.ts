@@ -881,7 +881,6 @@ export class OracleJobDataStore implements JobDataStore {
         throw new Error('Verified extra identity changed');
 
       const ids = entries.map((_, index) => `:extraId${index}`);
-      const binds = { ...idBinds };
       await connection.execute(
         `DELETE FROM job_visa_signals WHERE job_id IN (${ids.join(', ')})`,
         idOnlyBinds,
