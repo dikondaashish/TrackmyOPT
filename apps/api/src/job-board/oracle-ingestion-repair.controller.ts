@@ -1,5 +1,6 @@
 import {
   Controller,
+  Logger,
   Param,
   Post,
   ServiceUnavailableException,
@@ -9,6 +10,7 @@ import { OracleIngestionRepairService } from './oracle-ingestion-repair.service'
 /** App-wide API key guard applies. No public decorator or arbitrary payload. */
 @Controller('job-board/ops/oracle-ingestion-repair')
 export class OracleIngestionRepairController {
+  private readonly logger = new Logger(OracleIngestionRepairController.name);
   constructor(private readonly repair: OracleIngestionRepairService) {}
 
   @Post(':index/:offset/:mode')
@@ -27,6 +29,8 @@ export class OracleIngestionRepairController {
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : '';
+      const code = message.match(/\b(?:NJS|ORA)-\d+\b/)?.[0] || 'unknown';
+      this.logger.error(`Oracle parity operation failed: ${code}`);
       // Never propagate driver errors, SQL, or connection details to HTTP.
       throw new ServiceUnavailableException(
         /^[a-z_]+$/.test(message) ? message : 'oracle_parity_operation_failed',
