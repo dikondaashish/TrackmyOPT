@@ -70,6 +70,9 @@ ANALYSIS.md
 # Large / generated data (not tracked)
 ITContractorsUnion-Main/
 supabase/seed_h1b.sql
+artifacts/*.csv
+!artifacts/.gitkeep
+
 
 # Agent skill install artifacts
 .agent_tmp_skills/
