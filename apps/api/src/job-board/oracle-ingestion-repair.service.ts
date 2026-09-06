@@ -95,13 +95,18 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       throw new Error('invalid_page');
     if (this.busy) throw new Error('repair_busy');
     this.busy = true;
+    let phase = 'guard';
     try {
       const sources = await this.guard();
       const sourceId = sources[index];
       const oracle = this.target();
+      phase = 'health';
       await oracle.healthCheck();
+      phase = 'source_page';
       const left = await this.source.listSourceJobsPage(sourceId, offset, 100);
+      phase = 'oracle_page';
       const right = await oracle.listSourceJobsPage(sourceId, offset, 100);
+      phase = 'natural_identity';
       const matches = await oracle.getJobsByExternalIds(
         sourceId,
         left.rows.map((row) => row.externalJobId),
@@ -159,9 +164,11 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
             left.rows.map((row) => row.externalJobId),
           )
         : matches;
+      phase = 'job_readback';
       const remaining = compareIdentityRows(left.rows, after);
       if (write && remaining.length) throw new Error('job_readback_mismatch');
 
+      phase = 'source_evidence';
       const sourceSignals = await this.readSourceSignals(
         left.rows.map((row) => row.id),
       );
@@ -174,6 +181,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
           return id ? [[id, row.id] as const] : [];
         }),
       );
+      phase = 'oracle_evidence';
       const targetSignals = (
         await oracle.listVisaSignals([...idMap.keys()])
       ).map((row) => ({ ...row, jobId: idMap.get(row.jobId)! }));
@@ -191,8 +199,11 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       );
       if (write && evidenceExtra.length)
         throw new Error('unexpected_oracle_evidence');
-      if (write && evidenceChanges.length)
+      if (write && evidenceChanges.length) {
+        phase = 'evidence_write';
         await oracle.upsertVisaSignals(evidenceChanges);
+      }
+      phase = 'evidence_readback';
       const finalSignals = write
         ? await oracle.listVisaSignals(left.rows.map((row) => row.id))
         : targetSignals;
@@ -258,6 +269,12 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
           source: row.source,
         })),
       };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (/^[a-z_]+$/.test(message)) throw error;
+      const code =
+        message.match(/\b(?:NJS|ORA)-\d+\b/)?.[0].toLowerCase() || 'unknown';
+      throw new Error(`repair_${phase}_${code}`);
     } finally {
       this.busy = false;
     }
