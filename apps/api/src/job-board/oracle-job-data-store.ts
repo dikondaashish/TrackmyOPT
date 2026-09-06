@@ -867,6 +867,9 @@ export class OracleJobDataStore implements JobDataStore {
           `(id = :extraId${index} AND external_job_id = :extraExternal${index})`,
       )
       .join(' OR ');
+    const idOnlyBinds = Object.fromEntries(
+      entries.map((entry, index) => [`extraId${index}`, entry.id]),
+    );
     try {
       const verified = await connection.execute<{ ID: string }>(
         `SELECT id AS "ID" FROM jobs
@@ -881,13 +884,13 @@ export class OracleJobDataStore implements JobDataStore {
       const binds = { ...idBinds };
       await connection.execute(
         `DELETE FROM job_visa_signals WHERE job_id IN (${ids.join(', ')})`,
-        binds,
+        idOnlyBinds,
         { autoCommit: false },
       );
       const deleted = await connection.execute(
         `DELETE FROM jobs
          WHERE source_id = :sourceId AND id IN (${ids.join(', ')})`,
-        { sourceId: entries[0].sourceId, ...binds },
+        { sourceId: entries[0].sourceId, ...idOnlyBinds },
         { autoCommit: false },
       );
       if ((deleted.rowsAffected || 0) !== entries.length)
