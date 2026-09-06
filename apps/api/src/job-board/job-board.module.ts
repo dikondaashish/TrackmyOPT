@@ -10,8 +10,6 @@ import { EmployerMatchService } from './employer-match.service';
 import { JobVisaSignalService } from './job-visa-signal.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
 import { jobDataStoreProvider } from './job-data-store.provider';
-import { OracleIngestionRepairService } from './oracle-ingestion-repair.service';
-import { OracleIngestionRepairController } from './oracle-ingestion-repair.controller';
 
 @Module({
   imports: [
@@ -32,9 +30,8 @@ import { OracleIngestionRepairController } from './oracle-ingestion-repair.contr
       },
     }),
   ],
-  controllers: [JobBoardController, OracleIngestionRepairController],
+  controllers: [JobBoardController],
   providers: [
-    OracleIngestionRepairService,
     jobDataStoreProvider,
     JobBoardService,
     JobBoardProcessor,
