@@ -1,7 +1,7 @@
 import type { PostHogEventProperties } from '@/lib/posthog-server';
 import { captureServerEvent } from '@/lib/posthog-server';
 
-/** PostHog project — see EVENT_TAXONOMY.md */
+/** PostHog project — see event-taxonomy.md */
 export const POSTHOG_PROJECT_ID = 369087;
 
 /** Rollup event: one row per successful resume generation request. */

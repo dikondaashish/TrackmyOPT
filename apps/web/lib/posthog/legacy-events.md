@@ -29,4 +29,4 @@
 | `extension_detected` | Shipped — `ExtensionAnalyticsTracker.tsx` |
 | `activation_completed` | Shipped — `ActivationCompletedTracker.tsx` |
 
-See [EVENT_TAXONOMY.md](./EVENT_TAXONOMY.md) for the full canonical list.
+See [event-taxonomy.md](./event-taxonomy.md) for the full canonical list.

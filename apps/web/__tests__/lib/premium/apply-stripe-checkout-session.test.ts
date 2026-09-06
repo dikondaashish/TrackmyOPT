@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { applyStripeCheckoutSession } from "@/lib/premium/applyStripeCheckoutSession";
+import { applyStripeCheckoutSession } from "@/lib/premium/apply-stripe-checkout-session";
 import type Stripe from "stripe";
 import type { SupabaseClient } from "@supabase/supabase-js";
 

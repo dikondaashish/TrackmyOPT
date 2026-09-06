@@ -3,7 +3,7 @@
 **Project:** [369087](https://us.posthog.com/project/369087)  
 **Last updated:** 2026-07-23 (Phase 5 closure)
 
-Canonical list of product events. Prefer these names in new dashboards and funnels. See [LEGACY_EVENTS.md](./LEGACY_EVENTS.md) for deprecated billing and case-status events.
+Canonical list of product events. Prefer these names in new dashboards and funnels. See [legacy-events.md](./legacy-events.md) for deprecated billing and case-status events.
 
 ---
 

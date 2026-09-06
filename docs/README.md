@@ -5,7 +5,7 @@ pending. Completed implementation plans and duplicate completion reports were
 removed after the 2026-07-25 code/documentation audit.
 
 Start with
-[PENDING-IMPLEMENTATION-PLAN.md](./PENDING-IMPLEMENTATION-PLAN.md) for the
+[pending-implementation-plan.md](./pending-implementation-plan.md) for the
 ordered backlog and the audit disposition.
 
 ## Architecture
@@ -41,7 +41,7 @@ ordered backlog and the audit disposition.
 | [freemium-conversion-metrics.md](./marketing/freemium-conversion-metrics.md) | Day 1/7/30 measurement only |
 
 PostHog event definitions live with code in
-[`apps/web/lib/posthog/EVENT_TAXONOMY.md`](../apps/web/lib/posthog/EVENT_TAXONOMY.md).
+[`apps/web/lib/posthog/event-taxonomy.md`](../apps/web/lib/posthog/event-taxonomy.md).
 Outstanding PostHog operations are in the pending implementation plan.
 
 ## Growth assets and pending campaigns
@@ -58,7 +58,7 @@ Outstanding PostHog operations are in the pending implementation plan.
 ## Documentation rules
 
 - Do not create a new phase report for completed work; use git history.
-- Add real pending work to `PENDING-IMPLEMENTATION-PLAN.md`.
+- Add real pending work to `pending-implementation-plan.md`.
 - Keep evidence logs and operational runbooks even after supporting code ships.
 - Remove a temporary plan once every remaining action has been completed or
   moved to the master backlog.

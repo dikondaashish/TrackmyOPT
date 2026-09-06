@@ -74,5 +74,5 @@ OTP paths still send directly and are listed in the pending plan.
 - Analytics contain enums/counts, not resume, question, answer, or cover-letter
   content.
 
-See [the pending implementation plan](../PENDING-IMPLEMENTATION-PLAN.md) for
+See [the pending implementation plan](../pending-implementation-plan.md) for
 remaining work.
