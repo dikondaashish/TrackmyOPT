@@ -96,7 +96,7 @@ comments are either resolved or explicitly accepted.
 
 ### 4. Finish the freemium measurement checkpoints
 
-Use `marketing/FREEMIUM-CONVERSION-PHASES.md`; do not infer missing values.
+Use `marketing/freemium-conversion-metrics.md`; do not infer missing values.
 
 - [ ] **Day 1, after 2026-07-26 14:00 UTC:** verify free cases did not move
   overnight, premium cases refreshed, `skippedFree > 0`, and USCIS exceptions
@@ -270,10 +270,10 @@ reports, or had their small remaining actions transferred into this plan:
 - `compliance/LEGAL_BILLING_COMPLIANCE_QA.md` — reduced to manual/counsel work.
 - `compliance/evidence-log.md` — retained as immutable evidence.
 - `compliance/stripe-test-billing-validation.md` — retained as a safe runbook.
-- `marketing/FREEMIUM-CONVERSION-PHASES.md` — reduced to Day 1/7/30 metrics.
-- `marketing/PHASE-1-COMMUNITY-ENGAGEMENT.md` — pending campaign asset.
-- `marketing/PHASE-1-EMAIL-SEQUENCES.md` — pending copy; provider/opt-out gate.
-- `marketing/PHASE-1-PAID-ADS.md` — pending campaign asset.
+- `marketing/freemium-conversion-metrics.md` — reduced to Day 1/7/30 metrics.
+- `marketing/community-engagement-playbook.md` — pending campaign asset.
+- `marketing/email-sequences-playbook.md` — pending copy; provider/opt-out gate.
+- `marketing/paid-ads-playbook.md` — pending campaign asset.
 - `ops/CORS_POLICY.md`, `ops/CRON_SETUP.md`, and
   `ops/EMAIL_TEMPLATES.md` — living operational references.
 - `ops/EMAIL_ROADMAP.md` — reduced to unresolved email work.

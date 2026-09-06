@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ROADMAP_PHASES } from "../feature-phases";
+import { ROADMAP_PHASES } from "../product-roadmap";
 
 describe("ROADMAP_PHASES", () => {
   it("defines five implementation phases", () => {

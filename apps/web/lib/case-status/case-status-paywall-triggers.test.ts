@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CHECKOUT_UPSELL_TRIGGER } from "./free-change-wedge";
 import { CASE_STATUS_MESSAGING, PRODUCT_CTAS } from "@/lib/messaging/product-copy";
 
-describe("Phase 3 paywall triggers", () => {
+describe("Case status paywall triggers", () => {
   it("exports at least three instrumented checkout upsell triggers", () => {
     const triggers = Object.values(CHECKOUT_UPSELL_TRIGGER);
     expect(triggers.length).toBeGreaterThanOrEqual(3);

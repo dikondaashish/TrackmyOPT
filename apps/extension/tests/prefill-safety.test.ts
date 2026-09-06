@@ -61,4 +61,4 @@ assert.match(
 assert.match(guidedSource, /FINAL_ACTION_RE/);
 assert.match(guidedSource, /stopped_final_step/);
 
-console.log('phase1-prefill-safety: exclusions and no-click Continuous path passed');
+console.log('prefill-safety: exclusions and no-click Continuous path passed');

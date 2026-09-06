@@ -87,17 +87,17 @@ import {
   X,
   Crown,
 } from "lucide-react";
-import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case-status/redesign/StickyCaseSwitcher";
+import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case-status/panels/StickyCaseSwitcher";
 import { useClientDate } from "@/hooks/useClientDate";
-import { UrgentActionBanner } from "@/components/dashboard/case-status/redesign/UrgentActionBanner";
-import { CaseHeroCard } from "@/components/dashboard/case-status/redesign/CaseHeroCard";
-import { MonitorHealthStrip } from "@/components/dashboard/case-status/redesign/MonitorHealthStrip";
-import { AnalyticsTabs } from "@/components/dashboard/case-status/redesign/AnalyticsTabs";
-import { ToolsAccordion } from "@/components/dashboard/case-status/redesign/ToolsAccordion";
-import { CaseActionCenter } from "@/components/dashboard/case-status/redesign/CaseActionCenter";
-import { DedicatedConsultationCard } from "@/components/dashboard/case-status/redesign/DedicatedConsultationCard";
-import { OptJourneySection } from "@/components/dashboard/case-status/redesign/OptJourneySection";
-import { CaseInfoFooter } from "@/components/dashboard/case-status/redesign/CaseInfoFooter";
+import { UrgentActionBanner } from "@/components/dashboard/case-status/panels/UrgentActionBanner";
+import { CaseHeroCard } from "@/components/dashboard/case-status/panels/CaseHeroCard";
+import { MonitorHealthStrip } from "@/components/dashboard/case-status/panels/MonitorHealthStrip";
+import { AnalyticsTabs } from "@/components/dashboard/case-status/panels/AnalyticsTabs";
+import { ToolsAccordion } from "@/components/dashboard/case-status/panels/ToolsAccordion";
+import { CaseActionCenter } from "@/components/dashboard/case-status/panels/CaseActionCenter";
+import { DedicatedConsultationCard } from "@/components/dashboard/case-status/panels/DedicatedConsultationCard";
+import { OptJourneySection } from "@/components/dashboard/case-status/panels/OptJourneySection";
+import { CaseInfoFooter } from "@/components/dashboard/case-status/panels/CaseInfoFooter";
 import {
   CASE_STATUS_MESSAGING,
   PRODUCT_CTAS,

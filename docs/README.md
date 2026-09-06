@@ -38,7 +38,7 @@ ordered backlog and the audit disposition.
 
 | Document | Purpose |
 |----------|---------|
-| [FREEMIUM-CONVERSION-PHASES.md](./marketing/FREEMIUM-CONVERSION-PHASES.md) | Day 1/7/30 measurement only |
+| [freemium-conversion-metrics.md](./marketing/freemium-conversion-metrics.md) | Day 1/7/30 measurement only |
 
 PostHog event definitions live with code in
 [`apps/web/lib/posthog/EVENT_TAXONOMY.md`](../apps/web/lib/posthog/EVENT_TAXONOMY.md).
@@ -48,9 +48,9 @@ Outstanding PostHog operations are in the pending implementation plan.
 
 | Document | Purpose |
 |----------|---------|
-| [PHASE-1-COMMUNITY-ENGAGEMENT.md](./marketing/PHASE-1-COMMUNITY-ENGAGEMENT.md) | Community execution templates |
-| [PHASE-1-EMAIL-SEQUENCES.md](./marketing/PHASE-1-EMAIL-SEQUENCES.md) | Prepared marketing email copy; provider/opt-out required before use |
-| [PHASE-1-PAID-ADS.md](./marketing/PHASE-1-PAID-ADS.md) | Paid campaign plan |
+| [community-engagement-playbook.md](./marketing/community-engagement-playbook.md) | Community execution templates |
+| [email-sequences-playbook.md](./marketing/email-sequences-playbook.md) | Prepared marketing email copy; provider/opt-out required before use |
+| [paid-ads-playbook.md](./marketing/paid-ads-playbook.md) | Paid campaign plan |
 | [ENTITY-OPTIMIZATION-SETUP.md](./seo/ENTITY-OPTIMIZATION-SETUP.md) | Pending entity/profile work |
 | [GOOGLE-SEARCH-CONSOLE-SETUP.md](./seo/GOOGLE-SEARCH-CONSOLE-SETUP.md) | Search Console setup and monitoring |
 | [INDEXNOW-SETUP.md](./seo/INDEXNOW-SETUP.md) | IndexNow operating reference |

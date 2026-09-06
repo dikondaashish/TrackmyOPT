@@ -108,4 +108,4 @@ for (const file of [
   assert.doesNotMatch(readFileSync(file, 'utf8'), /console\.(?:log|info|debug)\s*\(/);
 }
 
-console.log('phase1b1c-analytics-privacy: no question, answer, resume, or PDF content is logged or tracked');
+console.log('analytics-privacy: no question, answer, resume, or PDF content is logged or tracked');

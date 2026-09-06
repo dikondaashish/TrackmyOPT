@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildCheckoutRecoveryEmailBodies } from "@/lib/notifications/transactional/reengagement";
 import { buildPaymentFailedEmailBodies } from "@/lib/notifications/transactional/billing";
 
-describe("Phase 5 payment recovery emails", () => {
+describe("Payment recovery emails", () => {
   it("payment-failed CTA prefers portal update URL", () => {
     const { html, text } = buildPaymentFailedEmailBodies({
       firstName: "Ada",

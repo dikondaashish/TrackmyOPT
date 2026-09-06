@@ -103,7 +103,7 @@ const faqCategories = [
     },
 ];
 
-export function LandingFAQEnhanced() {
+export function LandingFaqCategories() {
     const [openCategory, setOpenCategory] = useState<number>(0);
     const [openQuestion, setOpenQuestion] = useState<string | null>(
         faqCategories[0]?.questions[0]?.question || null

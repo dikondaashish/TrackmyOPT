@@ -61,4 +61,4 @@ assert.match(
   /attachment\.sourceContentHash !== generatedContentHash/,
 );
 
-console.log('phase1b1c-dedicated-safety: screening and cover-letter invariants passed');
+console.log('screening-and-cover-letter-safety: screening and cover-letter invariants passed');

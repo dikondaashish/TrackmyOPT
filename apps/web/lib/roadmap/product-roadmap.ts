@@ -1,5 +1,5 @@
 /**
- * Product roadmap phases — competitive gaps and implementation status.
+ * Product roadmap — competitive gaps and implementation status.
  */
 
 export const ROADMAP_PHASES = [

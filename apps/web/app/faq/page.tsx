@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
-import { LandingFAQEnhanced } from "@/components/landing/LandingFAQEnhanced";
+import { LandingFaqCategories } from "@/components/landing/LandingFaqCategories";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { faqSchema } from "@/lib/seo-schemas";
@@ -65,7 +65,7 @@ export default function FAQPage() {
                 </section>
 
                 {/* FAQ Content */}
-                <LandingFAQEnhanced />
+                <LandingFaqCategories />
 
                 <LandingFooter />
             </main>

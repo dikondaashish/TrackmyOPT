@@ -6,7 +6,7 @@ import {
   buildFreeReceiptReengagementEmailBodies,
 } from "@/lib/notifications/transactional/reengagement";
 
-describe("Phase 4 post-auth landing", () => {
+describe("Post-auth landing", () => {
   it("defaults to dashboard after auth", () => {
     expect(DEFAULT_POST_AUTH_PATH).toBe("/dashboard");
   });
@@ -17,7 +17,7 @@ describe("Phase 4 post-auth landing", () => {
   });
 });
 
-describe("Phase 4 activation emails", () => {
+describe("Activation emails", () => {
   it("D1 nudge pushes add-receipt → case-status → Pro trial", () => {
     const { subject, html, text } = buildD1ActivationNudgeEmailBodies({
       firstName: "Ada",

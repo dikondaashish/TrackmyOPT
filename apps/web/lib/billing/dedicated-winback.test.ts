@@ -7,7 +7,7 @@ import {
 } from "@/lib/notifications/transactional/billing";
 import { resolveCheckoutResumeUrl } from "@/lib/billing/checkout-recovery";
 
-describe("Phase 6 Dedicated + win-back", () => {
+describe("Dedicated plan and win-back", () => {
   it("offers Dedicated for new purchases now that attorney scheduling is delivered", () => {
     expect(DEDICATED_OPEN_FOR_NEW_PURCHASES).toBe(true);
     expect(shouldShowDedicatedPlanForSale()).toBe(true);
