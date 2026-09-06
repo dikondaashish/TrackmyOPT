@@ -72,11 +72,11 @@ assert.match(sensitive, /flashAutofillField/);
 const screening = readFileSync('src/screening-question-drafts.ts', 'utf8');
 assert.match(screening, /flashAutofillField/);
 
-const portal = readFileSync('src/content-job-portal.ts', 'utf8');
-assert.match(portal, /tmo-prefill-chip-pulse/);
-assert.match(portal, /prefillBtn\.setAttribute\('aria-busy', 'true'\)/);
-assert.match(portal, /prefillBtn\.classList\.add\('tmo-is-filling'\)/);
-assert.match(portal, /prefillBtn\.classList\.remove\('tmo-is-filling'\)/);
+const trackerWidget = readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
+assert.match(trackerWidget, /tmo-prefill-chip-pulse/);
+assert.match(trackerWidget, /prefillBtn\.setAttribute\('aria-busy', 'true'\)/);
+assert.match(trackerWidget, /prefillBtn\.classList\.add\('tmo-is-filling'\)/);
+assert.match(trackerWidget, /prefillBtn\.classList\.remove\('tmo-is-filling'\)/);
 
 console.log(
   'autofill-visual-feedback: accessible progress, field states, and reduced motion passed'

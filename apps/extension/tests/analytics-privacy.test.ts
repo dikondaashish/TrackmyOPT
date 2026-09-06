@@ -9,6 +9,7 @@ assert.equal('answerText' in properties, false);
 assert.equal('resumeContent' in properties, false);
 
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
+const trackerWidget = readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
 const popup = readFileSync('src/popup.ts', 'utf8');
 const sensitiveAutofill = readFileSync('src/sensitive-autofill.ts', 'utf8');
 const jobPortalLogin = readFileSync('src/job-portal-login.ts', 'utf8');
@@ -20,7 +21,10 @@ const privateDelivery = readFileSync(
   'src/private-application-delivery.ts',
   'utf8',
 );
-const analyticsCalls = Array.from(portal.matchAll(/trackWidgetAnalytics\([\s\S]{0,500}?\);/g))
+const analyticsCalls = [
+  ...portal.matchAll(/trackWidgetAnalytics\([\s\S]{0,500}?\);/g),
+  ...trackerWidget.matchAll(/host\.trackWidgetAnalytics\([\s\S]{0,500}?\);/g),
+]
   .map((match) => match[0])
   .join('\n');
 assert.doesNotMatch(analyticsCalls, /questionText|editedAnswer|normalizedQuestionText|pdfBase64|snapshot:/);
@@ -63,11 +67,11 @@ assert.doesNotMatch(
   /guidedAutopilot|jobPortalLogin|approvedJobPortalLogin/,
   'confirmed answers work with ordinary Prefill while portal passwords never enter the frame relay',
 );
-const savedPrivateAnswerLoad = portal.slice(
-  portal.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'"),
-  portal.indexOf(
+const savedPrivateAnswerLoad = trackerWidget.slice(
+  trackerWidget.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'"),
+  trackerWidget.indexOf(
     "toggle.addEventListener('click'",
-    portal.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'")
+    trackerWidget.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'")
   ),
 );
 assert.doesNotMatch(
@@ -80,9 +84,9 @@ assert.match(
   /Review them, then approve for this application/,
   'saved private answers must visibly require per-application review',
 );
-const privatePanel = portal.slice(
-  portal.indexOf('function createSensitiveAnswerPanel'),
-  portal.indexOf('function currentSessionStorage'),
+const privatePanel = trackerWidget.slice(
+  trackerWidget.indexOf('function createSensitiveAnswerPanel'),
+  trackerWidget.indexOf('function rememberJobFitScore'),
 );
 assert.match(
   privatePanel,

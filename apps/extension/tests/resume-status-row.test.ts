@@ -78,7 +78,7 @@ test('every Prefill entry point describes the same action the same way', () => {
 
 test('the popup and the widget read from the same copy source', () => {
   const fs = require('node:fs') as typeof import('node:fs');
-  for (const file of ['src/home.ts', 'src/content-job-portal.ts']) {
+  for (const file of ['src/home.ts', 'src/job-portal-tracker-widget.ts']) {
     const source = fs.readFileSync(file, 'utf8');
     assert.match(
       source,
@@ -94,7 +94,7 @@ test('the popup and the widget read from the same copy source', () => {
 });
 
 test('the widget mounts the row by its shared class name', () => {
-  const source = require('node:fs').readFileSync('src/content-job-portal.ts', 'utf8');
+  const source = require('node:fs').readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
   assert.match(
     source,
     /const resumeStatusRow = createResumeStatusRow\(\);[\s\S]{0,200}toolsPanel\.appendChild\(resumeStatusRow\)/,

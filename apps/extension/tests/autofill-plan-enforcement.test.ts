@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const background = readFileSync('src/background.ts', 'utf8');
+const backgroundAuth = readFileSync('src/background-auth.ts', 'utf8');
 const home = readFileSync('src/home.ts', 'utf8');
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
 
 assert.match(background, /GET_AUTOFILL_ENTITLEMENTS/);
-assert.match(background, /resolveAutofillPlanEntitlements/);
+assert.match(backgroundAuth, /resolveAutofillPlanEntitlements/);
 assert.match(home, /planEntitlements\.continuousMode/);
 assert.match(home, /planEntitlements\.guidedAutopilot/);
 assert.match(home, /Upgrade to Pro/);

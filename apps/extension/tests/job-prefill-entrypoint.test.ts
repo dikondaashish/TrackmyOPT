@@ -16,28 +16,29 @@ assert.match(
 );
 
 const jobPortal = readFileSync("src/content-job-portal.ts", "utf8");
+const trackerWidget = readFileSync("src/job-portal-tracker-widget.ts", "utf8");
 assert.match(
-  jobPortal,
+  trackerWidget,
   /Manage saved prefill data[\s\S]+API_ENDPOINTS\.DASHBOARD_JOB_PREFILL/,
   "the in-page extension assistant must expose the same setup link"
 );
 assert.match(
-  jobPortal,
+  trackerWidget,
   /max-height:\s*calc\(100dvh - 16px\)/,
   "the expanded widget must stay within the visible browser height"
 );
 assert.match(
-  jobPortal,
+  trackerWidget,
   /tmo-job-widget-scroll-body[\s\S]+max-height:calc\(100dvh - 72px\)[\s\S]+overflow-y:auto/,
   "the expanded widget body must provide its own vertical scroll area"
 );
 assert.match(
-  jobPortal,
+  trackerWidget,
   /body\.hidden = true;[\s\S]+display:none;gap:7px;margin-top:8px/,
   "private answers must start collapsed instead of making every widget oversized"
 );
 assert.match(
-  jobPortal,
+  trackerWidget,
   /new ResizeObserver[\s\S]+clampWidgetToViewport/,
   "the widget must remain onscreen when expandable content changes its height"
 );
@@ -48,9 +49,14 @@ assert.match(
   "the widget must show truthful required/optional scan progress after prefill"
 );
 assert.match(
-  jobPortal,
+  trackerWidget,
   /paintPrefillCoverage\(prefillResultLine/,
   "the widget must still paint prefill coverage into the result line"
+);
+assert.match(
+  jobPortal,
+  /createJobTrackerWidget\(job, defaultView\)/,
+  "content-job-portal still mounts the extracted tracker widget"
 );
 
 // The popup's "Prefill this application" button injects easy-apply-fill.js.

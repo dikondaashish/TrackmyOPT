@@ -37,7 +37,7 @@ test('exact reuse matches normalized identical text only', () => {
 test('screening question text is normalized and capped before the background POST', () => {
   const value = normalizeApplicationQuestion(`  ${'question '.repeat(400)}  `);
   assert.equal(value.length, SCREENING_QUESTION_TEXT_MAX_CHARS);
-  const background = readFileSync('src/background.ts', 'utf8');
+  const background = readFileSync('src/background-screening.ts', 'utf8');
   const request = background.slice(
     background.indexOf('async function requestScreeningDraft'),
     background.indexOf('async function requestSavedScreeningAnswer'),
