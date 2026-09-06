@@ -17,16 +17,19 @@ import {
   ORACLE_ISO_TZ_FORMAT,
   ORACLE_JOB_SEARCH_TABLE,
   JOB_COLUMNS,
-  boolToNumber,
-  descriptionFilterFlags,
   jobBindDefinitions,
   mapJobRow,
+  mapVisaSignalRow,
   needsOracleExactCheck,
-  oracleDescriptionSourceText,
-  oracleDescriptionText,
   oracleTextWildcard,
   outputOptions,
+  searchBindDefinitions,
+  toJobSearchUpsertBinds,
+  toJobUpsertBinds,
   toOracleTimestamp,
+  toVisaSignalUpsertBinds,
+  validateVisaSignals,
+  visaSignalBindDefinitions,
   type OracleConnection,
   type OracleDriver,
   type OraclePool,
@@ -45,6 +48,7 @@ export {
   descriptionFilterFlags,
   normalizeOracleTimestamp,
   toOracleTimestamp,
+  validateVisaSignals,
 } from './oracle-job-data-helpers';
 
 export type OracleCanonicalIdentityRepair = {
@@ -865,18 +869,7 @@ export class OracleJobDataStore implements JobDataStore {
         binds,
         outputOptions(this.driver),
       );
-      return (result.rows || []).map((row) => ({
-        jobId: String(row.JOB_ID),
-        signalType: String(row.SIGNAL_TYPE),
-        evidenceSnippet: String(row.EVIDENCE_SNIPPET),
-        sourceUrl: String(row.SOURCE_URL),
-        observedDate:
-          row.OBSERVED_DATE instanceof Date
-            ? row.OBSERVED_DATE.toISOString().slice(0, 10)
-            : String(row.OBSERVED_DATE),
-        confidence: Number(row.CONFIDENCE),
-        source: String(row.SOURCE),
-      }));
+      return (result.rows || []).map(mapVisaSignalRow);
     } finally {
       await connection.close();
     }
@@ -940,53 +933,13 @@ export class OracleJobDataStore implements JobDataStore {
            incoming.listing_status, incoming.employer_board_name, incoming.source_trust_tier,
            incoming.employer_match_id, incoming.missing_since_at, incoming.removed_at
          )`,
-        rows.map((row) => ({
-          id: row.id,
-          source_id: row.sourceId,
-          source_ats: row.sourceAts,
-          board_token: row.boardToken,
-          external_job_id: row.externalJobId,
-          title: row.title,
-          company_name: row.companyName,
-          location: row.location,
-          department: row.department,
-          description: row.description,
-          job_url: row.jobUrl,
-          posted_at: toOracleTimestamp(row.postedAt),
-          updated_at: toOracleTimestamp(row.updatedAt),
-          opt_eligible: boolToNumber(row.optEligible),
-          stem_opt_eligible: boolToNumber(row.stemOptEligible),
-          cpt_eligible: boolToNumber(row.cptEligible),
-          h1b_sponsor_status: row.h1bSponsorStatus,
-          created_at: toOracleTimestamp(row.createdAt),
-          first_seen_at: toOracleTimestamp(row.firstSeenAt),
-          last_confirmed_at: toOracleTimestamp(row.lastConfirmedAt),
-          listing_status: row.listingStatus,
-          employer_board_name: row.employerBoardName,
-          source_trust_tier: row.sourceTrustTier,
-          employer_match_id: row.employerMatchId,
-          missing_since_at: toOracleTimestamp(row.missingSinceAt),
-          removed_at: toOracleTimestamp(row.removedAt),
-        })),
+        rows.map(toJobUpsertBinds),
         {
           autoCommit: false,
           ...(bindDefs ? { bindDefs } : {}),
         },
       );
-      const searchBindDefs = this.driver.STRING
-        ? {
-            job_id: { type: this.driver.STRING, maxSize: 36 },
-            search_text: this.driver.CLOB
-              ? { type: this.driver.CLOB }
-              : { type: this.driver.STRING, maxSize: 4_000 },
-            search_text_index: this.driver.CLOB
-              ? { type: this.driver.CLOB }
-              : { type: this.driver.STRING, maxSize: 4_000 },
-            description_filter_flags: this.driver.NUMBER
-              ? { type: this.driver.NUMBER }
-              : { type: this.driver.STRING, maxSize: 12 },
-          }
-        : undefined;
+      const searchBindDefs = searchBindDefinitions(this.driver);
       await connection.executeMany(
         `MERGE INTO ${ORACLE_JOB_SEARCH_TABLE} target
          USING (SELECT :job_id job_id, :search_text search_text,
@@ -999,12 +952,7 @@ export class OracleJobDataStore implements JobDataStore {
            target.description_filter_flags = incoming.description_filter_flags
          WHEN NOT MATCHED THEN INSERT (job_id, search_text, search_text_index, description_filter_flags)
            VALUES (incoming.job_id, incoming.search_text, incoming.search_text_index, incoming.description_filter_flags)`,
-        rows.map((row) => ({
-          job_id: row.id,
-          search_text: oracleDescriptionSourceText(row.description),
-          search_text_index: oracleDescriptionText(row.description),
-          description_filter_flags: descriptionFilterFlags(row.description),
-        })),
+        rows.map(toJobSearchUpsertBinds),
         {
           autoCommit: false,
           ...(searchBindDefs ? { bindDefs: searchBindDefs } : {}),
@@ -1046,7 +994,7 @@ export class OracleJobDataStore implements JobDataStore {
       confidence: signal.confidence,
       source: signal.source,
     }));
-    this.validateVisaSignals(mappedSignals);
+    validateVisaSignals(mappedSignals);
     const allowed = new Set(jobIds);
     if (mappedSignals.some((signal) => !allowed.has(signal.jobId)))
       throw new Error('Evidence job is outside source scope');
@@ -1075,7 +1023,7 @@ export class OracleJobDataStore implements JobDataStore {
     signals: readonly (JobStoreVisaSignal & { id?: string })[],
   ) {
     if (!signals.length) return;
-    this.validateVisaSignals(signals);
+    validateVisaSignals(signals);
     const connection = await this.connection();
     try {
       await this.mergeVisaSignals(connection, signals);
@@ -1088,41 +1036,11 @@ export class OracleJobDataStore implements JobDataStore {
     }
   }
 
-  private validateVisaSignals(signals: readonly JobStoreVisaSignal[]) {
-    for (const signal of signals) {
-      if (
-        [...signal.evidenceSnippet].length > 2000 ||
-        [...signal.sourceUrl].length > 2000 ||
-        signal.signalType.length > 64 ||
-        signal.source.length > 64
-      )
-        throw new Error('Evidence exceeds Oracle column limits');
-      if (
-        !signal.jobId ||
-        !signal.signalType ||
-        !signal.evidenceSnippet ||
-        !signal.sourceUrl ||
-        !signal.source ||
-        !Number.isFinite(signal.confidence) ||
-        signal.confidence < 0 ||
-        signal.confidence > 1 ||
-        Number(signal.confidence.toFixed(3)) !== signal.confidence
-      )
-        throw new Error('Invalid evidence value');
-      if (
-        !/^\d{4}-\d{2}-\d{2}$/.test(signal.observedDate) ||
-        new Date(`${signal.observedDate}T00:00:00Z`)
-          .toISOString()
-          .slice(0, 10) !== signal.observedDate
-      )
-        throw new Error('Invalid evidence date');
-    }
-  }
-
   private async mergeVisaSignals(
     connection: OracleConnection,
     signals: readonly (JobStoreVisaSignal & { id?: string })[],
   ) {
+    const bindDefs = visaSignalBindDefinitions(this.driver);
     for (let offset = 0; offset < signals.length; offset += 250) {
       await connection.executeMany(
         `MERGE INTO job_visa_signals target
@@ -1145,32 +1063,14 @@ export class OracleJobDataStore implements JobDataStore {
            (incoming.id, incoming.job_id, incoming.signal_type,
             incoming.evidence_snippet, incoming.source_url,
             incoming.observed_date, incoming.confidence, incoming.source)`,
-        signals.slice(offset, offset + 250).map((signal) => ({
-          id: signal.id || randomUUID(),
-          job_id: signal.jobId,
-          signal_type: signal.signalType,
-          evidence_snippet: signal.evidenceSnippet,
-          source_url: signal.sourceUrl,
-          observed_date: signal.observedDate,
-          confidence: signal.confidence,
-          source: signal.source,
-        })),
+        signals
+          .slice(offset, offset + 250)
+          .map((signal) =>
+            toVisaSignalUpsertBinds(signal, signal.id || randomUUID()),
+          ),
         {
           autoCommit: false,
-          ...(this.driver.STRING
-            ? {
-                bindDefs: {
-                  id: { type: this.driver.STRING, maxSize: 36 },
-                  job_id: { type: this.driver.STRING, maxSize: 36 },
-                  signal_type: { type: this.driver.STRING, maxSize: 256 },
-                  evidence_snippet: { type: this.driver.STRING, maxSize: 8000 },
-                  source_url: { type: this.driver.STRING, maxSize: 8000 },
-                  observed_date: { type: this.driver.STRING, maxSize: 10 },
-                  confidence: { type: this.driver.NUMBER },
-                  source: { type: this.driver.STRING, maxSize: 256 },
-                },
-              }
-            : {}),
+          ...(bindDefs ? { bindDefs } : {}),
         },
       );
     }

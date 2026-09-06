@@ -61,9 +61,12 @@ assert.match(
   /commitSensitiveApproval: \(\{ login, session, binding \}\) => \{[\s\S]*privateApprovalBinding = binding;/,
   'review confirmation binds the approval to the rendered application',
 );
-const trackerWidget = readFileSync(resolve('src/job-portal-tracker-widget.ts'), 'utf8');
+const sensitivePanel = readFileSync(
+  resolve('src/job-portal-sensitive-answer-panel.ts'),
+  'utf8',
+);
 assert.match(
-  trackerWidget,
+  sensitivePanel,
   /host\.commitSensitiveApproval\(\{[\s\S]*binding: panelApprovalBinding/,
   'the private-answer panel commits the rendered application binding on approve',
 );

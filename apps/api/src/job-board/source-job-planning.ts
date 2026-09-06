@@ -12,6 +12,36 @@ export function calculatePacingGapMs(sourceCount: number) {
   );
 }
 
+/** Sources whose latest succeeded audit took longer than the slow threshold. */
+export const SLOW_SOURCE_DURATION_MS = 60_000;
+
+export function selectSlowSourceIds(
+  sourceIds: readonly string[],
+  audits: readonly {
+    source_id: unknown;
+    run_at: unknown;
+    completed_at: unknown;
+  }[],
+  thresholdMs = SLOW_SOURCE_DURATION_MS,
+) {
+  if (!sourceIds.length) return new Set<string>();
+  const latestDurationBySource = new Map<string, number>();
+  for (const row of audits) {
+    const sourceId = String(row.source_id || '');
+    if (!sourceId || latestDurationBySource.has(sourceId)) continue;
+    const started = Date.parse(String(row.run_at));
+    const completed = Date.parse(String(row.completed_at));
+    if (Number.isFinite(started) && Number.isFinite(completed)) {
+      latestDurationBySource.set(sourceId, Math.max(0, completed - started));
+    }
+  }
+  return new Set(
+    sourceIds.filter(
+      (sourceId) => (latestDurationBySource.get(sourceId) || 0) > thresholdMs,
+    ),
+  );
+}
+
 export function planSourceIngestionJobs(
   sourceIds: string[],
   context: SchedulerContext = {

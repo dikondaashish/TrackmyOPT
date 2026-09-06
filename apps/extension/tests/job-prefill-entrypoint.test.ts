@@ -17,8 +17,9 @@ assert.match(
 
 const jobPortal = readFileSync("src/content-job-portal.ts", "utf8");
 const trackerWidget = readFileSync("src/job-portal-tracker-widget.ts", "utf8");
+const sensitivePanel = readFileSync("src/job-portal-sensitive-answer-panel.ts", "utf8");
 assert.match(
-  trackerWidget,
+  sensitivePanel,
   /Manage saved prefill data[\s\S]+API_ENDPOINTS\.DASHBOARD_JOB_PREFILL/,
   "the in-page extension assistant must expose the same setup link"
 );
@@ -33,7 +34,7 @@ assert.match(
   "the expanded widget body must provide its own vertical scroll area"
 );
 assert.match(
-  trackerWidget,
+  sensitivePanel,
   /body\.hidden = true;[\s\S]+display:none;gap:7px;margin-top:8px/,
   "private answers must start collapsed instead of making every widget oversized"
 );

@@ -67,11 +67,12 @@ assert.doesNotMatch(
   /guidedAutopilot|jobPortalLogin|approvedJobPortalLogin/,
   'confirmed answers work with ordinary Prefill while portal passwords never enter the frame relay',
 );
-const savedPrivateAnswerLoad = trackerWidget.slice(
-  trackerWidget.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'"),
-  trackerWidget.indexOf(
+const sensitivePanelSource = readFileSync('src/job-portal-sensitive-answer-panel.ts', 'utf8');
+const savedPrivateAnswerLoad = sensitivePanelSource.slice(
+  sensitivePanelSource.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'"),
+  sensitivePanelSource.indexOf(
     "toggle.addEventListener('click'",
-    trackerWidget.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'")
+    sensitivePanelSource.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'")
   ),
 );
 assert.doesNotMatch(
@@ -84,9 +85,8 @@ assert.match(
   /Review them, then approve for this application/,
   'saved private answers must visibly require per-application review',
 );
-const privatePanel = trackerWidget.slice(
-  trackerWidget.indexOf('function createSensitiveAnswerPanel'),
-  trackerWidget.indexOf('function rememberJobFitScore'),
+const privatePanel = sensitivePanelSource.slice(
+  sensitivePanelSource.indexOf('function createSensitiveAnswerPanel'),
 );
 assert.match(
   privatePanel,

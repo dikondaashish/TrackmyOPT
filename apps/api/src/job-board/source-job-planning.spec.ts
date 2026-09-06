@@ -2,6 +2,7 @@ import {
   calculatePacingGapMs,
   MIN_INTER_REQUEST_GAP_MS,
   planSourceIngestionJobs,
+  selectSlowSourceIds,
 } from './source-job-planning';
 import {
   JOB_BOARD_SOURCE_CONCURRENCY,
@@ -87,5 +88,29 @@ describe('source ingestion job planning', () => {
     expect(calculatePacingGapMs(692)).toBeGreaterThanOrEqual(
       MIN_INTER_REQUEST_GAP_MS,
     );
+  });
+
+  it('marks only sources whose latest succeeded audit exceeded the slow threshold', () => {
+    const slow = selectSlowSourceIds(
+      ['fast', 'slow', 'missing'],
+      [
+        {
+          source_id: 'slow',
+          run_at: '2026-09-06T12:00:00.000Z',
+          completed_at: '2026-09-06T12:01:01.000Z',
+        },
+        {
+          source_id: 'fast',
+          run_at: '2026-09-06T12:00:00.000Z',
+          completed_at: '2026-09-06T12:00:30.000Z',
+        },
+        {
+          source_id: 'slow',
+          run_at: '2026-09-06T11:00:00.000Z',
+          completed_at: '2026-09-06T11:00:10.000Z',
+        },
+      ],
+    );
+    expect([...slow].sort()).toEqual(['slow']);
   });
 });

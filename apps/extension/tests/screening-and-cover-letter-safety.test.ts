@@ -48,8 +48,10 @@ test('screening question text is normalized and capped before the background POS
   );
 });
 
-const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
-const coverFunction = engine.slice(engine.indexOf('export function attachGeneratedCoverLetter'), engine.indexOf('function showToast'));
+const attachments = readFileSync('src/easy-apply-attachments.ts', 'utf8');
+const coverFunction = attachments.slice(
+  attachments.indexOf('export function attachGeneratedCoverLetter'),
+);
 assert.ok(coverFunction.includes('cover\\s*letter|letter\\s*of\\s*interest'));
 assert.ok(coverFunction.includes('resume|cv|portfolio|transcript|photo|certificate'));
 assert.match(

@@ -62,9 +62,10 @@ assert.match(source, /attachShadow/);
 assert.doesNotMatch(source, /innerHTML|textContent\s*=\s*.*value/);
 
 const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
+const engineForm = readFileSync('src/easy-apply-form.ts', 'utf8');
 assert.match(engine, /createAutofillVisualFeedback/);
 assert.match(engine, /visual\.markFieldFilled/);
-assert.match(engine, /visual\?\.markNeedsUser/);
+assert.match(engineForm, /visual\?\.markNeedsUser/);
 
 const sensitive = readFileSync('src/sensitive-autofill.ts', 'utf8');
 assert.match(sensitive, /flashAutofillField/);

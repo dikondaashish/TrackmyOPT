@@ -1,5 +1,6 @@
 import {
   type JobStoreRecord,
+  type JobStoreVisaSignal,
 } from './job-data-store.contract';
 
 type OracleRowsResult<T> = { rows?: T[]; rowsAffected?: number };
@@ -294,4 +295,148 @@ export function needsOracleExactCheck(value: string): boolean {
   // normalized only in the accelerator column. Keep the source CLOB check for
   // both cases so punctuation variants cannot broaden substring semantics.
   return /[\s+.-]/.test(value);
+}
+
+export function toJobUpsertBinds(row: JobStoreRecord) {
+  return {
+    id: row.id,
+    source_id: row.sourceId,
+    source_ats: row.sourceAts,
+    board_token: row.boardToken,
+    external_job_id: row.externalJobId,
+    title: row.title,
+    company_name: row.companyName,
+    location: row.location,
+    department: row.department,
+    description: row.description,
+    job_url: row.jobUrl,
+    posted_at: toOracleTimestamp(row.postedAt),
+    updated_at: toOracleTimestamp(row.updatedAt),
+    opt_eligible: boolToNumber(row.optEligible),
+    stem_opt_eligible: boolToNumber(row.stemOptEligible),
+    cpt_eligible: boolToNumber(row.cptEligible),
+    h1b_sponsor_status: row.h1bSponsorStatus,
+    created_at: toOracleTimestamp(row.createdAt),
+    first_seen_at: toOracleTimestamp(row.firstSeenAt),
+    last_confirmed_at: toOracleTimestamp(row.lastConfirmedAt),
+    listing_status: row.listingStatus,
+    employer_board_name: row.employerBoardName,
+    source_trust_tier: row.sourceTrustTier,
+    employer_match_id: row.employerMatchId,
+    missing_since_at: toOracleTimestamp(row.missingSinceAt),
+    removed_at: toOracleTimestamp(row.removedAt),
+  };
+}
+
+export function toJobSearchUpsertBinds(row: JobStoreRecord) {
+  return {
+    job_id: row.id,
+    search_text: oracleDescriptionSourceText(row.description),
+    search_text_index: oracleDescriptionText(row.description),
+    description_filter_flags: descriptionFilterFlags(row.description),
+  };
+}
+
+export function searchBindDefinitions(
+  driver: OracleDriver,
+): Record<string, OracleBindDefinition> | undefined {
+  if (!driver.STRING) return undefined;
+  return {
+    job_id: { type: driver.STRING, maxSize: 36 },
+    search_text: driver.CLOB
+      ? { type: driver.CLOB }
+      : { type: driver.STRING, maxSize: 4_000 },
+    search_text_index: driver.CLOB
+      ? { type: driver.CLOB }
+      : { type: driver.STRING, maxSize: 4_000 },
+    description_filter_flags: driver.NUMBER
+      ? { type: driver.NUMBER }
+      : { type: driver.STRING, maxSize: 12 },
+  };
+}
+
+export function mapVisaSignalRow(row: {
+  JOB_ID: string;
+  SIGNAL_TYPE: string;
+  EVIDENCE_SNIPPET: string;
+  SOURCE_URL: string;
+  OBSERVED_DATE: Date | string;
+  CONFIDENCE: number;
+  SOURCE: string;
+}): JobStoreVisaSignal {
+  return {
+    jobId: String(row.JOB_ID),
+    signalType: String(row.SIGNAL_TYPE),
+    evidenceSnippet: String(row.EVIDENCE_SNIPPET),
+    sourceUrl: String(row.SOURCE_URL),
+    observedDate:
+      row.OBSERVED_DATE instanceof Date
+        ? row.OBSERVED_DATE.toISOString().slice(0, 10)
+        : String(row.OBSERVED_DATE),
+    confidence: Number(row.CONFIDENCE),
+    source: String(row.SOURCE),
+  };
+}
+
+export function validateVisaSignals(signals: readonly JobStoreVisaSignal[]) {
+  for (const signal of signals) {
+    if (
+      [...signal.evidenceSnippet].length > 2000 ||
+      [...signal.sourceUrl].length > 2000 ||
+      signal.signalType.length > 64 ||
+      signal.source.length > 64
+    )
+      throw new Error('Evidence exceeds Oracle column limits');
+    if (
+      !signal.jobId ||
+      !signal.signalType ||
+      !signal.evidenceSnippet ||
+      !signal.sourceUrl ||
+      !signal.source ||
+      !Number.isFinite(signal.confidence) ||
+      signal.confidence < 0 ||
+      signal.confidence > 1 ||
+      Number(signal.confidence.toFixed(3)) !== signal.confidence
+    )
+      throw new Error('Invalid evidence value');
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(signal.observedDate) ||
+      new Date(`${signal.observedDate}T00:00:00Z`)
+        .toISOString()
+        .slice(0, 10) !== signal.observedDate
+    )
+      throw new Error('Invalid evidence date');
+  }
+}
+
+export function toVisaSignalUpsertBinds(
+  signal: JobStoreVisaSignal & { id?: string },
+  id: string,
+) {
+  return {
+    id,
+    job_id: signal.jobId,
+    signal_type: signal.signalType,
+    evidence_snippet: signal.evidenceSnippet,
+    source_url: signal.sourceUrl,
+    observed_date: signal.observedDate,
+    confidence: signal.confidence,
+    source: signal.source,
+  };
+}
+
+export function visaSignalBindDefinitions(
+  driver: OracleDriver,
+): Record<string, OracleBindDefinition> | undefined {
+  if (!driver.STRING) return undefined;
+  return {
+    id: { type: driver.STRING, maxSize: 36 },
+    job_id: { type: driver.STRING, maxSize: 36 },
+    signal_type: { type: driver.STRING, maxSize: 256 },
+    evidence_snippet: { type: driver.STRING, maxSize: 8000 },
+    source_url: { type: driver.STRING, maxSize: 8000 },
+    observed_date: { type: driver.STRING, maxSize: 10 },
+    confidence: { type: driver.NUMBER },
+    source: { type: driver.STRING, maxSize: 256 },
+  };
 }

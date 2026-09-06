@@ -3,6 +3,9 @@ import { readFileSync } from 'node:fs';
 
 const matcherSource = readFileSync('src/easy-apply-matchers.ts', 'utf8');
 const engineSource = readFileSync('src/easy-apply-engine.ts', 'utf8');
+const engineDomSource = readFileSync('src/easy-apply-dom.ts', 'utf8');
+const engineAttachSource = readFileSync('src/easy-apply-attachments.ts', 'utf8');
+const engineFormSource = readFileSync('src/easy-apply-form.ts', 'utf8');
 const portalSource = readFileSync('src/content-job-portal.ts', 'utf8');
 const backgroundSource = readFileSync('src/background.ts', 'utf8');
 const dropdownSource = readFileSync('src/smart-dropdown.ts', 'utf8');
@@ -10,6 +13,7 @@ const guidedSource = readFileSync('src/guided-autopilot.ts', 'utf8');
 const withoutComments = (source: string) => source
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/\/\/.*$/gm, '');
+const engineBundle = [engineSource, engineDomSource, engineAttachSource, engineFormSource].join('\n');
 
 for (const invariant of ['SENSITIVE_FIELD_RE', 'ESSAY_RE', 'ORG_TRAP_RE']) {
   assert.match(matcherSource, new RegExp(`(?:const|export const) ${invariant}`));
@@ -19,7 +23,7 @@ assert.ok(matcherSource.indexOf('ESSAY_RE.test(t)') < matcherSource.indexOf("ret
 assert.ok(matcherSource.indexOf('ORG_TRAP_RE.test(t)') < matcherSource.indexOf("return 'skills'"));
 
 assert.doesNotMatch(
-  withoutComments(engineSource),
+  withoutComments(engineBundle),
   /\.click\s*\(/,
   'the shared prefill engine never clicks controls',
 );
