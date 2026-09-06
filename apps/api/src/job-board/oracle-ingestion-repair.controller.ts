@@ -30,7 +30,12 @@ export class OracleIngestionRepairController {
     } catch (error) {
       const message = error instanceof Error ? error.message : '';
       const code = message.match(/\b(?:NJS|ORA)-\d+\b/)?.[0] || 'unknown';
-      this.logger.error(`Oracle parity operation failed: ${code}`);
+      const phase = /^repair_[a-z_]+_(?:unknown|njs-\d+|ora-\d+)$/.test(
+        message,
+      )
+        ? message
+        : code;
+      this.logger.error(`Oracle parity operation failed: ${phase}`);
       // Never propagate driver errors, SQL, or connection details to HTTP.
       throw new ServiceUnavailableException(
         /^[a-z_]+$/.test(message) ? message : 'oracle_parity_operation_failed',
