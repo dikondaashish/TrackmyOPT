@@ -5,38 +5,20 @@ import { isSupabaseRealtimeSupported } from '@/lib/supabase/realtime-supported';
 import { Card } from '@/components/ui/card';
 import { PricingModal } from '@/components/pricing/PricingModal';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
   caseLimitMessage,
   getCaseTrackingLimit,
 } from "@/lib/case-status/case-limits";
-import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
-import {
-  CaseInformationCard,
-  CaseInformationPendingCard,
-} from "@/components/dashboard/case-status/CaseInformationCard";
-import {
-  CaseStatusPanelErrorBoundary,
-  CaseTimelineErrorBoundary,
-} from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
+import { CaseStatusPanelErrorBoundary } from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
 import {
   CaseStatusLoading,
   DeleteNoticeBanner,
-  FormMismatchBanner,
   LoadErrorBanner,
-  PackagingNoticeBanner,
   RefreshFailedBanner,
-  TrialCtaStrip,
   UscisMockModeBadge,
 } from "@/components/dashboard/case-status/CaseStatusSectionNotices";
+import { CaseStatusActiveNotices } from "@/components/dashboard/case-status/CaseStatusActiveNotices";
+import { CaseStatusDeleteDialog } from "@/components/dashboard/case-status/CaseStatusDeleteDialog";
+import { CaseStatusTimelineAndInfo } from "@/components/dashboard/case-status/CaseStatusTimelineAndInfo";
 import {
   findRfeDate,
   PACKAGING_NOTICE_DISMISS_KEY,
@@ -54,10 +36,8 @@ import {
   normalizeFilingCategory,
   type FilingCategory,
 } from '@/lib/case-status/filing-category';
-import { FilingCategoryConfirmBanner } from '@/components/dashboard/case-status/FilingCategoryConfirmBanner';
 import { PremiumProcessingCountdown } from '@/components/dashboard/case-status/PremiumProcessingCountdown';
 import { CaseStatusReceiptPanel } from '@/components/dashboard/case-status/CaseStatusReceiptPanel';
-import { StatusChangeUpgradeBanner } from '@/components/dashboard/case-status/StatusChangeUpgradeBanner';
 import { ManualRefreshUpsellPrompt } from '@/components/dashboard/case-status/ManualRefreshUpsellPrompt';
 import { CaseInsightUpgradeDialog } from '@/components/dashboard/case-status/CaseInsightUpgradeDialog';
 import {
@@ -1181,61 +1161,43 @@ export function CaseStatusSection() {
             rfeDate={rfeDate}
           />
 
-          {/* ── 2b. Packaging clarification (free users with a case) ── */}
-          {showPackagingNotice && (
-            <PackagingNoticeBanner
-              message={CASE_STATUS_MESSAGING.packagingChangeNotice}
-              ctaLabel={proUpgradeCta}
-              onUpgrade={() => openProTrialModal()}
-              onDismiss={() => {
-                setPackagingNoticeDismissed(true);
-                try {
-                  window.localStorage.setItem(PACKAGING_NOTICE_DISMISS_KEY, "1");
-                } catch {
-                  /* ignore */
-                }
-              }}
-            />
-          )}
-
-          {/* ── 2c. Status-change upgrade wedge (free users) ── */}
-          {showStatusChangeWedge && caseStatus.status_last_changed_at && (
-            <StatusChangeUpgradeBanner
-              statusLastChangedAt={caseStatus.status_last_changed_at}
-              onStartTrial={() => openProTrialModal()}
-              ctaLabel={proUpgradeCta}
-              onAcknowledged={() => {
-                setWedgeDismissed(true);
-                setCaseStatus((prev) => prev ? { ...prev, last_status_viewed_at: new Date().toISOString() } : prev);
-              }}
-            />
-          )}
-
-          {/* Persistent trial CTA for free users with a receipt */}
-          {isPremium === false && (
-            <TrialCtaStrip
-              message={CASE_STATUS_MESSAGING.trialCtaStrip}
-              ctaLabel={proUpgradeCta}
-              onUpgrade={() => openProTrialModal()}
-            />
-          )}
-
-          {/* ── Filing type backfill (legacy users) ── */}
-          {showFilingCategoryPrompt && (
-            <FilingCategoryConfirmBanner
-              saving={filingCategorySaving}
-              onConfirm={(category) => void handleFilingCategoryUpdate(category, "confirm_banner")}
-              onDismiss={() => {
-                if (filingCategoryPromptKey) {
-                  sessionStorage.setItem(filingCategoryPromptKey, "1");
-                }
-                setFilingCategoryPromptDismissed(true);
-              }}
-            />
-          )}
-
-          {/* ── Form mismatch warning ── */}
-          {formTypeMismatch && <FormMismatchBanner message={formTypeMismatch} />}
+          {/* ── 2b–2c / trial / filing / mismatch notices ── */}
+          <CaseStatusActiveNotices
+            showPackagingNotice={showPackagingNotice}
+            packagingMessage={CASE_STATUS_MESSAGING.packagingChangeNotice}
+            proUpgradeCta={proUpgradeCta}
+            onUpgrade={() => openProTrialModal()}
+            onDismissPackaging={() => {
+              setPackagingNoticeDismissed(true);
+              try {
+                window.localStorage.setItem(PACKAGING_NOTICE_DISMISS_KEY, "1");
+              } catch {
+                /* ignore */
+              }
+            }}
+            showStatusChangeWedge={showStatusChangeWedge}
+            statusLastChangedAt={caseStatus.status_last_changed_at}
+            onWedgeAcknowledged={() => {
+              setWedgeDismissed(true);
+              setCaseStatus((prev) =>
+                prev ? { ...prev, last_status_viewed_at: new Date().toISOString() } : prev
+              );
+            }}
+            isPremium={isPremium}
+            trialMessage={CASE_STATUS_MESSAGING.trialCtaStrip}
+            showFilingCategoryPrompt={showFilingCategoryPrompt}
+            filingCategorySaving={filingCategorySaving}
+            onConfirmFilingCategory={(category) =>
+              void handleFilingCategoryUpdate(category, "confirm_banner")
+            }
+            onDismissFilingCategory={() => {
+              if (filingCategoryPromptKey) {
+                sessionStorage.setItem(filingCategoryPromptKey, "1");
+              }
+              setFilingCategoryPromptDismissed(true);
+            }}
+            formTypeMismatch={formTypeMismatch}
+          />
 
           {/* ── 3. MAIN CASE HERO CARD ── */}
           {isEditingReceipt ? (
@@ -1375,36 +1337,17 @@ export function CaseStatusSection() {
           )}
 
           {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
-          {safeStatusHistory.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
-              <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
-                <CaseTimelineErrorBoundary>
-                  <CaseHistoryTimeline
-                    statusHistory={safeStatusHistory}
-                    defaultExpanded={false}
-                  />
-                </CaseTimelineErrorBoundary>
-              </Card>
-
-              <CaseInformationCard
-                caseStatus={caseStatus}
-                serviceCenterLocation={serviceCenterLocation}
-                filingCategorySaving={filingCategorySaving}
-                onFilingCategoryChange={(value) =>
-                  void handleFilingCategoryUpdate(value)
-                }
-                filingDateInput={filingDateInput}
-                onFilingDateInputChange={setFilingDateInput}
-                filingDateSaving={filingDateSaving}
-                onSaveFilingDate={() => void handleSaveFilingDate()}
-              />
-            </div>
-          ) : (
-            <CaseInformationPendingCard
-              receiptNumber={caseStatus.receipt_number}
-              caseType={caseStatus.case_type}
-            />
-          )}
+          <CaseStatusTimelineAndInfo
+            caseStatus={caseStatus}
+            safeStatusHistory={safeStatusHistory}
+            serviceCenterLocation={serviceCenterLocation}
+            filingCategorySaving={filingCategorySaving}
+            onFilingCategoryChange={(value) => void handleFilingCategoryUpdate(value)}
+            filingDateInput={filingDateInput}
+            onFilingDateInputChange={setFilingDateInput}
+            filingDateSaving={filingDateSaving}
+            onSaveFilingDate={() => void handleSaveFilingDate()}
+          />
 
           {/* ── 7. TOOLS ACCORDION ── */}
           <CaseStatusPanelErrorBoundary area="tools">
@@ -1460,34 +1403,14 @@ export function CaseStatusSection() {
         </>
       )}
 
-      {/* ── Delete confirmation dialog ── */}
-      <AlertDialog
-        open={casePendingDelete !== null}
-        onOpenChange={(open) => { if (!open && !isRemoving) setCasePendingDelete(null); }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Stop tracking this case?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {casePendingDelete ? (
-                <>Remove <span className="font-mono font-semibold text-foreground">{casePendingDelete.receipt_number}</span> from your dashboard. You can add it again later.</>
-              ) : (
-                "This will remove the case from your dashboard."
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={Boolean(isRemoving)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-              disabled={Boolean(isRemoving)}
-              onClick={(e) => { e.preventDefault(); void confirmDeleteCase(); }}
-            >
-              {isRemoving ? "Removing…" : "Stop tracking"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CaseStatusDeleteDialog
+        casePendingDelete={casePendingDelete}
+        isRemoving={isRemoving}
+        onOpenChange={(open) => {
+          if (!open) setCasePendingDelete(null);
+        }}
+        onConfirm={() => void confirmDeleteCase()}
+      />
 
       <CaseInsightUpgradeDialog
         open={showCaseInsightUpgrade}
