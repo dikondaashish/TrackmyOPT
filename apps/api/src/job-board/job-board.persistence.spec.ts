@@ -170,10 +170,9 @@ describe('ingestion store ownership and persistence', () => {
         triggerOrigin: 'cron_jobs_org' as const,
         jobStoreKind: jobStoreKind as 'supabase' | undefined,
       };
-      expect(await service.ingestSourceById('source', context)).toEqual({
-        sourceId: 'source',
-        skipped: 'job_store_mismatch',
-      });
+      await expect(service.ingestSourceById('source', context)).rejects.toThrow(
+        'job_store_mismatch',
+      );
       expect(await service.enqueueEnabledSourceJobs(context)).toMatchObject({
         deferred: true,
         deferredReason: 'job_store_mismatch',

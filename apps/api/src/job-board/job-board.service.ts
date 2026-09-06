@@ -54,6 +54,7 @@ import type {
   JobStoreSearch,
 } from './job-data-store.contract';
 import { JOB_DATA_STORE } from './job-data-store.provider';
+import { summarizeIngestionRun } from './ingestion-run-status';
 
 type AtsSource = {
   id: string;
@@ -271,7 +272,9 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   }
 
   async enqueueEnabledSourceJobs(
-    context: SchedulerContext & Partial<IngestionStoreContext>,
+    context: SchedulerContext &
+      Partial<IngestionStoreContext> & { sourceIds?: string[] },
+    saveManifest?: (sourceIds: string[]) => Promise<void>,
   ) {
     if (!this.acceptsStoreContext(context)) {
       return {
@@ -301,7 +304,12 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       .select('id')
       .eq('enabled', true);
     if (error) throw new Error(error.message);
-    const sourceIds = (data || []).map((source) => String(source.id));
+    const sourceIds =
+      context.sourceIds ??
+      (data || []).map((source) => String(source.id)).sort();
+    // Persist the exact selection before either lane is enqueued. Retries reuse
+    // this manifest, not a changed enabled-source set.
+    if (saveManifest) await saveManifest(sourceIds);
     const slowSourceIds = await this.getSlowSourceIds(sourceIds);
     const fastSourceIds = sourceIds.filter((id) => !slowSourceIds.has(id));
     const pacingGapMs = calculatePacingGapMs(sourceIds.length);
@@ -394,12 +402,78 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     sourceId: string,
     context: SchedulerContext & Partial<IngestionStoreContext>,
   ): Promise<IngestionResult> {
-    if (this.shuttingDown) return { sourceId, skipped: 'instance_restarting' };
+    if (this.shuttingDown) throw new Error('instance_restarting');
     if (!this.acceptsStoreContext(context))
-      return { sourceId, skipped: 'job_store_mismatch' };
-    return this.trackSourceWork(() =>
-      this.ingestSourceByIdInternal(sourceId, context),
-    );
+      throw new Error('job_store_mismatch');
+    return this.trackSourceWork(async () => {
+      const result = await this.ingestSourceByIdInternal(sourceId, context);
+      // A duplicate reservation is not success if a killed worker left its
+      // audit started. Let Bull retry/fail visibly; never steal a live lease.
+      if ('skipped' in result) {
+        const { data, error } = await this.supabase
+          .from('ingestion_audit_log')
+          .select('status')
+          .eq('source_id', sourceId)
+          .eq('scheduler_run_id', context.schedulerRunId)
+          .order('run_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (error) throw new Error('Source audit verification failed');
+        if (
+          !data ||
+          !['succeeded', 'skipped_disabled', 'rate_limited'].includes(
+            String(data.status),
+          )
+        ) {
+          throw new Error('Source has no successful or policy-terminal audit');
+        }
+      }
+      return result;
+    });
+  }
+
+  /** Read-only, API-key-protected supervision. No queue resume or data writes. */
+  async getIngestionRunStatus(schedulerRunId: string) {
+    const job = await this.queue.getJob(schedulerRunId);
+    const audits = await fetchAllPages(async (from, to) => {
+      const result = await this.supabase
+        .from('ingestion_audit_log')
+        .select('source_id,status,run_at')
+        .eq('scheduler_run_id', schedulerRunId)
+        .order('run_at', { ascending: false })
+        .order('id')
+        .range(from, to);
+      return { data: result.data || [], error: result.error };
+    });
+    const runnableStates: Bull.JobStatus[] = [
+      'waiting',
+      'active',
+      'delayed',
+      'paused',
+    ];
+    const [normal, slow, normalPaused, slowPaused] = await Promise.all([
+      this.queue.getJobs(runnableStates),
+      this.slowQueue.getJobs(runnableStates),
+      this.queue.isPaused(),
+      this.slowQueue.isPaused(),
+    ]);
+    const runnable = [...normal, ...slow].filter(
+      (candidate) =>
+        (candidate.data as SchedulerContext).schedulerRunId === schedulerRunId,
+    ).length;
+    const manifest = (job?.data as { sourceIds?: string[] } | undefined)
+      ?.sourceIds;
+    return {
+      schedulerRunId,
+      ...summarizeIngestionRun(
+        manifest,
+        audits,
+        runnable,
+        job ? await job.getState() : 'missing',
+      ),
+      queuesPaused: { normal: normalPaused, slow: slowPaused },
+      jobStore: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
+    };
   }
 
   private async ingestSourceByIdInternal(
@@ -555,15 +629,32 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   ) {
     const { data, error } = await this.supabase
       .from('ingestion_audit_log')
-      .select('id')
+      .select('id,status')
       .eq('source_id', sourceId)
       .eq('scheduler_run_id', context.schedulerRunId)
-      .eq('status', 'started')
       .order('run_at', { ascending: false })
       .limit(1)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!data?.id) return false;
+    if (!data?.id) {
+      // Fetch/authorization/circuit failures can occur before reservation.
+      // A selected source still needs a truthful terminal outcome on exhaustion.
+      const inserted = await this.supabase.from('ingestion_audit_log').insert({
+        source_id: sourceId,
+        scheduler_run_id: context.schedulerRunId,
+        trigger_origin: context.triggerOrigin,
+        status: 'failed',
+        error_message: reason.slice(0, 500),
+        completed_at: new Date().toISOString(),
+      });
+      if (inserted.error)
+        throw new Error('Could not record terminal source failure');
+      return true;
+    }
+    if (data.status !== 'started') return false;
+    // A delayed heartbeat can report a stall while the original promise is
+    // still writing. Do not turn that live reservation into a retryable one.
+    if (this.inFlightAuditIds.has(String(data.id))) return false;
     const update = await this.supabase
       .from('ingestion_audit_log')
       .update({

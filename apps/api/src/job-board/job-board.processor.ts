@@ -26,8 +26,13 @@ export class JobBoardProcessor {
   ) {}
 
   @Process('ingest-enabled-sources')
-  async ingestEnabledSources(job: Bull.Job<SchedulerContext>) {
-    const result = await this.jobBoard.enqueueEnabledSourceJobs(job.data);
+  async ingestEnabledSources(
+    job: Bull.Job<SchedulerContext & { sourceIds?: string[] }>,
+  ) {
+    const result = await this.jobBoard.enqueueEnabledSourceJobs(
+      job.data,
+      async (sourceIds) => job.update({ ...job.data, sourceIds }),
+    );
     if (result.deferred) {
       await this.jobBoard.markSchedulerRunDeferred(
         job.data.schedulerRunId,
@@ -75,7 +80,13 @@ export class JobBoardProcessor {
     error: Error,
   ) {
     const attempts = job.opts.attempts || 3;
-    if (job.attemptsMade < attempts) return;
+    // Bull's stalled counter is independent of attemptsMade. Exhausting the
+    // stall allowance is terminal even when no ordinary retry was consumed.
+    if (
+      job.attemptsMade < attempts &&
+      !error.message.includes('job stalled more than allowable limit')
+    )
+      return;
     await this.jobBoard.markSourceAuditFailed(
       job.data.sourceId,
       job.data,
@@ -137,7 +148,11 @@ export class SlowJobBoardProcessor {
     error: Error,
   ) {
     const attempts = job.opts.attempts || 3;
-    if (job.attemptsMade < attempts) return;
+    if (
+      job.attemptsMade < attempts &&
+      !error.message.includes('job stalled more than allowable limit')
+    )
+      return;
     await this.jobBoard.markSourceAuditFailed(
       job.data.sourceId,
       job.data,

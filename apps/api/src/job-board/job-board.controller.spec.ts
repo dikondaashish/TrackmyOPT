@@ -8,6 +8,7 @@ describe('JobBoardController scheduler contract', () => {
   const queueSingleSource = jest.fn();
   const listJobs = jest.fn();
   const getJob = jest.fn();
+  const getIngestionRunStatus = jest.fn();
   const listForJobs = jest.fn().mockResolvedValue([]);
   const controller = new JobBoardController(
     {
@@ -15,6 +16,7 @@ describe('JobBoardController scheduler contract', () => {
       queueSingleSource,
       listJobs,
       getJob,
+      getIngestionRunStatus,
     } as unknown as JobBoardService,
     { listForJobs } as unknown as JobVisaSignalService,
   );
@@ -25,6 +27,20 @@ describe('JobBoardController scheduler contract', () => {
     listJobs.mockReset();
     getJob.mockReset();
     listForJobs.mockReset().mockResolvedValue([]);
+  });
+
+  it('allows only normalized run IDs for read-only supervision', async () => {
+    await expect(
+      controller.ingestionRunStatus('arbitrary'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(getIngestionRunStatus).not.toHaveBeenCalled();
+    getIngestionRunStatus.mockResolvedValue({ status: 'running' });
+    await expect(
+      controller.ingestionRunStatus('job-board-manual-existing'),
+    ).resolves.toEqual({ status: 'running' });
+    expect(getIngestionRunStatus).toHaveBeenCalledWith(
+      'job-board-manual-existing',
+    );
   });
 
   it.each([undefined, '', 'job-board-hour-2026-09-01T03:15', 'arbitrary-id'])(

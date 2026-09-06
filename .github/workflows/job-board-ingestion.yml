@@ -7,6 +7,10 @@ on:
         description: 'Explicit ID: job-board-manual-<unique-token>'
         required: true
         type: string
+      monitor_only:
+        description: 'Read-only supervision of an existing run; never dispatches'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -17,9 +21,9 @@ concurrency:
 
 jobs:
   ingest:
-    name: Wake API and queue authorized sources
+    name: Wake API, queue and supervise authorized sources
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 130
 
     steps:
       - uses: actions/checkout@v6
@@ -35,10 +39,11 @@ jobs:
           test -n "$API_SECRET_KEY" || { echo 'Missing API_SECRET_KEY secret'; exit 1; }
           case "$SCHEDULER_RUN_ID" in job-board-manual-*) ;; *) echo 'Invalid manual run ID'; exit 1;; esac
 
-      - name: Wake Render and queue ingestion
+      - name: Wake Render and supervise ingestion to terminal audits
         env:
           RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
           SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
           TRIGGER_ORIGIN: github_actions
+          MONITOR_ONLY: ${{ inputs.monitor_only }}
         run: node scripts/operations/trigger-job-board-ingestion.mjs
