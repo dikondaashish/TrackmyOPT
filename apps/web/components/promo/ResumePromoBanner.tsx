@@ -35,7 +35,7 @@ const COPY = {
     desktop:
       "AI Resume Generator for international students — tailor every application, beat the ATS filter.",
     mobile: "AI resumes for F-1 job search",
-    cta: "Try free",
+    cta: "AI resumes",
     ctaLoggedIn: "Build resume",
     hrefLoggedOut: "/login?redirect=%2Fdashboard%2Fcareer%2Fresume-generator",
     hrefLoggedIn: "/dashboard/career/resume-generator",
@@ -189,9 +189,14 @@ export function ResumePromoBanner({ variant }: ResumePromoBannerProps) {
       </p>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        {/* Marketing: text link so it doesn't compete with hero "Start free" CTA */}
         <Link
           href={ctaHref}
-          className="inline-flex items-center gap-1 rounded-md bg-black px-3 py-2 max-md:min-h-11 text-xs font-semibold text-white transition hover:bg-zinc-900 sm:px-4 sm:text-sm"
+          className={
+            variant === "marketing"
+              ? "inline-flex min-h-11 items-center gap-0.5 px-1 text-xs font-semibold text-white underline underline-offset-2 transition hover:text-white/90 sm:text-sm"
+              : "inline-flex items-center gap-1 rounded-md bg-black px-3 py-2 max-md:min-h-11 text-xs font-semibold text-white transition hover:bg-zinc-900 sm:px-4 sm:text-sm"
+          }
         >
           {ctaLabel}
           <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
@@ -199,7 +204,7 @@ export function ResumePromoBanner({ variant }: ResumePromoBannerProps) {
         <button
           type="button"
           onClick={dismiss}
-          className="rounded max-md:min-h-11 max-md:min-w-11 max-md:flex max-md:items-center max-md:justify-center p-1 text-white/80 transition hover:bg-white/10 hover:text-white"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded p-1 text-white/80 transition hover:bg-white/10 hover:text-white"
           aria-label="Dismiss promotion"
         >
           <X className="h-4 w-4 sm:h-5 sm:w-5" />

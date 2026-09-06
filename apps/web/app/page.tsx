@@ -50,9 +50,9 @@ const LandingGlobalReach = dynamic(() =>
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'OPT Tracker & H-1B Finder for F-1 Students | TrackMyOPT',
+  title: 'OPT Deadline Tracker for F-1 Students | TrackMyOPT',
   description:
-    'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — trusted by 2,500+ F-1 students. Start now.',
+    'Never miss an OPT deadline. Track filing windows, unemployment days, and STEM dates in one place. Free forever — trusted by 2,500+ F-1 students.',
 };
 
 export default function LandingPage() {

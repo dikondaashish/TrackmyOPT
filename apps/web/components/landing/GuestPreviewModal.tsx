@@ -35,15 +35,14 @@ export function GuestPreviewModal() {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="lg"
+      <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="h-14 px-8 rounded-full text-base font-medium border-border/50 bg-background/50 backdrop-blur-sm hover:bg-background/80 hover:border-primary/50 group"
+        className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-blue-700 underline-offset-4 transition hover:underline dark:text-blue-400"
       >
-        <Play className="w-5 h-5 mr-2 text-primary group-hover:scale-110 transition-transform" />
-        Interactive Demo
-      </Button>
+        <Play className="h-4 w-4" aria-hidden />
+        Try a quick demo
+      </button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent onClose={() => setIsOpen(false)} className="sm:max-w-[800px] p-0 overflow-hidden bg-slate-50 dark:bg-zinc-950 border-border/50 shadow-2xl">
@@ -60,8 +59,8 @@ export function GuestPreviewModal() {
                 </div>
               </div>
               <Link href="/login">
-                <Button size="sm" className="rounded-full h-8 px-4 text-xs font-semibold">
-                  Sign up to save
+                <Button size="sm" className="min-h-11 rounded-full px-4 text-sm font-semibold bg-blue-700 text-white hover:bg-blue-800">
+                  Start free
                 </Button>
               </Link>
             </div>
@@ -150,8 +149,8 @@ export function GuestPreviewModal() {
               <h4 className="font-bold text-base mb-2">Like what you see?</h4>
               <p className="text-xs text-muted-foreground mb-4">Unlock the full dashboard, export tools, safe document vault, and email reminders.</p>
               <Link href="/login" onClick={() => setIsOpen(false)}>
-                <Button className="rounded-full w-full sm:w-auto px-8 gap-2">
-                  Create Free Account <ArrowRight className="w-4 h-4" />
+                <Button className="min-h-11 rounded-full w-full sm:w-auto px-8 gap-2 bg-blue-700 text-white hover:bg-blue-800">
+                  Start free <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>

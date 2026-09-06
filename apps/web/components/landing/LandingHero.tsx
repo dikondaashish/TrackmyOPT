@@ -1035,11 +1035,10 @@ export function LandingHero() {
                         </motion.div>
 
                         <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
-                            The Ultimate <br />
+                            Never miss an{" "}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                                OPT Tracker
-                            </span>{" "}
-                            & H-1B Finder
+                                OPT deadline
+                            </span>
                         </motion.h1>
 
                         <motion.div
@@ -1047,21 +1046,44 @@ export function LandingHero() {
                             className="prose-longform mx-auto mb-10 max-w-xl lg:mx-0"
                         >
                             <p className="text-base leading-relaxed text-muted-foreground sm:text-lg lg:text-xl">
-                                Stop using spreadsheets. TrackMyOPT automates your <strong>OPT Timeline</strong>, helps you find <strong>Visa Sponsorship</strong>, and builds <strong>AI Resumes</strong> in one dashboard.
+                                Stop using spreadsheets. Track your <strong>OPT timeline</strong>, unemployment days, and filing windows in one place — then find <strong>H-1B sponsors</strong> when you&apos;re ready.
                             </p>
                         </motion.div>
 
-                        <motion.div variants={fadeInUp} className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
-                            <MagneticButton>
-                                <Link
-                                    href="/login"
-                                    className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-600 hover:shadow-blue-500/40 sm:w-auto lg:min-h-0 lg:hover:-translate-y-0.5"
-                                >
-                                    Start Free Tracking
-                                    <ArrowRight className="ml-2 h-5 w-5" />
+                        <motion.div variants={fadeInUp} className="flex flex-col items-center gap-3 sm:items-start lg:items-start">
+                            <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:items-center">
+                                <MagneticButton>
+                                    <Link
+                                        href="/login"
+                                        className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-blue-700 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-700/25 transition-all hover:bg-blue-800 hover:shadow-blue-800/30 sm:w-auto lg:hover:-translate-y-0.5"
+                                    >
+                                        Start free
+                                        <ArrowRight className="ml-2 h-5 w-5" />
+                                    </Link>
+                                </MagneticButton>
+                                <GuestPreviewModal />
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Free account → enter your dates → see your OPT window
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground lg:justify-start">
+                                <span className="text-foreground/70">Where are you?</span>
+                                <Link href="/login" className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-400">
+                                    Filing OPT
                                 </Link>
-                            </MagneticButton>
-                            <GuestPreviewModal />
+                                <span aria-hidden className="text-border">·</span>
+                                <Link href="/login" className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-400">
+                                    On OPT
+                                </Link>
+                                <span aria-hidden className="text-border">·</span>
+                                <Link href="/login" className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-400">
+                                    STEM extension
+                                </Link>
+                                <span aria-hidden className="text-border">·</span>
+                                <Link href="/features/sponsors" className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-400">
+                                    H-1B search
+                                </Link>
+                            </div>
                         </motion.div>
 
                         {/* Mobile-only: one clear preview card (readable type; full mockup stays on lg+) */}

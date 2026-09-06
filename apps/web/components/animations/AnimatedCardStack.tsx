@@ -66,10 +66,10 @@ function CardContent({ contentType }: { contentType: 1 | 2 | 3 }) {
                     <span className="truncate font-semibold text-foreground text-lg">{data.title}</span>
                     <span className="text-muted-foreground text-sm line-clamp-2">{data.description}</span>
                 </div>
-                <button className="flex h-10 shrink-0 cursor-pointer select-none items-center gap-0.5 rounded-full bg-primary pl-4 pr-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                    Read
-                    <ArrowRight className="w-4 h-4" />
-                </button>
+                <span className="inline-flex min-h-11 shrink-0 items-center gap-1 text-sm font-medium text-blue-700 dark:text-blue-400">
+                    Read story
+                    <ArrowRight className="w-4 h-4" aria-hidden />
+                </span>
             </div>
         </div>
     )
@@ -159,7 +159,7 @@ export default function AnimatedCardStack() {
             <div className="relative z-10 mt-6 flex w-full items-center justify-center">
                 <button
                     onClick={handleAnimate}
-                    className="flex h-10 cursor-pointer select-none items-center justify-center gap-2 overflow-hidden rounded-full border border-border bg-background px-6 font-medium text-foreground transition-all hover:bg-muted active:scale-[0.98] shadow-sm"
+                    className="flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 overflow-hidden rounded-full border border-border bg-background px-6 py-2.5 font-medium text-foreground transition-all hover:bg-muted active:scale-[0.98] shadow-sm"
                 >
                     Next Story
                     <ArrowRight className="w-4 h-4" />

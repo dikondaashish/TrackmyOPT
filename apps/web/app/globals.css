@@ -21,8 +21,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 211 100% 50%;
-    /* Apple Blue #007AFF */
+    --primary: 221 83% 43%;
+    /* Darker blue so white CTA text meets WCAG AA (was Apple Blue #007AFF) */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4.8% 95.9%;
@@ -91,8 +91,8 @@
     --popover: 240 10% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 211 100% 50%;
-    /* Apple Blue stays consistent */
+    --primary: 217 91% 55%;
+    /* Lighter primary on dark bg for readable filled buttons */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 3.7% 15.9%;

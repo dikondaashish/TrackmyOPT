@@ -121,8 +121,11 @@ export function LandingFeatures() {
                             </div>
                         </div>
                         <div className="shrink-0 relative z-10">
-                            <Link href="/login" className="px-6 py-3 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">
-                                Search Database
+                            <Link
+                                href="/login"
+                                className="inline-flex min-h-11 items-center text-sm font-semibold text-blue-700 underline-offset-4 hover:underline dark:text-blue-400"
+                            >
+                                Search H-1B sponsors →
                             </Link>
                         </div>
                         {/* Decorative Gradient - Green/Teal */}

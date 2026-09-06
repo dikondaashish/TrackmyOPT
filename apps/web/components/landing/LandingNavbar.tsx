@@ -273,11 +273,12 @@ export function LandingNavbar() {
                                 >
                                     Log in
                                 </Link>
+                                {/* Quiet header CTA — filled primary lives in the hero only */}
                                 <Link
                                     href="/login"
-                                    className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white transition-all bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
+                                    className="text-sm font-semibold text-blue-700 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                                 >
-                                    Get Started
+                                    Start free
                                 </Link>
                             </>
                         )}
@@ -462,9 +463,9 @@ export function LandingNavbar() {
                                         <Link
                                             href="/login"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-blue-700 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-blue-800"
                                         >
-                                            Get Started Free
+                                            Start free
                                             <ArrowRight className="w-4 h-4 ml-2" />
                                         </Link>
                                     </>

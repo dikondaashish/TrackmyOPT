@@ -141,9 +141,9 @@ export function LandingFAQEnhanced() {
                                 setOpenCategory(index);
                                 setOpenQuestion(cat.questions[0]?.question || null);
                             }}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${openCategory === index
+                            className={`min-h-11 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${openCategory === index
                                 ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
-                                : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700"
+                                : "bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-zinc-700"
                                 }`}
                         >
                             {cat.category}
@@ -167,7 +167,7 @@ export function LandingFAQEnhanced() {
                                         openQuestion === faq.question ? null : faq.question
                                     )
                                 }
-                                className="w-full flex items-center justify-between p-6 text-left"
+                                className="flex min-h-14 w-full items-center justify-between p-5 text-left sm:p-6"
                                 aria-expanded={openQuestion === faq.question}
                             >
                                 <h3

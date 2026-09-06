@@ -53,10 +53,10 @@ export function LandingChromeExtension() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 justify-center lg:justify-start">
-                            <Button asChild size="lg" className="h-12 px-8 text-base gap-2 bg-[#2563EB] hover:bg-[#1d4ed8]">
+                            <Button asChild size="lg" className="min-h-12 h-12 px-8 text-base gap-2 bg-blue-700 text-white hover:bg-blue-800">
                                 <a href="https://chromewebstore.google.com/detail/hfljbefkccdmlnhclfojlafipjnjbajm?utm_source=item-share-cb" target="_blank" rel="noreferrer">
                                     <Download className="w-5 h-5" />
-                                    Add to Chrome - It's Free
+                                    Add to Chrome
                                 </a>
                             </Button>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -129,9 +129,13 @@ export function LandingChromeExtension() {
                                             <label className="text-xs text-muted-foreground">Company:</label>
                                             <div className="text-sm font-medium">TechCorp Inc.</div>
                                         </div>
-                                        <Button size="sm" className="w-full text-xs h-8">
+                                        {/* Decorative mock control — not a real CTA */}
+                                        <div
+                                            aria-hidden
+                                            className="flex h-9 w-full items-center justify-center rounded-md bg-blue-700 text-xs font-medium text-white"
+                                        >
                                             Save to Dashboard
-                                        </Button>
+                                        </div>
                                     </div>
                                 </div>
 

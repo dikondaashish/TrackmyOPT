@@ -80,7 +80,7 @@ export function LandingFAQ() {
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className="w-full flex items-center justify-between p-6 text-left"
+                                className="flex min-h-14 w-full items-center justify-between p-5 text-left sm:p-6"
                                 aria-expanded={openIndex === index}
                             >
                                 <span className="font-semibold text-gray-900 dark:text-white pr-4" itemProp="name">

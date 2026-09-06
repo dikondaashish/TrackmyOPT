@@ -75,8 +75,8 @@ export function LandingPricing() {
         title="Simple, Transparent Pricing"
         subtitle={
           shouldShowDedicatedPlanForSale()
-            ? 'Start free. Upgrade to Pro for daily auto-checks, or Dedicated for higher quotas and priority support.'
-            : 'Start free. Upgrade to Pro for daily USCIS auto-checks and status-change alerts.'
+            ? 'Start free for tracking. Pay only for daily alerts, auto USCIS checks, or Dedicated support.'
+            : 'Start free for tracking. Pay only if you want daily reminders and auto USCIS checks.'
         }
         annualBillingLabel={`Annual Billing (Save up to ${annualSavingsPercent('pro')}%)`}
         buttonLabel={LANDING_PLAN_COPY.pro.buttonLabel}

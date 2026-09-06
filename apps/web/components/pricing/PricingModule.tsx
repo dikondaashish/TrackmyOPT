@@ -210,7 +210,11 @@ export function PricingModule({
                   <Button
                     asChild
                     variant={plan.recommended ? 'default' : 'outline'}
-                    className="w-full mb-8 font-semibold"
+                    className={
+                      plan.recommended
+                        ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white hover:bg-blue-800'
+                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground/20 text-foreground'
+                    }
                   >
                     <Link
                       href={
@@ -226,7 +230,11 @@ export function PricingModule({
                 ) : (
                   <Button
                     variant={plan.recommended ? 'default' : 'outline'}
-                    className="w-full mb-8 font-semibold"
+                    className={
+                      plan.recommended
+                        ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white hover:bg-blue-800'
+                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground/20 text-foreground'
+                    }
                   >
                     {plan.buttonLabel || buttonLabel}
                   </Button>

@@ -95,7 +95,7 @@ export const LANDING_PLAN_COPY = {
     description:
       'Basic tracking for one OPT timeline — calculators and clocks always free.',
     users: 'Forever free',
-    buttonLabel: 'Create Free Account',
+    buttonLabel: 'Start free',
   },
   pro: {
     description:
