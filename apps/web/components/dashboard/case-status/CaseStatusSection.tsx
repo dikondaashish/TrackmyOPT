@@ -2,9 +2,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { isSupabaseRealtimeSupported } from '@/lib/supabase/realtime-supported';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { PricingModal } from '@/components/pricing/PricingModal';
 import {
   AlertDialog,
@@ -22,18 +20,33 @@ import {
 } from "@/lib/case-status/case-limits";
 import { CaseHistoryTimeline } from "@/components/dashboard/case-status/CaseHistoryTimeline";
 import {
+  CaseInformationCard,
+  CaseInformationPendingCard,
+} from "@/components/dashboard/case-status/CaseInformationCard";
+import {
   CaseStatusPanelErrorBoundary,
   CaseTimelineErrorBoundary,
 } from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
-import { daysSinceEpochMs, formatDisplayDateShort, formatDisplayDateTime } from "@/lib/case-status/safe-dates";
+import {
+  CaseStatusLoading,
+  DeleteNoticeBanner,
+  FormMismatchBanner,
+  LoadErrorBanner,
+  PackagingNoticeBanner,
+  RefreshFailedBanner,
+  TrialCtaStrip,
+  UscisMockModeBadge,
+} from "@/components/dashboard/case-status/CaseStatusSectionNotices";
+import {
+  findRfeDate,
+  PACKAGING_NOTICE_DISMISS_KEY,
+  selectActiveCase,
+  type CaseStatus,
+} from "@/components/dashboard/case-status/case-status-section-helpers";
+import { daysSinceEpochMs, formatDisplayDateTime } from "@/lib/case-status/safe-dates";
 import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
 import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
-import {
-  formatDaysAgoLabel,
-  formatStatusLabel,
-  getServiceCenterLabel,
-  getServiceCenterLocation,
-} from '@/lib/case-status/case-status-display';
+import { getServiceCenterLocation } from '@/lib/case-status/case-status-display';
 import {
   DEFAULT_FILING_CATEGORY,
   getFilingCategoryFormMismatch,
@@ -41,9 +54,7 @@ import {
   normalizeFilingCategory,
   type FilingCategory,
 } from '@/lib/case-status/filing-category';
-import { FilingCategorySelect } from '@/components/dashboard/case-status/FilingCategorySelect';
 import { FilingCategoryConfirmBanner } from '@/components/dashboard/case-status/FilingCategoryConfirmBanner';
-import { Globe } from 'lucide-react';
 import { PremiumProcessingCountdown } from '@/components/dashboard/case-status/PremiumProcessingCountdown';
 import { CaseStatusReceiptPanel } from '@/components/dashboard/case-status/CaseStatusReceiptPanel';
 import { StatusChangeUpgradeBanner } from '@/components/dashboard/case-status/StatusChangeUpgradeBanner';
@@ -76,17 +87,7 @@ import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
 import {
   normalizeStatusHistory,
   withNormalizedStatusHistory,
-  type CaseStatusHistoryEntry,
 } from "@/lib/case-status/normalize-status-history";
-import {
-  ClipboardCheck,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  Info,
-  X,
-  Crown,
-} from "lucide-react";
 import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case-status/panels/StickyCaseSwitcher";
 import { useClientDate } from "@/hooks/useClientDate";
 import { UrgentActionBanner } from "@/components/dashboard/case-status/panels/UrgentActionBanner";
@@ -109,40 +110,6 @@ import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
 import type { JourneyStages } from "@/lib/community-opt/stages";
 import { deriveJourneyPhase } from "@/lib/community-opt/stages";
 import { getPpClock } from "@/lib/case-status/premium-processing";
-
-const PACKAGING_NOTICE_DISMISS_KEY = "tmo_packaging_notice_dismissed_v1";
-
-interface CaseStatus {
-  id: string;
-  receipt_number: string;
-  current_status: string | null;
-  case_type: string | null;
-  received_date: string | null;
-  pp_start_date?: string | null;
-  last_checked_at: string | null;
-  last_status_change_at: string | null;
-  last_status_viewed_at?: string | null;
-  status_last_changed_at?: string | null;
-  last_change_alert_suppressed?: boolean;
-  status_history: CaseStatusHistoryEntry[];
-  change_log: Array<{
-    date: string;
-    old_status: string;
-    new_status: string;
-  }>;
-  notifications_enabled: boolean;
-  created_at: string;
-  updated_at: string;
-  // ISS-012: failure-state surfaces
-  last_check_failed_at?: string | null;
-  last_check_error_code?: string | null;
-  last_check_error_message?: string | null;
-  consecutive_failures?: number;
-  is_primary?: boolean;
-  label?: string | null;
-  filing_category?: string | null;
-  filing_category_confirmed_at?: string | null;
-}
 
 export function CaseStatusSection() {
   const [receiptNumber, setReceiptNumber] = useState("");
@@ -443,12 +410,7 @@ export function CaseStatusSection() {
         setSelectedCaseId(null);
         return;
       }
-      const activeId =
-        (preferredId && normalized.find((c) => c.id === preferredId)?.id) ||
-        (primaryCaseId && normalized.find((c) => c.id === primaryCaseId)?.id) ||
-        normalized.find((c) => c.is_primary)?.id ||
-        normalized[0].id;
-      const active = normalized.find((c) => c.id === activeId) ?? normalized[0];
+      const active = selectActiveCase(normalized, preferredId, primaryCaseId);
       setSelectedCaseId(active.id);
       setCaseStatus(active);
       setReceiptNumber(active.receipt_number);
@@ -1002,12 +964,6 @@ export function CaseStatusSection() {
     }
   };
 
-  const formatDate = (dateString: string | null) =>
-    formatDisplayDateTime(dateString);
-
-  const formatDateShort = (dateString: string) =>
-    formatDisplayDateShort(dateString);
-
   const handleFilingCategoryUpdate = async (
     next: FilingCategory,
     source: "confirm_banner" | "case_info" | "enrollment" = "case_info"
@@ -1114,15 +1070,7 @@ export function CaseStatusSection() {
   };
 
   if (isInitialLoad) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 animate-pulse">
-          <ClipboardCheck className="w-7 h-7 text-white" />
-        </div>
-        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-        <p className="text-sm text-muted-foreground font-medium">Loading your case status…</p>
-      </div>
-    );
+    return <CaseStatusLoading />;
   }
 
   // ── Derived state for new layout ──────────────────────────────────────────
@@ -1157,14 +1105,7 @@ export function CaseStatusSection() {
     !caseStatus?.filing_category_confirmed_at &&
     !filingCategoryPromptDismissed;
 
-  const rfeDate: string | null = (() => {
-    const rfe = safeStatusHistory.find(
-      (e) =>
-        typeof e.status === "string" &&
-        e.status.toLowerCase().includes("request for evidence")
-    );
-    return rfe?.date ?? null;
-  })();
+  const rfeDate = findRfeDate(safeStatusHistory);
 
   return (
     <div className="space-y-5">
@@ -1178,28 +1119,17 @@ export function CaseStatusSection() {
       <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">USCIS Case Status</h1>
 
       {/* ── Delete success banner ── */}
-      {deleteNotice && (
-        <Card className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800" role="status">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-            <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">{deleteNotice}</p>
-          </div>
-        </Card>
-      )}
+      {deleteNotice && <DeleteNoticeBanner message={deleteNotice} />}
 
       {/* ── Load error (no case) ── */}
       {!caseStatus && loadError && (
-        <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="text-sm text-amber-900 dark:text-amber-100">
-              <strong>Couldn&apos;t load your case status.</strong>{' '}
-              <span className="opacity-90">{loadError}</span>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => { setLoadError(null); void loadCaseStatus(true); }}>
-              Try again
-            </Button>
-          </div>
-        </Card>
+        <LoadErrorBanner
+          message={loadError}
+          onRetry={() => {
+            setLoadError(null);
+            void loadCaseStatus(true);
+          }}
+        />
       )}
 
       {/* ── Onboarding (no case yet) ── */}
@@ -1253,39 +1183,19 @@ export function CaseStatusSection() {
 
           {/* ── 2b. Packaging clarification (free users with a case) ── */}
           {showPackagingNotice && (
-            <Card
-              className="p-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
-              role="status"
-            >
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-900 dark:text-blue-100 flex-1">
-                  {CASE_STATUS_MESSAGING.packagingChangeNotice}{" "}
-                  <button
-                    type="button"
-                    onClick={() => openProTrialModal()}
-                    className="font-medium underline underline-offset-2 hover:no-underline cursor-pointer"
-                  >
-                    {proUpgradeCta}
-                  </button>
-                </p>
-                <button
-                  type="button"
-                  aria-label="Dismiss packaging notice"
-                  className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer"
-                  onClick={() => {
-                    setPackagingNoticeDismissed(true);
-                    try {
-                      window.localStorage.setItem(PACKAGING_NOTICE_DISMISS_KEY, "1");
-                    } catch {
-                      /* ignore */
-                    }
-                  }}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </Card>
+            <PackagingNoticeBanner
+              message={CASE_STATUS_MESSAGING.packagingChangeNotice}
+              ctaLabel={proUpgradeCta}
+              onUpgrade={() => openProTrialModal()}
+              onDismiss={() => {
+                setPackagingNoticeDismissed(true);
+                try {
+                  window.localStorage.setItem(PACKAGING_NOTICE_DISMISS_KEY, "1");
+                } catch {
+                  /* ignore */
+                }
+              }}
+            />
           )}
 
           {/* ── 2c. Status-change upgrade wedge (free users) ── */}
@@ -1303,22 +1213,11 @@ export function CaseStatusSection() {
 
           {/* Persistent trial CTA for free users with a receipt */}
           {isPremium === false && (
-            <Card className="p-3 border-purple-200 dark:border-purple-800 bg-purple-50/80 dark:bg-purple-950/20">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <p className="text-sm text-purple-950 dark:text-purple-100 flex-1">
-                  {CASE_STATUS_MESSAGING.trialCtaStrip}
-                </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="bg-purple-600 hover:bg-purple-700 text-white shrink-0"
-                  onClick={() => openProTrialModal()}
-                >
-                  <Crown className="w-4 h-4 mr-1.5" />
-                  {proUpgradeCta}
-                </Button>
-              </div>
-            </Card>
+            <TrialCtaStrip
+              message={CASE_STATUS_MESSAGING.trialCtaStrip}
+              ctaLabel={proUpgradeCta}
+              onUpgrade={() => openProTrialModal()}
+            />
           )}
 
           {/* ── Filing type backfill (legacy users) ── */}
@@ -1336,14 +1235,7 @@ export function CaseStatusSection() {
           )}
 
           {/* ── Form mismatch warning ── */}
-          {formTypeMismatch && (
-            <Card className="p-4 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800" role="status">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-900 dark:text-amber-100">{formTypeMismatch}</p>
-              </div>
-            </Card>
-          )}
+          {formTypeMismatch && <FormMismatchBanner message={formTypeMismatch} />}
 
           {/* ── 3. MAIN CASE HERO CARD ── */}
           {isEditingReceipt ? (
@@ -1405,16 +1297,13 @@ export function CaseStatusSection() {
 
           {/* ── 3b. Refresh failed inline warning ── */}
           {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
-            <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" role="alert">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-900 dark:text-amber-100">
-                  {isPremium === true
-                    ? `Last auto-check failed (${formatDate(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we will keep retrying.`
-                    : `Last check failed (${formatDate(caseStatus.last_check_failed_at)}). Try a manual refresh, or upgrade to Pro for daily auto-checks.`}
-                </p>
-              </div>
-            </Card>
+            <RefreshFailedBanner
+              message={
+                isPremium === true
+                  ? `Last auto-check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we will keep retrying.`
+                  : `Last check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). Try a manual refresh, or upgrade to Pro for daily auto-checks.`
+              }
+            />
           )}
 
           {/* ── 4. MONITOR HEALTH STRIP ── */}
@@ -1497,129 +1386,24 @@ export function CaseStatusSection() {
                 </CaseTimelineErrorBoundary>
               </Card>
 
-              <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <Globe className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-lg font-extrabold">Case Information</h2>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Filing Type</span>
-                    <div className="w-full sm:w-auto sm:min-w-[240px] max-md:w-full">
-                      <FilingCategorySelect
-                        id="case-info-filing-category"
-                        value={normalizeFilingCategory(caseStatus.filing_category)}
-                        onChange={(value) => void handleFilingCategoryUpdate(value)}
-                        disabled={filingCategorySaving}
-                        className="h-9 text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">USCIS Form</span>
-                    <span className="text-sm font-semibold max-md:text-left text-right">
-                      {caseStatus.case_type || 'I-765'}
-                    </span>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Receipt Number</span>
-                    <span className="text-sm font-semibold font-mono max-md:text-left text-right ph-mask" data-ph-mask data-receipt-display>
-                      {caseStatus.receipt_number}
-                    </span>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Filing Date</span>
-                    {caseStatus.received_date ? (
-                      <span className="text-sm font-semibold max-md:text-left text-right">
-                        {formatDateShort(caseStatus.received_date)}
-                      </span>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto max-md:w-full">
-                        <Input
-                          type="date"
-                          value={filingDateInput}
-                          onChange={(e) => setFilingDateInput(e.target.value)}
-                          className="h-9 text-sm max-md:w-full"
-                          aria-label="Filing date"
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={() => void handleSaveFilingDate()}
-                          disabled={filingDateSaving || !filingDateInput}
-                          className="shrink-0"
-                        >
-                          {filingDateSaving ? "Saving…" : "Add date"}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Service Center</span>
-                    <div className="max-md:text-left text-right ph-mask" data-ph-mask>
-                      <p className="text-sm font-semibold">
-                        {getServiceCenterLabel(caseStatus.receipt_number)}
-                      </p>
-                      {serviceCenterLocation && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{serviceCenterLocation}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Current Status</span>
-                    <span className="text-sm font-semibold max-md:text-left max-md:max-w-full text-right max-w-[60%]">
-                      {formatStatusLabel(caseStatus.current_status, "Checking USCIS status…")}
-                    </span>
-                  </div>
-
-                  <div className="flex max-md:flex-col max-md:items-stretch max-md:gap-3 items-center justify-between pt-4 text-sm text-gray-500 dark:text-gray-400">
-                    <div>
-                      <span className="text-xs font-medium">Time Since Filed</span>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {formatDaysAgoLabel(caseStatus.received_date)}
-                      </p>
-                    </div>
-                    <div className="max-md:hidden w-px h-10 bg-gray-300 dark:bg-gray-700" />
-                    <div className="max-md:text-left text-right">
-                      <span className="text-xs font-medium">Last Status Change</span>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {formatDaysAgoLabel(caseStatus.last_status_change_at)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <CaseInformationCard
+                caseStatus={caseStatus}
+                serviceCenterLocation={serviceCenterLocation}
+                filingCategorySaving={filingCategorySaving}
+                onFilingCategoryChange={(value) =>
+                  void handleFilingCategoryUpdate(value)
+                }
+                filingDateInput={filingDateInput}
+                onFilingDateInputChange={setFilingDateInput}
+                filingDateSaving={filingDateSaving}
+                onSaveFilingDate={() => void handleSaveFilingDate()}
+              />
             </div>
           ) : (
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h2 className="text-lg font-bold">Case Information</h2>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Status history will appear here after USCIS posts updates.
-              </p>
-              <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-border">
-                  <span className="text-sm text-muted-foreground">Receipt</span>
-                  <span className="text-sm font-mono font-semibold ph-mask" data-ph-mask>{caseStatus.receipt_number}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="text-sm text-muted-foreground">Case Type</span>
-                  <span className="text-sm font-semibold">{caseStatus.case_type || 'Form I-765 (OPT)'}</span>
-                </div>
-              </div>
-            </Card>
+            <CaseInformationPendingCard
+              receiptNumber={caseStatus.receipt_number}
+              caseType={caseStatus.case_type}
+            />
           )}
 
           {/* ── 7. TOOLS ACCORDION ── */}
@@ -1664,17 +1448,7 @@ export function CaseStatusSection() {
           {/* ── Dev: mock mode badge ── */}
           {process.env.NEXT_PUBLIC_USCIS_MOCK === 'true' &&
             process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' &&
-            process.env.NODE_ENV !== 'production' && (
-            <Card className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" role="status">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-purple-900 dark:text-purple-100">USCIS Mock Mode Active</p>
-                  <p className="text-xs text-purple-800 dark:text-purple-200 mt-1">Simulated data. Set USCIS_MOCK=false in production.</p>
-                </div>
-              </div>
-            </Card>
-          )}
+            process.env.NODE_ENV !== 'production' && <UscisMockModeBadge />}
 
           {/* ── 10. CASE INFO FOOTER (collapsed) ── */}
           <CaseStatusPanelErrorBoundary area="case_info_footer">

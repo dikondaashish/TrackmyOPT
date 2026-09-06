@@ -5,6 +5,10 @@ import { RISKY_MARKETING_PHRASES } from "@/lib/legal/legal-config";
 
 const WEB_ROOT = join(process.cwd());
 const PRICING_MODAL_PATH = join(WEB_ROOT, "components/pricing/PricingModal.tsx");
+const PRICING_MODAL_TICKER_PATH = join(
+  WEB_ROOT,
+  "components/pricing/PricingModalBenefitTicker.tsx"
+);
 const PLAN_FEATURES_PATH = join(WEB_ROOT, "lib/pricing/plan-features.ts");
 
 const PRICING_UI_BLOCKED = [
@@ -19,6 +23,7 @@ describe("pricing modal copy compliance", () => {
   it("pricing UI avoids blocked marketing phrases", () => {
     const content = [
       readFileSync(PRICING_MODAL_PATH, "utf8"),
+      readFileSync(PRICING_MODAL_TICKER_PATH, "utf8"),
       readFileSync(PLAN_FEATURES_PATH, "utf8"),
     ]
       .join("\n")
