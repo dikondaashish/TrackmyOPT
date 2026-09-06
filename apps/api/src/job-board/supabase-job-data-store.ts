@@ -393,7 +393,15 @@ export class SupabaseJobDataStore implements JobDataStore {
       .eq('source_trust_tier', 'verified_ats')
       .order('id', { ascending: true })
       .range(safeOffset, safeOffset + safePageSize - 1);
-    if (result.error) throw new Error(result.error.message);
+    if (result.error) {
+      // PostgREST returns PGRST103 when a requested range starts beyond the
+      // end of a source. Treat that terminal page as empty so bounded parity
+      // scans can inspect the reciprocal target page without failing.
+      if ((result.error as { code?: string }).code === 'PGRST103') {
+        return { rows: [], total: safeOffset };
+      }
+      throw new Error(result.error.message);
+    }
     return {
       rows: (result.data || []).map((row) =>
         mapSupabaseJobRow(row as SupabaseJobRow),

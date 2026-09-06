@@ -1,6 +1,7 @@
 import {
   mapSupabaseJobRow,
   SUPABASE_JOB_COLUMNS,
+  SupabaseJobDataStore,
 } from './supabase-job-data-store';
 
 const LIVE_JOBS_COLUMNS = [
@@ -73,5 +74,29 @@ describe('Supabase job-store projection', () => {
       optEligible: true,
       stemOptEligible: false,
     });
+  });
+
+  it('treats a terminal PostgREST range as an empty source page', async () => {
+    const query = {
+      select: () => query,
+      eq: () => query,
+      order: () => query,
+      range: () =>
+        Promise.resolve({
+          data: null,
+          count: null,
+          error: {
+            code: 'PGRST103',
+            message: 'Requested range not satisfiable',
+          },
+        }),
+    };
+    const store = new SupabaseJobDataStore({
+      from: () => query,
+    } as never);
+
+    await expect(
+      store.listSourceJobsPage('source-1', 100, 100),
+    ).resolves.toEqual({ rows: [], total: 100 });
   });
 });
