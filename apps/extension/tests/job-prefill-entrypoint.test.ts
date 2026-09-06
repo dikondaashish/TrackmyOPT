@@ -41,10 +41,16 @@ assert.match(
   /new ResizeObserver[\s\S]+clampWidgetToViewport/,
   "the widget must remain onscreen when expandable content changes its height"
 );
+const prefillCoverageUi = readFileSync("src/job-portal-prefill-coverage-ui.ts", "utf8");
 assert.match(
-  jobPortal,
+  prefillCoverageUi,
   /TrackMyOPT scanned this page[\s\S]+role', 'progressbar'[\s\S]+Required[\s\S]+Optional/,
   "the widget must show truthful required/optional scan progress after prefill"
+);
+assert.match(
+  jobPortal,
+  /paintPrefillCoverage\(prefillResultLine/,
+  "the widget must still paint prefill coverage into the result line"
 );
 
 // The popup's "Prefill this application" button injects easy-apply-fill.js.

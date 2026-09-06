@@ -14,7 +14,6 @@ import {
 } from './career-sites';
 import {
   runPrefill,
-  jumpToPrefillField,
   findApplicationForm,
   getPrefillCandidateSignature,
   type GeneratedResumeAttachment,
@@ -31,22 +30,18 @@ import {
   paintResumeStatusRow,
   prefillEntryCopy,
   resumeStatusAfterPrefill,
-  type ResumeStatusState,
 } from './resume-status-row';
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
-import { classifySponsorship, type SponsorshipResult } from './sponsorship-signal';
+import { classifySponsorship } from './sponsorship-signal';
 import { buildJobSaveSnapshot } from './job-save-snapshot';
 import {
   buildScoreComparison,
-  formatDuplicateApplicationNotice,
   jobMemoryKey,
   normalizeOptClockNudge,
   recordSeenJob,
   type DuplicateApplicationNotice,
 } from './smart-flow';
 import {
-  buildWidgetThemeCss,
-  isDarkCssColor,
   normalizeWidgetAnalyticsProperties,
   widgetSiteFamily,
   type WidgetAnalyticsEvent,
@@ -57,7 +52,6 @@ import {
   normalizeJobIdentityText,
   type BasicContactProfile,
   type GeneratedResumeArtifactV1,
-  type JobContextIdentity,
   type ResumeAutofillSnapshotV1,
   type V1PrefillPayloadResponse,
 } from './resume-autofill-contract';
@@ -74,7 +68,6 @@ import {
 } from './resume-artifact-lifecycle';
 import {
   emptyPrefillCoverage,
-  formatPrefillCoverageSummary,
 } from './prefill-coverage';
 import {
   AUTOFILL_PREFERENCES_KEY,
@@ -149,13 +142,46 @@ import {
   ARTIFACT_STALE_BANNER_CLASS,
   RESUME_PANEL_CLASS,
   WIDGET_ROOT_ID,
-  WIDGET_THEME_SCOPE_CLASS,
-  WIDGET_THEME_STYLE_ID,
 } from './widget-dom-ids';
 import {
   resolveJobDescription,
   scrapeJobDescription,
 } from './job-description-scrape';
+import { renderAiError } from './job-portal-ai-message-ui';
+import { isApplicationSuccessPage } from './job-portal-application-success';
+import {
+  openApplicationStatusDialog,
+  type ApplicationSaveStatus,
+} from './job-portal-application-status-dialog';
+import { attachDragBehavior } from './job-portal-drag';
+import { isWidgetInteractionInFlight } from './job-portal-interaction-guard';
+import {
+  generatedResumeFilename,
+  jobContextFor,
+  jobFingerprint,
+  shouldRefreshWidget,
+  widgetJobSnapshot,
+} from './job-portal-job-helpers';
+import { paintPrefillCoverage } from './job-portal-prefill-coverage-ui';
+import { applyWidgetThemeScope } from './job-portal-widget-theme';
+import {
+  actionBtn,
+  downloadGeneratedPdf,
+  ensureSpinKeyframes,
+  iconBtn,
+  logoSvgFallback,
+  modalFieldLabel,
+  modalSelect,
+  paintPrefillButton,
+  paintSponsorshipPill,
+  resumeMiniBtn,
+  selectField,
+  showMessage,
+  syncResumeStatusRows,
+  textField,
+  viewOptionBtn,
+  viewOptionStyle,
+} from './job-portal-widget-ui';
 
 /** Set once the widget mounts; announces status to screen readers. */
 let announceWidgetStatus: (message: string) => void = () => {};
@@ -261,46 +287,6 @@ function guidedStatus(message: string): void {
   )) {
     line.textContent = message;
   }
-}
-
-function selectField(
-  label: string,
-  options: Array<[string, string]>
-): { wrapper: HTMLLabelElement; control: HTMLSelectElement } {
-  const wrapper = document.createElement('label');
-  wrapper.style.cssText =
-    'display:grid;gap:3px;color:var(--tmo-widget-ink);font-size:10.5px;font-weight:700;';
-  wrapper.append(label);
-  const control = document.createElement('select');
-  control.style.cssText =
-    'width:100%;min-height:32px;padding:5px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:11px;';
-  for (const [value, text] of options) {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = text;
-    control.appendChild(option);
-  }
-  wrapper.appendChild(control);
-  return { wrapper, control };
-}
-
-function textField(
-  label: string,
-  type: 'text' | 'date' = 'text',
-  placeholder = ''
-): { wrapper: HTMLLabelElement; control: HTMLInputElement } {
-  const wrapper = document.createElement('label');
-  wrapper.style.cssText =
-    'display:grid;gap:3px;color:var(--tmo-widget-ink);font-size:10.5px;font-weight:700;';
-  wrapper.append(label);
-  const control = document.createElement('input');
-  control.type = type;
-  control.placeholder = placeholder;
-  control.autocomplete = 'off';
-  control.style.cssText =
-    'box-sizing:border-box;width:100%;min-height:32px;padding:5px 7px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:11px;';
-  wrapper.appendChild(control);
-  return { wrapper, control };
 }
 
 function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
@@ -634,25 +620,6 @@ function createSensitiveAnswerPanel(job: JobInfo): HTMLElement {
 }
 
 
-function ensureWidgetThemeStyles(): void {
-  if (document.getElementById(WIDGET_THEME_STYLE_ID)) return;
-  const style = document.createElement('style');
-  style.id = WIDGET_THEME_STYLE_ID;
-  style.textContent = buildWidgetThemeCss(`.${WIDGET_THEME_SCOPE_CLASS}`);
-  (document.head || document.documentElement).appendChild(style);
-}
-
-function applyWidgetThemeScope(element: HTMLElement): void {
-  ensureWidgetThemeStyles();
-  element.classList.add(WIDGET_THEME_SCOPE_CLASS);
-  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-  const bodyColor = document.body ? getComputedStyle(document.body).backgroundColor : '';
-  const documentColor = getComputedStyle(document.documentElement).backgroundColor;
-  if (prefersDark || isDarkCssColor(bodyColor) || isDarkCssColor(documentColor)) {
-    element.dataset.tmoTheme = 'dark';
-  }
-}
-
 function trackWidgetAnalytics(
   event: WidgetAnalyticsEvent,
   properties: WidgetAnalyticsProperties = {},
@@ -685,31 +652,6 @@ function trackWidgetAnalyticsOnce(
   if (trackedWidgetAnalytics.has(key)) return;
   trackedWidgetAnalytics.add(key);
   trackWidgetAnalytics(event, properties);
-}
-
-function jobFingerprint(job: JobInfo): string {
-  const url = new URL(window.location.href);
-  url.hash = '';
-  return [
-    url.toString(),
-    (job.company_name || '').trim().toLowerCase(),
-    (job.role_title || '').trim().toLowerCase(),
-  ].join('|');
-}
-
-function jobContextFor(job: JobInfo): JobContextIdentity {
-  return {
-    jobUrl: window.location.href,
-    companyName: job.company_name || '',
-    roleTitle: job.role_title || '',
-  };
-}
-
-function generatedResumeFilename(job: JobInfo): string {
-  const safeCompany = (job.company_name || 'company')
-    .replace(/[^a-z0-9]+/gi, '-')
-    .toLowerCase();
-  return `TrackMyOPT-resume-${safeCompany}.pdf`;
 }
 
 function syncArtifactStaleBannerVisibility(): void {
@@ -1037,125 +979,6 @@ function trackPrefillRuntimeFailure(
   );
 }
 
-function paintPrefillCoverage(
-  line: HTMLElement,
-  result: PrefillCoverageResult,
-): void {
-  line.textContent = '';
-  const scan = result.applicationScan;
-  const scannedFieldCount =
-    (scan?.requiredTotal ?? 0) + (scan?.optionalTotal ?? 0);
-  if (result.total === 0 && scannedFieldCount === 0) {
-    line.style.display = 'none';
-    return;
-  }
-  line.style.display = 'block';
-
-  if (scan && scannedFieldCount > 0) {
-    const scanHeader = document.createElement('div');
-    scanHeader.style.cssText =
-      'display:flex;align-items:flex-start;justify-content:space-between;gap:10px;color:var(--tmo-widget-text);';
-    const scanTitle = document.createElement('strong');
-    scanTitle.textContent = 'TrackMyOPT scanned this page';
-    scanTitle.style.cssText = 'font-size:12px;line-height:1.35;';
-    const percent = document.createElement('strong');
-    percent.textContent = `${scan.requiredPercent}%`;
-    percent.style.cssText =
-      `font-size:12px;color:${scan.unansweredRequired === 0 ? 'var(--tmo-color-success-ink)' : 'var(--tmo-color-warning-ink)'};`;
-    scanHeader.append(scanTitle, percent);
-    line.appendChild(scanHeader);
-
-    const count = document.createElement('div');
-    count.textContent =
-      `${scan.requiredFilled}/${scan.requiredTotal} required fields filled`;
-    count.style.cssText =
-      'margin-top:3px;color:var(--tmo-widget-muted);font-size:11.5px;';
-    line.appendChild(count);
-
-    const track = document.createElement('div');
-    track.setAttribute('role', 'progressbar');
-    track.setAttribute('aria-valuemin', '0');
-    track.setAttribute('aria-valuemax', '100');
-    track.setAttribute('aria-valuenow', String(scan.requiredPercent));
-    track.setAttribute(
-      'aria-label',
-      `${scan.requiredFilled} of ${scan.requiredTotal} required fields filled`
-    );
-    track.style.cssText =
-      'height:6px;margin-top:7px;overflow:hidden;border-radius:999px;background:#dbe4f0;';
-    const fill = document.createElement('div');
-    fill.style.cssText =
-      `height:100%;width:${scan.requiredPercent}%;border-radius:inherit;background:` +
-      (scan.unansweredRequired === 0
-        ? 'linear-gradient(90deg,#10b981,#059669);'
-        : 'linear-gradient(90deg,#2563eb,#0ea5e9);');
-    track.appendChild(fill);
-    line.appendChild(track);
-
-    const appendFieldGroup = (
-      title: string,
-      fields: typeof scan.required
-    ) => {
-      if (fields.length === 0) return;
-      const details = document.createElement('details');
-      details.style.cssText =
-        'margin-top:7px;border-top:1px solid var(--tmo-widget-border);padding-top:6px;';
-      const detailsSummary = document.createElement('summary');
-      detailsSummary.textContent = `${title} (${fields.length})`;
-      detailsSummary.style.cssText =
-        'cursor:pointer;color:var(--tmo-widget-text);font-weight:800;';
-      details.appendChild(detailsSummary);
-      const list = document.createElement('div');
-      list.style.cssText =
-        'display:grid;gap:4px;margin-top:6px;max-height:154px;overflow:auto;padding-right:2px;';
-      for (const field of fields) {
-        const item = document.createElement('div');
-        item.style.cssText =
-          'display:flex;align-items:flex-start;justify-content:space-between;gap:8px;';
-        const label = document.createElement('span');
-        label.textContent = field.label;
-        label.style.cssText =
-          'min-width:0;overflow-wrap:anywhere;color:var(--tmo-widget-text);';
-        const state = document.createElement('span');
-        state.textContent = field.filled
-          ? '✓ Filled'
-          : field.required
-            ? 'Needs you'
-            : 'Optional';
-        state.style.cssText =
-          `flex:0 0 auto;font-weight:800;color:${
-            field.filled ? 'var(--tmo-color-success-ink)' : field.required ? 'var(--tmo-color-warning-ink)' : 'var(--tmo-widget-muted)'
-          };`;
-        item.append(label, state);
-        list.appendChild(item);
-      }
-      details.appendChild(list);
-      line.appendChild(details);
-    };
-
-    appendFieldGroup('Required', scan.required);
-    appendFieldGroup('Optional', scan.optional);
-  }
-
-  const summary = document.createElement('span');
-  summary.textContent = formatPrefillCoverageSummary(result);
-  summary.style.cssText =
-    `display:block;${scan && scannedFieldCount > 0 ? 'margin-top:7px;' : ''}`;
-  line.appendChild(summary);
-  if (result.skipped > 0 && result.firstSkippedSelector) {
-    const jump = document.createElement('button');
-    jump.type = 'button';
-    jump.textContent = 'Jump to first';
-    jump.style.cssText =
-      'padding:0;border:0;background:transparent;color:var(--tmo-color-warning-ink);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer;';
-    jump.addEventListener('click', () => {
-      jumpToPrefillField(result.firstSkippedSelector || '');
-    });
-    line.append('—');
-    line.appendChild(jump);
-  }
-}
-
 async function mountScreeningQuestionReviews(
   card: HTMLElement,
   job: JobInfo,
@@ -1303,57 +1126,6 @@ async function markPostSaveSuggestionSeen(job: JobInfo): Promise<boolean> {
   }
 }
 
-type WidgetJobSnapshot = Pick<JobInfo,
-  'company_name' | 'role_title' | 'job_url' | 'location' | 'salary_text' | 'company_logo_url'>;
-
-function widgetJobSnapshot(job: JobInfo): WidgetJobSnapshot {
-  return {
-    company_name: job.company_name,
-    role_title: job.role_title,
-    job_url: job.job_url,
-    location: job.location,
-    salary_text: job.salary_text,
-    company_logo_url: job.company_logo_url,
-  };
-}
-
-function shouldRefreshWidget(existing: HTMLElement, nextJob: JobInfo): boolean {
-  let current: Partial<WidgetJobSnapshot> = {};
-  try {
-    current = JSON.parse(existing.dataset.tmoJobSnapshot || '{}') as Partial<WidgetJobSnapshot>;
-  } catch {
-    return true;
-  }
-  const next = widgetJobSnapshot(nextJob);
-  if (
-    current.job_url !== next.job_url ||
-    current.company_name !== next.company_name ||
-    current.role_title !== next.role_title
-  ) return true;
-
-  // Replace an already-rendered card only when the new parse enriches missing
-  // information. Never downgrade a complete card during transient SPA states.
-  return Boolean(
-    (!current.location && next.location) ||
-    (!current.salary_text && next.salary_text) ||
-    (!current.company_logo_url && next.company_logo_url)
-  );
-}
-
-/**
- * True while the user is mid-interaction: a resume is generating (or its result
- * is on screen), the AI-analysis or resume-template modal is open, or the
- * save-status dialog is up. SPA route churn on job boards like Workday must
- * never tear the widget down during these — that would destroy work in progress
- * (e.g. a running resume generation) or a result the user is still reading.
- */
-function isWidgetInteractionInFlight(): boolean {
-  if (document.getElementById('tmo-resume-chooser')) return true;
-  if (document.getElementById('tmo-ai-analysis')) return true;
-  if (document.getElementById('tmo-application-status-dialog')) return true;
-  const widget = document.getElementById(WIDGET_ROOT_ID);
-  return !!widget?.querySelector('.' + RESUME_PANEL_CLASS);
-}
 
 
 /** True when the widget should stay hidden here (this-visit / this-site / all-sites). */
@@ -1380,32 +1152,6 @@ const JOB_CONTEXT_MAX_AGE_MS = 30 * 60 * 1000; // use stored context up to 30 mi
  * career subdomains) use a lighter timed-retry approach.
  */
 
-
-// Phrases that indicate "application submitted" success (case-insensitive)
-const APPLICATION_SUCCESS_PATTERNS = [
-  /congratulat/i,
-  /application\s+(submitted|received|sent|successful)/i,
-  /thank\s+you\s+for\s+applying/i,
-  /your\s+application\s+has\s+been\s+(sent|submitted|received)/i,
-  /we've\s+received\s+your\s+application/i,
-  /we\s+have\s+received\s+your\s+application/i,
-  /successfully\s+applied/i,
-  /you've\s+applied\s+to/i,
-  /you\s+have\s+applied\s+to/i,
-  /application\s+complete/i,
-  /application\s+successful/i,
-  /your\s+application\s+was\s+submitted/i,
-  /submitted\s+successfully/i,
-];
-
-function isApplicationSuccessPage(): boolean {
-  const text = (document.body?.innerText || document.body?.textContent || '').slice(0, 10000);
-  if (!text || text.length < 20) return false;
-  for (let i = 0; i < APPLICATION_SUCCESS_PATTERNS.length; i++) {
-    if (APPLICATION_SUCCESS_PATTERNS[i].test(text)) return true;
-  }
-  return false;
-}
 
 function saveJobContext(job: JobInfo) {
   try {
@@ -1498,80 +1244,6 @@ function tryAutoAddWithJob(job: JobInfo) {
  * document title, while og:title remains a generic careers-page title.
  */
 
-
-/**
- * Vertical-only drag. The widget stays PINNED to the right edge (right:0) and
- * only moves up/down — it never moves horizontally.
- */
-function attachDragBehavior(
-  root: HTMLElement,
-  dragHandle: HTMLElement,
-  options: { allowButtonTarget?: boolean; onTap?: () => void } = {},
-) {
-  let activePointerId: number | null = null;
-  let startClientY = 0;
-  let startTop = 0;
-  let movedBeyondTapThreshold = false;
-  const idleCursor = options.onTap ? 'pointer' : 'grab';
-
-  dragHandle.style.touchAction = 'none';
-
-  const onMove = (ev: PointerEvent) => {
-    if (ev.pointerId !== activePointerId) return;
-    const deltaY = ev.clientY - startClientY;
-    if (!movedBeyondTapThreshold && Math.abs(deltaY) < 4) return;
-    movedBeyondTapThreshold = true;
-    const pad = 8;
-    const rect = root.getBoundingClientRect();
-    const maxTop = Math.max(pad, window.innerHeight - rect.height - pad);
-    const nextTop = Math.min(Math.max(pad, startTop + deltaY), maxTop);
-    root.style.top = `${nextTop}px`; // only vertical; horizontal stays pinned right
-  };
-
-  const stopDragging = (ev: PointerEvent) => {
-    if (ev.pointerId !== activePointerId) return;
-    activePointerId = null;
-    dragHandle.style.cursor = idleCursor;
-    const rect = root.getBoundingClientRect();
-    saveWidgetPosition(rect.top);
-    document.removeEventListener('pointermove', onMove, true);
-    document.removeEventListener('pointerup', stopDragging, true);
-    document.removeEventListener('pointercancel', stopDragging, true);
-    if (!movedBeyondTapThreshold && ev.type === 'pointerup') options.onTap?.();
-  };
-
-  dragHandle.addEventListener('pointerdown', (ev) => {
-    // Don't start a drag when the user clicks a button inside the drag zone.
-    if (!options.allowButtonTarget && (ev.target as HTMLElement | null)?.closest('button')) return;
-    ev.preventDefault();
-    ev.stopPropagation();
-    activePointerId = ev.pointerId;
-    movedBeyondTapThreshold = false;
-    dragHandle.style.cursor = 'grabbing';
-    const r = root.getBoundingClientRect();
-    startClientY = ev.clientY;
-    startTop = r.top;
-    // Keep it docked to the right; switch centering transform to an absolute top.
-    root.style.top = `${startTop}px`;
-    root.style.right = '0';
-    root.style.left = 'auto';
-    root.style.bottom = 'auto';
-    root.style.transform = 'none';
-    document.addEventListener('pointermove', onMove, true);
-    document.addEventListener('pointerup', stopDragging, true);
-    document.addEventListener('pointercancel', stopDragging, true);
-  });
-
-  // Pointer activation is handled on pointerup so a completed drag never also
-  // opens the panel. Preserve native keyboard/programmatic button activation.
-  if (options.onTap) {
-    dragHandle.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      if (ev.detail === 0) options.onTap?.();
-    });
-  }
-}
 
 /**
  * Sticky, collapsible side widget: Prefill application, Save to tracker, and
@@ -2583,211 +2255,6 @@ function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLEle
   return root;
 }
 
-/** Small icon button for the widget header (collapse / close). */
-function iconBtn(glyph: string, label: string): HTMLButtonElement {
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.setAttribute('aria-label', label);
-  b.title = label;
-  b.textContent = glyph;
-  b.style.cssText = `
-    width:34px;height:34px;flex-shrink:0;padding:0;margin:0;border:none;border-radius:8px;
-    background:transparent;color:var(--tmo-widget-accent-strong);font-size:18px;line-height:1;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-  `;
-  b.addEventListener('mouseenter', () => (b.style.background = "rgba(37,99,235,0.1)"));
-  b.addEventListener('mouseleave', () => (b.style.background = 'transparent'));
-  return b;
-}
-
-/** Render the visa-sponsorship pill into `host` from a classifier result. */
-function paintSponsorshipPill(host: HTMLElement, result: SponsorshipResult): void {
-  const theme = {
-    sponsors: {
-      bg: 'var(--tmo-widget-success-surface)',
-      fg: 'var(--tmo-widget-success-ink)',
-      border: 'var(--tmo-widget-success-border)',
-      iconName: 'checkCircle' as const,
-      label: 'Mentions sponsorship',
-      fallback: 'This posting mentions visa sponsorship.',
-    },
-    no_sponsorship: {
-      bg: 'var(--tmo-widget-danger-surface)',
-      fg: 'var(--tmo-widget-danger-ink)',
-      border: 'var(--tmo-widget-danger-border)',
-      iconName: 'alertTriangle' as const,
-      label: 'No sponsorship',
-      fallback: 'This posting appears to rule out visa sponsorship.',
-    },
-    unclear: {
-      bg: 'var(--tmo-widget-surface-2)',
-      fg: 'var(--tmo-widget-muted)',
-      border: 'var(--tmo-widget-border)',
-      iconName: 'info' as const,
-      label: 'Sponsorship not stated',
-      fallback: "The posting doesn't clearly state its visa-sponsorship policy.",
-    },
-  }[result.signal];
-
-  host.textContent = '';
-  const pill = document.createElement('span');
-  pill.style.cssText = `
-    display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
-    background:${theme.bg};color:${theme.fg};border:1px solid ${theme.border};
-    font-size:11px;font-weight:750;line-height:1;max-width:100%;
-  `;
-  const ic = document.createElement('span');
-  ic.style.cssText = 'display:flex;flex-shrink:0;';
-  ic.innerHTML = icon(theme.iconName, 13, theme.fg);
-  const text = document.createElement('span');
-  text.textContent = theme.label;
-  text.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-  pill.appendChild(ic);
-  pill.appendChild(text);
-  pill.title = result.matchedSentence ? `“${result.matchedSentence}”` : theme.fallback;
-  host.appendChild(pill);
-}
-
-/** Point a Prefill control at the shared copy for the current resume state. */
-function paintPrefillButton(
-  button: HTMLButtonElement | null | undefined,
-  hasResume: boolean,
-): void {
-  if (!button) return;
-  const copy = prefillEntryCopy(hasResume);
-  const label = button.querySelector<HTMLElement>('.tmo-action-label');
-  if (label) label.textContent = copy.label;
-  const sublabel = button.querySelector<HTMLElement>('.tmo-action-sublabel');
-  if (sublabel) sublabel.textContent = copy.sublabel;
-  button.title = copy.title;
-}
-
-/** Repaint every mounted status row — the widget may be rebuilt mid-flow. */
-function syncResumeStatusRows(state: ResumeStatusState, detail?: string): void {
-  for (const row of Array.from(
-    document.querySelectorAll<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
-  )) {
-    paintResumeStatusRow(row, state, detail);
-  }
-}
-
-/**
- * Action row inside the tools panel: colored icon chip + label + optional
- * sublabel, with a trailing chevron (default) or custom trailing element.
- * `iconSvg` should already be a white icon so it reads on the colored chip.
- */
-function actionBtn(
-  iconSvg: string,
-  label: string,
-  opts: { sublabel?: string; chip?: string; trailing?: string } = {}
-): HTMLButtonElement {
-  const chip = opts.chip || 'linear-gradient(135deg,#2563eb,#0ea5e9)';
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.style.cssText = `
-    display:flex;align-items:center;gap:11px;width:100%;min-height:56px;padding:11px 12px;
-    border:0;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;text-align:left;cursor:pointer;
-    transition:background 160ms ease;
-  `;
-  b.addEventListener('mouseenter', () => (b.style.background = 'var(--tmo-widget-surface-2)'));
-  b.addEventListener('mouseleave', () => (b.style.background = 'var(--tmo-widget-surface)'));
-  b.addEventListener('focus', () => {
-    b.style.background = 'var(--tmo-widget-info-surface)';
-    b.style.outline = '2px solid var(--tmo-widget-focus)';
-    b.style.outlineOffset = '-2px';
-  });
-  b.addEventListener('blur', () => {
-    b.style.background = 'var(--tmo-widget-surface)';
-    b.style.outline = 'none';
-  });
-
-  const chipEl = document.createElement('span');
-  chipEl.innerHTML = iconSvg;
-  chipEl.style.cssText = `
-    width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:${chip};
-    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,23,42,0.14);
-  `;
-
-  const textWrap = document.createElement('span');
-  textWrap.style.cssText = 'flex:1;min-width:0;';
-  const l = document.createElement('span');
-  l.className = 'tmo-action-label';
-  l.textContent = label;
-  l.style.cssText = 'display:block;font-size:13px;font-weight:750;letter-spacing:-0.1px;';
-  textWrap.appendChild(l);
-  if (opts.sublabel) {
-    const s = document.createElement('span');
-    s.className = 'tmo-action-sublabel';
-    s.textContent = opts.sublabel;
-    s.style.cssText = 'display:block;font-size:11px;color:var(--tmo-widget-muted);margin-top:1px;';
-    textWrap.appendChild(s);
-  }
-
-  const trail = document.createElement('span');
-  trail.style.cssText = 'display:flex;flex:0 0 auto;margin-left:auto;align-items:center;color:var(--tmo-widget-muted);';
-  trail.innerHTML = opts.trailing ?? icon('chevronRight', 16, 'currentColor');
-
-  b.appendChild(chipEl);
-  b.appendChild(textWrap);
-  b.appendChild(trail);
-  return b;
-}
-
-// ── Generate custom resume (in-widget) ──────────────────────────────────────
-
-
-function ensureSpinKeyframes(): void {
-  if (document.getElementById('tmo-spin-style')) return;
-  const style = document.createElement('style');
-  style.id = 'tmo-spin-style';
-  style.textContent = '@keyframes tmo-spin{to{transform:rotate(360deg)}}';
-  document.head.appendChild(style);
-}
-
-/** Best-effort job-description text from a document (page or fetched listing). */
-
-
-/** Sync scrape of the open document only (no network). */
-
-
-/**
- * Prefer the real posting when the user is on an apply form (Workday, Jobvite,
- * Greenhouse, Lever, Ashby, iCIMS, …). Order:
- * 1) session/memory cache from the listing visit
- * 2) Workday CXS JSON (SPA-safe)
- * 3) HTML fetch of the sibling listing URL
- * 4) on-page scrape
- */
-
-
-function downloadGeneratedPdf(base64: string, filename: string): void {
-  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-  const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 15000);
-}
-
-function resumeMiniBtn(labelSvgAndText: string, primary: boolean): HTMLButtonElement {
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.innerHTML = labelSvgAndText;
-  b.style.cssText = `
-    flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
-    min-height:44px;padding:10px 9px;border-radius:9px;font:inherit;font-size:12.5px;font-weight:750;cursor:pointer;
-    ${primary
-      ? 'background:#2563eb;color:#fff;border:1px solid #2563eb;'
-      : 'background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);border:1px solid var(--tmo-widget-border);'}
-  `;
-  b.addEventListener('focus', () => (b.style.outline = '3px solid var(--tmo-widget-focus)'));
-  b.addEventListener('blur', () => (b.style.outline = 'none'));
-  return b;
-}
-
 type SavedResumeOption = {
   id: string;
   filename: string;
@@ -2796,198 +2263,6 @@ type SavedResumeOption = {
 
 // Single source shared with the side panel. See agent/panel-templates.ts.
 const SIDE_PANEL_TEMPLATES = RESUME_TEMPLATES_FOR_PANEL;
-
-function modalFieldLabel(text: string, htmlFor: string): HTMLLabelElement {
-  const label = document.createElement('label');
-  label.htmlFor = htmlFor;
-  label.textContent = text;
-  label.style.cssText = 'display:block;margin:0 0 6px;color:var(--tmo-widget-ink);font-size:12.5px;font-weight:750;';
-  return label;
-}
-
-function modalSelect(id: string): HTMLSelectElement {
-  const select = document.createElement('select');
-  select.id = id;
-  select.style.cssText = `
-    display:block;width:100%;height:44px;padding:0 34px 0 11px;border:1px solid var(--tmo-widget-border);
-    border-radius:9px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:13px;cursor:pointer;
-    outline:none;
-  `;
-  select.addEventListener('focus', () => {
-    select.style.borderColor = 'var(--tmo-widget-accent)';
-    select.style.boxShadow = '0 0 0 3px var(--tmo-widget-focus)';
-  });
-  select.addEventListener('blur', () => {
-    select.style.borderColor = 'var(--tmo-widget-border)';
-    select.style.boxShadow = 'none';
-  });
-  return select;
-}
-
-type ApplicationSaveStatus = 'Wishlist' | 'Applied';
-
-function openApplicationStatusDialog(
-  job: JobInfo,
-  onSelect: (status: ApplicationSaveStatus) => void,
-  duplicate?: DuplicateApplicationNotice,
-): void {
-  document.getElementById('tmo-application-status-dialog')?.remove();
-  const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'tmo-application-status-dialog';
-  applyWidgetThemeScope(overlay);
-  overlay.setAttribute('popover', 'manual');
-  overlay.style.cssText = `
-    position:fixed;inset:0;z-index:2147483647;width:auto;height:auto;margin:0;padding:16px;border:0;
-    background:var(--tmo-widget-overlay);display:flex;align-items:center;justify-content:center;overflow:auto;
-    color:var(--tmo-widget-ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  `;
-
-  const dialog = document.createElement('div');
-  dialog.setAttribute('role', 'dialog');
-  dialog.setAttribute('aria-modal', 'true');
-  dialog.setAttribute('aria-labelledby', 'tmo-application-status-title');
-  dialog.style.cssText = `
-    width:min(360px,calc(100vw - 24px));border:1px solid var(--tmo-widget-border);border-radius:16px;background:var(--tmo-widget-surface);
-    box-shadow:var(--tmo-widget-shadow);overflow:hidden;color:var(--tmo-widget-ink);
-  `;
-
-  const header = document.createElement('div');
-  header.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:17px 17px 13px;border-bottom:1px solid var(--tmo-widget-border);';
-  const headingCopy = document.createElement('div');
-  headingCopy.style.cssText = 'flex:1;min-width:0;';
-  const heading = document.createElement('h2');
-  heading.id = 'tmo-application-status-title';
-  heading.textContent = 'Application Status';
-  heading.style.cssText = 'margin:0;color:var(--tmo-widget-ink);font-size:17px;line-height:1.3;font-weight:800;';
-  const description = document.createElement('p');
-  description.textContent = `Have you applied for ${job.role_title || 'this job'}?`;
-  description.style.cssText = 'margin:5px 0 0;color:var(--tmo-widget-muted);font-size:12.5px;line-height:1.45;';
-  headingCopy.appendChild(heading);
-  headingCopy.appendChild(description);
-
-  const close = document.createElement('button');
-  close.type = 'button';
-  close.setAttribute('aria-label', 'Close application status');
-  close.textContent = '×';
-  close.style.cssText = 'width:44px;height:44px;flex:0 0 44px;border:0;border-radius:10px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-ink);font:inherit;font-size:22px;cursor:pointer;';
-  header.appendChild(headingCopy);
-  header.appendChild(close);
-
-  const body = document.createElement('div');
-  body.style.cssText = 'display:grid;gap:9px;padding:15px 17px 17px;';
-
-  if (duplicate) {
-    const notice = formatDuplicateApplicationNotice(duplicate);
-    const warning = document.createElement('div');
-    warning.setAttribute('role', 'note');
-    warning.style.cssText = `
-      display:flex;align-items:flex-start;gap:8px;padding:10px 11px;border:1px solid var(--tmo-widget-warning-border);
-      border-radius:10px;background:var(--tmo-widget-warning-surface);color:var(--tmo-widget-warning-ink);font-size:12px;line-height:1.45;
-    `;
-    const warningIcon = document.createElement('span');
-    warningIcon.style.cssText = 'display:flex;flex:0 0 auto;margin-top:2px;';
-    warningIcon.innerHTML = icon('info', 14, 'currentColor');
-    const warningCopy = document.createElement('span');
-    warningCopy.append('You applied to ');
-    const duplicateRole = document.createElement('strong');
-    duplicateRole.textContent = notice.roleTitle || 'a similar role';
-    warningCopy.appendChild(duplicateRole);
-    warningCopy.append(` at ${notice.companyName || 'this company'}`);
-    if (notice.dateLabel) warningCopy.append(` on ${notice.dateLabel}`);
-    warningCopy.append('. You can still save this posting.');
-    warning.appendChild(warningIcon);
-    warning.appendChild(warningCopy);
-    body.appendChild(warning);
-  }
-
-  const option = (status: ApplicationSaveStatus, label: string, hint: string): HTMLButtonElement => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.style.cssText = `
-      width:100%;min-height:58px;padding:11px 12px;border:1px solid var(--tmo-widget-border);border-radius:11px;
-      background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);display:flex;align-items:center;gap:11px;text-align:left;font:inherit;cursor:pointer;
-      transition:border-color 180ms ease,background 180ms ease,box-shadow 180ms ease;
-    `;
-    const marker = document.createElement('span');
-    marker.style.cssText = 'width:18px;height:18px;flex:0 0 18px;border:2px solid var(--tmo-widget-muted);border-radius:50%;box-shadow:inset 0 0 0 4px var(--tmo-widget-surface);';
-    const copy = document.createElement('span');
-    copy.style.cssText = 'min-width:0;display:block;';
-    const labelEl = document.createElement('strong');
-    labelEl.textContent = label;
-    labelEl.style.cssText = 'display:block;color:var(--tmo-widget-ink);font-size:13.5px;line-height:1.3;';
-    const hintEl = document.createElement('span');
-    hintEl.textContent = hint;
-    hintEl.style.cssText = 'display:block;margin-top:3px;color:var(--tmo-widget-muted);font-size:11.5px;line-height:1.35;';
-    copy.appendChild(labelEl);
-    copy.appendChild(hintEl);
-    button.appendChild(marker);
-    button.appendChild(copy);
-    button.addEventListener('mouseenter', () => {
-      button.style.borderColor = 'var(--tmo-widget-accent)';
-      button.style.background = 'var(--tmo-widget-info-surface)';
-      marker.style.borderColor = 'var(--tmo-widget-accent)';
-    });
-    button.addEventListener('mouseleave', () => {
-      button.style.borderColor = 'var(--tmo-widget-border)';
-      button.style.background = 'var(--tmo-widget-surface)';
-      marker.style.borderColor = 'var(--tmo-widget-muted)';
-    });
-    button.addEventListener('focus', () => (button.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.18)'));
-    button.addEventListener('blur', () => (button.style.boxShadow = 'none'));
-    button.addEventListener('click', () => {
-      cleanup();
-      onSelect(status);
-    });
-    return button;
-  };
-
-  const notApplied = option('Wishlist', 'I have not applied yet', 'Save this job to your Wishlist.');
-  const applied = option('Applied', 'I applied', 'Save it as an active application.');
-  body.appendChild(notApplied);
-  body.appendChild(applied);
-  dialog.appendChild(header);
-  dialog.appendChild(body);
-  overlay.appendChild(dialog);
-  document.body.appendChild(overlay);
-
-  const cleanup = () => {
-    document.removeEventListener('keydown', onKeyDown, true);
-    try { overlay.hidePopover?.(); } catch { /* already closed */ }
-    overlay.remove();
-    returnFocusTo?.focus();
-  };
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      cleanup();
-      return;
-    }
-    if (event.key !== 'Tab') return;
-    const focusable = [close, notApplied, applied];
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
-  document.addEventListener('keydown', onKeyDown, true);
-  close.addEventListener('click', cleanup);
-  overlay.addEventListener('click', (event) => {
-    if (event.target === overlay) cleanup();
-  });
-  try {
-    overlay.showPopover?.();
-  } catch {
-    overlay.removeAttribute('popover');
-  }
-  notApplied.focus();
-}
 
 // ── Analyze with AI (in-widget ATS fit) ─────────────────────────────────────
 
@@ -2999,63 +2274,6 @@ interface AnalyzeJobFitResponse {
   missingKeywords?: string[];
   gapSummary?: string;
   resumeName?: string;
-}
-
-/** Simple centered message inside the analysis dialog body. */
-function renderAiMessage(body: HTMLElement, message: string): void {
-  body.textContent = '';
-  const p = document.createElement('p');
-  p.textContent = message;
-  p.style.cssText = 'margin:0;color:var(--tmo-widget-muted);font-size:13px;line-height:1.5;';
-  body.appendChild(p);
-}
-
-/** Error / empty states, with an action button where one helps. */
-function renderAiError(body: HTMLElement, error: string, card: HTMLElement, job: JobInfo): void {
-  body.textContent = '';
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
-  const p = document.createElement('p');
-  p.style.cssText = 'margin:0;color:var(--tmo-widget-muted);font-size:13px;line-height:1.5;';
-
-  let action: HTMLButtonElement | null = null;
-  const actionBtnStyled = (labelText: string): HTMLButtonElement => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = labelText;
-    b.style.cssText =
-      'align-self:flex-start;padding:9px 14px;border:0;border-radius:10px;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font:inherit;font-size:12.5px;font-weight:750;cursor:pointer;';
-    return b;
-  };
-
-  switch (error) {
-    case 'not_signed_in':
-      p.textContent = 'Sign in from the TrackMyOPT extension icon to analyze this job against your resume.';
-      break;
-    case 'no_base_resume':
-      p.textContent = 'Save a base resume on TrackMyOPT first, then come back to see your ATS match for this job.';
-      action = actionBtnStyled('Open resume generator');
-      action.addEventListener('click', () => {
-        window.open(`${WEBSITE_URL}/dashboard/career/resume-generator`, '_blank', 'noopener,noreferrer');
-      });
-      break;
-    case 'no_job_description':
-      p.textContent = "We couldn't read enough of this posting to analyze it. Open the full job description on the page, then try again.";
-      break;
-    case 'limit_reached':
-      p.textContent = "You've reached this month's AI analysis limit. It resets next month, or upgrade for more.";
-      action = actionBtnStyled('See plans');
-      action.addEventListener('click', () => {
-        window.open(`${WEBSITE_URL}/pricing`, '_blank', 'noopener,noreferrer');
-      });
-      break;
-    default:
-      p.textContent = 'Something went wrong analyzing this job. Please try again in a moment.';
-  }
-
-  wrap.appendChild(p);
-  if (action) wrap.appendChild(action);
-  body.appendChild(wrap);
 }
 
 /** Render the score ring, missing-keyword chips, and the resume-generator chain. */
@@ -3958,68 +3176,6 @@ function openResumePanel(
       }
     }
   );
-}
-
-/** Segmented-control option button for the Settings panel (Expanded / Minimized). */
-function viewOptionBtn(label: string): HTMLButtonElement {
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.textContent = label;
-  b.style.cssText = viewOptionStyle(false);
-  return b;
-}
-
-function viewOptionStyle(selected: boolean): string {
-  return [
-    'flex:1',
-    'padding:8px 0',
-    'border-radius:8px',
-    'font:inherit',
-    'font-size:12px',
-    'font-weight:700',
-    'cursor:pointer',
-    selected ? 'background:#2563eb' : 'background:var(--tmo-widget-surface)',
-    selected ? 'color:#fff' : 'color:var(--tmo-widget-ink)',
-    selected ? 'border:1px solid #2563eb' : 'border:1px solid var(--tmo-widget-border)',
-  ].join(';');
-}
-
-function logoSvgFallback(): SVGSVGElement {
-  const ns = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('width', '28');
-  svg.setAttribute('height', '28');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  const path = document.createElementNS(ns, 'path');
-  path.setAttribute(
-    'd',
-    'M4 14c2.5-1 5-4 6-7 1 3 3.5 6 6 7-2 1.5-4 2.5-6 2.5S6 15.5 4 14z'
-  );
-  path.setAttribute('fill', 'var(--tmo-color-success-ink)');
-  path.setAttribute('opacity', '0.9');
-  svg.appendChild(path);
-  return svg;
-}
-
-function showMessage(message: string, isError: boolean) {
-  const el = document.createElement('div');
-  el.textContent = message;
-  el.style.cssText = `
-    position: fixed;
-    bottom: 110px;
-    right: 24px;
-    z-index: 2147483647;
-    padding: 12px 20px;
-    font-size: 14px;
-    color: #fff;
-    background: ${isError ? 'var(--tmo-color-danger-ink)' : '#059669'};
-    border-radius: 8px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  `;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3000);
 }
 
 let lastUrl = location.href;
