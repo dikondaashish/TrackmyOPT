@@ -71,6 +71,8 @@ function setup() {
           ],
         } as { rows: T[] });
       }
+      if (sql.trim().startsWith('DELETE'))
+        return { rowsAffected: 1 } as { rowsAffected: number };
       if (sql.trim().startsWith('SELECT 1 AS'))
         return Promise.resolve({ rows: [{ ok: 1 }] } as { rows: T[] });
       return Promise.resolve({
@@ -201,6 +203,39 @@ describe('OracleJobDataStore shadow adapter', () => {
     );
     await store.upsertVisaSignals([]);
     expect(executed).toHaveLength(0);
+  });
+
+  it('deletes only verified source/external identities and their signals', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'test',
+        user: 'test',
+        password: 'test-only',
+        poolMax: 1,
+      },
+      driver,
+    );
+
+    await expect(
+      store.deleteVerifiedExtras([
+        {
+          id: 'job-1',
+          sourceId: 'source-1',
+          externalJobId: 'external-1',
+        },
+      ]),
+    ).resolves.toBe(1);
+
+    const signalDelete = executed.find((entry) =>
+      entry.sql.includes('DELETE FROM job_visa_signals'),
+    );
+    const jobDelete = executed.find((entry) =>
+      entry.sql.includes('DELETE FROM jobs'),
+    );
+    expect(signalDelete).toBeDefined();
+    expect(jobDelete?.sql).toContain('source_id = :sourceId');
+    expect(jobDelete?.sql).toContain('id IN (:extraId0)');
   });
 
   it('rejects oversized evidence instead of silently truncating it', async () => {

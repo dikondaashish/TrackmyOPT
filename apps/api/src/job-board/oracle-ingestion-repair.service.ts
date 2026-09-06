@@ -142,7 +142,16 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
             .map((row) => ({ id: row.id, externalJobId: row.externalJobId }));
         }
       }
-      if (write && extra.length) throw new Error('unexpected_oracle_identity');
+      let deletedExtras = 0;
+      if (write && extra.length) {
+        deletedExtras = await oracle.deleteVerifiedExtras(
+          extra.map((row) => ({
+            id: row.id,
+            sourceId,
+            externalJobId: row.externalJobId,
+          })),
+        );
+      }
       const changedIds = new Set(differences.map((row) => row.id));
       const changed = left.rows.filter((row) => changedIds.has(row.id));
       if (write && changed.length) {
@@ -243,6 +252,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
         differences,
         extra,
         written: write ? changed.length : 0,
+        deletedExtras,
         verified: left.rows.length - remaining.length,
         remaining: remaining.length,
         sourceHash: left.rows.map(canonicalJobHash),

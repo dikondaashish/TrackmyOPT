@@ -838,6 +838,71 @@ export class OracleJobDataStore implements JobDataStore {
   }
 
   /**
+   * Deletes only identities proven absent from the Supabase source during the
+   * bounded parity repair. The caller must provide the source/external key
+   * alongside each UUID; this is not part of the normal ingestion contract.
+   */
+  async deleteVerifiedExtras(
+    entries: readonly {
+      id: string;
+      sourceId: string;
+      externalJobId: string;
+    }[],
+  ) {
+    if (!entries.length) return 0;
+    if (entries.length > 100)
+      throw new Error('Verified extra batch exceeds 100');
+    if (entries.some((entry) => entry.sourceId !== entries[0].sourceId))
+      throw new Error('Verified extra batch spans multiple sources');
+    const connection = await this.connection();
+    const idBinds = Object.fromEntries(
+      entries.flatMap((entry, index) => [
+        [`extraId${index}`, entry.id],
+        [`extraExternal${index}`, entry.externalJobId],
+      ]),
+    );
+    const predicates = entries
+      .map(
+        (_, index) =>
+          `(id = :extraId${index} AND external_job_id = :extraExternal${index})`,
+      )
+      .join(' OR ');
+    try {
+      const verified = await connection.execute<{ ID: string }>(
+        `SELECT id AS "ID" FROM jobs
+         WHERE source_id = :sourceId AND (${predicates})`,
+        { sourceId: entries[0].sourceId, ...idBinds },
+        outputOptions(this.driver),
+      );
+      if ((verified.rows || []).length !== entries.length)
+        throw new Error('Verified extra identity changed');
+
+      const ids = entries.map((_, index) => `:extraId${index}`);
+      const binds = { ...idBinds };
+      await connection.execute(
+        `DELETE FROM job_visa_signals WHERE job_id IN (${ids.join(', ')})`,
+        binds,
+        { autoCommit: false },
+      );
+      const deleted = await connection.execute(
+        `DELETE FROM jobs
+         WHERE source_id = :sourceId AND id IN (${ids.join(', ')})`,
+        { sourceId: entries[0].sourceId, ...binds },
+        { autoCommit: false },
+      );
+      if ((deleted.rowsAffected || 0) !== entries.length)
+        throw new Error('Verified extra delete count mismatch');
+      await connection.commit();
+      return entries.length;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      await connection.close();
+    }
+  }
+
+  /**
    * Repairs a source/external identity whose canonical Supabase UUID changed.
    *
    * This is intentionally separate from the normal MERGE contract: ordinary
