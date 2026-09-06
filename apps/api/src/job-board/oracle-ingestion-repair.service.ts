@@ -111,21 +111,31 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       // Reciprocal lookup catches Oracle-only identities even with different UUIDs.
       let extra: Array<{ id: string; externalJobId: string }> = [];
       if (right.rows.length) {
-        const lookup = await this.supabase
-          .from('jobs')
-          .select(SUPABASE_JOB_COLUMNS)
-          .eq('source_id', sourceId)
-          .in(
-            'external_job_id',
-            right.rows.map((row) => row.externalJobId),
+        if (!left.rows.length) {
+          // Once the source page is exhausted, every target row on this page
+          // is outside the source corpus. Avoid a second large Supabase query
+          // on this terminal page, which can time out under database load.
+          extra = right.rows.map((row) => ({
+            id: row.id,
+            externalJobId: row.externalJobId,
+          }));
+        } else {
+          const lookup = await this.supabase
+            .from('jobs')
+            .select(SUPABASE_JOB_COLUMNS)
+            .eq('source_id', sourceId)
+            .in(
+              'external_job_id',
+              right.rows.map((row) => row.externalJobId),
+            );
+          if (lookup.error) throw new Error('source_identity_read_failed');
+          const keys = new Set(
+            (lookup.data || []).map(mapSupabaseJobRow).map(externalIdentity),
           );
-        if (lookup.error) throw new Error('source_identity_read_failed');
-        const keys = new Set(
-          (lookup.data || []).map(mapSupabaseJobRow).map(externalIdentity),
-        );
-        extra = right.rows
-          .filter((row) => !keys.has(externalIdentity(row)))
-          .map((row) => ({ id: row.id, externalJobId: row.externalJobId }));
+          extra = right.rows
+            .filter((row) => !keys.has(externalIdentity(row)))
+            .map((row) => ({ id: row.id, externalJobId: row.externalJobId }));
+        }
       }
       if (write && extra.length) throw new Error('unexpected_oracle_identity');
       const changedIds = new Set(differences.map((row) => row.id));
