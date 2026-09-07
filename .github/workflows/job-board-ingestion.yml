@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       manual_run_id:
-        description: 'Explicit ID: job-board-manual-<unique-token>'
+        description: 'Explicit ID: job-board-manual-<unique-token> or an existing job-board-hour-* run for recovery'
         required: true
         type: string
 
@@ -33,7 +33,7 @@ jobs:
         run: |
           test -n "$RENDER_API_URL" || { echo 'Missing RENDER_API_URL secret'; exit 1; }
           test -n "$API_SECRET_KEY" || { echo 'Missing API_SECRET_KEY secret'; exit 1; }
-          case "$SCHEDULER_RUN_ID" in job-board-manual-*) ;; *) echo 'Invalid manual run ID'; exit 1;; esac
+          case "$SCHEDULER_RUN_ID" in job-board-manual-*|job-board-hour-*) ;; *) echo 'Invalid supervised run ID'; exit 1;; esac
 
       - name: Wake Render and queue ingestion
         env:
