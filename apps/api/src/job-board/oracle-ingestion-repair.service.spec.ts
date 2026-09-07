@@ -60,4 +60,61 @@ describe('protected production parity repair guards', () => {
     );
     expect(factory).not.toHaveBeenCalled();
   });
+
+  function accountingPage(sourceHasIdentity: boolean) {
+    const { service } = setup(true, 'supabase');
+    const row = {
+      id: 'oracle-created',
+      sourceId: 'source',
+      sourceAts: 'greenhouse',
+      boardToken: 'board',
+      externalJobId: 'legitimate',
+      listingStatus: 'open',
+    };
+    const target = {
+      healthCheck: jest.fn(),
+      listSourceJobsPage: jest
+        .fn()
+        .mockResolvedValue({ rows: [row], total: 501 }),
+      deleteVerifiedExtras: jest.fn(),
+    };
+    const internal = service as unknown as {
+      guard: jest.Mock;
+      target: jest.Mock;
+      source: unknown;
+      getOracleRowsByExternalIds: jest.Mock;
+      getSupabaseRowsByExternalIds: jest.Mock;
+      readSourceSignals: jest.Mock;
+      getOracleSignals: jest.Mock;
+    };
+    internal.guard = jest.fn().mockResolvedValue(['source']);
+    internal.target = jest.fn().mockReturnValue(target);
+    internal.source = {
+      listSourceJobsPage: jest.fn().mockResolvedValue({ rows: [], total: 500 }),
+    };
+    internal.getOracleRowsByExternalIds = jest.fn().mockResolvedValue([]);
+    internal.getSupabaseRowsByExternalIds = jest
+      .fn()
+      .mockResolvedValue(sourceHasIdentity ? [row] : []);
+    internal.readSourceSignals = jest.fn().mockResolvedValue([]);
+    internal.getOracleSignals = jest.fn().mockResolvedValue([]);
+    return { service, target, internal };
+  }
+
+  it('checks reciprocal identity even when the Supabase offset page is empty', async () => {
+    const { service, internal } = accountingPage(true);
+    expect(await service.page(0, 500, false)).toMatchObject({ extra: [] });
+    expect(internal.getSupabaseRowsByExternalIds).toHaveBeenCalledWith(
+      'source',
+      ['legitimate'],
+    );
+  });
+
+  it('preserves Oracle-only jobs and refuses synchronization until they are accounted for', async () => {
+    const { service, target } = accountingPage(false);
+    await expect(service.page(0, 500, true)).rejects.toThrow(
+      'oracle_only_jobs_require_accounting',
+    );
+    expect(target.deleteVerifiedExtras).not.toHaveBeenCalled();
+  });
 });

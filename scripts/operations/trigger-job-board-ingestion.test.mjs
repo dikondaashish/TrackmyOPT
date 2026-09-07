@@ -5,8 +5,8 @@ import { after, before, test } from 'node:test';
 
 import {
   schedulerRunId,
-  superviseJobBoardIngestion,
   triggerJobBoardIngestion,
+  superviseIngestion,
 } from './trigger-job-board-ingestion.mjs';
 
 let baseUrl;
@@ -15,8 +15,6 @@ let healthAttempts = 0;
 let ingestionRequests = 0;
 let schedulerHeader;
 let triggerOriginHeader;
-let resumeRequests = 0;
-let recoveryRequests = 0;
 
 before(async () => {
   server = createServer((request, response) => {
@@ -40,44 +38,6 @@ before(async () => {
       return;
     }
 
-    if (
-      request.method === 'POST' &&
-      request.url === '/job-board/ops/ingestion-queue/resume'
-    ) {
-      resumeRequests += 1;
-      response.writeHead(200, { 'content-type': 'application/json' });
-      response.end(JSON.stringify({}));
-      return;
-    }
-
-    if (
-      request.method === 'POST' &&
-      request.url.startsWith('/job-board/ops/ingestion-runs/') &&
-      request.url.endsWith('/recover')
-    ) {
-      recoveryRequests += 1;
-      response.writeHead(200, { 'content-type': 'application/json' });
-      response.end(JSON.stringify({ sourcesRequeued: 0 }));
-      return;
-    }
-
-    if (
-      request.method === 'GET' &&
-      request.url.startsWith('/job-board/ops/ingestion-runs/')
-    ) {
-      response.writeHead(200, { 'content-type': 'application/json' });
-      response.end(
-        JSON.stringify({
-          selectedSources: 2,
-          terminalAudits: 2,
-          queuedJobs: 0,
-          activeJobs: 0,
-          unaccountedSources: 0,
-        }),
-      );
-      return;
-    }
-
     response.writeHead(404);
     response.end();
   });
@@ -85,6 +45,52 @@ before(async () => {
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const address = server.address();
   baseUrl = `http://127.0.0.1:${address.port}`;
+});
+
+const runId = 'job-board-manual-unit';
+const running = { schedulerRunId: runId, status: 'running', manifestAvailable: true,
+  selected: 2, terminal: 1, succeeded: 1, failed: 0, started: 1, missing: 0, runnable: 1 };
+const completed = { ...running, status: 'completed', terminal: 2, succeeded: 2, started: 0, runnable: 0 };
+function supervision(responses, overrides = {}) {
+  let time = 0;
+  const requests = [];
+  const config = { apiUrl: 'https://api.example.test', apiKey: 'test-secret', schedulerId: runId,
+    clock: () => time, wait: async (ms) => { time += ms; }, pollMs: 45_000, deadlineMs: 180_000,
+    fetchImpl: async (url, options) => {
+      requests.push({ url: String(url), options });
+      const next = responses.shift();
+      if (next instanceof Error) throw next;
+      return { ok: true, json: async () => next ?? running };
+    }, ...overrides };
+  return { requests, run: () => superviseIngestion(config) };
+}
+test('supervises beyond enqueue using authenticated GETs only until all audits finish', async () => {
+  const { run, requests } = supervision([running, running, completed]);
+  assert.equal((await run()).terminal, 2);
+  assert.equal(requests.length, 3);
+  for (const request of requests) {
+    assert.equal(request.options.headers['x-api-key'], 'test-secret');
+    assert.equal(request.options.method, undefined);
+    assert.match(request.url, /ingestion-runs/);
+  }
+});
+test('tolerates a cold/restarting service without redispatching', async () => {
+  const { run, requests } = supervision([new Error('network'), running, completed]);
+  await run();
+  assert.equal(requests.length, 3);
+});
+test('fails visibly on stranded audits or missing identities, never false green', async () => {
+  await assert.rejects(supervision([{ ...running, status: 'failed', runnable: 0 }]).run(), /incomplete/);
+  await assert.rejects(supervision([{ ...completed, missing: 1 }]).run(), /incomplete/);
+  await assert.rejects(supervision([{ ...completed, failed: 1, succeeded: 1 }]).run(), /incomplete/);
+});
+test('never automatically resumes paused queues', async () => {
+  await assert.rejects(supervision([{ ...running, queuesPaused: { normal: true } }]).run(), /paused/);
+});
+test('bounds supervision and does not leak dependency error contents', async () => {
+  await assert.rejects(supervision([], { deadlineMs: 90_000 }).run(), /deadline/);
+  await assert.rejects(supervision([new Error('private'), new Error('private'), new Error('private')]).run(),
+    (error) => /unavailable/.test(error.message) && !error.message.includes('private'));
 });
 
 after(async () => {
@@ -154,19 +160,4 @@ test('keeps GitHub Actions as manual-dispatch-only fallback', async () => {
   assert.doesNotMatch(workflow, /schedule:/);
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /manual_run_id:/);
-});
-
-test('supervises a run while keeping the API warm and recovering missing jobs', async () => {
-  const result = await superviseJobBoardIngestion({
-    apiUrl: baseUrl,
-    apiKey: 'test-secret',
-    schedulerId: 'job-board-manual-supervised-1',
-    allowHttp: true,
-    pollIntervalMs: 1,
-    maxDurationMs: 1000,
-  });
-
-  assert.equal(result.terminalAudits, 2);
-  assert.equal(resumeRequests, 1);
-  assert.equal(recoveryRequests, 1);
 });

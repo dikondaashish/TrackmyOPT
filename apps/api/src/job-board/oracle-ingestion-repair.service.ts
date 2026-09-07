@@ -136,38 +136,21 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
       );
       const differences = compareIdentityRows(left.rows, matches);
 
-      // Reciprocal lookup catches Oracle-only identities even with different UUIDs.
-      let extra: Array<{ id: string; externalJobId: string }> = [];
-      if (right.rows.length) {
-        if (!left.rows.length) {
-          // Once the source page is exhausted, every target row on this page
-          // is outside the source corpus. Avoid a second large Supabase query
-          // on this terminal page, which can time out under database load.
-          extra = right.rows.map((row) => ({
-            id: row.id,
-            externalJobId: row.externalJobId,
-          }));
-        } else {
-          const lookupRows = await this.getSupabaseRowsByExternalIds(
-            sourceId,
-            right.rows.map((row) => row.externalJobId),
-          );
-          const keys = new Set(lookupRows.map(externalIdentity));
-          extra = right.rows
-            .filter((row) => !keys.has(externalIdentity(row)))
-            .map((row) => ({ id: row.id, externalJobId: row.externalJobId }));
-        }
-      }
-      let deletedExtras = 0;
-      if (write && extra.length) {
-        deletedExtras = await oracle.deleteVerifiedExtras(
-          extra.map((row) => ({
-            id: row.id,
-            sourceId,
-            externalJobId: row.externalJobId,
-          })),
-        );
-      }
+      // UUID ordering can shift page boundaries between stores. Always resolve
+      // reciprocal natural identities, including when the source page is empty.
+      const lookupRows = await this.getSupabaseRowsByExternalIds(
+        sourceId,
+        right.rows.map((row) => row.externalJobId),
+      );
+      const keys = new Set(lookupRows.map(externalIdentity));
+      const extra = right.rows
+        .filter((row) => !keys.has(externalIdentity(row)))
+        .map((row) => ({ id: row.id, externalJobId: row.externalJobId }));
+      // Authorized Oracle ingestion can discover legitimate jobs. The parity
+      // path must preserve them until normal ingestion establishes canonical IDs.
+      if (write && extra.length)
+        throw new Error('oracle_only_jobs_require_accounting');
+      const deletedExtras = 0;
       const changedIds = new Set(differences.map((row) => row.id));
       const changed = left.rows.filter((row) => changedIds.has(row.id));
       const timestampOnly = differences

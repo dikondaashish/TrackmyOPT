@@ -6,22 +6,9 @@ const sleep = (milliseconds) =>
 async function request(url, options, timeoutMs) {
   return fetch(url, {
     ...options,
+    redirect: 'error',
     signal: AbortSignal.timeout(timeoutMs),
   });
-}
-
-async function jsonRequest(url, options, timeoutMs) {
-  const response = await request(url, options, timeoutMs);
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const pathname = new URL(url).pathname;
-    const detail =
-      typeof body?.message === 'string' ? `: ${body.message}` : '';
-    throw new Error(
-      `Request returned ${response.status} for ${pathname}${detail}`,
-    );
-  }
-  return body;
 }
 
 export function schedulerRunId(now = new Date()) {
@@ -46,7 +33,6 @@ export async function triggerJobBoardIngestion({
   if (!allowHttp && baseUrl.protocol !== 'https:') {
     throw new Error('Render API URL must use HTTPS');
   }
-  console.log(`Using Render API host ${baseUrl.host}`);
 
   let healthy = false;
   for (let attempt = 1; attempt <= healthAttempts; attempt += 1) {
@@ -61,8 +47,8 @@ export async function triggerJobBoardIngestion({
         break;
       }
       console.warn(`API wake attempt ${attempt} returned ${response.status}`);
-    } catch (error) {
-      console.warn(`API wake attempt ${attempt} failed: ${error.message}`);
+    } catch {
+      console.warn(`API wake attempt ${attempt} failed`);
     }
 
     if (attempt < healthAttempts) await sleep(retryDelayMs);
@@ -103,89 +89,69 @@ export async function triggerJobBoardIngestion({
   return { status: result.status, jobId: String(result.jobId) };
 }
 
-export async function superviseJobBoardIngestion({
-  apiUrl,
-  apiKey,
-  schedulerId,
-  allowHttp = false,
-  pollIntervalMs = 15_000,
-  maxDurationMs = 90 * 60 * 1000,
-} = {}) {
-  if (!apiUrl) throw new Error('Render API URL is required');
-  if (!apiKey) throw new Error('API secret is required');
-  if (!schedulerId) throw new Error('Scheduler run ID is required');
-
-  const baseUrl = new URL(apiUrl);
-  if (!allowHttp && baseUrl.protocol !== 'https:') {
-    throw new Error('Render API URL must use HTTPS');
+/** The runner owns the whole bounded run, not just the enqueue HTTP request.
+ * These authenticated progress reads also prevent idle spin-down while work is
+ * in progress. There is no permanent keep-alive or automatic queue resume. */
+export async function superviseIngestion({
+  apiUrl, apiKey, schedulerId, pollMs = 45_000, deadlineMs = 120 * 60_000,
+  requestTimeoutMs = 120_000, fetchImpl = fetch, wait = sleep, clock = Date.now,
+  onProgress = () => {},
+}) {
+  if (!apiKey || !/^job-board-(manual-[A-Za-z0-9][A-Za-z0-9._:-]{0,127}|hour-\d{4}-\d{2}-\d{2}T\d{2})$/.test(schedulerId)) {
+    throw new Error('Invalid supervision configuration');
   }
-  const headers = { 'x-api-key': apiKey };
-  const startedAt = Date.now();
-  let lastStatus;
-  while (Date.now() - startedAt <= maxDurationMs) {
-    // Keep a Free web service awake while its Bull worker drains persisted
-    // jobs. Each request is bounded and the loop is restart-safe.
-    await jsonRequest(baseUrl, { method: 'GET' }, 60_000);
-    await jsonRequest(
-      new URL('/job-board/ops/ingestion-queue/resume', baseUrl),
-      { method: 'POST', headers },
-      30_000,
-    );
-    const recovery = await jsonRequest(
-      new URL(
-        `/job-board/ops/ingestion-runs/${encodeURIComponent(schedulerId)}/recover`,
-        baseUrl,
-      ),
-      { method: 'POST', headers },
-      60_000,
-    );
-    const status = await jsonRequest(
-      new URL(
-        `/job-board/ops/ingestion-runs/${encodeURIComponent(schedulerId)}`,
-        baseUrl,
-      ),
-      { method: 'GET', headers },
-      60_000,
-    );
-    lastStatus = status;
-    console.log(
-      `Ingestion ${schedulerId}: selected=${status.selectedSources} terminal=${status.terminalAudits} queued=${status.queuedJobs} active=${status.activeJobs} unaccounted=${status.unaccountedSources} requeued=${recovery.sourcesRequeued}`,
-    );
-    if (
-      status.selectedSources > 0 &&
-      status.terminalAudits >= status.selectedSources &&
-      status.queuedJobs === 0 &&
-      status.activeJobs === 0 &&
-      status.unaccountedSources === 0
-    ) {
-      return status;
+  const url = new URL(`/job-board/ingestion-runs/${encodeURIComponent(schedulerId)}`, apiUrl);
+  if (url.protocol !== 'https:') throw new Error('Supervision requires HTTPS');
+  const started = clock();
+  let unavailable = 0;
+  while (clock() - started < deadlineMs) {
+    let response;
+    try {
+      response = await fetchImpl(url, {
+        headers: { 'x-api-key': apiKey }, redirect: 'error',
+        signal: AbortSignal.timeout(Math.max(1, Math.min(requestTimeoutMs, deadlineMs - (clock() - started)))),
+      });
+    } catch {
+      if (++unavailable >= 3) throw new Error('Run supervision unavailable; inspect existing run, do not redispatch');
+      await wait(pollMs);
+      continue;
     }
-    await sleep(pollIntervalMs);
+    if (!response.ok) {
+      if (![502, 503, 504].includes(response.status) || ++unavailable >= 3) {
+        throw new Error(`Run supervision returned HTTP ${response.status}`);
+      }
+      await wait(pollMs);
+      continue;
+    }
+    unavailable = 0;
+    const result = await response.json();
+    if (result.schedulerRunId !== schedulerId || !['running', 'completed', 'failed'].includes(result.status)) {
+      throw new Error('Invalid run supervision response');
+    }
+    onProgress({ status: result.status, selected: result.selected, terminal: result.terminal,
+      succeeded: result.succeeded, failed: result.failed, started: result.started,
+      missing: result.missing, runnable: result.runnable });
+    if (result.status === 'completed' && result.manifestAvailable && result.terminal === result.selected && result.failed === 0 && result.missing === 0 && result.started === 0 && result.runnable === 0) return result;
+    if (result.status !== 'running') throw new Error('Ingestion incomplete or failed; inspect existing run, do not redispatch');
+    if (result.queuesPaused?.normal || result.queuesPaused?.slow) throw new Error('Ingestion queue is paused; no automatic resume permitted');
+    await wait(pollMs);
   }
-  throw new Error(
-    `Ingestion supervision timed out: ${JSON.stringify(lastStatus || {})}`,
-  );
+  throw new Error('Ingestion supervision deadline exceeded; do not redispatch');
 }
 
 async function main() {
-  const result = await triggerJobBoardIngestion({
+  const config = {
     apiUrl: process.env.RENDER_API_URL,
     apiKey: process.env.API_SECRET_KEY,
-    schedulerId: process.env.SCHEDULER_RUN_ID,
+    schedulerId: process.env.SCHEDULER_RUN_ID || schedulerRunId(),
     triggerOrigin: process.env.TRIGGER_ORIGIN || 'github_actions',
-  });
-
-  console.log(
-    `Job-board ingestion ${result.status} successfully (job ${result.jobId})`
-  );
-  if (process.env.SUPERVISE_INGESTION === 'true') {
-    await superviseJobBoardIngestion({
-      apiUrl: process.env.RENDER_API_URL,
-      apiKey: process.env.API_SECRET_KEY,
-      schedulerId: process.env.SCHEDULER_RUN_ID,
-    });
-    console.log('Job-board ingestion reached terminal outcomes for all selected sources');
+  };
+  if (process.env.MONITOR_ONLY !== 'true') {
+    const result = await triggerJobBoardIngestion(config);
+    console.log(`Job-board dispatch ${result.status}`);
   }
+  await superviseIngestion({ ...config, onProgress: (progress) => console.log(JSON.stringify(progress)) });
+  console.log('Job-board run has a terminal audit for every selected source');
 }
 
 if (

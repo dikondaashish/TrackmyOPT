@@ -33,6 +33,20 @@ describe('JobBoardController scheduler contract', () => {
     listForJobs.mockReset().mockResolvedValue([]);
   });
 
+  it('allows only normalized run IDs for read-only supervision', async () => {
+    await expect(
+      controller.ingestionRunStatus('arbitrary'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(getIngestionRunStatus).not.toHaveBeenCalled();
+    getIngestionRunStatus.mockResolvedValue({ status: 'running' });
+    await expect(
+      controller.ingestionRunStatus('job-board-manual-existing'),
+    ).resolves.toEqual({ status: 'running' });
+    expect(getIngestionRunStatus).toHaveBeenCalledWith(
+      'job-board-manual-existing',
+    );
+  });
+
   it.each([undefined, '', 'job-board-hour-2026-09-01T03:15', 'arbitrary-id'])(
     'rejects missing or malformed scheduler ID %p with 400',
     async (schedulerRunId) => {
