@@ -144,12 +144,25 @@ async function fetchNativeAtsJobs(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let response: Response;
+  let body: string;
   try {
     response = await fetch(url, {
       headers: { accept: 'application/json', 'user-agent': 'TrackMyOPT/1.0' },
       signal: controller.signal,
     });
+    if (!response.ok) {
+      throw new AtsScraperRunnerError(
+        `${source.ats_type} HTTP ${response.status}`,
+        1,
+      );
+    }
+    // Keep the deadline active through body consumption. A response can
+    // resolve its headers promptly but hang while streaming a large body;
+    // clearing the timer immediately after fetch would leave the Bull job
+    // active indefinitely and defeat restart recovery.
+    body = await response.text();
   } catch (error) {
+    if (error instanceof AtsScraperRunnerError) throw error;
     const reason = error instanceof Error ? error.message : 'request failed';
     throw new AtsScraperRunnerError(
       `${source.ats_type} request failed: ${reason}`,
@@ -158,13 +171,6 @@ async function fetchNativeAtsJobs(
   } finally {
     clearTimeout(timeout);
   }
-  if (!response.ok) {
-    throw new AtsScraperRunnerError(
-      `${source.ats_type} HTTP ${response.status}`,
-      1,
-    );
-  }
-  const body = await response.text();
   if (Buffer.byteLength(body) > maxOutputBytes) {
     throw new AtsScraperRunnerError(
       `${source.ats_type} response exceeded the ${maxOutputBytes}-byte output limit`,

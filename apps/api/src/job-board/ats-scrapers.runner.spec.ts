@@ -279,4 +279,25 @@ describe('ats-scrapers process runner', () => {
       fetchAuthorizedAtsJobs(SOURCE, { timeoutMs: 5 }),
     ).rejects.toThrow('request failed: aborted');
   });
+
+  it('enforces the deadline while consuming a native response body', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation((_input, init) =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () =>
+          new Promise((_resolve, reject) => {
+            // The runner must abort a body that never finishes, not leave the
+            // source job active after headers have arrived.
+            init?.signal?.addEventListener('abort', () =>
+              reject(new Error('body aborted')),
+            );
+          }),
+      } as Response),
+    );
+
+    await expect(
+      fetchAuthorizedAtsJobs(SOURCE, { timeoutMs: 5 }),
+    ).rejects.toThrow('request failed: body aborted');
+  });
 });
