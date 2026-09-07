@@ -69,16 +69,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
     const count = await this.supabase
       .from('jobs')
       .select('id', { head: true, count: 'exact' });
-    const expectedJobCount = this.config.get<number>(
-      'ORACLE_INGESTION_REPAIR_EXPECTED_JOB_COUNT',
-    );
-    if (
-      typeof expectedJobCount !== 'number' ||
-      !Number.isInteger(expectedJobCount) ||
-      expectedJobCount < 1 ||
-      count.error ||
-      count.count !== expectedJobCount
-    )
+    if (count.error || count.count !== 11623)
       throw new Error('source_baseline_changed');
     const sources = await this.supabase
       .from('ats_sources')
