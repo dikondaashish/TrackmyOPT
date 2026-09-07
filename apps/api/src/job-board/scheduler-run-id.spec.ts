@@ -30,7 +30,7 @@ describe('job-board scheduler idempotency', () => {
       attempts: 3,
       backoff: { type: 'exponential', delay: 30_000 },
       jobId: 'job-board-hour-2026-08-31T18',
-      removeOnComplete: 3,
+      removeOnComplete: false,
       removeOnFail: false,
     });
   });
@@ -42,7 +42,7 @@ describe('job-board scheduler idempotency', () => {
       attempts: 3,
       backoff: { type: 'exponential', delay: 30_000 },
       jobId: 'job-board-manual-incident-123',
-      removeOnComplete: 3,
+      removeOnComplete: false,
       removeOnFail: false,
     });
   });

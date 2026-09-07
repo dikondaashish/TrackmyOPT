@@ -59,7 +59,10 @@ export function planIngestionOrchestratorOptions(schedulerRunId: string) {
   return {
     ...retryOptions,
     jobId: schedulerRunId,
-    // Bull must retain recent completed job IDs as a second dedupe layer.
-    removeOnComplete: 3,
+    // Keep the coordinator and its immutable source manifest available for
+    // read-only status and restart recovery. A small completed-job cap lets
+    // source completions evict the coordinator while its children are still
+    // running, making a legitimate run appear un-attributable.
+    removeOnComplete: false,
   };
 }
