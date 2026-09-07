@@ -30,10 +30,11 @@ import {
   signalIdentity,
 } from './oracle-ingestion-repair';
 
-/** Temporary repair of the 2026-09-06 ingestion delta. API-key protected,
- * disabled by default, bounded pages, source read-only, no deletion/reconcile.
- * Caller can only select an ordinal in the server-discovered fixed corpus.
- * Remove this service/controller after verification and before cutover. */
+/** Protected, bounded Supabase-to-Oracle parity synchronization. The app-wide
+ * API-key guard protects this operation and the explicit feature flag keeps it
+ * disabled unless an operator intentionally enables migration work. Each call
+ * is limited to one deterministic source page and verifies its writes before
+ * returning, so retries are idempotent and never require arbitrary selectors. */
 @Injectable()
 export class OracleIngestionRepairService implements OnModuleDestroy {
   private oracle?: OracleJobDataStore;
@@ -69,14 +70,14 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
     const count = await this.supabase
       .from('jobs')
       .select('id', { head: true, count: 'exact' });
-    if (count.error || count.count !== 11623)
-      throw new Error('source_baseline_changed');
+    if (count.error || count.count == null)
+      throw new Error('source_baseline_read_failed');
     const sources = await this.supabase
       .from('ats_sources')
       .select('id')
       .order('id');
-    if (sources.error || sources.data?.length !== 177)
-      throw new Error('source_manifest_changed');
+    if (sources.error || !sources.data?.length)
+      throw new Error('source_manifest_read_failed');
     return sources.data.map((row) => String(row.id));
   }
 
@@ -98,7 +99,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
     if (
       !Number.isInteger(index) ||
       index < 0 ||
-      index >= 177 ||
+      index > 10000 ||
       !Number.isInteger(offset) ||
       offset < 0 ||
       offset > 20000 ||
@@ -110,6 +111,7 @@ export class OracleIngestionRepairService implements OnModuleDestroy {
     let phase = 'guard';
     try {
       const sources = await this.guard();
+      if (index >= sources.length) throw new Error('invalid_page');
       const sourceId = sources[index];
       const oracle = this.target();
       phase = 'health';

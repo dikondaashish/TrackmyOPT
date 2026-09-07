@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { OracleIngestionRepairService } from './oracle-ingestion-repair.service';
 import { OracleJobDataStore } from './oracle-job-data-store';
 
-describe('temporary production parity repair guards', () => {
+describe('protected production parity repair guards', () => {
   afterEach(() => jest.restoreAllMocks());
   function setup(enabled: boolean, store: string, paused = true) {
     const config = {
@@ -50,7 +50,7 @@ describe('temporary production parity repair guards', () => {
   });
   it.each([
     [-1, 0],
-    [177, 0],
+    [10001, 0],
     [0, 1],
     [0, 20100],
   ])('rejects unbounded selectors %i/%i', async (index, offset) => {
