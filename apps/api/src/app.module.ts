@@ -56,7 +56,6 @@ export const appConfigValidationSchema = Joi.object({
   // Emergency-only operational guard for draining Bull safely after a
   // restart. Disabled by default and scoped to the two job-board queues.
   JOB_BOARD_QUEUE_CONTROL_ENABLED: Joi.boolean().default(false),
-  ORACLE_INGESTION_REPAIR_ENABLED: Joi.boolean().default(false),
   JOB_BOARD_QUEUE_PAUSE_ON_BOOT: Joi.boolean().default(false),
 });
 
