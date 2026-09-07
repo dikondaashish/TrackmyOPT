@@ -10,6 +10,7 @@ describe('JobBoardController scheduler contract', () => {
   const getJob = jest.fn();
   const getIngestionRunStatus = jest.fn();
   const recoverIngestionRun = jest.fn();
+  const cancelIngestionRun = jest.fn();
   const listForJobs = jest.fn().mockResolvedValue([]);
   const controller = new JobBoardController(
     {
@@ -19,6 +20,7 @@ describe('JobBoardController scheduler contract', () => {
       getJob,
       getIngestionRunStatus,
       recoverIngestionRun,
+      cancelIngestionRun,
     } as unknown as JobBoardService,
     { listForJobs } as unknown as JobVisaSignalService,
   );
@@ -30,6 +32,7 @@ describe('JobBoardController scheduler contract', () => {
     getJob.mockReset();
     getIngestionRunStatus.mockReset();
     recoverIngestionRun.mockReset();
+    cancelIngestionRun.mockReset();
     listForJobs.mockReset().mockResolvedValue([]);
   });
 
@@ -138,6 +141,16 @@ describe('JobBoardController scheduler contract', () => {
       'job-board-manual-supervised-1',
     );
     expect(recoverIngestionRun).toHaveBeenCalledWith(
+      'job-board-manual-supervised-1',
+    );
+  });
+
+  it('exposes bounded cancellation for an explicitly paused run', async () => {
+    cancelIngestionRun.mockResolvedValue({ jobsRemoved: 152 });
+    await expect(
+      controller.cancelIngestionRun('job-board-manual-supervised-1'),
+    ).resolves.toEqual({ jobsRemoved: 152 });
+    expect(cancelIngestionRun).toHaveBeenCalledWith(
       'job-board-manual-supervised-1',
     );
   });

@@ -152,6 +152,11 @@ export class JobBoardController {
   recoverIngestionRun(@Param('runId') runId: string) {
     return this.jobBoard.recoverIngestionRun(runId);
   }
+
+  @Post('ops/ingestion-runs/:runId/cancel')
+  cancelIngestionRun(@Param('runId') runId: string) {
+    return this.jobBoard.cancelIngestionRun(runId);
+  }
 }
 
 function positiveInteger(value: string | undefined, fallback: number) {

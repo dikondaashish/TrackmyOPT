@@ -285,6 +285,31 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     return { schedulerRunId: normalized, sourcesRequeued: missing.length };
   }
 
+  /** Remove only queued Bull wrappers for an explicitly aborted run. Source
+   * audits and persisted job data are retained; active work is never removed.
+   * Both queues must already be globally paused so this cannot race a worker.
+   */
+  async cancelIngestionRun(schedulerRunId: string) {
+    this.assertQueueControlEnabled();
+    const normalized = normalizeSchedulerRunId(schedulerRunId);
+    if (!normalized) throw new Error('Invalid scheduler run ID');
+    const [normalPaused, slowPaused] = await Promise.all([
+      this.queue.isPaused(),
+      this.slowQueue.isPaused(),
+    ]);
+    if (!normalPaused || !slowPaused)
+      throw new Error('ingestion_queue_not_paused');
+    const active = await this.queueJobsForRun(normalized, ['active']);
+    if (active.length) throw new Error('ingestion_run_active');
+    const queued = await this.queueJobsForRun(normalized, [
+      'waiting',
+      'delayed',
+      'paused',
+    ]);
+    await Promise.all(queued.map(({ job }) => job.remove()));
+    return { schedulerRunId: normalized, jobsRemoved: queued.length };
+  }
+
   async queueEnabledSources(context: SchedulerContext) {
     if (this.shuttingDown) throw new Error('Job-board worker is restarting');
     return queueSchedulerRun(context, this.schedulerRuns, () =>
