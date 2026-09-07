@@ -14,7 +14,8 @@ async function jsonRequest(url, options, timeoutMs) {
   const response = await request(url, options, timeoutMs);
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(`Request returned ${response.status}`);
+    const pathname = new URL(url).pathname;
+    throw new Error(`Request returned ${response.status} for ${pathname}`);
   }
   return body;
 }
