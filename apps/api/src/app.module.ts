@@ -57,6 +57,10 @@ export const appConfigValidationSchema = Joi.object({
   // restart. Disabled by default and scoped to the two job-board queues.
   JOB_BOARD_QUEUE_CONTROL_ENABLED: Joi.boolean().default(false),
   ORACLE_INGESTION_REPAIR_ENABLED: Joi.boolean().default(false),
+  ORACLE_INGESTION_REPAIR_EXPECTED_JOB_COUNT: Joi.number()
+    .integer()
+    .min(1)
+    .optional(),
   JOB_BOARD_QUEUE_PAUSE_ON_BOOT: Joi.boolean().default(false),
 });
 
