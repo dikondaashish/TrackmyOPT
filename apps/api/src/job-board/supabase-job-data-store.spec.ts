@@ -181,4 +181,44 @@ describe('Supabase job-store projection', () => {
     ]);
     expect(projections.join(',')).not.toContain('description');
   });
+
+  it('recovers from a broad-search statement timeout without returning a 500', async () => {
+    let attempts = 0;
+    const searchPredicates: string[] = [];
+    const query = {
+      select: () => query,
+      eq: () => query,
+      or: (predicate: string) => {
+        searchPredicates.push(predicate);
+        return query;
+      },
+      order: () => query,
+      range: () => {
+        attempts += 1;
+        if (attempts < 3) {
+          return Promise.resolve({
+            data: null,
+            count: null,
+            error: {
+              code: '57014',
+              message: 'canceling statement due to statement timeout',
+            },
+          });
+        }
+        return Promise.resolve({
+          data: [{ id: 'job-1' }],
+          count: 1,
+          error: null,
+        });
+      },
+    };
+    const store = new SupabaseJobDataStore({ from: () => query } as never);
+
+    await expect(
+      store.listJobs({ page: 1, pageSize: 1, query: 'react' }),
+    ).resolves.toMatchObject({ total: 1, rows: [{ id: 'job-1' }] });
+    expect(attempts).toBe(3);
+    expect(searchPredicates[0]).toContain('description.ilike.%react%');
+    expect(searchPredicates.at(-1)).toBe('title.ilike.%react%');
+  });
 });
