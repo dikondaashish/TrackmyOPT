@@ -46,6 +46,7 @@ export async function triggerJobBoardIngestion({
   if (!allowHttp && baseUrl.protocol !== 'https:') {
     throw new Error('Render API URL must use HTTPS');
   }
+  console.log(`Using Render API host ${baseUrl.host}`);
 
   let healthy = false;
   for (let attempt = 1; attempt <= healthAttempts; attempt += 1) {
