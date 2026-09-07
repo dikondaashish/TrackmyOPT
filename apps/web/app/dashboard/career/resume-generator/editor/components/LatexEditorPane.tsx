@@ -3,7 +3,8 @@
 import { RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Code, Loader2, Sparkles } from "lucide-react";
-import { GeneratingOverlay } from "./GeneratingOverlay";
+import { GenerationSteps } from "./GenerationSteps";
+import type { GenerationStep } from "@/lib/resume/generation-steps";
 import type { EditorViewMode } from "./LatexToolbar";
 
 export type LatexEditorPaneProps = {
@@ -13,6 +14,7 @@ export type LatexEditorPaneProps = {
     generatedLatex: string;
     isGenerating: boolean;
     isStreaming: boolean;
+    generationSteps: GenerationStep[];
     onChangeText: (value: string) => void;
     onSelectionSync: () => void;
     onOpenFeedback: () => void;
@@ -26,6 +28,7 @@ export function LatexEditorPane({
     generatedLatex,
     isGenerating,
     isStreaming,
+    generationSteps,
     onChangeText,
     onSelectionSync,
     onOpenFeedback,
@@ -80,8 +83,12 @@ export function LatexEditorPane({
                     }}
                 />
 
-                {/* AI Generating Overlay — shown while waiting for Gemini */}
-                {isGenerating && !editorValue && <GeneratingOverlay />}
+                {/* Pipeline progress. In split/visual mode the PDF pane already shows it. */}
+                {viewMode === "code" && isGenerating && !editorValue && (
+                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-900/95 p-8 text-gray-200 backdrop-blur-sm">
+                        <GenerationSteps steps={generationSteps} />
+                    </div>
+                )}
 
                 {/* Stop Streaming Button */}
                 {isStreaming && (

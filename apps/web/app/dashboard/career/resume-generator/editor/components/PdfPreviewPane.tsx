@@ -6,7 +6,9 @@ import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { AtsScorePanel } from "./AtsScorePanel";
 import { ApplyReadinessChecklist } from "./ApplyReadinessChecklist";
 import { PdfSelectablePreview } from "./PdfSelectablePreview";
+import { GenerationSteps } from "./GenerationSteps";
 import { ATS_PASS_SCORE, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
+import type { GenerationStep } from "@/lib/resume/generation-steps";
 import type { EditorViewMode } from "./LatexToolbar";
 
 export type PdfPreviewPaneProps = {
@@ -23,6 +25,7 @@ export type PdfPreviewPaneProps = {
     isCompiling: boolean;
     isScanning: boolean;
     isAutoFixing: boolean;
+    generationSteps: GenerationStep[];
     pdfHighlightQuery: string | null;
     onRefreshPdf: () => void;
     onPdfTextSelect: (text: string) => void;
@@ -44,6 +47,7 @@ export function PdfPreviewPane({
     isCompiling,
     isScanning,
     isAutoFixing,
+    generationSteps,
     pdfHighlightQuery,
     onRefreshPdf,
     onPdfTextSelect,
@@ -109,11 +113,8 @@ export function PdfPreviewPane({
                             </div>
                         )}
                         {(isGenerating || isCompiling) && (
-                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 p-8 text-gray-600 dark:bg-gray-950/95 dark:text-gray-300">
-                                <Loader2 className="mb-4 h-10 w-10 animate-spin text-blue-500" />
-                                <p className="text-sm font-medium">
-                                    {isGenerating ? "Generating tailored resume…" : "Compiling PDF…"}
-                                </p>
+                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 p-8 text-gray-700 dark:bg-gray-950/95 dark:text-gray-200">
+                                <GenerationSteps steps={generationSteps} />
                             </div>
                         )}
                     </div>

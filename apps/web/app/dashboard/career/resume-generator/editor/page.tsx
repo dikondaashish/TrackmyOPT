@@ -26,6 +26,7 @@ import {
     scrollTextareaToMatch,
 } from "@/lib/resume/latex-text-sync";
 import { latexToPlainText } from "@/lib/resume/latex-to-plain-text";
+import { deriveGenerationSteps } from "@/lib/resume/generation-steps";
 import { useResumeEditorActions } from "./useResumeEditorActions";
 
 export default function ResumeEditorPage() {
@@ -135,6 +136,18 @@ export default function ResumeEditorPage() {
     }, [displayedText, isStreaming]);
 
     const editorValue = ((isGenerating || isStreamingEnabled) && !isStreaming) ? "" : (isStreaming ? displayedText : historyText);
+
+    const generationSteps = deriveGenerationSteps({
+        isGenerating,
+        isCompiling,
+        isScanning,
+        isAutoFixing,
+        hasLatex: Boolean(generatedLatex),
+        hasPdf: Boolean(compiledPdfUrl),
+        compileFailed,
+        pdfParseOk,
+        atsScore: atsAnalysis?.score ?? null,
+    });
 
     const handleViewModeChange = (mode: EditorViewMode) => {
         const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
@@ -440,6 +453,7 @@ export default function ResumeEditorPage() {
                     generatedLatex={generatedLatex}
                     isGenerating={isGenerating}
                     isStreaming={isStreaming}
+                    generationSteps={generationSteps}
                     onChangeText={updateText}
                     onSelectionSync={handleLatexSelectionSync}
                     onOpenFeedback={() => setShowFeedbackModal(true)}
@@ -459,6 +473,7 @@ export default function ResumeEditorPage() {
                     isCompiling={isCompiling}
                     isScanning={isScanning}
                     isAutoFixing={isAutoFixing}
+                    generationSteps={generationSteps}
                     pdfHighlightQuery={pdfHighlightQuery}
                     onRefreshPdf={() => compilePdf(generatedLatex, 0, false, false)}
                     onPdfTextSelect={handlePdfTextSelect}
