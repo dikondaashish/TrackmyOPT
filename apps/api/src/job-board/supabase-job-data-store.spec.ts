@@ -144,4 +144,41 @@ describe('Supabase job-store projection', () => {
     expect(projection).not.toContain('description');
     expect(projection).toContain('listing_status');
   });
+
+  it('keeps source reconciliation lifecycle-only and CLOB-free', async () => {
+    const projections: string[] = [];
+    const query = {
+      select: (value: string) => {
+        projections.push(value);
+        return query;
+      },
+      eq: () => query,
+      order: () => query,
+      range: () =>
+        Promise.resolve({
+          data: [
+            {
+              id: 'job-1',
+              external_job_id: 'missing-job',
+              listing_status: 'open',
+              missing_since_at: null,
+            },
+          ],
+          error: null,
+        }),
+      update: (value: Record<string, unknown>) => {
+        void value;
+        return query;
+      },
+      in: () => Promise.resolve({ error: null }),
+    };
+    const store = new SupabaseJobDataStore({ from: () => query } as never);
+
+    await store.reconcileSource('source-1', ['seen-job']);
+
+    expect(projections).toEqual([
+      'id, external_job_id, listing_status, missing_since_at',
+    ]);
+    expect(projections.join(',')).not.toContain('description');
+  });
 });

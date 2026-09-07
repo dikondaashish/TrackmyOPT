@@ -475,17 +475,27 @@ export class SupabaseJobDataStore implements JobDataStore {
     runStartedAt?: string,
   ) {
     if (!seenExternalJobIds.length) return;
-    const persisted = await this.listSourceJobs(sourceId);
-    const plan = planListingReconciliation(
-      persisted.map((job) => ({
-        id: job.id,
-        external_job_id: job.externalJobId,
-        listing_status: job.listingStatus,
-        missing_since_at: job.missingSinceAt,
-      })) as PersistedJobListing[],
-      seenExternalJobIds,
-      { complete: true, runStartedAt },
+    // Reconciliation only needs identity and lifecycle fields. Keep the
+    // description CLOB out of this query as well as the pre-upsert lookup;
+    // selecting it here can hit Supabase statement timeouts for large boards.
+    const persisted = await fetchAllPages<PersistedJobListing>(
+      async (from, to) => {
+        const result = await this.supabase
+          .from('jobs')
+          .select('id, external_job_id, listing_status, missing_since_at')
+          .eq('source_id', sourceId)
+          .order('id', { ascending: true })
+          .range(from, to);
+        return {
+          data: (result.data || []) as PersistedJobListing[],
+          error: result.error ? { message: result.error.message } : null,
+        };
+      },
     );
+    const plan = planListingReconciliation(persisted, seenExternalJobIds, {
+      complete: true,
+      runStartedAt,
+    });
     const now = new Date().toISOString();
     if (plan.staleJobIds.length) {
       const result = await this.supabase
