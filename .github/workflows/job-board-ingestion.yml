@@ -26,7 +26,7 @@ jobs:
 
       - name: Verify scheduler configuration
         env:
-          RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
+          RENDER_API_URL: https://trackmyopt-api.onrender.com
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
           SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
           TRIGGER_ORIGIN: github_actions
@@ -37,7 +37,7 @@ jobs:
 
       - name: Wake Render and queue ingestion
         env:
-          RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
+          RENDER_API_URL: https://trackmyopt-api.onrender.com
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
           SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
           TRIGGER_ORIGIN: github_actions
