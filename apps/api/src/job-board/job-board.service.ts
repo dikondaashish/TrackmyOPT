@@ -165,12 +165,30 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       this.queue.isPaused(),
       this.slowQueue.isPaused(),
     ]);
+    const queued = await Promise.all([
+      this.queue.getJobs(['waiting', 'active', 'delayed', 'paused']),
+      this.slowQueue.getJobs(['waiting', 'active', 'delayed', 'paused']),
+    ]);
+    const queuedRunCounts = new Map<string, number>();
+    for (const job of queued.flat()) {
+      const schedulerRunId = (
+        job.data as { schedulerRunId?: unknown } | undefined
+      )?.schedulerRunId;
+      if (typeof schedulerRunId === 'string')
+        queuedRunCounts.set(
+          schedulerRunId,
+          (queuedRunCounts.get(schedulerRunId) || 0) + 1,
+        );
+    }
     return {
       queues: {
         'job-board': normal,
         'job-board-slow': slow,
       },
       queuesPaused: { normal: normalPaused, slow: slowPaused },
+      queuedRunCounts: Object.fromEntries(
+        [...queuedRunCounts.entries()].sort(([a], [b]) => a.localeCompare(b)),
+      ),
       jobStore: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
       note: 'Bull does not retain stalled jobs as a persistent queue state; inspect worker logs for stall events.',
     };
