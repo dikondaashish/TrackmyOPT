@@ -90,6 +90,13 @@ export class JobBoardController {
     });
   }
 
+  @Get('ingestion-runs/:runId')
+  async ingestionRunStatus(@Param('runId') runId: string) {
+    const normalized = normalizeSchedulerRunId(runId);
+    if (!normalized) throw new BadRequestException('Invalid scheduler run ID');
+    return this.jobBoard.getIngestionRunStatus(normalized);
+  }
+
   /** Targeted recovery endpoint; authentication is provided by the app-wide API-key guard. */
   @Post('ingest-source/:sourceId')
   async queueSingleSource(

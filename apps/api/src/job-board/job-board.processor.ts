@@ -25,9 +25,37 @@ export class JobBoardProcessor {
     private readonly companyDiscovery: CompanyDiscoveryService,
   ) {}
 
-  @Process('ingest-enabled-sources')
-  async ingestEnabledSources(job: Bull.Job<SchedulerContext>) {
-    const result = await this.jobBoard.enqueueEnabledSourceJobs(job.data);
+  // Bull adds concurrency across named registrations. One wildcard dispatcher
+  // enforces the normal lane's limit across coordinator/source/discovery work.
+  @Process({ name: '*', concurrency: JOB_BOARD_SOURCE_CONCURRENCY })
+  async process(
+    job: Bull.Job<
+      SchedulerContext & {
+        sourceId: string;
+        sourceIds?: string[];
+        pacingGapMs?: number;
+      }
+    >,
+  ) {
+    switch (job.name) {
+      case 'ingest-enabled-sources':
+        return this.ingestEnabledSources(job);
+      case 'ingest-source':
+        return this.ingestSource(job);
+      case 'discover-company-batch':
+        return this.discoverCompanyBatch();
+      default:
+        throw new Error('Unknown job-board job type');
+    }
+  }
+
+  async ingestEnabledSources(
+    job: Bull.Job<SchedulerContext & { sourceIds?: string[] }>,
+  ) {
+    const result = await this.jobBoard.enqueueEnabledSourceJobs(
+      job.data,
+      async (sourceIds) => job.update({ ...job.data, sourceIds }),
+    );
     if (result.deferred) {
       await this.jobBoard.markSchedulerRunDeferred(
         job.data.schedulerRunId,
@@ -40,7 +68,6 @@ export class JobBoardProcessor {
     return result;
   }
 
-  @Process({ name: 'ingest-source', concurrency: JOB_BOARD_SOURCE_CONCURRENCY })
   async ingestSource(
     job: Bull.Job<
       { sourceId: string; pacingGapMs?: number } & SchedulerContext
@@ -75,7 +102,13 @@ export class JobBoardProcessor {
     error: Error,
   ) {
     const attempts = job.opts.attempts || 3;
-    if (job.attemptsMade < attempts) return;
+    // Bull's stalled counter is independent of attemptsMade. Exhausting the
+    // stall allowance is terminal even when no ordinary retry was consumed.
+    if (
+      job.attemptsMade < attempts &&
+      !error.message.includes('job stalled more than allowable limit')
+    )
+      return;
     await this.jobBoard.markSourceAuditFailed(
       job.data.sourceId,
       job.data,
@@ -83,7 +116,6 @@ export class JobBoardProcessor {
     );
   }
 
-  @Process('discover-company-batch')
   async discoverCompanyBatch() {
     const result = await this.companyDiscovery.discoverNextBatch(10);
     this.logger.log(
@@ -137,7 +169,11 @@ export class SlowJobBoardProcessor {
     error: Error,
   ) {
     const attempts = job.opts.attempts || 3;
-    if (job.attemptsMade < attempts) return;
+    if (
+      job.attemptsMade < attempts &&
+      !error.message.includes('job stalled more than allowable limit')
+    )
+      return;
     await this.jobBoard.markSourceAuditFailed(
       job.data.sourceId,
       job.data,

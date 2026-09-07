@@ -54,6 +54,7 @@ import type {
   JobStoreSearch,
 } from './job-data-store.contract';
 import { JOB_DATA_STORE } from './job-data-store.provider';
+import { summarizeIngestionRun } from './ingestion-run-status';
 
 type AtsSource = {
   id: string;
@@ -158,16 +159,19 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
 
   async getIngestionQueueState() {
     this.assertQueueControlEnabled();
-    const [normal, slow] = await Promise.all([
+    const [normal, slow, normalPaused, slowPaused] = await Promise.all([
       this.queue.getJobCounts(),
       this.slowQueue.getJobCounts(),
+      this.queue.isPaused(),
+      this.slowQueue.isPaused(),
     ]);
     return {
       queues: {
         'job-board': normal,
         'job-board-slow': slow,
       },
-      stalled: 0,
+      queuesPaused: { normal: normalPaused, slow: slowPaused },
+      jobStore: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
       note: 'Bull does not retain stalled jobs as a persistent queue state; inspect worker logs for stall events.',
     };
   }
@@ -210,146 +214,79 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async getIngestionRunStatus(schedulerRunId: string) {
-    this.assertQueueControlEnabled();
-    if (!normalizeSchedulerRunId(schedulerRunId)) {
-      throw new Error('Invalid scheduler run ID');
-    }
-    const [{ data: sources, error: sourceError }, { data: audits, error }] =
-      await Promise.all([
-        this.supabase.from('ats_sources').select('id').eq('enabled', true),
-        this.supabase
-          .from('ingestion_audit_log')
-          .select('source_id, status')
-          .eq('scheduler_run_id', schedulerRunId),
-      ]);
-    if (sourceError) throw new Error(sourceError.message);
-    if (error) throw new Error(error.message);
-
-    const selected = new Set((sources || []).map((row) => String(row.id)));
-    const rows = audits || [];
-    const terminalStatuses = new Set([
-      'succeeded',
-      'failed',
-      'skipped_disabled',
-      'rate_limited',
-    ]);
-    const terminal = rows.filter((row) =>
-      terminalStatuses.has(String(row.status)),
-    ).length;
-    const queuedJobs = await this.queueJobsForRun(schedulerRunId, [
-      'waiting',
-      'active',
-      'delayed',
-      'paused',
-      'failed',
-    ]);
-    const runnableJobs = queuedJobs.filter((entry) =>
-      ['waiting', 'active', 'delayed', 'paused'].includes(entry.state),
-    );
-    for (const row of rows) selected.add(String(row.source_id));
-    for (const entry of queuedJobs) {
-      const sourceId = (entry.job.data as { sourceId?: string } | undefined)
-        ?.sourceId;
-      if (sourceId) selected.add(sourceId);
-    }
-    return {
-      schedulerRunId,
-      selectedSources: selected.size,
-      audits: rows.length,
-      terminalAudits: terminal,
-      startedAudits: rows.filter((row) => row.status === 'started').length,
-      succeededAudits: rows.filter((row) => row.status === 'succeeded').length,
-      failedAudits: rows.filter((row) => row.status === 'failed').length,
-      queuedJobs: runnableJobs.length,
-      activeJobs: runnableJobs.filter((entry) => entry.state === 'active')
-        .length,
-      failedJobs: queuedJobs.filter((entry) => entry.state === 'failed').length,
-      unaccountedSources: Math.max(
-        0,
-        selected.size - terminal - runnableJobs.length,
-      ),
-    };
-  }
-
-  /** Requeue only selected sources that have neither a terminal audit nor a
-   * persisted Bull job. This makes a Render restart recoverable without
-   * creating duplicate source work. */
+  /** Explicit recovery only queues manifest sources which have never reserved
+   * an audit. Started reservations are not leases that can safely be stolen;
+   * Bull exhaustion and read-only status make abandonment visible instead. */
   async recoverIngestionRun(schedulerRunId: string) {
     this.assertQueueControlEnabled();
     const normalized = normalizeSchedulerRunId(schedulerRunId);
     if (!normalized) throw new Error('Invalid scheduler run ID');
-    await this.finalizeStaleAudits();
-
-    const [{ data: sources, error: sourceError }, { data: audits, error }] =
-      await Promise.all([
-        this.supabase.from('ats_sources').select('id').eq('enabled', true),
-        this.supabase
-          .from('ingestion_audit_log')
-          .select('source_id, status')
-          .eq('scheduler_run_id', normalized),
-      ]);
-    if (sourceError) throw new Error(sourceError.message);
-    if (error) throw new Error(error.message);
-
-    const selected = (sources || []).map((row) => String(row.id));
-    const terminalStatuses = new Set([
-      'succeeded',
-      'failed',
-      'skipped_disabled',
-      'rate_limited',
+    if (this.shuttingDown) throw new Error('instance_restarting');
+    const [normalPaused, slowPaused, coordinator] = await Promise.all([
+      this.queue.isPaused(),
+      this.slowQueue.isPaused(),
+      this.queue.getJob(normalized),
     ]);
-    const audited = new Map(
-      (audits || []).map((row) => [String(row.source_id), String(row.status)]),
-    );
-    const queuedJobs = await this.queueJobsForRun(normalized, [
+    if (normalPaused || slowPaused) throw new Error('ingestion_queue_paused');
+    const context = coordinator?.data as
+      | (IngestionStoreContext & { sourceIds?: string[] })
+      | undefined;
+    if (!context || !Array.isArray(context.sourceIds))
+      throw new Error('run_manifest_unavailable');
+    if (!this.acceptsStoreContext(context))
+      throw new Error('job_store_mismatch');
+    if ((await coordinator!.getState()) !== 'completed')
+      throw new Error('run_coordinator_not_completed');
+    const audits = await fetchAllPages(async (from, to) => {
+      const result = await this.supabase
+        .from('ingestion_audit_log')
+        .select('source_id,status')
+        .eq('scheduler_run_id', normalized)
+        .order('run_at', { ascending: false })
+        .order('id')
+        .range(from, to);
+      return { data: result.data || [], error: result.error };
+    });
+    const queued = await this.queueJobsForRun(normalized, [
       'waiting',
       'active',
       'delayed',
       'paused',
       'failed',
+      'completed',
     ]);
-    const queuedSources = new Set(
-      queuedJobs
-        .map(
-          (entry) =>
-            (entry.job.data as { sourceId?: string } | undefined)?.sourceId,
-        )
-        .filter((sourceId): sourceId is string => Boolean(sourceId)),
+    const accounted = new Set([
+      ...audits.map((row) => String(row.source_id)),
+      ...queued.map(({ job }) =>
+        String((job.data as { sourceId?: string }).sourceId),
+      ),
+    ]);
+    const missing = [...new Set(context.sourceIds)].filter(
+      (id) => !accounted.has(id),
     );
-    const missingSourceIds = selected.filter(
-      (sourceId) =>
-        !terminalStatuses.has(audited.get(sourceId) || '') &&
-        !queuedSources.has(sourceId),
+    const slow = await this.getSlowSourceIds(missing);
+    const gap = calculatePacingGapMs(context.sourceIds.length);
+    await this.addSourceJobsInChunks(
+      this.queue,
+      planSourceIngestionJobs(
+        missing.filter((id) => !slow.has(id)),
+        context,
+        gap,
+      ),
     );
-    if (!missingSourceIds.length) {
-      return { schedulerRunId: normalized, sourcesRequeued: 0 };
-    }
-
-    const context = this.storeContext({
-      schedulerRunId: normalized,
-      triggerOrigin: 'github_actions',
-    });
-    const slowSourceIds = await this.getSlowSourceIds(missingSourceIds);
-    const fastJobs = planSourceIngestionJobs(
-      missingSourceIds.filter((id) => !slowSourceIds.has(id)),
-      context,
+    await this.addSourceJobsInChunks(
+      this.slowQueue,
+      planSourceIngestionJobs(
+        missing.filter((id) => slow.has(id)),
+        context,
+        gap,
+      ),
     );
-    const slowJobs = planSourceIngestionJobs(
-      missingSourceIds.filter((id) => slowSourceIds.has(id)),
-      context,
-    );
-    await this.addSourceJobsInChunks(this.queue, fastJobs);
-    await this.addSourceJobsInChunks(this.slowQueue, slowJobs);
-    return {
-      schedulerRunId: normalized,
-      sourcesRequeued: missingSourceIds.length,
-    };
+    return { schedulerRunId: normalized, sourcesRequeued: missing.length };
   }
 
   async queueEnabledSources(context: SchedulerContext) {
     if (this.shuttingDown) throw new Error('Job-board worker is restarting');
-    await this.finalizeStaleAudits();
     return queueSchedulerRun(context, this.schedulerRuns, () =>
       this.queue.add(
         'ingest-enabled-sources',
@@ -373,7 +310,6 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   /** Queue one enabled source for targeted recovery without touching other boards. */
   async queueSingleSource(sourceId: string, context: SchedulerContext) {
     if (this.shuttingDown) throw new Error('Job-board worker is restarting');
-    await this.finalizeStaleAudits();
     const { data: source, error } = await this.supabase
       .from('ats_sources')
       .select(
@@ -415,7 +351,9 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   }
 
   async enqueueEnabledSourceJobs(
-    context: SchedulerContext & Partial<IngestionStoreContext>,
+    context: SchedulerContext &
+      Partial<IngestionStoreContext> & { sourceIds?: string[] },
+    saveManifest?: (sourceIds: string[]) => Promise<void>,
   ) {
     if (!this.acceptsStoreContext(context)) {
       return {
@@ -445,7 +383,12 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       .select('id')
       .eq('enabled', true);
     if (error) throw new Error(error.message);
-    const sourceIds = (data || []).map((source) => String(source.id));
+    const sourceIds =
+      context.sourceIds ??
+      (data || []).map((source) => String(source.id)).sort();
+    // Persist the exact selection before either lane is enqueued. Retries reuse
+    // this manifest, not a changed enabled-source set.
+    if (saveManifest) await saveManifest(sourceIds);
     const slowSourceIds = await this.getSlowSourceIds(sourceIds);
     const fastSourceIds = sourceIds.filter((id) => !slowSourceIds.has(id));
     const pacingGapMs = calculatePacingGapMs(sourceIds.length);
@@ -524,12 +467,80 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     sourceId: string,
     context: SchedulerContext & Partial<IngestionStoreContext>,
   ): Promise<IngestionResult> {
-    if (this.shuttingDown) return { sourceId, skipped: 'instance_restarting' };
+    if (this.shuttingDown) throw new Error('instance_restarting');
     if (!this.acceptsStoreContext(context))
-      return { sourceId, skipped: 'job_store_mismatch' };
-    return this.trackSourceWork(() =>
-      this.ingestSourceByIdInternal(sourceId, context),
-    );
+      throw new Error('job_store_mismatch');
+    return this.trackSourceWork(async () => {
+      const result = await this.ingestSourceByIdInternal(sourceId, context);
+      // A duplicate reservation is not success if a killed worker left its
+      // audit started. Let Bull retry/fail visibly; never steal a live lease.
+      if ('skipped' in result) {
+        const { data, error } = await this.supabase
+          .from('ingestion_audit_log')
+          .select('status')
+          .eq('source_id', sourceId)
+          .eq('scheduler_run_id', context.schedulerRunId)
+          .order('run_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (error) throw new Error('Source audit verification failed');
+        if (
+          !data ||
+          !['succeeded', 'skipped_disabled', 'rate_limited'].includes(
+            String(data.status),
+          )
+        ) {
+          throw new Error('Source has no successful or policy-terminal audit');
+        }
+      }
+      return result;
+    });
+  }
+
+  /** Read-only, API-key-protected supervision. No queue resume or data writes. */
+  async getIngestionRunStatus(schedulerRunId: string) {
+    if (!normalizeSchedulerRunId(schedulerRunId))
+      throw new Error('Invalid scheduler run ID');
+    const job = await this.queue.getJob(schedulerRunId);
+    const audits = await fetchAllPages(async (from, to) => {
+      const result = await this.supabase
+        .from('ingestion_audit_log')
+        .select('source_id,status,run_at')
+        .eq('scheduler_run_id', schedulerRunId)
+        .order('run_at', { ascending: false })
+        .order('id')
+        .range(from, to);
+      return { data: result.data || [], error: result.error };
+    });
+    const runnableStates: Bull.JobStatus[] = [
+      'waiting',
+      'active',
+      'delayed',
+      'paused',
+    ];
+    const [normal, slow, normalPaused, slowPaused] = await Promise.all([
+      this.queue.getJobs(runnableStates),
+      this.slowQueue.getJobs(runnableStates),
+      this.queue.isPaused(),
+      this.slowQueue.isPaused(),
+    ]);
+    const runnable = [...normal, ...slow].filter(
+      (candidate) =>
+        (candidate.data as SchedulerContext).schedulerRunId === schedulerRunId,
+    ).length;
+    const manifest = (job?.data as { sourceIds?: string[] } | undefined)
+      ?.sourceIds;
+    return {
+      schedulerRunId,
+      ...summarizeIngestionRun(
+        manifest,
+        audits,
+        runnable,
+        job ? await job.getState() : 'missing',
+      ),
+      queuesPaused: { normal: normalPaused, slow: slowPaused },
+      jobStore: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
+    };
   }
 
   private async ingestSourceByIdInternal(
@@ -685,15 +696,32 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   ) {
     const { data, error } = await this.supabase
       .from('ingestion_audit_log')
-      .select('id')
+      .select('id,status')
       .eq('source_id', sourceId)
       .eq('scheduler_run_id', context.schedulerRunId)
-      .eq('status', 'started')
       .order('run_at', { ascending: false })
       .limit(1)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!data?.id) return false;
+    if (!data?.id) {
+      // Fetch/authorization/circuit failures can occur before reservation.
+      // A selected source still needs a truthful terminal outcome on exhaustion.
+      const inserted = await this.supabase.from('ingestion_audit_log').insert({
+        source_id: sourceId,
+        scheduler_run_id: context.schedulerRunId,
+        trigger_origin: context.triggerOrigin,
+        status: 'failed',
+        error_message: reason.slice(0, 500),
+        completed_at: new Date().toISOString(),
+      });
+      if (inserted.error)
+        throw new Error('Could not record terminal source failure');
+      return true;
+    }
+    if (data.status !== 'started') return false;
+    // A delayed heartbeat can report a stall while the original promise is
+    // still writing. Do not turn that live reservation into a retryable one.
+    if (this.inFlightAuditIds.has(String(data.id))) return false;
     const update = await this.supabase
       .from('ingestion_audit_log')
       .update({
@@ -739,22 +767,6 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       // the shared Oracle pool; otherwise active work receives NJS-064.
       await this.jobStore.close?.();
     }
-  }
-
-  /** Recover audits stranded by a hard restart or lost Bull worker heartbeat. */
-  private async finalizeStaleAudits() {
-    const cutoff = new Date(Date.now() - 5 * 60_000).toISOString();
-    const { error } = await this.supabase
-      .from('ingestion_audit_log')
-      .update({
-        status: 'failed',
-        error_message: 'worker heartbeat expired',
-        completed_at: new Date().toISOString(),
-      })
-      .eq('status', 'started')
-      .lt('run_at', cutoff);
-    if (error)
-      this.logger.warn(`Could not finalize stale audits: ${error.message}`);
   }
 
   private async persistSourceJobs(
@@ -866,10 +878,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       http_request_count: httpRequestsMade,
       failure_message: failure || null,
     });
-    if (error)
-      this.logger.error(
-        `Could not complete ingestion audit ${id}: ${error.message}`,
-      );
+    if (error) throw new Error(`Could not complete ingestion audit ${id}`);
   }
 
   private async getSourceBoardHealth(sourceId: string) {
