@@ -12,6 +12,7 @@ describe('temporary production parity repair guards', () => {
           SUPABASE_SERVICE_ROLE_KEY: 'test',
           JOB_DATA_STORE: store,
           ORACLE_INGESTION_REPAIR_ENABLED: enabled,
+          ORACLE_INGESTION_REPAIR_EXPECTED_JOB_COUNT: 11623,
         })[key],
     } as unknown as ConfigService;
     const queue = {
