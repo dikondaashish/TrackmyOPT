@@ -15,7 +15,11 @@ async function jsonRequest(url, options, timeoutMs) {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     const pathname = new URL(url).pathname;
-    throw new Error(`Request returned ${response.status} for ${pathname}`);
+    const detail =
+      typeof body?.message === 'string' ? `: ${body.message}` : '';
+    throw new Error(
+      `Request returned ${response.status} for ${pathname}${detail}`,
+    );
   }
   return body;
 }
