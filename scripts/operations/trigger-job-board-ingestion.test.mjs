@@ -5,6 +5,7 @@ import { after, before, test } from 'node:test';
 
 import {
   schedulerRunId,
+  superviseJobBoardIngestion,
   triggerJobBoardIngestion,
 } from './trigger-job-board-ingestion.mjs';
 
@@ -14,6 +15,8 @@ let healthAttempts = 0;
 let ingestionRequests = 0;
 let schedulerHeader;
 let triggerOriginHeader;
+let resumeRequests = 0;
+let recoveryRequests = 0;
 
 before(async () => {
   server = createServer((request, response) => {
@@ -34,6 +37,44 @@ before(async () => {
       triggerOriginHeader = request.headers['x-trigger-origin'];
       response.writeHead(200, { 'content-type': 'application/json' });
       response.end(JSON.stringify({ status: 'queued', jobId: 'job-123' }));
+      return;
+    }
+
+    if (
+      request.method === 'POST' &&
+      request.url === '/job-board/ops/ingestion-queue/resume'
+    ) {
+      resumeRequests += 1;
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end(JSON.stringify({}));
+      return;
+    }
+
+    if (
+      request.method === 'POST' &&
+      request.url.startsWith('/job-board/ops/ingestion-runs/') &&
+      request.url.endsWith('/recover')
+    ) {
+      recoveryRequests += 1;
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end(JSON.stringify({ sourcesRequeued: 0 }));
+      return;
+    }
+
+    if (
+      request.method === 'GET' &&
+      request.url.startsWith('/job-board/ops/ingestion-runs/')
+    ) {
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end(
+        JSON.stringify({
+          selectedSources: 2,
+          terminalAudits: 2,
+          queuedJobs: 0,
+          activeJobs: 0,
+          unaccountedSources: 0,
+        }),
+      );
       return;
     }
 
@@ -113,4 +154,19 @@ test('keeps GitHub Actions as manual-dispatch-only fallback', async () => {
   assert.doesNotMatch(workflow, /schedule:/);
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /manual_run_id:/);
+});
+
+test('supervises a run while keeping the API warm and recovering missing jobs', async () => {
+  const result = await superviseJobBoardIngestion({
+    apiUrl: baseUrl,
+    apiKey: 'test-secret',
+    schedulerId: 'job-board-manual-supervised-1',
+    allowHttp: true,
+    pollIntervalMs: 1,
+    maxDurationMs: 1000,
+  });
+
+  assert.equal(result.terminalAudits, 2);
+  assert.equal(resumeRequests, 1);
+  assert.equal(recoveryRequests, 1);
 });

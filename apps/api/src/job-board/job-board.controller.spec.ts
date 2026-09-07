@@ -8,6 +8,8 @@ describe('JobBoardController scheduler contract', () => {
   const queueSingleSource = jest.fn();
   const listJobs = jest.fn();
   const getJob = jest.fn();
+  const getIngestionRunStatus = jest.fn();
+  const recoverIngestionRun = jest.fn();
   const listForJobs = jest.fn().mockResolvedValue([]);
   const controller = new JobBoardController(
     {
@@ -15,6 +17,8 @@ describe('JobBoardController scheduler contract', () => {
       queueSingleSource,
       listJobs,
       getJob,
+      getIngestionRunStatus,
+      recoverIngestionRun,
     } as unknown as JobBoardService,
     { listForJobs } as unknown as JobVisaSignalService,
   );
@@ -24,6 +28,8 @@ describe('JobBoardController scheduler contract', () => {
     queueSingleSource.mockReset();
     listJobs.mockReset();
     getJob.mockReset();
+    getIngestionRunStatus.mockReset();
+    recoverIngestionRun.mockReset();
     listForJobs.mockReset().mockResolvedValue([]);
   });
 
@@ -98,5 +104,27 @@ describe('JobBoardController scheduler contract', () => {
       }),
     );
     expect(listForJobs).toHaveBeenCalledWith([]);
+  });
+
+  it('exposes only the sanitized run status and recovery controls', async () => {
+    getIngestionRunStatus.mockResolvedValue({
+      selectedSources: 174,
+      terminalAudits: 174,
+      unaccountedSources: 0,
+    });
+    recoverIngestionRun.mockResolvedValue({ sourcesRequeued: 2 });
+
+    await expect(
+      controller.getIngestionRunStatus('job-board-manual-supervised-1'),
+    ).resolves.toMatchObject({ selectedSources: 174 });
+    await expect(
+      controller.recoverIngestionRun('job-board-manual-supervised-1'),
+    ).resolves.toEqual({ sourcesRequeued: 2 });
+    expect(getIngestionRunStatus).toHaveBeenCalledWith(
+      'job-board-manual-supervised-1',
+    );
+    expect(recoverIngestionRun).toHaveBeenCalledWith(
+      'job-board-manual-supervised-1',
+    );
   });
 });

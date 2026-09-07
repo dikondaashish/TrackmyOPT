@@ -19,7 +19,7 @@ jobs:
   ingest:
     name: Wake API and queue authorized sources
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 120
 
     steps:
       - uses: actions/checkout@v6
@@ -41,4 +41,5 @@ jobs:
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
           SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
           TRIGGER_ORIGIN: github_actions
+          SUPERVISE_INGESTION: 'true'
         run: node scripts/operations/trigger-job-board-ingestion.mjs

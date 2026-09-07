@@ -37,6 +37,7 @@ import {
 } from './source-health';
 import {
   ingestionReservationParams,
+  normalizeSchedulerRunId,
   planIngestionOrchestratorOptions,
 } from './scheduler-run-id';
 import type {
@@ -183,6 +184,169 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     return this.getIngestionQueueState();
   }
 
+  private async queueJobsForRun(
+    schedulerRunId: string,
+    states: Bull.JobStatus[],
+  ) {
+    const jobs = await Promise.all([
+      this.queue.getJobs(states),
+      this.slowQueue.getJobs(states),
+    ]);
+    const matching = jobs.flat().filter((job) => {
+      const data = job.data as Partial<SchedulerContext> | undefined;
+      return data?.schedulerRunId === schedulerRunId;
+    });
+    return Promise.all(
+      matching.map(async (job) => ({ job, state: await job.getState() })),
+    );
+  }
+
+  private async addSourceJobsInChunks(
+    queue: Bull.Queue,
+    jobs: ReturnType<typeof planSourceIngestionJobs>,
+  ) {
+    for (let offset = 0; offset < jobs.length; offset += 25) {
+      await queue.addBulk(jobs.slice(offset, offset + 25));
+    }
+  }
+
+  async getIngestionRunStatus(schedulerRunId: string) {
+    this.assertQueueControlEnabled();
+    if (!normalizeSchedulerRunId(schedulerRunId)) {
+      throw new Error('Invalid scheduler run ID');
+    }
+    const [{ data: sources, error: sourceError }, { data: audits, error }] =
+      await Promise.all([
+        this.supabase.from('ats_sources').select('id').eq('enabled', true),
+        this.supabase
+          .from('ingestion_audit_log')
+          .select('source_id, status')
+          .eq('scheduler_run_id', schedulerRunId),
+      ]);
+    if (sourceError) throw new Error(sourceError.message);
+    if (error) throw new Error(error.message);
+
+    const selected = new Set((sources || []).map((row) => String(row.id)));
+    const rows = audits || [];
+    const terminalStatuses = new Set([
+      'succeeded',
+      'failed',
+      'skipped_disabled',
+      'rate_limited',
+    ]);
+    const terminal = rows.filter((row) =>
+      terminalStatuses.has(String(row.status)),
+    ).length;
+    const queuedJobs = await this.queueJobsForRun(schedulerRunId, [
+      'waiting',
+      'active',
+      'delayed',
+      'paused',
+      'failed',
+    ]);
+    const runnableJobs = queuedJobs.filter((entry) =>
+      ['waiting', 'active', 'delayed', 'paused'].includes(entry.state),
+    );
+    for (const row of rows) selected.add(String(row.source_id));
+    for (const entry of queuedJobs) {
+      const sourceId = (entry.job.data as { sourceId?: string } | undefined)
+        ?.sourceId;
+      if (sourceId) selected.add(sourceId);
+    }
+    return {
+      schedulerRunId,
+      selectedSources: selected.size,
+      audits: rows.length,
+      terminalAudits: terminal,
+      startedAudits: rows.filter((row) => row.status === 'started').length,
+      succeededAudits: rows.filter((row) => row.status === 'succeeded').length,
+      failedAudits: rows.filter((row) => row.status === 'failed').length,
+      queuedJobs: runnableJobs.length,
+      activeJobs: runnableJobs.filter((entry) => entry.state === 'active')
+        .length,
+      failedJobs: queuedJobs.filter((entry) => entry.state === 'failed').length,
+      unaccountedSources: Math.max(
+        0,
+        selected.size - terminal - runnableJobs.length,
+      ),
+    };
+  }
+
+  /** Requeue only selected sources that have neither a terminal audit nor a
+   * persisted Bull job. This makes a Render restart recoverable without
+   * creating duplicate source work. */
+  async recoverIngestionRun(schedulerRunId: string) {
+    this.assertQueueControlEnabled();
+    const normalized = normalizeSchedulerRunId(schedulerRunId);
+    if (!normalized) throw new Error('Invalid scheduler run ID');
+    await this.finalizeStaleAudits();
+
+    const [{ data: sources, error: sourceError }, { data: audits, error }] =
+      await Promise.all([
+        this.supabase.from('ats_sources').select('id').eq('enabled', true),
+        this.supabase
+          .from('ingestion_audit_log')
+          .select('source_id, status')
+          .eq('scheduler_run_id', normalized),
+      ]);
+    if (sourceError) throw new Error(sourceError.message);
+    if (error) throw new Error(error.message);
+
+    const selected = (sources || []).map((row) => String(row.id));
+    const terminalStatuses = new Set([
+      'succeeded',
+      'failed',
+      'skipped_disabled',
+      'rate_limited',
+    ]);
+    const audited = new Map(
+      (audits || []).map((row) => [String(row.source_id), String(row.status)]),
+    );
+    const queuedJobs = await this.queueJobsForRun(normalized, [
+      'waiting',
+      'active',
+      'delayed',
+      'paused',
+      'failed',
+    ]);
+    const queuedSources = new Set(
+      queuedJobs
+        .map(
+          (entry) =>
+            (entry.job.data as { sourceId?: string } | undefined)?.sourceId,
+        )
+        .filter((sourceId): sourceId is string => Boolean(sourceId)),
+    );
+    const missingSourceIds = selected.filter(
+      (sourceId) =>
+        !terminalStatuses.has(audited.get(sourceId) || '') &&
+        !queuedSources.has(sourceId),
+    );
+    if (!missingSourceIds.length) {
+      return { schedulerRunId: normalized, sourcesRequeued: 0 };
+    }
+
+    const context = this.storeContext({
+      schedulerRunId: normalized,
+      triggerOrigin: 'github_actions',
+    });
+    const slowSourceIds = await this.getSlowSourceIds(missingSourceIds);
+    const fastJobs = planSourceIngestionJobs(
+      missingSourceIds.filter((id) => !slowSourceIds.has(id)),
+      context,
+    );
+    const slowJobs = planSourceIngestionJobs(
+      missingSourceIds.filter((id) => slowSourceIds.has(id)),
+      context,
+    );
+    await this.addSourceJobsInChunks(this.queue, fastJobs);
+    await this.addSourceJobsInChunks(this.slowQueue, slowJobs);
+    return {
+      schedulerRunId: normalized,
+      sourcesRequeued: missingSourceIds.length,
+    };
+  }
+
   async queueEnabledSources(context: SchedulerContext) {
     if (this.shuttingDown) throw new Error('Job-board worker is restarting');
     await this.finalizeStaleAudits();
@@ -295,8 +459,8 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       context,
       pacingGapMs,
     );
-    if (fastJobs.length) await this.queue.addBulk(fastJobs);
-    if (slowJobs.length) await this.slowQueue.addBulk(slowJobs);
+    await this.addSourceJobsInChunks(this.queue, fastJobs);
+    await this.addSourceJobsInChunks(this.slowQueue, slowJobs);
     return {
       sourcesQueued: sourceIds.length,
       slowSourcesQueued: slowJobs.length,
@@ -600,7 +764,9 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     runStartedAt?: string,
   ) {
     const ids = [...new Set(scraped.map((job) => job.external_job_id))];
-    const persistedStoreJobs = await this.jobStore.listSourceJobs(source.id);
+    const persistedStoreJobs = await this.jobStore.listSourceJobsForIngestion(
+      source.id,
+    );
     const persistedJobs: PersistedJobListing[] = persistedStoreJobs.map(
       (job) => ({
         id: job.id,

@@ -99,4 +99,49 @@ describe('Supabase job-store projection', () => {
       store.listSourceJobsPage('source-1', 100, 100),
     ).resolves.toEqual({ rows: [], total: 100 });
   });
+
+  it('uses a CLOB-free projection for live ingestion reconciliation', async () => {
+    let projection = '';
+    const query = {
+      select: (value: string) => {
+        projection = value;
+        return query;
+      },
+      eq: () => query,
+      order: () => query,
+      range: () =>
+        Promise.resolve({
+          data: [
+            {
+              id: 'job-1',
+              external_job_id: 'external-1',
+              company_name: 'Example',
+              opt_eligible: true,
+              stem_opt_eligible: false,
+              cpt_eligible: null,
+              h1b_sponsor_status: null,
+              created_at: '2026-09-04T00:00:00.000Z',
+              first_seen_at: '2026-09-04T00:00:00.000Z',
+              employer_match_id: null,
+              listing_status: 'open',
+              missing_since_at: null,
+            },
+          ],
+          error: null,
+        }),
+    };
+    const store = new SupabaseJobDataStore({ from: () => query } as never);
+
+    await expect(store.listSourceJobsForIngestion('source-1')).resolves.toEqual(
+      [
+        expect.objectContaining({
+          id: 'job-1',
+          externalJobId: 'external-1',
+          listingStatus: 'open',
+        }),
+      ],
+    );
+    expect(projection).not.toContain('description');
+    expect(projection).toContain('listing_status');
+  });
 });

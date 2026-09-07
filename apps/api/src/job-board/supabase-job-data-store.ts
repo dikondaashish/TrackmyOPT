@@ -6,6 +6,7 @@ import {
 } from './job-listing-reconciliation';
 import type {
   JobDataStore,
+  JobStorePersistenceRecord,
   JobStorePage,
   JobStoreRecord,
   JobStoreSearch,
@@ -377,6 +378,41 @@ export class SupabaseJobDataStore implements JobDataStore {
       };
     });
     return rows;
+  }
+
+  async listSourceJobsForIngestion(
+    sourceId: string,
+  ): Promise<JobStorePersistenceRecord[]> {
+    return fetchAllPages<JobStorePersistenceRecord>(async (from, to) => {
+      const result = await this.supabase
+        .from('jobs')
+        .select(
+          'id, external_job_id, company_name, opt_eligible, stem_opt_eligible, cpt_eligible, h1b_sponsor_status, created_at, first_seen_at, employer_match_id, listing_status, missing_since_at',
+        )
+        .eq('source_id', sourceId)
+        .order('id', { ascending: true })
+        .range(from, to);
+      return {
+        data: (result.data || []).map((row) => ({
+          id: String(row.id),
+          externalJobId: String(row.external_job_id),
+          companyName: String(row.company_name || ''),
+          optEligible: nullableBoolean(row.opt_eligible),
+          stemOptEligible: nullableBoolean(row.stem_opt_eligible),
+          cptEligible: nullableBoolean(row.cpt_eligible),
+          h1bSponsorStatus: nullableString(row.h1b_sponsor_status),
+          createdAt: String(row.created_at),
+          firstSeenAt: String(row.first_seen_at),
+          employerMatchId: nullableString(row.employer_match_id),
+          listingStatus: String(
+            row.listing_status,
+          ) as JobStorePersistenceRecord['listingStatus'],
+          missingSinceAt:
+            row.missing_since_at == null ? null : String(row.missing_since_at),
+        })),
+        error: result.error ? { message: result.error.message } : null,
+      };
+    });
   }
 
   async listSourceJobsPage(

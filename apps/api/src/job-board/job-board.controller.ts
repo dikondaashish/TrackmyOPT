@@ -135,6 +135,16 @@ export class JobBoardController {
   resumeIngestionQueues() {
     return this.jobBoard.resumeIngestionQueues();
   }
+
+  @Get('ops/ingestion-runs/:runId')
+  getIngestionRunStatus(@Param('runId') runId: string) {
+    return this.jobBoard.getIngestionRunStatus(runId);
+  }
+
+  @Post('ops/ingestion-runs/:runId/recover')
+  recoverIngestionRun(@Param('runId') runId: string) {
+    return this.jobBoard.recoverIngestionRun(runId);
+  }
 }
 
 function positiveInteger(value: string | undefined, fallback: number) {

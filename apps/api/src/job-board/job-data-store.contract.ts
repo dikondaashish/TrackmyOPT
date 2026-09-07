@@ -34,6 +34,22 @@ export type JobStoreRecord = {
   removedAt: string | null;
 };
 
+/** Minimal projection needed while persisting a fresh source response. */
+export type JobStorePersistenceRecord = {
+  id: string;
+  externalJobId: string;
+  companyName: string;
+  optEligible: boolean | null;
+  stemOptEligible: boolean | null;
+  cptEligible: boolean | null;
+  h1bSponsorStatus: string | null;
+  createdAt: string;
+  firstSeenAt: string;
+  employerMatchId: string | null;
+  listingStatus: JobStoreRecord['listingStatus'];
+  missingSinceAt: string | null;
+};
+
 export type JobStoreSearch = {
   page: number;
   pageSize: number;
@@ -94,6 +110,10 @@ export interface JobDataStore {
   listJobs(query: JobStoreSearch): Promise<JobStorePage>;
   /** Full lifecycle read used by reconciliation; callers must paginate inside the store. */
   listSourceJobs(sourceId: string): Promise<JobStoreRecord[]>;
+  /** Avoids loading CLOB descriptions during live ingestion reconciliation. */
+  listSourceJobsForIngestion(
+    sourceId: string,
+  ): Promise<JobStorePersistenceRecord[]>;
   listSourceJobsPage(
     sourceId: string,
     offset: number,

@@ -47,6 +47,7 @@ function setup(kind = 'oracle') {
   } as unknown as ConfigService;
   const store = {
     listSourceJobs: jest.fn().mockResolvedValue([]),
+    listSourceJobsForIngestion: jest.fn().mockResolvedValue([]),
     upsertJobs: jest
       .fn<Promise<void>, [readonly JobStoreRecord[]]>()
       .mockResolvedValue(undefined),
@@ -140,7 +141,7 @@ describe('ingestion store ownership and persistence', () => {
     'preserves identity and reopens a seen %s job with current lifecycle timestamps',
     async (listingStatus) => {
       const { internals, source, scraped, store } = setup();
-      store.listSourceJobs.mockResolvedValue([
+      store.listSourceJobsForIngestion.mockResolvedValue([
         row({ listingStatus, missingSinceAt: now, removedAt: now }),
       ]);
       await internals.persistSourceJobs(source, [scraped], true);

@@ -6,6 +6,7 @@ import {
 } from './job-data-store.config';
 import {
   type JobDataStore,
+  type JobStorePersistenceRecord,
   type JobStorePage,
   type JobStoreRecord,
   type JobStoreSearch,
@@ -29,16 +30,15 @@ import {
   toOracleTimestamp,
   toVisaSignalUpsertBinds,
   validateVisaSignals,
+  normalizeOracleTimestamp,
   visaSignalBindDefinitions,
   type OracleConnection,
   type OracleDriver,
+  type OracleJobRow,
   type OraclePool,
 } from './oracle-job-data-helpers';
 
-export type {
-  OracleConnection,
-  OracleDriver,
-} from './oracle-job-data-helpers';
+export type { OracleConnection, OracleDriver } from './oracle-job-data-helpers';
 
 export {
   ORACLE_DESCRIPTION_FLAGS,
@@ -507,6 +507,87 @@ export class OracleJobDataStore implements JobDataStore {
         if (page.length < pageSize) break;
       }
       return rows.map(mapJobRow);
+    } finally {
+      await connection.close();
+    }
+  }
+
+  async listSourceJobsForIngestion(
+    sourceId: string,
+  ): Promise<JobStorePersistenceRecord[]> {
+    const connection = await this.connection();
+    try {
+      const rows: JobStorePersistenceRecord[] = [];
+      const pageSize = 500;
+      for (let offset = 0; ; offset += pageSize) {
+        const result = await connection.execute<{
+          ID: string;
+          EXTERNAL_JOB_ID: string;
+          COMPANY_NAME: string;
+          OPT_ELIGIBLE: boolean | null;
+          STEM_OPT_ELIGIBLE: boolean | null;
+          CPT_ELIGIBLE: boolean | null;
+          H1B_SPONSOR_STATUS: string | null;
+          CREATED_AT: string | Date;
+          FIRST_SEEN_AT: string | Date;
+          EMPLOYER_MATCH_ID: string | null;
+          LISTING_STATUS: string;
+          MISSING_SINCE_AT: string | Date | null;
+        }>(
+          `SELECT id AS "ID", external_job_id AS "EXTERNAL_JOB_ID",
+                  company_name AS "COMPANY_NAME",
+                  opt_eligible AS "OPT_ELIGIBLE",
+                  stem_opt_eligible AS "STEM_OPT_ELIGIBLE",
+                  cpt_eligible AS "CPT_ELIGIBLE",
+                  h1b_sponsor_status AS "H1B_SPONSOR_STATUS",
+                  created_at AS "CREATED_AT",
+                  first_seen_at AS "FIRST_SEEN_AT",
+                  employer_match_id AS "EMPLOYER_MATCH_ID",
+                  listing_status AS "LISTING_STATUS",
+                  missing_since_at AS "MISSING_SINCE_AT"
+           FROM jobs
+           WHERE source_id = :sourceId
+           ORDER BY id
+           OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY`,
+          { sourceId, offset, pageSize },
+          outputOptions(this.driver),
+        );
+        const page = result.rows || [];
+        rows.push(
+          ...page.map((row) => ({
+            id: String(row.ID),
+            externalJobId: String(row.EXTERNAL_JOB_ID),
+            companyName: String(row.COMPANY_NAME || ''),
+            optEligible:
+              row.OPT_ELIGIBLE == null ? null : Boolean(row.OPT_ELIGIBLE),
+            stemOptEligible:
+              row.STEM_OPT_ELIGIBLE == null
+                ? null
+                : Boolean(row.STEM_OPT_ELIGIBLE),
+            cptEligible:
+              row.CPT_ELIGIBLE == null ? null : Boolean(row.CPT_ELIGIBLE),
+            h1bSponsorStatus:
+              row.H1B_SPONSOR_STATUS == null
+                ? null
+                : String(row.H1B_SPONSOR_STATUS),
+            createdAt: normalizeOracleTimestamp(row.CREATED_AT) || '',
+            firstSeenAt: normalizeOracleTimestamp(row.FIRST_SEEN_AT) || '',
+            employerMatchId:
+              row.EMPLOYER_MATCH_ID == null
+                ? null
+                : String(row.EMPLOYER_MATCH_ID),
+            listingStatus: String(
+              row.LISTING_STATUS,
+            ) as JobStorePersistenceRecord['listingStatus'],
+            missingSinceAt:
+              row.MISSING_SINCE_AT == null
+                ? null
+                : normalizeOracleTimestamp(row.MISSING_SINCE_AT),
+          })),
+        );
+        if (page.length < pageSize) break;
+      }
+      return rows;
     } finally {
       await connection.close();
     }

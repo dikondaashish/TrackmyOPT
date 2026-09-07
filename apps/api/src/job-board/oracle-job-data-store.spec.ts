@@ -153,6 +153,30 @@ describe('OracleJobDataStore shadow adapter', () => {
       runStartedAt: '2026-09-06T10:00:00.000+00:00',
     });
   });
+
+  it('uses a CLOB-free projection for live ingestion reconciliation', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(
+      { connectString: 'test', user: 'APP', password: 'test', poolMax: 1 },
+      driver,
+    );
+
+    await expect(store.listSourceJobsForIngestion('source-1')).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'job-1',
+          externalJobId: 'external-1',
+          listingStatus: 'open',
+        }),
+      ]),
+    );
+    const query = executed.find(
+      (entry) =>
+        entry.sql.includes('FROM jobs') && entry.sql.includes('COMPANY_NAME'),
+    );
+    expect(query?.sql).not.toContain('DESCRIPTION');
+    expect(query?.sql).toContain('MISSING_SINCE_AT');
+  });
   it('upserts migration evidence without deleting, truncating, or losing the source identity', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(

@@ -91,13 +91,15 @@ export class SupabaseSchedulerRunStore implements SchedulerRunStore {
   }
 
   async recordAttempt(attempt: SchedulerAttempt) {
-    const { error } = await this.supabase.from('scheduler_run_attempts').insert({
-      scheduler_run_id: attempt.schedulerRunId,
-      trigger_origin: attempt.triggerOrigin,
-      bull_job_id: attempt.bullJobId,
-      outcome: attempt.outcome,
-      queued_at: attempt.queuedAt,
-    });
+    const { error } = await this.supabase
+      .from('scheduler_run_attempts')
+      .insert({
+        scheduler_run_id: attempt.schedulerRunId,
+        trigger_origin: attempt.triggerOrigin,
+        bull_job_id: attempt.bullJobId,
+        outcome: attempt.outcome,
+        queued_at: attempt.queuedAt,
+      });
     if (error) throw new Error(error.message);
   }
 }

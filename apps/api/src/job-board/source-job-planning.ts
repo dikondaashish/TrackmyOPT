@@ -27,7 +27,7 @@ export function selectSlowSourceIds(
   if (!sourceIds.length) return new Set<string>();
   const latestDurationBySource = new Map<string, number>();
   for (const row of audits) {
-    const sourceId = String(row.source_id || '');
+    const sourceId = typeof row.source_id === 'string' ? row.source_id : '';
     if (!sourceId || latestDurationBySource.has(sourceId)) continue;
     const started = Date.parse(String(row.run_at));
     const completed = Date.parse(String(row.completed_at));

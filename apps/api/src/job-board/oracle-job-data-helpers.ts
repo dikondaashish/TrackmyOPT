@@ -34,7 +34,7 @@ export type OracleDriver = {
   createPool(options: Record<string, unknown>): Promise<OraclePool>;
 };
 
-type OracleJobRow = Record<string, unknown>;
+export type OracleJobRow = Record<string, unknown>;
 
 export function boolToNumber(value: boolean | null) {
   return value === null ? null : value ? 1 : 0;
