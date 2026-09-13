@@ -41,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { route: '/research', changeFrequency: 'weekly' as const, priority: 0.85 },
         { route: '/research/biggest-ats-myths', changeFrequency: 'monthly' as const, priority: 0.8 },
         { route: '/research/not-getting-interviews', changeFrequency: 'monthly' as const, priority: 0.8 },
+        { route: '/research/who-is-submitting-your-opt-job-applications', changeFrequency: 'monthly' as const, priority: 0.8 },
         { route: '/compare', changeFrequency: 'monthly' as const, priority: 0.7 },
         { route: '/premium-worth-it', changeFrequency: 'monthly' as const, priority: 0.9 },
         { route: '/guides/f1-tax-filing', changeFrequency: 'weekly' as const, priority: 0.9 },

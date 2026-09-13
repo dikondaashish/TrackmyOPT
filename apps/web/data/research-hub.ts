@@ -34,6 +34,17 @@ export const RESEARCH_POSTS: ResearchPost[] = [
     publishedDate: '2026-09-01',
     image: '/research/not-getting-interviews.png',
   },
+  {
+    slug: 'who-is-submitting-your-opt-job-applications',
+    number: 3,
+    category: 'Hiring reality',
+    title: 'Who is really submitting your OPT job applications?',
+    teaser:
+      'Before paying ApplyRyt, NextGenApply, Hustle Hive, or another apply-for-you service, understand account access, sponsorship answers, and what employers receive.',
+    readTime: '8 min read',
+    publishedDate: '2026-09-13',
+    image: '/research/research-hub-hero.png',
+  },
 ];
 
 export const RESEARCH_HUB_HERO_IMAGE = '/research/research-hub-hero.png';

@@ -255,6 +255,30 @@
   }
 }
 
+/* Research articles are long-form reading surfaces. Keep body copy comfortable
+   even though the compact product type scale is used elsewhere in the app. */
+.research-article-body :where(p, li, blockquote) {
+  font-size: 1rem !important;
+  line-height: 1.75rem !important;
+}
+
+.research-article-body :where(p, ul, ol, blockquote, table) {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.research-article-body :where(h2) {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+}
+
+.research-article-body :where(h3) {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+}
+
 /* Apple-inspired Custom Scrollbar */
 @layer utilities {
   .scrollbar-thin::-webkit-scrollbar {

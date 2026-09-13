@@ -24,7 +24,7 @@ export function ResearchArticleShell({
   next,
 }: ResearchArticleShellProps) {
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+    <article className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <Link
         href="/research"
         className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400"
@@ -65,7 +65,7 @@ export function ResearchArticleShell({
         )}
       </header>
 
-      <div className="prose prose-lg prose-gray dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400">
+      <div className="research-article-body prose prose-lg prose-gray dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400">
         {children}
       </div>
 
