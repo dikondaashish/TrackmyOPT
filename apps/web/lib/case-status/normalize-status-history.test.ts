@@ -6,6 +6,10 @@ import {
 } from "./normalize-status-history";
 
 describe("normalizeStatusHistory", () => {
+  it('keeps unknown event dates unknown rather than using observation or previous dates', () => {
+    expect(buildStatusHistoryFromUscis('Premium Processing Clock Was Started', '', [])[0].date).toBe('');
+    expect(buildStatusHistoryFromUscis('Case Was Approved', '', [{ completedText: 'Case Was Received', date: '2026-04-01' }])[0].date).toBe('');
+  });
   it("returns [] for null input", () => {
     expect(normalizeStatusHistory(null)).toEqual([]);
   });

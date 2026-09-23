@@ -10,7 +10,6 @@ import {
 } from "@/lib/case-status/case-status-display";
 import { getFilingCategoryLabel } from "@/lib/case-status/filing-category";
 import {
-  countBusinessDaysOverdue,
   daysSinceNow,
   formatDisplayDateShort,
 } from "@/lib/case-status/safe-dates";
@@ -90,8 +89,7 @@ export function CaseHeroCard({
   const lastChangeDate = caseStatus.last_status_change_at
     ? formatDisplayDateShort(caseStatus.last_status_change_at)
     : "Not recorded";
-  const ppBusinessDaysOverdue = countBusinessDaysOverdue(ppDeadlineDate ?? null);
-  const ppActive = Boolean(caseStatus.pp_start_date);
+  const ppActive = Boolean(ppDeadlineDate);
   const isUrgent = caseState === "urgent";
 
   const handleCopy = () => {
@@ -131,7 +129,7 @@ export function CaseHeroCard({
               <>
                 <span className="text-gray-300 dark:text-gray-700">·</span>
                 <span className={cn("font-semibold", isUrgent ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400")}>
-                  {isUrgent ? "PP Overdue" : "Premium Processing Active"}
+                  {ppOverdueDays > 0 ? "Past PP estimate" : "Premium Processing Active"}
                 </span>
               </>
             )}
@@ -158,11 +156,11 @@ export function CaseHeroCard({
           <StatCard
             value={`${ppOverdueDays}d`}
             label="PP overdue"
-            sublabel={ppBusinessDaysOverdue > 0 ? `${ppBusinessDaysOverdue} business days` : "Deadline exceeded"}
+            sublabel={`${ppOverdueDays} business days past estimate`}
             urgent
           />
         ) : ppDeadlineDate ? (
-          <StatCard value={formatDisplayDateShort(ppDeadlineDate)} label="PP deadline" />
+          <StatCard value={formatDisplayDateShort(ppDeadlineDate)} label="PP action estimate" />
         ) : null}
       </div>
 

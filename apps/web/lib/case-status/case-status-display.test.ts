@@ -7,9 +7,11 @@ import {
 describe('case status service-center display', () => {
   it('maps known receipt prefixes and leaves unknown prefixes unresolved', () => {
     expect(getServiceCenterLabel('IOE9138644807')).toBe(
-      'National Benefits Center'
+      'Electronic processing'
     );
-    expect(getServiceCenterLocation('IOE9138644807')).toBe("Lee's Summit, MO");
+    expect(getServiceCenterLocation('IOE9138644807')).toBeNull();
+    expect(getServiceCenterLabel('  ioe9138644807 ')).toBe('Electronic processing');
+    expect(getServiceCenterLocation('MSC1234567890')).toBe("Lee's Summit, MO");
     expect(getServiceCenterLabel('YSC1234567890')).toBe(
       'Potomac Service Center'
     );

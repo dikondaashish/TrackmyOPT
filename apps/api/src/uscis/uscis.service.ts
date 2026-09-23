@@ -29,38 +29,43 @@ export class UscisService {
    * Free users refresh manually via case-status/check.
    */
   async queueAllActiveCases() {
-    const casesResponse = (await this.supabase
-      .from('case_status')
-      .select('receipt_number, user_id')) as unknown as {
-      data: { receipt_number: string; user_id: string }[] | null;
-      error: Error | null;
-    };
-
-    if (casesResponse.error) {
-      throw new Error(`Failed to fetch cases: ${casesResponse.error.message}`);
+    // PostgREST caps each response. Stable ordering and explicit ranges keep
+    // users after the first page eligible. Queue nothing on a partial read.
+    const cases: { receipt_number: string; user_id: string }[] = [];
+    const premiumIds: string[] = [];
+    const pageSize = 1000;
+    for (let offset = 0; ; offset += pageSize) {
+      const { data, error } = await this.supabase
+        .from('case_status')
+        .select('receipt_number, user_id')
+        .order('id')
+        .range(offset, offset + pageSize - 1);
+      if (error) throw new Error(`Failed to fetch cases: ${error.message}`);
+      const rows = (data ?? []) as {
+        receipt_number: string;
+        user_id: string;
+      }[];
+      cases.push(...rows);
+      if (rows.length < pageSize) break;
     }
-
-    const premiumResponse = (await this.supabase
-      .from('profiles')
-      .select('user_id')
-      .eq('premium_status', true)) as unknown as {
-      data: { user_id: string }[] | null;
-      error: Error | null;
-    };
-
-    if (premiumResponse.error) {
-      throw new Error(
-        `Failed to fetch premium profiles: ${premiumResponse.error.message}`,
-      );
+    for (let offset = 0; ; offset += pageSize) {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('premium_status', true)
+        .order('user_id')
+        .range(offset, offset + pageSize - 1);
+      if (error)
+        throw new Error(`Failed to fetch premium profiles: ${error.message}`);
+      const rows = (data ?? []) as { user_id: string }[];
+      premiumIds.push(...rows.map((p) => p.user_id));
+      if (rows.length < pageSize) break;
     }
-
-    const cases = casesResponse.data;
     if (!cases || cases.length === 0) {
       this.logger.log('No cases found to check');
       return { count: 0, skippedFree: 0 };
     }
 
-    const premiumIds = (premiumResponse.data ?? []).map((p) => p.user_id);
     const { premiumCases, skippedFree } = filterCasesForPremiumAutoCheck(
       cases,
       premiumIds,

@@ -27,10 +27,12 @@ export function normalizeStatusCategory(status: string | null | undefined): stri
   if (s.includes("withdraw")) {
     return "withdrawn";
   }
+  if (/response.*(?:evidence|intent to deny).*receiv/.test(s)) return 'pending';
   if (
     s.includes("request for evidence") ||
     s.includes("request for additional evidence") ||
     s.includes("request for initial evidence") ||
+    s.includes("notice of intent to deny") ||
     s.includes("rfe") ||
     s.includes("evidence was sent")
   ) {
@@ -46,6 +48,7 @@ export function normalizeStatusCategory(status: string | null | undefined): stri
     s.includes("pending") ||
     s.includes("under review") ||
     s.includes("being processed") ||
+    s.includes("currently processing") ||
     s.includes("actively reviewed") ||
     s.includes("fingerprints") ||
     s.includes("interview")

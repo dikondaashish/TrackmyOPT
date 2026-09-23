@@ -26,8 +26,7 @@ const RECEIPT_PREFIX_TO_CENTER: Record<string, CommunityServiceCenter> = {
   SRC: "texas",
   EAC: "vermont",
   WAC: "california",
-  // Online filings often sit under NBC / IOE — partner data uses nbc sometimes.
-  IOE: "nbc",
+  // IOE identifies electronic processing, not an assigned service center.
   MSC: "nbc",
   NBC: "nbc",
 };

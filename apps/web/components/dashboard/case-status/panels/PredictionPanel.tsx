@@ -2,7 +2,6 @@
 
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatDisplayDateShort } from "@/lib/case-status/safe-dates";
 import { MIN_COHORT_FOR_ESTIMATE } from "@/lib/community-opt/estimate";
 import type { CommunityEstimate } from "@/lib/community-opt/types";
 import type { CommunityCaseKind } from "@/lib/community-opt/types";
@@ -162,7 +161,6 @@ export function PredictionPanel({
     medianDays,
     p25Days,
     p75Days,
-    estimatedDecisionRange,
     cohortPosition,
     cohortSize,
     fastestDays,
@@ -173,7 +171,7 @@ export function PredictionPanel({
 
   const low = p25Days ?? medianDays;
   const high = p75Days ?? medianDays;
-  const sameDay = estimatedDecisionRange[0] === estimatedDecisionRange[1];
+  const pastRange = daysSinceFiled > high;
 
   return (
     <div className="space-y-5">
@@ -186,23 +184,22 @@ export function PredictionPanel({
         }}
       >
         <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          Most likely decided
+          Historical approval range · middle 50%
         </p>
         <p className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-foreground leading-tight tracking-tight">
-          {sameDay ? (
-            <>Any time now</>
+          {pastRange ? (
+            <>Beyond the historical range</>
           ) : (
             <>
-              {formatDisplayDateShort(estimatedDecisionRange[0])}
+              {low}
               <span className="text-muted-foreground font-bold mx-1.5">–</span>
-              {formatDisplayDateShort(estimatedDecisionRange[1])}
+              {high} days
             </>
           )}
         </p>
         <p className="mt-1.5 text-xs text-muted-foreground">
-          {sameDay
-            ? "You are already past the typical window for cases like yours."
-            : `Based on ${cohortSize.toLocaleString()} comparable ${cohortLabel} community cases.`}
+          Based on {cohortSize.toLocaleString()} reported {cohortLabel} approvals.
+          This is not a USCIS queue position or a prediction of your decision date.
         </p>
       </div>
 
@@ -216,7 +213,7 @@ export function PredictionPanel({
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
         <Stat label="Typical wait" value={`${medianDays} days`} />
         <Stat
-          label="Still waiting"
+          label="Historical approvals taking longer"
           value={cohortPosition.behind.toLocaleString()}
         />
         {/* Spans the row on mobile so the odd tile out doesn't sit alone in a

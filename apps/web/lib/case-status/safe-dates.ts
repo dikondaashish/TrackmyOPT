@@ -1,6 +1,14 @@
+import { businessDaysBetween, formatIsoDate, parseBusinessDate } from './business-days';
+
 /** Parse user/DB date strings without throwing during render. */
 export function parseValidDate(value: string | null | undefined): Date | null {
   if (value == null || !String(value).trim()) return null;
+  const calendar = String(value).trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:T|$)/);
+  if (calendar) {
+    const [, y, m, d] = calendar;
+    const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+    if (date.getUTCFullYear() !== Number(y) || date.getUTCMonth() !== Number(m) - 1 || date.getUTCDate() !== Number(d)) return null;
+  }
   const parsed = new Date(String(value).trim());
   return Number.isFinite(parsed.getTime()) ? parsed : null;
 }
@@ -54,17 +62,10 @@ export function countBusinessDaysOverdue(
 ): number {
   const deadline = parseValidDate(deadlineIso);
   if (!deadline || !Number.isFinite(nowMs)) return 0;
-  const now = new Date(nowMs);
-  if (now <= deadline) return 0;
-  let count = 0;
-  const cur = new Date(deadline);
-  cur.setDate(cur.getDate() + 1);
-  while (cur <= now) {
-    const day = cur.getDay();
-    if (day !== 0 && day !== 6) count++;
-    cur.setDate(cur.getDate() + 1);
-  }
-  return count;
+  return businessDaysBetween(
+    parseBusinessDate(formatIsoDate(deadline)),
+    parseBusinessDate(formatIsoDate(new Date(nowMs)))
+  );
 }
 
 export function isDateBeforeMs(

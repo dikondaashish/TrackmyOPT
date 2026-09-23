@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDays, Shield } from "lucide-react";
-import { addMonthsIso, formatDisplayMonthYear } from "@/lib/case-status/safe-dates";
+import { formatDisplayMonthYear } from "@/lib/case-status/safe-dates";
 import type { FilingCategory } from "@/lib/case-status/filing-category";
 import { normalizeFilingCategory } from "@/lib/case-status/filing-category";
 
@@ -19,8 +19,6 @@ export function EadStemCards({
   capGapActive,
 }: EadStemCardsProps) {
   const isStemExtension = normalizeFilingCategory(filingCategory) === "stem_extension";
-  const eadExpiry = addMonthsIso(eadProjected, isStemExtension ? 24 : 12);
-  const stemWindowFromEad = addMonthsIso(eadExpiry, -3);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
@@ -34,18 +32,17 @@ export function EadStemCards({
         </div>
         <p className="text-sm font-semibold text-foreground">
           {eadProjected
-            ? `${formatDisplayMonthYear(eadProjected)} – ${formatDisplayMonthYear(eadExpiry)}`
-            : "Pending decision"}
+            ? `Decision estimate: ${formatDisplayMonthYear(eadProjected)}`
+            : "Use the dates on your EAD"}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          {isStemExtension
-            ? "24-month STEM OPT extension period"
-            : "12-month post-completion OPT period"}
+          A decision estimate does not establish your authorized start or end date.
+          Your saved dates are shown above.
         </p>
-        {!isStemExtension && stemWindowFromEad && (
+        {!isStemExtension && stemWindowOpens && (
           <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
             STEM window opens:{" "}
-            {formatDisplayMonthYear(stemWindowOpens ?? stemWindowFromEad)}
+            {formatDisplayMonthYear(stemWindowOpens)}
           </p>
         )}
       </div>

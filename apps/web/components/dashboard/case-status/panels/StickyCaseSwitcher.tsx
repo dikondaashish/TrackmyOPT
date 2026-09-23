@@ -3,6 +3,7 @@
 import { Plus, Star, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getFilingCategoryShortLabel } from "@/lib/case-status/filing-category";
+import { normalizeStatusCategory } from '@/lib/posthog/uscis-status-category';
 
 export type CaseState = "urgent" | "actionNeeded" | "inProgress" | "pending" | "approved";
 
@@ -39,8 +40,10 @@ export function deriveCaseState(currentStatus: string | null | undefined): CaseS
   if (!currentStatus) return "pending";
   const s = currentStatus.toLowerCase();
   if (s.includes("denied") || s.includes("revoked")) return "actionNeeded";
-  if (s.includes("request for evidence") || s.includes("rfe") || s.includes("interview")) return "actionNeeded";
-  if (s.includes("approved") || s.includes("card was produced") || s.includes("mailed")) return "approved";
+  const category = normalizeStatusCategory(currentStatus);
+  if (category === 'rfe' || s.includes("interview")) return "actionNeeded";
+  if (category === 'approved') return "approved";
+  if (category === 'pending') return "inProgress";
   if (s.includes("premium processing") || s.includes("actively review") || s.includes("biometric")) return "inProgress";
   if (s.includes("received") || s.includes("initial review")) return "pending";
   return "pending";

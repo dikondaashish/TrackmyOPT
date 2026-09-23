@@ -64,7 +64,7 @@ describe("cleanPartnerCase", () => {
 describe("centers", () => {
   it("maps receipt prefixes and STEM labels", () => {
     expect(serviceCenterFromReceipt("YSC1234567890")).toBe("potomac");
-    expect(serviceCenterFromReceipt("IOE1234567890")).toBe("nbc");
+    expect(serviceCenterFromReceipt("IOE1234567890")).toBeNull();
     expect(inferCaseKind({ label: "My STEM OPT" })).toBe("stem_extension");
     expect(inferCaseKind({ caseType: "I-765" })).toBe("initial_opt");
     expect(inferCaseKind({ filingCategory: "stem_extension" })).toBe("stem_extension");
@@ -205,7 +205,7 @@ describe("timeline paging", () => {
     const client = {
       from: () => ({
         select: () => ({
-          eq: () => ({
+          eq: () => ({ order: () => ({
             range: (from: number, to: number) => {
               requests += 1;
               const end = Math.min(to + 1, from + maxRows, totalRows);
@@ -222,7 +222,7 @@ describe("timeline paging", () => {
               }));
               return Promise.resolve({ data, error: null });
             },
-          }),
+          }) }),
         }),
       }),
     };
@@ -251,6 +251,15 @@ describe("timeline paging", () => {
 });
 
 describe("partner date parsing", () => {
+  it('excludes future events and impossible event ordering from approval statistics', () => {
+    const now = new Date('2026-09-23T12:00:00Z');
+    const future = cleanPartnerCase({ id: 'future', init_date: '2026-07-01', approve_date: '2026-10-03' }, now);
+    expect(future?.approve_date).toBeNull();
+    expect(future?.days_to_approval).toBeNull();
+    const reversed = cleanPartnerCase({ id: 'reversed', init_date: '2026-07-01', approve_date: '2026-06-01', card_produce_date: '2026-05-01' }, now);
+    expect(reversed?.approve_date).toBeNull();
+    expect(reversed?.card_produce_date).toBeNull();
+  });
   it("rejects calendar-impossible dates instead of rolling them over", () => {
     // Date.UTC(2026, 1, 31) silently becomes March 3 rather than NaN, and
     // Postgres rejects '2026-02-31', failing the whole upsert batch.
@@ -342,6 +351,10 @@ describe("opt-pulse mapped payload", () => {
 });
 
 describe("selectCohort + buildEstimateFromSamples", () => {
+  it('does not replace a small regular cohort with premium approvals', () => {
+    const rows = Array.from({ length: 20 }, () => sample(30, { premium_processing: true }));
+    expect(selectCohort(rows, { caseKind: 'initial_opt', serviceCenter: null, premiumProcessing: false })).toEqual({ samples: [], matchLevel: 'none' });
+  });
   function sample(
     days: number,
     extra: Partial<TimelineSample> = {}
@@ -422,11 +435,9 @@ describe("selectCohort + buildEstimateFromSamples", () => {
       expect(estimate.estimatedDecisionRange).toEqual(["2026-10-14", "2026-11-03"]);
     });
 
-    it("never quotes a decision date in the past", () => {
-      // Filed 200d ago — already beyond p75, so the window is "any time now"
-      // rather than a date that has been and gone.
+    it("preserves the historical window instead of moving it to today", () => {
       const estimate = estimateFiledOn("2026-01-17", 200);
-      expect(estimate.estimatedDecisionRange).toEqual(["2026-08-05", "2026-08-05"]);
+      expect(estimate.estimatedDecisionRange).toEqual(["2026-04-17", "2026-05-07"]);
     });
 
     it("infers the filing date from days pending when it is unknown", () => {

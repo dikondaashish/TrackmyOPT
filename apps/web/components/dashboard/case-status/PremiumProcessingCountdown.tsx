@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useClientDate } from "@/hooks/useClientDate";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +9,11 @@ import { AlertTriangle, Clock, Phone, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
 import {
-  detectPpStart,
-  getPpClock,
-  isPremiumProcessingActive,
+  resolvePpClockState,
   PP_BUSINESS_DAY_LIMIT,
   PP_CONTACT,
 } from "@/lib/case-status/premium-processing";
-import { formatDisplayDateNoon } from "@/lib/case-status/safe-dates";
+import { formatDisplayDateNoon, parseValidDate } from "@/lib/case-status/safe-dates";
 
 type PremiumProcessingCountdownProps = {
   caseId: string;
@@ -35,32 +34,19 @@ export function PremiumProcessingCountdown({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const active = isPremiumProcessingActive({
+  const now = useClientDate();
+  const state = resolvePpClockState({
     statusHistory,
     currentStatus,
     manualPpStart: ppStartDate,
+    now: now ?? new Date(NaN),
   });
-
-  const resolvedStart = useMemo(
-    () =>
-      detectPpStart({
-        statusHistory,
-        currentStatus,
-        manualPpStart: ppStartDate,
-      }),
-    [statusHistory, currentStatus, ppStartDate]
-  );
-
-  const clock = useMemo(
-    () => (resolvedStart ? getPpClock(resolvedStart) : null),
-    [resolvedStart]
-  );
-
-  if (!active) return null;
+  const clock = state.clock;
+  if (!now || state.status === 'inactive' || state.status === 'completed') return null;
 
   const handleSavePpStart = async () => {
-    if (!ppDateInput) {
-      setSaveError("Please select the date USCIS started Premium Processing.");
+    if (!parseValidDate(ppDateInput) || ppDateInput > now.toISOString().slice(0, 10)) {
+      setSaveError("Please select a valid start date that is not in the future.");
       return;
     }
     setSaving(true);
@@ -122,11 +108,11 @@ export function PremiumProcessingCountdown({
                 ? `Overdue by ${clock.daysOverdue} business day${clock.daysOverdue === 1 ? "" : "s"}`
                 : clock
                   ? `${clock.daysRemaining} business day${clock.daysRemaining === 1 ? "" : "s"} remaining`
-                  : "PP active — add start date"}
+                  : state.status === 'stopped' ? "Premium Processing clock stopped" : "Clock start unconfirmed"}
             </h3>
             {clock && (
               <p className="text-sm text-white/90 mt-1">
-                Deadline:{" "}
+                Estimated action date:{" "}
                 <span className="font-bold">{formatDisplayDateNoon(clock.deadline)}</span>
                 <span className="text-white/70">
                   {" "}
@@ -140,7 +126,14 @@ export function PremiumProcessingCountdown({
       </div>
 
       <div className="p-5 sm:p-6 space-y-4 bg-card">
-        {!clock && (
+        {state.status === 'stopped' && (
+          <p className="text-sm text-muted-foreground">
+            USCIS stopped the clock. For an evidence request or notice of intent to deny,
+            a new 30-business-day period begins when USCIS receives your response.
+            Follow the deadline in your notice; sending a response does not confirm receipt.
+          </p>
+        )}
+        {state.status === 'unknown' && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
               USCIS shows Premium Processing on your case, but we need the start date to
@@ -149,6 +142,7 @@ export function PremiumProcessingCountdown({
             <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 type="date"
+                max={now.toISOString().slice(0, 10)}
                 value={ppDateInput}
                 onChange={(e) => setPpDateInput(e.target.value)}
                 className="h-9 text-sm"
@@ -191,11 +185,12 @@ export function PremiumProcessingCountdown({
           </div>
         )}
 
-        {clock && !clock.isOverdue && (
+        {clock && (
           <p className="text-sm text-muted-foreground flex items-start gap-2">
             <Clock className="w-4 h-4 mt-0.5 shrink-0 text-amber-600" />
-            USCIS targets a decision within {PP_BUSINESS_DAY_LIMIT} business days of
-            Premium Processing. We&apos;ll keep checking your case automatically.
+            This estimates USCIS action within {PP_BUSINESS_DAY_LIMIT} business days after
+            prerequisites are met; it does not guarantee approval. Weekends and observed
+            federal holidays are excluded. USCIS office closures can change this estimate.
           </p>
         )}
       </div>

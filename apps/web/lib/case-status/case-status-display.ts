@@ -13,8 +13,8 @@ export function formatDaysAgoLabel(dateString: string | null | undefined): strin
   return `${days} days ago`;
 }
 
-const SERVICE_CENTER_BY_PREFIX: Record<string, { name: string; location: string }> = {
-  IOE: { name: "National Benefits Center", location: "Lee's Summit, MO" },
+const SERVICE_CENTER_BY_PREFIX: Record<string, { name: string; location: string | null }> = {
+  IOE: { name: "Electronic processing", location: null },
   EAC: { name: "Vermont Service Center", location: "St. Albans, VT" },
   WAC: { name: "California Service Center", location: "Laguna Niguel, CA" },
   LIN: { name: "Nebraska Service Center", location: "Lincoln, NE" },

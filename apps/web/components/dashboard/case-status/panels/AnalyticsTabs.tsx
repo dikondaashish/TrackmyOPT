@@ -404,10 +404,10 @@ export function AnalyticsTabs({
           page footer that is not good enough. */}
       <div className="mt-6 pt-4 border-t border-border">
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Every figure here comes from community-reported partner timelines
-          (opt-tracker, opt-pulse) shared with permission — not from USCIS case
-          lookups, and never from scanning receipt numbers near yours. These are
-          planning estimates from what other people reported, not official USCIS
+          Community charts use partner-reported timelines (opt-tracker, opt-pulse)
+          shared with permission. TrackMyOPT benchmarks are separately labeled
+          and use enrolled cases, never scans of neighboring receipt numbers.
+          These are historical comparisons, not official USCIS
           processing times, not affiliated with USCIS, and not a prediction of
           your own outcome.
         </p>

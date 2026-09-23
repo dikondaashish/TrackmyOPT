@@ -58,7 +58,7 @@ import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
 import type { CommunityEstimate, CommunitySummary } from "@/lib/community-opt/types";
 import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
 import type { JourneyStages } from "@/lib/community-opt/stages";
-import { getPpClock } from "@/lib/case-status/premium-processing";
+import { resolvePpClockState } from "@/lib/case-status/premium-processing";
 
 export function useCaseStatusController() {
   const [receiptNumber, setReceiptNumber] = useState("");
@@ -323,14 +323,6 @@ export function useCaseStatusController() {
     ? PRODUCT_CTAS.startTrial
     : PRODUCT_CTAS.upgradeToPro;
 
-  const nextCheckAt = useMemo(() => {
-    if (isPremium !== true || !caseStatus?.last_checked_at) return null;
-    const next = new Date(
-      new Date(caseStatus.last_checked_at).getTime() + 24 * 60 * 60 * 1000
-    );
-    return Number.isNaN(next.getTime()) ? null : next.toISOString();
-  }, [isPremium, caseStatus?.last_checked_at]);
-
   // Client-only date — null during SSR/hydration to prevent error #418.
   const clientNow = useClientDate();
   const clientNowMs = clientNow ? clientNow.getTime() : null;
@@ -489,6 +481,13 @@ export function useCaseStatusController() {
     if (caseStatus.received_date) params.set("received", caseStatus.received_date);
 
     setCommunityEstimateLoading(true);
+    setCommunityPrediction(null);
+    setCommunitySummary(null);
+    setCommunityStages(null);
+    setCommunityHeatmap([]);
+    setCommunityWeeklyTrend([]);
+    setCommunityHistogram(null);
+    setCommunitySimilarFiling(null);
     void fetch(`/api/case-status/community-estimate?${params}`, {
       signal: controller.signal,
       credentials: "include",
@@ -1024,8 +1023,15 @@ export function useCaseStatusController() {
   // PP overdue calculation — 0 until clientNow is available (post-hydration).
   const ppStartDate = caseStatus?.pp_start_date ?? null;
   const ppClock =
-    ppStartDate && clientNowMs !== null
-      ? getPpClock(ppStartDate, new Date(clientNowMs))
+    clientNowMs !== null &&
+    isOptFilingCategory(caseStatus?.filing_category) &&
+    !getFilingCategoryFormMismatch(caseStatus?.filing_category, caseStatus?.case_type)
+      ? resolvePpClockState({
+          manualPpStart: ppStartDate,
+          statusHistory: safeStatusHistory,
+          currentStatus: caseStatus?.current_status,
+          now: new Date(clientNowMs),
+        }).clock
       : null;
   const ppOverdueDays = ppClock?.daysOverdue ?? 0;
   const ppDeadlineDate = ppClock?.deadline ?? null;
@@ -1067,7 +1073,6 @@ export function useCaseStatusController() {
     safeStatusHistory,
     showPackagingNotice,
     proUpgradeCta,
-    nextCheckAt,
     clientNowMs,
     deleteNotice,
     caseStatus,

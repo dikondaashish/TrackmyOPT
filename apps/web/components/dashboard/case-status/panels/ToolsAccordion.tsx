@@ -46,13 +46,13 @@ const TOOLS: Tool[] = [
 
 const STATUS_DECODER_ROWS = [
   { status: "Case Was Received",              plain: "USCIS got your application",        action: "Wait — processing begins." },
-  { status: "Changed to Premium Processing",  plain: "30-business-day I-765 clock started", action: "Confirm the applicable start date on your I-907 receipt." },
-  { status: "Is Being Actively Reviewed",     plain: "An officer is reviewing your file", action: "Wait. Average review 1–3 weeks." },
+  { status: "Changed to Premium Processing",  plain: "Premium processing requested", action: "Confirm when USCIS started the clock; an upgrade alone does not establish the date." },
+  { status: "Is Being Actively Reviewed",     plain: "USCIS is reviewing your case", action: "Check your USCIS account for notices. This status does not give a decision date." },
   { status: "Request for Evidence",          plain: "USCIS needs more documents",        action: "Respond by the RFE deadline or risk denial." },
   { status: "Approved",                       plain: "Application approved!",             action: "Wait for card production." },
-  { status: "Card Was Produced",             plain: "EAD card is being printed",         action: "Card mailed within 1–2 business days." },
+  { status: "Card Was Produced",             plain: "USCIS reports card production",         action: "Watch for a mailing update and tracking number; delivery timing varies." },
   { status: "Transferred",                    plain: "Moved to a different service center", action: "No action needed. Processing continues there." },
-  { status: "Denied",                        plain: "Application was denied",            action: "Consult immigration attorney within 30 days." },
+  { status: "Denied",                        plain: "Application was denied",            action: "Read the decision notice and contact a qualified immigration attorney promptly. Any options and deadlines depend on the notice." },
 ];
 
 function PPContactPanel() {

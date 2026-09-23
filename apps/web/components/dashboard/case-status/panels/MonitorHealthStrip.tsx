@@ -1,10 +1,11 @@
 "use client";
 
-import { CheckCircle2, XCircle, Mail, Pencil } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle, Mail, Pencil } from "lucide-react";
+import { monitorHealth } from '@/lib/case-status/monitor-health';
+import { useClientDate } from '@/hooks/useClientDate';
 import {
   formatCheckedAt,
   formatRelativePast,
-  formatUntilFuture,
 } from "@/lib/case-status/safe-dates";
 import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
 interface MonitorHealthStripProps {
   monitorActive: boolean;
   lastCheckedAt: string | null;
-  nextCheckAt?: string | null;
+  lastCheckFailedAt?: string | null;
   emailAlertsEnabled: boolean;
   emailAddress?: string;
   onEditEmail?: () => void;
@@ -24,28 +25,33 @@ const Dot = () => <span className="text-gray-300 dark:text-gray-700 mx-1.5">·</
 export function MonitorHealthStrip({
   monitorActive,
   lastCheckedAt,
-  nextCheckAt,
+  lastCheckFailedAt,
   emailAlertsEnabled,
   emailAddress,
   onEditEmail,
   onUpgrade,
 }: MonitorHealthStripProps) {
+  const now = useClientDate();
+  const health = monitorHealth(monitorActive, lastCheckedAt, lastCheckFailedAt ?? null, now?.getTime() ?? NaN);
+  const labels = { off: 'Auto-monitor off', recent: 'Daily monitoring · recent check', delayed: 'Monitoring delayed', failed: 'Latest check failed', unconfirmed: 'Awaiting a confirmed check' };
   return (
     <div className="flex flex-wrap items-center gap-y-1 text-xs text-muted-foreground py-2 px-1">
       <span className="flex items-center gap-1 font-medium">
-        {monitorActive ? (
+        {health === 'recent' ? (
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+        ) : monitorActive ? (
+          <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
         ) : (
           <XCircle className="w-3.5 h-3.5 text-gray-400" />
         )}
         <span
           className={cn(
-            monitorActive
+            health === 'recent'
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-muted-foreground"
           )}
         >
-          {monitorActive ? "Auto-monitor active" : "Auto-monitor off"}
+          {labels[health]}
         </span>
       </span>
 
@@ -70,16 +76,16 @@ export function MonitorHealthStrip({
         <>
           <Dot />
           <span>
-            Last checked {formatCheckedAt(lastCheckedAt)}{" "}
-            <span className="text-gray-400">({formatRelativePast(lastCheckedAt)})</span>
+            Last successful check {formatCheckedAt(lastCheckedAt)}{" "}
+            <span className="text-gray-400">({formatRelativePast(lastCheckedAt, now?.getTime() ?? NaN)})</span>
           </span>
         </>
       )}
 
-      {nextCheckAt && monitorActive && (
+      {monitorActive && health !== 'recent' && (
         <>
           <Dot />
-          <span>Next check in {formatUntilFuture(nextCheckAt)}</span>
+          <span>Daily checks enabled. Refresh manually to retry now.</span>
         </>
       )}
 

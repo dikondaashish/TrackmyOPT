@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { MilestoneTimeline, buildMilestones } from "./MilestoneTimeline";
 import { EadStemCards } from "./EadStemCards";
 import { DsoDeadlineManager } from "./DsoDeadlineManager";
+import { SavedOptDates } from './SavedOptDates';
 import {
   buildOptComplianceActions,
   type OptComplianceAction,
@@ -75,6 +76,7 @@ export function OptJourneySection({
 
       {/* Milestone timeline */}
       <MilestoneTimeline milestones={milestones} />
+      <SavedOptDates />
 
       {/* EAD + Cap-gap cards */}
       <EadStemCards

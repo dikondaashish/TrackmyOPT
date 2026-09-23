@@ -151,7 +151,7 @@ export type TimelineSample = {
 
 /**
  * Pick the tightest cohort that still clears MIN_COHORT_FOR_ESTIMATE.
- * center+pp → pp only → kind only.
+ * center+pp → pp only. Never mix premium and regular timelines.
  */
 export function selectCohort(
   rows: TimelineSample[],
@@ -179,10 +179,6 @@ export function selectCohort(
   );
   if (ppOnly.length >= MIN_COHORT_FOR_ESTIMATE) {
     return { samples: ppOnly, matchLevel: "pp" };
-  }
-
-  if (kindRows.length >= MIN_COHORT_FOR_ESTIMATE) {
-    return { samples: kindRows, matchLevel: "kind" };
   }
 
   return { samples: [], matchLevel: "none" };
@@ -227,16 +223,13 @@ export function buildEstimateFromSamples(
   // anchored on the filing date. When that is unknown, infer it from how long
   // the case has already been pending.
   const filedMs = parseUtcDay(opts.receivedDate) ?? now - opts.daysSinceFiled * dayMs;
-  // Never quote a decision date in the past: once a case is past p75 it is in
-  // the slow tail, and the honest reading of the window is "any time now".
-  const notBeforeToday = (ms: number): string =>
-    new Date(Math.max(ms, now)).toISOString().slice(0, 10);
-  const rangeStart = notBeforeToday(filedMs + p25Days * dayMs);
-  const rangeEnd = notBeforeToday(filedMs + p75Days * dayMs);
+  // Historical comparison only: do not slide an elapsed range to today.
+  const rangeStart = new Date(filedMs + p25Days * dayMs).toISOString().slice(0, 10);
+  const rangeEnd = new Date(filedMs + p75Days * dayMs).toISOString().slice(0, 10);
   const approvalsLast24h = samples.filter((s) => {
     if (!s.approve_date) return false;
     const t = Date.parse(`${s.approve_date}T12:00:00Z`);
-    return !Number.isNaN(t) && now - t < dayMs;
+    return !Number.isNaN(t) && t <= now && now - t < dayMs;
   }).length;
 
   return {

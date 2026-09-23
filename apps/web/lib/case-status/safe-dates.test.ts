@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getPpClock } from "./premium-processing";
 import {
   addDaysIso,
   countBusinessDaysOverdue,
@@ -57,6 +58,22 @@ describe("safe-dates", () => {
     const friday = "2026-03-06T12:00:00.000Z";
     const monday = Date.parse("2026-03-09T12:00:00.000Z");
     expect(countBusinessDaysOverdue(friday, monday)).toBe(1);
+  });
+
+  it("counts the same federal business days as the premium clock", () => {
+    const now = new Date("2026-09-23T23:59:00Z");
+    const clock = getPpClock("2026-05-12", now);
+    expect(countBusinessDaysOverdue(clock.deadline, now.getTime())).toBe(clock.daysOverdue);
+    expect(countBusinessDaysOverdue("2026-07-02", Date.parse("2026-07-06T01:00:00Z"))).toBe(1);
+    expect(countBusinessDaysOverdue("2026-06-18", Date.parse("2026-06-19T23:59:00Z"))).toBe(0);
+  });
+
+  it("does not roll over impossible calendar dates or count a partial extra day", () => {
+    expect(parseValidDate("2026-02-30")).toBeNull();
+    expect(parseDateOnlyAtNoon("2026-02-30")).toBeNull();
+    expect(countBusinessDaysOverdue("2026-03-09", Date.parse("2026-03-09T23:59:00Z"))).toBe(0);
+    expect(countBusinessDaysOverdue("invalid", Date.now())).toBe(0);
+    expect(countBusinessDaysOverdue("2026-03-09", NaN)).toBe(0);
   });
 
   it("parseDateOnlyAtNoon accepts YYYY-MM-DD", () => {

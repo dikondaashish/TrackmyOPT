@@ -18,15 +18,15 @@ export { USCIS_CASE_STATUS_URL };
 const EXPLAINER_BY_CATEGORY: Record<StatusExplainerCategory, Omit<StatusExplainerContent, "category">> = {
   pending: {
     title: "Still in progress",
-    meaning: "Normal — USCIS is still processing your case.",
-    nextStep: "No action needed right now. We'll keep checking and update you when something changes.",
+    meaning: "USCIS reports that your case is still in progress. This status does not establish a decision date.",
+    nextStep: "Check your USCIS account and mail for notices. Follow any instructions or deadlines in those notices.",
     showUscisLink: false,
     tone: "neutral",
   },
   received: {
     title: "Case received",
     meaning: "USCIS has received your application and assigned your case number.",
-    nextStep: "No action needed yet. Processing times vary — we'll keep checking for updates.",
+    nextStep: "Keep your receipt notice and check your USCIS account for instructions. Processing times vary.",
     showUscisLink: false,
     tone: "neutral",
   },
@@ -40,7 +40,7 @@ const EXPLAINER_BY_CATEGORY: Record<StatusExplainerCategory, Omit<StatusExplaine
   rfe: {
     title: "More information requested",
     meaning: "USCIS may need additional documents or information before it can continue reviewing your case.",
-    nextStep: "Check your mail and USCIS online account for a Request for Evidence (RFE) and respond by the deadline on the notice.",
+    nextStep: "Check your mail and USCIS online account for the evidence request or notice of intent to deny. Follow the response instructions and deadline in that notice.",
     showUscisLink: true,
     tone: "urgent",
   },
@@ -66,7 +66,7 @@ const EXPLAINER_BY_CATEGORY: Record<StatusExplainerCategory, Omit<StatusExplaine
     tone: "neutral",
   },
   premium_processing: {
-    title: "Premium Processing active",
+    title: "Premium Processing update",
     meaning: "USCIS upgraded your Form I-765 case to Premium Processing. The published timeframe is 30 business days after all prerequisites are met.",
     nextStep: "Confirm the start date on your I-907 receipt. If the applicable timeframe passes with no USCIS action, use the contact instructions on your receipt notice or contact USCIS.",
     showUscisLink: true,

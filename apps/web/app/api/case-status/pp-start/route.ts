@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/get-user-id";
-import { normalizeFilingDateToIso } from "@/lib/case-status/filing-date";
+import { parseValidDate } from "@/lib/case-status/safe-dates";
 
 export const dynamic = "force-dynamic";
 
@@ -37,12 +37,10 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const isoDate = normalizeFilingDateToIso(
-      typeof pp_start_date === "string" ? pp_start_date : null
-    );
-    if (!isoDate) {
+    const isoDate = typeof pp_start_date === 'string' ? pp_start_date.trim() : '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate) || !parseValidDate(isoDate) || isoDate > new Date().toISOString().slice(0, 10)) {
       return NextResponse.json(
-        { ok: false, error: "pp_start_date must be a valid date (yyyy-mm-dd)" },
+        { ok: false, error: "pp_start_date must be a valid date (yyyy-mm-dd) that is not in the future" },
         { status: 400, headers: corsHeaders }
       );
     }

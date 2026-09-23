@@ -11,7 +11,7 @@ function normalizeStatusText(value: string): string {
   return value.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-function buildStatusHistoryFromUscis(
+export function buildStatusHistoryFromUscis(
   currentStatus: string,
   currentDescription: string,
   histCaseStatus: Array<{ date: string; completedText: string }>,
@@ -23,11 +23,8 @@ function buildStatusHistoryFromUscis(
     return [
       {
         status: currentStatus,
-        date: new Date().toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-        }),
+        // Observation time is stored in last_checked_at, not an event date.
+        date: '',
         description: sanitizedDescription || currentStatus,
       },
     ];
@@ -62,13 +59,7 @@ function buildStatusHistoryFromUscis(
     return [
       {
         status: currentStatus,
-        date:
-          latest?.date ||
-          new Date().toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-          }),
+        date: '',
         description: sanitizedDescription || currentStatus,
       },
       ...mapped,
@@ -146,17 +137,18 @@ export class UscisProcessor {
 
       // Optionally update the case_status to reflect the failure
       try {
-        await this.supabase
+        const { error: updateError } = await this.supabase
           .from('case_status')
           .update({
-            last_checked_at: new Date().toISOString(),
+            last_check_failed_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq('receipt_number', receiptNumber)
           .eq('user_id', userId);
+        if (updateError) throw new Error(updateError.message);
       } catch (dbErr) {
         this.logger.error(
-          `[DEAD LETTER] Failed to update last_checked_at: ${dbErr}`,
+          `[DEAD LETTER] Failed to record check failure: ${dbErr}`,
         );
       }
     } else {
@@ -268,6 +260,8 @@ export class UscisProcessor {
         case_type: result.caseType,
         received_date: result.receivedDate,
         last_checked_at: new Date().toISOString(),
+        last_check_failed_at: null,
+        consecutive_failures: 0,
         status_history: statusHistory,
         change_log: existingChangelog,
         updated_at: new Date().toISOString(),

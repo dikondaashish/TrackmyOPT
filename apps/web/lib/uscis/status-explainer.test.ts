@@ -5,8 +5,9 @@ describe("getStatusExplainer", () => {
   it("maps pending statuses to reassuring copy", () => {
     const result = getStatusExplainer("Case Is Being Actively Reviewed By USCIS");
     expect(result.category).toBe("pending");
-    expect(result.meaning).toMatch(/still processing/i);
-    expect(result.nextStep).toMatch(/no action needed/i);
+    expect(result.meaning).toMatch(/still in progress/i);
+    expect(result.nextStep).toMatch(/instructions or deadlines/i);
+    expect(result.nextStep).not.toMatch(/no action needed/i);
     expect(result.showUscisLink).toBe(false);
   });
 

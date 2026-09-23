@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { inferCaseKind, serviceCenterFromReceipt } from "./centers";
+import { cleanPartnerCase } from './clean';
 import {
   buildEstimateFromSamples,
   buildHeatmap,
@@ -41,7 +42,7 @@ export type CommunityEstimateResult = {
 };
 
 const SELECT_COLUMNS =
-  "days_to_approval, approve_date, init_date, biometrics_date, card_produce_date, delivered_date, service_center, premium_processing, case_kind";
+  "days_to_approval, approve_date, init_date, pp_date, biometrics_date, card_produce_date, delivered_date, service_center, premium_processing, case_kind";
 /** PostgREST caps a single response at the project's `max_rows` (1000 by
  *  default), so a plain `.limit()` silently truncates. */
 const PAGE_SIZE = 1000;
@@ -51,6 +52,7 @@ type TimelineRow = {
   days_to_approval: number | null;
   approve_date: string | null;
   init_date: string | null;
+  pp_date?: string | null;
   biometrics_date: string | null;
   card_produce_date: string | null;
   delivered_date: string | null;
@@ -84,14 +86,15 @@ export async function fetchAllTimelines(
       .from("community_opt_timelines")
       .select(SELECT_COLUMNS)
       .eq("case_kind", caseKind)
+      .order("id", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
 
-    if (error) break;
+    if (error) throw new Error('Community timelines could not be loaded completely');
     const rows = (data ?? []) as unknown as TimelineRow[];
     all.push(...rows);
-    if (rows.length < PAGE_SIZE) break;
+    if (rows.length < PAGE_SIZE) return all;
   }
-  return all;
+  throw new Error('Community timeline pagination limit reached');
 }
 
 /**
@@ -123,7 +126,10 @@ export async function getCommunityEstimate(
   const daysSinceFiled = Math.max(0, Math.floor(query.daysSinceFiled ?? 0));
 
   const supabase = createClient(url, key);
-  const data = await fetchAllTimelines(supabase, caseKind);
+  const loaded = await fetchAllTimelines(supabase, caseKind);
+  // Revalidate stored rows as well as new ingestion; no destructive cleanup needed.
+  const now = new Date();
+  const data = loaded.map(r => ({ ...r, ...cleanPartnerCase({ ...r, id: 'timeline', type: r.case_kind }, now) }));
   if (!data.length) return empty;
 
   const rows: TimelineSample[] = data
@@ -152,7 +158,6 @@ export async function getCommunityEstimate(
     premiumProcessing,
   });
 
-  const heatmap = buildHeatmap(samples.length ? samples : rows);
 
   // Trend and histogram use the same premium-processing segment as the
   // estimate — mixing PP and regular cases makes both meaningless, since the
@@ -161,6 +166,7 @@ export async function getCommunityEstimate(
   const segment = rows.filter(
     (r) => r.premium_processing === premiumProcessing
   );
+  const heatmap = buildHeatmap(samples.length ? samples : segment);
   const weeklyTrend = buildWeeklyProcessingTrend(segment);
   const histogram = buildProcessingHistogram(
     filterMatureRows(samples.length ? samples : segment).map(

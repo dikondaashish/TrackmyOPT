@@ -44,6 +44,7 @@ const FEDERAL_HOLIDAYS = new Set([
   "2027-11-11",
   "2027-11-25",
   "2027-12-24",
+  "2027-12-31", // New Year's Day 2028 observed (Saturday January 1).
   "2028-01-01",
   "2028-01-17",
   "2028-02-21",

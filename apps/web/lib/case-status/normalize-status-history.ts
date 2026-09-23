@@ -23,11 +23,8 @@ export function buildStatusHistoryFromUscis(
     return [
       {
         status: currentStatus,
-        date: new Date().toLocaleDateString("en-US", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        }),
+        // Observation time is not the date USCIS took this action.
+        date: "",
         description: sanitizedDescription || currentStatus,
       },
     ];
@@ -58,13 +55,7 @@ export function buildStatusHistoryFromUscis(
     return [
       {
         status: currentStatus,
-        date:
-          latest?.date ||
-          new Date().toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-          }),
+        date: "",
         description: sanitizedDescription || currentStatus,
       },
       ...mapped,

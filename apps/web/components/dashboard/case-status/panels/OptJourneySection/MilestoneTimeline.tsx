@@ -115,9 +115,9 @@ export function buildMilestones(
   return [
     {
       key: "f1",
-      label: "F-1 Active",
+      label: "F-1 · verify with DSO",
       date: null,
-      status: "done",
+      status: "upcoming",
     },
     {
       key: "opt-filed",
@@ -127,17 +127,15 @@ export function buildMilestones(
     },
     {
       key: "ead",
-      label: "EAD Decision",
+      label: eadProjected ? "EAD estimate" : "EAD Decision",
       date: eadProjected,
-      status: !eadProjected ? "upcoming"
-        : isPast(eadProjected) ? "done"
-        : "active",
+      status: "upcoming",
     },
     {
       key: "employment",
       label: "Employment",
-      date: eadProjected,
-      status: !eadProjected ? "upcoming" : isPast(eadProjected) ? "done" : "upcoming",
+      date: null,
+      status: "upcoming",
     },
     {
       key: "stem-window",

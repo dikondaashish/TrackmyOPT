@@ -53,7 +53,6 @@ export function CaseStatusSection() {
     safeStatusHistory,
     showPackagingNotice,
     proUpgradeCta,
-    nextCheckAt,
     clientNowMs,
     deleteNotice,
     caseStatus,
@@ -318,7 +317,7 @@ export function CaseStatusSection() {
             <MonitorHealthStrip
               monitorActive={isPremium === true}
               lastCheckedAt={caseStatus.last_checked_at}
-              nextCheckAt={nextCheckAt}
+              lastCheckFailedAt={caseStatus.last_check_failed_at}
               emailAlertsEnabled={caseStatus.notifications_enabled}
               emailAddress={notificationEmail}
               onEditEmail={() => setIsEditingEmail(true)}
@@ -329,15 +328,17 @@ export function CaseStatusSection() {
           </CaseStatusPanelErrorBoundary>
 
           {/* ── 4b. PP Countdown (keep existing component) ── */}
-          <CaseStatusPanelErrorBoundary area="pp_countdown">
-            <PremiumProcessingCountdown
-              caseId={caseStatus.id}
-              ppStartDate={caseStatus.pp_start_date ?? null}
-              currentStatus={caseStatus.current_status}
-              statusHistory={safeStatusHistory}
-              onSaved={() => void loadCaseStatus()}
-            />
-          </CaseStatusPanelErrorBoundary>
+          {isOptCase && !formTypeMismatch && (
+            <CaseStatusPanelErrorBoundary area="pp_countdown">
+              <PremiumProcessingCountdown
+                caseId={caseStatus.id}
+                ppStartDate={caseStatus.pp_start_date ?? null}
+                currentStatus={caseStatus.current_status}
+                statusHistory={safeStatusHistory}
+                onSaved={() => void loadCaseStatus()}
+              />
+            </CaseStatusPanelErrorBoundary>
+          )}
 
           {/* ── 5. ANALYTICS SECTION ── */}
           <Card className="p-5 sm:p-6 border-0 shadow-lg">

@@ -58,17 +58,23 @@ function normalizeSource(raw: string | null | undefined): CommunitySource {
  * (still useful for future stage analytics) but nulls absurd day gaps.
  */
 export function cleanPartnerCase(
-  raw: PartnerCasePayload
+  raw: PartnerCasePayload,
+  now = new Date()
 ): CleanedCommunityCase | null {
   const externalId = typeof raw.id === "string" ? raw.id.trim() : "";
   if (!externalId) return null;
 
-  const init_date = parseDateOnly(raw.init_date);
-  const biometrics_date = parseDateOnly(raw.biometrics_date);
-  const pp_date = parseDateOnly(raw.pp_date);
-  const approve_date = parseDateOnly(raw.approve_date);
-  const card_produce_date = parseDateOnly(raw.card_produce_date);
-  const delivered_date = parseDateOnly(raw.delivered_date);
+  const today = now.toISOString().slice(0, 10);
+  const observedDate = (rawDate: string | null | undefined, after?: string | null) => {
+    const date = parseDateOnly(rawDate);
+    return date && date <= today && (!after || date >= after) ? date : null;
+  };
+  const init_date = observedDate(raw.init_date);
+  const biometrics_date = observedDate(raw.biometrics_date, init_date);
+  const pp_date = observedDate(raw.pp_date, init_date);
+  const approve_date = observedDate(raw.approve_date, init_date);
+  const card_produce_date = observedDate(raw.card_produce_date, approve_date ?? init_date);
+  const delivered_date = observedDate(raw.delivered_date, card_produce_date ?? approve_date ?? init_date);
 
   const rawApproval = daysBetweenDates(init_date, approve_date);
   const days_to_approval = isUsableDuration(rawApproval) ? rawApproval : null;

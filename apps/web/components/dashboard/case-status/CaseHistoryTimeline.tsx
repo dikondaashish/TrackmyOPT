@@ -1,4 +1,5 @@
 "use client";
+import { sanitizeUscisDescription } from '@/lib/case-status/uscis-status-text';
 import { useState } from "react";
 import { CheckCircle2, ChevronDown, ChevronUp, History, Clock, AlertCircle, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -184,7 +185,7 @@ export function CaseHistoryTimeline({
                                             }
                                         `}
                                     >
-                                        {event.description || event.status}
+                                        {sanitizeUscisDescription(event.description || event.status)}
                                     </p>
                                 </div>
                             </div>
