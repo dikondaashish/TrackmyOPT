@@ -9,6 +9,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { EmployerNameInput } from './EmployerNameInput';
+import { employerSuggestionLogoUrl } from './EmployerSuggestionLogo';
 import { EmploymentSpanForm } from './EmploymentSpanForm';
 
 const companies = [
@@ -189,6 +190,12 @@ it('shows a decorative high-resolution company logo for each suggestion', async 
   );
   expect(logo?.getAttribute('src')).toContain('size=256');
   expect(logo?.getAttribute('src')).toContain('amazon.com');
+});
+
+it('uses the hostname from scheme-bearing company domains', () => {
+  const logoUrl = new URL(employerSuggestionLogoUrl('https://example.com')!);
+  expect(logoUrl.searchParams.get('url')).toBe('https://example.com');
+  expect(logoUrl.searchParams.get('size')).toBe('256');
 });
 
 it('falls back to company initials if a logo cannot be loaded', async () => {
