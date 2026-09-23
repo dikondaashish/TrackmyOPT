@@ -223,22 +223,7 @@ export function attachGeneratedResume(
     lastSoftFailure = result;
   }
 
-  if (sawResumeInput) return lastSoftFailure;
-
-  // Some portals render a single, unlabeled PDF picker. It is safe to treat
-  // exactly one active, PDF-capable input as the résumé target only when it
-  // carries no contrary document signal (for example, Cover letter).
-  const fallbackInputs = inputs.filter((input) => {
-    const label = getFileInputLabel(input);
-    return (
-      uploadIsActive(input) &&
-      acceptsPdf(input) &&
-      !NON_RESUME_FILE_FIELD_RE.test(label)
-    );
-  });
-  return fallbackInputs.length === 1
-    ? tryAttachPdfToInput(fallbackInputs[0], file, onAttached)
-    : 'not_found';
+  return sawResumeInput ? lastSoftFailure : 'not_found';
 }
 
 export function attachGeneratedCoverLetter(

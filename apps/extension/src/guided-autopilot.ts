@@ -144,9 +144,12 @@ export function runGuidedNavigation(
       if (type === 'submit') {
         return false;
       }
-      // type="button" cannot submit the surrounding form. It is the safe
-      // non-final “Done” control used by many multi-step ATS editors.
-      return true;
+      // A page-level “Done” can still trigger a custom final action through
+      // JavaScript. Only permit it inside an explicitly named work-history
+      // editor, where it closes that editor rather than submits the form.
+      const editor = control.closest<HTMLElement>('[role="dialog"],[aria-modal="true"]');
+      const editorLabel = editor?.getAttribute('aria-label') || editor?.querySelector('h1,h2,h3')?.textContent || '';
+      return Boolean(editor && /\b(?:education|experience|employment)\b/i.test(editorLabel));
     }
     if (SAFE_NEXT_RE.test(label)) {
       const type =

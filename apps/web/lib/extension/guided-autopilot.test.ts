@@ -65,9 +65,9 @@ describe('Guided Autopilot navigation boundary', () => {
     expect(clicked).not.toHaveBeenCalled();
   });
 
-  it('clicks a non-submit Done control inside a form', () => {
+  it('clicks a non-submit Done control in a work-history editor', () => {
     document.body.innerHTML =
-      '<form><button type="button">Done</button></form>';
+      '<div role="dialog" aria-label="Edit work experience"><button type="button">Done</button></div>';
     const clicked = vi.fn();
     document.querySelector('button')!.addEventListener('click', clicked);
 
