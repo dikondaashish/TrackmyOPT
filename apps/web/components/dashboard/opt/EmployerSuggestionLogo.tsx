@@ -17,7 +17,12 @@ function initials(name: string) {
 
 export function employerSuggestionLogoUrl(domain: string) {
   try {
-    const hostname = new URL(`https://${domain.trim()}`).hostname.replace(
+    const normalizedDomain = domain.trim();
+    const hostname = new URL(
+      /^https?:\/\//i.test(normalizedDomain)
+        ? normalizedDomain
+        : `https://${normalizedDomain}`
+    ).hostname.replace(
       /^www\./,
       ''
     );
