@@ -1,48 +1,31 @@
-"use client";
+'use client';
 
-import { RefreshCw, Copy, Settings2, CheckCircle2, Loader2, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { CaseProgressStepper } from "@/components/dashboard/case-status/CaseProgressStepper";
+import {
+  RefreshCw,
+  Copy,
+  Settings2,
+  CheckCircle2,
+  Loader2,
+  Trash2,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { CaseProgressStepper } from '@/components/dashboard/case-status/CaseProgressStepper';
 import {
   getServiceCenterLabel,
   getServiceCenterLocation,
-} from "@/lib/case-status/case-status-display";
-import { getFilingCategoryLabel } from "@/lib/case-status/filing-category";
+} from '@/lib/case-status/case-status-display';
+import { getFilingCategoryLabel } from '@/lib/case-status/filing-category';
 import {
-  daysSinceNow,
-  formatDisplayDateShort,
-} from "@/lib/case-status/safe-dates";
-import { cn } from "@/lib/utils";
-import type { CaseState } from "./StickyCaseSwitcher";
-import type { CaseStatusHistoryEntry } from "@/lib/case-status/normalize-status-history";
-import { useState } from "react";
-
-interface StatCardProps {
-  value: string;
-  label: string;
-  sublabel?: string;
-  urgent?: boolean;
-}
-
-function StatCard({ value, label, sublabel, urgent }: StatCardProps) {
-  return (
-    <div
-      className={cn(
-        "flex-1 min-w-0 rounded-xl px-3 py-2.5 text-center border",
-        urgent
-          ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800"
-          : "bg-gray-50 dark:bg-gray-900/30 border-gray-100 dark:border-gray-800"
-      )}
-    >
-      <p className={cn("text-xl font-extrabold leading-tight", urgent ? "text-red-600 dark:text-red-400" : "text-gray-900 dark:text-gray-100")}>
-        {value}
-      </p>
-      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">{label}</p>
-      {sublabel && <p className={cn("text-[10px] mt-0.5 font-medium", urgent ? "text-red-500" : "text-muted-foreground")}>{sublabel}</p>}
-    </div>
-  );
-}
+  daysSinceEpochMs,
+  formatDisplayDateNoon,
+  parseValidDate,
+} from '@/lib/case-status/safe-dates';
+import { useClientDate } from '@/hooks/useClientDate';
+import { cn } from '@/lib/utils';
+import type { CaseState } from './StickyCaseSwitcher';
+import type { CaseStatusHistoryEntry } from '@/lib/case-status/normalize-status-history';
+import { useEffect, useRef, useState } from 'react';
 
 interface CaseHeroCardProps {
   caseStatus: {
@@ -82,54 +65,85 @@ export function CaseHeroCard({
   refreshError,
 }: CaseHeroCardProps) {
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    },
+    []
+  );
 
-  const days = daysSinceNow(caseStatus.received_date);
+  const now = useClientDate();
+  const hasFilingDate = Boolean(parseValidDate(caseStatus.received_date));
+  const days = now
+    ? daysSinceEpochMs(caseStatus.received_date, now.getTime())
+    : null;
   const serviceCenter = getServiceCenterLabel(caseStatus.receipt_number);
-  const serviceCenterLocation = getServiceCenterLocation(caseStatus.receipt_number);
+  const serviceCenterLocation = getServiceCenterLocation(
+    caseStatus.receipt_number
+  );
   const lastChangeDate = caseStatus.last_status_change_at
-    ? formatDisplayDateShort(caseStatus.last_status_change_at)
-    : "Not recorded";
+    ? formatDisplayDateNoon(caseStatus.last_status_change_at)
+    : 'Not recorded';
   const ppActive = Boolean(ppDeadlineDate);
-  const isUrgent = caseState === "urgent";
+  const isUrgent = caseState === 'urgent';
 
-  const handleCopy = () => {
-    void navigator.clipboard.writeText(caseStatus.receipt_number);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+  const handleCopy = async () => {
+    setCopyError(false);
+    setCopied(false);
+    if (copyTimer.current) clearTimeout(copyTimer.current);
+    try {
+      await navigator.clipboard.writeText(caseStatus.receipt_number);
+      setCopied(true);
+      copyTimer.current = setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopyError(true);
+    }
   };
 
   return (
-    <Card className="p-5 sm:p-6 border-0 shadow-lg overflow-hidden">
+    <Card className="p-4 sm:p-6 border-border shadow-sm overflow-hidden">
       {/* Identity header */}
-      <div className="flex flex-wrap items-start justify-between gap-2 mb-5">
+      <div className="mb-5">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-            <span className="font-bold text-foreground text-base">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">
               {getFilingCategoryLabel(caseStatus.filing_category)}
             </span>
             <span className="text-gray-300 dark:text-gray-700">·</span>
-            <span className="font-mono font-semibold ph-mask" data-ph-mask>{caseStatus.receipt_number}</span>
-            <span className="text-gray-300 dark:text-gray-700">·</span>
-            <span>
-              {serviceCenter}
-              {serviceCenterLocation ? ` · ${serviceCenterLocation}` : ""}
+            <span className="font-mono font-semibold ph-mask" data-ph-mask>
+              {caseStatus.receipt_number}
             </span>
           </div>
+          <p className="mt-4 text-xs font-medium text-muted-foreground">
+            Latest USCIS status
+          </p>
+          <h2 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight leading-snug break-words">
+            {caseStatus.current_status?.trim() || 'Awaiting USCIS status'}
+          </h2>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-muted-foreground">
-            {caseStatus.received_date && (
-              <span>Filed: {formatDisplayDateShort(caseStatus.received_date)}</span>
-            )}
-            {days > 0 && (
-              <>
-                <span className="text-gray-300 dark:text-gray-700">·</span>
-                <span>Day {days}</span>
-              </>
+            {hasFilingDate ? (
+              <span>
+                Filed: {formatDisplayDateNoon(caseStatus.received_date)}
+              </span>
+            ) : (
+              <span>Filing date not added</span>
             )}
             {ppActive && (
               <>
                 <span className="text-gray-300 dark:text-gray-700">·</span>
-                <span className={cn("font-semibold", isUrgent ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400")}>
-                  {ppOverdueDays > 0 ? "Past PP estimate" : "Premium Processing Active"}
+                <span
+                  className={cn(
+                    'font-semibold',
+                    isUrgent
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  )}
+                >
+                  {ppOverdueDays > 0
+                    ? 'Past PP estimate'
+                    : 'Premium Processing Active'}
                 </span>
               </>
             )}
@@ -139,63 +153,81 @@ export function CaseHeroCard({
 
       {/* Stepper */}
       {caseStatus.current_status && (
-        <div className="mb-5">
+        <details className="mb-4">
+          <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            Case milestones
+          </summary>
           <CaseProgressStepper
             currentStatus={caseStatus.current_status}
             statusHistory={caseStatus.status_history}
           />
-        </div>
+        </details>
       )}
 
-      {/* 4-stat strip */}
-      <div className="flex gap-2 mb-5 flex-wrap sm:flex-nowrap">
-        <StatCard value={days > 0 ? `${days}d` : "—"} label="Since filed" />
-        <StatCard value={String(updateCount)} label="USCIS updates" />
-        <StatCard value={lastChangeDate} label="Last change" />
-        {ppOverdueDays > 0 ? (
-          <StatCard
-            value={`${ppOverdueDays}d`}
-            label="PP overdue"
-            sublabel={`${ppOverdueDays} business days past estimate`}
-            urgent
-          />
-        ) : ppDeadlineDate ? (
-          <StatCard value={formatDisplayDateShort(ppDeadlineDate)} label="PP action estimate" />
-        ) : null}
-      </div>
+      <dl className="grid grid-cols-2 gap-x-5 gap-y-3 border-y border-border py-4 mb-4 sm:grid-cols-4 text-sm">
+        <div>
+          <dt className="text-xs text-muted-foreground">Since filed</dt>
+          <dd className="mt-1 font-semibold tabular-nums">
+            {!hasFilingDate
+              ? 'Not added'
+              : days === null
+                ? 'Calculating…'
+                : `${days} days`}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Recorded updates</dt>
+          <dd className="mt-1 font-semibold tabular-nums">{updateCount}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Last status change</dt>
+          <dd className="mt-1 font-semibold">{lastChangeDate}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Receipt origin</dt>
+          <dd className="mt-1 font-semibold">
+            {serviceCenter}
+            {serviceCenterLocation ? ` · ${serviceCenterLocation}` : ''}
+          </dd>
+        </div>
+      </dl>
 
       {/* Inline actions */}
       <div className="flex flex-wrap gap-2">
         <Button
           size="sm"
-          variant="outline"
+          variant="default"
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="gap-2"
+          className="gap-2 min-h-11"
         >
-          {isRefreshing
-            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            : <RefreshCw className="w-3.5 h-3.5" />}
-          {isRefreshing ? "Checking…" : "Refresh"}
+          {isRefreshing ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="w-3.5 h-3.5" />
+          )}
+          {isRefreshing ? 'Checking…' : 'Check for updates'}
         </Button>
 
         <Button
           size="sm"
           variant="outline"
           onClick={handleCopy}
-          className="gap-2"
+          className="gap-2 min-h-11"
         >
-          {copied
-            ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            : <Copy className="w-3.5 h-3.5" />}
-          {copied ? "Copied!" : "Copy receipt"}
+          {copied ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+          ) : (
+            <Copy className="w-3.5 h-3.5" />
+          )}
+          {copied ? 'Copied!' : 'Copy receipt'}
         </Button>
 
         <Button
           size="sm"
           variant="outline"
           onClick={onManageCase}
-          className="gap-2"
+          className="gap-2 min-h-11"
         >
           <Settings2 className="w-3.5 h-3.5" />
           Manage case
@@ -204,21 +236,35 @@ export function CaseHeroCard({
         {onDelete && (
           <Button
             size="sm"
-            variant="outline"
+            variant="ghost"
             onClick={onDelete}
             disabled={isDeleting}
-            className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-900 dark:hover:bg-red-950/40"
+            className="gap-2 min-h-11 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 sm:ml-auto"
           >
-            {isDeleting
-              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              : <Trash2 className="w-3.5 h-3.5" />}
-            {isDeleting ? "Removing…" : "Delete"}
+            {isDeleting ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+            {isDeleting ? 'Removing…' : 'Stop tracking'}
           </Button>
         )}
       </div>
+      <p
+        role="status"
+        className="text-xs text-muted-foreground empty:hidden mt-2"
+      >
+        {copyError
+          ? 'Could not copy. Select the receipt number above to copy it manually.'
+          : copied
+            ? 'Receipt copied.'
+            : ''}
+      </p>
 
       {refreshError && (
-        <p className="mt-3 text-xs text-red-600 dark:text-red-400">{refreshError}</p>
+        <p className="mt-3 text-xs text-red-600 dark:text-red-400">
+          {refreshError}
+        </p>
       )}
     </Card>
   );

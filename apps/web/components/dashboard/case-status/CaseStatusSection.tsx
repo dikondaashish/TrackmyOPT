@@ -267,6 +267,7 @@ export function CaseStatusSection() {
           ) : (
             <CaseStatusPanelErrorBoundary area="hero">
               <CaseHeroCard
+                key={caseStatus.id}
                 caseStatus={{ ...caseStatus, status_history: safeStatusHistory }}
                 caseState={caseState}
                 ppOverdueDays={ppOverdueDays}
@@ -291,13 +292,6 @@ export function CaseStatusSection() {
             <CaseActionCenter
               statusText={caseStatus.current_status}
               daysSinceFiled={daysSinceFiled}
-            />
-          </CaseStatusPanelErrorBoundary>
-
-          <CaseStatusPanelErrorBoundary area="dedicated_consultation">
-            <DedicatedConsultationCard
-              caseId={caseStatus.id}
-              onCompareDedicated={openDedicatedModal}
             />
           </CaseStatusPanelErrorBoundary>
 
@@ -341,9 +335,10 @@ export function CaseStatusSection() {
           )}
 
           {/* ── 5. ANALYTICS SECTION ── */}
-          <Card className="p-5 sm:p-6 border-0 shadow-lg">
+          <Card className="p-4 sm:p-6 border-border shadow-sm">
             <CaseStatusPanelErrorBoundary area="analytics">
               <AnalyticsTabs
+                key={caseStatus.id}
                 receiptNumber={caseStatus.receipt_number}
                 isPremium={isPremium}
                 onUpgrade={() => openProTrialModal()}
@@ -394,6 +389,13 @@ export function CaseStatusSection() {
             filingDateSaving={filingDateSaving}
             onSaveFilingDate={() => void handleSaveFilingDate()}
           />
+
+          <CaseStatusPanelErrorBoundary area="dedicated_consultation">
+            <DedicatedConsultationCard
+              caseId={caseStatus.id}
+              onCompareDedicated={openDedicatedModal}
+            />
+          </CaseStatusPanelErrorBoundary>
 
           {/* ── 7. TOOLS ACCORDION ── */}
           <CaseStatusPanelErrorBoundary area="tools">

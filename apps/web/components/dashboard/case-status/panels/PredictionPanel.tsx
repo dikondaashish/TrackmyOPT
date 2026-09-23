@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
-import { Search } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { MIN_COHORT_FOR_ESTIMATE } from "@/lib/community-opt/estimate";
-import type { CommunityEstimate } from "@/lib/community-opt/types";
-import type { CommunityCaseKind } from "@/lib/community-opt/types";
-import { getCommunityCaseKindLabel } from "@/lib/case-status/filing-category";
+import { Search } from 'lucide-react';
+import { MIN_COHORT_FOR_ESTIMATE } from '@/lib/community-opt/estimate';
+import type { CommunityEstimate } from '@/lib/community-opt/types';
+import type { CommunityCaseKind } from '@/lib/community-opt/types';
+import { getCommunityCaseKindLabel } from '@/lib/case-status/filing-category';
 
 interface PredictionPanelProps {
   daysSinceFiled: number;
@@ -58,7 +57,7 @@ function PositionTrack({
   const past = daysSinceFiled > p75;
 
   return (
-    <div className="pt-7 pb-6">
+    <div className="pt-7">
       <div className="relative h-2.5 rounded-full bg-muted">
         {/* Likely window */}
         <div
@@ -66,33 +65,33 @@ function PositionTrack({
           style={{
             left: `${pct(p25)}%`,
             width: `${Math.max(pct(p75) - pct(p25), 1)}%`,
-            background: "var(--chart-series-soft)",
+            background: 'var(--chart-series-soft)',
           }}
         />
         {/* Median */}
         <div
           className="absolute -top-1 -bottom-1 w-0.5 rounded-full"
-          style={{ left: `${pct(median)}%`, background: "var(--chart-series)" }}
+          style={{ left: `${pct(median)}%`, background: 'var(--chart-series)' }}
         />
 
         {/* The reader. A 2px surface ring keeps it separated from the band
             it sits on rather than blending into it. */}
         <div
           className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full ring-2 ring-card"
-          style={{ left: `${youPct}%`, background: "var(--chart-you)" }}
+          style={{ left: `${youPct}%`, background: 'var(--chart-you)' }}
         />
         <div
           className="absolute -top-7 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold uppercase tracking-wide"
           style={{
             left: `${youPct}%`,
-            color: "var(--chart-you)",
+            color: 'var(--chart-you)',
             // Keep the label inside the track at both ends.
             transform:
               youPct > 88
-                ? "translateX(-90%)"
+                ? 'translateX(-90%)'
                 : youPct < 12
-                  ? "translateX(-10%)"
-                  : "translateX(-50%)",
+                  ? 'translateX(-10%)'
+                  : 'translateX(-50%)',
           }}
         >
           You · day {daysSinceFiled}
@@ -109,12 +108,12 @@ function PositionTrack({
       <p className="mt-8 text-xs text-muted-foreground leading-relaxed">
         {past ? (
           <>
-            You are past the window most reported cases were decided in. Cases do
-            run longer — the community data simply thins out here.
+            You are past the window most reported cases were decided in. Cases
+            do run longer; the community data simply thins out here.
           </>
         ) : (
           <>
-            The shaded band is where the middle 50% of comparable cases landed:{" "}
+            The shaded band is where the middle 50% of comparable cases landed:{' '}
             <span className="font-semibold text-foreground">
               {p25}–{p75} days
             </span>
@@ -126,23 +125,13 @@ function PositionTrack({
   );
 }
 
-function Stat({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className={cn("rounded-xl bg-muted/40 px-3 py-2.5", className)}>
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
-      <p className="text-sm font-bold text-foreground mt-0.5 tabular-nums">
+    <div className="flex items-baseline justify-between gap-4 py-2 sm:block sm:py-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="text-sm font-semibold text-foreground mt-0.5 tabular-nums shrink-0">
         {value}
-      </p>
+      </dd>
     </div>
   );
 }
@@ -151,7 +140,7 @@ export function PredictionPanel({
   daysSinceFiled,
   prediction,
   minCohort = MIN_COHORT_FOR_ESTIMATE,
-  caseKind = "initial_opt",
+  caseKind = 'initial_opt',
 }: PredictionPanelProps) {
   if (!prediction || prediction.cohortSize < minCohort) {
     return <DataGate minCohort={minCohort} />;
@@ -174,32 +163,26 @@ export function PredictionPanel({
   const pastRange = daysSinceFiled > high;
 
   return (
-    <div className="space-y-5">
-      {/* The answer, before anything else on the page. */}
+    <div className="space-y-4">
       <div
-        className="rounded-2xl p-5 sm:p-6"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--chart-seq-1), transparent 70%)",
-        }}
+        className="rounded-lg px-4 py-3"
+        style={{ background: 'var(--chart-seq-1)' }}
       >
-        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-medium text-muted-foreground">
           Historical approval range · middle 50%
         </p>
-        <p className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-foreground leading-tight tracking-tight">
-          {pastRange ? (
-            <>Beyond the historical range</>
-          ) : (
-            <>
-              {low}
-              <span className="text-muted-foreground font-bold mx-1.5">–</span>
-              {high} days
-            </>
-          )}
+        <p className="mt-1 text-xl font-semibold text-foreground leading-tight tracking-tight tabular-nums">
+          {low}–{high} days
         </p>
-        <p className="mt-1.5 text-xs text-muted-foreground">
-          Based on {cohortSize.toLocaleString()} reported {cohortLabel} approvals.
-          This is not a USCIS queue position or a prediction of your decision date.
+        {pastRange && (
+          <p className="mt-1 text-sm font-medium text-foreground">
+            Beyond the historical range
+          </p>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground leading-relaxed max-w-prose">
+          Based on {cohortSize.toLocaleString()} reported {cohortLabel}{' '}
+          approvals. This is not a USCIS queue position or a prediction of your
+          decision date.
         </p>
       </div>
 
@@ -210,27 +193,24 @@ export function PredictionPanel({
         p75={high}
       />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+      <dl className="grid sm:grid-cols-3 sm:gap-5 border-t border-border pt-3">
         <Stat label="Typical wait" value={`${medianDays} days`} />
         <Stat
           label="Historical approvals taking longer"
           value={cohortPosition.behind.toLocaleString()}
         />
-        {/* Spans the row on mobile so the odd tile out doesn't sit alone in a
-            half-width slot. */}
         <Stat
           label="Fastest reported"
-          value={fastestDays !== undefined ? `${fastestDays} days` : "—"}
-          className="col-span-2 sm:col-span-1"
+          value={fastestDays !== undefined ? `${fastestDays} days` : '—'}
         />
-      </div>
+      </dl>
 
       <p className="text-xs text-muted-foreground leading-relaxed">
         <span className="font-semibold text-foreground">
           {cohortPosition.ahead.toLocaleString()}
-        </span>{" "}
-        of {cohortSize.toLocaleString()} comparable {cohortLabel} cases were already decided by
-        day {daysSinceFiled}.
+        </span>{' '}
+        of {cohortSize.toLocaleString()} comparable {cohortLabel} cases were
+        already decided by day {daysSinceFiled}.
       </p>
     </div>
   );

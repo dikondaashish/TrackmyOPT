@@ -35,23 +35,29 @@ const result = await esbuild.build({
     import {createRoot} from 'react-dom/client';
     import {PremiumProcessingCountdown} from './components/dashboard/case-status/PremiumProcessingCountdown';
     import {MonitorHealthStrip} from './components/dashboard/case-status/panels/MonitorHealthStrip';
-    import {PredictionPanel} from './components/dashboard/case-status/panels/PredictionPanel';
+    import {AnalyticsTabs} from './components/dashboard/case-status/panels/AnalyticsTabs';
+    import {CaseHeroCard} from './components/dashboard/case-status/panels/CaseHeroCard';
+    import {CaseActionCenter} from './components/dashboard/case-status/panels/CaseActionCenter';
+    import {deriveCaseState} from './components/dashboard/case-status/panels/StickyCaseSwitcher';
     import {SavedOptDates} from './components/dashboard/case-status/panels/OptJourneySection/SavedOptDates';
     const params=new URLSearchParams(location.search);
     if(params.has('dark')) document.documentElement.classList.add('dark');
     const width=Number(params.get('width'))||1000;
     window.fetch=async(url)=>{
+      if(url==='/api/opt/community-stats') return {ok:false,json:async()=>({ok:false,error:'Synthetic unavailable-data state'})};
       if(url!='/api/opt/calculator') throw Error('Network disabled');
       return {ok:true,json:async()=>({ok:true,data:params.has('empty')?null:{program_end_date:'2026-05-15',dso_recommendation_date:'2026-04-20',opt_start_date:'2026-06-01',opt_ead_end_date:'2027-05-31',stem_start_date:null}})};
     };
     const stopped=params.has('stopped');
-    const status=stopped?'Request for Additional Evidence Was Sent':params.has('approved')?'Case Was Approved':'Premium Processing Clock Was Started';
+    const status=stopped?'Request for Additional Evidence Was Sent':params.has('approved')?'Case Was Approved':params.has('pp')?'Premium Processing Clock Was Started':'Case Was Received';
     const prediction={cohortSize:20,medianDays:60,p25Days:45,p75Days:75,fastestDays:10,estimatedDecisionRange:['2026-07-01','2026-08-01'],distribution:[],cohortPosition:{behind:2,ahead:18,percentile:90},approvalsLast24h:0,matchLevel:'pp',caseKind:'initial_opt',serviceCenter:null,premiumProcessing:false,sourceNote:'Synthetic fixture'};
     createRoot(document.getElementById('root')).render(<main style={{width,maxWidth:'100%',margin:'auto',padding:16}} className='space-y-5'>
       <h1 className='text-xl font-bold'>Case status · synthetic preview</h1>
-      <MonitorHealthStrip monitorActive lastCheckedAt='2026-06-16T12:00:00Z' emailAlertsEnabled={false}/>
-      <PremiumProcessingCountdown caseId='synthetic' ppStartDate='2026-05-12' currentStatus={status} statusHistory={[{status:'Premium Processing Clock Was Started',date:'2026-05-12'}]} onSaved={()=>{}}/>
-      <section className='rounded-xl border p-4'><PredictionPanel daysSinceFiled={100} prediction={prediction}/></section>
+      <CaseHeroCard caseStatus={{id:'synthetic',receipt_number:'IOE0000000000',filing_category:'initial_opt',current_status:status,received_date:'2026-06-15',last_status_change_at:'2026-06-16',status_history:[]}} caseState={deriveCaseState(status)} updateCount={2}/>
+      <CaseActionCenter statusText={status} daysSinceFiled={100}/>
+      <MonitorHealthStrip monitorActive={!params.has('free')} lastCheckedAt='2026-06-16T12:00:00Z' emailAlertsEnabled={false}/>
+      {(params.has('pp')||stopped) && <PremiumProcessingCountdown caseId='synthetic' ppStartDate='2026-05-12' currentStatus={status} statusHistory={[{status:'Premium Processing Clock Was Started',date:'2026-05-12'}]} onSaved={()=>{}}/>}
+      <section className='rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm'><AnalyticsTabs receiptNumber='IOE0000000000' filingCategory='initial_opt' isPremium={!params.has('free')} onUpgrade={()=>{}} daysSinceFiled={100} prediction={params.has('empty')?undefined:prediction} summary={params.has('empty')?null:{medianDays:60,cohortSize:20,caseKind:'initial_opt',premiumProcessing:false}} estimateLoading={params.has('loading')} estimatesAvailable={!params.has('nonopt')} heatmap={[{month:'2026-06',buckets:[2,5,7,4,1,1]}]}/></section>
       <SavedOptDates/>
     </main>);
   `,

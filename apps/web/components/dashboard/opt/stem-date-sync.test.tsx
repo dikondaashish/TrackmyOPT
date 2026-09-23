@@ -257,7 +257,8 @@ describe('STEM apply tool', () => {
     render(<StemApplyTool />);
     await screen.findByLabelText(/STEM DSO Recommendation Date/);
     expect(screen.queryByText(/cap-gap/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/whichever comes first/)).toHaveTextContent(
+    // The form can render before the async saved-date calculation completes.
+    expect(await screen.findByText(/whichever comes first/)).toHaveTextContent(
       /Confirm.*DSO/
     );
   });
