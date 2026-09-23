@@ -228,9 +228,17 @@ export function AnalyticsTabs({
     setActive(next);
     tabRefs.current[next]?.focus();
   };
-  const selectAdjacentTab = (current: TabId, direction: -1 | 1) => {
+  const selectGridAdjacentTab = (
+    current: TabId,
+    direction: 'left' | 'right' | 'up' | 'down'
+  ) => {
     const currentIndex = TABS.findIndex((tab) => tab.id === current);
-    const nextIndex = (currentIndex + direction + TABS.length) % TABS.length;
+    const row = Math.floor(currentIndex / 2);
+    const column = currentIndex % 2;
+    const nextIndex =
+      direction === 'up' || direction === 'down'
+        ? ((row + 1) % 2) * 2 + column
+        : row * 2 + ((column + 1) % 2);
     selectTab(TABS[nextIndex].id);
   };
 
@@ -278,12 +286,11 @@ export function AnalyticsTabs({
           <h3 id={`${id}-details-title`} className="py-3 text-sm font-semibold">
             Explore detailed comparisons
           </h3>
-          {/* Segmented control rather than underlined tabs: on a phone the row is
-          only just wide enough, and a filled pill survives being cramped. */}
+          {/* Two-column tab grid keeps every comparison easy to spot on phones. */}
           <div
             role="tablist"
             aria-label="Community analytics"
-            className="flex gap-1 mb-5 p-1 rounded-xl bg-muted/60 overflow-x-auto scrollbar-hide"
+            className="grid grid-cols-2 gap-2 mb-5 p-1 rounded-xl bg-muted/60"
           >
             {TABS.map((tab) => {
               const selected = active === tab.id;
@@ -303,10 +310,16 @@ export function AnalyticsTabs({
                   onKeyDown={(event) => {
                     if (event.key === 'ArrowRight') {
                       event.preventDefault();
-                      selectAdjacentTab(tab.id, 1);
+                      selectGridAdjacentTab(tab.id, 'right');
                     } else if (event.key === 'ArrowLeft') {
                       event.preventDefault();
-                      selectAdjacentTab(tab.id, -1);
+                      selectGridAdjacentTab(tab.id, 'left');
+                    } else if (event.key === 'ArrowDown') {
+                      event.preventDefault();
+                      selectGridAdjacentTab(tab.id, 'down');
+                    } else if (event.key === 'ArrowUp') {
+                      event.preventDefault();
+                      selectGridAdjacentTab(tab.id, 'up');
                     } else if (event.key === 'Home') {
                       event.preventDefault();
                       selectTab(TABS[0].id);
@@ -316,14 +329,12 @@ export function AnalyticsTabs({
                     }
                   }}
                   className={cn(
-                    'flex-1 flex items-center justify-center gap-1.5 px-1.5 sm:px-3 min-h-11 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    'flex min-w-0 w-full items-center justify-center gap-1.5 px-2 sm:px-3 min-h-11 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     selected
                       ? 'bg-card text-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
-                  {/* Four labels plus icons overflow a 375px viewport, which clipped
-                  the last tab. The label is the part that has to survive. */}
                   <span
                     className={cn(
                       'hidden sm:inline',

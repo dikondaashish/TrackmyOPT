@@ -34,18 +34,27 @@ it('keeps detailed comparisons visible without a collapse control', () => {
   ).toBeNull();
 });
 
-it('moves both selection and keyboard focus through chart tabs, including wrapping', () => {
+it('shows two tabs per row and moves focus in the matching grid direction', () => {
   render(<AnalyticsTabs {...props} />);
+  const tablist = screen.getByRole('tablist', { name: 'Community analytics' });
+  expect(tablist).toHaveClass('grid-cols-2');
+  expect(
+    screen.getAllByRole('tab').map((tab) => tab.textContent?.trim())
+  ).toEqual(['Similar cases', 'Trend', 'Spread', 'Heatmap']);
+
   const first = screen.getByRole('tab', { name: 'Similar cases' });
   first.focus();
   fireEvent.keyDown(first, { key: 'ArrowRight' });
   const trend = screen.getByRole('tab', { name: 'Trend' });
   expect(trend).toHaveFocus();
   expect(trend).toHaveAttribute('aria-selected', 'true');
-  fireEvent.keyDown(trend, { key: 'End' });
+  fireEvent.keyDown(trend, { key: 'ArrowDown' });
   const last = screen.getByRole('tab', { name: 'Heatmap' });
   expect(last).toHaveFocus();
-  fireEvent.keyDown(last, { key: 'ArrowRight' });
+  fireEvent.keyDown(last, { key: 'ArrowLeft' });
+  const spread = screen.getByRole('tab', { name: 'Spread' });
+  expect(spread).toHaveFocus();
+  fireEvent.keyDown(spread, { key: 'ArrowUp' });
   expect(first).toHaveFocus();
   expect(screen.getByRole('tabpanel')).toHaveAttribute(
     'aria-labelledby',
