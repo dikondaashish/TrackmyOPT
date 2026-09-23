@@ -29,7 +29,8 @@ polished charts or invent data to make a panel look complete.
 
 ## Design Principles
 
-1. Show current status first, comparisons second, and detailed charts on demand.
+1. Show current status first and comparisons second. Keep the case-status
+   "Explore detailed comparisons" section always open, with tabs for its charts.
 2. Keep important warnings visible and actions easy to find.
 3. Preserve the existing color palette and light/dark theme support.
 4. Distinguish official status, user-entered dates, and historical estimates.

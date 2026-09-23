@@ -12,15 +12,23 @@ const props = {
   onUpgrade: vi.fn(),
 };
 
-it('shows the comparison first and keeps detailed charts collapsed initially', () => {
+it('keeps detailed comparisons visible without a collapse control', () => {
   render(<AnalyticsTabs {...props} />);
   expect(
     screen.getByRole('heading', { name: 'How your wait compares' })
   ).toBeInTheDocument();
-  const disclosure = screen
-    .getByText('Explore detailed comparisons')
-    .closest('details');
-  expect(disclosure).not.toHaveAttribute('open');
+  const heading = screen.getByRole('heading', {
+    name: 'Explore detailed comparisons',
+  });
+  expect(heading.closest('details')).toBeNull();
+  expect(
+    screen.queryByRole('button', { name: 'Explore detailed comparisons' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole('tablist', { name: 'Community analytics' })
+  ).toBeVisible();
+  fireEvent.click(heading);
+  expect(screen.getByRole('tabpanel')).toBeVisible();
   expect(
     screen.getByText(/not a prediction of your own outcome/).closest('details')
   ).toBeNull();
@@ -28,10 +36,6 @@ it('shows the comparison first and keeps detailed charts collapsed initially', (
 
 it('moves both selection and keyboard focus through chart tabs, including wrapping', () => {
   render(<AnalyticsTabs {...props} />);
-  const disclosure = screen
-    .getByText('Explore detailed comparisons')
-    .closest('details')!;
-  disclosure.open = true;
   const first = screen.getByRole('tab', { name: 'Similar cases' });
   first.focus();
   fireEvent.keyDown(first, { key: 'ArrowRight' });
@@ -59,16 +63,23 @@ it('does not offer OPT comparison charts for a non-OPT case', () => {
   ).toBeInTheDocument();
 });
 
-it('retains free-plan restrictions when detailed charts are opened', () => {
+it('retains free-plan restrictions with detailed charts always visible', () => {
   render(<AnalyticsTabs {...props} isPremium={false} />);
-  screen.getByText('Explore detailed comparisons').closest('details')!.open = true;
   fireEvent.click(screen.getByRole('tab', { name: 'Trend' }));
-  expect(screen.getByText('Is processing speeding up or slowing down?')).toBeInTheDocument();
-  expect(screen.queryByText('Loading community trend…')).not.toBeInTheDocument();
+  expect(
+    screen.getByText('Is processing speeding up or slowing down?')
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText('Loading community trend…')
+  ).not.toBeInTheDocument();
 });
 
 it('announces comparison loading without showing an invented estimate', () => {
   render(<AnalyticsTabs {...props} estimateLoading />);
-  expect(screen.getByRole('status')).toHaveTextContent('Loading community timeline comparison');
-  expect(screen.queryByText('Historical approval range · middle 50%')).not.toBeInTheDocument();
+  expect(screen.getByRole('status')).toHaveTextContent(
+    'Loading community timeline comparison'
+  );
+  expect(
+    screen.queryByText('Historical approval range · middle 50%')
+  ).not.toBeInTheDocument();
 });

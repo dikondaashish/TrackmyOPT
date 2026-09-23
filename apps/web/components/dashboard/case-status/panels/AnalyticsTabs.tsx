@@ -5,7 +5,6 @@ import {
   BarChart3,
   BarChartHorizontal,
   Calendar,
-  ChevronDown,
   TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -272,14 +271,13 @@ export function AnalyticsTabs({
       )}
 
       {estimatesAvailable && (
-        <details className="group mt-5 border-t border-border">
-          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-md py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
-            <span>Explore detailed comparisons</span>
-            <ChevronDown
-              aria-hidden
-              className="h-4 w-4 shrink-0 transition-transform duration-150 group-open:rotate-180 motion-reduce:transition-none"
-            />
-          </summary>
+        <section
+          className="mt-5 border-t border-border"
+          aria-labelledby={`${id}-details-title`}
+        >
+          <h3 id={`${id}-details-title`} className="py-3 text-sm font-semibold">
+            Explore detailed comparisons
+          </h3>
           {/* Segmented control rather than underlined tabs: on a phone the row is
           only just wide enough, and a filled pill survives being cramped. */}
           <div
@@ -456,7 +454,7 @@ export function AnalyticsTabs({
                 <ProcessingHeatmap rows={heatmap} />
               ))}
           </div>
-        </details>
+        </section>
       )}
 
       {/* Stated once for the whole section rather than under each card. It sat
