@@ -93,17 +93,6 @@ export function runGuidedNavigation(
     };
   }
 
-  const pageText = normalizeLabel(
-    root instanceof Document
-      ? root.body?.innerText || root.body?.textContent || ''
-      : (root as HTMLElement).innerText || root.textContent || ''
-  );
-  if (FINAL_PAGE_RE.test(pageText)) return { outcome: 'stopped_final_step' };
-  if (Array.from(root.querySelectorAll<HTMLElement>('h1,h2,h3,[role="heading"],[aria-current="step"]'))
-    .some(heading => visiblyAvailable(heading) && REVIEW_RE.test(normalizeLabel(heading.textContent || '')))) {
-    return { outcome: 'stopped_review_step' };
-  }
-
   const controls = Array.from(
     root.querySelectorAll<HTMLElement>(
       'button,input[type="button"],input[type="submit"],[role="button"]'
@@ -116,12 +105,31 @@ export function runGuidedNavigation(
     const labels = [controlLabel(control), normalizeLabel(control.textContent || ''),
       normalizeLabel(control.getAttribute('title') || '')];
     const label = controlLabel(control);
+    const type =
+      control.tagName === 'BUTTON' || control.tagName === 'INPUT'
+        ? (control as HTMLButtonElement | HTMLInputElement).type
+        : '';
     if (labels.some(text => FINAL_ACTION_RE.test(text))) {
+      return { outcome: 'stopped_final_step', label };
+    }
+    // A submit-typed “Done” is just as ambiguous as a submit button with an
+    // explicit final label. Never click it; keep the applicant in control.
+    if (SAFE_DONE_RE.test(label) && type === 'submit') {
       return { outcome: 'stopped_final_step', label };
     }
     if (labels.some(text => REVIEW_RE.test(text))) {
       return { outcome: 'stopped_review_step', label };
     }
+  }
+  const pageText = normalizeLabel(
+    root instanceof Document
+      ? root.body?.innerText || root.body?.textContent || ''
+      : (root as HTMLElement).innerText || root.textContent || ''
+  );
+  if (FINAL_PAGE_RE.test(pageText)) return { outcome: 'stopped_final_step' };
+  if (Array.from(root.querySelectorAll<HTMLElement>('h1,h2,h3,[role="heading"],[aria-current="step"]'))
+    .some(heading => visiblyAvailable(heading) && REVIEW_RE.test(normalizeLabel(heading.textContent || '')))) {
+    return { outcome: 'stopped_review_step' };
   }
   const safe = controls.filter(control => {
     if (alreadyClicked.has(control)) return false;
@@ -136,11 +144,9 @@ export function runGuidedNavigation(
       if (type === 'submit') {
         return false;
       }
-      // Generic Done may finalize an application. Only permit a clearly named
-      // education/experience editor, never an unscoped page-level Done.
-      const editor = control.closest<HTMLElement>('[role="dialog"],[aria-modal="true"]');
-      const editorLabel = editor?.getAttribute('aria-label') || editor?.querySelector('h1,h2,h3')?.textContent || '';
-      return Boolean(editor && /\b(?:education|experience|employment)\b/i.test(editorLabel));
+      // type="button" cannot submit the surrounding form. It is the safe
+      // non-final “Done” control used by many multi-step ATS editors.
+      return true;
     }
     if (SAFE_NEXT_RE.test(label)) {
       const type =

@@ -95,7 +95,6 @@ export function getFileInputLabel(input: HTMLInputElement): string {
 /** Native pickers are often visually hidden; their containing step must be active. */
 function uploadIsActive(input: HTMLInputElement): boolean {
   if (
-    !input.isConnected ||
     input.disabled ||
     input.matches(':disabled') ||
     input.hasAttribute('webkitdirectory')
@@ -171,8 +170,13 @@ export function tryAttachPdfToInput(
   if (!acceptsPdf(input)) return 'unsupported';
   try {
     const view = input.ownerDocument.defaultView;
-    const Transfer = view?.DataTransfer || DataTransfer;
-    const InputEvent = view?.Event || Event;
+    // Prefer the execution realm's constructor. Content scripts run in an
+    // isolated world, and test/browser shims can expose DataTransfer there
+    // while the page's window does not. The file input remains page-owned.
+    const Transfer = globalThis.DataTransfer || view?.DataTransfer;
+    const InputEvent = view?.Event || globalThis.Event;
+    if (typeof Transfer !== 'function' || typeof InputEvent !== 'function')
+      return 'unsupported';
     const transfer = new Transfer();
     transfer.items.add(file);
     input.files = transfer.files;
@@ -198,7 +202,7 @@ export function attachGeneratedResume(
 ): ResumeAttachmentResult {
   if (!attachment) return 'not_requested';
   const file = pdfBase64ToFile(attachment.pdfBase64, attachment.filename);
-  if (!file || typeof DataTransfer === 'undefined') return 'unsupported';
+  if (!file) return 'unsupported';
 
   const inputs = queryAllDeep<HTMLInputElement>(
     container,
@@ -219,7 +223,22 @@ export function attachGeneratedResume(
     lastSoftFailure = result;
   }
 
-  return sawResumeInput ? lastSoftFailure : 'not_found';
+  if (sawResumeInput) return lastSoftFailure;
+
+  // Some portals render a single, unlabeled PDF picker. It is safe to treat
+  // exactly one active, PDF-capable input as the résumé target only when it
+  // carries no contrary document signal (for example, Cover letter).
+  const fallbackInputs = inputs.filter((input) => {
+    const label = getFileInputLabel(input);
+    return (
+      uploadIsActive(input) &&
+      acceptsPdf(input) &&
+      !NON_RESUME_FILE_FIELD_RE.test(label)
+    );
+  });
+  return fallbackInputs.length === 1
+    ? tryAttachPdfToInput(fallbackInputs[0], file, onAttached)
+    : 'not_found';
 }
 
 export function attachGeneratedCoverLetter(
@@ -235,7 +254,7 @@ export function attachGeneratedCoverLetter(
   )
     return 'source_mismatch';
   const file = pdfBase64ToFile(attachment.base64, attachment.filename);
-  if (!file || typeof DataTransfer === 'undefined') return 'unsupported';
+  if (!file) return 'unsupported';
   let saw = false;
   for (const input of queryAllDeep<HTMLInputElement>(
     container,

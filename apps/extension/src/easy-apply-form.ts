@@ -63,6 +63,22 @@ export function applicationFieldScore(container: HTMLElement): number {
 }
 
 /**
+ * A number of ATSs split an application into steps and show only work history
+ * on one of them. Treat that as an application form only when there are at
+ * least two classified history controls, so a lone referral-company field can
+ * never become an autofill target.
+ */
+function historyFieldScore(container: HTMLElement): number {
+  const adapter = selectAtsPrefillAdapter(container.ownerDocument);
+  return adapter
+    .classifyRepeatableSections(container)
+    .filter(
+      (control) =>
+        control.section === 'experience' || control.section === 'education'
+    ).length;
+}
+
+/**
  * Locate the application form to scope filling to.
  *
  * Tries the tightest known containers first (LinkedIn Easy Apply modal,
@@ -102,7 +118,10 @@ export function findApplicationForm(): HTMLElement | null {
   let bestScore = 1; // require at least 2 distinct fields to avoid newsletter/search boxes
   for (const doc of documents) {
     for (const form of queryAllDeep<HTMLElement>(doc, 'form')) {
-      const score = applicationFieldScore(form);
+      const score = Math.max(
+        applicationFieldScore(form),
+        historyFieldScore(form) >= 2 ? 2 : 0
+      );
       if (score > bestScore) {
         bestScore = score;
         best = form;
