@@ -63,7 +63,13 @@ export function EmploymentHistoryLog({
   const [editIsCurrent, setEditIsCurrent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const stats = computeEmploymentStats(spans, optStartDate, optEndDate, stemStartDate, asOfISO);
+  const stats = computeEmploymentStats(
+    spans,
+    optStartDate,
+    optEndDate,
+    stemStartDate,
+    asOfISO
+  );
 
   useEffect(() => {
     setSpans(employmentSpans);
@@ -87,11 +93,9 @@ export function EmploymentHistoryLog({
     spanCount,
     ack
   );
-  const showComplianceNumbers = !!optEndDate && shouldShowUnemploymentComplianceNumbers(
-    optStartDate,
-    spanCount,
-    ack
-  );
+  const showComplianceNumbers =
+    !!optEndDate &&
+    shouldShowUnemploymentComplianceNumbers(optStartDate, spanCount, ack);
   const notOnOptYet = ack === 'not_on_opt' && spanCount === 0;
 
   const sortedSpans = [...spans].sort(
@@ -275,12 +279,12 @@ export function EmploymentHistoryLog({
   return (
     <div
       id="employment"
-      className={`scroll-mt-24 bg-card border border-border rounded-xl ${showInlineForm || editingId ? 'overflow-visible' : 'overflow-hidden'}`}
+      className={`scroll-mt-24 rounded-2xl border border-slate-200 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800 ${showInlineForm || editingId ? 'overflow-visible' : 'overflow-hidden'}`}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 border-b border-border">
+      <div className="flex flex-col gap-3 border-b border-border bg-gradient-to-r from-emerald-50/80 via-white to-blue-50/60 p-4 dark:from-emerald-950/20 dark:via-card dark:to-blue-950/20 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg shrink-0">
-            <Briefcase className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300">
+            <Briefcase className="h-5 w-5" />
           </div>
           <div className="min-w-0">
             <h2 className="text-lg font-semibold">Employment History</h2>
@@ -292,7 +296,7 @@ export function EmploymentHistoryLog({
         <button
           type="button"
           onClick={() => setShowInlineForm(true)}
-          className="flex items-center justify-center gap-1 px-3 py-2 sm:py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors w-full sm:w-auto"
+          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary/15 bg-white/80 px-3 py-2 text-sm font-semibold text-primary shadow-sm transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card sm:w-auto"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Employment
@@ -308,7 +312,7 @@ export function EmploymentHistoryLog({
       )}
 
       {notOnOptYet && optStartDate && (
-        <div className="mx-4 mt-4 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <div className="mx-4 mt-4 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-sm leading-6 text-blue-950 dark:border-blue-950 dark:bg-blue-950/20 dark:text-blue-100">
           OPT dates are saved. The unemployment clock will start counting once
           your OPT period begins and you confirm your employment status.
         </div>
@@ -325,7 +329,7 @@ export function EmploymentHistoryLog({
       )}
 
       {showInlineForm && (
-        <div className="px-4 pt-4 pb-2 border-t border-border bg-muted/30">
+        <div className="border-t border-border bg-muted/30 px-4 pb-2 pt-4">
           <EmploymentSpanForm
             employer={newEmployer}
             startDate={newStartDate}
@@ -352,8 +356,10 @@ export function EmploymentHistoryLog({
       )}
 
       {spans.length === 0 && !showInlineForm ? (
-        <div className="p-8 text-center">
-          <Building2 className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
+        <div className="p-8 text-center sm:p-10">
+          <span className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <Building2 className="h-7 w-7" />
+          </span>
           <p className="text-sm font-medium text-foreground mb-1">
             No employment records yet
           </p>
@@ -364,7 +370,7 @@ export function EmploymentHistoryLog({
           <button
             type="button"
             onClick={openAddJobForm}
-            className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Plus className="w-4 h-4" />
             Add Your First Job
@@ -420,7 +426,8 @@ export function EmploymentHistoryLog({
             </>
           ) : (
             <>
-              Show All ({sortedSpans.length}) <ChevronDown className="w-4 h-4" />
+              Show All ({sortedSpans.length}){' '}
+              <ChevronDown className="w-4 h-4" />
             </>
           )}
         </button>

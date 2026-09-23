@@ -1,34 +1,38 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/useToast";
-import dynamic from "next/dynamic";
-import { JargonTooltip } from "@/components/ui/jargon-tooltip";
-import { EmploymentHistoryLog } from "./EmploymentHistoryLog";
-import { EmploymentSetupModal } from "./EmploymentSetupModal";
-import { OptDatesStatusSummary } from "./OptDatesStatusSummary";
-import { OptDatesSetupChecklist } from "./OptDatesSetupChecklist";
-import { DateInput } from "./OptDateInput";
+import { useState, useEffect, useRef } from 'react';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/useToast';
+import dynamic from 'next/dynamic';
+import { JargonTooltip } from '@/components/ui/jargon-tooltip';
+import { EmploymentHistoryLog } from './EmploymentHistoryLog';
+import { EmploymentSetupModal } from './EmploymentSetupModal';
+import { OptDatesStatusSummary } from './OptDatesStatusSummary';
+import { OptDatesSetupChecklist } from './OptDatesSetupChecklist';
+import { DateInput } from './OptDateInput';
 import { localTodayISO } from '@/lib/immigration/calendar-days';
-import { getEmploymentSetupAck } from "@/lib/immigration/employment-tracking";
-import { useEmploymentSetupAck } from "@/hooks/useEmploymentSetupAck";
+import { getEmploymentSetupAck } from '@/lib/immigration/employment-tracking';
+import { useEmploymentSetupAck } from '@/hooks/useEmploymentSetupAck';
 import {
   areOptDatesEqual,
   buildOptDatesStatusSnapshot,
   optDateInputToISO,
   type OptDatesFormData,
-} from "@/lib/immigration/opt-dates-page-utils";
+} from '@/lib/immigration/opt-dates-page-utils';
 import {
   OptEmailRemindersPanel,
   type ToolEmails,
   type ToolName,
-} from "./OptEmailRemindersPanel";
+} from './OptEmailRemindersPanel';
 
 const PricingModal = dynamic(
-  () => import("@/components/pricing/PricingModal").then((m) => ({ default: m.PricingModal })),
+  () =>
+    import('@/components/pricing/PricingModal').then((m) => ({
+      default: m.PricingModal,
+    })),
   { ssr: false }
 );
 
@@ -52,7 +56,9 @@ export function OptDatesSection() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [lastModifiedField, setLastModifiedField] = useState<string | null>(null);
+  const [lastModifiedField, setLastModifiedField] = useState<string | null>(
+    null
+  );
   const dateLoadRequest = useRef(0);
   const dateEditVersion = useRef(0);
   const [datesLoadError, setDatesLoadError] = useState(false);
@@ -69,9 +75,12 @@ export function OptDatesSection() {
   const [emailSaving, setEmailSaving] = useState<ToolName | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [employmentSpans, setEmploymentSpans] = useState<EmploymentSpan[]>([]);
-  const [employmentLoadState, setEmploymentLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [employmentLoadState, setEmploymentLoadState] = useState<
+    'loading' | 'ready' | 'error'
+  >('loading');
   const [asOfISO, setAsOfISO] = useState(() => localTodayISO());
-  const [showEmploymentSetupModal, setShowEmploymentSetupModal] = useState(false);
+  const [showEmploymentSetupModal, setShowEmploymentSetupModal] =
+    useState(false);
   const [autoOpenEmploymentForm, setAutoOpenEmploymentForm] = useState(false);
   const { setAck, ack } = useEmploymentSetupAck();
 
@@ -79,22 +88,32 @@ export function OptDatesSection() {
     const refresh = () => setAsOfISO(localTodayISO());
     const timer = setInterval(refresh, 60_000);
     window.addEventListener('focus', refresh);
-    return () => { clearInterval(timer); window.removeEventListener('focus', refresh); };
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+    };
   }, []);
 
   // Deep link: /dashboard/opt-dates#employment
   useEffect(() => {
     if (isLoading) return;
-    if (typeof window !== "undefined" && window.location.hash === "#employment") {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hash === '#employment'
+    ) {
       const timeout = setTimeout(() => {
-        document.getElementById("employment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document
+          .getElementById('employment')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 150);
       return () => clearTimeout(timeout);
     }
   }, [isLoading, savedDates.opt_start_date]);
 
   const scrollToEmployment = () => {
-    document.getElementById("employment")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document
+      .getElementById('employment')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleAddJobFromSetup = () => {
@@ -105,9 +124,9 @@ export function OptDatesSection() {
   const loadEmploymentSpans = async () => {
     setEmploymentLoadState('loading');
     try {
-      const response = await fetch("/api/employment-spans", {
-        credentials: "include",
-        cache: "no-store",
+      const response = await fetch('/api/employment-spans', {
+        credentials: 'include',
+        cache: 'no-store',
       });
       if (response.ok) {
         const data = await response.json();
@@ -130,7 +149,9 @@ export function OptDatesSection() {
 
   const checkPremiumStatus = async () => {
     try {
-      const response = await fetch('/api/premium/status', { credentials: 'include' });
+      const response = await fetch('/api/premium/status', {
+        credentials: 'include',
+      });
       if (response.ok) {
         const data = await response.json();
         setIsPremium(data.isPremium || false);
@@ -142,7 +163,9 @@ export function OptDatesSection() {
 
   const loadToolEmails = async () => {
     try {
-      const response = await fetch('/api/user/tool-email', { credentials: 'include' });
+      const response = await fetch('/api/user/tool-email', {
+        credentials: 'include',
+      });
       if (response.ok) {
         const data = await response.json();
         if (data.emails) {
@@ -199,7 +222,7 @@ export function OptDatesSection() {
       });
 
       if (response.ok) {
-        setToolEmails(prev => ({ ...prev, [tool]: '' }));
+        setToolEmails((prev) => ({ ...prev, [tool]: '' }));
       }
     } catch {
       // Silently fail
@@ -209,7 +232,7 @@ export function OptDatesSection() {
   };
 
   const updateToolEmail = (tool: ToolName, email: string) => {
-    setToolEmails(prev => ({ ...prev, [tool]: email }));
+    setToolEmails((prev) => ({ ...prev, [tool]: email }));
   };
 
   const loadDates = async () => {
@@ -243,21 +266,31 @@ export function OptDatesSection() {
 
   // Load all data in parallel on mount.
   useEffect(() => {
-    void Promise.all([loadDates(), checkPremiumStatus(), loadToolEmails(), loadEmploymentSpans()]);
-    return () => { dateLoadRequest.current += 1; };
+    void Promise.all([
+      loadDates(),
+      checkPremiumStatus(),
+      loadToolEmails(),
+      loadEmploymentSpans(),
+    ]);
+    return () => {
+      dateLoadRequest.current += 1;
+    };
   }, []);
 
   const handleDateChange = (field: keyof OptDatesData, value: string) => {
     dateEditVersion.current += 1;
     // School/SEVIS/EAD dates are independent facts, never inferred from edits.
-    setDates(prev => ({ ...prev, [field]: value }));
+    setDates((prev) => ({ ...prev, [field]: value }));
     setLastModifiedField(field);
 
     // Real-time validation
     if (value.trim() && !optDateInputToISO(value)) {
-      setErrors(prev => ({ ...prev, [field]: 'Invalid date format (MM/DD/YYYY)' }));
+      setErrors((prev) => ({
+        ...prev,
+        [field]: 'Invalid date format (MM/DD/YYYY)',
+      }));
     } else {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[field];
         return newErrors;
@@ -268,19 +301,31 @@ export function OptDatesSection() {
   const handleSave = async () => {
     if (isSaving || datesLoadError) return;
     // Validate: at least one date must be filled
-    const hasAtLeastOneDate = Object.values(dates).some(date => date && date.trim() !== '');
+    const hasAtLeastOneDate = Object.values(dates).some(
+      (date) => date && date.trim() !== ''
+    );
 
-    if (!hasAtLeastOneDate && !Object.values(savedDates).some(date => date?.trim())) {
+    if (
+      !hasAtLeastOneDate &&
+      !Object.values(savedDates).some((date) => date?.trim())
+    ) {
       toast({
-        title: "Validation Error",
-        description: "Please enter at least one date.",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Please enter at least one date.',
+        variant: 'destructive',
       });
       return;
     }
 
     // Validate date format (MM/DD/YYYY) for filled fields
-    const dateFields: (keyof OptDatesData)[] = ['program_end_date', 'dso_recommendation_date', 'opt_start_date', 'opt_ead_end_date', 'stem_start_date', 'stem_dso_recommendation_date'];
+    const dateFields: (keyof OptDatesData)[] = [
+      'program_end_date',
+      'dso_recommendation_date',
+      'opt_start_date',
+      'opt_ead_end_date',
+      'stem_start_date',
+      'stem_dso_recommendation_date',
+    ];
 
     let hasError = false;
     const newErrors: Record<string, string> = {};
@@ -296,17 +341,20 @@ export function OptDatesSection() {
     if (hasError) {
       setErrors(newErrors);
       toast({
-        title: "Validation Error",
-        description: "Please correct the invalid date formats.",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Please correct the invalid date formats.',
+        variant: 'destructive',
       });
       return;
     }
 
     const submittedDates = Object.fromEntries(
       dateFields
-        .filter(field => (dates[field]?.trim() || '') !== (savedDates[field]?.trim() || ''))
-        .map(field => [field, dates[field]?.trim() || null])
+        .filter(
+          (field) =>
+            (dates[field]?.trim() || '') !== (savedDates[field]?.trim() || '')
+        )
+        .map((field) => [field, dates[field]?.trim() || null])
     ) as OptDatesData;
     if (Object.keys(submittedDates).length === 0) return;
 
@@ -334,42 +382,46 @@ export function OptDatesSection() {
       if (response.ok && result.ok) {
         const savedOptStart = dates.opt_start_date;
         const needsEmploymentSetup =
-          !!savedOptStart && employmentSpans.length === 0 && !getEmploymentSetupAck();
+          !!savedOptStart &&
+          employmentSpans.length === 0 &&
+          !getEmploymentSetupAck();
 
         if (savedOptStart && employmentSpans.length === 0) {
           toast({
-            title: "OPT start date saved",
+            title: 'OPT start date saved',
             description: needsEmploymentSetup
-              ? "Next step: add your job history so we can calculate unemployment days accurately."
-              : "Add or update employment records below to keep your unemployment clock accurate.",
-            className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
+              ? 'Next step: add your job history so we can calculate unemployment days accurately.'
+              : 'Add or update employment records below to keep your unemployment clock accurate.',
+            className:
+              'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800',
           });
         } else {
           toast({
-            title: "Success",
-            description: "Dates saved successfully!",
-            className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
+            title: 'Success',
+            description: 'Dates saved successfully!',
+            className:
+              'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800',
           });
         }
 
         // Keep edits made during this request; only advance the saved baseline.
-        setSavedDates(previous => ({ ...previous, ...submittedDates }));
+        setSavedDates((previous) => ({ ...previous, ...submittedDates }));
 
         if (needsEmploymentSetup) {
           setShowEmploymentSetupModal(true);
         }
       } else {
         toast({
-          title: "Error",
+          title: 'Error',
           description: result.error || 'Failed to save dates',
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     } catch (_err) {
       toast({
-        title: "Error",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
       });
     } finally {
       setIsSaving(false);
@@ -392,8 +444,12 @@ export function OptDatesSection() {
     asOfISO
   );
   if (employmentLoadState !== 'ready' || datesLoadError) {
-    statusSnapshot.unemploymentLabel = employmentLoadState === 'loading' && !datesLoadError ? 'Loading…' : 'Unavailable';
-    statusSnapshot.unemploymentDetail = 'Saved dates and employment history are needed to calculate';
+    statusSnapshot.unemploymentLabel =
+      employmentLoadState === 'loading' && !datesLoadError
+        ? 'Loading…'
+        : 'Unavailable';
+    statusSnapshot.unemploymentDetail =
+      'Saved dates and employment history are needed to calculate';
     statusSnapshot.unemploymentTone = 'neutral';
     statusSnapshot.unemploymentWarning = null;
     statusSnapshot.clockActive = false;
@@ -423,21 +479,52 @@ export function OptDatesSection() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4 sm:px-6">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 pb-4 sm:px-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">OPT Dates</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          Track filing windows, OPT dates, and employment history in one place.
-        </p>
-      </div>
+      <header className="relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 px-5 py-6 shadow-sm dark:border-blue-950 dark:from-blue-950/40 dark:via-card dark:to-cyan-950/20 sm:px-7 sm:py-8">
+        <div
+          aria-hidden="true"
+          className="absolute -right-16 -top-24 h-52 w-52 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -bottom-16 right-1/4 h-32 w-32 rounded-full bg-cyan-400/10 blur-3xl"
+        />
+        <div className="relative max-w-2xl">
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            OPT compliance workspace
+          </p>
+          <h1 className="text-2xl font-bold tracking-[-0.03em] text-slate-950 dark:text-white sm:text-3xl">
+            OPT Dates
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
+            Track filing windows, OPT dates, and employment history in one
+            place.
+          </p>
+        </div>
+      </header>
 
       <OptDatesStatusSummary status={statusSnapshot} />
-      {statusSnapshot.unemploymentWarning && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{statusSnapshot.unemploymentWarning}</p>}
-      <p className="text-xs text-muted-foreground">
-        Calendar-day estimate through today, including weekends. Job start and end dates count as employed.
-        {' '}Only qualifying employment stops the clock; confirm your records and status with your DSO.
-      </p>
+      {statusSnapshot.unemploymentWarning && (
+        <div
+          role="alert"
+          className="flex gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-900 dark:border-red-900 dark:bg-red-950/30 dark:text-red-100"
+        >
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+          <p>{statusSnapshot.unemploymentWarning}</p>
+        </div>
+      )}
+      <div className="flex gap-2.5 rounded-xl border border-border bg-muted/35 px-3.5 py-3 text-xs leading-5 text-muted-foreground">
+        <ShieldCheck
+          aria-hidden="true"
+          className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+        />
+        <p>
+          Calendar-day estimate through today, including weekends. Job start and
+          end dates count as employed. Only qualifying employment stops the
+          clock; confirm your records and status with your DSO.
+        </p>
+      </div>
 
       <OptDatesSetupChecklist
         status={statusSnapshot}
@@ -446,19 +533,27 @@ export function OptDatesSection() {
       />
 
       {isDirty && (
-        <p role="status" className="text-sm text-amber-700 dark:text-amber-300">
-          Unsaved changes: dashboard summaries and email reminders use your saved dates until you save.
+        <p
+          role="status"
+          className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200"
+        >
+          Unsaved changes: dashboard summaries and email reminders use your
+          saved dates until you save.
         </p>
       )}
 
       {/* Main Form Card */}
-      <Card className="p-4 sm:p-6 lg:p-8">
-        <div className="space-y-8">
-          <div id="dates-before-opt" className="scroll-mt-24 space-y-4">
+      <Card className="overflow-hidden rounded-2xl border border-slate-200/90 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800">
+        <div className="space-y-5 p-4 sm:p-6 lg:p-7">
+          <div
+            id="dates-before-opt"
+            className="scroll-mt-24 space-y-4 rounded-2xl border border-blue-100 bg-blue-50/35 p-4 dark:border-blue-950 dark:bg-blue-950/15 sm:p-5"
+          >
             <div>
               <h2 className="text-base font-semibold">Before OPT</h2>
               <p className="text-xs text-muted-foreground mt-1">
-                School and filing dates — start here if you have not applied yet.
+                School and filing dates — start here if you have not applied
+                yet.
               </p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
@@ -466,21 +561,33 @@ export function OptDatesSection() {
                 id="program_end_date"
                 label="Program End Date"
                 value={dates.program_end_date || ''}
-                onChange={(value) => handleDateChange('program_end_date', value)}
+                onChange={(value) =>
+                  handleDateChange('program_end_date', value)
+                }
                 description="The date your academic program officially ends"
               />
               <DateInput
                 id="dso_recommendation_date"
-                label={<span className="flex items-center gap-1"><JargonTooltip term="DSO" showIcon={true} /> Recommendation Date</span>}
+                label={
+                  <span className="flex items-center gap-1">
+                    <JargonTooltip term="DSO" showIcon={true} /> Recommendation
+                    Date
+                  </span>
+                }
                 value={dates.dso_recommendation_date || ''}
-                onChange={(value) => handleDateChange('dso_recommendation_date', value)}
+                onChange={(value) =>
+                  handleDateChange('dso_recommendation_date', value)
+                }
                 description="Actual date your DSO entered the OPT recommendation in SEVIS — not your graduation date"
                 optional
               />
             </div>
           </div>
 
-          <div id="dates-on-opt" className="scroll-mt-24 space-y-4 border-t border-border pt-8">
+          <div
+            id="dates-on-opt"
+            className="scroll-mt-24 space-y-4 rounded-2xl border border-emerald-100 bg-emerald-50/30 p-4 dark:border-emerald-950 dark:bg-emerald-950/15 sm:p-5"
+          >
             <div>
               <h2 className="text-base font-semibold">On OPT</h2>
               <p className="text-xs text-muted-foreground mt-1">
@@ -490,7 +597,11 @@ export function OptDatesSection() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               <DateInput
                 id="opt_start_date"
-                label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={true} /> Start Date</span>}
+                label={
+                  <span className="flex items-center gap-1">
+                    <JargonTooltip term="OPT" showIcon={true} /> Start Date
+                  </span>
+                }
                 value={dates.opt_start_date || ''}
                 onChange={(value) => handleDateChange('opt_start_date', value)}
                 description="Start date printed on your EAD — save to unlock employment tracking"
@@ -498,20 +609,31 @@ export function OptDatesSection() {
               />
               <DateInput
                 id="opt_ead_end_date"
-                label={<span className="flex items-center gap-1"><JargonTooltip term="OPT" showIcon={false} /> <JargonTooltip term="EAD" showIcon={true} /> End Date</span>}
+                label={
+                  <span className="flex items-center gap-1">
+                    <JargonTooltip term="OPT" showIcon={false} />{' '}
+                    <JargonTooltip term="EAD" showIcon={true} /> End Date
+                  </span>
+                }
                 value={dates.opt_ead_end_date || ''}
-                onChange={(value) => handleDateChange('opt_ead_end_date', value)}
+                onChange={(value) =>
+                  handleDateChange('opt_ead_end_date', value)
+                }
                 description="Enter the actual expiration printed on your initial OPT EAD; do not estimate"
                 optional
               />
             </div>
           </div>
 
-          <div id="dates-stem" className="scroll-mt-24 space-y-4 border-t border-border pt-8">
+          <div
+            id="dates-stem"
+            className="scroll-mt-24 space-y-4 rounded-2xl border border-violet-100 bg-violet-50/30 p-4 dark:border-violet-950 dark:bg-violet-950/15 sm:p-5"
+          >
             <div>
               <h2 className="text-base font-semibold">STEM extension</h2>
               <p className="text-xs text-muted-foreground mt-1">
-                Add your STEM recommendation when applying. Add a start date once your extension is approved.
+                Add your STEM recommendation when applying. Add a start date
+                once your extension is approved.
               </p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
@@ -519,14 +641,23 @@ export function OptDatesSection() {
                 id="stem_dso_recommendation_date"
                 label="STEM DSO Recommendation Date"
                 value={dates.stem_dso_recommendation_date || ''}
-                onChange={(value) => handleDateChange('stem_dso_recommendation_date', value)}
+                onChange={(value) =>
+                  handleDateChange('stem_dso_recommendation_date', value)
+                }
                 description="Date your DSO recommended the STEM extension in SEVIS; separate from your initial OPT recommendation. Clear to remove."
                 error={errors.stem_dso_recommendation_date}
                 optional
               />
               <DateInput
                 id="stem_start_date"
-                label={<span className="flex items-center gap-1"><JargonTooltip term="STEM OPT" showIcon={true}>STEM Extension</JargonTooltip> Start Date</span>}
+                label={
+                  <span className="flex items-center gap-1">
+                    <JargonTooltip term="STEM OPT" showIcon={true}>
+                      STEM Extension
+                    </JargonTooltip>{' '}
+                    Start Date
+                  </span>
+                }
                 value={dates.stem_start_date || ''}
                 onChange={(value) => handleDateChange('stem_start_date', value)}
                 description="Start date of STEM OPT extension (if applicable)"
@@ -539,14 +670,20 @@ export function OptDatesSection() {
           {datesLoadError && (
             <p role="alert" className="text-sm text-red-600">
               Could not load your saved dates.{' '}
-              <button type="button" className="underline" onClick={() => void loadDates()}>Try again</button>
+              <button
+                type="button"
+                className="underline"
+                onClick={() => void loadDates()}
+              >
+                Try again
+              </button>
             </p>
           )}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border">
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/35 p-3 sm:flex-row sm:items-center">
             <Button
               onClick={handleSave}
               disabled={isSaving || datesLoadError}
-              className="min-w-[140px]"
+              className="min-w-[140px] shadow-sm"
             >
               {isSaving ? 'Saving...' : 'Save Dates'}
             </Button>
@@ -564,11 +701,20 @@ export function OptDatesSection() {
       </Card>
 
       {hasSavedOptStart && employmentLoadState !== 'ready' ? (
-        <Card id="employment" className="p-6">
+        <Card id="employment" className="rounded-2xl p-6">
           <p role={employmentLoadState === 'error' ? 'alert' : 'status'}>
-            {employmentLoadState === 'error' ? 'Could not load employment history. Counts are unavailable.' : 'Loading employment history…'}
+            {employmentLoadState === 'error'
+              ? 'Could not load employment history. Counts are unavailable.'
+              : 'Loading employment history…'}
           </p>
-          {employmentLoadState === 'error' && <Button variant="outline" onClick={() => void loadEmploymentSpans()}>Retry employment history</Button>}
+          {employmentLoadState === 'error' && (
+            <Button
+              variant="outline"
+              onClick={() => void loadEmploymentSpans()}
+            >
+              Retry employment history
+            </Button>
+          )}
         </Card>
       ) : hasSavedOptStart ? (
         <EmploymentHistoryLog
@@ -593,11 +739,15 @@ export function OptDatesSection() {
           }}
         />
       ) : (
-        <Card id="employment" className="scroll-mt-24 overflow-hidden border-dashed">
+        <Card
+          id="employment"
+          className="scroll-mt-24 overflow-hidden rounded-2xl border-dashed border-primary/30 bg-gradient-to-br from-primary/[0.04] via-card to-cyan-50/40"
+        >
           <div className="p-6 sm:p-8 text-center">
             <h2 className="text-lg font-semibold mb-2">Employment History</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
-              Save your <strong>OPT start date</strong> above to track jobs and calculate unemployment days.
+              Save your <strong>OPT start date</strong> above to track jobs and
+              calculate unemployment days.
             </p>
             <Button variant="outline" size="sm" asChild>
               <a href="#dates-on-opt">Go to OPT start date</a>
@@ -609,14 +759,14 @@ export function OptDatesSection() {
       <EmploymentSetupModal
         open={showEmploymentSetupModal}
         onOpenChange={setShowEmploymentSetupModal}
-        optStartDate={savedDates.opt_start_date || dates.opt_start_date || ""}
+        optStartDate={savedDates.opt_start_date || dates.opt_start_date || ''}
         onAddJob={handleAddJobFromSetup}
         onBetweenJobs={() => {
-          setAck("between_jobs");
+          setAck('between_jobs');
           scrollToEmployment();
         }}
         onNotOnOpt={() => {
-          setAck("not_on_opt");
+          setAck('not_on_opt');
           scrollToEmployment();
         }}
       />

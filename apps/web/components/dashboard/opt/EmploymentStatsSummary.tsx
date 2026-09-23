@@ -19,14 +19,16 @@ export function EmploymentStatsSummary({
 }: EmploymentStatsSummaryProps) {
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-muted/30">
-        <div className="text-center">
+      <div className="grid grid-cols-2 gap-2 border-b border-border bg-gradient-to-br from-slate-50 via-white to-blue-50/60 p-3 dark:from-card dark:via-card dark:to-blue-950/20 sm:grid-cols-4 sm:gap-3 sm:p-4">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-2 py-3 text-center dark:border-emerald-950 dark:bg-emerald-950/20">
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {showComplianceNumbers ? stats.totalEmployedDays : '—'}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">Days Employed</p>
+          <p className="mt-1 text-[11px] font-medium text-muted-foreground">
+            Days Employed
+          </p>
         </div>
-        <div className="text-center">
+        <div className="rounded-xl border border-blue-100 bg-blue-50/70 px-2 py-3 text-center dark:border-blue-950 dark:bg-blue-950/20">
           <p
             className={`text-2xl font-bold ${
               !showComplianceNumbers
@@ -40,17 +42,19 @@ export function EmploymentStatsSummary({
           >
             {showComplianceNumbers ? stats.totalUnemployedDays : '—'}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="mt-1 text-[11px] font-medium text-muted-foreground">
             {trackingIncomplete ? 'Pending setup' : 'Days Unemployed'}
           </p>
         </div>
-        <div className="text-center">
+        <div className="rounded-xl border border-violet-100 bg-violet-50/70 px-2 py-3 text-center dark:border-violet-950 dark:bg-violet-950/20">
           <p className="text-2xl font-bold text-primary">
             {showComplianceNumbers ? stats.currentStreak : '—'}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">Current Streak</p>
+          <p className="mt-1 text-[11px] font-medium text-muted-foreground">
+            Current Streak
+          </p>
         </div>
-        <div className="text-center">
+        <div className="rounded-xl border border-slate-200 bg-white/80 px-2 py-3 text-center dark:border-slate-800 dark:bg-slate-950/20">
           <p
             className={`text-2xl font-bold ${
               !showComplianceNumbers
@@ -62,23 +66,36 @@ export function EmploymentStatsSummary({
           >
             {showComplianceNumbers ? stats.longestGap : '—'}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">Longest Gap</p>
+          <p className="mt-1 text-[11px] font-medium text-muted-foreground">
+            Longest Gap
+          </p>
         </div>
       </div>
 
-      <div className="px-4 py-3 border-t border-border">
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-          <span>Unemployment Days Used</span>
-          <span>
+      <div className="px-4 py-4 sm:px-5">
+        <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">
+            Unemployment days used
+          </span>
+          <span className="shrink-0 font-semibold text-foreground">
             {showComplianceNumbers
               ? `${stats.totalUnemployedDays} / ${maxUnemploymentDays}`
               : 'Complete dates and job history to calculate'}
           </span>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div
+          className="h-2 overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+          aria-label="Unemployment days used"
+          aria-valuemin={0}
+          aria-valuemax={maxUnemploymentDays}
+          aria-valuenow={
+            showComplianceNumbers ? stats.totalUnemployedDays : undefined
+          }
+        >
           {showComplianceNumbers ? (
             <div
-              className={`h-full transition-all duration-500 ${
+              className={`h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none ${
                 stats.totalUnemployedDays >= maxUnemploymentDays * 0.9
                   ? 'bg-red-500'
                   : stats.totalUnemployedDays >= maxUnemploymentDays * 0.75
