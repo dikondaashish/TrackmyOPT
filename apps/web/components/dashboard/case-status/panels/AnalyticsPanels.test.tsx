@@ -12,6 +12,28 @@ const props = {
   onUpgrade: vi.fn(),
 };
 
+it.each(['approved', 'card_produced', 'delivered'] as const)(
+  'replaces the approval-wait prediction after %s',
+  (phase) => {
+    render(<AnalyticsPanels {...props} phase={phase} />);
+    expect(
+      screen.getByRole('heading', { name: 'After your decision' })
+    ).toBeVisible();
+    expect(
+      screen.queryByText('Historical approval range · middle 50%')
+    ).not.toBeInTheDocument();
+    for (const name of ['Similar cases', 'Trend', 'Spread', 'Heatmap'])
+      expect(screen.getByRole('heading', { name })).toBeVisible();
+  }
+);
+
+it('does not predict approval after a denial', () => {
+  render(<AnalyticsPanels {...props} currentStatus="Case Was Denied" />);
+  expect(
+    screen.getByText(/approval-wait estimate no longer applies/)
+  ).toBeVisible();
+});
+
 it('shows all four detailed comparisons open together on initial render', () => {
   render(<AnalyticsPanels {...props} />);
   expect(

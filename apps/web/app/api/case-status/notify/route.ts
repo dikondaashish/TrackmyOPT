@@ -6,7 +6,10 @@ import {
   CASE_STATUS_CHANGE_SUBJECT_PREFIX,
 } from '@/lib/notifications/case-status-email';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
-import { isWebPushConfigured, sendCaseStatusPush } from '@/lib/notifications/web-push';
+import {
+  isWebPushConfigured,
+  sendCaseStatusPush,
+} from '@/lib/notifications/web-push';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,7 +22,11 @@ const corsHeaders = {
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '465'),
-  secure: true,
+  secure: (process.env.SMTP_PORT || '465') === '465',
+  requireTLS: (process.env.SMTP_PORT || '465') !== '465',
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 20000,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -47,13 +54,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { user_id, receipt_number, old_status, new_status } = body;
 
-    if (!user_id || !receipt_number || !new_status) {
+    if (
+      typeof user_id !== 'string' ||
+      typeof receipt_number !== 'string' ||
+      !/^[A-Z]{3}\d{10}$/i.test(receipt_number) ||
+      typeof new_status !== 'string' ||
+      !new_status.trim() ||
+      new_status.length > 500 ||
+      (old_status != null && typeof old_status !== 'string')
+    ) {
       return NextResponse.json(
         { ok: false, error: 'Missing required fields' },
         { status: 400, headers: corsHeaders }
       );
     }
-
 
     // Use service role key for database access
     const supabase = createClient(
@@ -64,7 +78,9 @@ export async function POST(req: NextRequest) {
     // Get user details and check if premium
     const { data: userData, error: userError } = await supabase
       .from('profiles')
-      .select('email, first_name, last_name, premium_status')
+      .select(
+        'email, notification_email, first_name, last_name, premium_status'
+      )
       .eq('user_id', user_id)
       .single();
 
@@ -100,7 +116,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Get user's email from auth.users table
-    const { data: authData, error: authError } = await supabase.auth.admin.getUserById(user_id);
+    const { data: authData, error: authError } =
+      await supabase.auth.admin.getUserById(user_id);
 
     if (authError || !authData.user) {
       console.error('Error fetching auth user:', authError);
@@ -110,7 +127,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const userEmail = authData.user.email;
+    const userEmail =
+      userData.notification_email?.trim() || authData.user.email;
 
     if (!userEmail) {
       console.error('User email not found');
@@ -127,14 +145,18 @@ export async function POST(req: NextRequest) {
         to: userEmail,
         subject: `${CASE_STATUS_CHANGE_SUBJECT_PREFIX}${receipt_number}`,
         html: buildCaseStatusChangeEmailHtml({
-          name: [userData.first_name, userData.last_name].filter(Boolean).join(' ') || 'there',
+          name:
+            [userData.first_name, userData.last_name]
+              .filter(Boolean)
+              .join(' ') || 'there',
           receipt_number,
           old_status: old_status ?? null,
           new_status,
         }),
       });
 
-      console.log('Email sent:', info.messageId);
+      if (!info.accepted?.length)
+        throw new Error('Email provider did not accept the message');
 
       if (isWebPushConfigured()) {
         const { data: subs } = await supabase
@@ -185,7 +207,8 @@ export async function POST(req: NextRequest) {
           email_subject: `TrackMyOPT — USCIS case status update — ${receipt_number}`,
           email_data: { receipt_number, old_status, new_status },
           status: 'failed',
-          error_message: emailError instanceof Error ? emailError.message : 'Unknown error',
+          error_message:
+            emailError instanceof Error ? emailError.message : 'Unknown error',
         });
       } catch (logErr) {
         console.error('Failed to log email to queue:', logErr);
@@ -208,4 +231,3 @@ export async function POST(req: NextRequest) {
 export async function OPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
-

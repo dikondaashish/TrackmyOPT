@@ -35,15 +35,25 @@ const result = await esbuild.build({
     import {createRoot} from 'react-dom/client';
     import {PremiumProcessingCountdown} from './components/dashboard/case-status/PremiumProcessingCountdown';
     import {MonitorHealthStrip} from './components/dashboard/case-status/panels/MonitorHealthStrip';
-    import {AnalyticsTabs} from './components/dashboard/case-status/panels/AnalyticsTabs';
+    import {AnalyticsPanels} from './components/dashboard/case-status/panels/AnalyticsPanels';
+    import {CaseNoticeOrganizer} from './components/dashboard/case-status/panels/CaseNoticeOrganizer';
+    import {OptJourneySection} from './components/dashboard/case-status/panels/OptJourneySection';
+    import {deriveJourneyPhase} from './lib/community-opt/stages';
     import {CaseHeroCard} from './components/dashboard/case-status/panels/CaseHeroCard';
     import {CaseActionCenter} from './components/dashboard/case-status/panels/CaseActionCenter';
     import {deriveCaseState} from './components/dashboard/case-status/panels/StickyCaseSwitcher';
-    import {SavedOptDates} from './components/dashboard/case-status/panels/OptJourneySection/SavedOptDates';
     const params=new URLSearchParams(location.search);
     if(params.has('dark')) document.documentElement.classList.add('dark');
     const width=Number(params.get('width'))||1000;
-    window.fetch=async(url)=>{
+    let notices=[];
+    window.fetch=async(url,options)=>{
+      if(String(url).startsWith('/api/case-status/notices')) {
+        if(options?.method==='POST') { const body=JSON.parse(options.body); notices.push({...body,id:'11111111-1111-4111-8111-111111111111',completed_at:null,reminder_state:body.email_reminder?'pending':'off'}); }
+        if(options?.method==='PATCH') { const body=JSON.parse(options.body); notices=notices.map(n=>n.id!==body.id?n:body.complete?{...n,completed_at:new Date().toISOString(),reminder_state:'cancelled'}:{...n,...body}); }
+        return {ok:true,json:async()=>({ok:true,notices})};
+      }
+      if(url==='/api/documents') return {ok:true,json:async()=>({documents:[]})};
+      if(url==='/api/employment-spans') return {ok:true,json:async()=>({ok:true,spans:[{employer_name:'Example employer',start_date:'2026-08-01',end_date:null}]})};
       if(url==='/api/opt/community-stats') return {ok:false,json:async()=>({ok:false,error:'Synthetic unavailable-data state'})};
       if(url!='/api/opt/calculator') throw Error('Network disabled');
       return {ok:true,json:async()=>({ok:true,data:params.has('empty')?null:{program_end_date:'2026-05-15',dso_recommendation_date:'2026-04-20',opt_start_date:'2026-06-01',opt_ead_end_date:'2027-05-31',stem_start_date:null}})};
@@ -57,8 +67,9 @@ const result = await esbuild.build({
       <CaseActionCenter statusText={status} daysSinceFiled={100}/>
       <MonitorHealthStrip monitorActive={!params.has('free')} lastCheckedAt='2026-06-16T12:00:00Z' emailAlertsEnabled={false}/>
       {(params.has('pp')||stopped) && <PremiumProcessingCountdown caseId='synthetic' ppStartDate='2026-05-12' currentStatus={status} statusHistory={[{status:'Premium Processing Clock Was Started',date:'2026-05-12'}]} onSaved={()=>{}}/>}
-      <section className='rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm'><AnalyticsTabs receiptNumber='IOE0000000000' filingCategory='initial_opt' isPremium={!params.has('free')} onUpgrade={()=>{}} daysSinceFiled={100} prediction={params.has('empty')?undefined:prediction} summary={params.has('empty')?null:{medianDays:60,cohortSize:20,caseKind:'initial_opt',premiumProcessing:false}} estimateLoading={params.has('loading')} estimatesAvailable={!params.has('nonopt')} heatmap={[{month:'2026-06',buckets:[2,5,7,4,1,1]}]}/></section>
-      <SavedOptDates/>
+      <section className='rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm'><AnalyticsPanels phase={deriveJourneyPhase(status)} currentStatus={status} receiptNumber='IOE0000000000' filingCategory='initial_opt' isPremium={!params.has('free')} onUpgrade={()=>{}} daysSinceFiled={100} prediction={params.has('empty')?undefined:prediction} summary={params.has('empty')?null:{medianDays:60,cohortSize:20,caseKind:'initial_opt',premiumProcessing:false}} estimateLoading={params.has('loading')} estimatesAvailable={!params.has('nonopt')} heatmap={[{month:'2026-06',buckets:[2,5,7,4,1,1]}]} evidence={{totalReports:100,includedReports:90,excludedStale:10,excludedUnknownFreshness:0,duplicateIdsRemoved:0,possibleCrossSourceDuplicates:2,freshnessDays:30,filingRange:['2026-01-01','2026-06-01'],sources:[{name:'OPT Tracker',reports:100,lastRefreshedAt:'2026-09-23'}]}} premiumUpgrade={params.has('pp')?{sampleSize:40,medianDays:12,p25Days:8,p75Days:20}:null}/></section>
+      <OptJourneySection optFiledDate='2026-06-15'/>
+      <CaseNoticeOrganizer caseId='11111111-1111-4111-8111-111111111111' isPro={!params.has('free')}/>
     </main>);
   `,
   },

@@ -3,12 +3,12 @@ import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 /**
  * Cron Job: Trigger USCIS Status Check Batch
  *
- * Runs daily at 9:00 AM ET (14:00 UTC) via Vercel Cron.
+ * Runs daily at 14:00 UTC via Vercel Cron (local time varies with DST).
  * Schedule: vercel.json → "0 14 * * *"
  *
  * Vercel sends CRON_SECRET in the Authorization header automatically.
@@ -35,7 +35,9 @@ export async function GET(req: NextRequest) {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
-      signal: AbortSignal.timeout(59000),
+      // Render free instances can take over 50 seconds to wake. Leave time
+      // for the paginated queue build after startup, within the function budget.
+      signal: AbortSignal.timeout(240000),
     });
 
     if (!response.ok) {

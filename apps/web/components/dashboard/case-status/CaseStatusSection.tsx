@@ -2,40 +2,48 @@
 
 import { Card } from '@/components/ui/card';
 import { PricingModal } from '@/components/pricing/PricingModal';
-import { CaseStatusPanelErrorBoundary } from "@/components/dashboard/case-status/CaseTimelineErrorBoundary";
+import { CaseStatusPanelErrorBoundary } from '@/components/dashboard/case-status/CaseTimelineErrorBoundary';
 import {
   CaseStatusLoading,
   DeleteNoticeBanner,
   LoadErrorBanner,
   RefreshFailedBanner,
   UscisMockModeBadge,
-} from "@/components/dashboard/case-status/CaseStatusSectionNotices";
-import { CaseStatusActiveNotices } from "@/components/dashboard/case-status/CaseStatusActiveNotices";
-import { CaseStatusDeleteDialog } from "@/components/dashboard/case-status/CaseStatusDeleteDialog";
-import { CaseStatusTimelineAndInfo } from "@/components/dashboard/case-status/CaseStatusTimelineAndInfo";
-import { PACKAGING_NOTICE_DISMISS_KEY } from "@/components/dashboard/case-status/case-status-section-helpers";
-import { daysSinceEpochMs, formatDisplayDateTime } from "@/lib/case-status/safe-dates";
-import { UscisCaseStatusDisclaimer } from "@/components/legal/UscisCaseStatusDisclaimer";
-import { CaseStatusPageViewTracker } from "@/components/analytics/CaseStatusPageViewTracker";
+} from '@/components/dashboard/case-status/CaseStatusSectionNotices';
+import { CaseStatusActiveNotices } from '@/components/dashboard/case-status/CaseStatusActiveNotices';
+import { CaseStatusDeleteDialog } from '@/components/dashboard/case-status/CaseStatusDeleteDialog';
+import { CaseStatusTimelineAndInfo } from '@/components/dashboard/case-status/CaseStatusTimelineAndInfo';
+import { PACKAGING_NOTICE_DISMISS_KEY } from '@/components/dashboard/case-status/case-status-section-helpers';
+import {
+  daysSinceEpochMs,
+  formatDisplayDateTime,
+} from '@/lib/case-status/safe-dates';
+import { UscisCaseStatusDisclaimer } from '@/components/legal/UscisCaseStatusDisclaimer';
+import { CaseStatusPageViewTracker } from '@/components/analytics/CaseStatusPageViewTracker';
 import { normalizeFilingCategory } from '@/lib/case-status/filing-category';
 import { PremiumProcessingCountdown } from '@/components/dashboard/case-status/PremiumProcessingCountdown';
 import { CaseStatusReceiptPanel } from '@/components/dashboard/case-status/CaseStatusReceiptPanel';
 import { ManualRefreshUpsellPrompt } from '@/components/dashboard/case-status/ManualRefreshUpsellPrompt';
 import { CaseInsightUpgradeDialog } from '@/components/dashboard/case-status/CaseInsightUpgradeDialog';
-import { CHECKOUT_UPSELL_TRIGGER } from "@/lib/case-status/free-change-wedge";
-import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case-status/panels/StickyCaseSwitcher";
-import { UrgentActionBanner } from "@/components/dashboard/case-status/panels/UrgentActionBanner";
-import { CaseHeroCard } from "@/components/dashboard/case-status/panels/CaseHeroCard";
-import { MonitorHealthStrip } from "@/components/dashboard/case-status/panels/MonitorHealthStrip";
-import { AnalyticsPanels } from "@/components/dashboard/case-status/panels/AnalyticsPanels";
-import { ToolsAccordion } from "@/components/dashboard/case-status/panels/ToolsAccordion";
-import { CaseActionCenter } from "@/components/dashboard/case-status/panels/CaseActionCenter";
-import { DedicatedConsultationCard } from "@/components/dashboard/case-status/panels/DedicatedConsultationCard";
-import { OptJourneySection } from "@/components/dashboard/case-status/panels/OptJourneySection";
-import { CaseInfoFooter } from "@/components/dashboard/case-status/panels/CaseInfoFooter";
-import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
-import { deriveJourneyPhase } from "@/lib/community-opt/stages";
-import { useCaseStatusController } from "@/components/dashboard/case-status/useCaseStatusController";
+import { CHECKOUT_UPSELL_TRIGGER } from '@/lib/case-status/free-change-wedge';
+import {
+  StickyCaseSwitcher,
+  deriveCaseState,
+} from '@/components/dashboard/case-status/panels/StickyCaseSwitcher';
+import { UrgentActionBanner } from '@/components/dashboard/case-status/panels/UrgentActionBanner';
+import { CaseHeroCard } from '@/components/dashboard/case-status/panels/CaseHeroCard';
+import { MonitorHealthStrip } from '@/components/dashboard/case-status/panels/MonitorHealthStrip';
+import { AnalyticsPanels } from '@/components/dashboard/case-status/panels/AnalyticsPanels';
+import { ToolsAccordion } from '@/components/dashboard/case-status/panels/ToolsAccordion';
+import { CaseActionCenter } from '@/components/dashboard/case-status/panels/CaseActionCenter';
+import { DedicatedConsultationCard } from '@/components/dashboard/case-status/panels/DedicatedConsultationCard';
+import { OptJourneySection } from '@/components/dashboard/case-status/panels/OptJourneySection';
+import { CaseNoticeOrganizer } from './panels/CaseNoticeOrganizer';
+import { NotificationDelivery } from './panels/NotificationDelivery';
+import { CaseInfoFooter } from '@/components/dashboard/case-status/panels/CaseInfoFooter';
+import { CASE_STATUS_MESSAGING } from '@/lib/messaging/product-copy';
+import { deriveJourneyPhase } from '@/lib/community-opt/stages';
+import { useCaseStatusController } from '@/components/dashboard/case-status/useCaseStatusController';
 
 export function CaseStatusSection() {
   const {
@@ -75,6 +83,7 @@ export function CaseStatusSection() {
     isRefreshing,
     notificationEmail,
     communityPrediction,
+    communityEvidence,
     communitySummary,
     communityStages,
     communityHeatmap,
@@ -140,7 +149,9 @@ export function CaseStatusSection() {
         currentStatus={caseStatus?.current_status ?? null}
       />
       {/* Minimal page title — no marketing copy */}
-      <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">USCIS Case Status</h1>
+      <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+        USCIS Case Status
+      </h1>
 
       {/* ── Delete success banner ── */}
       {deleteNotice && <DeleteNoticeBanner message={deleteNotice} />}
@@ -199,7 +210,10 @@ export function CaseStatusSection() {
             caseState={caseState}
             premiumProcessing={
               ppOverdueDays > 0 && ppDeadlineDate
-                ? { overdueBusinessDays: ppOverdueDays, deadlineDate: ppDeadlineDate }
+                ? {
+                    overdueBusinessDays: ppOverdueDays,
+                    deadlineDate: ppDeadlineDate,
+                  }
                 : undefined
             }
             rfeDate={rfeDate}
@@ -214,7 +228,7 @@ export function CaseStatusSection() {
             onDismissPackaging={() => {
               setPackagingNoticeDismissed(true);
               try {
-                window.localStorage.setItem(PACKAGING_NOTICE_DISMISS_KEY, "1");
+                window.localStorage.setItem(PACKAGING_NOTICE_DISMISS_KEY, '1');
               } catch {
                 /* ignore */
               }
@@ -224,7 +238,9 @@ export function CaseStatusSection() {
             onWedgeAcknowledged={() => {
               setWedgeDismissed(true);
               setCaseStatus((prev) =>
-                prev ? { ...prev, last_status_viewed_at: new Date().toISOString() } : prev
+                prev
+                  ? { ...prev, last_status_viewed_at: new Date().toISOString() }
+                  : prev
               );
             }}
             isPremium={isPremium}
@@ -232,11 +248,11 @@ export function CaseStatusSection() {
             showFilingCategoryPrompt={showFilingCategoryPrompt}
             filingCategorySaving={filingCategorySaving}
             onConfirmFilingCategory={(category) =>
-              void handleFilingCategoryUpdate(category, "confirm_banner")
+              void handleFilingCategoryUpdate(category, 'confirm_banner')
             }
             onDismissFilingCategory={() => {
               if (filingCategoryPromptKey) {
-                sessionStorage.setItem(filingCategoryPromptKey, "1");
+                sessionStorage.setItem(filingCategoryPromptKey, '1');
               }
               setFilingCategoryPromptDismissed(true);
             }}
@@ -259,7 +275,9 @@ export function CaseStatusSection() {
               onCancelEdit={() => {
                 setIsEditingReceipt(false);
                 setReceiptNumber(caseStatus.receipt_number);
-                setFilingCategory(normalizeFilingCategory(caseStatus.filing_category));
+                setFilingCategory(
+                  normalizeFilingCategory(caseStatus.filing_category)
+                );
                 setError(null);
                 setSuccess(false);
               }}
@@ -268,7 +286,10 @@ export function CaseStatusSection() {
             <CaseStatusPanelErrorBoundary area="hero">
               <CaseHeroCard
                 key={caseStatus.id}
-                caseStatus={{ ...caseStatus, status_history: safeStatusHistory }}
+                caseStatus={{
+                  ...caseStatus,
+                  status_history: safeStatusHistory,
+                }}
                 caseState={caseState}
                 ppOverdueDays={ppOverdueDays}
                 ppDeadlineDate={ppDeadlineDate}
@@ -278,7 +299,9 @@ export function CaseStatusSection() {
                 onManageCase={() => {
                   setIsEditingReceipt(true);
                   setReceiptNumber(caseStatus.receipt_number);
-                  setFilingCategory(normalizeFilingCategory(caseStatus.filing_category));
+                  setFilingCategory(
+                    normalizeFilingCategory(caseStatus.filing_category)
+                  );
                 }}
                 onDelete={handleRemove}
                 isDeleting={isRemoving === caseStatus.id}
@@ -296,15 +319,16 @@ export function CaseStatusSection() {
           </CaseStatusPanelErrorBoundary>
 
           {/* ── 3b. Refresh failed inline warning ── */}
-          {caseStatus.last_check_failed_at && (caseStatus.consecutive_failures ?? 0) > 0 && (
-            <RefreshFailedBanner
-              message={
-                isPremium === true
-                  ? `Last auto-check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we will keep retrying.`
-                  : `Last check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). Try a manual refresh, or upgrade to Pro for daily auto-checks.`
-              }
-            />
-          )}
+          {caseStatus.last_check_failed_at &&
+            (caseStatus.consecutive_failures ?? 0) > 0 && (
+              <RefreshFailedBanner
+                message={
+                  isPremium === true
+                    ? `Last auto-check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). USCIS may be unreachable — we will keep retrying.`
+                    : `Last check failed (${formatDisplayDateTime(caseStatus.last_check_failed_at)}). Try a manual refresh, or upgrade to Pro for daily auto-checks.`
+                }
+              />
+            )}
 
           {/* ── 4. MONITOR HEALTH STRIP ── */}
           <CaseStatusPanelErrorBoundary area="monitor_health">
@@ -312,12 +336,18 @@ export function CaseStatusSection() {
               monitorActive={isPremium === true}
               lastCheckedAt={caseStatus.last_checked_at}
               lastCheckFailedAt={caseStatus.last_check_failed_at}
+              lastCheckErrorCode={caseStatus.last_check_error_code}
               emailAlertsEnabled={caseStatus.notifications_enabled}
               emailAddress={notificationEmail}
               onEditEmail={() => setIsEditingEmail(true)}
               onUpgrade={
                 isPremium === false ? () => openProTrialModal() : undefined
               }
+            />
+            <NotificationDelivery
+              key={caseStatus.id + (caseStatus.last_checked_at ?? '')}
+              caseId={caseStatus.id}
+              checkedAt={caseStatus.last_checked_at}
             />
           </CaseStatusPanelErrorBoundary>
 
@@ -345,6 +375,9 @@ export function CaseStatusSection() {
                 daysSinceFiled={daysSinceFiled ?? 0}
                 prediction={communityPrediction ?? undefined}
                 summary={communitySummary}
+                evidence={communityEvidence?.evidence}
+                premiumUpgrade={communityEvidence?.premiumUpgrade}
+                currentStatus={caseStatus.current_status}
                 stages={communityStages}
                 phase={deriveJourneyPhase(caseStatus.current_status)}
                 heatmap={communityHeatmap}
@@ -366,24 +399,33 @@ export function CaseStatusSection() {
               <OptJourneySection
                 filingCategory={caseStatus.filing_category}
                 optFiledDate={
-                  isStemExtension ? null : caseStatus.received_date ?? null
+                  isStemExtension ? null : (caseStatus.received_date ?? null)
                 }
                 eadProjected={null}
                 stemWindowOpens={null}
                 stemFiled={
-                  isStemExtension ? caseStatus.received_date ?? null : null
+                  isStemExtension ? (caseStatus.received_date ?? null) : null
                 }
               />
             </CaseStatusPanelErrorBoundary>
           )}
 
           {/* ── 7. CASE TIMELINE + CASE INFORMATION (original layout) ── */}
+          <CaseStatusPanelErrorBoundary area="case_notices">
+            <CaseNoticeOrganizer
+              key={caseStatus.id}
+              caseId={caseStatus.id}
+              isPro={isPremium === true}
+            />
+          </CaseStatusPanelErrorBoundary>
           <CaseStatusTimelineAndInfo
             caseStatus={caseStatus}
             safeStatusHistory={safeStatusHistory}
             serviceCenterLocation={serviceCenterLocation}
             filingCategorySaving={filingCategorySaving}
-            onFilingCategoryChange={(value) => void handleFilingCategoryUpdate(value)}
+            onFilingCategoryChange={(value) =>
+              void handleFilingCategoryUpdate(value)
+            }
             filingDateInput={filingDateInput}
             onFilingDateInputChange={setFilingDateInput}
             filingDateSaving={filingDateSaving}

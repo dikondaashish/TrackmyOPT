@@ -11,11 +11,11 @@
  * about whether a case will be approved.
  */
 
-import { daysBetweenDates } from "./clean";
-import { COMMUNITY_ESTIMATE_SOURCE_NOTE, percentile } from "./estimate";
-import { maturityCutoffMs, parseUtcDate } from "./weekly-trend";
+import { daysBetweenDates } from './clean';
+import { COMMUNITY_ESTIMATE_SOURCE_NOTE, percentile } from './estimate';
+import { maturityCutoffMs, parseUtcDate } from './weekly-trend';
 
-export type StageId = "biometrics" | "card_produced" | "card_delivered";
+export type StageId = 'biometrics' | 'card_produced' | 'card_delivered';
 
 export type StageRow = {
   init_date: string | null;
@@ -63,21 +63,21 @@ type StageSpec = {
 
 const STAGE_SPECS: StageSpec[] = [
   {
-    id: "biometrics",
+    id: 'biometrics',
     anchor: (r) => r.init_date,
     end: (r) => r.biometrics_date,
     maxDays: 120,
     minHorizonDays: 30,
   },
   {
-    id: "card_produced",
+    id: 'card_produced',
     anchor: (r) => r.approve_date,
     end: (r) => r.card_produce_date,
     maxDays: 120,
     minHorizonDays: 14,
   },
   {
-    id: "card_delivered",
+    id: 'card_delivered',
     anchor: (r) => r.approve_date,
     end: (r) => r.delivered_date,
     maxDays: 150,
@@ -177,25 +177,29 @@ export function redactStagesForFree(stages: JourneyStages): JourneyStages {
  * is to separate approval from card production from delivery.
  */
 export type JourneyPhase =
-  | "filed"
-  | "biometrics_done"
-  | "approved"
-  | "card_produced"
-  | "delivered";
+  | 'filed'
+  | 'biometrics_done'
+  | 'approved'
+  | 'card_produced'
+  | 'delivered';
 
 export function deriveJourneyPhase(
   currentStatus: string | null | undefined
 ): JourneyPhase {
-  const s = (currentStatus ?? "").toLowerCase();
-  if (!s) return "filed";
+  const s = (currentStatus ?? '').toLowerCase();
+  if (!s) return 'filed';
   // Most advanced first: USCIS status text is cumulative, so "Card Was
   // Delivered To Me By The Post Office" also contains "card was".
-  if (s.includes("delivered") || s.includes("picked up")) return "delivered";
+  if (s.includes('card') && s.includes('delivered')) return 'delivered';
   // "New Card Is Being Produced" and "Card Was Produced" are both this step.
-  if (s.includes("mailed") || s.includes("produced")) return "card_produced";
-  if (s.includes("approved")) return "approved";
-  if (s.includes("fingerprint") || s.includes("biometric")) {
-    return "biometrics_done";
+  if (
+    s.includes('card') &&
+    (s.includes('mailed') || s.includes('produced') || s.includes('picked up'))
+  )
+    return 'card_produced';
+  if (s.includes('approved')) return 'approved';
+  if (s.includes('fingerprint') || s.includes('biometric')) {
+    return 'biometrics_done';
   }
-  return "filed";
+  return 'filed';
 }

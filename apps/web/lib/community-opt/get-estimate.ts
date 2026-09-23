@@ -1,6 +1,11 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { inferCaseKind, serviceCenterFromReceipt } from "./centers";
-import { cleanPartnerCase } from './clean';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { inferCaseKind, serviceCenterFromReceipt } from './centers';
+import {
+  prepareEvidence,
+  premiumUpgradeStats,
+  type CommunityEvidence,
+  type PremiumUpgradeStats,
+} from './evidence';
 import {
   buildEstimateFromSamples,
   buildHeatmap,
@@ -8,18 +13,22 @@ import {
   selectCohort,
   type ProcessingHistogram,
   type TimelineSample,
-} from "./estimate";
+} from './estimate';
 import {
   buildWeeklyProcessingTrend,
   filterMatureRows,
   type WeeklyTrendPoint,
-} from "./weekly-trend";
+} from './weekly-trend';
 import {
   buildSimilarFilingPeers,
   type SimilarFilingPeers,
-} from "./similar-filing";
-import { buildJourneyStages, type JourneyStages, type StageRow } from "./stages";
-import type { CommunityEstimate, CommunityHeatmapRow } from "./types";
+} from './similar-filing';
+import {
+  buildJourneyStages,
+  type JourneyStages,
+  type StageRow,
+} from './stages';
+import type { CommunityEstimate, CommunityHeatmapRow } from './types';
 
 export type CommunityEstimateQuery = {
   /** First 3 receipt characters only — enough to infer the service center. */
@@ -33,6 +42,8 @@ export type CommunityEstimateQuery = {
 };
 
 export type CommunityEstimateResult = {
+  evidence: CommunityEvidence | null;
+  premiumUpgrade: PremiumUpgradeStats | null;
   prediction: CommunityEstimate | null;
   heatmap: CommunityHeatmapRow[];
   weeklyTrend: WeeklyTrendPoint[];
@@ -42,13 +53,15 @@ export type CommunityEstimateResult = {
 };
 
 const SELECT_COLUMNS =
-  "days_to_approval, approve_date, init_date, pp_date, biometrics_date, card_produce_date, delivered_date, service_center, premium_processing, case_kind";
+  'external_id, updated_at, days_to_approval, approve_date, init_date, pp_date, biometrics_date, card_produce_date, delivered_date, service_center, premium_processing, case_kind';
 /** PostgREST caps a single response at the project's `max_rows` (1000 by
  *  default), so a plain `.limit()` silently truncates. */
 const PAGE_SIZE = 1000;
 const MAX_PAGES = 20;
 
 type TimelineRow = {
+  external_id?: string;
+  updated_at?: string | null;
   days_to_approval: number | null;
   approve_date: string | null;
   init_date: string | null;
@@ -83,13 +96,14 @@ export async function fetchAllTimelines(
   for (let page = 0; page < MAX_PAGES; page += 1) {
     const from = page * PAGE_SIZE;
     const { data, error } = await supabase
-      .from("community_opt_timelines")
+      .from('community_opt_timelines')
       .select(SELECT_COLUMNS)
-      .eq("case_kind", caseKind)
-      .order("id", { ascending: true })
+      .eq('case_kind', caseKind)
+      .order('id', { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
 
-    if (error) throw new Error('Community timelines could not be loaded completely');
+    if (error)
+      throw new Error('Community timelines could not be loaded completely');
     const rows = (data ?? []) as unknown as TimelineRow[];
     all.push(...rows);
     if (rows.length < PAGE_SIZE) return all;
@@ -104,6 +118,8 @@ export async function getCommunityEstimate(
   query: CommunityEstimateQuery
 ): Promise<CommunityEstimateResult> {
   const empty: CommunityEstimateResult = {
+    evidence: null,
+    premiumUpgrade: null,
     prediction: null,
     heatmap: [],
     weeklyTrend: [],
@@ -129,18 +145,22 @@ export async function getCommunityEstimate(
   const loaded = await fetchAllTimelines(supabase, caseKind);
   // Revalidate stored rows as well as new ingestion; no destructive cleanup needed.
   const now = new Date();
-  const data = loaded.map(r => ({ ...r, ...cleanPartnerCase({ ...r, id: 'timeline', type: r.case_kind }, now) }));
-  if (!data.length) return empty;
+  const { rows: data, evidence } = prepareEvidence(loaded, now);
+  if (!data.length) return { ...empty, evidence };
+  const premiumUpgrade = premiumProcessing
+    ? premiumUpgradeStats(data, now)
+    : null;
 
   const rows: TimelineSample[] = data
-    .filter((r) => typeof r.days_to_approval === "number")
+    .filter((r) => typeof r.days_to_approval === 'number')
     .map((r) => ({
       days_to_approval: r.days_to_approval as number,
       approve_date: r.approve_date,
       init_date: r.init_date,
-      service_center: (r.service_center ?? null) as TimelineSample["service_center"],
+      service_center: (r.service_center ??
+        null) as TimelineSample['service_center'],
       premium_processing: Boolean(r.premium_processing),
-      case_kind: r.case_kind as TimelineSample["case_kind"],
+      case_kind: r.case_kind as TimelineSample['case_kind'],
     }));
 
   const { samples, matchLevel } = selectCohort(rows, {
@@ -157,7 +177,6 @@ export async function getCommunityEstimate(
     serviceCenter,
     premiumProcessing,
   });
-
 
   // Trend and histogram use the same premium-processing segment as the
   // estimate — mixing PP and regular cases makes both meaningless, since the
@@ -191,5 +210,14 @@ export async function getCommunityEstimate(
   }));
   const stages = buildJourneyStages(stageRows, { premiumProcessing });
 
-  return { prediction, heatmap, weeklyTrend, histogram, similarFiling, stages };
+  return {
+    prediction,
+    heatmap,
+    weeklyTrend,
+    histogram,
+    similarFiling,
+    stages,
+    evidence,
+    premiumUpgrade,
+  };
 }

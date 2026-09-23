@@ -1,4 +1,5 @@
-import { EMAIL } from "./email-brand";
+import { EMAIL } from './email-brand';
+import { buildCaseActionPlan } from '@/lib/case-status/case-action-plan';
 import {
   buildTransactionalEmail,
   emailBodySectionClose,
@@ -6,14 +7,14 @@ import {
   emailPrimaryButton,
   emailTextMuted,
   emailTextP,
-} from "./email-layout";
+} from './email-layout';
 
 function escapeHtml(value: string): string {
   return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 export function buildCaseStatusChangeEmailHtml(args: {
@@ -23,23 +24,27 @@ export function buildCaseStatusChangeEmailHtml(args: {
   new_status: string;
 }): string {
   const base = (
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.trackmyopt.com"
-  ).replace(/\/$/, "");
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://www.trackmyopt.com'
+  ).replace(/\/$/, '');
   const dashUrl = `${base}/dashboard/case-status`;
   const safeName = escapeHtml(args.name);
   const safeReceipt = escapeHtml(args.receipt_number);
   const safeOld = args.old_status ? escapeHtml(args.old_status) : null;
   const safeNew = escapeHtml(args.new_status);
+  const guidance = buildCaseActionPlan({
+    statusText: args.new_status,
+    daysSinceFiled: null,
+  });
   const oldStatusBlock = safeOld
     ? `${emailTextMuted(`<strong>Previous status:</strong> ${safeOld}`)}`
-    : "";
+    : '';
 
   return buildTransactionalEmail({
-    headerTitle: "Case status update",
+    headerTitle: 'Case status update',
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(`Hi ${safeName},`)}
-${emailTextP("Your USCIS case status has been updated:")}
+${emailTextP('Your USCIS case status has been updated:')}
 <div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:20px;margin:0 0 20px 0;">
   <p class="tmo-force-muted" style="margin:0 0 8px 0;color:${EMAIL.textMuted} !important;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Receipt number</p>
   <p class="tmo-force-text" style="margin:0;color:${EMAIL.text} !important;font-size:18px;font-weight:700;font-family:ui-monospace,monospace;">${safeReceipt}</p>
@@ -49,8 +54,11 @@ ${emailTextP("Your USCIS case status has been updated:")}
   <p class="tmo-force-info-text" style="margin:0 0 8px 0;color:#047857 !important;font-size:14px;font-weight:600;">New status</p>
   <p class="tmo-force-text" style="margin:0;color:${EMAIL.text} !important;font-size:17px;font-weight:600;">${safeNew}</p>
 </div>
-${emailPrimaryButton(dashUrl, "View full status")}
-${emailTextMuted("We&rsquo;ll keep monitoring your case and notify you of future changes.")}
+${emailPrimaryButton(dashUrl, 'View full status')}
+${emailTextP(`<strong>What this means</strong><br>${escapeHtml(guidance.summary)}`)}
+${emailTextP(`<strong>What to do next</strong><br>${escapeHtml(guidance.nextStep)}`)}
+${emailTextMuted('The official USCIS notice controls. This summary is informational, not legal advice.')}
+${emailTextMuted('We&rsquo;ll keep monitoring your case and notify you of future changes.')}
 ${emailTextMuted(
   `<a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Manage notifications</a>`
 )}
@@ -59,4 +67,4 @@ ${emailBodySectionClose()}`,
 }
 
 export const CASE_STATUS_CHANGE_SUBJECT_PREFIX =
-  "TrackMyOPT — USCIS case status update — ";
+  'TrackMyOPT — USCIS case status update — ';

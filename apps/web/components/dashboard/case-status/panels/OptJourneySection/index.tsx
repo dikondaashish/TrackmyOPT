@@ -1,20 +1,25 @@
-"use client";
+'use client';
 
-import { Route } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { MilestoneTimeline, buildMilestones } from "./MilestoneTimeline";
-import { EadStemCards } from "./EadStemCards";
-import { DsoDeadlineManager } from "./DsoDeadlineManager";
+import { Route } from 'lucide-react';
+import { useState } from 'react';
+import Link from 'next/link';
+import { getStemFilingWindow } from '@/lib/immigration/opt-calculations';
+import type { SavedDates } from './SavedOptDates';
+import { EmploymentContext } from './EmploymentContext';
+import { Card } from '@/components/ui/card';
+import { MilestoneTimeline, buildMilestones } from './MilestoneTimeline';
+import { EadStemCards } from './EadStemCards';
+import { DsoDeadlineManager } from './DsoDeadlineManager';
 import { SavedOptDates } from './SavedOptDates';
 import {
   buildOptComplianceActions,
   type OptComplianceAction,
-} from "@/lib/case-status/opt-compliance-actions";
+} from '@/lib/case-status/opt-compliance-actions';
 import {
   normalizeFilingCategory,
   type FilingCategory,
-} from "@/lib/case-status/filing-category";
-import { useClientDate } from "@/hooks/useClientDate";
+} from '@/lib/case-status/filing-category';
+import { useClientDate } from '@/hooks/useClientDate';
 
 interface OptJourneySectionProps {
   filingCategory?: FilingCategory | string | null;
@@ -43,17 +48,36 @@ export function OptJourneySection({
   dsoTasks,
 }: OptJourneySectionProps) {
   const normalizedCategory = normalizeFilingCategory(filingCategory);
-  const isStemExtension = normalizedCategory === "stem_extension";
+  const isStemExtension = normalizedCategory === 'stem_extension';
   // Client-only date — null during SSR/hydration to avoid error #418.
   const clientNow = useClientDate();
-  const milestones = buildMilestones(optFiledDate, eadProjected, stemWindowOpens, stemFiled, clientNow);
-  const tasks = dsoTasks ?? buildOptComplianceActions({
-    uscisFiledDate: optFiledDate,
-    employmentChangeDate,
-    stemStartDate,
-    stemEndDate,
-    now: clientNow ?? undefined,
-  });
+  const [saved, setSaved] = useState<SavedDates | null>(null);
+  const [savedEmploymentChange, setSavedEmploymentChange] = useState<
+    string | null
+  >(null);
+  const savedWindow = saved?.opt_ead_end_date
+    ? getStemFilingWindow(
+        saved.opt_ead_end_date,
+        saved.stem_dso_recommendation_date
+      )
+    : null;
+  const windowOpens = stemWindowOpens ?? savedWindow?.earliestFile ?? null;
+  const milestones = buildMilestones(
+    optFiledDate,
+    eadProjected,
+    windowOpens,
+    stemFiled,
+    clientNow
+  );
+  const tasks =
+    dsoTasks ??
+    buildOptComplianceActions({
+      uscisFiledDate: optFiledDate,
+      employmentChangeDate: employmentChangeDate ?? savedEmploymentChange,
+      stemStartDate: stemStartDate ?? saved?.stem_start_date,
+      stemEndDate,
+      now: clientNow ?? undefined,
+    });
 
   return (
     <Card className="p-5 sm:p-6 border-0 shadow-lg">
@@ -64,25 +88,39 @@ export function OptJourneySection({
         </div>
         <div>
           <h2 className="text-base font-bold text-foreground">
-            {isStemExtension ? "STEM OPT Journey" : "OPT Journey"}
+            {isStemExtension ? 'STEM OPT Journey' : 'OPT Journey'}
           </h2>
           <p className="text-xs text-muted-foreground">
             {isStemExtension
-              ? "Your STEM extension filing and what comes next"
-              : "Your F-1 → OPT → STEM → H-1B timeline"}
+              ? 'Your STEM extension filing and what comes next'
+              : 'Your F-1 → OPT → STEM → H-1B timeline'}
           </p>
         </div>
       </div>
 
       {/* Milestone timeline */}
       <MilestoneTimeline milestones={milestones} />
-      <SavedOptDates />
+      <SavedOptDates onLoaded={setSaved} />
+      <EmploymentContext onChangeDate={setSavedEmploymentChange} />
+      {savedWindow && (
+        <p className="mt-3 text-sm text-muted-foreground">
+          STEM filing window from your saved dates: {savedWindow.earliestFile}{' '}
+          to {savedWindow.hardDeadline}. Confirm eligibility and your
+          recommendation date with your DSO.{' '}
+          <Link
+            href="/dashboard/opt-dates#employment"
+            className="text-blue-600 underline"
+          >
+            Review employment and reminder settings
+          </Link>
+        </p>
+      )}
 
       {/* EAD + Cap-gap cards */}
       <EadStemCards
         filingCategory={normalizedCategory}
         eadProjected={eadProjected}
-        stemWindowOpens={stemWindowOpens}
+        stemWindowOpens={windowOpens}
         capGapActive={capGapActive}
       />
 

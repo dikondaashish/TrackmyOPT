@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { calendarDateISO } from '@/lib/immigration/calendar-days';
 import {
   formatDisplayDateNoon,
   parseValidDate,
@@ -16,14 +17,20 @@ const FIELDS = [
   ['stem_start_date', 'STEM start'],
 ] as const;
 
-type SavedDates = Partial<Record<(typeof FIELDS)[number][0], string | null>>;
+export type SavedDates = Partial<
+  Record<(typeof FIELDS)[number][0], string | null>
+>;
 type LoadState = {
   status: 'loading' | 'error' | 'ready';
   data: SavedDates | null;
 };
 
 /** Display the same saved dates used by OPT Tools, without inferring legal status. */
-export function SavedOptDates() {
+export function SavedOptDates({
+  onLoaded,
+}: {
+  onLoaded?: (dates: SavedDates | null) => void;
+}) {
   const [state, setState] = useState<LoadState>({
     status: 'loading',
     data: null,
@@ -38,15 +45,28 @@ export function SavedOptDates() {
         if (!response.ok) throw new Error('Dates unavailable');
         const body = await response.json();
         if (!body.ok) throw new Error('Dates unavailable');
-        if (!controller.signal.aborted)
+        return body;
+      })
+      .then((body) => {
+        if (!controller.signal.aborted) {
           setState({ status: 'ready', data: body.data ?? null });
+          const normalized = Object.fromEntries(
+            FIELDS.map(([key]) => [
+              key,
+              typeof body.data?.[key] === 'string'
+                ? calendarDateISO(body.data[key])
+                : null,
+            ])
+          );
+          onLoaded?.(normalized);
+        }
       })
       .catch(() => {
         if (!controller.signal.aborted)
           setState({ status: 'error', data: null });
       });
     return () => controller.abort();
-  }, []);
+  }, [onLoaded]);
 
   const dates = FIELDS.filter(([key]) => parseValidDate(state.data?.[key]));
   return (
@@ -79,7 +99,10 @@ export function SavedOptDates() {
         </p>
       ) : (
         <>
-          <dl data-ph-mask className="ph-mask mt-2 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 lg:grid-cols-3">
+          <dl
+            data-ph-mask
+            className="ph-mask mt-2 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 lg:grid-cols-3"
+          >
             {dates.map(([key, label]) => (
               <div key={key}>
                 <dt className="text-xs text-muted-foreground">{label}</dt>

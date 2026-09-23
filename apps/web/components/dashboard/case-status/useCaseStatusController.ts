@@ -6,14 +6,14 @@ import { isSupabaseRealtimeSupported } from '@/lib/supabase/realtime-supported';
 import {
   caseLimitMessage,
   getCaseTrackingLimit,
-} from "@/lib/case-status/case-limits";
+} from '@/lib/case-status/case-limits';
 import {
   findRfeDate,
   PACKAGING_NOTICE_DISMISS_KEY,
   selectActiveCase,
   type CaseStatus,
-} from "@/components/dashboard/case-status/case-status-section-helpers";
-import { daysSinceEpochMs } from "@/lib/case-status/safe-dates";
+} from '@/components/dashboard/case-status/case-status-section-helpers';
+import { daysSinceEpochMs } from '@/lib/case-status/safe-dates';
 import { getServiceCenterLocation } from '@/lib/case-status/case-status-display';
 import {
   DEFAULT_FILING_CATEGORY,
@@ -30,7 +30,7 @@ import {
   STALE_STATUS_UPSELL_SESSION_KEY,
   CHECKOUT_UPSELL_TRIGGER,
   type CheckoutUpsellTrigger,
-} from "@/lib/case-status/free-change-wedge";
+} from '@/lib/case-status/free-change-wedge';
 import {
   CASE_INSIGHT_PROMPT_DELAY_MS,
   CASE_INSIGHT_PROMPT_SESSION_KEY,
@@ -42,27 +42,36 @@ import {
   captureCaseStatusCheckCompletedClient,
   captureFilingCategoryUpdated,
   captureUpgradePromptShown,
-} from "@/lib/posthog-client";
-import { getReceiptPrefix } from "@/lib/posthog/uscis-status-category";
-import { requestNpsSurvey } from "@/lib/posthog/nps-survey";
-import { validateReceiptNumber } from "@/lib/uscis/receipt-number-validation";
+} from '@/lib/posthog-client';
+import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
+import { requestNpsSurvey } from '@/lib/posthog/nps-survey';
+import { validateReceiptNumber } from '@/lib/uscis/receipt-number-validation';
 import {
   normalizeStatusHistory,
   withNormalizedStatusHistory,
-} from "@/lib/case-status/normalize-status-history";
-import { deriveCaseState } from "@/components/dashboard/case-status/panels/StickyCaseSwitcher";
-import { useClientDate } from "@/hooks/useClientDate";
-import { PRODUCT_CTAS } from "@/lib/messaging/product-copy";
-import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
-import type { ProcessingHistogram } from "@/lib/community-opt/estimate";
-import type { CommunityEstimate, CommunitySummary } from "@/lib/community-opt/types";
-import type { SimilarFilingPeers } from "@/lib/community-opt/similar-filing";
-import type { JourneyStages } from "@/lib/community-opt/stages";
-import { resolvePpClockState } from "@/lib/case-status/premium-processing";
+} from '@/lib/case-status/normalize-status-history';
+import { deriveCaseState } from '@/components/dashboard/case-status/panels/StickyCaseSwitcher';
+import { useClientDate } from '@/hooks/useClientDate';
+import { PRODUCT_CTAS } from '@/lib/messaging/product-copy';
+import type { WeeklyTrendPoint } from '@/lib/community-opt/weekly-trend';
+import type { ProcessingHistogram } from '@/lib/community-opt/estimate';
+import type {
+  CommunityEstimate,
+  CommunitySummary,
+} from '@/lib/community-opt/types';
+import type { SimilarFilingPeers } from '@/lib/community-opt/similar-filing';
+import type { JourneyStages } from '@/lib/community-opt/stages';
+import type {
+  CommunityEvidence,
+  PremiumUpgradeStats,
+} from '@/lib/community-opt/evidence';
+import { resolvePpClockState } from '@/lib/case-status/premium-processing';
 
 export function useCaseStatusController() {
-  const [receiptNumber, setReceiptNumber] = useState("");
-  const [filingCategory, setFilingCategory] = useState<FilingCategory>(DEFAULT_FILING_CATEGORY);
+  const [receiptNumber, setReceiptNumber] = useState('');
+  const [filingCategory, setFilingCategory] = useState<FilingCategory>(
+    DEFAULT_FILING_CATEGORY
+  );
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
   const [communityPrediction, setCommunityPrediction] =
     useState<CommunityEstimate | null>(null);
@@ -81,7 +90,12 @@ export function useCaseStatusController() {
   const [communityStages, setCommunityStages] = useState<JourneyStages | null>(
     null
   );
-  const [communityEstimateLoading, setCommunityEstimateLoading] = useState(false);
+  const [communityEstimateLoading, setCommunityEstimateLoading] =
+    useState(false);
+  const [communityEvidence, setCommunityEvidence] = useState<{
+    evidence: CommunityEvidence | null;
+    premiumUpgrade: PremiumUpgradeStats | null;
+  } | null>(null);
   const [trackedCases, setTrackedCases] = useState<CaseStatus[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [isAddingCase, setIsAddingCase] = useState(false);
@@ -96,10 +110,10 @@ export function useCaseStatusController() {
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [proIntroEligible, setProIntroEligible] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
-  const [pricingModalPlan, setPricingModalPlan] = useState<"pro" | "dedicated">(
-    "pro"
+  const [pricingModalPlan, setPricingModalPlan] = useState<'pro' | 'dedicated'>(
+    'pro'
   );
-  const [notificationEmail, setNotificationEmail] = useState("");
+  const [notificationEmail, setNotificationEmail] = useState('');
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
@@ -112,17 +126,19 @@ export function useCaseStatusController() {
   // ISS-030: explicit load error so UI can distinguish "no case" vs "couldn't load"
   const [loadError, setLoadError] = useState<string | null>(null);
   const [wedgeDismissed, setWedgeDismissed] = useState(false);
-  const [packagingNoticeDismissed, setPackagingNoticeDismissed] = useState(true);
+  const [packagingNoticeDismissed, setPackagingNoticeDismissed] =
+    useState(true);
   const [showManualRefreshUpsell, setShowManualRefreshUpsell] = useState(false);
   const [showStaleStatusUpsell, setShowStaleStatusUpsell] = useState(false);
   const [showCaseInsightUpgrade, setShowCaseInsightUpgrade] = useState(false);
   const caseInsightPromptHandledRef = useRef(false);
   const pendingReceiptInsightRef = useRef(false);
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
-  const [filingDateInput, setFilingDateInput] = useState("");
+  const [filingDateInput, setFilingDateInput] = useState('');
   const [filingDateSaving, setFilingDateSaving] = useState(false);
   const [filingCategorySaving, setFilingCategorySaving] = useState(false);
-  const [filingCategoryPromptDismissed, setFilingCategoryPromptDismissed] = useState(false);
+  const [filingCategoryPromptDismissed, setFilingCategoryPromptDismissed] =
+    useState(false);
 
   const showStatusChangeWedge = useMemo(() => {
     if (wedgeDismissed || isPremium !== false || !caseStatus) return false;
@@ -142,12 +158,12 @@ export function useCaseStatusController() {
   }, []);
 
   const openDedicatedModal = useCallback(() => {
-    setPricingModalPlan("dedicated");
+    setPricingModalPlan('dedicated');
     setShowPricingModal(true);
     captureUpgradePromptShown({
-      trigger: "case_status_attorney_access",
-      source: "case_status_page",
-      plan_suggested: "dedicated",
+      trigger: 'case_status_attorney_access',
+      source: 'case_status_page',
+      plan_suggested: 'dedicated',
     });
   }, []);
 
@@ -181,7 +197,7 @@ export function useCaseStatusController() {
           hasCase: Boolean(caseStatus),
           hasResolvedStatus: Boolean(
             caseStatus?.current_status &&
-            caseStatus.current_status !== 'Status will be fetched shortly...'
+              caseStatus.current_status !== 'Status will be fetched shortly...'
           ),
           competingPromptOpen:
             showPricingModal || showStatusChangeWedge || showCaseInsightUpgrade,
@@ -240,7 +256,7 @@ export function useCaseStatusController() {
       hasCase: Boolean(caseStatus),
       hasResolvedStatus: Boolean(
         caseStatus?.current_status &&
-        caseStatus.current_status !== 'Status will be fetched shortly...'
+          caseStatus.current_status !== 'Status will be fetched shortly...'
       ),
       competingPromptOpen:
         showPricingModal ||
@@ -292,7 +308,7 @@ export function useCaseStatusController() {
   useEffect(() => {
     try {
       setPackagingNoticeDismissed(
-        window.localStorage.getItem(PACKAGING_NOTICE_DISMISS_KEY) === "1"
+        window.localStorage.getItem(PACKAGING_NOTICE_DISMISS_KEY) === '1'
       );
     } catch {
       setPackagingNoticeDismissed(false);
@@ -301,18 +317,20 @@ export function useCaseStatusController() {
 
   useEffect(() => {
     if (isPremium !== false || !caseStatus?.last_checked_at) return;
-    if (!shouldShowStaleStatusUpsell(caseStatus.last_checked_at, isPremium)) return;
+    if (!shouldShowStaleStatusUpsell(caseStatus.last_checked_at, isPremium))
+      return;
     try {
-      if (sessionStorage.getItem(STALE_STATUS_UPSELL_SESSION_KEY) === "1") return;
-      sessionStorage.setItem(STALE_STATUS_UPSELL_SESSION_KEY, "1");
+      if (sessionStorage.getItem(STALE_STATUS_UPSELL_SESSION_KEY) === '1')
+        return;
+      sessionStorage.setItem(STALE_STATUS_UPSELL_SESSION_KEY, '1');
     } catch {
       /* ignore */
     }
     setShowStaleStatusUpsell(true);
     captureUpgradePromptShown({
       trigger: CHECKOUT_UPSELL_TRIGGER.STALE_STATUS,
-      source: "case_status_page",
-      plan_suggested: "pro",
+      source: 'case_status_page',
+      plan_suggested: 'pro',
     });
   }, [isPremium, caseStatus?.last_checked_at, caseStatus?.id]);
 
@@ -379,7 +397,6 @@ export function useCaseStatusController() {
     loadCaseStatus(true);
     checkPremiumStatus();
     loadUserEmail();
-     
   }, []);
 
   useEffect(() => {
@@ -398,11 +415,11 @@ export function useCaseStatusController() {
       channel = supabase
         .channel(`case-status-realtime-${caseStatus.receipt_number}`)
         .on(
-          "postgres_changes",
+          'postgres_changes',
           {
-            event: "UPDATE",
-            schema: "public",
-            table: "case_status",
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'case_status',
             filter: `receipt_number=eq.${caseStatus.receipt_number}`,
           },
           (payload) => {
@@ -416,12 +433,12 @@ export function useCaseStatusController() {
           }
         )
         .subscribe((status) => {
-          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-            console.warn("Case status realtime unavailable:", status);
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            console.warn('Case status realtime unavailable:', status);
           }
         });
     } catch (error) {
-      console.warn("Case status realtime subscription skipped:", error);
+      console.warn('Case status realtime subscription skipped:', error);
     }
 
     return () => {
@@ -449,6 +466,7 @@ export function useCaseStatusController() {
     }
 
     if (!isOptFilingCategory(caseStatus.filing_category)) {
+      setCommunityEvidence(null);
       setCommunityPrediction(null);
       setCommunitySummary(null);
       setCommunityStages(null);
@@ -472,15 +490,18 @@ export function useCaseStatusController() {
       receipt_prefix: caseStatus.receipt_number.slice(0, 3),
       days: String(days),
     });
-    if (caseStatus.case_type) params.set("case_type", caseStatus.case_type);
-    if (caseStatus.label) params.set("label", caseStatus.label);
+    if (caseStatus.case_type) params.set('case_type', caseStatus.case_type);
+    if (caseStatus.label) params.set('label', caseStatus.label);
     if (caseStatus.filing_category) {
-      params.set("filing_category", caseStatus.filing_category);
+      params.set('filing_category', caseStatus.filing_category);
     }
-    if (caseStatus.pp_start_date) params.set("pp_start", caseStatus.pp_start_date);
-    if (caseStatus.received_date) params.set("received", caseStatus.received_date);
+    if (caseStatus.pp_start_date)
+      params.set('pp_start', caseStatus.pp_start_date);
+    if (caseStatus.received_date)
+      params.set('received', caseStatus.received_date);
 
     setCommunityEstimateLoading(true);
+    setCommunityEvidence(null);
     setCommunityPrediction(null);
     setCommunitySummary(null);
     setCommunityStages(null);
@@ -490,12 +511,14 @@ export function useCaseStatusController() {
     setCommunitySimilarFiling(null);
     void fetch(`/api/case-status/community-estimate?${params}`, {
       signal: controller.signal,
-      credentials: "include",
+      credentials: 'include',
     })
       .then(async (res) => {
         if (!res.ok) return null;
         return res.json() as Promise<{
           ok?: boolean;
+          evidence?: CommunityEvidence | null;
+          premiumUpgrade?: PremiumUpgradeStats | null;
           prediction?: CommunityEstimate | null;
           summary?: CommunitySummary | null;
           stages?: JourneyStages | null;
@@ -507,6 +530,10 @@ export function useCaseStatusController() {
       })
       .then((body) => {
         if (!body || controller.signal.aborted) return;
+        setCommunityEvidence({
+          evidence: body.evidence ?? null,
+          premiumUpgrade: body.premiumUpgrade ?? null,
+        });
         setCommunityPrediction(body.prediction ?? null);
         setCommunitySummary(body.summary ?? null);
         setCommunityStages(body.stages ?? null);
@@ -551,7 +578,7 @@ export function useCaseStatusController() {
       return;
     }
     setFilingCategoryPromptDismissed(
-      sessionStorage.getItem(filingCategoryPromptKey) === "1"
+      sessionStorage.getItem(filingCategoryPromptKey) === '1'
     );
   }, [filingCategoryPromptKey]);
 
@@ -587,7 +614,7 @@ export function useCaseStatusController() {
       });
       if (response.ok) {
         const data = await response.json();
-        setNotificationEmail(data.email || "");
+        setNotificationEmail(data.email || '');
       }
     } catch {
       // Email load failed silently
@@ -634,7 +661,11 @@ export function useCaseStatusController() {
       setLoadError('Could not load your case status.');
       return null;
     } catch (e) {
-      setLoadError(e instanceof Error ? e.message : 'Network error while loading case status.');
+      setLoadError(
+        e instanceof Error
+          ? e.message
+          : 'Network error while loading case status.'
+      );
       return null;
     } finally {
       if (isInitial) setIsInitialLoad(false);
@@ -647,7 +678,7 @@ export function useCaseStatusController() {
 
     const trimmed = receiptNumber.trim().toUpperCase();
     if (!trimmed) {
-      setError("Please enter a receipt number.");
+      setError('Please enter a receipt number.');
       return;
     }
 
@@ -673,10 +704,10 @@ export function useCaseStatusController() {
       setIsSaving(true);
       setIsPolling(true);
 
-      const response = await fetch("/api/case-status", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/case-status', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           receipt_number: validation.normalized,
           notifications_enabled: caseStatus?.notifications_enabled ?? true,
@@ -688,10 +719,10 @@ export function useCaseStatusController() {
       const postResult = await response.json().catch(() => ({}));
       if (!response.ok || !postResult.ok) {
         setError(
-          (typeof postResult.error === "string" && postResult.error) ||
-            "Failed to save receipt number."
+          (typeof postResult.error === 'string' && postResult.error) ||
+            'Failed to save receipt number.'
         );
-        if (postResult.code === "case_limit_reached" && isPremium === false) {
+        if (postResult.code === 'case_limit_reached' && isPremium === false) {
           openProTrialModal();
         }
         return;
@@ -703,7 +734,7 @@ export function useCaseStatusController() {
         if (
           data?.current_status &&
           data.last_checked_at &&
-          data.current_status !== "Status will be fetched shortly..."
+          data.current_status !== 'Status will be fetched shortly...'
         ) {
           break;
         }
@@ -713,7 +744,7 @@ export function useCaseStatusController() {
       const statusResolved = Boolean(
         data?.current_status &&
           data.last_checked_at &&
-          data.current_status !== "Status will be fetched shortly..."
+          data.current_status !== 'Status will be fetched shortly...'
       );
       if (data) {
         setIsEditingReceipt(false);
@@ -731,20 +762,20 @@ export function useCaseStatusController() {
 
       if (wasFirstCase && statusResolved) {
         requestNpsSurvey({
-          trigger: "case_status_first_success",
-          planTier: isPremium === true ? "pro" : "free",
+          trigger: 'case_status_first_success',
+          planTier: isPremium === true ? 'pro' : 'free',
         });
       }
 
       if (!statusResolved) {
         setError(
-          "Status check is taking longer than expected. It will update automatically — please check back shortly."
+          'Status check is taking longer than expected. It will update automatically — please check back shortly.'
         );
       } else {
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch {
-      setError("An error occurred. Please try again.");
+      setError('An error occurred. Please try again.');
     } finally {
       setIsSaving(false);
       setIsPolling(false);
@@ -770,29 +801,32 @@ export function useCaseStatusController() {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
         captureCaseStatusCheckCompletedClient({
-          trigger: "manual",
+          trigger: 'manual',
           receipt_prefix: getReceiptPrefix(caseStatus.receipt_number),
         });
         await loadCaseStatus();
 
-        if (isPremium === false && typeof window !== "undefined") {
+        if (isPremium === false && typeof window !== 'undefined') {
           const prev = parseInt(
-            sessionStorage.getItem(MANUAL_REFRESH_COUNT_SESSION_KEY) || "0",
+            sessionStorage.getItem(MANUAL_REFRESH_COUNT_SESSION_KEY) || '0',
             10
           );
           const count = prev + 1;
-          sessionStorage.setItem(MANUAL_REFRESH_COUNT_SESSION_KEY, String(count));
+          sessionStorage.setItem(
+            MANUAL_REFRESH_COUNT_SESSION_KEY,
+            String(count)
+          );
 
           if (
             count === 2 &&
             !sessionStorage.getItem(MANUAL_REFRESH_UPSELL_SESSION_KEY)
           ) {
-            sessionStorage.setItem(MANUAL_REFRESH_UPSELL_SESSION_KEY, "1");
+            sessionStorage.setItem(MANUAL_REFRESH_UPSELL_SESSION_KEY, '1');
             setShowManualRefreshUpsell(true);
             captureUpgradePromptShown({
               trigger: CHECKOUT_UPSELL_TRIGGER.SECOND_MANUAL_REFRESH,
-              source: "case_status_page",
-              plan_suggested: "pro",
+              source: 'case_status_page',
+              plan_suggested: 'pro',
             });
           }
         }
@@ -825,10 +859,13 @@ export function useCaseStatusController() {
 
     try {
       setIsRemoving(caseId);
-      const response = await fetch(`/api/case-status?id=${encodeURIComponent(caseId)}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `/api/case-status?id=${encodeURIComponent(caseId)}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         await loadCaseStatus(false, nextPreferred);
@@ -839,10 +876,10 @@ export function useCaseStatusController() {
         setIsEditingReceipt(false);
       } else {
         const result = await response.json();
-        setError(result.error || "Failed to remove case.");
+        setError(result.error || 'Failed to remove case.');
       }
     } catch {
-      setError("An error occurred while removing the case.");
+      setError('An error occurred while removing the case.');
     } finally {
       setIsRemoving(null);
     }
@@ -855,17 +892,17 @@ export function useCaseStatusController() {
 
   const handleSetPrimary = async (caseId: string) => {
     try {
-      const response = await fetch("/api/case-status/primary", {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/case-status/primary', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ case_id: caseId }),
       });
       if (response.ok) {
         await loadCaseStatus();
       }
     } catch {
-      setError("Could not update primary case.");
+      setError('Could not update primary case.');
     }
   };
 
@@ -876,7 +913,7 @@ export function useCaseStatusController() {
       return;
     }
     setIsAddingCase(true);
-    setReceiptNumber("");
+    setReceiptNumber('');
     setFilingCategory(DEFAULT_FILING_CATEGORY);
     setError(null);
     setSuccess(false);
@@ -914,17 +951,21 @@ export function useCaseStatusController() {
 
   const handleFilingCategoryUpdate = async (
     next: FilingCategory,
-    source: "confirm_banner" | "case_info" | "enrollment" = "case_info"
+    source: 'confirm_banner' | 'case_info' | 'enrollment' = 'case_info'
   ) => {
-    if (!caseStatus || next === normalizeFilingCategory(caseStatus.filing_category)) return;
+    if (
+      !caseStatus ||
+      next === normalizeFilingCategory(caseStatus.filing_category)
+    )
+      return;
 
     try {
       setFilingCategorySaving(true);
       setError(null);
-      const response = await fetch("/api/case-status/filing-category", {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/case-status/filing-category', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           case_id: caseStatus.id,
           filing_category: next,
@@ -936,10 +977,10 @@ export function useCaseStatusController() {
         captureFilingCategoryUpdated({ filing_category: next, source });
         await loadCaseStatus();
       } else {
-        setError(result.error || "Failed to update filing type.");
+        setError(result.error || 'Failed to update filing type.');
       }
     } catch {
-      setError("An error occurred while updating filing type.");
+      setError('An error occurred while updating filing type.');
     } finally {
       setFilingCategorySaving(false);
     }
@@ -947,17 +988,17 @@ export function useCaseStatusController() {
 
   const handleSaveFilingDate = async () => {
     if (!caseStatus || !filingDateInput) {
-      setError("Please enter a valid filing date.");
+      setError('Please enter a valid filing date.');
       return;
     }
 
     try {
       setFilingDateSaving(true);
       setError(null);
-      const response = await fetch("/api/case-status/filing-date", {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/case-status/filing-date', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           case_id: caseStatus.id,
           received_date: filingDateInput,
@@ -966,14 +1007,14 @@ export function useCaseStatusController() {
       const result = await response.json();
       if (response.ok && result.ok) {
         await loadCaseStatus();
-        setFilingDateInput("");
+        setFilingDateInput('');
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || "Failed to save filing date.");
+        setError(result.error || 'Failed to save filing date.');
       }
     } catch {
-      setError("An error occurred while saving filing date.");
+      setError('An error occurred while saving filing date.');
     } finally {
       setFilingDateSaving(false);
     }
@@ -997,7 +1038,10 @@ export function useCaseStatusController() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: notificationEmail, toolType: 'case-status' }),
+        body: JSON.stringify({
+          email: notificationEmail,
+          toolType: 'case-status',
+        }),
       });
 
       const result = await response.json();
@@ -1025,7 +1069,10 @@ export function useCaseStatusController() {
   const ppClock =
     clientNowMs !== null &&
     isOptFilingCategory(caseStatus?.filing_category) &&
-    !getFilingCategoryFormMismatch(caseStatus?.filing_category, caseStatus?.case_type)
+    !getFilingCategoryFormMismatch(
+      caseStatus?.filing_category,
+      caseStatus?.case_type
+    )
       ? resolvePpClockState({
           manualPpStart: ppStartDate,
           statusHistory: safeStatusHistory,
@@ -1039,11 +1086,13 @@ export function useCaseStatusController() {
     clientNowMs !== null
       ? daysSinceEpochMs(caseStatus?.received_date, clientNowMs)
       : null;
-  const serviceCenterLocation = getServiceCenterLocation(caseStatus?.receipt_number);
+  const serviceCenterLocation = getServiceCenterLocation(
+    caseStatus?.receipt_number
+  );
 
   const isOptCase = isOptFilingCategory(caseStatus?.filing_category);
   const isStemExtension =
-    normalizeFilingCategory(caseStatus?.filing_category) === "stem_extension";
+    normalizeFilingCategory(caseStatus?.filing_category) === 'stem_extension';
 
   const formTypeMismatch = getFilingCategoryFormMismatch(
     caseStatus?.filing_category,
@@ -1095,6 +1144,7 @@ export function useCaseStatusController() {
     isRefreshing,
     notificationEmail,
     communityPrediction,
+    communityEvidence,
     communitySummary,
     communityStages,
     communityHeatmap,

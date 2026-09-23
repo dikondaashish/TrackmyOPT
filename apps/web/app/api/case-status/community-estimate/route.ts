@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getUserId } from "@/lib/auth/get-user-id";
-import { getCommunityEstimate } from "@/lib/community-opt/get-estimate";
-import { redactStagesForFree } from "@/lib/community-opt/stages";
-import { getActiveUserPlanTier } from "@/lib/premium/user-plan-tier";
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserId } from '@/lib/auth/get-user-id';
+import { getCommunityEstimate } from '@/lib/community-opt/get-estimate';
+import { redactStagesForFree } from '@/lib/community-opt/stages';
+import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /**
  * Matched community processing-time estimate for the case-status Estimate tab.
@@ -26,39 +26,43 @@ export async function GET(req: NextRequest) {
     const userId = await getUserId(req);
     if (!userId) {
       return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
+        { ok: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
     const sp = req.nextUrl.searchParams;
-    const daysRaw = sp.get("days");
+    const daysRaw = sp.get('days');
     const daysSinceFiled = daysRaw ? Number(daysRaw) : 0;
 
     const [planTier, result] = await Promise.all([
       getActiveUserPlanTier(userId),
       getCommunityEstimate({
-        receiptPrefix: sp.get("receipt_prefix")?.slice(0, 3),
-        caseType: sp.get("case_type"),
-        label: sp.get("label"),
-        filingCategory: sp.get("filing_category"),
-        ppStartDate: sp.get("pp_start"),
-        receivedDate: sp.get("received"),
+        receiptPrefix: sp.get('receipt_prefix')?.slice(0, 3),
+        caseType: sp.get('case_type'),
+        label: sp.get('label'),
+        filingCategory: sp.get('filing_category'),
+        ppStartDate: sp.get('pp_start'),
+        receivedDate: sp.get('received'),
         daysSinceFiled: Number.isFinite(daysSinceFiled) ? daysSinceFiled : 0,
       }),
     ]);
 
     const headers = {
       // Varies by plan, so it must never land in a shared cache.
-      "Cache-Control": "private, max-age=300, stale-while-revalidate=600",
+      'Cache-Control': 'private, max-age=300, stale-while-revalidate=600',
     };
 
-    if (planTier === "free") {
+    if (planTier === 'free') {
       const { prediction, stages } = result;
       return NextResponse.json(
         {
           ok: true,
           planTier,
+          evidence: result.evidence,
+          premiumUpgrade: result.premiumUpgrade
+            ? { ...result.premiumUpgrade, p25Days: null, p75Days: null }
+            : null,
           // The headline wait, with nothing that positions this user inside it.
           summary: prediction
             ? {
@@ -85,6 +89,8 @@ export async function GET(req: NextRequest) {
       {
         ok: true,
         planTier,
+        evidence: result.evidence,
+        premiumUpgrade: result.premiumUpgrade,
         summary: result.prediction
           ? {
               medianDays: result.prediction.medianDays,
@@ -105,9 +111,9 @@ export async function GET(req: NextRequest) {
       { headers }
     );
   } catch (error) {
-    console.error("community-estimate error:", error);
+    console.error('community-estimate error:', error);
     return NextResponse.json(
-      { ok: false, error: "Failed to load community estimate" },
+      { ok: false, error: 'Failed to load community estimate' },
       { status: 500 }
     );
   }

@@ -1,6 +1,12 @@
 'use client';
 
 import { useId } from 'react';
+import { ComparisonEvidence } from './ComparisonEvidence';
+import { OfficialProcessingComparison } from './OfficialProcessingComparison';
+import type {
+  CommunityEvidence,
+  PremiumUpgradeStats,
+} from '@/lib/community-opt/evidence';
 import {
   BarChart3,
   BarChartHorizontal,
@@ -31,6 +37,9 @@ import { isoWeekStart } from '@/lib/community-opt/weekly-trend';
 type ComparisonId = 'prediction' | 'trend' | 'spread' | 'heatmap';
 
 interface AnalyticsPanelsProps {
+  evidence?: CommunityEvidence | null;
+  premiumUpgrade?: PremiumUpgradeStats | null;
+  currentStatus?: string | null;
   receiptNumber: string;
   isPremium: boolean | null;
   onUpgrade: () => void;
@@ -209,6 +218,9 @@ function ProcessingHeatmap({
 }
 
 export function AnalyticsPanels({
+  evidence,
+  premiumUpgrade,
+  currentStatus,
   isPremium,
   onUpgrade,
   daysSinceFiled = 0,
@@ -233,6 +245,12 @@ export function AnalyticsPanels({
   // payload, so showing the paid panels here would only render them empty.
   const isPro = isPremium === true;
   const upgrade = isPremium === false ? onUpgrade : undefined;
+  const postApproval = ['approved', 'card_produced', 'delivered'].includes(
+    phase
+  );
+  const closedWithoutApproval = /denied|withdraw|revoked|terminated/i.test(
+    currentStatus ?? ''
+  );
 
   const renderAnalyticsPanel = (panel: ComparisonId) => {
     switch (panel) {
@@ -327,13 +345,37 @@ export function AnalyticsPanels({
     <div>
       <div className="mb-4">
         <h2 className="text-lg font-semibold tracking-tight">
-          How your wait compares
+          {postApproval
+            ? 'After your decision'
+            : closedWithoutApproval
+              ? 'Historical comparisons'
+              : 'How your wait compares'}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Historical reports, not your place in a USCIS queue.
         </p>
       </div>
-      {!estimatesAvailable ? (
+      {postApproval || closedWithoutApproval ? (
+        <div className="rounded-xl bg-muted/40 p-4 text-sm">
+          <p>
+            {closedWithoutApproval
+              ? 'Review your official decision notice and next steps above. An approval-wait estimate no longer applies to this status.'
+              : phase === 'delivered'
+                ? 'Your card is reported delivered. Check the name and authorization dates on your EAD, save a copy, and update your OPT dates and employment records.'
+                : 'Your case has moved beyond the approval wait. The card timings below describe completed community reports, not a delivery promise.'}
+          </p>
+          {postApproval && phase !== 'delivered' && (
+            <JourneyStagesCard
+              stages={stages}
+              phase={phase}
+              isPro={isPro}
+              premiumProcessing={premiumProcessing}
+              caseKind={caseKind}
+              onUpgrade={upgrade}
+            />
+          )}
+        </div>
+      ) : !estimatesAvailable ? (
         <p className="text-sm text-muted-foreground py-4">
           Community approval-time estimates are available for Initial OPT and
           STEM OPT cases. Status tracking still works for all USCIS forms.
@@ -406,6 +448,16 @@ export function AnalyticsPanels({
       {/* State the data-source and USCIS disclaimer once below all four charts,
           keeping it beside the results without repeating it in every panel. */}
       <div className="mt-6 pt-4 border-t border-border">
+        <ComparisonEvidence
+          evidence={evidence}
+          premiumUpgrade={premiumUpgrade}
+        />
+        {estimatesAvailable && (
+          <OfficialProcessingComparison
+            medianDays={prediction?.medianDays ?? summary?.medianDays}
+            premium={premiumProcessing}
+          />
+        )}
         <p className="text-[11px] text-muted-foreground leading-relaxed">
           Community charts use partner-reported timelines (opt-tracker,
           opt-pulse) shared with permission. TrackMyOPT benchmarks are

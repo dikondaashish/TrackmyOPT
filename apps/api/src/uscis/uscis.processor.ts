@@ -141,6 +141,9 @@ export class UscisProcessor {
           .from('case_status')
           .update({
             last_check_failed_at: new Date().toISOString(),
+            last_check_error_code: 'CHECK_RETRIES_EXHAUSTED',
+            last_check_error_message:
+              'Automatic check could not complete after retries. Try a manual refresh.',
             updated_at: new Date().toISOString(),
           })
           .eq('receipt_number', receiptNumber)
@@ -261,6 +264,8 @@ export class UscisProcessor {
         received_date: result.receivedDate,
         last_checked_at: new Date().toISOString(),
         last_check_failed_at: null,
+        last_check_error_code: null,
+        last_check_error_message: null,
         consecutive_failures: 0,
         status_history: statusHistory,
         change_log: existingChangelog,

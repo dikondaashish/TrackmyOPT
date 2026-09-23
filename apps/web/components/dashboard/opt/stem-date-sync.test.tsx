@@ -251,7 +251,9 @@ describe('STEM apply tool', () => {
     await screen.findByLabelText(/STEM DSO Recommendation Date/);
     const today = new Date();
     const localISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    expect(daysBetween).toHaveBeenLastCalledWith(localISO, '2027-04-30');
+    await waitFor(() =>
+      expect(daysBetween).toHaveBeenLastCalledWith(localISO, '2027-04-30')
+    );
   });
   it('labels pending work authorization without cap-gap terminology', async () => {
     render(<StemApplyTool />);
