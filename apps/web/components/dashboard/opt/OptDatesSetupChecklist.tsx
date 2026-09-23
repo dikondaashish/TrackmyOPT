@@ -49,23 +49,21 @@ export function OptDatesSetupChecklist({
 
   if (allDone) {
     return (
-      <section className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-blue-50 px-4 py-4 shadow-sm dark:border-emerald-900 dark:from-emerald-950/40 dark:via-card dark:to-blue-950/30 sm:px-5">
-        <div
-          aria-hidden="true"
-          className="absolute inset-y-0 left-0 w-1 bg-emerald-500"
-        />
+      <section
+        aria-label="Setup complete"
+        className="rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-4 dark:border-emerald-900 dark:bg-emerald-950/20 sm:px-5"
+      >
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300">
             <CheckCircle2 className="h-5 w-5" />
           </span>
           <div>
             <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">
-              Setup complete — your OPT dates and employment history are
-              tracked.
+              Your tracking is set up
             </p>
             <p className="mt-0.5 text-xs leading-5 text-emerald-900/75 dark:text-emerald-200/80">
-              Check the summary above anytime. Update jobs when you change
-              employers.
+              Dates and employment history saved. Keep your jobs updated when
+              you change employers.
             </p>
           </div>
         </div>

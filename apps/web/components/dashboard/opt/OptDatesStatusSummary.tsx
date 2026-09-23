@@ -10,12 +10,11 @@ interface OptDatesStatusSummaryProps {
 
 const toneStyles = {
   neutral:
-    'border-blue-100 bg-gradient-to-br from-white via-white to-blue-50/70 dark:border-blue-950 dark:from-card dark:via-card dark:to-blue-950/30',
-  good: 'border-emerald-200 bg-gradient-to-br from-white via-emerald-50/60 to-emerald-100/70 dark:border-emerald-900 dark:from-card dark:via-emerald-950/20 dark:to-emerald-950/40',
+    'border-blue-200/70 bg-blue-50/70 dark:border-blue-900 dark:bg-blue-950/30',
+  good: 'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30',
   warning:
-    'border-amber-200 bg-gradient-to-br from-white via-amber-50/60 to-orange-50/70 dark:border-amber-900 dark:from-card dark:via-amber-950/20 dark:to-orange-950/30',
-  critical:
-    'border-red-200 bg-gradient-to-br from-white via-red-50/60 to-rose-100/70 dark:border-red-900 dark:from-card dark:via-red-950/20 dark:to-rose-950/30',
+    'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30',
+  critical: 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30',
 };
 
 const valueStyles = {
@@ -70,15 +69,11 @@ function StatCard({
   const content = (
     <div
       className={cn(
-        'group relative h-full overflow-hidden rounded-2xl border p-4 shadow-sm transition-[border-color,box-shadow,background-color] duration-200 sm:p-5',
+        'group flex h-full min-w-0 flex-col rounded-2xl border p-5 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none sm:p-6',
         toneStyles[tone],
         href && 'cursor-pointer hover:border-primary/30 hover:shadow-md'
       )}
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-blue-400 to-cyan-400 opacity-80"
-      />
       <div className="mb-5 flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5 text-muted-foreground">
           <span
@@ -89,41 +84,49 @@ function StatCard({
           >
             {icon}
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em]">
-            {label}
-          </span>
+          <span className="text-sm font-semibold text-foreground">{label}</span>
         </div>
         {href && (
           <ArrowUpRight
             aria-hidden="true"
-            className="mt-1 h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="mt-1 h-4 w-4 text-muted-foreground"
           />
         )}
       </div>
-      <p
+      <div
         className={cn(
-          'text-2xl font-bold tracking-[-0.03em] sm:text-[1.65rem]',
+          'text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl',
           valueStyles[tone]
         )}
       >
-        {value}
-      </p>
+        {progress ? (
+          <>
+            {progress.used}
+            <span className="ml-2 text-base font-medium text-muted-foreground">
+              / {progress.total} days used
+            </span>
+          </>
+        ) : (
+          value
+        )}
+      </div>
       <p className="mt-1.5 text-sm font-medium leading-5 text-muted-foreground">
         {detail}
       </p>
       {progress && (
         <div
-          className="mt-4"
+          className="mt-5"
           role="progressbar"
           aria-label={`${label} days used`}
           aria-valuemin={0}
           aria-valuemax={progress.total}
-          aria-valuenow={progress.used}
+          aria-valuenow={Math.min(progress.used, progress.total)}
+          aria-valuetext={`${progress.used} of ${progress.total} unemployment days used. ${detail}.`}
         >
-          <div className="h-1.5 overflow-hidden rounded-full bg-foreground/10">
+          <div className="h-2 overflow-hidden rounded-full bg-foreground/10">
             <div
               className={cn(
-                'h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none',
+                'h-full rounded-full',
                 tone === 'critical'
                   ? 'bg-red-500'
                   : tone === 'warning'
@@ -135,6 +138,12 @@ function StatCard({
           </div>
         </div>
       )}
+      {href && (
+        <span className="mt-auto flex items-center gap-1.5 pt-4 text-xs font-semibold text-foreground">
+          View employment history{' '}
+          <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+        </span>
+      )}
     </div>
   );
 
@@ -142,7 +151,7 @@ function StatCard({
     return (
       <a
         href={href}
-        className="block rounded-2xl no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="block min-w-0 rounded-2xl no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label={`${label}: ${value}. ${detail}. Open employment history.`}
       >
         {content}
@@ -160,7 +169,7 @@ export function OptDatesStatusSummary({ status }: OptDatesStatusSummaryProps) {
   return (
     <section
       aria-label="OPT status overview"
-      className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+      className="grid grid-cols-1 gap-3 lg:grid-cols-[1.2fr_1fr_1fr]"
     >
       <StatCard
         icon={<Clock className="h-4 w-4" />}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, CalendarDays, ChevronDown, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -481,27 +481,24 @@ export function OptDatesSection() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 pb-4 sm:px-6">
       {/* Header */}
-      <header className="relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 px-5 py-6 shadow-sm dark:border-blue-950 dark:from-blue-950/40 dark:via-card dark:to-cyan-950/20 sm:px-7 sm:py-8">
-        <div
-          aria-hidden="true"
-          className="absolute -right-16 -top-24 h-52 w-52 rounded-full bg-primary/10 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -bottom-16 right-1/4 h-32 w-32 rounded-full bg-cyan-400/10 blur-3xl"
-        />
-        <div className="relative max-w-2xl">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            OPT compliance workspace
+      <header className="flex items-center justify-between gap-5 rounded-2xl bg-blue-800 px-5 py-6 text-blue-50 dark:bg-blue-950 sm:px-7 sm:py-7">
+        <div className="max-w-2xl">
+          <p className="mb-2 text-xs font-medium tracking-wide text-blue-200">
+            Your OPT timeline
           </p>
-          <h1 className="text-2xl font-bold tracking-[-0.03em] text-slate-950 dark:text-white sm:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             OPT Dates
           </h1>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
+          <p className="mt-2 text-sm leading-6 text-blue-100">
             Track filing windows, OPT dates, and employment history in one
             place.
           </p>
         </div>
+        <CalendarDays
+          aria-hidden="true"
+          strokeWidth={1.25}
+          className="hidden h-14 w-14 shrink-0 text-blue-200 sm:block"
+        />
       </header>
 
       <OptDatesStatusSummary status={statusSnapshot} />
@@ -514,17 +511,21 @@ export function OptDatesSection() {
           <p>{statusSnapshot.unemploymentWarning}</p>
         </div>
       )}
-      <div className="flex gap-2.5 rounded-xl border border-border bg-muted/35 px-3.5 py-3 text-xs leading-5 text-muted-foreground">
-        <ShieldCheck
-          aria-hidden="true"
-          className="mt-0.5 h-4 w-4 shrink-0 text-primary"
-        />
-        <p>
+      <details className="group rounded-xl border border-border bg-muted/25 text-xs leading-5 text-muted-foreground">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-xl px-4 py-3 font-medium text-foreground outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+          <Info aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />
+          How your days are counted
+          <ChevronDown
+            aria-hidden="true"
+            className="ml-auto h-4 w-4 shrink-0 group-open:rotate-180"
+          />
+        </summary>
+        <p className="max-w-[75ch] px-4 pb-4">
           Calendar-day estimate through today, including weekends. Job start and
           end dates count as employed. Only qualifying employment stops the
           clock; confirm your records and status with your DSO.
         </p>
-      </div>
+      </details>
 
       <OptDatesSetupChecklist
         status={statusSnapshot}
