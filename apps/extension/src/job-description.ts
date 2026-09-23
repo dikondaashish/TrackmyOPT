@@ -1,4 +1,4 @@
-export type JobDescriptionSource = 'frame' | 'specific' | 'outer' | 'listing';
+export type JobDescriptionSource = 'structured' | 'frame' | 'specific' | 'outer' | 'listing';
 
 export interface JobDescriptionCandidate {
   source: JobDescriptionSource;
@@ -6,6 +6,7 @@ export interface JobDescriptionCandidate {
 }
 
 const SOURCE_PRIORITY: Record<JobDescriptionSource, number> = {
+  structured: 5,
   listing: 4,
   frame: 3,
   specific: 2,
@@ -24,7 +25,7 @@ export function chooseJobDescriptionCandidate(
       ...candidate,
       text: candidate.text.replace(/\r\n/g, '\n').trim(),
     }))
-    .filter((candidate) => candidate.text.length > 200)
+    .filter((candidate) => looksLikeRealJobPostingText(candidate.text))
     .sort(
       (a, b) =>
         SOURCE_PRIORITY[b.source] - SOURCE_PRIORITY[a.source] ||
@@ -264,13 +265,19 @@ export function looksLikeApplicationFormText(text: string): boolean {
 
 export function looksLikeRealJobPostingText(text: string): boolean {
   const normalized = text.replace(/\s+/g, ' ').trim();
-  if (normalized.length < 400) return false;
+  if (normalized.length < 200) return false;
+  // A fetched SPA shell is not a posting. Length alone never establishes quality.
+  if (/@keyframes\b|<\/?(?:script|style)\b|\b(?:window|document)\.[a-z]+\s*[=(]/i.test(normalized)) return false;
+  const cssDeclarations = normalized.match(/\b(?:display|overflow|align-items|justify-content|animation[\w-]*|border[\w-]*|font[\w-]*|opacity|height|width)\s*:\s*[^;{}]+[;}]/gi);
+  if ((cssDeclarations?.length ?? 0) >= 2) return false;
+  if (/enable javascript|checking your browser|verify you are human|access denied/i.test(normalized)) return false;
   if (looksLikeApplicationFormText(normalized)) return false;
   const postingHits = REAL_POSTING_MARKERS.reduce(
     (count, re) => count + (re.test(normalized) ? 1 : 0),
     0,
   );
-  return postingHits >= 1 || normalized.length >= 1200;
+  const roleSignals = [/\bexperience\b/i, /\bskills?\b/i, /\bteam\b/i, /\b(?:responsible|develop|build|manage|support|design|analyze)\b/i, /\b(?:salary|benefits|compensation)\b/i];
+  return postingHits >= 1 || roleSignals.filter(re => re.test(normalized)).length >= 3;
 }
 
 /**
@@ -286,10 +293,20 @@ export function shouldFetchListingJobDescription(
   if (listingUrl) return true;
   // Some portals keep the same URL for apply steps; still recover when the
   // on-page scrape is clearly form chrome.
-  return looksLikeApplicationFormText(scrapedText);
+  return !looksLikeRealJobPostingText(scrapedText);
 }
 
 /** Stable cache key for a posting (listing URL when on apply). */
 export function jobDescriptionCacheKey(pageUrl: string): string {
-  return deriveJobListingUrl(pageUrl) || pageUrl.split('#')[0] || pageUrl;
+  try {
+    const url = new URL(deriveJobListingUrl(pageUrl) || pageUrl);
+    url.hash = '';
+    url.pathname = url.pathname.replace(/\/+$/, '') || '/';
+    // Keep requisition/job query IDs; strip only known attribution parameters.
+    for (const key of [...url.searchParams.keys()]) {
+      if (/^(?:utm_.*|jr_id|gh_src|source|ref|referrer|trackingId)$/i.test(key)) url.searchParams.delete(key);
+    }
+    url.searchParams.sort();
+    return url.toString();
+  } catch { return ''; }
 }

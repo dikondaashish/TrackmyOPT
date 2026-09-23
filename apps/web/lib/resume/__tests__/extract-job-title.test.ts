@@ -48,7 +48,7 @@ describe("buildResumePdfFilename", () => {
             jobDescription: "Role: Senior Data Analyst",
             jobTitle: null,
         });
-        expect(filename).toBe("resume_Jane_Smith_Senior_Data_Analyst.pdf");
+        expect(filename).toBe("Jane_Smith_Resume_Senior_Data_Analyst.pdf");
     });
 
     it("includes name from \\def\\name and role from \\def\\role", () => {
@@ -58,7 +58,7 @@ describe("buildResumePdfFilename", () => {
             jobDescription: "",
             jobTitle: null,
         });
-        expect(filename).toBe("resume_Jane_Smith_Senior_Data_Analyst.pdf");
+        expect(filename).toBe("Jane_Smith_Resume_Senior_Data_Analyst.pdf");
     });
 
     it("extracts role from latex def", () => {

@@ -30,15 +30,19 @@ export function createDatePicker(
     animation: slideDown 0.2s ease;
   `;
 
-  // Add animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
+  // Add animation once per popup document. Reopening a picker should not
+  // accumulate duplicate style tags.
+  if (!document.getElementById('tmo-date-picker-styles')) {
+    const style = document.createElement('style');
+    style.id = 'tmo-date-picker-styles';
+    style.textContent = `
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   function renderCalendar() {
     picker.innerHTML = '';
@@ -55,7 +59,9 @@ export function createDatePicker(
     `;
 
     const prevBtn = document.createElement('button');
-    prevBtn.innerHTML = '↑';
+    prevBtn.type = 'button';
+    prevBtn.setAttribute('aria-label', 'Previous month');
+    prevBtn.textContent = '‹';
     prevBtn.style.cssText = `
       width: 32px;
       height: 32px;
@@ -90,10 +96,12 @@ export function createDatePicker(
       font-size: 14px;
       color: var(--ink);
     `;
-    monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: var(--muted);">▼</span>`;
+    monthYear.textContent = `${getMonthName(currentMonth)} ${currentYear}`;
 
     const nextBtn = document.createElement('button');
-    nextBtn.innerHTML = '↓';
+    nextBtn.type = 'button';
+    nextBtn.setAttribute('aria-label', 'Next month');
+    nextBtn.textContent = '›';
     nextBtn.style.cssText = `
       width: 32px;
       height: 32px;
@@ -167,6 +175,10 @@ export function createDatePicker(
     // Previous month's trailing days
     for (let i = firstDay - 1; i >= 0; i--) {
       const dayBtn = document.createElement('button');
+      dayBtn.type = 'button';
+      dayBtn.disabled = true;
+      dayBtn.tabIndex = -1;
+      dayBtn.setAttribute('aria-hidden', 'true');
       dayBtn.textContent = String(prevMonthDays - i);
       dayBtn.style.cssText = `
         width: 100%;
@@ -184,6 +196,7 @@ export function createDatePicker(
     // Current month's days
     for (let day = 1; day <= daysInMonth; day++) {
       const dayBtn = document.createElement('button');
+      dayBtn.type = 'button';
       dayBtn.textContent = String(day);
 
       const isToday =
@@ -196,8 +209,8 @@ export function createDatePicker(
         aspect-ratio: 1;
         border: 0;
         border-radius: 8px;
-        background: ${isToday ? '#3b82f6' : 'transparent'};
-        color: ${isToday ? 'white' : 'var(--ink)'};
+        background: ${isToday ? 'var(--accent)' : 'transparent'};
+        color: ${isToday ? 'var(--tmo-color-on-accent)' : 'var(--ink)'};
         font-size: 12px;
         font-weight: ${isToday ? '700' : '500'};
         cursor: pointer;
@@ -230,6 +243,10 @@ export function createDatePicker(
     const remainingCells = 42 - (firstDay + daysInMonth);
     for (let i = 1; i <= remainingCells; i++) {
       const dayBtn = document.createElement('button');
+      dayBtn.type = 'button';
+      dayBtn.disabled = true;
+      dayBtn.tabIndex = -1;
+      dayBtn.setAttribute('aria-hidden', 'true');
       dayBtn.textContent = String(i);
       dayBtn.style.cssText = `
         width: 100%;
@@ -257,13 +274,15 @@ export function createDatePicker(
     `;
 
     const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.setAttribute('aria-label', 'Clear date');
     clearBtn.textContent = 'Clear';
     clearBtn.style.cssText = `
       padding: 6px 12px;
       border: 0;
       border-radius: 6px;
       background: transparent;
-      color: #3b82f6;
+      color: var(--accent);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
@@ -283,13 +302,15 @@ export function createDatePicker(
     });
 
     const todayBtn = document.createElement('button');
+    todayBtn.type = 'button';
+    todayBtn.setAttribute('aria-label', 'Use today\'s date');
     todayBtn.textContent = 'Today';
     todayBtn.style.cssText = `
       padding: 6px 12px;
       border: 0;
       border-radius: 6px;
       background: transparent;
-      color: #3b82f6;
+      color: var(--accent);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;

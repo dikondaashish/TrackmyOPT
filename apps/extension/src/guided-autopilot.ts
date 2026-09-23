@@ -28,7 +28,7 @@ function normalizeLabel(value: string): string {
 }
 
 function controlLabel(element: HTMLElement): string {
-  if (element instanceof HTMLInputElement) return normalizeLabel(element.value);
+  if (element.tagName === 'INPUT') return normalizeLabel((element as HTMLInputElement).value);
   return normalizeLabel(
     element.getAttribute('aria-label') ||
       element.getAttribute('title') ||
@@ -38,6 +38,7 @@ function controlLabel(element: HTMLElement): string {
 }
 
 function visiblyAvailable(element: HTMLElement): boolean {
+  if (!element.isConnected || element.closest('[hidden],[inert],[aria-hidden="true"],[aria-disabled="true"]') || element.matches(':disabled')) return false;
   if (
     element.hidden ||
     element.getAttribute('aria-hidden') === 'true' ||
@@ -48,8 +49,10 @@ function visiblyAvailable(element: HTMLElement): boolean {
   if ('disabled' in element && (element as HTMLButtonElement).disabled) {
     return false;
   }
-  const style = window.getComputedStyle(element);
-  if (style.display === 'none' || style.visibility === 'hidden') return false;
+  for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+    const style = element.ownerDocument.defaultView!.getComputedStyle(node);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+  }
   const isJsdom =
     /jsdom/i.test(element.ownerDocument.defaultView?.navigator.userAgent || '');
   if (!isJsdom && element.getClientRects().length === 0) return false;
@@ -66,11 +69,27 @@ export function runGuidedNavigation(
   root: ParentNode = document,
   alreadyClicked: WeakSet<HTMLElement> = new WeakSet()
 ): GuidedNavigationResult {
+  // A populated login or registration form is never a safe navigation step.
+  if (Array.from(root.querySelectorAll<HTMLElement>('input[type="password"]')).some(visiblyAvailable)) {
+    return { outcome: 'no_safe_control' };
+  }
+  if (root.querySelector('.tmo-smart-answer-note[data-review-state="pending"],.tmo-smart-answer-note[data-review-state="needs-review"]')) {
+    return {outcome:'stopped_review_step'};
+  }
+  // This scanner cannot prove completeness through embedded documents or
+  // custom shadow-hosted forms. Leave their navigation to the applicant.
+  if (Array.from(root.querySelectorAll<HTMLElement>('*')).some(element =>
+    (element.tagName === 'IFRAME' || element.shadowRoot) && visiblyAvailable(element))) {
+    return { outcome: 'no_safe_control' };
+  }
   const required = countVisibleUnansweredRequiredFields(root);
-  if (required > 0) {
+  const invalid = Array.from(root.querySelectorAll<HTMLElement>('input,select,textarea,[aria-invalid]'))
+    .filter(control => visiblyAvailable(control) && (control.getAttribute('aria-invalid') === 'true' ||
+      ('validity' in control && !(control as HTMLInputElement).validity.valid))).length;
+  if (required > 0 || invalid > 0) {
     return {
       outcome: 'blocked_required_fields',
-      unansweredRequiredCount: required,
+      unansweredRequiredCount: Math.max(required, invalid),
     };
   }
 
@@ -80,48 +99,67 @@ export function runGuidedNavigation(
       : (root as HTMLElement).innerText || root.textContent || ''
   );
   if (FINAL_PAGE_RE.test(pageText)) return { outcome: 'stopped_final_step' };
+  if (Array.from(root.querySelectorAll<HTMLElement>('h1,h2,h3,[role="heading"],[aria-current="step"]'))
+    .some(heading => visiblyAvailable(heading) && REVIEW_RE.test(normalizeLabel(heading.textContent || '')))) {
+    return { outcome: 'stopped_review_step' };
+  }
 
   const controls = Array.from(
     root.querySelectorAll<HTMLElement>(
       'button,input[type="button"],input[type="submit"],[role="button"]'
     )
-  ).filter((control) => visiblyAvailable(control) && !alreadyClicked.has(control));
+  ).filter(visiblyAvailable);
 
+  // Check every visible control before allowing any click, regardless of DOM
+  // order. Accessible and visible labels must not hide a final-action signal.
   for (const control of controls) {
+    const labels = [controlLabel(control), normalizeLabel(control.textContent || ''),
+      normalizeLabel(control.getAttribute('title') || '')];
     const label = controlLabel(control);
-    if (!label) continue;
-    if (FINAL_ACTION_RE.test(label)) {
+    if (labels.some(text => FINAL_ACTION_RE.test(text))) {
       return { outcome: 'stopped_final_step', label };
     }
-    if (REVIEW_RE.test(label)) {
+    if (labels.some(text => REVIEW_RE.test(text))) {
       return { outcome: 'stopped_review_step', label };
     }
+  }
+  const safe = controls.filter(control => {
+    if (alreadyClicked.has(control)) return false;
+    const label = controlLabel(control);
+    const text = normalizeLabel(control.textContent || '');
+    if (text && text !== label && !SAFE_NEXT_RE.test(text) && !SAFE_DONE_RE.test(text)) return false;
     if (SAFE_DONE_RE.test(label)) {
       const type =
-        control instanceof HTMLButtonElement || control instanceof HTMLInputElement
-          ? control.type
+        control.tagName === 'BUTTON' || control.tagName === 'INPUT'
+          ? (control as HTMLButtonElement | HTMLInputElement).type
           : '';
       if (type === 'submit') {
-        return { outcome: 'stopped_final_step', label };
+        return false;
       }
-      alreadyClicked.add(control);
-      control.click();
-      return { outcome: 'advanced', label };
+      // Generic Done may finalize an application. Only permit a clearly named
+      // education/experience editor, never an unscoped page-level Done.
+      const editor = control.closest<HTMLElement>('[role="dialog"],[aria-modal="true"]');
+      const editorLabel = editor?.getAttribute('aria-label') || editor?.querySelector('h1,h2,h3')?.textContent || '';
+      return Boolean(editor && /\b(?:education|experience|employment)\b/i.test(editorLabel));
     }
     if (SAFE_NEXT_RE.test(label)) {
       const type =
-        control instanceof HTMLButtonElement || control instanceof HTMLInputElement
-          ? control.type
+        control.tagName === 'BUTTON' || control.tagName === 'INPUT'
+          ? (control as HTMLButtonElement | HTMLInputElement).type
           : '';
       // A submit-typed "Next" is ambiguous: on some ATSs it is the final
       // application submission. Leave it to the user instead of guessing.
       if (type === 'submit') {
-        return { outcome: 'no_safe_control', label };
+        return false;
       }
-      alreadyClicked.add(control);
-      control.click();
-      return { outcome: 'advanced', label };
+      return true;
     }
+    return false;
+  });
+  if (safe.length === 1) {
+    alreadyClicked.add(safe[0]);
+    safe[0].click();
+    return { outcome: 'advanced', label: controlLabel(safe[0]) };
   }
   return { outcome: 'no_safe_control' };
 }

@@ -1,8 +1,9 @@
-import { getIdToken } from '../token-store';
-import { WEBSITE_URL } from '../config.js';
-import { renderPageHeader, setupPageHandlers } from '../navigation.js';
-import { icon } from '../icons.js';
-import { toolSurfaceCard } from '../tool-page-theme.js';
+import { createDatePicker } from './opt-apply-date-picker';
+import { dateField, toolIntro, TOOL_HELP } from '../tool-ui';
+import { addDateInputValidation } from './opt-apply-date-helpers';
+import { loadStemDates, saveStemDates } from './stem-apply-api';
+import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../navigation.js';
+import { calculateStemFilingWindow as calculateSharedStemFilingWindow } from './opt-apply-date-helpers';
 
 /**
  * Format date to mm/dd/yyyy
@@ -15,315 +16,16 @@ function formatDate(date: Date): string {
 }
 
 /**
- * Validate and filter date input - only allow valid mm/dd/yyyy
- */
-function validateDateInput(input: string): string {
-  // Remove any non-digit and non-slash characters
-  let cleaned = input.replace(/[^\d/]/g, '');
-  
-  // Limit to 10 characters (mm/dd/yyyy)
-  cleaned = cleaned.substring(0, 10);
-  
-  // Parse the parts
-  const parts = cleaned.split('/');
-  
-  if (parts.length >= 1 && parts[0].length > 0) {
-    // Validate month (01-12)
-    let month = parseInt(parts[0]);
-    if (month > 12) {
-      parts[0] = '12';
-    } else if (parts[0].length === 2 && month === 0) {
-      parts[0] = '01';
-    }
-    // Limit month to 2 digits
-    parts[0] = parts[0].substring(0, 2);
-  }
-  
-  if (parts.length >= 2 && parts[1].length > 0) {
-    // Validate day based on month
-    let month = parseInt(parts[0]) || 1;
-    let day = parseInt(parts[1]);
-    
-    // Get max days for the month (assume non-leap year for Feb)
-    const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    const maxDay = daysInMonth[month - 1] || 31;
-    
-    if (day > maxDay) {
-      parts[1] = String(maxDay).padStart(2, '0');
-    } else if (parts[1].length === 2 && day === 0) {
-      parts[1] = '01';
-    }
-    // Limit day to 2 digits
-    parts[1] = parts[1].substring(0, 2);
-  }
-  
-  if (parts.length >= 3) {
-    // Limit year to 4 digits
-    parts[2] = parts[2].substring(0, 4);
-  }
-  
-  return parts.join('/');
-}
-
-/**
- * Add real-time validation to date input
- */
-function addDateInputValidation(inputElement: HTMLInputElement): void {
-  inputElement.addEventListener('input', (e) => {
-    const target = e.target as HTMLInputElement;
-    const cursorPosition = target.selectionStart || 0;
-    const oldValue = target.value;
-    const newValue = validateDateInput(oldValue);
-    
-    if (newValue !== oldValue) {
-      target.value = newValue;
-      // Restore cursor position
-      target.setSelectionRange(cursorPosition, cursorPosition);
-    }
-  });
-  
-  inputElement.addEventListener('keypress', (e) => {
-    const char = e.key;
-    // Only allow numbers and forward slash
-    if (!/[\d/]/.test(char) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
-      e.preventDefault();
-    }
-  });
-}
-
-/**
- * Get month name
- */
-function getMonthName(month: number): string {
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                  'July', 'August', 'September', 'October', 'November', 'December'];
-  return months[month];
-}
-
-/**
- * Get days in month
- */
-function getDaysInMonth(year: number, month: number): number {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-/**
- * Get first day of month (0 = Sunday, 6 = Saturday)
- */
-function getFirstDayOfMonth(year: number, month: number): number {
-  return new Date(year, month, 1).getDay();
-}
-
-/**
- * Create date picker calendar
- */
-function createDatePicker(
-  inputId: string, 
-  onSelect: (date: Date) => void
-): HTMLElement {
-  const today = new Date();
-  let currentYear = today.getFullYear();
-  let currentMonth = today.getMonth();
-  
-  const picker = document.createElement('div');
-  picker.style.cssText = `
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 8px;
-    background: var(--surface);
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    padding: 14px;
-    z-index: 1000;
-    animation: slideDown 0.2s ease;
-  `;
-  
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
-  
-  function renderCalendar() {
-    picker.innerHTML = '';
-    
-    const header = document.createElement('div');
-    header.style.cssText = `
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--border);
-    `;
-    
-    const prevBtn = document.createElement('button');
-    prevBtn.innerHTML = '↑';
-    prevBtn.style.cssText = `
-      width: 32px;
-      height: 32px;
-      border: 0;
-      border-radius: 8px;
-      background: var(--surface-2);
-      color: var(--ink);
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: 700;
-      transition: all 0.2s;
-    `;
-    prevBtn.addEventListener('mouseenter', () => { prevBtn.style.background = 'var(--border)'; });
-    prevBtn.addEventListener('mouseleave', () => { prevBtn.style.background = 'var(--surface-2)'; });
-    prevBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      currentMonth--;
-      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-      renderCalendar();
-    });
-    
-    const monthYear = document.createElement('div');
-    monthYear.style.cssText = `font-weight: 700; font-size: 14px; color: var(--ink);`;
-    monthYear.innerHTML = `${getMonthName(currentMonth)} ${currentYear} <span style="font-size: 12px; color: var(--muted);">▼</span>`;
-    
-    const nextBtn = document.createElement('button');
-    nextBtn.innerHTML = '↓';
-    nextBtn.style.cssText = `
-      width: 32px;
-      height: 32px;
-      border: 0;
-      border-radius: 8px;
-      background: var(--surface-2);
-      color: var(--ink);
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: 700;
-      transition: all 0.2s;
-    `;
-    nextBtn.addEventListener('mouseenter', () => { nextBtn.style.background = 'var(--border)'; });
-    nextBtn.addEventListener('mouseleave', () => { nextBtn.style.background = 'var(--surface-2)'; });
-    nextBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      currentMonth++;
-      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-      renderCalendar();
-    });
-    
-    header.appendChild(prevBtn);
-    header.appendChild(monthYear);
-    header.appendChild(nextBtn);
-    picker.appendChild(header);
-    
-    const dayHeaders = document.createElement('div');
-    dayHeaders.style.cssText = `display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px;`;
-    
-    ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
-      const dayHeader = document.createElement('div');
-      dayHeader.textContent = day;
-      dayHeader.style.cssText = `text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); padding: 4px 0;`;
-      dayHeaders.appendChild(dayHeader);
-    });
-    picker.appendChild(dayHeaders);
-    
-    const daysGrid = document.createElement('div');
-    daysGrid.style.cssText = `display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;`;
-    
-    const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
-    const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-    const prevMonthDays = currentMonth === 0 ? getDaysInMonth(currentYear - 1, 11) : getDaysInMonth(currentYear, currentMonth - 1);
-    
-    for (let i = firstDay - 1; i >= 0; i--) {
-      const dayBtn = document.createElement('button');
-      dayBtn.textContent = String(prevMonthDays - i);
-      dayBtn.style.cssText = `width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px; background: transparent; color: var(--border); font-size: 12px; cursor: pointer;`;
-      daysGrid.appendChild(dayBtn);
-    }
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dayBtn = document.createElement('button');
-      dayBtn.textContent = String(day);
-      
-      const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
-      
-      dayBtn.style.cssText = `
-        width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px;
-        background: ${isToday ? '#10b981' : 'transparent'};
-        color: ${isToday ? 'white' : 'var(--ink)'};
-        font-size: 12px; font-weight: ${isToday ? '700' : '500'};
-        cursor: pointer; transition: all 0.15s;
-      `;
-      
-      dayBtn.addEventListener('mouseenter', () => { if (!isToday) dayBtn.style.background = 'var(--surface-2)'; });
-      dayBtn.addEventListener('mouseleave', () => { if (!isToday) dayBtn.style.background = 'transparent'; });
-      
-      const selectedDate = new Date(currentYear, currentMonth, day);
-      dayBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        onSelect(selectedDate);
-        picker.remove();
-      });
-      
-      daysGrid.appendChild(dayBtn);
-    }
-    
-    const remainingCells = 42 - (firstDay + daysInMonth);
-    for (let i = 1; i <= remainingCells; i++) {
-      const dayBtn = document.createElement('button');
-      dayBtn.textContent = String(i);
-      dayBtn.style.cssText = `width: 100%; aspect-ratio: 1; border: 0; border-radius: 8px; background: transparent; color: var(--border); font-size: 12px; cursor: pointer;`;
-      daysGrid.appendChild(dayBtn);
-    }
-    
-    picker.appendChild(daysGrid);
-    
-    const footer = document.createElement('div');
-    footer.style.cssText = `display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);`;
-    
-    const clearBtn = document.createElement('button');
-    clearBtn.textContent = 'Clear';
-    clearBtn.style.cssText = `padding: 6px 12px; border: 0; border-radius: 6px; background: transparent; color: #10b981; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;`;
-    clearBtn.addEventListener('mouseenter', () => { clearBtn.style.background = 'var(--tool-green-surface)'; });
-    clearBtn.addEventListener('mouseleave', () => { clearBtn.style.background = 'transparent'; });
-    clearBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const input = document.getElementById(inputId) as HTMLInputElement;
-      if (input) input.value = '';
-      picker.remove();
-    });
-    
-    const todayBtn = document.createElement('button');
-    todayBtn.textContent = 'Today';
-    todayBtn.style.cssText = `padding: 6px 12px; border: 0; border-radius: 6px; background: transparent; color: #10b981; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;`;
-    todayBtn.addEventListener('mouseenter', () => { todayBtn.style.background = 'var(--tool-green-surface)'; });
-    todayBtn.addEventListener('mouseleave', () => { todayBtn.style.background = 'transparent'; });
-    todayBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      onSelect(today);
-      picker.remove();
-    });
-    
-    footer.appendChild(clearBtn);
-    footer.appendChild(todayBtn);
-    picker.appendChild(footer);
-  }
-  
-  renderCalendar();
-  return picker;
-}
-
-/**
  * Parse mm/dd/yyyy to Date
  */
 function parseDate(dateStr: string): Date | null {
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return null;
   const parts = dateStr.split('/');
   if (parts.length !== 3) return null;
   const month = parseInt(parts[0], 10) - 1;
   const day = parseInt(parts[1], 10);
   const year = parseInt(parts[2], 10);
-  if (isNaN(month) || isNaN(day) || isNaN(year)) return null;
+  if (isNaN(month) || isNaN(day) || isNaN(year) || year < 1) return null;
   const date = new Date(year, month, day);
   if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
     return null;
@@ -332,242 +34,91 @@ function parseDate(dateStr: string): Date | null {
 }
 
 /**
- * Add days to a date
- */
-function addDays(date: Date, days: number): Date {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-}
-
-/**
- * Calculate STEM OPT filing window
- */
-function calculateStemFilingWindow(currentOptEndDate: Date) {
-  const earliestStart = addDays(currentOptEndDate, -90);
-  const latestEnd = currentOptEndDate; // Must file before current OPT expires
-  
-  return {
-    earliestStart,
-    latestEnd,
-    currentOptEndDate
-  };
-}
-
-/**
- * Load saved STEM OPT data from API
- */
-async function loadSavedData(): Promise<any> {
-  try {
-    // Try using session cookies first (if user is logged in on website)
-    let response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-      method: 'GET',
-      credentials: 'include', // Send cookies from website
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // If session cookies failed, try JWT token
-    if (!response.ok) {
-      const idToken = await getIdToken();
-      if (idToken) {
-        response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
-    }
-
-    if (!response.ok) return null;
-    
-    const result = await response.json();
-    return result.ok ? result.data : null;
-  } catch (error) {
-    return null;
-  }
-}
-
-/**
- * Save Current OPT EAD End Date to API
- */
-async function saveOptEadEndDate(optEadEndDate: string | null): Promise<boolean> {
-  try {
-    // First, load existing data to preserve other fields
-    const existingData = await loadSavedData();
-    
-    // Merge: only update opt_ead_end_date, preserve other fields exactly as they are
-    const payload = {
-      program_end_date: existingData?.program_end_date || null,
-      dso_recommendation_date: existingData?.dso_recommendation_date || null,
-      opt_start_date: existingData?.opt_start_date || null,
-      opt_ead_end_date: optEadEndDate,
-      stem_start_date: existingData?.stem_start_date || null,
-      _lastModifiedField: 'opt_ead_end_date', // Tell API this field was updated
-    };
-
-    // Use JWT token for extension → website communication (more reliable than cookies)
-    const idToken = await getIdToken();
-    if (idToken) {
-      const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        return result.ok === true;
-      }
-    }
-
-    // Fallback: try session cookies
-    const response = await fetch(`${WEBSITE_URL}/api/opt/calculator`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const result = await response.json();
-    return result.ok === true;
-  } catch (error) {
-    return false;
-  }
-}
-
-/**
  * Render STEM OPT Apply Start Dates page
  */
-export function renderStemApply(root: HTMLElement, onBack: () => void): void {
+export function renderStemApply(root: HTMLElement, onBack: () => void, restoreCountdown = false): void {
   root.innerHTML = '';
   
-  renderPageHeader(root, 'STEM OPT Dates', 'Calculate your STEM OPT extension filing window');
+  renderPageHeader(root, 'STEM OPT Dates', 'Your extension window');
   
   const content = document.createElement('div');
-  content.style.cssText = 'margin-top: 12px;';
-  
-  // Info card
-  const infoCard = document.createElement('div');
-  infoCard.style.cssText = `
-    padding: 14px;
-    border-radius: 14px;
-    ${toolSurfaceCard('green')};
-    margin-bottom: 12px;
+  content.className = 'tool-content tool-form';
+  content.innerHTML = `
+    ${toolIntro('Filing dates', 'stem-rules-help', TOOL_HELP.stem)}
+    ${dateField('current-opt-end-date', 'Current OPT expires', 'Use the end date on your current OPT EAD card.', 'opt-end-date-picker-btn')}
+    ${dateField('stem-dso-recommendation-date', 'STEM recommendation', 'Optional: use the date your DSO entered the STEM recommendation in SEVIS. Without it, the deadline is an estimate. Calculate to save both dates for your dashboard and reminders.', 'stem-dso-date-picker-btn', true)}
   `;
-  infoCard.innerHTML = `
-    <div style="display: flex; gap: 10px; align-items: start;">
-      <div style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 16px;">
-        ${icon('info', 16, 'currentColor')}
-      </div>
-      <div>
-        <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">STEM OPT Extension Rules</div>
-        <div style="font-size: 12px; line-height: 1.5; opacity: 0.95;">
-          Apply up to 90 days before your current OPT expires. If filed timely, you get automatic 180-day work authorization while your application is pending.
-        </div>
-      </div>
-    </div>
-  `;
-  content.appendChild(infoCard);
-  
-  // Current OPT EAD End Date card
-  const optEndCard = document.createElement('div');
-  optEndCard.style.cssText = `
-    padding: 14px;
-    border-radius: 14px;
-    ${toolSurfaceCard('green')};
-    margin-bottom: 12px;
-    position: relative;
-  `;
-  optEndCard.innerHTML = `
-    <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
-      <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; font-size: 18px;">
-        ${icon('calendar', 20, 'currentColor')}
-      </div>
-      <div style="flex: 1;">
-        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Current OPT EAD End Date</div>
-        <div style="font-size: 11px; opacity: 0.9;">From your OPT Employment Authorization Document</div>
-      </div>
-    </div>
-    <div style="position: relative;">
-      <input 
-        type="text" 
-        id="current-opt-end-date" 
-        placeholder="mm/dd/yyyy"
-        style="
-          width: 100%;
-          padding: 10px 40px 10px 12px;
-          border: 0;
-          border-radius: 10px;
-          background: var(--surface-2);
-          backdrop-filter: blur(10px);
-          color: var(--ink);
-          font-size: 14px;
-          outline: none;
-          font-family: inherit;
-        "
-      />
-      <button 
-        id="opt-end-date-picker-btn"
-        style="
-          position: absolute;
-          right: 8px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 32px;
-          height: 32px;
-          border: 0;
-          border-radius: 8px;
-          background: var(--surface-2);
-          color: var(--ink);
-          cursor: pointer;
-          font-size: 16px;
-          display: grid;
-          place-items: center;
-          transition: all 0.2s;
-        "
-      >${icon('calendar', 16, 'currentColor')}</button>
-    </div>
-  `;
-  content.appendChild(optEndCard);
-  
-  // Calculate button
   const calculateBtn = document.createElement('button');
+  calculateBtn.type = 'button';
+  calculateBtn.className = 'tool-button tool-button-primary';
   calculateBtn.textContent = 'Calculate Filing Window';
-  calculateBtn.style.cssText = `
-    width: 100%;
-    padding: 14px;
-    border: 0;
-    border-radius: 12px;
-    background: var(--tmo-gradient-brand);
-    color: white;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    font-family: inherit;
-  `;
   content.appendChild(calculateBtn);
-  
+  const status = document.createElement('p');
+  status.setAttribute('role', 'status');
+  content.appendChild(status);
+  const retryBtn = document.createElement('button');
+  retryBtn.type = 'button';
+  retryBtn.className = 'tool-button';
+  retryBtn.textContent = 'Retry loading saved dates';
+  retryBtn.hidden = true;
+  content.appendChild(retryBtn);
   root.appendChild(content);
-  
+
+  const optEndInput = content.querySelector<HTMLInputElement>('#current-opt-end-date')!;
+  const stemDsoInput = content.querySelector<HTMLInputElement>('#stem-dso-recommendation-date')!;
+  addDateInputValidation(optEndInput);
+  addDateInputValidation(stemDsoInput);
+  const edited = new Set<HTMLInputElement>();
+  let revision = 0;
+  let loaded = false;
+  let saving = false;
+  for (const input of [optEndInput, stemDsoInput]) {
+    input.addEventListener('input', () => { edited.add(input); revision++; });
+    input.addEventListener('change', () => { edited.add(input); revision++; });
+  }
+
+  async function load(): Promise<void> {
+    calculateBtn.disabled = true;
+    retryBtn.hidden = true;
+    status.textContent = 'Loading saved dates…';
+    const saved = await loadStemDates();
+    if (!root.contains(content)) return;
+    if (!saved) {
+      status.textContent = 'We could not load your saved dates. Retry before saving to keep your existing dates safe.';
+      retryBtn.hidden = false;
+      return;
+    }
+    if (!edited.has(optEndInput)) optEndInput.value = saved.opt_ead_end_date ?? '';
+    if (!edited.has(stemDsoInput)) stemDsoInput.value = saved.stem_dso_recommendation_date ?? '';
+    loaded = true;
+    status.textContent = '';
+    calculateBtn.disabled = false;
+    // Popup restoration uses fresh server dates and never writes a cached snapshot.
+    if (restoreCountdown && revision === 0 && saved.opt_ead_end_date) {
+      const { renderStemCountdown } = await import('./stem-countdown.js');
+      if (!root.contains(content) || revision !== 0) return;
+      const results = calculateSharedStemFilingWindow(
+        parseDate(saved.opt_ead_end_date)!,
+        saved.stem_dso_recommendation_date ? parseDate(saved.stem_dso_recommendation_date) : null,
+      );
+      void renderStemCountdown(root, () => {
+        setCurrentPage('stem-apply');
+        renderStemApply(root, onBack);
+      }, results);
+    }
+  }
+  retryBtn.addEventListener('click', () => { void load(); });
+  void load();
+
   // Date picker event handlers
   const optEndDatePickerBtn = document.getElementById('opt-end-date-picker-btn');
+  const stemDsoPickerBtn = document.getElementById('stem-dso-date-picker-btn');
   
   let activePicker: HTMLElement | null = null;
   
   document.addEventListener('click', (e) => {
     if (activePicker && !activePicker.contains(e.target as Node)) {
-      const isPickerButton = optEndDatePickerBtn?.contains(e.target as Node);
+      const isPickerButton = [optEndDatePickerBtn, stemDsoPickerBtn].some(btn => btn?.contains(e.target as Node));
       if (!isPickerButton) {
         activePicker.remove();
         activePicker = null;
@@ -575,95 +126,91 @@ export function renderStemApply(root: HTMLElement, onBack: () => void): void {
     }
   });
   
-  optEndDatePickerBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    
-    if (activePicker) {
-      activePicker.remove();
-      activePicker = null;
-    }
-    
-    const picker = createDatePicker('current-opt-end-date', (date) => {
-      const input = document.getElementById('current-opt-end-date') as HTMLInputElement;
-      if (input) {
-        input.value = formatDate(date);
-      }
-      activePicker = null;
-    });
-    
-    const container = optEndDatePickerBtn.closest('div[style*="position: relative"]');
-    if (container) {
-      container.appendChild(picker);
+  for (const [button, inputId] of [[optEndDatePickerBtn, 'current-opt-end-date'], [stemDsoPickerBtn, 'stem-dso-recommendation-date']] as const) {
+    button?.addEventListener('click', e => {
+      e.stopPropagation();
+      activePicker?.remove();
+      const picker = createDatePicker(inputId, date => {
+        const input = content.querySelector<HTMLInputElement>('#' + inputId);
+        if (input) {
+          input.value = formatDate(date);
+          edited.add(input);
+          revision++;
+        }
+        activePicker = null;
+      });
+      // The shared picker's Clear button changes the input without firing input/change.
+      picker.addEventListener('click', event => {
+        if (!(event.target as Element).closest('[aria-label="Clear date"]')) return;
+        const input = content.querySelector<HTMLInputElement>('#' + inputId);
+        if (input) {
+          edited.add(input);
+          revision++;
+        }
+        activePicker = null;
+      }, true);
+      button.closest('.tool-input-wrap')?.appendChild(picker);
       activePicker = picker;
-    }
-  });
-  
-  // Hover effect for calendar button
-  if (optEndDatePickerBtn) {
-    optEndDatePickerBtn.addEventListener('mouseenter', () => {
-      optEndDatePickerBtn.style.background = 'var(--surface-2)';
-    });
-    optEndDatePickerBtn.addEventListener('mouseleave', () => {
-      optEndDatePickerBtn.style.background = 'var(--surface-2)';
     });
   }
-  
+
   // Event handlers
   calculateBtn.addEventListener('click', async () => {
-    const optEndInput = document.getElementById('current-opt-end-date') as HTMLInputElement;
+    if (!loaded || saving || !root.contains(content)) return;
     
     const currentOptEndDate = parseDate(optEndInput.value);
     if (!currentOptEndDate) {
       alert('Please enter a valid Current OPT EAD End Date (mm/dd/yyyy)');
       return;
     }
+
+    const dsoText = stemDsoInput.value.trim();
+    const dsoDate = dsoText ? parseDate(dsoText) : null;
+    if (dsoText && !dsoDate) {
+      alert('Please enter a valid STEM DSO Recommendation Date (mm/dd/yyyy)');
+      return;
+    }
     
-    // Save date to API (syncs with website)
-    await saveOptEadEndDate(formatDate(currentOptEndDate));
+    const savedRevision = revision;
+    const savedValues = [optEndInput.value, stemDsoInput.value];
+    saving = true;
+    calculateBtn.disabled = true;
+    calculateBtn.textContent = 'Saving…';
+
+    // Save before opening the countdown so the extension and dashboard remain
+    // in sync.
+    const saved = await saveStemDates({
+      opt_ead_end_date: formatDate(currentOptEndDate),
+      stem_dso_recommendation_date: dsoDate ? formatDate(dsoDate) : null,
+    });
+    if (!root.contains(content)) return;
+    if (!saved) {
+      alert('We could not save these dates. Check your connection and sign in to TrackMyOPT, then try again.');
+      saving = false;
+      calculateBtn.disabled = false;
+      calculateBtn.textContent = 'Calculate Filing Window';
+      return;
+    }
     
-    const results = calculateStemFilingWindow(currentOptEndDate);
+    const results = calculateSharedStemFilingWindow(currentOptEndDate, dsoDate);
     
     // Navigate to STEM countdown page
     const { renderStemCountdown } = await import('./stem-countdown.js');
-    renderStemCountdown(root, onBack, results);
-  });
-  
-  // Input styling on focus
-  const optEndInput = document.getElementById('current-opt-end-date') as HTMLInputElement;
-  
-  if (optEndInput) {
-    // Add real-time date validation
-    addDateInputValidation(optEndInput);
-    
-    optEndInput.addEventListener('focus', (e) => {
-      (e.target as HTMLElement).style.background = 'var(--surface-2)';
-    });
-    optEndInput.addEventListener('blur', async (e) => {
-      (e.target as HTMLElement).style.background = 'var(--surface-2)';
-      // Auto-save on blur
-      const date = parseDate(optEndInput.value);
-      if (date) {
-        await saveOptEadEndDate(formatDate(date));
-      }
-    });
-  }
-  
-  calculateBtn.addEventListener('mouseenter', () => {
-    calculateBtn.style.transform = 'translateY(-1px)';
-    calculateBtn.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-  });
-  
-  calculateBtn.addEventListener('mouseleave', () => {
-    calculateBtn.style.transform = 'translateY(0)';
-    calculateBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-  });
-  
-  // Load saved data on page load
-  loadSavedData().then(savedData => {
-    if (savedData && optEndInput && savedData.opt_ead_end_date) {
-      optEndInput.value = savedData.opt_ead_end_date;
+    if (!root.contains(content)) return;
+    if (revision !== savedRevision || optEndInput.value !== savedValues[0] || stemDsoInput.value !== savedValues[1]) {
+      saving = false;
+      calculateBtn.disabled = false;
+      calculateBtn.textContent = 'Calculate Filing Window';
+      status.textContent = 'Dates changed while saving. Calculate again to save your latest edits.';
+      return;
     }
+    renderStemCountdown(root, () => {
+      setCurrentPage('stem-apply');
+      renderStemApply(root, onBack);
+    }, results);
   });
   
+  // Save only on Calculate: blur must not race a newer two-date submission.
+
   setupPageHandlers(onBack);
 }

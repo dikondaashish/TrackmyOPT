@@ -58,17 +58,17 @@ assert.match(
 );
 assert.match(
   contentScript,
-  /commitSensitiveApproval: \(\{ login, session, binding \}\) => \{[\s\S]*privateApprovalBinding = binding;/,
-  'review confirmation binds the approval to the rendered application',
+  /if \(explicitPrefillClick\)[\s\S]*loadPrivateAnswersForPrefill\(shouldContinue\)[\s\S]*privateApprovalBinding = privateLoad.answers.confirmed \? binding : null/,
+  'the manual Prefill click loads answers and binds them to this application',
 );
 const sensitivePanel = readFileSync(
   resolve('src/job-portal-sensitive-answer-panel.ts'),
   'utf8',
 );
-assert.match(
+assert.doesNotMatch(
   sensitivePanel,
-  /host\.commitSensitiveApproval\(\{[\s\S]*binding: panelApprovalBinding/,
-  'the private-answer panel commits the rendered application binding on approve',
+  /commitSensitiveApproval|GET_PRIVATE_APPLICATION_ANSWERS|Review and use/,
+  'the panel has no separate approval gate and never loads decrypted answers',
 );
 
 console.log(

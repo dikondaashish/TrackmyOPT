@@ -9,40 +9,31 @@ import {
   shouldShowUnemploymentComplianceNumbers,
   type EmploymentSetupAcknowledgment,
 } from "@/lib/immigration/employment-tracking";
+import { calendarDateISO, estimatedStemEndISO, localTodayISO } from './calendar-days';
 
 export interface OptDatesFormData {
-  program_end_date?: string;
-  dso_recommendation_date?: string;
-  opt_start_date?: string;
-  opt_ead_end_date?: string;
-  stem_start_date?: string;
+  program_end_date?: string | null;
+  dso_recommendation_date?: string | null;
+  opt_start_date?: string | null;
+  opt_ead_end_date?: string | null;
+  stem_start_date?: string | null;
+  stem_dso_recommendation_date?: string | null;
+}
+
+/** Convert a complete, valid form date to the shared calculator's ISO format. */
+export function optDateInputToISO(value: string): string | null {
+  const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, month, day, year] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day)) return null;
+  return `${year}-${month}-${day}`;
 }
 
 /** Parse MM/DD/YYYY or ISO date string to local midnight Date. */
 export function parseOptDateInput(value: string | undefined | null): Date | null {
-  if (!value?.trim()) return null;
-  const str = value.trim();
-  const mmddyyyy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (mmddyyyy) {
-    const month = Number(mmddyyyy[1]) - 1;
-    const day = Number(mmddyyyy[2]);
-    const year = Number(mmddyyyy[3]);
-    const d = new Date(year, month, day);
-    if (Number.isNaN(d.getTime())) return null;
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
-  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (iso) {
-    const d = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
-    if (Number.isNaN(d.getTime())) return null;
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
-  const d = new Date(str);
-  if (Number.isNaN(d.getTime())) return null;
-  d.setHours(0, 0, 0, 0);
-  return d;
+  const iso = value ? calendarDateISO(value) : null;
+  return iso ? new Date(`${iso}T00:00:00`) : null;
 }
 
 function toCalcDateString(value: string): string {
@@ -55,7 +46,7 @@ function toCalcDateString(value: string): string {
 }
 
 export function daysBetween(from: Date, to: Date): number {
-  return sharedDaysBetween(from, to);
+  return sharedDaysBetween(localTodayISO(from), localTodayISO(to));
 }
 
 export interface OptDatesStatusSnapshot {
@@ -65,9 +56,12 @@ export interface OptDatesStatusSnapshot {
   clockActive: boolean;
   trackingIncomplete: boolean;
   unemploymentLabel: string;
+  unemploymentMax: 90 | 150;
+  unemploymentWarning: string | null;
   unemploymentDetail: string;
   unemploymentTone: "neutral" | "good" | "warning" | "critical";
   optEndLabel: string;
+  optEndHeading: string;
   optEndDetail: string;
   optEndDaysLeft: number | null;
   filingLabel: string;
@@ -81,13 +75,13 @@ export function buildOptDatesStatusSnapshot(
   savedDates: OptDatesFormData,
   employmentSpanCount: number,
   setupAck: EmploymentSetupAcknowledgment | null,
-  employmentSpans: EmploymentSpan[] = []
+  employmentSpans: EmploymentSpan[] = [],
+  asOfISO = localTodayISO()
 ): OptDatesStatusSnapshot {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = parseOptDateInput(asOfISO)!;
 
-  const hasProgramEnd = !!savedDates.program_end_date?.trim();
-  const hasOptStart = !!savedDates.opt_start_date?.trim();
+  const hasProgramEnd = !!parseOptDateInput(savedDates.program_end_date);
+  const hasOptStart = !!parseOptDateInput(savedDates.opt_start_date);
   const hasEmployment = employmentSpanCount > 0;
   const trackingIncomplete = isEmploymentTrackingIncomplete(
     savedDates.opt_start_date,
@@ -101,6 +95,8 @@ export function buildOptDatesStatusSnapshot(
   );
 
   let unemploymentLabel = "—";
+  let unemploymentMax: 90 | 150 = 90;
+  let unemploymentWarning: string | null = null;
   let unemploymentDetail = "Add OPT start date";
   let unemploymentTone: OptDatesStatusSnapshot["unemploymentTone"] = "neutral";
 
@@ -109,7 +105,7 @@ export function buildOptDatesStatusSnapshot(
       unemploymentLabel = "Setup needed";
       unemploymentDetail = "Add job history below";
       unemploymentTone = "warning";
-    } else if (!savedDates.opt_ead_end_date?.trim()) {
+    } else if (!parseOptDateInput(savedDates.opt_ead_end_date)) {
       unemploymentLabel = "—";
       unemploymentDetail = "Add EAD end date to calculate";
       unemploymentTone = "neutral";
@@ -122,11 +118,15 @@ export function buildOptDatesStatusSnapshot(
         toCalcDateString(savedDates.opt_start_date),
         toCalcDateString(savedDates.opt_ead_end_date),
         spansForCalc,
-        savedDates.stem_start_date ? toCalcDateString(savedDates.stem_start_date) : null
+        parseOptDateInput(savedDates.stem_start_date) ? toCalcDateString(savedDates.stem_start_date!) : null,
+        null,
+        asOfISO
       );
+      unemploymentMax = calc.max;
+      unemploymentWarning = calc.exceededInitialOptCap ? 'Recorded initial OPT unemployment exceeds 90 days. Review your history with your DSO; STEM does not reset earlier days.' : calc.exceededCumulativeCap ? 'Recorded OPT/STEM unemployment exceeds 150 days. Review your history with your DSO.' : null;
       unemploymentLabel = `${calc.used} / ${calc.max}`;
       unemploymentDetail = `${calc.remaining} days remaining`;
-      if (calc.exceededCumulativeCap || calc.exceededInitialOptCap) {
+      if (calc.exceededCumulativeCap || calc.exceededInitialOptCap || calc.remaining === 0) {
         unemploymentTone = "critical";
       } else if (calc.used / calc.max >= 0.75) {
         unemploymentTone = "warning";
@@ -137,18 +137,22 @@ export function buildOptDatesStatusSnapshot(
   }
 
   let optEndLabel = "—";
+  let optEndHeading = 'Initial OPT expires in';
   let optEndDetail = "Not set";
   let optEndDaysLeft: number | null = null;
-  const optEnd = parseOptDateInput(savedDates.opt_ead_end_date);
+  const stemStartISO = savedDates.stem_start_date ? calendarDateISO(savedDates.stem_start_date) : null;
+  const hasStartedStem = !!stemStartISO && stemStartISO <= asOfISO;
+  const optEnd = parseOptDateInput(hasStartedStem ? estimatedStemEndISO(stemStartISO!) : savedDates.opt_ead_end_date);
+  if (hasStartedStem) optEndHeading = 'STEM end estimate';
   if (optEnd) {
     const daysLeft = daysBetween(today, optEnd);
     optEndDaysLeft = daysLeft;
     if (daysLeft < 0) {
       optEndLabel = "Expired";
-      optEndDetail = "EAD end date passed";
+      optEndDetail = hasStartedStem ? 'STEM estimate passed — verify your EAD' : 'Initial OPT EAD end date passed';
     } else {
       optEndLabel = `${daysLeft} days`;
-      optEndDetail = "Until OPT/EAD expires";
+      optEndDetail = hasStartedStem ? 'STEM 24-month estimate — verify your EAD' : 'Until initial OPT EAD expires';
     }
   }
 
@@ -157,7 +161,9 @@ export function buildOptDatesStatusSnapshot(
   let filingTone: OptDatesStatusSnapshot["filingTone"] = "neutral";
   const programEnd = parseOptDateInput(savedDates.program_end_date);
   if (programEnd) {
-    const window = getFilingWindow(toCalcDateString(savedDates.program_end_date!));
+    const programISO = toCalcDateString(savedDates.program_end_date!);
+    const recommendationISO = savedDates.dso_recommendation_date ? calendarDateISO(savedDates.dso_recommendation_date) : null;
+    const window = getFilingWindow(programISO, recommendationISO);
     const earliestFile = parseOptDateInput(window.earliestFile)!;
     const daysUntilOpen = daysBetween(today, earliestFile);
     if (daysUntilOpen > 0) {
@@ -167,7 +173,11 @@ export function buildOptDatesStatusSnapshot(
     } else {
       const hardDeadline = parseOptDateInput(window.hardDeadline)!;
       const daysUntilDeadline = daysBetween(today, hardDeadline);
-      if (daysUntilDeadline >= 0) {
+      if (daysUntilDeadline >= 0 && (!recommendationISO || recommendationISO > asOfISO)) {
+        filingLabel = 'DSO date needed';
+        filingDetail = 'Confirm the actual SEVIS recommendation before filing';
+        filingTone = 'warning';
+      } else if (daysUntilDeadline >= 0) {
         filingLabel = "Open";
         filingDetail =
           daysUntilDeadline <= 14
@@ -179,6 +189,14 @@ export function buildOptDatesStatusSnapshot(
         filingDetail = "Filing deadline passed";
         filingTone = "neutral";
       }
+    }
+    // 91 FR 44976 (effective 2026-09-15) changes filing/admission rules.
+    // We do not collect the I-94/admission/filing facts needed to resolve the
+    // transition. Never present a historical +60-day estimate as permission.
+    if (asOfISO >= '2026-09-15' && getFilingWindow(programISO).hardDeadline >= '2026-09-15') {
+      filingLabel = 'DSO review needed';
+      filingDetail = '2026 rules changed. Confirm your I-94, filing deadline and extension-of-stay requirements with your DSO.';
+      filingTone = 'warning';
     }
   }
 
@@ -192,9 +210,12 @@ export function buildOptDatesStatusSnapshot(
     clockActive,
     trackingIncomplete,
     unemploymentLabel,
+    unemploymentMax,
+    unemploymentWarning,
     unemploymentDetail,
     unemploymentTone,
     optEndLabel,
+    optEndHeading,
     optEndDetail,
     optEndDaysLeft,
     filingLabel,
@@ -212,6 +233,7 @@ export function areOptDatesEqual(a: OptDatesFormData, b: OptDatesFormData): bool
     "opt_start_date",
     "opt_ead_end_date",
     "stem_start_date",
+    "stem_dso_recommendation_date",
   ];
   return keys.every((k) => (a[k] || "").trim() === (b[k] || "").trim());
 }

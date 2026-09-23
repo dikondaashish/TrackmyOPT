@@ -28,6 +28,11 @@ export type ColorToken =
     | 'inkSubtle'
     | 'accent'
     | 'accentStrong'
+    | 'stemAccent'
+    | 'stemAccentStrong'
+    | 'actionFill'
+    | 'stemActionFill'
+    | 'onAction'
     | 'onAccent'
     | 'focusRing'
     | 'overlay'
@@ -49,6 +54,11 @@ export const COLORS: Record<ThemeName, Record<ColorToken, string>> = {
         inkSubtle: '#94a3b8',
         accent: '#2563eb',
         accentStrong: '#1e40af',
+        stemAccent: '#0f766e',
+        stemAccentStrong: '#115e59',
+        actionFill: '#2563eb',
+        stemActionFill: '#0f766e',
+        onAction: '#f6f8fb',
         onAccent: '#ffffff',
         focusRing: 'rgba(37,99,235,0.35)',
         overlay: 'rgba(15,23,42,0.48)',
@@ -71,10 +81,15 @@ export const COLORS: Record<ThemeName, Record<ColorToken, string>> = {
         ink: '#e6eaf2',
         inkMuted: '#8b95a7',
         inkSubtle: '#6b7688',
-        accent: '#5eead4',
+        accent: '#60a5fa',
         accentStrong: '#93c5fd',
+        stemAccent: '#5eead4',
+        stemAccentStrong: '#99f6e4',
+        actionFill: '#2563eb',
+        stemActionFill: '#0f766e',
+        onAction: '#f6f8fb',
         onAccent: '#0d1016',
-        focusRing: 'rgba(94,234,212,0.38)',
+        focusRing: 'rgba(96,165,250,0.38)',
         overlay: 'rgba(2,6,23,0.72)',
         infoSurface: '#152641', infoBorder: '#294b75', infoInk: '#93c5fd',
         successSurface: '#102a22', successBorder: '#215c45', successInk: '#86efac',

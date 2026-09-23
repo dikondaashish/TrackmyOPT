@@ -34,7 +34,7 @@ const STEPS = [
   {
     key: "clockActive" as const,
     label: "Unemployment clock active",
-    hint: "Shows your real compliance count",
+    hint: "Estimates days from your saved records",
     anchor: "#employment",
     isEmployment: true,
   },

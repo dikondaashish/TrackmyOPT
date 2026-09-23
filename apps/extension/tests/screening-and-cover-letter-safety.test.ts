@@ -53,11 +53,13 @@ const coverFunction = attachments.slice(
   attachments.indexOf('export function attachGeneratedCoverLetter'),
 );
 assert.ok(coverFunction.includes('cover\\s*letter|letter\\s*of\\s*interest'));
-assert.ok(coverFunction.includes('resume|cv|portfolio|transcript|photo|certificate'));
+assert.ok(coverFunction.includes('RESUME_FILE_FIELD_RE.test(label)'));
+assert.ok(coverFunction.includes('portfolio|transcript|photo|headshot|certificate'));
 assert.match(
   coverFunction,
-  /if\s*\(input\.files\?\.length\) return 'already_present'/,
+  /tryAttachPdfToInput\(input, file, onAttached\)/,
 );
+assert.match(attachments, /input\.files && input\.files\.length > 0\) return 'already_present'/);
 assert.match(
   coverFunction,
   /attachment\.sourceContentHash !== generatedContentHash/,

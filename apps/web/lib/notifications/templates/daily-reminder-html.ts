@@ -11,6 +11,12 @@ import type { EmailReminderData } from '../email-service';
 import { generateToolSection } from './partials/tool-section';
 
 export function getDailyReminderSubject(tools: EmailReminderData['tools']): string {
+  if (tools.some(t => t.stemFiling?.deadlinePassed)) {
+    return 'TrackMyOPT: STEM filing deadline has passed — contact your DSO';
+  }
+  if (tools.some(t => t.stemFiling?.deadlineIsEstimate)) {
+    return 'TrackMyOPT: STEM filing estimate — confirm your DSO date';
+  }
   const minDays = Math.min(...tools.map(t => t.daysLeft));
 
   if (minDays <= 7) {

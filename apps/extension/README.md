@@ -305,10 +305,92 @@ value the user did not supply.
 Sensitive dropdowns — veteran status, disability, gender, race/ethnicity, visa,
 sponsorship, work authorization, clearance, compensation, DOB, SSN — are
 **never** classified for ordinary prefill regardless of their options. They are
-answerable only through the reviewed private-answer flow, which requires
-explicit per-application confirmation.
+matched separately against the user's saved private answers when they click
+**Prefill this application**; there is no separate approval button. Unknown or
+ambiguous answers and unsupported fields (including SSN) remain untouched.
+Private answers are fetched on each manual click, stay in memory, and may be
+reused by Continuous only within that application after the click. Opening a
+page or the Private answers explanation does not fetch them. Portal credentials
+use a separate credential-only request on the same explicit Prefill click.
+Users review the form before continuing or submitting.
+
+#### Login and create-account prefill
+
+`portal-login-prefill.ts` runs from the popup and sidebar manual Prefill paths.
+It fills saved email, password, and confirmation on supported HTTPS top-level
+career/ATS pages, without a second approval panel. Credentials are not fetched
+on page load, by Continuous, or by resume-ready automatic filling. Child-frame
+credential requests are denied and credentials never join answer/frame payloads.
+Unknown portals must show career URL or applicant/candidate heading evidence.
+Different existing email/password values, reset/change forms, hidden/disabled
+controls, uncertain password fields, TrackMyOPT pages, insecure pages, and
+cross-origin form actions are skipped. Navigation, form replacement, Escape,
+and expired requests cancel delivery. Guided navigation stops on password forms.
+This is broad DOM-based support, not certification of every portal. Embedded
+login frames, SSO, email-only login steps, CAPTCHA and OTP still need manual use.
 
 ### Telling the user what will happen
+
+#### Sidebar stability and portal compatibility
+
+The sidebar reconciles same-job posting/application routes in place, enriches
+late metadata without replacing tool controls, and briefly tolerates an empty
+SPA scrape. Async refreshes cannot restore an older job after navigation.
+Extension-owned mutations are ignored by the page observer; removal of the
+sidebar by the host page still triggers recovery. Busy Prefill/tool opening is
+protected on the same job, while a genuinely different job replaces stale tools.
+
+Tool opening is single-flight with bounded waits. Analysis and resume chooser
+dialogs use the top layer, close on observed URL changes, and ignore stale
+responses. Prefill failures show retry guidance; saved private answers remain
+included only through the explicit Prefill workflow. No action submits a form.
+
+`sidebar-stability.test.ts` and `sidebar-reconcile.test.ts` cover race conditions,
+timeouts, focus semantics, retained DOM/scroll state and posting-to-apply URL
+pairs for Lever, Greenhouse, Workday, Ashby, Workable, iCIMS and SmartRecruiters.
+These are synthetic compatibility checks, not certification of every live ATS.
+Run `node scripts/preview-sidebar-tools.mjs` for Chrome QA with the real sidebar
+and fill engine, synthetic profile/private answers and simulated service replies.
+Live AI/PDF service availability and employer-specific custom controls still
+require release testing; this fixture does not spend credits or submit data.
+
+#### Smart answers on explicit Prefill
+
+Both the sidebar and popup Prefill actions now run `src/smart-answers.ts` after
+profile/private fields. Eligible empty, visible text questions first look for
+an exact saved user answer. Company/role-specific answers are not automatically
+reused across employers. New questions use the existing screening AI endpoint,
+the current job description, and a valid job-scoped generated resume snapshot.
+Without a resume, saved answers still work; new drafts show manual-input guidance.
+
+- The button click starts drafting and insertion, without extra Generate/Insert
+  clicks. Each result is labeled `AI draft · Review` or `Saved answer · Review`.
+- `Remember my answer` explicitly saves the current field text for reuse. AI
+  drafts are not silently saved. Guided navigation pauses at pending/unreviewed
+  smart answers; the user can navigate manually after checking them.
+- No background generation on page load, Continuous, or resume-ready events.
+  Smart answers currently run in the owning document, not inside child frames
+  or shadow-root application controls. The existing profile frame relay is unchanged.
+- Up to eight eligible questions per click, serial requests, existing server
+  quotas, 45-second UI timeout, and per-field attempt deduplication prevent
+  repeated charges on the same mounted form. A timed-out server request may
+  still consume quota. Reload or a new form allows retry.
+- Guard every async response against navigation, changed question text,
+  disabled/hidden/removed controls, user input, and character limits. Sensitive
+  questions, passwords, and unknown personal preferences are never sent to AI.
+- Additional tool-name evidence checks reject unsupported technologies (including
+  dbt/Snowflake) in the extension and server. These are conservative heuristics,
+  not proof that every claim is true; applicants must review all generated text.
+- The stronger server prompt/grounding changes require a web deployment. Local
+  fixture QA uses synthetic responses and does not verify a live provider.
+
+QA: `node scripts/preview-smart-answers.mjs` runs the actual controller with fake
+responses and in-memory sample answer storage; no personal data or AI credits.
+
+Privacy/support source copy now explains one-click private answers and AI drafts
+on explicit Prefill. Owner/legal publication review remains pending; this local
+change does not publish a policy update. Follow the release gate in
+`../../docs/compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md`.
 
 `src/resume-status-row.ts` owns both the status row above the Prefill button and
 the copy for every Prefill control. There are three ways to start a prefill —
@@ -337,14 +419,15 @@ Plan access is intentionally separate from rollout flags:
 
 | Capability | Free | Pro / legacy Dedicated |
 | --- | --- | --- |
-| Manual Step-by-step prefill, history, skills, private-answer review | Included | Included |
+| Manual Step-by-step prefill, history, skills, saved private answers | Included | Included |
 | Continuous filling | Upgrade required | Included |
 | Guided Autopilot | Upgrade required | Included |
-| AI screening drafts | 5/month | Shared 25/day safety cap |
-| AI cover letters | 1/month | Shared 25/day safety cap |
+| AI screening drafts | 2/month | Shared 100/month, 25/day safety cap |
+| AI cover letters | 1/month | Shared 100/month, 25/day safety cap |
 
 All AI allowances are enforced atomically on the server. Extension controls
 also fail closed to Free access when plan status cannot be verified.
+Allowance source: `apps/web/lib/pricing/plan-config.ts` (repository root).
 
 Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 
@@ -352,7 +435,7 @@ Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 | --- | --- | --- |
 | `artifactPrefill` | on | Active artifact and profile prefill |
 | `historyFields` | on | Experience and education fields |
-| `atsAdapters` | on | Conservative Workday/Greenhouse adapters |
+| `atsAdapters` | on | Scoped Workday, Greenhouse, Lever, SmartRecruiters, and Ashby adapters; see the [verification record](../../docs/EXTENSION_PORTAL_COMPATIBILITY.md) for tested limits |
 | `skills` | on | User may opt in to dedicated skills fields |
 | `continuousMode` | on | User may opt in to fill newly loaded steps |
 | `aiScreeningDrafts` | on | Explicit, review-required grounded drafts |
@@ -365,15 +448,17 @@ Every mode keeps the same hard boundaries:
 - never overwrite a non-empty field, existing tag, or existing file;
 - never guess visa, sponsorship, work-authorization, work preferences, EEO,
   compensation, DOB, citizenship, veteran, disability, clearance, or SSN
-  answers; optional saved private answers are encrypted, loaded only into the
-  review panel, and become usable only after explicit confirmation for the
-  current application;
+  answers; optional saved private answers are encrypted and loaded when the
+  user clicks Prefill this application, without a separate approval panel.
+  Matching empty fields can fill, including supported application frames;
+  enabled Continuous mode may reuse these answers within the same application.
+  Review all filled answers before submitting;
 - use only one user-approved default job-portal credential across third-party
   portal hostnames; never use it on a TrackMyOPT page, in a password-change,
   security-answer, financial, SSN, DOB, authentication-code, OTP, MFA, PIN, or
-  uncertain password-type field, or in a child-frame relay; the password stays
-  masked in the review panel and exists only in isolated extension memory
-  during the approved fill;
+  uncertain password-type field, or in a child-frame relay; credentials are
+  requested only by an explicit Prefill click and are never displayed in status
+  messages. The employer page can read them once filled;
 - never click Login, Continue, Next, Create Account, or Submit as part of
   credential filling;
 - never click Add another, Review, Submit, Apply, Finish, or another final
@@ -382,11 +467,75 @@ Every mode keeps the same hard boundaries:
 - never place resume, question, answer, employer, school, title, URL, hash, or
   PDF content in analytics or `chrome.storage.sync`.
 
+## OPT tool regression verification
+
+Run `pnpm --dir apps/extension test` for unit and DOM regression tests, and
+`pnpm --dir apps/extension test:opt-browser` for isolated headless Google Chrome
+form tests (Chrome must be installed; override the Playwright channel with
+`OPT_TEST_BROWSER`). The browser suite blocks external requests and mocks Chrome
+storage/auth and API responses; it never changes a real account.
+
+Coverage includes digit-by-digit date entry, invalid leap dates, field-scoped
+saves after failed loads, save failures, navigation during save, delayed autosave,
+Modify returning to the same tool, STEM recommendation deadlines, expired and
+unopened windows, and sign-out cleanup. Browser flows run in New York, Los Angeles,
+Kolkata, and UTC. These checks do **not** replace loaded-extension authentication,
+service-worker, restart, or live API release checks below.
+
+STEM filing uses the earlier of EAD expiration and 60 days after the STEM DSO
+recommendation. Without that recommendation date the UI labels the result an
+estimate. The STEM recommendation is saved separately as
+`opt_status.stem_dso_recommendation_date` through `/api/opt/calculator`.
+The extension, dashboard STEM tool, OPT Dates form, and reminder emails use it.
+Clearing the field explicitly saves `null`; initial OPT recommendations remain
+unchanged. Reopening a STEM countdown reloads server dates instead of trusting
+its cached snapshot. Failed loads/saves do not silently clear saved dates.
+Missing recommendations remain EAD-only estimates. Daily reminders and enrollment
+emails distinguish the effective filing deadline from EAD expiry; passed
+recommendation deadlines ask the user to consult their DSO.
+Requires database migration `20260922140251_add_stem_dso_recommendation_date.sql`
+and coordinated web/extension publication; local source changes alone are not a
+published release.
+Countdowns are local calendar-day estimates, not guarantees of USCIS receipt time.
+Rule reference: [USCIS I-765 instructions](https://www.uscis.gov/sites/default/files/document/forms/i-765instr-feerule.pdf).
+
 ## Chrome Web Store release checklist
+
+### First-install product tour
+
+`tour.html` is packaged with the extension. A new install records pending
+onboarding in local storage. The first successful extension sign-in/token save
+opens the tour; token refreshes, later sign-ins, and updates do not relaunch it.
+Closing the tab does not repeatedly interrupt the user. The popup's **Product
+tour** button explicitly restarts the tour and reuses its open tab if present.
+
+Seven sections cover profile setup, interactive Prefill, a prepared tailored
+resume and AI explanation, a practice tracker, OPT tools, STEM tools, and links
+to real setup/case status/help. A non-modal spotlight highlights one feature
+per section with a short coach mark and consistent **Back / Next / Skip**
+controls. Clicking Next alone completes the tour; demo actions are optional.
+The coach follows scrolling/resizing, docks on narrow screens, and cleans up
+on Skip/Finish. Highlighted controls remain usable. Skip, Back, section navigation, progress resume,
+keyboard focus, reduced motion, and light/dark themes are supported. Completion
+and dismissal are installation-scoped, not tied to an account identifier.
+
+The Prefill example calls the production contact engine with fictional data.
+Other demonstrations are labeled samples, not real generation or legal
+calculations. The page's CSP blocks network connections and form submissions.
+Demo controls never fetch private answers, create a resume, spend AI credits,
+write a tracker entry, or submit an application. Only bounded chapter/status
+progress is saved; setup links leave the demo and open the real dashboard.
+
+Local preview: run `npm run build` then `node scripts/preview-tour.mjs` from
+`apps/extension`. Open `http://127.0.0.1:59765/tour.html`; `/responsive` contains
+a 390px dark-theme iframe. Preview mode does not persist progress. Automated
+tests exercise packaged progress, the worker's install/token trigger, and
+sender restrictions. Before Store release, also verify a fresh-profile install,
+real sign-in, browser restart, Skip, and replay on the packaged extension.
 
 ### Code and packaging
 
-- [x] Package and manifest versions match at `0.1.19`.
+- [x] Package and manifest versions match at `0.2.0`.
 - [x] Production is the default target in `src/config.ts`; localhost requires
   the explicit `EXT_TARGET=local` build.
 - [x] Run the complete web, extension, and API test suites.
@@ -408,11 +557,11 @@ click Submit.
 | Workday | Explicit prefill with a fresh matching artifact | Empty contact/history fields fill; empty Resume/CV accepts the matching PDF | [ ] |
 | Workday | Existing field values and resume upload | All existing values/files remain unchanged | [ ] |
 | Workday | Multi-record history | Visible records keep company/title/date boundaries; no Add another click | [ ] |
-| Workday | Manager/referral-company and sensitive questions | Manager/referral traps stay blank; only exact reviewed private answers fill eligible empty sensitive controls | [ ] |
+| Workday | Manager/referral-company and sensitive questions | Manager/referral traps stay blank; Prefill fills eligible empty sensitive controls from matching saved answers without a separate approval | [ ] |
 | Workday | 30-minute expiry or URL/company/role change | Artifact is rejected; profile-only/regenerate guidance appears | [ ] |
 | Greenhouse | Explicit prefill with a fresh matching artifact | Empty native contact/history fields fill; empty Resume/CV accepts the PDF | [ ] |
 | Greenhouse | Custom dropdown, tag editor, existing file/value | Unsupported or populated controls stay unchanged | [ ] |
-| Greenhouse | Sensitive screening and EEO fields | AI never receives them; only exact answers approved for this application may fill | [ ] |
+| Greenhouse | Sensitive screening and EEO fields | AI never receives them; an explicit Prefill click loads matching saved private answers | [ ] |
 | Both | Continuous mode default | Available but off in user preferences until explicitly selected | [ ] |
 | Both | Guided navigation | Non-submit Next/Continue/Done may advance; Review/Submit/Apply/Finish and submit-typed navigation are blocked | [ ] |
 
@@ -423,8 +572,8 @@ click Submit.
   only with explicit approval.
 - [x] `/privacy` describes the 30-minute artifact, empty-only behavior,
   sensitive-field exclusions, storage boundary, and content-free telemetry.
-- [x] `/dashboard/help` describes Continuous, Guided Autopilot, skills, AI
-  drafts/answer reuse, cover letters, review-required private answers, and the
+- [ ] `/dashboard/help` matches Continuous, Guided Autopilot, skills, AI
+  drafts/answer reuse, cover letters, one-click saved private answers, and the
   never-submit boundary.
 - [x] Support can map the content-free error codes `extraction_failed`,
   `unsupported_control`, `draft_review_pending`, and `attachment_failed`.
@@ -460,8 +609,8 @@ sensitive fields, non-empty fields, and existing files.
    independently if production validation reveals a regression.
 
 Chrome Web Store packaging, listing changes, and submission require explicit
-owner authorization. Version `0.1.19` has authorization for draft preparation;
-final submission remains gated by the manual release checks above.
+owner authorization. The current `0.2.0` build remains gated by the manual
+release checks above and explicit owner authorization for draft preparation.
 
 ## 📚 Resources
 
@@ -581,6 +730,38 @@ STEM Start: -
 ```
 [Sign in or create account]
 ```
+
+## Undo last Prefill
+
+The application sidebar includes **Undo last Prefill**. A compact page control
+also appears after popup-initiated prefill when no sidebar is present.
+
+- Records only extension-owned writes from the latest run, including profile,
+  saved private answers, portal login, skills/history, and smart-answer text.
+  No form snapshots, credentials, or answers are sent to the undo backend or
+  written to browser storage; the journal exists only in the page's isolated
+  extension context and is lost on reload/navigation.
+- Preserves subsequent edits, even if the user changes a value back to the
+  extension-filled value. Changed field identities, replaced/removed elements,
+  disabled/read-only controls, and another page URL are skipped.
+- Supports native text fields, selects, checkboxes, and atomic radio groups.
+  Native choices are conservatively kept when changing them could reset other
+  user-entered fields in the same form. Arbitrary custom dropdowns and uploaded
+  files require manual review: Undo does not delete a file already uploaded to
+  a portal or reverse server-side actions.
+- Pauses Continuous and Guided Autopilot before undo. Opaque run IDs bind
+  embedded-frame rollback to the same prefill; undo requests can target only
+  the requesting top frame's own tab. Stale/cancelled frame fills are rejected.
+- Single-use, not a multi-level undo stack. A new changed run replaces the old
+  journal. The UI reports restored, protected/skipped, and unsupported changes
+  instead of claiming all fields were reverted.
+
+Verification: `pnpm --dir apps/extension test`, `typecheck`, `build`, and
+`pnpm --dir apps/extension test:undo-browser`. The browser fixture runs the real
+profile/private fill engine on synthetic local forms at desktop/mobile sizes;
+it does not submit applications or exercise production authentication. Before
+publishing, smoke-test the reloaded extension on supported portals, including
+embedded forms and live framework-controlled dependent dropdowns.
 
 ## 🆘 Support
 

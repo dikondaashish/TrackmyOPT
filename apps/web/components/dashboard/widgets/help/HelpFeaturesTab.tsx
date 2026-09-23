@@ -29,7 +29,7 @@ import {
   Timer,
   BadgeCheck,
 } from "lucide-react";
-import { EXTENSION_AUTOFILL_SUPPORT_NOTICE } from "@/lib/legal/legal-config";
+import { EXTENSION_AUTOFILL_SUPPORT_NOTICE, EXTENSION_AUTOFILL_PLAN_NOTICE } from "@/lib/legal/legal-config";
 
 function CollapsibleSection({
   title,
@@ -618,8 +618,8 @@ export function HelpFeaturesTab() {
                 <ul className="mt-2 text-xs space-y-1 text-cyan-700 dark:text-cyan-400">
                   <li>• Generated resume data expires after 30 minutes or when the job changes.</li>
                   <li>• Existing field values and uploaded files are never replaced.</li>
-                  <li>• Visa, sponsorship, work authorization, salary, DOB, and EEO answers are never guessed. You may save optional private answers on the Chrome Job Prefill page, but the extension requires your review before every application. SSN fields always stay for you.</li>
-                  <li>• Custom dropdowns and unsupported controls stay blank; enter those values manually.</li>
+                  <li>• Save optional visa, sponsorship, work authorization, salary, DOB, and EEO answers on Chrome Job Prefill. They are never guessed. SSN fields always stay for you.</li>
+                  <li>• Supported dropdowns can select matching saved values. Unmatched, ambiguous, or unsupported controls stay blank; complete them manually.</li>
                   <li>• Guided Autopilot may click safe Next, Continue, or Done steps after required fields are complete. It never clicks Add another, Review, Submit, Apply, Finish, or another final application action.</li>
                 </ul>
               </div>
@@ -629,7 +629,7 @@ export function HelpFeaturesTab() {
                   Free and Pro access
                 </h5>
                 <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-400">
-                  Free includes Step-by-step application prefill, skills, saved private-answer review, 2 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, and 100 shared AI writing actions per month, subject to safety limits. Every AI draft still requires your review, and neither plan ever submits an application.
+                  {EXTENSION_AUTOFILL_PLAN_NOTICE} Every AI draft still needs your review, and neither plan ever submits an application.
                 </p>
               </div>
 

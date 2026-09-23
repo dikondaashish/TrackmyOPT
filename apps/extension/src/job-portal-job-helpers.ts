@@ -4,6 +4,9 @@
 
 import type { JobInfo } from './job-posting-scrape';
 import type { JobContextIdentity } from './resume-autofill-contract';
+import { jobUrlsReferToSameJob, normalizeJobIdentityText } from './resume-autofill-contract';
+import { WIDGET_ROOT_ID } from './widget-dom-ids';
+import { buildResumePdfFilename } from './resume-filename';
 
 export function jobFingerprint(job: JobInfo): string {
   const url = new URL(window.location.href);
@@ -24,10 +27,7 @@ export function jobContextFor(job: JobInfo): JobContextIdentity {
 }
 
 export function generatedResumeFilename(job: JobInfo): string {
-  const safeCompany = (job.company_name || 'company')
-    .replace(/[^a-z0-9]+/gi, '-')
-    .toLowerCase();
-  return `TrackMyOPT-resume-${safeCompany}.pdf`;
+  return buildResumePdfFilename({ latex: '', jobDescription: '', jobTitle: job.role_title });
 }
 
 export type WidgetJobSnapshot = Pick<
@@ -55,16 +55,26 @@ export function shouldRefreshWidget(existing: HTMLElement, nextJob: JobInfo): bo
   }
   const next = widgetJobSnapshot(nextJob);
   if (
-    current.job_url !== next.job_url ||
-    current.company_name !== next.company_name ||
-    current.role_title !== next.role_title
+    !current.job_url || !jobUrlsReferToSameJob(current.job_url, next.job_url) ||
+    (current.company_name && next.company_name && normalizeJobIdentityText(current.company_name) !== normalizeJobIdentityText(next.company_name)) ||
+    (current.role_title && next.role_title && normalizeJobIdentityText(current.role_title) !== normalizeJobIdentityText(next.role_title))
   ) return true;
 
-  // Replace an already-rendered card only when the new parse enriches missing
-  // information. Never downgrade a complete card during transient SPA states.
-  return Boolean(
-    (!current.location && next.location) ||
-    (!current.salary_text && next.salary_text) ||
-    (!current.company_logo_url && next.company_logo_url)
-  );
+  // Metadata enrichment is painted in place, retaining focus, scroll and tools.
+  return false;
+}
+
+/** Ignore our own animations, status text and modals in the page observer. */
+export function hasPortalPageMutation(records: MutationRecord[]): boolean {
+  const owned = (node: Node): boolean => {
+    const element = node.nodeType === 1 ? node as Element : node.parentElement;
+    return Boolean(element?.closest('[id^="tmo-"],.tmo-smart-answer-note'));
+  };
+  return records.some(record => {
+    if (owned(record.target)) return false;
+    if (Array.from(record.removedNodes).some(node => node.nodeType === 1 &&
+        (node as Element).id === WIDGET_ROOT_ID && !node.isConnected)) return true;
+    const changed = [...Array.from(record.addedNodes), ...Array.from(record.removedNodes)];
+    return changed.length === 0 || changed.some(node => !owned(node));
+  });
 }

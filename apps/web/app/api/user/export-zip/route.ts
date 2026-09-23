@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
       `Email,${user.email}`,
       `Program End Date,${optStatus?.program_end_date || 'Not set'}`,
       `DSO Recommendation Date,${optStatus?.dso_recommendation_date || 'Not set'}`,
+      `STEM DSO Recommendation Date,${optStatus?.stem_dso_recommendation_date || 'Not set'}`,
       `OPT Start Date,${optStatus?.opt_start_date || 'Not set'}`,
       `OPT EAD End Date,${optStatus?.opt_ead_end_date || 'Not set'}`,
       `STEM Start Date,${optStatus?.stem_start_date || 'Not set'}`,

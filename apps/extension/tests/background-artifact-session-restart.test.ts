@@ -73,7 +73,7 @@ function fakeFetch(input: string | URL | Request): Promise<Response> {
   }
   if (url.endsWith('/api/resume-generator/generate')) {
     return Promise.resolve(jsonResponse({
-      latex: '\\begin{document}Live Workday restart fixture\\end{document}',
+      latex: '\\name{Jane}{Smith}\\begin{document}Live Workday restart fixture\\end{document}',
     }));
   }
   if (url.endsWith('/api/resume-generator/compile')) {
@@ -141,6 +141,7 @@ function createWorkerHarness(input: {
     notifications: { create() {} },
     scripting: { executeScript: async () => undefined },
     storage: {
+      onChanged: event,
       session: makeStorageArea(input.sessionValues, input.sessionWrites),
       local: makeStorageArea(input.localValues),
       sync: makeStorageArea(input.syncValues, input.syncWrites),
@@ -242,7 +243,7 @@ test('Workday artifact survives a real background worker restart through session
   });
   const generated = await firstWorker.dispatch({
     type: 'GENERATE_RESUME',
-    jobDescription: 'Live Workday job description',
+    jobDescription: 'Role: Analyst, Business Analytics. Responsibilities: Build SQL dashboards and analyze product performance with the team. Qualifications: Three years of analytics experience and strong communication skills. Benefits include health insurance and paid time off.',
     resumeId: 'resume-live-workday',
     templateId: 'classic',
     companyName: LIVE_COMPANY,
@@ -254,6 +255,8 @@ test('Workday artifact survives a real background worker restart through session
   });
 
   assert.equal(generated.ok, true);
+  assert.equal(generated.filename, 'Jane_Smith_Resume_Analyst_Business_Analytics.pdf');
+  assert.equal(generated.artifact.pdf.filename, generated.filename);
   assert.equal(generated.artifact.job.jobKey.length, 71);
   assert.equal(
     generated.artifact.job.requisitionId,
@@ -284,6 +287,7 @@ test('Workday artifact survives a real background worker restart through session
 
   assert.equal(resolved.ok, true);
   assert.equal(resolved.source, 'generated_resume');
+  assert.equal(resolved.resume.filename, 'Jane_Smith_Resume_Analyst_Business_Analytics.pdf');
   assert.equal(resolved.artifactId, generated.artifact.artifactId);
   assert.ok(sessionValues[ACTIVE_ARTIFACT_SESSION_KEY]);
 

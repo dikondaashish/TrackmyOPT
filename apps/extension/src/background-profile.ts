@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, WEBSITE_URL } from './config';
+import { looksLikeRealJobPostingText } from './job-description';
 import { isJobFitLimitResponse, normalizeJobFitAnalysis } from './job-fit';
 import { normalizeOptClockNudge, type OptClockNudge } from './smart-flow';
 import {
@@ -90,6 +91,8 @@ export async function resolveCurrentV1PrefillPayload(
   request: V1PrefillPayloadRequest,
   options?: { discardRejectedArtifact?: boolean }
 ): Promise<V1PrefillPayloadResponse> {
+  // Refresh identity before reading the owner-scoped resume cache.
+  if (!await getExtensionBearerToken()) return {ok:false,error:'unavailable'};
   const fetchProfileFallback = async () => {
     const result = await getAutofillProfile();
     return {
@@ -307,7 +310,7 @@ export async function analyzeJobFit(input: { jobDescription: string }): Promise<
   const bearer = await getExtensionBearerToken();
   if (!bearer) return { ok: false, error: 'not_signed_in' };
   const jd = (input.jobDescription || '').trim();
-  if (jd.length < 200) return { ok: false, error: 'no_job_description' };
+  if (!looksLikeRealJobPostingText(jd)) return { ok: false, error: 'no_job_description' };
   const auth = { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` };
 
   // Pick the user's most recent base resume.

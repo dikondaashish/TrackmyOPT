@@ -8,6 +8,7 @@ import {
 
 const baseResult: GeneratedResumeSuccessBase = {
   pdfBase64: 'JVBERi0xLjQK',
+  filename: 'Jane_Smith_Resume_Data_Engineer.pdf',
   editorUrl: 'https://trackmyopt.com/editor/handoff',
   baselineScore: 61,
   generatedScore: 82,
@@ -22,6 +23,7 @@ test('snapshot extraction failure still returns the compiled PDF and disables st
 
   assert.equal(result.ok, true);
   assert.equal(result.pdfBase64, baseResult.pdfBase64);
+  assert.equal(result.filename, baseResult.filename);
   assert.equal(result.structuredFieldsAvailable, false);
   assert.equal(result.snapshot, undefined);
   assert.equal(result.generatedContentHash, 'a'.repeat(64));

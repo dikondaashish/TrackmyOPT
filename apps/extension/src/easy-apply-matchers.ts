@@ -108,7 +108,7 @@ export function classifyField(labelText: string): FieldKind | null {
   const phoneContext = /\b(phone|telephone|tel|mobile|cell)\b/.test(t);
   if (
     /\b(?:dial|isd|std)\s*code\b/.test(t) ||
-    (phoneContext && /\bcode\b/.test(t))
+    (phoneContext && /\b(code|country)\b/.test(t))
   ) {
     return 'phoneCountryCode';
   }
@@ -153,7 +153,7 @@ export function classifyField(labelText: string): FieldKind | null {
   if (/\b(county|district)\b/.test(t)) return 'countyDistrict';
   if (/\b(city|town|ville|ciudad)\b/.test(t)) return 'city';
   if (/\b(state|province|région|region)\b/.test(t)) return 'state';
-  if (/\b(location|localisation)\b/.test(t)) return 'location';
+  if (/\b(location|localisation|where are you currently located)\b/.test(t)) return 'location';
 
   return null;
 }

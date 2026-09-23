@@ -1,0 +1,23 @@
+/* Keep the narrow workspace inside its bounds, including native form controls. */
+*, *::before, *::after { box-sizing: border-box; }
+#root { min-width: 0; max-width: 100%; }
+#root input, #root select, #root textarea { min-width: 0; max-width: 100%; }
+#root select { text-overflow: ellipsis; }
+#root h1 { line-height: 1.3; overflow-wrap: anywhere; }
+.tmo-resume-source-switch {
+  padding: 4px;
+  background: var(--tmo-color-bg);
+  border-radius: 10px;
+}
+.tmo-resume-source-switch > button { flex: 1; min-width: 0; }
+.tmo-resume-advanced { border-top: 1px solid var(--tmo-color-border); padding-top: 8px; }
+.tmo-resume-advanced > summary {
+  cursor: pointer; padding: 8px 0; min-height: 36px;
+  font-size: var(--tmo-text-sm); color: var(--tmo-color-ink-muted);
+}
+.tmo-resume-advanced > p { margin-top: 8px; }
+summary:focus-visible { outline: 2px solid var(--tmo-color-accent); outline-offset: 3px; border-radius: 4px; }
+@media (max-width: 340px) {
+  .tmo-resume-source-switch { flex-wrap: wrap; }
+  .tmo-resume-source-switch > button { flex-basis: 100%; }
+}

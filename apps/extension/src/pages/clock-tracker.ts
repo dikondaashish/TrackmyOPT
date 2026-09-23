@@ -1,8 +1,8 @@
+import { compactDate, toolIntro, reminderContent, TOOL_HELP } from '../tool-ui';
 import { getIdToken } from '../token-store';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers } from '../navigation.js';
 import { icon } from '../icons.js';
-import { toolSurfaceCard, type ToolSurfaceTone } from '../tool-page-theme.js';
 import {
   loadVerifiedUnemploymentClock,
   summarizeUnemploymentClock,
@@ -20,50 +20,6 @@ function getCardDateFormat(date: Date): { day: string; month: string; year: stri
     month: months[date.getMonth()],
     year: String(date.getFullYear())
   };
-}
-
-/**
- * Calculate time remaining
- */
-function calculateTimeRemaining(endDate: Date): {
-  total: number;
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  message: string;
-} {
-  const now = new Date();
-  const total = endDate.getTime() - now.getTime();
-
-  if (total <= 0) {
-    return {
-      total: 0,
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      message: "Your OPT period has ended"
-    };
-  }
-
-  const days = Math.floor(total / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((total % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((total % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((total % (1000 * 60)) / 1000);
-
-  let message = '';
-  if (days <= 7) {
-    message = 'Urgent! Very little time left';
-  } else if (days <= 30) {
-    message = 'Time is running short, act soon';
-  } else if (days <= 60) {
-    message = 'Time is moving along, stay prepared';
-  } else {
-    message = 'You have plenty of time remaining';
-  }
-
-  return { total, days, hours, minutes, seconds, message };
 }
 
 /**
@@ -197,205 +153,36 @@ export function renderClockTracker(
     savePageData('clock-tracker', { startDate: startDate.toISOString() });
   });
 
-  renderPageHeader(root, 'OPT Clock Tracker', 'Track your OPT timeline with precision');
+  renderPageHeader(root, 'OPT Clock Tracker', 'Employment timeline');
 
   const content = document.createElement('div');
-  content.style.cssText = 'margin-top: 12px;';
-
-  // A start date alone cannot produce an unemployment deadline. The verified
-  // usage is loaded below from the server's employment-aware calculator.
-  const endDate = new Date(startDate);
-
-  const today = new Date();
-
-  // Format dates for cards
-  const startFormatted = getCardDateFormat(startDate);
-  const todayFormatted = getCardDateFormat(today);
-  const endFormatted = getCardDateFormat(endDate);
-
-  // Date cards container
-  const dateCardsContainer = document.createElement('div');
-  dateCardsContainer.style.cssText = `
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
-  `;
-
-  // START DATE card (Blue)
-  const startCard = document.createElement('div');
-  startCard.style.cssText = `
-    padding: 14px 10px;
-    border-radius: 16px;
-    ${toolSurfaceCard('blue')};
-    text-align: center;
-  `;
-  startCard.innerHTML = `
-    <div style="margin-bottom: 8px; opacity: 0.9;">
-      <div style="width: 36px; height: 36px; margin: 0 auto; background: var(--surface-2); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${icon('calendar', 20, 'currentColor')}
-      </div>
-    </div>
-    <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${startFormatted.day}</div>
-    <div style="font-size: 9px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; margin-bottom: 2px;">${startFormatted.month}</div>
-    <div style="font-size: 11px; font-weight: 600; opacity: 0.9;">${startFormatted.year}</div>
-    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">START DATE</div>
-  `;
-  dateCardsContainer.appendChild(startCard);
-
-  // PRESENT card (Green)
-  const presentCard = document.createElement('div');
-  presentCard.style.cssText = `
-    padding: 14px 10px;
-    border-radius: 16px;
-    ${toolSurfaceCard('green')};
-    text-align: center;
-  `;
-  presentCard.innerHTML = `
-    <div style="margin-bottom: 8px; opacity: 0.9;">
-      <div style="width: 36px; height: 36px; margin: 0 auto; background: var(--surface-2); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${icon('calendar', 20, 'currentColor')}
-      </div>
-    </div>
-    <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${todayFormatted.day}</div>
-    <div style="font-size: 9px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; margin-bottom: 2px;">${todayFormatted.month}</div>
-    <div style="font-size: 11px; font-weight: 600; opacity: 0.9;">${todayFormatted.year}</div>
-    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">PRESENT</div>
-  `;
-  dateCardsContainer.appendChild(presentCard);
-
-  // END DATE card (Red)
-  const endCard = document.createElement('div');
-  endCard.style.cssText = `
-    padding: 14px 10px;
-    border-radius: 16px;
-    ${toolSurfaceCard('red')};
-    text-align: center;
-  `;
-  endCard.innerHTML = `
-    <div style="margin-bottom: 8px; opacity: 0.9;">
-      <div style="width: 36px; height: 36px; margin: 0 auto; background: var(--surface-2); border-radius: 10px; display: grid; place-items: center; font-size: 20px;">
-        ${icon('calendar', 20, 'currentColor')}
-      </div>
-    </div>
-    <div style="font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 3px;">${endFormatted.day}</div>
-    <div style="font-size: 9px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; margin-bottom: 2px;">${endFormatted.month}</div>
-    <div style="font-size: 11px; font-weight: 600; opacity: 0.9;">${endFormatted.year}</div>
-    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">END DATE</div>
-  `;
-  content.appendChild(dateCardsContainer);
-
-  // Countdown card
-  const countdownCard = document.createElement('div');
-  countdownCard.style.cssText = `
-    padding: 20px 16px;
-    border-radius: 18px;
-    ${toolSurfaceCard('red')};
-    margin-bottom: 12px;
-  `;
-
-  const timeRemaining = calculateTimeRemaining(endDate);
-
-  countdownCard.innerHTML = `
-    <div id="days-left-text" style="font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 14px; line-height: 1;">${timeRemaining.days} days left</div>
-    
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px;">
-      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
-        <div id="countdown-days" style="font-size: 24px; font-weight: 800; color: #3b82f6; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.days).padStart(2, '0')}</div>
-        <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">DAYS</div>
-      </div>
-      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
-        <div id="countdown-hours" style="font-size: 24px; font-weight: 800; color: #3b82f6; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.hours).padStart(2, '0')}</div>
-        <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">HOURS</div>
-      </div>
-      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
-        <div id="countdown-minutes" style="font-size: 24px; font-weight: 800; color: #3b82f6; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.minutes).padStart(2, '0')}</div>
-        <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">MINUTES</div>
-      </div>
-      <div style="background: var(--surface-2); backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 6px; text-align: center;">
-        <div id="countdown-seconds" style="font-size: 24px; font-weight: 800; color: #3b82f6; line-height: 1; margin-bottom: 4px;">${String(timeRemaining.seconds).padStart(2, '0')}</div>
-        <div style="font-size: 9px; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">SECONDS</div>
-      </div>
-    </div>
-    
-    <div id="countdown-message" style="text-align: center; font-size: 13px; font-weight: 600; opacity: 0.95;">${timeRemaining.message}</div>
-  `;
-  countdownCard.innerHTML = `
-    <div id="verified-clock-status" style="text-align:center;">
-      <div style="font-size:14px;font-weight:750;">Loading verified unemployment usage…</div>
-      <div style="font-size:11px;opacity:.8;margin-top:8px;">Based on your saved employment records</div>
-    </div>
-  `;
-
+  content.className = 'tool-content';
+  content.innerHTML = `${toolIntro('Employment timeline', 'clock-info-help', TOOL_HELP.clock)}<div class="tool-dates">${compactDate('EAD starts', startDate)}${compactDate('Today', new Date())}</div>`;
+  const countdownCard = document.createElement('section');
+  countdownCard.className = 'tool-usage';
+  countdownCard.setAttribute('aria-live', 'polite');
+  countdownCard.innerHTML = '<div id="verified-clock-status" class="tool-status">Loading unemployment days…</div>';
   content.appendChild(countdownCard);
 
-  // Email reminders card (Premium feature)
-  const remindersCard = document.createElement('div');
-  remindersCard.id = 'reminders-card';
-  remindersCard.style.cssText = `
-    padding: 18px;
-    border-radius: 18px;
-    ${toolSurfaceCard('blue')};
-    margin-bottom: 12px;
-  `;
-
-  remindersCard.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-      <div style="display: flex; justify-content: center; margin-bottom: 8px;">${icon('mail', 22, 'currentColor')}</div>
-      <div style="font-weight: 800; font-size: 16px;">Daily Reminders (9:00 AM ET)</div>
-    </div>
-    <div style="font-size: 12px; opacity: 0.95; margin-bottom: 14px; line-height: 1.5;">
-      We'll show a Chrome notification every morning. If you enter an email and connect the mailer, we'll also email you.
-    </div>
-    <div id="premium-content" style="text-align: center; padding: 20px 10px;">
-      <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.95; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('lock', 14, 'currentColor')} Unlock Daily Email Reminders</div>
-      <div style="font-size: 12px; margin-bottom: 14px; opacity: 0.9;">Get daily email notifications with Pro ($4.99/mo)</div>
-      <button id="upgrade-btn" style="
-        width: 100%;
-        padding: 12px;
-        border: 0;
-        border-radius: 12px;
-        background: var(--surface-2);
-        backdrop-filter: blur(10px);
-        color: var(--ink);
-        font-weight: 800;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-family: inherit;
-      ">Upgrade to Pro ($4.99/mo)</button>
-    </div>
-  `;
-
-  content.appendChild(remindersCard);
-
-  // Modify button
   const modifyBtn = document.createElement('button');
-  modifyBtn.innerHTML = 'Modify Start Date';
-  modifyBtn.style.cssText = `
-    width: 100%;
-    padding: 16px;
-    border: 0;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    font-weight: 800;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-    font-family: inherit;
-  `;
+  modifyBtn.type = 'button';
+  modifyBtn.className = 'tool-button tool-button-primary';
+  modifyBtn.textContent = 'Modify Start Date';
   content.appendChild(modifyBtn);
 
+  const remindersCard = document.createElement('section');
+  remindersCard.id = 'reminders-card';
+  remindersCard.className = 'tool-reminders';
+  remindersCard.innerHTML = `${toolIntro('Daily reminders', 'reminders-help', TOOL_HELP.reminders)}<div id="premium-content">${reminderContent(false, false, 'upgrade-btn')}</div>`;
+  content.appendChild(remindersCard);
   root.appendChild(content);
 
   void loadVerifiedUnemploymentClock()
     .then((clock) => {
       if (!clock) {
         countdownCard.innerHTML = `
-          <div style="font-size:14px;font-weight:750;text-align:center;">Unemployment usage is not available yet.</div>
-          <div style="font-size:11px;line-height:1.5;opacity:.85;text-align:center;margin-top:8px;">Add your OPT dates and employment history in the dashboard. A start date by itself cannot calculate unemployment days.</div>
+          <div style="font-size:14px;font-weight:750;text-align:center;">Add employment history</div>
+          <p class="tool-status">Complete your records to see days remaining.</p><a class="tool-inline-link" href="${WEBSITE_URL}/dashboard" target="_blank" rel="noopener">Open dashboard</a>
         `;
         return;
       }
@@ -403,13 +190,13 @@ export function renderClockTracker(
       const summary = summarizeUnemploymentClock(clock);
       const progress = Math.min(100, Math.round((clock.used / clock.max) * 100));
       countdownCard.innerHTML = `
-        <div style="font-size:28px;font-weight:800;text-align:center;">${summary.headline}</div>
-        <div style="font-size:13px;font-weight:700;text-align:center;margin-top:8px;">${summary.usage}</div>
-        <div style="font-size:11px;opacity:.85;text-align:center;margin-top:4px;">${summary.phaseLabel}</div>
-        <div style="height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-top:16px;">
-          <div id="verified-clock-progress" style="height:100%;width:0;background:linear-gradient(90deg,#10b981,#f59e0b,#dc2626);border-radius:999px;transition:width .65s ease;"></div>
+        <div class="tool-usage-headline">${summary.headline}</div>
+        <div class="tool-usage-detail">${summary.usage}</div>
+        <div class="tool-usage-phase">${summary.phaseLabel}</div>
+        <div class="tool-usage-track">
+          <div id="verified-clock-progress"></div>
         </div>
-        <div style="font-size:11px;line-height:1.45;opacity:.8;text-align:center;margin-top:12px;">Calculated from saved employment periods. Update your records whenever employment changes. This is a tracking aid, not legal advice.</div>
+        ${toolIntro('How days are counted', 'usage-help', TOOL_HELP.clock)}
       `;
       requestAnimationFrame(() => {
         const bar = document.getElementById('verified-clock-progress');
@@ -418,92 +205,10 @@ export function renderClockTracker(
     })
     .catch(() => {
       countdownCard.innerHTML = `
-        <div style="font-size:13px;font-weight:700;text-align:center;">Could not load verified unemployment usage.</div>
-        <div style="font-size:11px;opacity:.8;text-align:center;margin-top:8px;">Open the dashboard and review your OPT dates and employment records.</div>
+        <div style="font-size:13px;font-weight:700;text-align:center;">Could not load unemployment days.</div>
+        <div style="font-size:11px;opacity:.8;text-align:center;margin-top:8px;">Check your connection and try again.</div>
       `;
     });
-
-  // Store previous values for flip animation
-  let previousValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
-
-  // Update countdown every second with flip animation and dynamic colors
-  let countdownInterval: ReturnType<typeof setInterval> | null = false ? setInterval(() => {
-    const remaining = calculateTimeRemaining(endDate);
-
-    const daysEl = document.getElementById('countdown-days') as HTMLElement;
-    const hoursEl = document.getElementById('countdown-hours') as HTMLElement;
-    const minutesEl = document.getElementById('countdown-minutes') as HTMLElement;
-    const secondsEl = document.getElementById('countdown-seconds') as HTMLElement;
-    const messageEl = document.getElementById('countdown-message');
-    const daysLeftEl = document.getElementById('days-left-text');
-    const containerEl = document.getElementById('countdown-container') as HTMLElement;
-
-    // Determine color based on days remaining (Apple colors)
-    let tone: ToolSurfaceTone = 'red';
-    if (remaining.days > 60) {
-      tone = 'green';
-    } else if (remaining.days > 30) {
-      tone = 'blue';
-    } else if (remaining.days > 14) {
-      tone = 'orange';
-    } else if (remaining.days > 7) {
-      tone = 'orange';
-    } else {
-      tone = 'red';
-    }
-
-    if (containerEl) {
-      containerEl.style.background = `var(--tool-${tone}-surface)`;
-      containerEl.style.borderColor = `var(--tool-${tone}-border)`;
-    }
-
-    // Flip animation function
-    function flipElement(element: HTMLElement, newValue: string) {
-      if (!element) return;
-      element.style.transform = 'rotateX(90deg)';
-      element.style.opacity = '0';
-      setTimeout(() => {
-        element.textContent = newValue;
-        element.style.transform = 'rotateX(0deg)';
-        element.style.opacity = '1';
-      }, 150);
-    }
-
-    const currentDays = String(remaining.days).padStart(2, '0');
-    const currentHours = String(remaining.hours).padStart(2, '0');
-    const currentMinutes = String(remaining.minutes).padStart(2, '0');
-    const currentSeconds = String(remaining.seconds).padStart(2, '0');
-
-    if (daysEl && currentDays !== String(previousValues.days).padStart(2, '0')) {
-      flipElement(daysEl, currentDays);
-    } else if (daysEl) {
-      daysEl.textContent = currentDays;
-    }
-
-    if (hoursEl && currentHours !== String(previousValues.hours).padStart(2, '0')) {
-      flipElement(hoursEl, currentHours);
-    } else if (hoursEl) {
-      hoursEl.textContent = currentHours;
-    }
-
-    if (minutesEl && currentMinutes !== String(previousValues.minutes).padStart(2, '0')) {
-      flipElement(minutesEl, currentMinutes);
-    } else if (minutesEl) {
-      minutesEl.textContent = currentMinutes;
-    }
-
-    if (secondsEl) flipElement(secondsEl, currentSeconds);
-
-    if (messageEl) messageEl.textContent = remaining.message;
-    if (daysLeftEl) daysLeftEl.textContent = `${remaining.days} days left`;
-
-    previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
-
-    if (remaining.total <= 0 && countdownInterval) {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-    }
-  }, 1000) : null;
 
   // Check premium status and update UI
   checkPremiumStatus().then(async (isPremium) => {
@@ -515,70 +220,7 @@ export function renderClockTracker(
       const savedEmail = await loadToolEmail('opt_clock');
       const hasSubscribed = !!savedEmail;
 
-      premiumContent.innerHTML = `
-        <div style="position: relative;">
-          <input 
-            type="email" 
-            id="reminder-email-input" 
-            placeholder="your@email.com"
-            style="
-              width: 100%;
-              padding: 14px 50px 14px 16px;
-              border: 0;
-              border-radius: 12px;
-              background: var(--surface-2);
-              backdrop-filter: blur(10px);
-              color: var(--ink);
-              font-size: 14px;
-              font-weight: 600;
-              outline: none;
-              margin-bottom: ${hasSubscribed ? '10px' : '0px'};
-              font-family: inherit;
-            "
-          />
-          <button 
-            id="save-email-btn"
-            style="
-              position: absolute;
-              right: 8px;
-              top: 8px;
-              padding: 6px 12px;
-              border: 0;
-              border-radius: 8px;
-              background: var(--surface-2);
-              color: var(--ink);
-              cursor: pointer;
-              font-size: 18px;
-              display: grid;
-              place-items: center;
-              transition: all 0.2s;
-            "
-          >→</button>
-        </div>
-        ${hasSubscribed ? `
-          <button id="stop-reminders-btn" style="
-            width: 100%;
-            padding: 10px;
-            border: 0;
-            border-radius: 10px;
-            background: var(--surface-2);
-            backdrop-filter: blur(10px);
-            color: var(--ink);
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-family: inherit;
-          ">
-            ${icon('alertTriangle', 16, '#dc2626')}
-            <span>Stop Reminders</span>
-          </button>
-        ` : ''}
-      `;
+      premiumContent.innerHTML = reminderContent(true, hasSubscribed, 'upgrade-btn');
 
       const reminderEmailInput = document.getElementById('reminder-email-input') as HTMLInputElement | null;
       if (reminderEmailInput) reminderEmailInput.value = savedEmail || '';
@@ -662,19 +304,6 @@ export function renderClockTracker(
       });
 
       // Hover effects
-      saveEmailBtn?.addEventListener('mouseenter', () => {
-        if (saveEmailBtn) saveEmailBtn.style.background = 'var(--surface-2)';
-      });
-      saveEmailBtn?.addEventListener('mouseleave', () => {
-        if (saveEmailBtn) saveEmailBtn.style.background = 'var(--surface-2)';
-      });
-
-      stopRemindersBtn?.addEventListener('mouseenter', () => {
-        if (stopRemindersBtn) stopRemindersBtn.style.background = 'var(--surface-2)';
-      });
-      stopRemindersBtn?.addEventListener('mouseleave', () => {
-        if (stopRemindersBtn) stopRemindersBtn.style.background = 'var(--surface-2)';
-      });
     }
   });
 
@@ -685,31 +314,9 @@ export function renderClockTracker(
     chrome.tabs.create({ url: `${WEBSITE_URL}/dashboard?upgrade=true` });
   });
 
-  upgradeBtn?.addEventListener('mouseenter', () => {
-    if (upgradeBtn) upgradeBtn.style.background = 'var(--surface-2)';
-  });
+  modifyBtn.addEventListener('click', onBack);
 
-  upgradeBtn?.addEventListener('mouseleave', () => {
-    if (upgradeBtn) upgradeBtn.style.background = 'var(--surface-2)';
-  });
 
-  modifyBtn.addEventListener('click', () => {
-    if (countdownInterval) {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-    }
-    onBack();
-  });
-
-  modifyBtn.addEventListener('mouseenter', () => {
-    modifyBtn.style.transform = 'translateY(-2px)';
-    modifyBtn.style.boxShadow = '0 8px 24px rgba(16, 185, 129, 0.4)';
-  });
-
-  modifyBtn.addEventListener('mouseleave', () => {
-    modifyBtn.style.transform = 'translateY(0)';
-    modifyBtn.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.3)';
-  });
 
   setupPageHandlers(onBack);
 }

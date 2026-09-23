@@ -28,14 +28,14 @@ interface ResumeStatusCopy {
 
 export const RESUME_STATUS_COPY: Record<ResumeStatusState, ResumeStatusCopy> = {
   checking: {
-    label: 'Checking for a tailored resume…',
-    sublabel: 'Looking for one generated for this job',
+    label: 'Checking resume…',
+    sublabel: 'Looking for a tailored resume for this job',
     iconName: 'info',
     tone: 'muted',
   },
   none: {
-    label: 'No tailored resume for this job',
-    sublabel: 'Prefill will fill your profile fields only',
+    label: 'Profile-only prefill',
+    sublabel: 'No tailored resume for this job',
     iconName: 'fileText',
     tone: 'muted',
   },
@@ -46,7 +46,7 @@ export const RESUME_STATUS_COPY: Record<ResumeStatusState, ResumeStatusCopy> = {
     tone: 'success',
   },
   attached: {
-    label: 'Resume attached to this application',
+    label: 'Resume attached',
     sublabel: 'Review it, then submit the form yourself',
     iconName: 'checkCircle',
     tone: 'success',
@@ -61,7 +61,7 @@ export function createResumeStatusRow(
   row.setAttribute('role', 'status');
   row.setAttribute('aria-live', 'polite');
   row.style.cssText =
-    'display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--tmo-widget-border);';
+    'display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:9px;';
 
   const mark = ownerDocument.createElement('span');
   mark.className = 'tmo-resume-status-icon';
@@ -74,7 +74,7 @@ export function createResumeStatusRow(
   const label = ownerDocument.createElement('span');
   label.className = 'tmo-resume-status-label';
   label.style.cssText =
-    'display:block;font-size:11.5px;font-weight:800;line-height:1.3;overflow-wrap:anywhere;';
+    'display:block;font-size:12px;font-weight:600;line-height:1.4;overflow-wrap:anywhere;';
 
   // Hierarchy here comes from size and weight, not from a lighter colour.
   // `--tmo-widget-muted` on the neutral surface measures 4.32:1, under the
@@ -82,7 +82,7 @@ export function createResumeStatusRow(
   const sublabel = ownerDocument.createElement('span');
   sublabel.className = 'tmo-resume-status-sublabel';
   sublabel.style.cssText =
-    'display:block;margin-top:1px;font-size:10.5px;font-weight:600;line-height:1.35;overflow-wrap:anywhere;';
+    'display:block;margin-top:2px;font-size:12px;font-weight:400;line-height:1.4;overflow-wrap:anywhere;';
 
   textWrap.append(label, sublabel);
   row.append(mark, textWrap);
@@ -96,6 +96,9 @@ export function paintResumeStatusRow(
   detail?: string,
 ): void {
   const copy = RESUME_STATUS_COPY[state];
+  const nextDetail = detail || copy.sublabel;
+  if (row.dataset.resumeStatus === state &&
+      row.querySelector('.tmo-resume-status-sublabel')?.textContent === nextDetail) return;
   const ink =
     copy.tone === 'success'
       ? 'var(--tmo-widget-success-ink)'
@@ -119,7 +122,7 @@ export function paintResumeStatusRow(
   const sublabel = row.querySelector<HTMLElement>('.tmo-resume-status-sublabel');
   if (sublabel) {
     // textContent only — `detail` can carry scraped field labels.
-    sublabel.textContent = detail || copy.sublabel;
+    sublabel.textContent = nextDetail;
     sublabel.style.color = ink;
   }
 }
@@ -150,13 +153,13 @@ export function prefillEntryCopy(hasResume: boolean): {
         label: 'Prefill application + resume',
         sublabel: 'Fills fields + attaches your resume',
         title:
-          'Prefill profile fields and attach the custom resume generated for this job. You review and submit.',
+          'Prefill saved fields, attach this job’s resume, and draft eligible questions using AI. AI allowance applies. Review all drafts and submit yourself.',
       }
     : {
         label: 'Prefill this application',
         sublabel: 'Fills your saved profile fields',
         title:
-          'Prefill available profile fields for this application. You review and submit.',
+          'Prefill saved fields and matching saved answers. New AI answers need a tailored resume for this job. You review and submit.',
       };
 }
 
@@ -168,8 +171,11 @@ export function prefillEntryCopy(hasResume: boolean): {
 export function resumeStatusAfterPrefill(input: {
   attachedCount: number;
   hasResume: boolean;
+  attachmentResult?: import('./easy-apply-attachments').ResumeAttachmentResult;
 }): { state: ResumeStatusState; detail?: string } {
   if (input.attachedCount > 0) return { state: 'attached' };
+  if (input.attachmentResult === 'already_present') return { state: 'ready', detail: 'An existing resume is already uploaded — kept unchanged. Review it before submitting.' };
+  if (input.attachmentResult === 'unsupported') return { state: 'ready', detail: 'Resume upload could not be confirmed. Check the file on the application.' };
   if (input.hasResume) {
     return {
       state: 'ready',

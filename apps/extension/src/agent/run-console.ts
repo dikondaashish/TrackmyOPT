@@ -55,13 +55,16 @@ function stepRow(step: StepSnapshot): HTMLElement {
         gap: '2',
         align: 'center',
         attrs: { 'data-step': step.id },
-        style: 'min-height:22px',
+        style: 'display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:8px;row-gap:3px;align-items:start;min-height:28px;padding:5px 0',
     });
 
     const marker = document.createElement('span');
     marker.setAttribute('aria-hidden', 'true');
     marker.style.cssText =
         'display:inline-flex;align-items:center;justify-content:center;width:14px;flex-shrink:0;font-size:var(--tmo-text-sm)';
+    marker.style.color = step.status === 'done' ? 'var(--tmo-color-success-ink)'
+        : step.status === 'failed' ? 'var(--tmo-color-danger-ink)'
+        : step.status === 'active' ? 'var(--tmo-color-accent)' : 'var(--tmo-color-ink-muted)';
     if (step.status === 'active') marker.appendChild(spinner({ size: 12 }));
     else marker.textContent = STATUS_GLYPH[step.status];
     node.appendChild(marker);
@@ -81,8 +84,13 @@ function stepRow(step: StepSnapshot): HTMLElement {
         })
     );
 
-    if (step.detail) {
-        node.appendChild(text({ text: step.detail, size: 'xs', tone: 'muted' }));
+    if (step.detail || step.status === 'skipped') {
+        const detail = step.status === 'skipped' && step.id === 'extract'
+            ? 'Review form fields manually; resume is still available.'
+            : step.detail || 'Not needed';
+        node.appendChild(text({ text: detail, size: 'xs', tone: 'muted',
+            attrs: {'data-step-detail':'', title:detail},
+            style:'grid-column:2;min-width:0;overflow-wrap:anywhere;line-height:1.45;max-height:3em;overflow:auto' }));
     }
 
     // Screen readers get the status as words, not as a glyph.
@@ -140,10 +148,19 @@ export function runConsole(options: RunConsoleOptions = {}): RunConsoleHandle {
     });
 
     let currentSteps: StepSnapshot[] = [];
+    let currentState: RunState = 'idle';
 
     function renderSteps(steps: StepSnapshot[]): void {
-        currentSteps = steps;
-        stepList.replaceChildren(...steps.map(stepRow));
+        currentSteps = [...steps];
+        stepList.replaceChildren(...steps.filter(step => !(step.status === 'pending' &&
+            (currentState === 'succeeded' || step.id === 'repair'))).map(stepRow));
+    }
+
+    function updateSummary(): void {
+        const done = currentSteps.filter(step => step.status === 'done').length;
+        summary.textContent = currentState === 'running'
+            ? `${done} ${done === 1 ? 'step' : 'steps'} complete`
+            : STATE_SUMMARY[currentState];
     }
 
     function setStopVisible(visible: boolean): void {
@@ -154,8 +171,9 @@ export function runConsole(options: RunConsoleOptions = {}): RunConsoleHandle {
         node,
 
         setState(state, steps) {
+            currentState = state;
             renderSteps(steps);
-            summary.textContent = STATE_SUMMARY[state];
+            updateSummary();
             setStopVisible(state === 'preparing' || state === 'running');
             footer.replaceChildren();
 
@@ -177,8 +195,8 @@ export function runConsole(options: RunConsoleOptions = {}): RunConsoleHandle {
             const index = currentSteps.findIndex((entry) => entry.id === step.id);
             if (index === -1) return;
             currentSteps[index] = step;
-            const replacement = stepRow(step);
-            stepList.children[index]?.replaceWith(replacement);
+            renderSteps(currentSteps);
+            updateSummary();
             if (step.status === 'active') announcer.announce(step.label);
             if (step.status === 'done' && step.detail) {
                 announcer.announce(`${step.label}: ${step.detail}`);

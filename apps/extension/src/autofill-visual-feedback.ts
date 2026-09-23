@@ -1,20 +1,24 @@
 import type { PrefillFieldGroup } from './prefill-coverage';
+import { COLORS } from './design/tokens';
 
 export type AutofillVisualState =
   | 'filling'
   | 'complete'
   | 'needs_user'
   | 'error';
+type VisualGroup = PrefillFieldGroup | 'private_answers';
 
 export interface AutofillVisualStatusInput {
   state: AutofillVisualState;
   filled: number;
   needsUser: number;
-  group?: PrefillFieldGroup;
+  group?: VisualGroup;
 }
 
 export interface AutofillVisualFeedback {
-  markFieldFilled(element: HTMLElement, group: PrefillFieldGroup): void;
+  prepareField(element: HTMLElement, group: VisualGroup): Promise<void>;
+  clearActiveField(): void;
+  markFieldFilled(element: HTMLElement, group: VisualGroup): void;
   markNeedsUser(element: HTMLElement): void;
   finish(
     result: { filled: number; skipped: number },
@@ -28,8 +32,10 @@ const FIELD_STATE_ATTR = 'data-tmo-autofill-visual';
 const FIELD_STAGGER_MS = 60;
 const FIELD_STAGGER_CAP_MS = 720;
 const fieldStyleRoots = new WeakSet<object>();
+const fieldTimers = new WeakMap<HTMLElement, number>();
 
-const GROUP_LABELS: Record<PrefillFieldGroup, string> = {
+const GROUP_LABELS: Record<VisualGroup, string> = {
+  private_answers: 'saved answers',
   resume: 'resume',
   cover_letter: 'cover letter',
   contact: 'contact details',
@@ -80,26 +86,22 @@ function ensureFieldStyles(root: Document | ShadowRoot): void {
   const style = documentForRoot.createElement('style');
   style.setAttribute('data-tmo-autofill-visual-styles', 'true');
   style.textContent = `
-    [${FIELD_STATE_ATTR}="filled"] {
-      outline: 3px solid rgba(16, 185, 129, .92) !important;
+    [${FIELD_STATE_ATTR}] {
       outline-offset: 2px !important;
-      box-shadow: 0 0 0 7px rgba(16, 185, 129, .16) !important;
-      animation: tmo-autofill-field-ready 520ms cubic-bezier(.2,.8,.2,1) both !important;
+      transition: outline-color 160ms ease, box-shadow 160ms ease !important;
+    }
+    [${FIELD_STATE_ATTR}="filling"] {
+      outline: 2px solid ${COLORS.light.accent} !important;
+      box-shadow: 0 0 0 4px color-mix(in srgb, ${COLORS.light.accent} 12%, transparent) !important;
+      transition: none !important;
+    }
+    [${FIELD_STATE_ATTR}="filled"] {
+      outline: 2px solid ${COLORS.light.stemAccent} !important;
+      box-shadow: 0 0 0 4px color-mix(in srgb, ${COLORS.light.stemAccent} 12%, transparent) !important;
     }
     [${FIELD_STATE_ATTR}="needs-user"] {
-      outline: 3px solid rgba(245, 158, 11, .92) !important;
-      outline-offset: 2px !important;
-      box-shadow: 0 0 0 7px rgba(245, 158, 11, .14) !important;
-      animation: tmo-autofill-needs-user 760ms ease-out both !important;
-    }
-    @keyframes tmo-autofill-field-ready {
-      0% { opacity: .72; filter: saturate(.8); }
-      45% { opacity: 1; filter: saturate(1.18); }
-      100% { opacity: 1; filter: saturate(1); }
-    }
-    @keyframes tmo-autofill-needs-user {
-      0%, 100% { box-shadow: 0 0 0 4px rgba(245, 158, 11, .10); }
-      50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, .18); }
+      outline: 2px solid ${COLORS.light.warningInk} !important;
+      box-shadow: none !important;
     }
     @media (prefers-reduced-motion: reduce) {
       [${FIELD_STATE_ATTR}] {
@@ -125,7 +127,9 @@ export function flashAutofillField(
   ensureFieldStyles(root);
   element.setAttribute(FIELD_STATE_ATTR, state);
   const view = element.ownerDocument.defaultView;
-  view?.setTimeout(() => {
+  const prior = fieldTimers.get(element);
+  if (prior !== undefined) view?.clearTimeout(prior);
+  const timer = view?.setTimeout(() => {
     if (
       element.isConnected &&
       element.getAttribute(FIELD_STATE_ATTR) === state
@@ -133,6 +137,7 @@ export function flashAutofillField(
       element.removeAttribute(FIELD_STATE_ATTR);
     }
   }, state === 'filled' ? 1_450 : 2_600);
+  if (timer !== undefined) fieldTimers.set(element, timer);
 }
 
 function svgIcon(
@@ -170,7 +175,8 @@ function svgIcon(
 }
 
 export function createAutofillVisualFeedback(
-  documentForVisual: Document = document
+  documentForVisual: Document = document,
+  options: { animateFields?: boolean } = {},
 ): AutofillVisualFeedback {
   documentForVisual.getElementById(VISUAL_HOST_ID)?.remove();
   const host = documentForVisual.createElement('div');
@@ -178,66 +184,74 @@ export function createAutofillVisualFeedback(
   host.setAttribute('role', 'status');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-atomic', 'true');
-  host.style.cssText =
-    'position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;pointer-events:none;';
+  const slot = documentForVisual.querySelector<HTMLElement>('.tmo-prefill-progress-slot');
+  host.style.cssText = slot
+    ? 'display:block;margin:8px 12px;pointer-events:none;'
+    : 'position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;pointer-events:none;';
   const shadow = host.attachShadow({ mode: 'open' });
   const style = documentForVisual.createElement('style');
   style.textContent = `
     :host { color-scheme: light dark; }
     .shell {
-      width:min(360px,calc(100vw - 32px)); box-sizing:border-box;
-      padding:12px 14px 10px; border:1px solid rgba(255,255,255,.16);
-      border-radius:14px; color:#f8fafc; background:rgba(15,23,42,.96);
-      box-shadow:0 18px 48px rgba(15,23,42,.30),0 4px 14px rgba(15,23,42,.18);
-      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      width:${slot ? '100%' : 'min(340px,calc(100vw - 32px))'}; box-sizing:border-box;
+      padding:12px; border:1px solid var(--tmo-widget-border,${COLORS.light.border});
+      border-radius:12px; color:var(--tmo-widget-ink,${COLORS.light.ink}); background:var(--tmo-widget-surface,${COLORS.light.surface});
+      box-shadow:${slot ? 'none' : '0 8px 24px rgba(15,23,42,.12)'};
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
       animation:tmo-autofill-hud-in 220ms cubic-bezier(.2,.8,.2,1) both;
     }
     .row { display:flex;align-items:center;gap:10px;min-height:22px; }
     .icon {
       width:24px;height:24px;border-radius:999px;display:grid;place-items:center;
-      flex:0 0 auto;color:#c4b5fd;background:rgba(124,58,237,.22);
+      flex:0 0 auto;color:${COLORS.light.accent};background:${COLORS.light.infoSurface};
     }
     .shell[data-state="complete"] .icon {
-      color:#a7f3d0;background:rgba(16,185,129,.22);
+      color:${COLORS.light.stemAccent};background:${COLORS.light.successSurface};
     }
     .shell[data-state="needs_user"] .icon {
-      color:#fde68a;background:rgba(245,158,11,.22);
+      color:${COLORS.light.warningInk};background:${COLORS.light.warningSurface};
     }
     .shell[data-state="error"] .icon {
-      color:#fecaca;background:rgba(239,68,68,.22);
+      color:${COLORS.light.dangerInk};background:${COLORS.light.dangerSurface};
     }
     .copy { min-width:0;flex:1; }
     .title { margin:0;font-size:13px;line-height:1.35;font-weight:750;letter-spacing:.01em; }
-    .hint { margin:2px 0 0;color:#cbd5e1;font-size:11px;line-height:1.35;font-weight:500; }
+    .hint { margin:2px 0 0;color:var(--tmo-widget-muted,${COLORS.light.inkMuted});font-size:11px;line-height:1.35;font-weight:500; }
     .track { height:3px;margin-top:9px;border-radius:999px;overflow:hidden;background:rgba(148,163,184,.25); }
     .fill {
-      width:42%;height:100%;border-radius:inherit;
-      background:linear-gradient(90deg,#7c3aed,#60a5fa,#7c3aed);
-      background-size:200% 100%;animation:tmo-autofill-progress 950ms linear infinite;
+      width:100%;height:100%;border-radius:inherit;transform-origin:left;
+      background:${COLORS.light.accent};animation:tmo-autofill-progress 1100ms cubic-bezier(.4,0,.2,1) infinite;
     }
     .shell[data-state="complete"] .fill {
-      width:100%;background:#10b981;animation:none;transition:width 220ms ease-out;
+      background:${COLORS.light.stemAccent};animation:none;transform:scaleX(1);
     }
     .shell[data-state="needs_user"] .fill {
-      width:100%;background:linear-gradient(90deg,#10b981 0 76%,#f59e0b 76%);animation:none;
+      background:${COLORS.light.warningInk};animation:none;transform:scaleX(1);
     }
+    .shell[data-state="error"] .fill { background:${COLORS.light.dangerInk};animation:none;transform:scaleX(1); }
     .spinner {
-      width:13px;height:13px;border-radius:999px;border:2px solid rgba(196,181,253,.38);
-      border-top-color:#c4b5fd;animation:tmo-autofill-spin 680ms linear infinite;
+      width:13px;height:13px;border-radius:999px;border:2px solid ${COLORS.light.infoBorder};
+      border-top-color:${COLORS.light.accent};animation:tmo-autofill-spin 680ms linear infinite;
     }
     @keyframes tmo-autofill-hud-in {
       from { opacity:0;transform:translateY(-8px) scale(.98); }
       to { opacity:1;transform:translateY(0) scale(1); }
     }
     @keyframes tmo-autofill-progress {
-      from { transform:translateX(-100%);background-position:0 0; }
-      to { transform:translateX(245%);background-position:200% 0; }
+      from { transform:translateX(-35%) scaleX(.35); }
+      to { transform:translateX(100%) scaleX(.35); }
     }
     @keyframes tmo-autofill-spin { to { transform:rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) {
       .shell,.fill,.spinner { animation:none !important;transition:none !important; }
       .fill { width:100%; }
+    }
+    :host([data-motion="reduced"]) .shell,
+    :host([data-motion="reduced"]) .fill,
+    :host([data-motion="reduced"]) .spinner { animation:none !important;transition:none !important; }
+    @media (prefers-color-scheme: dark) {
+      .shell { color:var(--tmo-widget-ink,${COLORS.dark.ink});background:var(--tmo-widget-surface,${COLORS.dark.surface});border-color:var(--tmo-widget-border,${COLORS.dark.border}); }
+      .hint { color:var(--tmo-widget-muted,${COLORS.dark.inkMuted}); }
     }
   `;
   const shell = documentForVisual.createElement('div');
@@ -253,9 +267,11 @@ export function createAutofillVisualFeedback(
   title.className = 'title';
   const hint = documentForVisual.createElement('p');
   hint.className = 'hint';
-  hint.textContent = 'You stay in control. TrackMyOPT never submits.';
+  hint.textContent = 'TrackMyOPT · Never submits';
   const track = documentForVisual.createElement('div');
   track.className = 'track';
+  track.setAttribute('role', 'progressbar');
+  track.setAttribute('aria-label', 'Prefill in progress');
   const fill = documentForVisual.createElement('div');
   fill.className = 'fill';
   track.appendChild(fill);
@@ -263,22 +279,29 @@ export function createAutofillVisualFeedback(
   row.append(icon, copy);
   shell.append(row, track);
   shadow.append(style, shell);
-  (documentForVisual.body || documentForVisual.documentElement).appendChild(host);
-  documentForVisual.defaultView?.setTimeout(() => host.remove(), 15_000);
+  (slot || documentForVisual.body || documentForVisual.documentElement).appendChild(host);
 
-  const reducedMotion =
+  const reducedMotion = options.animateFields === false ||
     documentForVisual.defaultView?.matchMedia?.(
       '(prefers-reduced-motion: reduce)'
     ).matches === true;
+  host.setAttribute('data-motion', reducedMotion ? 'reduced' : 'full');
   let scheduledFields = 0;
   let displayedFilled = 0;
   let displayedNeedsUser = 0;
   const pending: Promise<void>[] = [];
   let finished = false;
+  let failed = false;
+  let preparedFields = 0;
+  let activeField: HTMLElement | undefined;
+  const clearActiveField = () => {
+    if (activeField?.getAttribute(FIELD_STATE_ATTR) === 'filling') activeField.removeAttribute(FIELD_STATE_ATTR);
+    activeField = undefined;
+  };
 
   const render = (
     state: AutofillVisualState,
-    group?: PrefillFieldGroup,
+    group?: VisualGroup,
     customMessage?: string
   ) => {
     if (!host.isConnected) return;
@@ -294,8 +317,8 @@ export function createAutofillVisualFeedback(
       });
   };
 
-  const schedule = (callback: () => void) => {
-    const delay = autofillStaggerDelay(scheduledFields, reducedMotion);
+  const schedule = (callback: () => void, immediate = false) => {
+    const delay = immediate ? 0 : autofillStaggerDelay(scheduledFields, reducedMotion);
     scheduledFields += 1;
     const view = documentForVisual.defaultView;
     const task = new Promise<void>((resolve) => {
@@ -315,13 +338,31 @@ export function createAutofillVisualFeedback(
   render('filling');
 
   return {
+    async prepareField(element, group) {
+      clearActiveField();
+      if (finished || !host.isConnected || !element.isConnected) return;
+      ensureFieldStyles(rootForElement(element));
+      element.setAttribute(FIELD_STATE_ATTR, 'filling');
+      activeField = element;
+      render('filling', group);
+      // Short visible sequencing, capped at 864ms per pass. Never type partial
+      // values into application controls or slow background Continuous runs.
+      if (!reducedMotion && preparedFields++ < 12) {
+        await new Promise<void>(resolve => documentForVisual.defaultView!.setTimeout(resolve, 72));
+      }
+    },
+    clearActiveField,
     markFieldFilled(element, group) {
       if (finished) return;
+      const prepared = activeField === element;
+      if (prepared) activeField = undefined;
+      else clearActiveField();
       schedule(() => {
+        if (failed || !host.isConnected) return;
         displayedFilled += 1;
         flashAutofillField(element, 'filled');
         render('filling', group);
-      });
+      }, prepared);
     },
     markNeedsUser(element) {
       if (finished) return;
@@ -331,7 +372,9 @@ export function createAutofillVisualFeedback(
     finish(result, emptyResultMessage) {
       if (finished) return;
       finished = true;
+      clearActiveField();
       void Promise.all(pending).then(() => {
+        if (failed || !host.isConnected) return;
         displayedFilled = result.filled;
         displayedNeedsUser = result.skipped;
         render(
@@ -339,6 +382,8 @@ export function createAutofillVisualFeedback(
           undefined,
           result.filled === 0 ? emptyResultMessage : undefined
         );
+        track.removeAttribute('role');
+        track.removeAttribute('aria-label');
         documentForVisual.defaultView?.setTimeout(
           () => host.remove(),
           reducedMotion ? 1_600 : 2_600
@@ -346,9 +391,13 @@ export function createAutofillVisualFeedback(
       });
     },
     fail(message) {
-      if (finished) return;
+      if (failed) return;
+      failed = true;
       finished = true;
+      clearActiveField();
       render('error', undefined, message);
+      track.removeAttribute('role');
+      track.removeAttribute('aria-label');
       documentForVisual.defaultView?.setTimeout(
         () => host.remove(),
         reducedMotion ? 1_600 : 3_200

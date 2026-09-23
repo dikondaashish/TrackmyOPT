@@ -14,6 +14,7 @@ import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendMailWithRetry } from "@/lib/notifications/email-smtp";
 import { buildWelcomeFreeEmailBodies } from "@/lib/notifications/transactional/onboarding";
+import { buildStemOptWindowEmailBodies } from "@/lib/notifications/transactional/alerts";
 import {
   buildCheckoutRecoveryEmailBodies,
   buildFreeReceiptReengagementEmailBodies,
@@ -47,6 +48,35 @@ async function resolveBodiesForRetry(
   row: EmailQueueRow
 ): Promise<{ subject: string; html: string; text: string } | null> {
   const subjectFallback = row.email_subject?.trim() || "Email from TrackMyOPT";
+
+  // Daily reminders are freshly calculated by their own cron. Their queue rows
+  // reserve the per-user day; replaying a saved countdown can send stale dates
+  // or disclose tools to an address that is no longer enrolled.
+  if (row.email_type === "daily_reminder") return null;
+
+  // A saved STEM body can outlive a recommendation date edit or a filing deadline.
+  // Always rebuild it before considering the generic persisted-body shortcut.
+  if (row.email_type === "stem_opt_window_open") {
+    if (!row.user_id) return null;
+    const [optResult, profileResult] = await Promise.all([
+      supabase.from("opt_status")
+        .select("opt_ead_end_date, stem_dso_recommendation_date, stem_start_date")
+        .eq("user_id", row.user_id).maybeSingle(),
+      supabase.from("profiles").select("first_name, stem_apply_email, notification_email, email")
+        .eq("user_id", row.user_id).maybeSingle(),
+    ]);
+    if (optResult.error || !optResult.data?.opt_ead_end_date || optResult.data.stem_start_date) return null;
+    if (profileResult.error || !profileResult.data) return null;
+    const profile = profileResult.data;
+    // Match the window cron's existing recipient preference; never send to an old address.
+    const currentEmail = profile.stem_apply_email?.trim() || profile.notification_email?.trim() || profile.email?.trim();
+    if (!currentEmail || currentEmail.toLowerCase() !== row.email_address.trim().toLowerCase()) return null;
+    return buildStemOptWindowEmailBodies({
+      firstName: profileResult.data?.first_name ?? null,
+      optEadEndDate: optResult.data.opt_ead_end_date,
+      stemDsoRecommendationDate: optResult.data.stem_dso_recommendation_date,
+    });
+  }
 
   if (row.body_html && row.body_text) {
     return {
@@ -194,7 +224,7 @@ export async function GET(req: NextRequest) {
         .update({
           status: "failed",
           error_message:
-            "missing body for retry (unsupported email_type or missing user for welcome_free)",
+            "retry suppressed: unsupported daily replay, unavailable current data/recipient, or missing body",
           retry_count: Math.min(retryCount + 1, MAX_RETRIES),
         })
         .eq("id", row.id);

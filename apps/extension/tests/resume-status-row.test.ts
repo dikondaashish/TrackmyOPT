@@ -28,6 +28,10 @@ test('the row reports what happened to the file, not what was offered', () => {
   );
 });
 
+test('an existing upload is reported honestly without claiming this run attached it',()=>{
+ const status=resumeStatusAfterPrefill({attachedCount:0,hasResume:true,attachmentResult:'already_present'} as any);
+ assert.match(status.detail||'',/already.*upload|existing.*upload/i);
+});
 test('an attached row is not downgraded by a later availability re-check', () => {
   const attached = { dataset: { resumeStatus: 'attached' } } as unknown as HTMLElement;
   const ready = { dataset: { resumeStatus: 'ready' } } as unknown as HTMLElement;

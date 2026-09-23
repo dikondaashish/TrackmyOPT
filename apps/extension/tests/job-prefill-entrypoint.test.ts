@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { API_ENDPOINTS } from "../src/config";
+import { SIDEBAR_SHELL_CSS } from "../src/job-portal-sidebar-shell";
 
 assert.equal(
   API_ENDPOINTS.DASHBOARD_JOB_PREFILL,
@@ -24,18 +25,18 @@ assert.match(
   "the in-page extension assistant must expose the same setup link"
 );
 assert.match(
-  trackerWidget,
-  /max-height:\s*calc\(100dvh - 16px\)/,
+  SIDEBAR_SHELL_CSS,
+  /height:\s*calc\(100dvh - 32px\)/,
   "the expanded widget must stay within the visible browser height"
 );
 assert.match(
   trackerWidget,
-  /tmo-job-widget-scroll-body[\s\S]+max-height:calc\(100dvh - 72px\)[\s\S]+overflow-y:auto/,
+  /tmo-job-widget-scroll-body[\s\S]+flex:1 1 auto;min-height:0;[\s\S]+overflow-y:auto/,
   "the expanded widget body must provide its own vertical scroll area"
 );
 assert.match(
   sensitivePanel,
-  /body\.hidden = true;[\s\S]+display:none;gap:7px;margin-top:8px/,
+  /body\.hidden = true;/,
   "private answers must start collapsed instead of making every widget oversized"
 );
 assert.match(
@@ -46,7 +47,7 @@ assert.match(
 const prefillCoverageUi = readFileSync("src/job-portal-prefill-coverage-ui.ts", "utf8");
 assert.match(
   prefillCoverageUi,
-  /TrackMyOPT scanned this page[\s\S]+role', 'progressbar'[\s\S]+Required[\s\S]+Optional/,
+  /Application progress[\s\S]+role', 'progressbar'[\s\S]+Required[\s\S]+Optional/,
   "the widget must show truthful required/optional scan progress after prefill"
 );
 assert.match(

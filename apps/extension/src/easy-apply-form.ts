@@ -4,6 +4,7 @@
  */
 
 import { classifyField, type FieldKind } from './easy-apply-matchers';
+import { selectAtsPrefillAdapter } from './ats-prefill-adapters';
 import {
   type PrefillControlOutcome,
 } from './prefill-coverage';
@@ -65,9 +66,8 @@ export function applicationFieldScore(container: HTMLElement): number {
  * Locate the application form to scope filling to.
  *
  * Tries the tightest known containers first (LinkedIn Easy Apply modal,
- * Greenhouse form), then falls back to a GENERIC heuristic that works across
- * essentially any ATS (Lever, Ashby, Workable, SmartRecruiters, Recruitee,
- * Teamtailor, Jobvite, JazzHR, iCIMS, Workday, …): the <form> on the page that
+ * named ATS roots), then falls back to a GENERIC heuristic for standards-based
+ * forms: the <form> on the page that
  * most looks like a job application (>= 2 distinct fillable application fields,
  * e.g. name + email). This is label-based and safety-guarded, so it never
  * mis-fills sensitive/custom fields even on platforms not explicitly verified.
@@ -81,12 +81,18 @@ export function findApplicationForm(): HTMLElement | null {
       doc,
       '.jobs-easy-apply-modal, [data-test-modal-id="easy-apply-modal"]',
     )[0];
-    if (linkedin) return linkedin;
+    if (linkedin && isControlVisible(linkedin)) return linkedin;
+
+    const adapter = selectAtsPrefillAdapter(doc);
+    if (adapter.id !== 'generic') {
+      const root = adapter.findApplicationRoot(doc);
+      if (root && isControlVisible(root) && queryAllDeep(root, APPLICATION_CONTROL_SELECTOR).length > 0) return root;
+    }
 
     const greenhouse = queryAllDeep<HTMLElement>(
       doc,
       'form#application-form, form#application_form, form.application--form',
-    )[0];
+    ).find(root => isControlVisible(root));
     if (greenhouse) return greenhouse;
   }
 

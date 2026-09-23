@@ -9,6 +9,7 @@ interface OptDatesData {
   opt_start_date?: string | null;
   opt_ead_end_date?: string | null;
   stem_start_date?: string | null;
+  stem_dso_recommendation_date?: string | null;
   last_updated_field?: string | null;
 }
 
@@ -18,6 +19,7 @@ const DATE_OPTIONS = [
   { value: 'opt_start_date', label: 'OPT Start Date' },
   { value: 'opt_ead_end_date', label: 'Current OPT EAD End Date' },
   { value: 'stem_start_date', label: 'STEM Extension Start Date' },
+  { value: 'stem_dso_recommendation_date', label: 'STEM DSO Recommendation Date' },
 ];
 
 export function DateSelector() {
@@ -178,4 +180,3 @@ export function DateSelector() {
     </div>
   );
 }
-

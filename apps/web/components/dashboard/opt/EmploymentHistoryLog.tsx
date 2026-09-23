@@ -20,7 +20,6 @@ import {
 } from '@/lib/immigration/employment-tracking';
 import {
   computeEmploymentStats,
-  EMPTY_EMPLOYMENT_STATS,
   mapEmploymentSpans,
   toEmploymentInputDate,
   type EmploymentSpan,
@@ -30,6 +29,8 @@ interface EmploymentHistoryLogProps {
   employmentSpans?: EmploymentSpan[];
   optStartDate?: string;
   optEndDate?: string;
+  stemStartDate?: string;
+  asOfISO?: string;
   maxUnemploymentDays?: number;
   /** When true, opens the add-employment form (e.g. after setup modal). */
   autoOpenForm?: boolean;
@@ -40,6 +41,8 @@ export function EmploymentHistoryLog({
   employmentSpans = [],
   optStartDate,
   optEndDate,
+  stemStartDate,
+  asOfISO,
   maxUnemploymentDays = 90,
   autoOpenForm = false,
   onSpansChange,
@@ -60,7 +63,7 @@ export function EmploymentHistoryLog({
   const [editIsCurrent, setEditIsCurrent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [stats, setStats] = useState(EMPTY_EMPLOYMENT_STATS);
+  const stats = computeEmploymentStats(spans, optStartDate, optEndDate, stemStartDate, asOfISO);
 
   useEffect(() => {
     setSpans(employmentSpans);
@@ -84,16 +87,12 @@ export function EmploymentHistoryLog({
     spanCount,
     ack
   );
-  const showComplianceNumbers = shouldShowUnemploymentComplianceNumbers(
+  const showComplianceNumbers = !!optEndDate && shouldShowUnemploymentComplianceNumbers(
     optStartDate,
     spanCount,
     ack
   );
   const notOnOptYet = ack === 'not_on_opt' && spanCount === 0;
-
-  useEffect(() => {
-    setStats(computeEmploymentStats(spans, optStartDate, optEndDate));
-  }, [spans, optStartDate, optEndDate]);
 
   const sortedSpans = [...spans].sort(
     (a, b) =>
@@ -276,7 +275,7 @@ export function EmploymentHistoryLog({
   return (
     <div
       id="employment"
-      className="scroll-mt-24 bg-card border border-border rounded-xl overflow-hidden"
+      className={`scroll-mt-24 bg-card border border-border rounded-xl ${showInlineForm || editingId ? 'overflow-visible' : 'overflow-hidden'}`}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 border-b border-border">
         <div className="flex items-center gap-3 min-w-0">
@@ -386,6 +385,7 @@ export function EmploymentHistoryLog({
                   isCurrent={editIsCurrent}
                   saving={saving}
                   submitLabel="Save Changes"
+                  formError={formError}
                   onEmployerChange={setEditEmployer}
                   onStartDateChange={setEditStartDate}
                   onEndDateChange={setEditEndDate}

@@ -69,7 +69,7 @@ describe("shared default job-portal login filling", () => {
   it("uses the same default on three portal domains without overwriting values", () => {
     const email =
       document.querySelector<HTMLInputElement>("#login-email")!;
-    email.value = "already-entered@example.com";
+    email.value = CREDENTIAL.email;
 
     for (const hostname of [
       "acme.wd5.myworkdayjobs.com",
@@ -84,7 +84,7 @@ describe("shared default job-portal login filling", () => {
       expect(
         fillJobPortalLogin(document, CREDENTIAL, hostname)
       ).toMatchObject({ emailFilled: 0, passwordFilled: 2 });
-      expect(email.value).toBe("already-entered@example.com");
+      expect(email.value).toBe(CREDENTIAL.email);
     }
     expect(
       fillJobPortalLogin(document, CREDENTIAL, "www.trackmyopt.com").totalFilled

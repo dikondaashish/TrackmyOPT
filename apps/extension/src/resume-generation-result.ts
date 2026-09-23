@@ -5,11 +5,13 @@ import type {
 
 export interface GeneratedResumeSuccessBase {
   pdfBase64: string;
+  filename?: string;
   editorUrl?: string;
   baselineScore?: number;
   generatedScore?: number;
   scoreError?: 'limit_reached' | 'scan_failed';
   artifact?: GeneratedResumeArtifactV1;
+  savedToAccount?: boolean;
 }
 
 export interface SnapshotExtractionHandoff {

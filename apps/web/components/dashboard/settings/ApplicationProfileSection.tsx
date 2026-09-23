@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, Check, AlertCircle, ClipboardList } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Loader2, Check, AlertCircle, ClipboardList } from 'lucide-react';
 
 /**
  * General application profile data used by the Chrome extension to prefill job
@@ -29,25 +29,26 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  firstName: "",
-  lastName: "",
-  applicationEmail: "",
-  phone: "",
-  country: "",
-  streetAddress: "",
-  city: "",
-  state: "",
-  zipCode: "",
-  countyDistrict: "",
-  yearsExperience: "",
-  linkedinUrl: "",
-  githubUrl: "",
-  portfolioUrl: "",
+  firstName: '',
+  lastName: '',
+  applicationEmail: '',
+  phone: '',
+  country: '',
+  streetAddress: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  countyDistrict: '',
+  yearsExperience: '',
+  linkedinUrl: '',
+  githubUrl: '',
+  portfolioUrl: '',
 };
 
 export function ApplicationProfileSection() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -56,27 +57,37 @@ export function ApplicationProfileSection() {
     let active = true;
     (async () => {
       try {
-        const res = await fetch("/api/application-profile", { credentials: "include" });
-        if (!res.ok) return;
+        const res = await fetch('/api/application-profile', {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Profile unavailable');
         const json = await res.json();
         const d = json?.data;
         if (active && d) {
           setForm({
-            firstName: d.first_name ?? "",
-            lastName: d.last_name ?? "",
-            applicationEmail: d.application_email ?? "",
-            phone: d.phone ?? "",
-            country: d.country ?? "",
-            streetAddress: d.street_address ?? "",
-            city: d.city ?? "",
-            state: d.state ?? "",
-            zipCode: d.zip_code ?? "",
-            countyDistrict: d.county_district ?? "",
-            yearsExperience: d.years_experience != null ? String(d.years_experience) : "",
-            linkedinUrl: d.linkedin_url ?? "",
-            githubUrl: d.github_url ?? "",
-            portfolioUrl: d.portfolio_url ?? "",
+            firstName: d.first_name ?? '',
+            lastName: d.last_name ?? '',
+            applicationEmail: d.application_email ?? '',
+            phone: d.phone ?? '',
+            country: d.country ?? '',
+            streetAddress: d.street_address ?? '',
+            city: d.city ?? '',
+            state: d.state ?? '',
+            zipCode: d.zip_code ?? '',
+            countyDistrict: d.county_district ?? '',
+            yearsExperience:
+              d.years_experience != null ? String(d.years_experience) : '',
+            linkedinUrl: d.linkedin_url ?? '',
+            githubUrl: d.github_url ?? '',
+            portfolioUrl: d.portfolio_url ?? '',
           });
+        }
+      } catch {
+        if (active) {
+          setLoadFailed(true);
+          setError(
+            'Could not load your contact details. Reload this page before saving changes.'
+          );
         }
       } finally {
         if (active) setLoading(false);
@@ -87,21 +98,23 @@ export function ApplicationProfileSection() {
     };
   }, []);
 
-  const update = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [key]: e.target.value }));
-    setSuccess(null);
-    setError(null);
-  };
+  const update =
+    (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, [key]: e.target.value }));
+      setSuccess(null);
+      if (!loadFailed) setError(null);
+    };
 
   const handleSave = async () => {
+    if (loading || loadFailed) return;
     setSaving(true);
     setSuccess(null);
     setError(null);
     try {
-      const res = await fetch("/api/application-profile", {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/application-profile', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           first_name: form.firstName,
           last_name: form.lastName,
@@ -121,26 +134,27 @@ export function ApplicationProfileSection() {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json?.ok === false) {
-        setError(json?.error || "Could not save. Check your entries and try again.");
+        setError(
+          json?.error || 'Could not save. Check your entries and try again.'
+        );
         return;
       }
-      setSuccess("Application profile saved.");
+      setSuccess('Application profile saved.');
     } catch {
-      setError("Network error. Please try again.");
+      setError('Network error. Please try again.');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800 sm:p-6">
+    <section id="application-contact" className="scroll-mt-6">
       <div className="flex items-center gap-3 mb-1">
         <ClipboardList className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        <h3 className="text-base font-semibold">Job-portal contact & address</h3>
+        <h3 className="text-lg font-semibold">Contact &amp; address</h3>
       </div>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-        Saved only for Chrome-extension job application prefill. These values
-        are separate from your normal TrackMyOPT account profile.
+        Use the contact details you want employers to receive.
       </p>
 
       {loading ? (
@@ -151,16 +165,24 @@ export function ApplicationProfileSection() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="First name">
-              <Input value={form.firstName} onChange={update("firstName")} autoComplete="given-name" />
+              <Input
+                value={form.firstName}
+                onChange={update('firstName')}
+                autoComplete="given-name"
+              />
             </Field>
             <Field label="Last name">
-              <Input value={form.lastName} onChange={update("lastName")} autoComplete="family-name" />
+              <Input
+                value={form.lastName}
+                onChange={update('lastName')}
+                autoComplete="family-name"
+              />
             </Field>
             <Field label="Job-application email">
               <Input
                 type="email"
                 value={form.applicationEmail}
-                onChange={update("applicationEmail")}
+                onChange={update('applicationEmail')}
                 placeholder="jobs@example.com"
                 autoComplete="email"
               />
@@ -168,46 +190,87 @@ export function ApplicationProfileSection() {
             <Field label="Phone">
               <Input
                 value={form.phone}
-                onChange={update("phone")}
+                onChange={update('phone')}
                 placeholder="+1 555 123 4567"
                 inputMode="tel"
                 autoComplete="tel"
               />
             </Field>
             <Field label="Country">
-              <Input value={form.country} onChange={update("country")} placeholder="United States" autoComplete="country-name" />
+              <Input
+                value={form.country}
+                onChange={update('country')}
+                placeholder="United States"
+                autoComplete="country-name"
+              />
             </Field>
             <Field label="Street address">
-              <Input value={form.streetAddress} onChange={update("streetAddress")} placeholder="123 Main Street" autoComplete="address-line1" />
+              <Input
+                value={form.streetAddress}
+                onChange={update('streetAddress')}
+                placeholder="123 Main Street"
+                autoComplete="address-line1"
+              />
             </Field>
             <Field label="City">
-              <Input value={form.city} onChange={update("city")} placeholder="San Francisco" autoComplete="address-level2" />
+              <Input
+                value={form.city}
+                onChange={update('city')}
+                placeholder="San Francisco"
+                autoComplete="address-level2"
+              />
             </Field>
             <Field label="State / province">
-              <Input value={form.state} onChange={update("state")} placeholder="CA" autoComplete="address-level1" />
+              <Input
+                value={form.state}
+                onChange={update('state')}
+                placeholder="CA"
+                autoComplete="address-level1"
+              />
             </Field>
             <Field label="ZIP / postal code">
-              <Input value={form.zipCode} onChange={update("zipCode")} placeholder="94105" autoComplete="postal-code" />
+              <Input
+                value={form.zipCode}
+                onChange={update('zipCode')}
+                placeholder="94105"
+                autoComplete="postal-code"
+              />
             </Field>
             <Field label="County / district">
-              <Input value={form.countyDistrict} onChange={update("countyDistrict")} placeholder="San Francisco County" />
+              <Input
+                value={form.countyDistrict}
+                onChange={update('countyDistrict')}
+                placeholder="San Francisco County"
+              />
             </Field>
             <Field label="Total years of experience">
               <Input
                 value={form.yearsExperience}
-                onChange={update("yearsExperience")}
+                onChange={update('yearsExperience')}
                 placeholder="3"
                 inputMode="numeric"
               />
             </Field>
             <Field label="LinkedIn URL">
-              <Input value={form.linkedinUrl} onChange={update("linkedinUrl")} placeholder="https://linkedin.com/in/…" />
+              <Input
+                value={form.linkedinUrl}
+                onChange={update('linkedinUrl')}
+                placeholder="https://linkedin.com/in/…"
+              />
             </Field>
             <Field label="GitHub URL">
-              <Input value={form.githubUrl} onChange={update("githubUrl")} placeholder="https://github.com/…" />
+              <Input
+                value={form.githubUrl}
+                onChange={update('githubUrl')}
+                placeholder="https://github.com/…"
+              />
             </Field>
             <Field label="Website / portfolio URL">
-              <Input value={form.portfolioUrl} onChange={update("portfolioUrl")} placeholder="https://…" />
+              <Input
+                value={form.portfolioUrl}
+                onChange={update('portfolioUrl')}
+                placeholder="https://…"
+              />
             </Field>
           </div>
 
@@ -217,27 +280,41 @@ export function ApplicationProfileSection() {
             </p>
           )}
           {error && (
-            <p className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+            <p
+              role="alert"
+              className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400"
+            >
               <AlertCircle className="w-4 h-4" /> {error}
             </p>
           )}
 
-          <Button type="button" onClick={handleSave} disabled={saving} className="h-10">
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || loadFailed}
+            className="h-10"
+          >
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…
               </>
             ) : (
-              "Save job-portal profile"
+              'Save contact details'
             )}
           </Button>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="block text-sm font-medium mb-1.5">{label}</span>

@@ -14,7 +14,8 @@ import { getUserId } from '@/lib/auth/get-user-id';
 import { sendEnrollmentEmail, type EnrollmentEmailData } from '@/lib/notifications/email-service';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
-import { addDays, getFilingWindow } from '@/lib/immigration/opt-calculations';
+import { getFilingWindow } from '@/lib/immigration/opt-calculations';
+import { formatStemDate, getStemFilingEmailDetails } from '@/lib/notifications/stem-filing-email';
 
 export const dynamic = 'force-dynamic';
 
@@ -206,7 +207,7 @@ export async function POST(req: NextRequest) {
       try {
         const { data: optData } = await supabase
           .from('opt_status')
-          .select('program_end_date, opt_start_date, opt_ead_end_date, stem_start_date')
+          .select('program_end_date, opt_start_date, opt_ead_end_date, stem_start_date, stem_dso_recommendation_date')
           .eq('user_id', userId)
           .single();
 
@@ -237,10 +238,12 @@ export async function POST(req: NextRequest) {
               endDate: optData.opt_ead_end_date ? formatDate(optData.opt_ead_end_date) : undefined,
             };
           } else if (tool === 'stem_apply' && optData.opt_ead_end_date) {
+            const stemFiling = getStemFilingEmailDetails(optData.opt_ead_end_date, optData.stem_dso_recommendation_date);
             enrollmentData = {
-              startDate: formatDate(addDays(optData.opt_ead_end_date, -90)),
-              endDate: formatDate(optData.opt_ead_end_date),
-              totalDays: 90,
+              startDate: formatStemDate(stemFiling.earliestFile),
+              endDate: formatStemDate(stemFiling.hardDeadline),
+              totalDays: stemFiling.totalDays,
+              stemFiling,
             };
           } else if (tool === 'stem_clock' && optData.stem_start_date) {
             enrollmentData = {

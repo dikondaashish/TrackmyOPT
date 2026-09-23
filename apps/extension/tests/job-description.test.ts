@@ -36,7 +36,7 @@ assert.equal(
 console.log('job-description: iframe source priority passed');
 
 assert.equal(
-  chooseJobDescriptionCandidate([{ source: 'frame', text: 'J'.repeat(20_000) }])
+  chooseJobDescriptionCandidate([{ source: 'frame', text: actualPosting.repeat(20) }])
     .length,
   15_000,
   'preview must match the generator API payload limit',

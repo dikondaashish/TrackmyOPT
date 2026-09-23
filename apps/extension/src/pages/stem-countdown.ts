@@ -1,81 +1,17 @@
-import { getIdToken } from '../token-store';
+import { countdownView, TOOL_HELP } from '../tool-ui';
+import { calculateTimeRemaining, filingWindowMessage } from './opt-apply-date-helpers';
+import { stemApiRequest } from './stem-apply-api';
 import { WEBSITE_URL } from '../config.js';
 import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
 import { icon } from '../icons.js';
-import { toolSurfaceCard, type ToolSurfaceTone } from '../tool-page-theme.js';
-
-/**
- * Get formatted date for card display
- */
-function getCardDateFormat(date: Date): { day: string; month: string; year: string } {
-  const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-    'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
-  return {
-    day: String(date.getDate()),
-    month: months[date.getMonth()],
-    year: String(date.getFullYear())
-  };
-}
-
-/**
- * Calculate time remaining
- */
-function calculateTimeRemaining(targetDate: Date): {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  total: number;
-} {
-  const now = new Date();
-  const diff = targetDate.getTime() - now.getTime();
-
-  if (diff <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 };
-  }
-
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-  return { days, hours, minutes, seconds, total: diff };
-}
-
-/**
+import type { ToolSurfaceTone } from '../tool-page-theme.js';
 
 /**
  * Check if user has premium access
  */
 async function checkPremiumStatus(): Promise<boolean> {
   try {
-    const idToken = await getIdToken();
-
-    // Try with idToken first (extension auth)
-    if (idToken) {
-      const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        return result.isPremium || false;
-      }
-    }
-
-    // Fallback: Try with cookies (web session auth)
-    // This works if user signed in via dashboard
-    const response = await fetch(`${WEBSITE_URL}/api/premium/status`, {
-      method: 'GET',
-      credentials: 'include', // Include cookies
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await stemApiRequest('/api/premium/status', { method: 'GET' });
 
     if (!response.ok) return false;
 
@@ -91,28 +27,7 @@ async function checkPremiumStatus(): Promise<boolean> {
  */
 async function loadToolEmail(tool: string): Promise<string | null> {
   try {
-    // Try session cookies first (if user logged in via website)
-    let response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // If session cookies failed, try JWT token
-    if (!response.ok) {
-      const idToken = await getIdToken();
-      if (idToken) {
-        response = await fetch(`${WEBSITE_URL}/api/user/tool-email?tool=${tool}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
-    }
+    const response = await stemApiRequest(`/api/user/tool-email?tool=${tool}`, { method: 'GET' });
 
     if (!response.ok) return null;
 
@@ -128,30 +43,10 @@ async function loadToolEmail(tool: string): Promise<string | null> {
  */
 async function saveToolEmail(tool: string, email: string): Promise<boolean> {
   try {
-    // Try session cookies first (if user logged in via website)
-    let response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
+    const response = await stemApiRequest('/api/user/tool-email', {
       method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ tool, email }),
     });
-
-    // If session cookies failed, try JWT token
-    if (!response.ok) {
-      const idToken = await getIdToken();
-      if (idToken) {
-        response = await fetch(`${WEBSITE_URL}/api/user/tool-email`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ tool, email }),
-        });
-      }
-    }
 
     return response.ok;
   } catch (error) {
@@ -165,11 +60,7 @@ async function saveToolEmail(tool: string, email: string): Promise<boolean> {
 export async function renderStemCountdown(
   root: HTMLElement,
   onBack: () => void,
-  results: {
-    earliestStart: Date;
-    latestEnd: Date;
-    currentOptEndDate: Date;
-  }
+  results: import('./opt-apply-date-helpers').StemFilingWindowResults
 ): Promise<void> {
   root.innerHTML = '';
 
@@ -179,7 +70,10 @@ export async function renderStemCountdown(
     results: {
       earliestStart: results.earliestStart.toISOString(),
       latestEnd: results.latestEnd.toISOString(),
-      currentOptEndDate: results.currentOptEndDate.toISOString()
+      currentOptEndDate: results.currentOptEndDate.toISOString(),
+      dsoRecommendationDate: results.dsoRecommendationDate?.toISOString() ?? null,
+      uscisDeadline: results.uscisDeadline?.toISOString() ?? null,
+      filingDeadline: results.filingDeadline.toISOString()
     }
   });
 
@@ -188,200 +82,27 @@ export async function renderStemCountdown(
   const content = document.createElement('div');
   content.style.cssText = 'margin-top: 12px;';
 
-  const startCard = getCardDateFormat(results.earliestStart);
-  const now = new Date();
-  const presentCard = getCardDateFormat(now);
-  const endCard = getCardDateFormat(results.latestEnd);
+  const filingDeadline = results.filingDeadline;
 
   let countdownInterval: number | null = null;
+  content.textContent = 'Loading reminders…';
+  root.appendChild(content);
+  setupPageHandlers(() => {
+    if (countdownInterval) clearInterval(countdownInterval);
+    onBack();
+  });
 
   const isPremium = await checkPremiumStatus();
+  if (!root.contains(content)) return;
 
   // Load email from API (syncs with website)
   const subscribedEmail = await loadToolEmail('stem_apply');
+  if (!root.contains(content)) return;
   const hasSubscribed = !!subscribedEmail;
 
-  content.innerHTML = `
-    <!-- Date Cards -->
-    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-      <!-- Start Date -->
-      <div style="flex:1;${toolSurfaceCard('green')};border-radius:16px;padding:12px;text-align:center;">
-        <div style="width:40px;height:40px;background:var(--surface-2);border-radius:10px;margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;">
-          <div style="font-size: 16px; font-weight: 800; line-height: 1;">${startCard.day}</div>
-          <div style="font-size: 7px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">${startCard.month.substring(0, 3)}</div>
-          <div style="font-size: 7px; opacity: 0.8;">${startCard.year}</div>
-        </div>
-        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">START DATE</div>
-      </div>
-      
-      <!-- Present -->
-      <div style="flex:1;${toolSurfaceCard('green')};border-radius:16px;padding:12px;text-align:center;">
-        <div style="width:40px;height:40px;background:var(--surface-2);border-radius:10px;margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;">
-          <div style="font-size: 16px; font-weight: 800; line-height: 1;">${presentCard.day}</div>
-          <div style="font-size: 7px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">${presentCard.month.substring(0, 3)}</div>
-          <div style="font-size: 7px; opacity: 0.8;">${presentCard.year}</div>
-        </div>
-        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">PRESENT</div>
-      </div>
-      
-      <!-- End Date -->
-      <div style="flex:1;${toolSurfaceCard('red')};border-radius:16px;padding:12px;text-align:center;">
-        <div style="width:40px;height:40px;background:var(--surface-2);border-radius:10px;margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;">
-          <div style="font-size: 16px; font-weight: 800; line-height: 1;">${endCard.day}</div>
-          <div style="font-size: 7px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">${endCard.month.substring(0, 3)}</div>
-          <div style="font-size: 7px; opacity: 0.8;">${endCard.year}</div>
-        </div>
-        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">END DATE</div>
-      </div>
-    </div>
-    
-    <!-- Countdown Display -->
-    <div id="countdown-container" style="${toolSurfaceCard('green')};border-radius:20px;padding:16px;margin-bottom:10px;transition:background-color .2s ease,border-color .2s ease;">
-      <div id="days-left-text" style="font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 12px;">-- days left</div>
-      
-      <!-- Time Boxes -->
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px;">
-        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
-          <div id="countdown-days" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
-          <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">DAYS</div>
-        </div>
-        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
-          <div id="countdown-hours" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
-          <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">HOURS</div>
-        </div>
-        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
-          <div id="countdown-minutes" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
-          <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">MINUTES</div>
-        </div>
-        <div style="background: var(--surface-2); border-radius: 10px; padding: 8px 4px; text-align: center;">
-          <div id="countdown-seconds" style="font-size: 20px; font-weight: 800; color: #10b981;">--</div>
-          <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-top: 2px;">SECONDS</div>
-        </div>
-      </div>
-      
-      <div id="time-message" style="text-align: center; font-size: 14px; font-weight: 600; opacity: 0.95;">You have plenty of time remaining</div>
-    </div>
-    
-    <!-- Email Reminders Section -->
-    <div style="${toolSurfaceCard('green')};border-radius:20px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden;">
-      ${!isPremium ? `
-        <div style="position: absolute; top: 8px; right: 8px; background: #fbbf24; color: #78350f; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;">
-          Premium
-        </div>
-      ` : ''}
-      
-      <div style="text-align: center; margin-bottom: 12px;">
-        <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">${icon('mail', 18, 'currentColor')} Daily Reminders <span style="font-size: 13px; opacity: 0.9;">(9:00 AM ET)</span></div>
-        <div style="font-size: 11px; opacity: 0.9; line-height: 1.4;">
-          We'll show a Chrome notification every morning. If you enter an email and connect the mailer, we'll also email you.
-        </div>
-      </div>
-      
-      <div id="email-reminder-content">
-        ${isPremium ? `
-          <div style="display: flex; gap: 6px; margin-bottom: ${hasSubscribed ? '10px' : '0px'};">
-            <input 
-              type="email" 
-              id="reminder-email-input"
-              placeholder="your@email.com"
-              style="
-                flex: 1;
-                padding: 12px;
-                border: 0;
-                border-radius: 12px;
-                background: var(--surface-2);
-                color: var(--ink);
-                font-size: 13px;
-                outline: none;
-                font-family: inherit;
-              "
-            />
-            <button 
-              id="save-email-btn"
-              style="
-                width: 44px;
-                height: 44px;
-                border: 0;
-                border-radius: 12px;
-                background: var(--surface-2);
-                color: var(--ink);
-                font-size: 18px;
-                cursor: pointer;
-                display: grid;
-                place-items: center;
-              "
-            >→</button>
-          </div>
-          ${hasSubscribed ? `
-            <button 
-              id="stop-reminders-btn"
-              style="
-                width: 100%;
-                padding: 12px;
-                border: 0;
-                border-radius: 12px;
-                background: rgba(220, 38, 38, 0.8);
-                color: white;
-                font-size: 13px;
-                font-weight: 700;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-              "
-            >
-              ${icon('circleStop', 14, 'currentColor')} Stop Reminders
-            </button>
-          ` : ''}
-        ` : `
-          <div style="text-align: center; padding: 16px;">
-            <div style="margin-bottom: 8px; display: flex; justify-content: center;">${icon('lock', 28, 'currentColor')}</div>
-            <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Unlock Daily Email Reminders</div>
-            <div style="font-size: 11px; opacity: 0.9; margin-bottom: 12px;">Get daily email notifications with Pro ($4.99/mo)</div>
-            <button 
-              id="upgrade-premium-btn"
-              style="
-                width: 100%;
-                padding: 12px;
-                border: 0;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #fbbf24, #f59e0b);
-                color: #78350f;
-                font-size: 14px;
-                font-weight: 800;
-                cursor: pointer;
-                box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
-              "
-            >
-              Upgrade to Pro ($4.99/mo)
-            </button>
-          </div>
-        `}
-      </div>
-    </div>
-    
-    <!-- Modify Button -->
-    <button 
-      id="modify-dates-btn"
-      style="
-        width: 100%;
-        padding: 14px;
-        border: 0;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-        font-size: 15px;
-        font-weight: 800;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-      "
-    >
-      Modify Approval Date
-    </button>
-  `;
+  content.className = 'tool-content';
+  content.innerHTML = countdownView(results.earliestStart, filingDeadline, isPremium, hasSubscribed, `${TOOL_HELP.stem} Your saved STEM recommendation date syncs with your dashboard and reminders. Without it, the deadline is an estimate. The countdown is a local calendar-day estimate; confirm receipt requirements with your DSO.`, !results.dsoRecommendationDate);
 
-  root.appendChild(content);
   const reminderEmailInput = content.querySelector('#reminder-email-input') as HTMLInputElement | null;
   if (reminderEmailInput) reminderEmailInput.value = subscribedEmail || '';
 
@@ -390,7 +111,11 @@ export async function renderStemCountdown(
 
   // Update countdown every second with flip animation and dynamic colors
   function updateCountdown() {
-    const remaining = calculateTimeRemaining(results.latestEnd);
+    if (!content.isConnected) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      return;
+    }
+    const remaining = calculateTimeRemaining(filingDeadline);
 
     const daysLeftText = content.querySelector('#days-left-text');
     const daysEl = content.querySelector('#countdown-days') as HTMLElement;
@@ -415,20 +140,13 @@ export async function renderStemCountdown(
     }
 
     if (containerEl) {
-      containerEl.style.background = `var(--tool-${tone}-surface)`;
-      containerEl.style.borderColor = `var(--tool-${tone}-border)`;
+      containerEl.dataset.tone = tone;
+
     }
 
     // Flip animation function
     function flipElement(element: HTMLElement, newValue: string) {
-      if (!element) return;
-      element.style.transform = 'rotateX(90deg)';
-      element.style.opacity = '0';
-      setTimeout(() => {
-        element.textContent = newValue;
-        element.style.transform = 'rotateX(0deg)';
-        element.style.opacity = '1';
-      }, 150);
+      if (element) element.textContent = newValue;
     }
 
     const currentDays = String(remaining.days).padStart(2, '0');
@@ -436,7 +154,7 @@ export async function renderStemCountdown(
     const currentMinutes = String(remaining.minutes).padStart(2, '0');
     const currentSeconds = String(remaining.seconds).padStart(2, '0');
 
-    if (daysLeftText) daysLeftText.textContent = `${remaining.days} days left`;
+    if (daysLeftText) daysLeftText.textContent = remaining.total === 0 ? 'Window expired' : `${remaining.days} days left`;
 
     if (daysEl && currentDays !== String(previousValues.days).padStart(2, '0')) {
       flipElement(daysEl, currentDays);
@@ -459,17 +177,7 @@ export async function renderStemCountdown(
     if (secondsEl) flipElement(secondsEl, currentSeconds);
 
     if (messageEl) {
-      if (remaining.days > 60) {
-        messageEl.textContent = 'You have plenty of time remaining';
-      } else if (remaining.days > 30) {
-        messageEl.textContent = 'Time is moving along, stay prepared';
-      } else if (remaining.days > 14) {
-        messageEl.textContent = 'Getting closer to the deadline!';
-      } else if (remaining.days > 7) {
-        messageEl.textContent = 'Less than two weeks remaining!';
-      } else {
-        messageEl.textContent = 'URGENT: Apply immediately!';
-      }
+      messageEl.textContent = filingWindowMessage(results.earliestStart, filingDeadline);
     }
 
     previousValues = { days: remaining.days, hours: remaining.hours, minutes: remaining.minutes, seconds: remaining.seconds };
@@ -534,6 +242,8 @@ export async function renderStemCountdown(
 
           // Reload the page after 1 second to show "Stop Reminders" button
           setTimeout(() => {
+            if (!root.contains(content)) return;
+            if (countdownInterval) clearInterval(countdownInterval);
             renderStemCountdown(root, onBack, results);
           }, 1000);
         } else {
@@ -552,7 +262,16 @@ export async function renderStemCountdown(
       stopBtn.addEventListener('click', async () => {
         if (confirm('Are you sure you want to stop daily reminders?')) {
           // Remove email from API (syncs with website)
-          await saveToolEmail('stem_apply', '');
+          const stopped = await saveToolEmail('stem_apply', '');
+          if (!stopped) {
+            chrome.notifications.create({
+              type: 'basic',
+              iconUrl: 'icons/icon128.png',
+              title: 'Error',
+              message: 'Failed to stop reminders. Please try again.'
+            });
+            return;
+          }
 
           // Show notification
           chrome.notifications.create({
@@ -578,5 +297,4 @@ export async function renderStemCountdown(
     }
   }
 
-  setupPageHandlers(onBack);
 }

@@ -86,6 +86,7 @@ export async function GET(request: NextRequest) {
         `Email,${user.email || 'Not set'}`,
         `Program End Date,${optStatus?.program_end_date || 'Not set'}`,
         `DSO Recommendation Date,${optStatus?.dso_recommendation_date || 'Not set'}`,
+        `STEM DSO Recommendation Date,${optStatus?.stem_dso_recommendation_date || 'Not set'}`,
         `OPT Start Date,${optStatus?.opt_start_date || 'Not set'}`,
         `OPT EAD End Date,${optStatus?.opt_ead_end_date || 'Not set'}`,
         `STEM Start Date,${optStatus?.stem_start_date || 'Not set'}`,
@@ -156,6 +157,7 @@ export async function GET(request: NextRequest) {
       optStatus: {
         programEndDate: optStatus?.program_end_date || null,
         dsoRecommendationDate: optStatus?.dso_recommendation_date || null,
+        stemDsoRecommendationDate: optStatus?.stem_dso_recommendation_date || null,
         optStartDate: optStatus?.opt_start_date || null,
         optEadEndDate: optStatus?.opt_ead_end_date || null,
         stemStartDate: optStatus?.stem_start_date || null,

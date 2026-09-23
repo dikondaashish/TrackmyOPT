@@ -31,7 +31,7 @@ export function summarizeUnemploymentClock(
   };
 }
 
-function parseClockResponse(value: unknown): VerifiedUnemploymentClock | null {
+export function parseVerifiedUnemploymentClockResponse(value: unknown): VerifiedUnemploymentClock | null {
   if (typeof value !== 'object' || value === null) return null;
   const clock = (
     value as {
@@ -40,12 +40,24 @@ function parseClockResponse(value: unknown): VerifiedUnemploymentClock | null {
   ).data?.unemployment_clock;
   if (typeof clock !== 'object' || clock === null) return null;
   const candidate = clock as Record<string, unknown>;
+  const used = candidate.used;
+  const remaining = candidate.remaining;
+  const max = candidate.max;
+  const phase = candidate.phase;
   if (
     candidate.active !== true ||
-    !Number.isFinite(candidate.used) ||
-    !Number.isFinite(candidate.remaining) ||
-    (candidate.max !== 90 && candidate.max !== 150) ||
-    (candidate.phase !== 'initial' && candidate.phase !== 'stem')
+    typeof used !== 'number' ||
+    typeof remaining !== 'number' ||
+    typeof max !== 'number' ||
+    !Number.isInteger(used) ||
+    used < 0 ||
+    !Number.isInteger(remaining) ||
+    remaining < 0 ||
+    (max !== 90 && max !== 150) ||
+    (phase !== 'initial' && phase !== 'stem') ||
+    (phase === 'initial' && max !== 90) ||
+    (phase === 'stem' && max !== 150) ||
+    remaining !== Math.max(0, max - used)
   ) {
     return null;
   }
@@ -64,7 +76,7 @@ export async function loadVerifiedUnemploymentClock(): Promise<VerifiedUnemploym
       },
     });
     if (!response.ok) return null;
-    return parseClockResponse(await response.json());
+    return parseVerifiedUnemploymentClockResponse(await response.json());
   };
 
   if (token) {

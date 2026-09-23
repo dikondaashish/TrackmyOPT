@@ -8,7 +8,7 @@ import {
 describe('employment-history-helpers', () => {
   it('formats duration bands', () => {
     expect(calculateEmploymentDuration('2025-01-01', '2025-01-10')).toBe(
-      '9 days'
+      '10 days'
     );
     expect(calculateEmploymentDuration('2025-01-01', '2025-03-01')).toMatch(
       /month/
@@ -41,7 +41,7 @@ describe('employment-history-helpers', () => {
         },
       ],
       '01/01/2025',
-      '12/31/2025'
+      '12/31/2025', undefined, '2025-06-01'
     );
     expect(stats.totalEmployedDays).toBeGreaterThan(0);
     expect(stats.totalUnemployedDays).toBe(0);

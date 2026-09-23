@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import test from 'node:test';
 import vm from 'node:vm';
+import {validateGeneratedResumeArtifactV1} from '../src/resume-artifact-validator';
 
 /**
  * A tailored resume must outlive the browser session that produced it.
@@ -61,6 +62,10 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 interface ServerState {
+  failGeneration?: boolean;
+  writeStatus?: number;
+  readStatus?: number;
+  generatedAt?: string;
   /** What GET /api/extension/resume-artifact hands back, keyed by nothing —
    *  the fake stands in for the route's own matching. */
   storedArtifact: unknown;
@@ -78,17 +83,17 @@ function makeFetch(server: ServerState) {
     if (url.includes('/api/extension/resume-artifact')) {
       if (method === 'POST') {
         server.artifactWrites += 1;
-        return Promise.resolve(jsonResponse({ ok: true, stored: true }));
+        return Promise.resolve(jsonResponse({ ok: true, stored: true }, server.writeStatus ?? 200));
       }
       const jobUrl = new URL(url).searchParams.get('jobUrl') || '';
       server.artifactLookups.push(jobUrl);
-      return Promise.resolve(jsonResponse({ ok: true, artifact: server.storedArtifact }));
+      return Promise.resolve(jsonResponse({ ok: true, artifact: server.storedArtifact, generatedAt: server.generatedAt }, server.readStatus ?? 200));
     }
     if (url.includes('/api/resume-generator/base-resume')) {
       return Promise.resolve(jsonResponse({ content: 'Base resume fixture', filename: 'base.pdf' }));
     }
     if (url.endsWith('/api/resume-generator/generate')) {
-      return Promise.resolve(jsonResponse({ latex: '\\begin{document}Fixture\\end{document}' }));
+      return Promise.resolve(jsonResponse({ latex: '\\begin{document}Fixture\\end{document}' },server.failGeneration ? 503 : 200));
     }
     if (url.endsWith('/api/resume-generator/compile')) {
       return Promise.resolve(new Response(new TextEncoder().encode('%PDF-1.4\nfixture')));
@@ -118,6 +123,7 @@ function createWorker(input: {
   sessionValues: Record<string, unknown>;
   server: ServerState;
   tabMessages: Array<Record<string, unknown>>;
+  localValues?: Record<string, unknown>;
 }) {
   let messageListener: MessageListener | undefined;
   const event = { addListener() {}, removeListener() {} };
@@ -151,8 +157,9 @@ function createWorker(input: {
     notifications: { create() {} },
     scripting: { executeScript: async () => undefined },
     storage: {
+      onChanged: event,
       session: makeStorageArea(input.sessionValues),
-      local: makeStorageArea({
+      local: makeStorageArea(input.localValues ?? {
         idToken: `header.${jwtPayload}.signature`,
         idTokenIssuedAt: Date.now(),
         idTokenUserId: 'user-a',
@@ -186,7 +193,7 @@ function createWorker(input: {
 
   assert.ok(messageListener, 'background worker registered its message listener');
   return {
-    dispatch(message: Record<string, unknown>): Promise<any> {
+    dispatch(message: Record<string, unknown>, sender: any = { tab: { id: 7 }, documentId: 'doc-1' }): Promise<any> {
       return new Promise((resolve, reject) => {
         let settled = false;
         const timeout = setTimeout(() => {
@@ -199,7 +206,7 @@ function createWorker(input: {
         };
         const asynchronous = messageListener!(
           message,
-          { tab: { id: 7 }, documentId: 'doc-1' },
+          sender,
           sendResponse,
         );
         if (asynchronous !== true && !settled) {
@@ -237,7 +244,7 @@ test('a generated resume is written to per-job server storage', async () => {
 
   const generated = await worker.dispatch({
     type: 'GENERATE_RESUME',
-    jobDescription: 'Lever job description fixture',
+    jobDescription: 'Responsibilities: Build SQL dashboards and analyze product performance with the team. Qualifications: Three years of analytics experience and strong communication skills. Benefits include health insurance and paid time off.',
     resumeId: 'resume-1',
     templateId: 'classic',
     companyName: 'Acme',
@@ -249,6 +256,118 @@ test('a generated resume is written to per-job server storage', async () => {
 
   assert.equal(generated.ok, true);
   assert.equal(server.artifactWrites, 1, 'generation must persist the artifact for later');
+});
+
+const generationRequest = {
+  type: 'GENERATE_RESUME',
+  jobDescription: 'Responsibilities: Build SQL dashboards and analyze product performance with the team. Qualifications: Three years of analytics experience and strong communication skills. Benefits include health insurance and paid time off.',
+  resumeId: 'resume-1', templateId: 'classic', companyName: 'Acme', roleTitle: 'Engineer',
+  jobUrl: LISTING_URL, jobKey: LISTING_URL,
+};
+const panelSender = { url: 'chrome-extension://test/sidepanel.html' };
+
+test('pasted resumes produce a valid storable artifact', async () => {
+ const bundle=await buildBackgroundBundle();
+ const server:ServerState={storedArtifact:null,artifactLookups:[],artifactWrites:0};
+ const worker=createWorker({bundle,server,sessionValues:{},tabMessages:[]});
+ const result=await worker.dispatch({...generationRequest,resumeId:'',resumeText:'Applicant resume content'});
+ assert.equal(result.ok,true);
+ assert.equal(await validateGeneratedResumeArtifactV1(result.artifact),true);
+});
+
+test('failed regeneration keeps the previous active PDF and saved copy', async () => {
+ const bundle=await buildBackgroundBundle();
+ const server:ServerState={storedArtifact:null,artifactLookups:[],artifactWrites:0};
+ const sessionValues:Record<string,unknown>={};
+ const worker=createWorker({bundle,server,sessionValues,tabMessages:[]});
+ const first=await worker.dispatch(generationRequest);
+ server.failGeneration=true;
+ const second=await worker.dispatch(generationRequest);
+ assert.equal(second.ok,false);
+ assert.equal(JSON.stringify(sessionValues[ACTIVE_ARTIFACT_SESSION_KEY]),JSON.stringify(first.artifact));
+ assert.equal(server.artifactWrites,1);
+});
+
+test('reopening the panel retains an unsaved new version instead of showing an older server PDF', async () => {
+ const bundle=await buildBackgroundBundle();
+ const server:ServerState={storedArtifact:null,artifactLookups:[],artifactWrites:0,writeStatus:503};
+ const sessionValues:Record<string,unknown>={};
+ const worker=createWorker({bundle,server,sessionValues,tabMessages:[]});
+ const generated=await worker.dispatch(generationRequest);
+ const restarted=createWorker({bundle,server,sessionValues,tabMessages:[]});
+ const loaded=await restarted.dispatch({type:'GET_SAVED_JOB_RESUME',jobUrl:APPLY_URL},panelSender);
+ assert.equal(loaded.artifact?.artifactId,generated.artifact.artifactId);
+ assert.equal(loaded.savedToAccount,false);
+ const wrongRetry=await restarted.dispatch({type:'RETRY_JOB_RESUME_SAVE',jobUrl:OTHER_JOB_URL,artifactId:generated.artifact.artifactId},panelSender);
+ assert.equal(wrongRetry.ok,false);
+ assert.equal(server.artifactWrites,1);
+ server.writeStatus=200;
+ const retry=await restarted.dispatch({type:'RETRY_JOB_RESUME_SAVE',jobUrl:APPLY_URL,artifactId:generated.artifact.artifactId},panelSender);
+ assert.equal(retry.ok,true);
+ const saved=await restarted.dispatch({type:'GET_SAVED_JOB_RESUME',jobUrl:APPLY_URL},panelSender);
+ assert.equal(saved.savedToAccount,true);
+ assert.equal(saved.artifact.artifactId,generated.artifact.artifactId);
+});
+
+test('switching accounts cannot reuse the previous account’s active resume', async () => {
+ const bundle=await buildBackgroundBundle();
+ const server:ServerState={storedArtifact:null,artifactLookups:[],artifactWrites:0};
+ const localValues={idToken:'header.'+Buffer.from(JSON.stringify({exp:4102444800})).toString('base64url')+'.signature',idTokenIssuedAt:Date.now(),idTokenUserId:'user-a'};
+ const worker=createWorker({bundle,server,sessionValues:{},tabMessages:[],localValues});
+ await worker.dispatch(generationRequest);
+ localValues.idTokenUserId='user-b';
+ const resolved=await worker.dispatch({type:'RESOLVE_V1_PREFILL_PAYLOAD',request:{now:new Date().toISOString(),jobContext:{jobUrl:APPLY_URL,companyName:'Acme',roleTitle:'Engineer'}}});
+ assert.equal(resolved.source,'profile_only');
+});
+
+test('saved-resume panel restores the PDF and original generation date without prefilling', async () => {
+  const bundle = await buildBackgroundBundle();
+  const server: ServerState = { storedArtifact: null, artifactLookups: [], artifactWrites: 0 };
+  const seed = createWorker({bundle, server, sessionValues:{}, tabMessages:[]});
+  const generated = await seed.dispatch(generationRequest);
+  server.storedArtifact = generated.artifact;
+  server.generatedAt = '2026-01-02T12:00:00.000Z';
+  const tabMessages: Array<Record<string, unknown>> = [];
+  const worker = createWorker({bundle, server, sessionValues:{}, tabMessages});
+  const result = await worker.dispatch({type:'GET_SAVED_JOB_RESUME',jobUrl:APPLY_URL}, panelSender);
+  assert.equal(result.ok, true);
+  assert.equal(result.artifact.pdf.base64, generated.artifact.pdf.base64);
+  assert.equal(result.generatedAt, server.generatedAt);
+  assert.equal(tabMessages.length, 0);
+  const wrong = await worker.dispatch({type:'GET_SAVED_JOB_RESUME',jobUrl:OTHER_JOB_URL}, panelSender);
+  assert.equal(wrong.ok, false);
+  assert.equal(wrong.artifact, undefined);
+});
+
+test('failed account save is reported, without discarding the generated PDF', async () => {
+  const bundle = await buildBackgroundBundle();
+  const server: ServerState = { storedArtifact:null, artifactLookups:[], artifactWrites:0, writeStatus:503 };
+  const worker = createWorker({bundle, server, sessionValues:{}, tabMessages:[]});
+  const result = await worker.dispatch(generationRequest);
+  assert.equal(result.ok, true);
+  assert.ok(result.pdfBase64);
+  assert.equal(result.savedToAccount, false);
+});
+
+test('saved-resume lookup distinguishes server failure from no saved resume', async () => {
+  const bundle = await buildBackgroundBundle();
+  const server: ServerState = { storedArtifact:null, artifactLookups:[], artifactWrites:0, readStatus:503 };
+  const worker = createWorker({bundle, server, sessionValues:{}, tabMessages:[]});
+  const result = await worker.dispatch({type:'GET_SAVED_JOB_RESUME',jobUrl:APPLY_URL}, panelSender);
+  assert.equal(result.ok, false);
+  server.readStatus = 200;
+  const empty = await worker.dispatch({type:'GET_SAVED_JOB_RESUME',jobUrl:APPLY_URL}, panelSender);
+  assert.equal(empty.ok, true);
+  assert.equal(empty.artifact, null);
+});
+
+test('job pages cannot request another job’s saved PDF through the panel message', async () => {
+  const bundle = await buildBackgroundBundle();
+  const server: ServerState = { storedArtifact:null, artifactLookups:[], artifactWrites:0 };
+  const worker = createWorker({bundle, server, sessionValues:{}, tabMessages:[]});
+  const result = await worker.dispatch({type:'GET_SAVED_JOB_RESUME',jobUrl:APPLY_URL});
+  assert.equal(result.ok, false);
+  assert.equal(server.artifactLookups.length, 0);
 });
 
 test('a stored resume is restored on the apply page after the session is gone', async () => {
@@ -264,7 +383,7 @@ test('a stored resume is restored on the apply page after the session is gone', 
   });
   const generated = await seedWorker.dispatch({
     type: 'GENERATE_RESUME',
-    jobDescription: 'Lever job description fixture',
+    jobDescription: 'Responsibilities: Build SQL dashboards and analyze product performance with the team. Qualifications: Three years of analytics experience and strong communication skills. Benefits include health insurance and paid time off.',
     resumeId: 'resume-1',
     templateId: 'classic',
     companyName: 'Acme',
@@ -333,7 +452,7 @@ test('a stored resume for a different posting is refused even if the server offe
   });
   const generated = await seedWorker.dispatch({
     type: 'GENERATE_RESUME',
-    jobDescription: 'Lever job description fixture',
+    jobDescription: 'Responsibilities: Build SQL dashboards and analyze product performance with the team. Qualifications: Three years of analytics experience and strong communication skills. Benefits include health insurance and paid time off.',
     resumeId: 'resume-1',
     templateId: 'classic',
     companyName: 'Acme',

@@ -1,3 +1,4 @@
+import { applyPopupTheme } from './design/popup-theme';
 /**
  * Renders the locked state when user is not signed in
  */
@@ -6,6 +7,8 @@ import { API_ENDPOINTS } from './config';
 import { icon, themeToggleIcon } from './icons';
 
 export async function renderLocked(root: HTMLElement): Promise<void> {
+  delete root.dataset.toolFamily;
+  const logoUrl = chrome.runtime.getURL('icons/logo.gif');
   root.innerHTML = `
     <div style="display:flex;justify-content:flex-end;margin-bottom:-6px;">
       <button class="theme-btn" id="theme-btn-locked" title="Toggle theme" aria-label="Toggle theme">
@@ -14,7 +17,9 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
     </div>
 
     <div class="hero">
-      <div class="bm">${icon('graduationCap', 26)}</div>
+      <div class="bm">
+        <img src="${logoUrl}" width="56" height="56" alt="" draggable="false" />
+      </div>
       <h1>TrackMyOPT</h1>
       <p>Your OPT timeline companion</p>
     </div>
@@ -56,6 +61,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
     <button id="signin-btn" class="cta" type="button">
       Sign In or Create Account
     </button>
+    <p class="tour-signin-note">First install? Your guided product tour opens after sign-in.</p>
 
     <div class="footer">
       <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
@@ -85,6 +91,7 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
 
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
+  applyPopupTheme(theme);
   if (themeIconLocked) {
     themeIconLocked.innerHTML = themeToggleIcon(theme === 'dark', 16);
   }
@@ -95,11 +102,11 @@ export async function renderLocked(root: HTMLElement): Promise<void> {
       const isDarkMode = body.classList.contains('dark-mode');
 
       if (isDarkMode) {
-        body.classList.remove('dark-mode');
+        applyPopupTheme('light');
         await chrome.storage.sync.set({ theme: 'light' });
         if (themeIconLocked) themeIconLocked.innerHTML = themeToggleIcon(false, 16);
       } else {
-        body.classList.add('dark-mode');
+        applyPopupTheme('dark');
         await chrome.storage.sync.set({ theme: 'dark' });
         if (themeIconLocked) themeIconLocked.innerHTML = themeToggleIcon(true, 16);
       }

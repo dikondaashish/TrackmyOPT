@@ -4,6 +4,11 @@ These files are the privacy-safe marketing assets for the TrackMyOPT Chrome
 Web Store listing. They use fictional application data and contain no customer
 credentials, addresses, resumes, or employer submissions.
 
+Copy and PNGs were refreshed for one-click private answers and AI draft insertion.
+They remain illustrative draft assets, not approved release screenshots. Before
+submission, complete the owner/legal and final-build checks in
+`../../../docs/compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md`.
+
 ## Render
 
 From the repository root:
@@ -21,4 +26,3 @@ The renderer produces:
 - one `1400x560` marquee promotional tile.
 
 All output files are opaque 24-bit PNGs.
-

@@ -1,3 +1,4 @@
+import { ashbyQuestion, ashbyQuestionRequired, ashbyExistingUpload } from './ashby-control-context';
 import {
   CUSTOM_DROPDOWN_SELECTOR,
   customDropdownHasValue,
@@ -34,6 +35,7 @@ function compactLabel(value: string): string {
 
 function labelFor(control: HTMLElement): string {
   const humanParts: Array<string | null | undefined> = [
+    ashbyQuestion(control)?.textContent,
     control.getAttribute('aria-label'),
   ];
   const labelledBy = control.getAttribute('aria-labelledby');
@@ -93,6 +95,7 @@ function visible(control: HTMLElement): boolean {
 }
 
 function required(control: HTMLElement): boolean {
+  if (ashbyQuestionRequired(control)) return true;
   if (
     control.hasAttribute('required') ||
     control.getAttribute('aria-required') === 'true'
@@ -140,6 +143,9 @@ function controlFilled(
   control: HTMLElement,
   root: ParentNode
 ): boolean {
+  if (control.matches('.ashby-application-form-input-yesno')) {
+    return !!control.querySelector('button[aria-pressed="true"]');
+  }
   if (isCustomDropdownControl(control)) {
     return customDropdownHasValue(control);
   }
@@ -165,7 +171,7 @@ function controlFilled(
     );
   }
   if (type === 'checkbox') return input.checked;
-  if (type === 'file') return Boolean(input.files?.length);
+  if (type === 'file') return Boolean(input.files?.length) || ashbyExistingUpload(input);
   return Boolean(input.value.trim());
 }
 
@@ -207,12 +213,14 @@ export function scanApplicationFields(
   root: ParentNode
 ): ApplicationFieldScan {
   const selector =
-    `input,textarea,select,${CUSTOM_DROPDOWN_SELECTOR}`;
+    `input,textarea,select,.ashby-application-form-input-yesno,${CUSTOM_DROPDOWN_SELECTOR}`;
   const controls = Array.from(root.querySelectorAll<HTMLElement>(selector));
   const fields: ScannedApplicationField[] = [];
   const seen = new Set<string>();
   for (let index = 0; index < controls.length; index += 1) {
     const control = controls[index];
+    if (control.closest('.ashby-application-form-autofill-input-root')) continue;
+    if (control.parentElement?.closest('.ashby-application-form-input-yesno')) continue;
     if (!visible(control)) continue;
     const customDropdownAncestor =
       control.parentElement?.closest<HTMLElement>(CUSTOM_DROPDOWN_SELECTOR);

@@ -143,6 +143,9 @@ export function hardenInteractiveElements(root: ParentNode): number {
     const candidates = root.querySelectorAll<HTMLElement>('div,span,li,td,img,svg,p');
     for (const element of Array.from(candidates)) {
         if (element.dataset?.tmoKeyboard) continue;
+        // Cursor is inherited by labels/icons. They are not extra controls.
+        if (element.parentElement?.closest('button,a[href],[role="button"],summary')) continue;
+        if (element.hasAttribute('role') && element.getAttribute('role') !== 'button') continue;
         if (!needsInteractiveTreatment(readFacts(element))) continue;
         makeInteractive(element);
         fixed += 1;

@@ -1,3 +1,4 @@
+import { applyPopupTheme } from './design/popup-theme';
 import { API_ENDPOINTS } from './config';
 import { performExtensionSignOut } from './signOut';
 import { icon, themeToggleIcon } from './icons';
@@ -18,6 +19,7 @@ import {
   type AutofillPlanEntitlements,
 } from './autofill-plan-entitlements';
 import { filingCategoryShortLabel } from './filing-category-labels';
+import { requestJobReview } from './job-tracker-review-request';
 
 /** Escape untrusted values before interpolating them into innerHTML. */
 function escapeHtml(value: unknown): string {
@@ -45,6 +47,8 @@ function showTransientLabel(label: HTMLElement, message: string, original: strin
  * Renders the signed-in home screen with tool tiles
  */
 export async function renderHome(root: HTMLElement, onNavigate: (page: string) => void): Promise<void> {
+  delete root.dataset.toolFamily;
+  const logoUrl = chrome.runtime.getURL('icons/logo.gif');
   let storedAutofillPreferences: unknown;
   let autofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
   let planEntitlements: Readonly<AutofillPlanEntitlements> =
@@ -146,7 +150,9 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
 
   root.innerHTML = `
     <div class="tmo-top" role="region" aria-label="TrackMyOPT header">
-      <div class="brandmark">${icon('graduationCap', 20)}</div>
+      <div class="brandmark">
+        <img src="${logoUrl}" width="38" height="38" alt="" draggable="false" />
+      </div>
       <div class="brandtext">
         <h1 class="title">TrackMyOPT ${planBadge}</h1>
         <p class="subtitle">Your OPT command center</p>
@@ -263,11 +269,22 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
         ${icon('mail', 13)} <span class="fb-label">Feedback</span>
       </button>
       <div class="links">
+        <button type="button" class="link" id="product-tour-btn">Product tour</button> ·
         <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/privacy">Privacy</a> ·
         <a class="link" target="_blank" rel="noreferrer" href="https://www.trackmyopt.com/terms">Terms</a>
       </div>
     </div>
   `;
+
+  root.querySelector('#product-tour-btn')?.addEventListener('click', async () => {
+    const button = root.querySelector<HTMLButtonElement>('#product-tour-btn');
+    try {
+      const response = await chrome.runtime.sendMessage({ type: 'OPEN_PRODUCT_TOUR' });
+      if (!response?.ok) throw new Error('Tour unavailable');
+    } catch {
+      if (button) button.textContent = 'Retry product tour';
+    }
+  });
 
   // Opens the feedback modal ON THE ACTUAL PAGE (centered overlay), injected via
   // activeTab — the exact same modal the job widget's "Send feedback" link opens.
@@ -319,22 +336,25 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     });
   });
 
-  // Manual job-detect trigger: inject the job-portal content script into the
-  // current tab on demand (activeTab). Covers career pages the manifest's
-  // static matches miss, and is the fallback whenever the page does not
-  // corroborate itself as a job posting (see hasJobPostingEvidence).
+  // Explicit review, independent of automatic widget visibility/preferences.
   const scanBtn = root.querySelector<HTMLButtonElement>('#scan-page-btn');
+  const scanStatus = document.createElement('p');
+  scanStatus.className = 'tool-status';
+  scanStatus.setAttribute('role', 'status');
+  scanBtn?.after(scanStatus);
   scanBtn?.addEventListener('click', async () => {
+    if (scanBtn.disabled) return;
+    scanBtn.disabled = true;
+    scanBtn.setAttribute('aria-busy', 'true');
+    scanStatus.textContent = 'Detecting job…';
     try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!tab?.id) return;
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['content-job-portal.js'],
-      });
-      window.close(); // close popup so the injected widget is visible
-    } catch {
-      /* restricted page (chrome://, Web Store, etc.) — injection not allowed */
+      await requestJobReview();
+      window.close();
+    } catch (error) {
+      scanStatus.textContent = error instanceof Error ? error.message : 'Could not detect this job. Try again.';
+    } finally {
+      scanBtn.disabled = false;
+      scanBtn.setAttribute('aria-busy', 'false');
     }
   });
 
@@ -393,17 +413,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     try {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id, allFrames: true },
-        files: [
-          autofillPreferences.guidedAutopilot
-            ? 'content-job-portal.js'
-            : 'easy-apply-fill.js',
-        ],
-      });
-      // The ordinary popup path also has a top-frame-only, explicit review
-      // flow for standalone employer login/account-creation pages.
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['job-portal-login-entry.js'],
+        files: ['easy-apply-fill.js', ...(autofillPreferences.guidedAutopilot ? ['content-job-portal.js'] : [])],
       });
       window.close();
     } catch {
@@ -456,17 +466,37 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     }
   };
 
-  const saveAutofillPreferences = async (next: AutofillPreferences) => {
-    autofillPreferences = normalizeAutofillPreferences(
-      next,
-      AUTOFILL_FEATURE_FLAGS,
-      planEntitlements,
-    );
-    paintAutofillPreferences();
-    await chrome.storage.sync.set({
-      [AUTOFILL_PREFERENCES_KEY]: autofillPreferences,
-    });
-  };
+  const saveAutofillPreferences = (() => {
+    let saving = false;
+    return async (next: AutofillPreferences) => {
+      if (saving) { paintAutofillPreferences(); return; }
+      saving = true;
+      const previous = autofillPreferences;
+      const controls = [stepModeBtn, continuousModeBtn, skillsToggle, guidedToggle]
+        .filter((control): control is HTMLButtonElement | HTMLInputElement => control !== null);
+      const disabled = controls.map(control => control.disabled);
+      controls.forEach(control => { control.disabled = true; });
+      autofillPreferences = normalizeAutofillPreferences(
+        next,
+        AUTOFILL_FEATURE_FLAGS,
+        planEntitlements,
+      );
+      paintAutofillPreferences();
+      try {
+        await chrome.storage.sync.set({ [AUTOFILL_PREFERENCES_KEY]: autofillPreferences });
+      } catch {
+        autofillPreferences = previous;
+        paintAutofillPreferences();
+        if (modeNote) {
+          modeNote.setAttribute('role', 'status');
+          modeNote.textContent = 'Could not save your prefill settings. Please try again.';
+        }
+      } finally {
+        controls.forEach((control, index) => { control.disabled = disabled[index]; });
+        saving = false;
+      }
+    };
+  })();
 
   stepModeBtn?.addEventListener('click', () => {
     void saveAutofillPreferences({
@@ -522,6 +552,7 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
 
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
+  applyPopupTheme(theme);
   if (themeIcon) {
     themeIcon.innerHTML = themeToggleIcon(theme === 'dark', 16);
   }
@@ -532,11 +563,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
       const isDarkMode = body.classList.contains('dark-mode');
 
       if (isDarkMode) {
-        body.classList.remove('dark-mode');
+        applyPopupTheme('light');
         await chrome.storage.sync.set({ theme: 'light' });
         if (themeIcon) themeIcon.innerHTML = themeToggleIcon(false, 16);
       } else {
-        body.classList.add('dark-mode');
+        applyPopupTheme('dark');
         await chrome.storage.sync.set({ theme: 'dark' });
         if (themeIcon) themeIcon.innerHTML = themeToggleIcon(true, 16);
       }

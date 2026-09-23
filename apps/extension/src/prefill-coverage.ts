@@ -19,10 +19,11 @@ export interface PrefillCoverageResult {
   skipped: number;
   total: number;
   groups: Record<PrefillFieldGroup, PrefillCoverageGroupResult>;
-  adapterId?: 'generic' | 'workday' | 'greenhouse';
+  adapterId?: import('./ats-prefill-adapters').AtsPrefillAdapter['id'];
   remainingRecords?: { experience: number; education: number };
   firstSkippedSelector?: string;
   applicationScan?: ApplicationFieldScan;
+  resumeAttachmentResult?: import('./easy-apply-attachments').ResumeAttachmentResult;
 }
 
 export interface PrefillControlOutcome {
@@ -82,7 +83,8 @@ export function formatPrefillCoverageSummary(result: PrefillCoverageResult): str
   const educationRemaining = result.remainingRecords?.education ?? 0;
   if (experienceRemaining > 0) parts.push(`${experienceRemaining} more experience ${experienceRemaining === 1 ? 'entry is' : 'entries are'} ready. Add another row, then click Prefill again.`);
   if (educationRemaining > 0) parts.push(`${educationRemaining} more education ${educationRemaining === 1 ? 'entry is' : 'entries are'} ready. Add another row, then click Prefill again.`);
-  if (result.skipped > 0) parts.push(`${result.skipped} need you`);
+  const remaining = result.applicationScan?.unansweredRequired ?? result.skipped;
+  if (remaining > 0) parts.push(`${remaining} need you`);
   else if (parts.length > 0) parts.push('ready to review');
   return parts.join(' · ');
 }

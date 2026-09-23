@@ -1,7 +1,10 @@
-import { flashAutofillField } from './autofill-visual-feedback';
+import { flashAutofillField, type AutofillVisualFeedback } from './autofill-visual-feedback';
+import { trackPrefillChange } from './prefill-undo';
+import { ashbyQuestion } from './ashby-control-context';
 import {
   CUSTOM_DROPDOWN_SELECTOR,
   isCustomDropdownControl,
+  customDropdownHasValue,
   selectSmartDropdown,
 } from './smart-dropdown';
 import {
@@ -285,6 +288,7 @@ function labelFor(element: HTMLElement): string {
     return copy.textContent;
   };
   const parts = [
+    ashbyQuestion(element)?.textContent,
     element.getAttribute('aria-label'),
     element.getAttribute('name'),
     element.getAttribute('id'),
@@ -296,7 +300,10 @@ function labelFor(element: HTMLElement): string {
       typeof CSS !== 'undefined' && CSS.escape
         ? CSS.escape(element.id)
         : element.id.replace(/["\\]/g, '\\$&');
-    parts.push(document.querySelector(`label[for="${escapedId}"]`)?.textContent);
+    parts.push(element.ownerDocument.querySelector(`label[for="${escapedId}"]`)?.textContent);
+  }
+  for (const id of element.getAttribute('aria-labelledby')?.split(/\s+/) || []) {
+    parts.push(element.ownerDocument.getElementById(id)?.textContent);
   }
   return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 }
@@ -408,17 +415,17 @@ export function candidateMatches(candidate: string, answer: string): boolean {
 }
 
 function optionMatches(option: HTMLOptionElement, answer: string): boolean {
-  return candidateMatches(`${option.value} ${option.textContent || ''}`, answer);
+  return candidateMatches(option.textContent?.trim() || option.value, answer);
 }
 
 function fillSelect(select: HTMLSelectElement, answer: string): boolean {
   if (select.value) return false;
-  const option = Array.from(select.options).find((candidate) =>
-    optionMatches(candidate, answer)
+  const matching = Array.from(select.options).filter((candidate) =>
+    !candidate.disabled && optionMatches(candidate, answer)
   );
+  const option = matching.length === 1 ? matching[0] : undefined;
   if (!option || !option.value) return false;
-  select.value = option.value;
-  dispatchValueEvents(select);
+  trackPrefillChange(select, () => { select.value = option.value; dispatchValueEvents(select); });
   return true;
 }
 
@@ -432,13 +439,23 @@ function fillInput(
     (input.type === 'radio' || input.type === 'checkbox')
   ) {
     if (input.checked) return false;
+    if (input.type === 'radio' && ashbyQuestion(input)) {
+      if (!input.name) return false;
+      const group = Array.from((input.form || input.ownerDocument).querySelectorAll<HTMLInputElement>('input[type="radio"]'))
+        .filter(other => other.name === input.name && other.getRootNode() === input.getRootNode());
+      if (group.some(other => other.checked)) return false;
+      const optionLabel = (candidate: HTMLInputElement) =>
+        Array.from(candidate.labels || []).map(label => label.textContent || '').join(' ').trim() || candidate.getAttribute('aria-label') || candidate.value;
+      const matches = group.filter(other => !other.disabled && candidateMatches(optionLabel(other), answer));
+      if (matches.length !== 1 || matches[0] !== input) return false;
+      return trackPrefillChange(input, () => { input.click(); return input.checked; });
+    }
     const matches = candidateMatches(
       `${labelFor(input)} ${input.value}`,
       answer
     );
     if (!matches) return false;
-    input.checked = true;
-    dispatchValueEvents(input);
+    trackPrefillChange(input, () => { input.checked = true; dispatchValueEvents(input); });
     return true;
   }
   if (input.value.trim()) return false;
@@ -448,10 +465,12 @@ function fillInput(
   ) {
     return false;
   }
-  input.value = answer;
-  if (!input.value) return false;
-  dispatchValueEvents(input);
-  return true;
+  return trackPrefillChange(input, () => {
+    input.value = answer;
+    if (!input.value) return false;
+    dispatchValueEvents(input);
+    return true;
+  });
 }
 
 /**
@@ -461,7 +480,9 @@ function fillInput(
  */
 export async function fillConfirmedSensitiveAnswers(
   root: ParentNode,
-  answers: SensitiveAnswerSession
+  answers: SensitiveAnswerSession,
+  shouldContinue: () => boolean = () => true,
+  visual?: AutofillVisualFeedback,
 ): Promise<{ filled: number; unresolved: SensitiveAnswerKind[] }> {
   if (!answers.confirmed) return { filled: 0, unresolved: [] };
   let filled = 0;
@@ -472,6 +493,7 @@ export async function fillConfirmedSensitiveAnswers(
     )
   );
   for (const control of controls) {
+    if (!shouldContinue()) break;
     if (control.parentElement?.closest(CUSTOM_DROPDOWN_SELECTOR)) continue;
     if (
       !visiblyAvailable(control) ||
@@ -481,6 +503,11 @@ export async function fillConfirmedSensitiveAnswers(
     }
     const kind = classifySensitiveAnswer(labelFor(control));
     if (!kind) continue;
+    // A value the user already chose needs no action or unresolved warning.
+    if (isCustomDropdownControl(control) && customDropdownHasValue(control)) continue;
+    if (control instanceof HTMLSelectElement && control.value) continue;
+    if ((control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement) &&
+        !['radio', 'checkbox'].includes(control.type) && control.value.trim()) continue;
     const isRequired =
       control.hasAttribute('required') ||
       control.getAttribute('aria-required') === 'true';
@@ -493,12 +520,19 @@ export async function fillConfirmedSensitiveAnswers(
       continue;
     }
     let changed = false;
+    await visual?.prepareField(control, 'private_answers');
+    if (!shouldContinue()) { visual?.clearActiveField(); break; }
+    if (!control.isConnected || !visiblyAvailable(control) || ('disabled' in control && Boolean(control.disabled))) {
+      visual?.clearActiveField(); continue;
+    }
     if (isCustomDropdownControl(control)) {
       const selection = await selectSmartDropdown(
         control,
         answer,
         'generic',
-        candidateMatches
+        candidateMatches,
+        undefined,
+        { shouldContinue },
       );
       changed = selection.outcome === 'selected';
     } else if (control instanceof HTMLSelectElement) {
@@ -511,9 +545,13 @@ export async function fillConfirmedSensitiveAnswers(
     }
     if (changed) {
       filled += 1;
-      flashAutofillField(control, 'filled');
+      if (visual) visual.markFieldFilled(control, 'private_answers');
+      else flashAutofillField(control, 'filled');
     } else if (isRequired) {
+      visual?.clearActiveField();
       unresolved.add(kind);
+    } else {
+      visual?.clearActiveField();
     }
   }
   return { filled, unresolved: Array.from(unresolved) };

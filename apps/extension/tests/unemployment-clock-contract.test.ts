@@ -37,5 +37,9 @@ const optTracker = readFileSync('src/pages/clock-tracker.ts', 'utf8');
 const stemTracker = readFileSync('src/pages/stem-clock-tracker.ts', 'utf8');
 assert.doesNotMatch(optTracker, /setDate\(endDate\.getDate\(\) \+ 90\)/);
 assert.doesNotMatch(stemTracker, /setDate\(endDate\.getDate\(\) \+ 60\)/);
+assert.doesNotMatch(optTracker, /false \? setInterval/);
+assert.doesNotMatch(stemTracker, /false \? setInterval/);
+assert.doesNotMatch(optTracker, /END DATE/);
+assert.doesNotMatch(stemTracker, /END DATE/);
 
 console.log('unemployment-clock-contract: verified cumulative server data only');

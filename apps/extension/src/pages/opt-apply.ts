@@ -1,6 +1,5 @@
-import { renderPageHeader, setupPageHandlers } from '../navigation.js';
-import { icon } from '../icons.js';
-import { toolSurfaceCard } from '../tool-page-theme.js';
+import { dateField, toolIntro, TOOL_HELP } from '../tool-ui';
+import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../navigation.js';
 import {
   addDateInputValidation,
   calculateFilingWindow,
@@ -16,181 +15,24 @@ import { loadSavedData, saveDatesToAPI } from './opt-apply-api';
 export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   root.innerHTML = '';
 
-  renderPageHeader(root, 'OPT Apply Dates', 'Calculate your OPT filing window');
+  renderPageHeader(root, 'OPT Apply Dates', 'Your filing window');
 
   const content = document.createElement('div');
-  content.style.cssText = 'margin-top: 12px;';
-
-  // Info card
-  const infoCard = document.createElement('div');
-  infoCard.style.cssText = `
-    padding: 14px;
-    border-radius: 14px;
-    ${toolSurfaceCard('blue')};
-    margin-bottom: 12px;
+  content.className = 'tool-content tool-form';
+  content.innerHTML = `
+    ${toolIntro('Filing dates', 'opt-rules-help', TOOL_HELP.opt)}
+    ${dateField('program-end-date', 'Program end date', 'Use the program end date on your I-20.', 'program-date-picker-btn')}
+    ${dateField('dso-recommendation-date', 'DSO recommendation', 'Optional: the date your DSO entered the OPT recommendation in SEVIS. USCIS must receive your application within 30 days. Without this date, the result is an estimate.', 'dso-date-picker-btn', true)}
   `;
-  infoCard.innerHTML = `
-    <div style="display: flex; gap: 10px; align-items: start;">
-      <div style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 16px;">
-        ${icon('info', 16, 'currentColor')}
-      </div>
-      <div>
-        <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px;">Post-Completion OPT Filing Rules</div>
-        <div style="font-size: 12px; line-height: 1.5; opacity: 0.95;">
-          You can apply 90 days before your program ends, up to 60 days after. USCIS must receive your I-765 within 30 days of your DSO's recommendation.
-        </div>
-      </div>
-    </div>
-  `;
-  content.appendChild(infoCard);
-
-  // Program End Date card
-  const programCard = document.createElement('div');
-  programCard.style.cssText = `
-    padding: 14px;
-    border-radius: 14px;
-    ${toolSurfaceCard('blue')};
-    margin-bottom: 12px;
-    position: relative;
-  `;
-  programCard.innerHTML = `
-    <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
-      <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; font-size: 18px;">
-        ${icon('calendar', 20, 'currentColor')}
-      </div>
-      <div style="flex: 1;">
-        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">Program End Date</div>
-        <div style="font-size: 11px; opacity: 0.9;">From your I-20</div>
-      </div>
-    </div>
-    <div style="position: relative;">
-      <input 
-        type="text" 
-        id="program-end-date" 
-        placeholder="mm/dd/yyyy"
-        style="
-          width: 100%;
-          padding: 10px 40px 10px 12px;
-          border: 0;
-          border-radius: 10px;
-          background: var(--surface-2);
-          backdrop-filter: blur(10px);
-          color: var(--ink);
-          font-size: 14px;
-          outline: none;
-          font-family: inherit;
-        "
-      />
-      <button 
-        id="program-date-picker-btn"
-        style="
-          position: absolute;
-          right: 8px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 32px;
-          height: 32px;
-          border: 0;
-          border-radius: 8px;
-          background: var(--surface-2);
-          color: var(--ink);
-          cursor: pointer;
-          font-size: 16px;
-          display: grid;
-          place-items: center;
-          transition: all 0.2s;
-        "
-      >${icon('calendar', 16, 'currentColor')}</button>
-    </div>
-  `;
-  content.appendChild(programCard);
-
-  // DSO Recommendation Date card
-  const dsoCard = document.createElement('div');
-  dsoCard.style.cssText = `
-    padding: 14px;
-    border-radius: 14px;
-    ${toolSurfaceCard('green')};
-    margin-bottom: 12px;
-    position: relative;
-  `;
-  dsoCard.innerHTML = `
-    <div style="display: flex; gap: 10px; align-items: start; margin-bottom: 10px;">
-      <div style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; font-size: 18px;">
-        ${icon('calendar', 20, 'currentColor')}
-      </div>
-      <div style="flex: 1;">
-        <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;">DSO Recommendation Date</div>
-        <div style="font-size: 11px; opacity: 0.9;">Optional - When DSO signed your I-20</div>
-      </div>
-    </div>
-    <div style="position: relative;">
-      <input 
-        type="text" 
-        id="dso-recommendation-date" 
-        placeholder="mm/dd/yyyy"
-        style="
-          width: 100%;
-          padding: 10px 40px 10px 12px;
-          border: 0;
-          border-radius: 10px;
-          background: var(--surface-2);
-          backdrop-filter: blur(10px);
-          color: var(--ink);
-          font-size: 14px;
-          outline: none;
-          font-family: inherit;
-        "
-      />
-      <button 
-        id="dso-date-picker-btn"
-        style="
-          position: absolute;
-          right: 8px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 32px;
-          height: 32px;
-          border: 0;
-          border-radius: 8px;
-          background: var(--surface-2);
-          color: var(--ink);
-          cursor: pointer;
-          font-size: 16px;
-          display: grid;
-          place-items: center;
-          transition: all 0.2s;
-        "
-      >${icon('calendar', 16, 'currentColor')}</button>
-    </div>
-  `;
-  content.appendChild(dsoCard);
-
-  // Calculate button
   const calculateBtn = document.createElement('button');
+  calculateBtn.type = 'button';
+  calculateBtn.className = 'tool-button tool-button-primary';
   calculateBtn.textContent = 'Calculate Filing Window';
-  calculateBtn.style.cssText = `
-    width: 100%;
-    padding: 14px;
-    border: 0;
-    border-radius: 12px;
-    background: var(--tmo-gradient-brand);
-    color: white;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    font-family: inherit;
-  `;
   content.appendChild(calculateBtn);
-
-  // Results container
   const resultsContainer = document.createElement('div');
   resultsContainer.id = 'results-container';
-  resultsContainer.style.cssText = 'margin-top: 12px;';
+  resultsContainer.setAttribute('role', 'alert');
   content.appendChild(resultsContainer);
-
   root.appendChild(content);
 
   // Date picker event handlers
@@ -259,28 +101,17 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
     }
   });
 
-  // Hover effects for calendar buttons
-  [programDatePickerBtn, dsoDatePickerBtn].forEach(btn => {
-    if (btn) {
-      btn.addEventListener('mouseenter', () => {
-        btn.style.background = 'var(--surface-2)';
-      });
-      btn.addEventListener('mouseleave', () => {
-        btn.style.background = 'var(--surface-2)';
-      });
-    }
-  });
-
   // Auto-save dates when they change
   const autoSaveDates = () => {
+    if (!root.contains(content) || calculateBtn.disabled) return;
     const programEndInput = document.getElementById('program-end-date') as HTMLInputElement;
     const dsoRecommendationInput = document.getElementById('dso-recommendation-date') as HTMLInputElement;
 
     const programEnd = programEndInput.value.trim();
     const dsoRec = dsoRecommendationInput.value.trim();
 
-    // Only save if program end date is valid
-    if (programEnd && parseDate(programEnd)) {
+    // Never replace a saved DSO date with an incomplete/invalid typed value.
+    if (programEnd && parseDate(programEnd) && (!dsoRec || parseDate(dsoRec))) {
       saveDatesToAPI(programEnd, dsoRec || null);
     }
   };
@@ -313,44 +144,37 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
       return;
     }
 
-    // Save dates to database
-    await saveDatesToAPI(
+    calculateBtn.disabled = true;
+    calculateBtn.textContent = 'Saving…';
+
+    // Save dates before opening the countdown so the dashboard and extension
+    // cannot silently diverge.
+    const saved = await saveDatesToAPI(
       programEndInput.value.trim(),
       dsoRecommendationInput.value.trim() || null
     );
+    if (!root.contains(content)) return;
+
+    if (!saved) {
+      resultsContainer.innerHTML = `
+        <div style="padding:12px;border-radius:12px;background:var(--tool-red-surface);color:var(--tool-red-ink);font-size:13px;border:1px solid var(--tool-red-border);">
+          We could not save these dates. Check your connection and sign in to TrackMyOPT, then try again.
+        </div>
+      `;
+      calculateBtn.disabled = false;
+      calculateBtn.textContent = 'Calculate Filing Window';
+      return;
+    }
 
     const results = calculateFilingWindow(programEndDate, dsoRecommendationDate);
 
     // Navigate to countdown page
     const { renderOptCountdown } = await import('./opt-countdown.js');
-    renderOptCountdown(root, onBack, results);
-  });
-
-  // Input styling on focus (for both light and dark mode)
-  const inputs = [
-    document.getElementById('program-end-date'),
-    document.getElementById('dso-recommendation-date')
-  ];
-
-  inputs.forEach(input => {
-    if (input) {
-      input.addEventListener('focus', (e) => {
-        (e.target as HTMLElement).style.background = 'var(--surface-2)';
-      });
-      input.addEventListener('blur', (e) => {
-        (e.target as HTMLElement).style.background = 'var(--surface-2)';
-      });
-    }
-  });
-
-  calculateBtn.addEventListener('mouseenter', () => {
-    calculateBtn.style.transform = 'translateY(-1px)';
-    calculateBtn.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-  });
-
-  calculateBtn.addEventListener('mouseleave', () => {
-    calculateBtn.style.transform = 'translateY(0)';
-    calculateBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+    if (!root.contains(content)) return;
+    renderOptCountdown(root, () => {
+      setCurrentPage('opt-apply');
+      renderOptApply(root, onBack);
+    }, results);
   });
 
   // Add blur event listeners to auto-save when user finishes entering dates
@@ -379,10 +203,10 @@ export function renderOptApply(root: HTMLElement, onBack: () => void): void {
   // Load saved data on page load
   loadSavedData().then(savedData => {
     if (savedData && programEndInput) {
-      if (savedData.program_end_date) {
+      if (savedData.program_end_date && !programEndInput.value) {
         programEndInput.value = savedData.program_end_date;
       }
-      if (savedData.dso_recommendation_date && dsoRecommendationInput) {
+      if (savedData.dso_recommendation_date && dsoRecommendationInput && !dsoRecommendationInput.value) {
         dsoRecommendationInput.value = savedData.dso_recommendation_date;
       }
 

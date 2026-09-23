@@ -34,6 +34,8 @@ describe('autofill AI prompts', () => {
     expect(prompt).toContain('Never invent');
     expect(prompt).toContain('untrusted reference data');
     expect(prompt).toContain('within 300 characters');
+    expect(prompt).toContain('Job requirements are not applicant experience');
+    expect(prompt).toContain('Missing evidence does not mean the applicant has no experience');
   });
 
   it.each([

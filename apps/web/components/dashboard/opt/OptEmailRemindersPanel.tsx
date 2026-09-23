@@ -150,7 +150,7 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
                       <Lock className="h-3.5 w-3.5 shrink-0 text-purple-500" />
                     </div>
                     <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                      {info.alertExample}
+                      Example: {info.alertExample}
                     </p>
                   </div>
                 </div>
@@ -244,7 +244,7 @@ function PremiumToolCard({
           </div>
           <div>
             <h4 className="text-base font-bold">{info.label}</h4>
-            <p className="text-sm opacity-90">{info.alertExample}</p>
+            <p className="text-sm opacity-90">Example: {info.alertExample}</p>
           </div>
         </div>
         {hasEmail ? (

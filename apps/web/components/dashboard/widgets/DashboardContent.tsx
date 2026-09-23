@@ -85,6 +85,7 @@ interface OptStatus {
   opt_start_date: string;
   opt_ead_end_date: string;
   stem_start_date?: string | null;
+  stem_dso_recommendation_date?: string | null;
   stem_end_date?: string | null;
 }
 
@@ -467,4 +468,3 @@ export function DashboardContent({ user }: DashboardContentProps) {
     </div>
   );
 }
-

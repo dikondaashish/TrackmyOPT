@@ -7,6 +7,8 @@
  */
 
 import { hardenInteractiveElements, ensureWidgetAnnouncer } from './design/a11y';
+import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, getPrefillUndoState, isPrefillUndoAllowed } from './prefill-undo';
+import { requestPrefillUndo } from './prefill-undo-request';
 import {
   isCareerPage,
 } from './career-sites';
@@ -62,6 +64,7 @@ import {
   type AutofillPreferences,
 } from './autofill-preferences';
 import { shouldRunContinuousPrefill } from './continuous-prefill';
+import { withPrefillModeGuard } from './prefill-mode-guard';
 import { detectScreeningQuestion } from './screening-question-drafts';
 import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
@@ -84,13 +87,14 @@ import {
   type SensitiveAnswerSession,
 } from './sensitive-autofill';
 import { scanApplicationFields } from './application-field-scan';
-import {
-  fillJobPortalLogin,
-  type JobPortalLoginCredential,
-} from './job-portal-login';
+import { loadPrivateAnswersForPrefill } from './private-prefill-request';
+import { prefillSavedPortalLogin } from './portal-login-prefill';
+import { runSmartAnswers } from './smart-answers';
+import { createAutofillVisualFeedback } from './autofill-visual-feedback';
 import {
   approvalMatchesJob,
   approvalMatchesUrl,
+  createPrivateApprovalBinding,
   type PrivateApprovalBinding,
 } from './private-approval-session';
 import {
@@ -113,6 +117,8 @@ import {
   WIDGET_ROOT_ID,
 } from './widget-dom-ids';
 import {
+  captureJobDescription,
+  resolveJobDescriptionDetails,
   resolveJobDescription,
   scrapeJobDescription,
 } from './job-description-scrape';
@@ -121,6 +127,7 @@ import { isWidgetInteractionInFlight } from './job-portal-interaction-guard';
 import {
   jobContextFor,
   shouldRefreshWidget,
+  hasPortalPageMutation,
 } from './job-portal-job-helpers';
 import { paintPrefillCoverage } from './job-portal-prefill-coverage-ui';
 import {
@@ -187,16 +194,14 @@ let artifactExpiryTimer: number | null = null;
 let currentAutofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
 let currentPlanEntitlements: Readonly<AutofillPlanEntitlements> =
   FREE_AUTOFILL_PLAN_ENTITLEMENTS;
-// Sensitive answers become usable only after review in this page's panel. The
-// confirmed copy stays in content-script memory and never enters AI/analytics.
+// The explicit Prefill click loads private answers for this application only.
+// Continuous may reuse them on its steps, never on an unrelated job or page load.
 let sensitiveAnswerSession: SensitiveAnswerSession = { confirmed: false };
-let approvedJobPortalLogin: JobPortalLoginCredential | null = null;
 let privateApprovalBinding: PrivateApprovalBinding | null = null;
 const trackedWidgetAnalytics = new Set<string>();
 const guidedClickedControls = new WeakSet<HTMLElement>();
 
 function clearPrivateApplicationApproval(): void {
-  approvedJobPortalLogin = null;
   sensitiveAnswerSession = { confirmed: false };
   privateApprovalBinding = null;
   previousContinuousSignature = '';
@@ -344,6 +349,7 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
     discardRejectedArtifact: false,
     request: { now: new Date().toISOString(), jobContext: context },
   }).catch(() => null)) as V1PrefillPayloadResponse | null;
+  if (!prefillButton.isConnected || !jobUrlsReferToSameJob(context.jobUrl, location.href)) return;
   const artifactAvailable = Boolean(
     resolved?.ok && resolved.source === 'generated_resume',
   );
@@ -410,7 +416,46 @@ type PrefillExecutionResult = PrefillExecutionSnapshot;
 async function executeResolvedPrefill(
   job: JobInfo,
   mode: AutofillPreferences['mode'],
+  runGuard?: () => boolean,
+  explicitPrefillClick = false,
 ): Promise<PrefillExecutionResult> {
+  return withPrefillUndo(() => executeResolvedPrefillBody(job, mode, runGuard, explicitPrefillClick));
+}
+
+async function executeResolvedPrefillBody(
+  job: JobInfo,
+  mode: AutofillPreferences['mode'],
+  runGuard?: () => boolean,
+  explicitPrefillClick = false,
+): Promise<PrefillExecutionResult> {
+  const pageUrl = window.location.href;
+  const generation = continuousPrefillGeneration;
+  const shouldContinue = () => isPrefillUndoAllowed() && window.location.href === pageUrl &&
+    (mode !== 'continuous' || (generation === continuousPrefillGeneration &&
+      currentAutofillPreferences.mode === 'continuous' && currentPlanEntitlements.continuousMode)) &&
+    (runGuard?.() ?? true);
+  invalidatePrivateApprovalForJob(job);
+  // A manual click refreshes saved answers; automatic runs never fetch them.
+  if (explicitPrefillClick) {
+    clearPrivateApplicationApproval();
+    const binding = createPrivateApprovalBinding(jobContextFor(job));
+    const login = await prefillSavedPortalLogin({ shouldContinue: () => {
+      const current = getJobInfo();
+      return shouldContinue() && Boolean(current && approvalMatchesJob(binding, jobContextFor(current)));
+    } });
+    if (!shouldContinue() || login.status === 'stopped') throw new Error('Prefill stopped');
+    const privateLoad = await loadPrivateAnswersForPrefill(shouldContinue);
+    const currentJob = getJobInfo();
+    if (!shouldContinue() || !currentJob || !approvalMatchesJob(binding, jobContextFor(currentJob))) {
+      throw new Error('Prefill stopped');
+    }
+    sensitiveAnswerSession = privateLoad.answers;
+    privateApprovalBinding = privateLoad.answers.confirmed ? binding : null;
+    document.querySelector('.tmo-sensitive-answer-panel')?.dispatchEvent(
+      new CustomEvent('tmo-private-prefill-status', { detail: privateLoad.status })
+    );
+  }
+  const answersForRun = sensitiveAnswerSession;
   const resolved = (await chrome.runtime.sendMessage({
     type: 'RESOLVE_V1_PREFILL_PAYLOAD',
     // Soft mismatches used to wipe a fresh side-panel generate before attach.
@@ -422,10 +467,20 @@ async function executeResolvedPrefill(
     },
   }).catch(() => null)) as V1PrefillPayloadResponse | null;
 
+  if (!shouldContinue()) throw new Error('Prefill stopped');
+
   if (!resolved?.ok) {
     const result = mode === 'step_by_step'
-      ? await runPrefill({ autofillSkills: false })
+      ? await runPrefill({ autofillSkills: false, shouldContinue })
       : emptyPrefillCoverage();
+    if (shouldContinue() && mode === 'step_by_step') {
+      const root = findApplicationForm() ?? document;
+      await fillConfirmedSensitiveAnswers(root, answersForRun, shouldContinue);
+      if (explicitPrefillClick && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+        await runSmartAnswers({root,job:jobContextFor(job),hasResume:false,shouldContinue});
+      }
+      result.applicationScan = scanApplicationFields(root);
+    }
     return {
       result,
       hasResume: false,
@@ -485,44 +540,60 @@ async function executeResolvedPrefill(
   // Frames receive only the already-resolved, ephemeral payload for this run.
   chrome.runtime.sendMessage({
     type: 'PREFILL_CHILD_FRAMES',
+    undoRunId: currentPrefillUndoRunId(),
+    continuous: mode === 'continuous',
     prefill: {
       ...prefill,
-      ...(sensitiveAnswerSession.confirmed
-        ? { sensitiveAnswers: sensitiveAnswerSession }
+      ...(answersForRun.confirmed
+        ? { sensitiveAnswers: answersForRun }
         : {}),
     },
   }).catch(() => {});
-  const loginFill = approvedJobPortalLogin
-    ? fillJobPortalLogin(
-        document,
-        approvedJobPortalLogin,
-        window.location.hostname
-      )
-    : { emailFilled: 0, passwordFilled: 0, totalFilled: 0 };
+  markPrefillUndoDelegated();
+  const visual = answersForRun.confirmed && findApplicationForm()
+    ? createAutofillVisualFeedback(document, { animateFields: mode === 'step_by_step' })
+    : undefined;
   const result = await runPrefill({
     ...prefill,
+    shouldContinue,
+    animateFields: mode === 'step_by_step',
+    visualFeedback: visual,
     quietResultToast:
-      prefill.quietResultToast === true || loginFill.totalFilled > 0,
-  });
-  if (loginFill.totalFilled > 0) {
-    result.filled += loginFill.totalFilled;
-    result.total += loginFill.totalFilled;
-    result.groups.contact.filled += loginFill.totalFilled;
-    result.groups.contact.total += loginFill.totalFilled;
-  }
+      prefill.quietResultToast === true || answersForRun.confirmed,
+  }).catch(error => { visual?.fail('Prefill paused'); throw error; });
+  if (!shouldContinue()) { visual?.fail('Prefill stopped'); throw new Error('Prefill stopped'); }
   const applicationRoot = findApplicationForm() ?? document;
   const sensitive = await fillConfirmedSensitiveAnswers(
     applicationRoot,
-    sensitiveAnswerSession
-  );
+    answersForRun,
+    shouldContinue,
+    visual,
+  ).catch(error => { visual?.fail('Prefill paused'); throw error; });
+  if (!shouldContinue()) { visual?.fail('Prefill stopped'); throw new Error('Prefill stopped'); }
+  let smartFilled = 0;
+  if (explicitPrefillClick && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+    const binding = createPrivateApprovalBinding(jobContextFor(job));
+    smartFilled = await runSmartAnswers({
+      root: applicationRoot,
+      job: { ...jobContextFor(job), jobDescription: resolved.source === 'generated_resume' ? resolved.jobDescription : '' },
+      hasResume,
+      snapshot: resolved.source === 'generated_resume' ? resolved.snapshot : undefined,
+      shouldContinue: () => {
+        const current = getJobInfo();
+        return shouldContinue() && Boolean(current && approvalMatchesJob(binding, jobContextFor(current)));
+      },
+    });
+  }
   result.applicationScan = scanApplicationFields(applicationRoot);
+  if (!shouldContinue()) { visual?.fail('Prefill stopped'); throw new Error('Prefill stopped'); }
+  visual?.finish({ filled: result.filled + sensitive.filled + smartFilled, skipped: result.applicationScan.unansweredRequired });
   if (sensitive.unresolved.length > 0) {
     if (
       AUTOFILL_FEATURE_FLAGS.guidedAutopilot &&
       currentAutofillPreferences.guidedAutopilot
     ) {
       guidedStatus(
-        'Paused: review the required private answers in the TrackMyOPT panel.'
+        'Paused: complete the remaining private questions on this application.'
       );
     }
   }
@@ -683,7 +754,9 @@ async function mountScreeningQuestionReviews(
       },
     }));
   }
-  if (host.childElementCount > 0) card.appendChild(host);
+  if (host.childElementCount > 0) {
+    (card.querySelector('.tmo-job-widget-scroll-body') || card).appendChild(host);
+  }
 }
 
 function paintContinuousStopGuidance(reason: 'expired' | 'job_changed' | 'invalid'): void {
@@ -786,7 +859,7 @@ function tryAutoAddWithJob(job: JobInfo) {
         job: buildJobSaveSnapshot(job, scrapeJobDescription()),
         autoAdd: true,
       },
-      (response: { ok?: boolean; error?: string; id?: string } | undefined) => {
+      (response: { ok?: boolean; error?: string; id?: string; status?: string } | undefined) => {
         if (chrome.runtime.lastError) return;
         if (response?.ok) {
           rememberTrackerApplicationId(job, response.id);
@@ -794,7 +867,7 @@ function tryAutoAddWithJob(job: JobInfo) {
             [SESSION_KEYS.LAST_AUTO_ADDED]: { job_url: job.job_url, at: Date.now() },
           });
           chrome.storage.session.remove(SESSION_KEYS.LAST_JOB_CONTEXT);
-          showMessage('Application auto-added to TrackMyOPT Job Tracker!', false);
+          showMessage(response.status === 'Applied' ? 'Application saved as Applied in TrackMyOPT!' : 'Job already saved. Check its status in your tracker.', false);
         }
       }
     );
@@ -838,6 +911,8 @@ function tryAutoAddWithJob(job: JobInfo) {
  * menu. Draggable via the expanded header or minimized six-dot grip.
  */
 let lastUrl = location.href;
+// Install the isolated-world undo bridge even before this frame's first fill.
+getPrefillUndoState();
 let injectDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 const INJECT_DEBOUNCE_MS = 400;
 
@@ -851,7 +926,13 @@ function wireJobTrackerWidgetHost(): void {
     trackerApplicationIdFor,
     reconcileArtifactAvailabilityOnWidgetMount,
     generatedResumeFor,
-    executeResolvedPrefill,
+    executeResolvedPrefill: (job, mode) => executeResolvedPrefill(job, mode, undefined, true),
+    undoLastPrefill: async () => {
+      const state = getPrefillUndoState();
+      if (state.busy || !state.runId) return { restored: 0, skipped: 0, unsupported: 0 };
+      await stopGuidedAutopilot();
+      return requestPrefillUndo(state.runId);
+    },
     trackPrefillExecution,
     trackPrefillRuntimeFailure,
     mountScreeningQuestionReviews,
@@ -862,18 +943,16 @@ function wireJobTrackerWidgetHost(): void {
     markCurrentArtifactInvalid,
     getPlanEntitlements: () => currentPlanEntitlements,
     scheduleInject,
-    clearPrivateApplicationApproval,
-    commitSensitiveApproval: ({ login, session, binding }) => {
-      approvedJobPortalLogin = login;
-      sensitiveAnswerSession = session;
-      privateApprovalBinding = binding;
-      previousContinuousSignature = '';
-      scheduleContinuousPrefill();
-    },
   });
 }
 
+let widgetRefreshRevision = 0;
+let widgetMissingSince: number | null = null;
+let widgetA11yObserver: MutationObserver | null = null;
+
 async function injectOrRefreshButton() {
+  const revision = ++widgetRefreshRevision;
+  const pageUrl = location.href;
   wireJobTrackerWidgetHost();
   if (!document.body) return;
   if (!extAlive()) {
@@ -891,7 +970,9 @@ async function injectOrRefreshButton() {
   // Job boards like Workday mutate the DOM and change the URL constantly; without
   // this guard, a resume generation in progress (or its result) would be wiped
   // out from under the user by a routine SPA refresh.
-  if (document.getElementById(WIDGET_ROOT_ID) && isWidgetInteractionInFlight()) {
+  const interactingWidget = document.getElementById(WIDGET_ROOT_ID);
+  if (interactingWidget && currentJobAtStart && isWidgetInteractionInFlight() &&
+      !shouldRefreshWidget(interactingWidget, currentJobAtStart)) {
     return;
   }
 
@@ -904,13 +985,24 @@ async function injectOrRefreshButton() {
   const job = currentJobAtStart ?? getJobInfo();
   // Never overwrite the original posting snapshot with a confirmation page;
   // auto-add relies on this context after the application flow navigates.
-  if (job && !isApplicationSuccessPage()) saveJobContext(job);
+  if (job && !isApplicationSuccessPage()) {
+    saveJobContext(job);
+    captureJobDescription();
+  }
 
   const existing = document.getElementById(WIDGET_ROOT_ID);
   if (!job) {
+    // ATS frameworks briefly unmount headings while rendering another step.
+    // A short bounded grace period avoids flashing the whole rail off/on.
+    if (existing) {
+      widgetMissingSince ??= Date.now();
+      if (Date.now() - widgetMissingSince < 1500) { scheduleInject(); return; }
+    }
     if (existing) existing.remove();
+    widgetMissingSince = null;
     return;
   }
+  widgetMissingSince = null;
   // Company/role changes are evaluated as soon as the refreshed job context is
   // available. The lifecycle helper never clears or refills existing fields.
   generatedResumeFor(job);
@@ -921,23 +1013,29 @@ async function injectOrRefreshButton() {
   }
 
   // Hide scopes: this-visit (session) / this-site / all-sites (persisted).
-  if (await isWidgetSuppressed()) {
+  const suppressed = await isWidgetSuppressed();
+  if (revision !== widgetRefreshRevision || location.href !== pageUrl) return;
+  if (suppressed) {
     existing?.remove();
     return;
   }
 
   const defaultView = await getDefaultViewPref();
+  if (revision !== widgetRefreshRevision || location.href !== pageUrl || !extAlive()) return;
 
   const currentWidget = document.getElementById(WIDGET_ROOT_ID);
   if (currentWidget) {
-    if (!shouldRefreshWidget(currentWidget, job)) return;
-    // Re-check after the awaits above: a resume generation / analysis / dialog
-    // may have started while this async pass was resolving. Never destroy the
-    // widget out from under an in-flight interaction on any job portal.
-    if (isWidgetInteractionInFlight()) return;
+    if (!shouldRefreshWidget(currentWidget, job)) {
+      currentWidget.dispatchEvent(new CustomEvent('tmo-job-enriched', { detail: job }));
+      return;
+    }
+    // This is a genuinely different job, not a step/metadata refresh. Old
+    // asynchronous callbacks are guarded and must not leave stale tools here.
     currentWidget.remove();
   }
 
+  widgetA11yObserver?.disconnect();
+  disconnectWidgetViewportObserver();
   const widget = createJobTrackerWidget(job, defaultView);
 
   // A maximum z-index alone cannot beat another extension using the same value
@@ -952,8 +1050,8 @@ async function injectOrRefreshButton() {
   // is keyboard-operable, and re-run on mutation because panels render lazily.
   hardenInteractiveElements(widget);
   announceWidgetStatus = ensureWidgetAnnouncer(widget);
-  const a11yObserver = new MutationObserver(() => hardenInteractiveElements(widget));
-  a11yObserver.observe(widget, { childList: true, subtree: true });
+  widgetA11yObserver = new MutationObserver(() => hardenInteractiveElements(widget));
+  widgetA11yObserver.observe(widget, { childList: true, subtree: true });
   // Screen readers get no signal that a panel appeared over the page.
   announceWidgetStatus(
     job.role_title
@@ -970,7 +1068,8 @@ async function injectOrRefreshButton() {
 }
 
 function scheduleInject() {
-  if (injectDebounceTimer) clearTimeout(injectDebounceTimer);
+  // Throttle rather than trailing debounce: busy pages must not starve updates.
+  if (injectDebounceTimer) return;
   injectDebounceTimer = setTimeout(() => {
     injectDebounceTimer = null;
     injectOrRefreshButton();
@@ -1005,16 +1104,27 @@ let guidedNavigationTimer: number | null = null;
 let continuousPrefillInFlight = false;
 let continuousMutationPending = false;
 let previousContinuousSignature = '';
+let continuousPrefillGeneration = 0;
+let continuousNavigationBlocked = false;
 const CONTINUOUS_PREFILL_DEBOUNCE_MS = 500;
 
 function stopContinuousPrefill(): void {
+  document.removeEventListener('input', onGuidedAnswerChanged, true);
+  document.removeEventListener('change', onGuidedAnswerChanged, true);
+  continuousPrefillGeneration += 1;
+  continuousNavigationBlocked = false;
+  if (guidedNavigationTimer !== null) {
+    window.clearTimeout(guidedNavigationTimer);
+    guidedNavigationTimer = null;
+  }
   _continuousPrefillObserver?.disconnect();
   _continuousPrefillObserver = null;
   if (continuousPrefillTimer !== null) {
     window.clearTimeout(continuousPrefillTimer);
     continuousPrefillTimer = null;
   }
-  continuousPrefillInFlight = false;
+  // The old async pass still owns this lock until it settles. Its generation
+  // guard prevents any more writes while a restart waits for the lock.
   continuousMutationPending = false;
   previousContinuousSignature = '';
 }
@@ -1076,22 +1186,32 @@ function scheduleGuidedNavigation(): void {
   if (
     !AUTOFILL_FEATURE_FLAGS.guidedAutopilot ||
     !currentPlanEntitlements.guidedAutopilot ||
-    !currentAutofillPreferences.guidedAutopilot
+    !currentAutofillPreferences.guidedAutopilot ||
+    currentAutofillPreferences.mode !== 'continuous' || continuousPrefillInFlight || continuousNavigationBlocked
   ) {
     return;
   }
-  if (guidedNavigationTimer !== null) {
-    window.clearTimeout(guidedNavigationTimer);
-  }
+  if (guidedNavigationTimer !== null) return;
+  const applicationRoot = findApplicationForm();
+  if (!applicationRoot) return;
+  const stepSelector = 'input,textarea,select,button,[role="button"],[role="combobox"],h1,h2,h3,[role="heading"]';
+  const stepControls = Array.from(applicationRoot.querySelectorAll(stepSelector));
+  const pageUrl = window.location.href;
+  const generation = continuousPrefillGeneration;
   guidedStatus(
     'Reviewing this step. Press Escape or Stop to pause Guided Autopilot.'
   );
   guidedNavigationTimer = window.setTimeout(() => {
     guidedNavigationTimer = null;
-    if (!currentAutofillPreferences.guidedAutopilot) return;
+    if (!currentAutofillPreferences.guidedAutopilot || currentAutofillPreferences.mode !== 'continuous' ||
+      !currentPlanEntitlements.guidedAutopilot || continuousPrefillInFlight || continuousNavigationBlocked ||
+      generation !== continuousPrefillGeneration || window.location.href !== pageUrl ||
+      !applicationRoot.isConnected || findApplicationForm() !== applicationRoot) return;
+    const currentControls = Array.from(applicationRoot.querySelectorAll(stepSelector));
+    if (currentControls.length !== stepControls.length || currentControls.some((control, i) => control !== stepControls[i])) return;
     paintGuidedNavigationResult(
       runGuidedNavigation(
-        findApplicationForm() ?? document,
+        applicationRoot,
         guidedClickedControls
       )
     );
@@ -1110,20 +1230,38 @@ async function runContinuousPrefill(): Promise<void> {
     signature,
     previousSignature: previousContinuousSignature,
     inFlight: continuousPrefillInFlight,
-  })) return;
+  })) {
+    // A user may have completed the remaining manual fields, leaving no
+    // deterministic fill candidates. Navigation still gets its safety review.
+    scheduleGuidedNavigation();
+    return;
+  }
 
   const job = getJobInfo();
   if (!job) return;
+  const generation = continuousPrefillGeneration;
+  const pageUrl = window.location.href;
+  const shouldContinue = () => generation === continuousPrefillGeneration &&
+    currentAutofillPreferences.mode === 'continuous' &&
+    currentPlanEntitlements.continuousMode && window.location.href === pageUrl;
   previousContinuousSignature = signature;
   continuousPrefillInFlight = true;
   continuousMutationPending = false;
   try {
-    const execution = await executeResolvedPrefill(job, 'continuous');
+    const execution = await executeResolvedPrefill(job, 'continuous', shouldContinue);
+    if (!shouldContinue()) return;
     if (execution.stoppedReason) {
+      continuousNavigationBlocked = true;
       paintContinuousStopGuidance(execution.stoppedReason);
       trackPrefillExecution(execution, 'continuous', 'error');
       return;
     }
+    if (execution.sourceType === 'unavailable') {
+      continuousNavigationBlocked = true;
+      guidedStatus('Paused: could not load your prefill data. Try Prefill again when ready.');
+      return;
+    }
+    continuousNavigationBlocked = false;
     const resultLine = document.querySelector<HTMLElement>('.tmo-prefill-result-line');
     if (resultLine && execution.result.total > 0) {
       paintPrefillCoverage(resultLine, execution.result);
@@ -1139,17 +1277,28 @@ async function runContinuousPrefill(): Promise<void> {
         execution.jobDescription,
       );
     }
+    if (!shouldContinue()) return;
     trackPrefillExecution(execution, 'continuous', 'success');
-    scheduleGuidedNavigation();
   } catch {
-    trackPrefillRuntimeFailure('continuous');
+    if (shouldContinue()) {
+      continuousNavigationBlocked = true;
+      trackPrefillRuntimeFailure('continuous');
+    }
   } finally {
     continuousPrefillInFlight = false;
-    previousContinuousSignature = getPrefillCandidateSignature();
+    if (generation === continuousPrefillGeneration) {
+      const after = getPrefillCandidateSignature();
+      const beforeTokens = new Set(signature.split('|'));
+      // Filled/unchanged fields must not retrigger a pass. Newly added or
+      // revealed controls still need a follow-up, even if they arrived mid-fill.
+      const hasNewCandidates = after.split('|').some(token => token && !beforeTokens.has(token));
+      previousContinuousSignature = hasNewCandidates ? signature : after;
+    }
     if (continuousMutationPending && currentAutofillPreferences.mode === 'continuous') {
       continuousMutationPending = false;
-      previousContinuousSignature = '';
       scheduleContinuousPrefill();
+    } else if (shouldContinue()) {
+      scheduleGuidedNavigation();
     }
   }
 }
@@ -1164,7 +1313,8 @@ function scheduleContinuousPrefill(): void {
     continuousMutationPending = true;
     return;
   }
-  if (continuousPrefillTimer !== null) window.clearTimeout(continuousPrefillTimer);
+  // A busy page must not postpone the pass indefinitely with more mutations.
+  if (continuousPrefillTimer !== null) return;
   continuousPrefillTimer = window.setTimeout(
     () => void runContinuousPrefill(),
     CONTINUOUS_PREFILL_DEBOUNCE_MS,
@@ -1189,7 +1339,23 @@ function startContinuousPrefill(): void {
     });
     if (hasApplicationMutation) scheduleContinuousPrefill();
   });
-  _continuousPrefillObserver.observe(document.body, { childList: true, subtree: true });
+  _continuousPrefillObserver.observe(document.body, {
+    childList: true, subtree: true, attributes: true,
+    attributeFilter: ['hidden', 'disabled', 'readonly', 'aria-hidden', 'aria-disabled', 'class', 'style'],
+  });
+  document.addEventListener('input', onGuidedAnswerChanged, true);
+  document.addEventListener('change', onGuidedAnswerChanged, true);
+  scheduleContinuousPrefill();
+}
+
+function onGuidedAnswerChanged(event: Event): void {
+  if (!currentAutofillPreferences.guidedAutopilot) return;
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target || target.closest(`#${WIDGET_ROOT_ID}`)) return;
+  if (guidedNavigationTimer !== null) {
+    window.clearTimeout(guidedNavigationTimer);
+    guidedNavigationTimer = null;
+  }
   scheduleContinuousPrefill();
 }
 
@@ -1269,6 +1435,9 @@ function extAlive(): boolean {
 
 /** Stop every timer/observer and remove the widget (used when the context dies). */
 function teardownWidgetRuntime() {
+  widgetRefreshRevision += 1;
+  widgetA11yObserver?.disconnect();
+  widgetA11yObserver = null;
   stopContinuousPrefill();
   clearPrivateApplicationApproval();
   disconnectWidgetViewportObserver();
@@ -1302,12 +1471,13 @@ function setupSpaObservers() {
     _spaObserver.disconnect();
     _spaObserver = null;
   }
-  const observer = new MutationObserver(() => {
+  const observer = new MutationObserver((records) => {
     if (!extAlive()) {
       teardownWidgetRuntime();
       return;
     }
     if (location.href !== lastUrl) {
+      document.dispatchEvent(new Event('tmo-page-context-changed'));
       invalidateArtifactForUrlChange(location.href);
       lastUrl = location.href;
       clearWidgetDismissedUrl();
@@ -1319,12 +1489,12 @@ function setupSpaObservers() {
       // (and any in-flight work) otherwise.
       scheduleInject();
       runSuccessCheckDebounced();
-    } else {
+    } else if (hasPortalPageMutation(records)) {
       scheduleInject();
       runSuccessCheckDebounced();
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(document.body, { childList: true, characterData: true, subtree: true });
   _spaObserver = observer;
 }
 
@@ -1357,6 +1527,9 @@ function startEarlyRetryLoop() {
 
 // Cleanup on page unload (navigation away in non-SPA contexts).
 window.addEventListener('pagehide', () => {
+  widgetRefreshRevision += 1;
+  widgetA11yObserver?.disconnect();
+  widgetA11yObserver = null;
   stopContinuousPrefill();
   disconnectWidgetViewportObserver();
   if (_spaObserver) { _spaObserver.disconnect(); _spaObserver = null; }
@@ -1399,19 +1572,42 @@ function initFullJobAssistMode() {
 // Cross-origin ATS frames receive prefill through the background relay. They
 // never render their own side panel; only the top-level document owns the UI.
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === 'TMO_PREFILL_SAVED_RESUME') {
+    if (window.top !== window.self || _sender.url !== chrome.runtime.getURL('sidepanel.html')) return false;
+    const sameJob = typeof message.jobUrl === 'string' && jobUrlsReferToSameJob(message.jobUrl,window.location.href);
+    const prefillButton = document.getElementById(WIDGET_ROOT_ID)?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
+    if (!sameJob || !prefillButton || prefillButton.disabled) { sendResponse({ok:false}); return false; }
+    // Fail closed if the card is stale: don't fill with a different version than displayed.
+    void chrome.runtime.sendMessage({type:'RESOLVE_V1_PREFILL_PAYLOAD',discardRejectedArtifact:false,
+      request:{now:new Date().toISOString(),jobContext:{jobUrl:window.location.href,companyName:'',roleTitle:''}},
+    }).then((resolved:V1PrefillPayloadResponse)=>{
+      if (!resolved?.ok || resolved.source !== 'generated_resume' || resolved.artifactId !== message.artifactId ||
+          !prefillButton.isConnected || prefillButton.disabled || !jobUrlsReferToSameJob(message.jobUrl,window.location.href)) {
+        sendResponse({ok:false}); return;
+      }
+      // Reuse the explicit-click flow, including private answers, undo and form review.
+      prefillButton.click();
+      sendResponse({ok:true});
+    }).catch(()=>sendResponse({ok:false}));
+    return true;
+  }
   // The side panel asks the page for its job context on open and on tab switch.
   // Only the top frame answers, so an iframe cannot shadow the real posting.
   if (message?.type === 'TMO_GET_JOB_CONTEXT') {
     if (window.top !== window.self) return false;
     const job = getJobInfo();
-    void resolveJobDescription(window.location.href).then((description) => {
+    const requestedPageUrl = window.location.href;
+    void resolveJobDescriptionDetails(requestedPageUrl).then((description) => {
+      if (window.location.href !== requestedPageUrl) { sendResponse(null); return; }
       sendResponse({
         roleTitle: job?.role_title ?? '',
         companyName: job?.company_name ?? '',
         jobUrl: job?.job_url ?? window.location.href,
         pageUrl: window.location.href,
         applicationId: job ? trackerApplicationIdFor(job) : undefined,
-        jobDescription: description,
+        jobDescription: description.text,
+        jobDescriptionSource: description.source,
+        jobDescriptionSourceUrl: description.sourceUrl,
       });
     });
     return true;
@@ -1509,25 +1705,27 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   const sensitiveAnswers = normalizeSensitiveAnswerSession(
     prefill.sensitiveAnswers
   );
-  void runPrefill({
-    resume: prefill.resume,
-    coverLetter: prefill.coverLetter,
-    generatedContentHash: prefill.generatedContentHash,
-    snapshot: prefill.snapshot,
-    profileFallback: prefill.profileFallback,
-    autofillSkills: prefill.autofillSkills === true,
-    quietResultToast: prefill.quietResultToast === true,
-    quietIfNoForm: true,
-  })
-    .then(async () => {
-      if (sensitiveAnswers) {
-        await fillConfirmedSensitiveAnswers(
-          findApplicationForm() ?? document,
-          sensitiveAnswers
-        );
-      }
-      sendResponse({ ok: true });
-    })
+  void withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
+    await runPrefill({
+      resume: prefill.resume,
+      coverLetter: prefill.coverLetter,
+      generatedContentHash: prefill.generatedContentHash,
+      snapshot: prefill.snapshot,
+      profileFallback: prefill.profileFallback,
+      autofillSkills: prefill.autofillSkills === true,
+      quietResultToast: prefill.quietResultToast === true,
+      quietIfNoForm: true,
+      animateFields: message.continuous !== true,
+      shouldContinue,
+    });
+    if (sensitiveAnswers && shouldContinue()) {
+      await fillConfirmedSensitiveAnswers(
+        findApplicationForm() ?? document,
+        sensitiveAnswers,
+        shouldContinue,
+      );
+    }
+  }), message.undoRunId).then(() => sendResponse({ ok: true }))
     .catch(() => sendResponse({ ok: false }));
   return true;
 });
