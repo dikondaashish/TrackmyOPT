@@ -1,13 +1,12 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
+import { useId } from 'react';
 import {
   BarChart3,
   BarChartHorizontal,
   Calendar,
   TrendingUp,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { CaseProcessingBenchmarks } from '@/components/dashboard/case-status/CaseProcessingBenchmarks';
 import { PredictionPanel } from '@/components/dashboard/case-status/panels/PredictionPanel';
 import { ProcessingTimeTrend } from '@/components/dashboard/case-status/panels/ProcessingTimeTrend';
@@ -29,9 +28,9 @@ import type { SimilarFilingPeers } from '@/lib/community-opt/similar-filing';
 import type { WeeklyTrendPoint } from '@/lib/community-opt/weekly-trend';
 import { isoWeekStart } from '@/lib/community-opt/weekly-trend';
 
-type TabId = 'prediction' | 'trend' | 'spread' | 'heatmap';
+type ComparisonId = 'prediction' | 'trend' | 'spread' | 'heatmap';
 
-interface AnalyticsTabsProps {
+interface AnalyticsPanelsProps {
   receiptNumber: string;
   isPremium: boolean | null;
   onUpgrade: () => void;
@@ -56,13 +55,13 @@ interface AnalyticsTabsProps {
   filingCategory?: FilingCategory | string | null;
 }
 
-interface Tab {
-  id: TabId;
+interface AnalyticsPanel {
+  id: ComparisonId;
   label: string;
   icon: React.ReactNode;
 }
 
-const TABS: Tab[] = [
+const ANALYTICS_PANELS: AnalyticsPanel[] = [
   {
     id: 'prediction',
     label: 'Similar cases',
@@ -102,9 +101,22 @@ function monthLabel(ym: string): string {
 
 function ProcessingHeatmap({
   rows,
+  loading,
 }: {
   rows: Array<{ month: string; buckets: number[] }>;
+  loading: boolean;
 }) {
+  if (loading && !rows.length) {
+    return (
+      <p
+        role="status"
+        className="text-sm text-muted-foreground py-8 text-center"
+      >
+        Loading community heatmap…
+      </p>
+    );
+  }
+
   if (!rows.length) {
     return (
       <p className="text-sm text-muted-foreground py-8 text-center">
@@ -196,7 +208,7 @@ function ProcessingHeatmap({
   );
 }
 
-export function AnalyticsTabs({
+export function AnalyticsPanels({
   isPremium,
   onUpgrade,
   daysSinceFiled = 0,
@@ -213,33 +225,102 @@ export function AnalyticsTabs({
   estimateLoading = false,
   estimatesAvailable = true,
   filingCategory = null,
-}: AnalyticsTabsProps) {
+}: AnalyticsPanelsProps) {
   const caseKind = filingCategoryToCaseKind(filingCategory);
-  const [active, setActive] = useState<TabId>('prediction');
   const id = useId();
-  const tabRefs = useRef<Partial<Record<TabId, HTMLButtonElement | null>>>({});
 
   // Treat an unresolved plan as free: the server has already withheld the Pro
   // payload, so showing the paid panels here would only render them empty.
   const isPro = isPremium === true;
   const upgrade = isPremium === false ? onUpgrade : undefined;
 
-  const selectTab = (next: TabId) => {
-    setActive(next);
-    tabRefs.current[next]?.focus();
-  };
-  const selectGridAdjacentTab = (
-    current: TabId,
-    direction: 'left' | 'right' | 'up' | 'down'
-  ) => {
-    const currentIndex = TABS.findIndex((tab) => tab.id === current);
-    const row = Math.floor(currentIndex / 2);
-    const column = currentIndex % 2;
-    const nextIndex =
-      direction === 'up' || direction === 'down'
-        ? ((row + 1) % 2) * 2 + column
-        : row * 2 + ((column + 1) % 2);
-    selectTab(TABS[nextIndex].id);
+  const renderAnalyticsPanel = (panel: ComparisonId) => {
+    switch (panel) {
+      case 'prediction':
+        return (
+          <div className="space-y-5">
+            <JourneyStagesCard
+              stages={stages}
+              phase={phase}
+              premiumProcessing={premiumProcessing}
+              caseKind={caseKind}
+              isPro={isPro}
+              onUpgrade={upgrade}
+              loading={estimateLoading}
+            />
+
+            {isPro ? (
+              <SimilarFilingCard
+                peers={similarFiling}
+                receivedDate={receivedDate}
+                premiumProcessing={premiumProcessing}
+                caseKind={caseKind}
+                loading={estimateLoading}
+              />
+            ) : (
+              <LockedAnalyticsPanel
+                title="Cases that filed when you did"
+                description="See what people who filed within days of you actually waited — median, middle 50%, and how many reports it is based on."
+                onUpgrade={upgrade}
+              />
+            )}
+          </div>
+        );
+      case 'trend':
+        return !isPro ? (
+          <LockedAnalyticsPanel
+            title="Is processing speeding up or slowing down?"
+            description="Weekly median wait by filing week, with your own week marked, so you can see which way the queue is moving instead of guessing."
+            onUpgrade={upgrade}
+          />
+        ) : estimateLoading && !weeklyTrend.length ? (
+          <p
+            role="status"
+            className="text-sm text-muted-foreground py-8 text-center"
+          >
+            Loading community trend…
+          </p>
+        ) : (
+          <ProcessingTimeTrend
+            points={weeklyTrend}
+            filedWeekStart={isoWeekStart(receivedDate)}
+            premiumProcessing={premiumProcessing}
+            caseKind={caseKind}
+          />
+        );
+      case 'spread':
+        return !isPro ? (
+          <LockedAnalyticsPanel
+            title="The full spread, not just the middle"
+            description="Every reported wait binned by week, with your own position marked — including how long the slow tail actually runs."
+            onUpgrade={upgrade}
+          />
+        ) : estimateLoading && !histogram ? (
+          <p
+            role="status"
+            className="text-sm text-muted-foreground py-8 text-center"
+          >
+            Loading community distribution…
+          </p>
+        ) : (
+          <ProcessingTimeDistribution
+            histogram={histogram}
+            daysSinceFiled={daysSinceFiled}
+            premiumProcessing={premiumProcessing}
+            caseKind={caseKind}
+          />
+        );
+      case 'heatmap':
+        return !isPro ? (
+          <LockedAnalyticsPanel
+            title="Does filing month matter?"
+            description="Approvals by filing month and speed bucket, so you can see how the season you filed in compares with the rest of the year."
+            onUpgrade={upgrade}
+          />
+        ) : (
+          <ProcessingHeatmap rows={heatmap} loading={estimateLoading} />
+        );
+    }
   };
 
   return (
@@ -286,193 +367,44 @@ export function AnalyticsTabs({
           <h3 id={`${id}-details-title`} className="py-3 text-sm font-semibold">
             Explore detailed comparisons
           </h3>
-          {/* Two-column tab grid keeps every comparison easy to spot on phones. */}
-          <div
-            role="tablist"
-            aria-label="Community analytics"
-            className="grid grid-cols-2 gap-2 mb-5 p-1 rounded-xl bg-muted/60"
-          >
-            {TABS.map((tab) => {
-              const selected = active === tab.id;
+          {/* Keep all four comparisons visible together; stack only on phones. */}
+          <div className="mt-3 grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+            {ANALYTICS_PANELS.map((panel) => {
+              const titleId = `${id}-${panel.id}-title`;
               return (
-                <button
-                  key={tab.id}
-                  role="tab"
-                  type="button"
-                  ref={(node) => {
-                    tabRefs.current[tab.id] = node;
-                  }}
-                  id={`${id}-tab-${tab.id}`}
-                  aria-controls={`${id}-panel`}
-                  aria-selected={selected}
-                  tabIndex={selected ? 0 : -1}
-                  onClick={() => setActive(tab.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'ArrowRight') {
-                      event.preventDefault();
-                      selectGridAdjacentTab(tab.id, 'right');
-                    } else if (event.key === 'ArrowLeft') {
-                      event.preventDefault();
-                      selectGridAdjacentTab(tab.id, 'left');
-                    } else if (event.key === 'ArrowDown') {
-                      event.preventDefault();
-                      selectGridAdjacentTab(tab.id, 'down');
-                    } else if (event.key === 'ArrowUp') {
-                      event.preventDefault();
-                      selectGridAdjacentTab(tab.id, 'up');
-                    } else if (event.key === 'Home') {
-                      event.preventDefault();
-                      selectTab(TABS[0].id);
-                    } else if (event.key === 'End') {
-                      event.preventDefault();
-                      selectTab(TABS[TABS.length - 1].id);
-                    }
-                  }}
-                  className={cn(
-                    'flex min-w-0 w-full items-center justify-center gap-1.5 px-2 sm:px-3 min-h-11 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                    selected
-                      ? 'bg-card text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
+                <section
+                  key={panel.id}
+                  aria-labelledby={titleId}
+                  className="min-w-0 rounded-xl border border-border bg-card p-4 sm:p-5"
                 >
-                  <span
-                    className={cn(
-                      'hidden sm:inline',
-                      selected && 'text-[var(--chart-series)]'
-                    )}
+                  <h4
+                    id={titleId}
+                    className="flex items-center gap-2 text-sm font-semibold text-foreground"
                   >
-                    {tab.icon}
-                  </span>
-                  {tab.label}
-                </button>
+                    <span
+                      className="text-[var(--chart-series)]"
+                      aria-hidden="true"
+                    >
+                      {panel.icon}
+                    </span>
+                    {panel.label}
+                  </h4>
+                  <div className="mt-4 min-w-0">
+                    {renderAnalyticsPanel(panel.id)}
+                  </div>
+                </section>
               );
             })}
           </div>
 
-          <div
-            id={`${id}-panel`}
-            role="tabpanel"
-            aria-labelledby={`${id}-tab-${active}`}
-            tabIndex={0}
-            className="min-h-[200px] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {active === 'prediction' && (
-              <div className="space-y-5">
-                {estimatesAvailable && (
-                  <>
-                    <JourneyStagesCard
-                      stages={stages}
-                      phase={phase}
-                      premiumProcessing={premiumProcessing}
-                      caseKind={caseKind}
-                      isPro={isPro}
-                      onUpgrade={upgrade}
-                      loading={estimateLoading}
-                    />
-
-                    {isPro ? (
-                      <SimilarFilingCard
-                        peers={similarFiling}
-                        receivedDate={receivedDate}
-                        premiumProcessing={premiumProcessing}
-                        caseKind={caseKind}
-                        loading={estimateLoading}
-                      />
-                    ) : (
-                      <LockedAnalyticsPanel
-                        title="Cases that filed when you did"
-                        description="See what people who filed within days of you actually waited — median, middle 50%, and how many reports it is based on."
-                        onUpgrade={upgrade}
-                      />
-                    )}
-
-                    <div className="border-t border-border pt-4">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                        Community Reports
-                      </p>
-                      <CaseProcessingBenchmarks
-                        filingCategory={filingCategory}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {active === 'trend' &&
-              (!estimatesAvailable ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">
-                  Community trends are available for Initial OPT and STEM OPT
-                  cases.
-                </p>
-              ) : !isPro ? (
-                <LockedAnalyticsPanel
-                  title="Is processing speeding up or slowing down?"
-                  description="Weekly median wait by filing week, with your own week marked, so you can see which way the queue is moving instead of guessing."
-                  onUpgrade={upgrade}
-                />
-              ) : estimateLoading && !weeklyTrend.length ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">
-                  Loading community trend…
-                </p>
-              ) : (
-                <ProcessingTimeTrend
-                  points={weeklyTrend}
-                  filedWeekStart={isoWeekStart(receivedDate)}
-                  premiumProcessing={premiumProcessing}
-                  caseKind={caseKind}
-                />
-              ))}
-
-            {active === 'spread' &&
-              (!estimatesAvailable ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">
-                  Community processing spreads are available for Initial OPT and
-                  STEM OPT cases.
-                </p>
-              ) : !isPro ? (
-                <LockedAnalyticsPanel
-                  title="The full spread, not just the middle"
-                  description="Every reported wait binned by week, with your own position marked — including how long the slow tail actually runs."
-                  onUpgrade={upgrade}
-                />
-              ) : estimateLoading && !histogram ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">
-                  Loading community distribution…
-                </p>
-              ) : (
-                <ProcessingTimeDistribution
-                  histogram={histogram}
-                  daysSinceFiled={daysSinceFiled}
-                  premiumProcessing={premiumProcessing}
-                  caseKind={caseKind}
-                />
-              ))}
-
-            {active === 'heatmap' &&
-              (!estimatesAvailable ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">
-                  Filing-month heatmaps are available for Initial OPT and STEM
-                  OPT cases.
-                </p>
-              ) : !isPro ? (
-                <LockedAnalyticsPanel
-                  title="Does filing month matter?"
-                  description="Approvals by filing month and speed bucket, so you can see how the season you filed in compares with the rest of the year."
-                  onUpgrade={upgrade}
-                />
-              ) : (
-                <ProcessingHeatmap rows={heatmap} />
-              ))}
+          <div className="mt-6 border-t border-border pt-5">
+            <CaseProcessingBenchmarks filingCategory={filingCategory} />
           </div>
         </section>
       )}
 
-      {/* Stated once for the whole section rather than under each card. It sat
-          on four cards at once on the Estimate tab, which turned the notice
-          that matters most into wallpaper people scroll past. Still beside the
-          results, which is what the compliance checklist requires — it is the
-          page footer that is not good enough. */}
+      {/* State the data-source and USCIS disclaimer once below all four charts,
+          keeping it beside the results without repeating it in every panel. */}
       <div className="mt-6 pt-4 border-t border-border">
         <p className="text-[11px] text-muted-foreground leading-relaxed">
           Community charts use partner-reported timelines (opt-tracker,

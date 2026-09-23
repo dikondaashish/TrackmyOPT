@@ -27,7 +27,7 @@ import { StickyCaseSwitcher, deriveCaseState } from "@/components/dashboard/case
 import { UrgentActionBanner } from "@/components/dashboard/case-status/panels/UrgentActionBanner";
 import { CaseHeroCard } from "@/components/dashboard/case-status/panels/CaseHeroCard";
 import { MonitorHealthStrip } from "@/components/dashboard/case-status/panels/MonitorHealthStrip";
-import { AnalyticsTabs } from "@/components/dashboard/case-status/panels/AnalyticsTabs";
+import { AnalyticsPanels } from "@/components/dashboard/case-status/panels/AnalyticsPanels";
 import { ToolsAccordion } from "@/components/dashboard/case-status/panels/ToolsAccordion";
 import { CaseActionCenter } from "@/components/dashboard/case-status/panels/CaseActionCenter";
 import { DedicatedConsultationCard } from "@/components/dashboard/case-status/panels/DedicatedConsultationCard";
@@ -337,7 +337,7 @@ export function CaseStatusSection() {
           {/* ── 5. ANALYTICS SECTION ── */}
           <Card className="p-4 sm:p-6 border-border shadow-sm">
             <CaseStatusPanelErrorBoundary area="analytics">
-              <AnalyticsTabs
+              <AnalyticsPanels
                 key={caseStatus.id}
                 receiptNumber={caseStatus.receipt_number}
                 isPremium={isPremium}
