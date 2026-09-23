@@ -165,12 +165,30 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       this.queue.isPaused(),
       this.slowQueue.isPaused(),
     ]);
+    const queued = await Promise.all([
+      this.queue.getJobs(['waiting', 'active', 'delayed', 'paused']),
+      this.slowQueue.getJobs(['waiting', 'active', 'delayed', 'paused']),
+    ]);
+    const queuedRunCounts = new Map<string, number>();
+    for (const job of queued.flat()) {
+      const schedulerRunId = (
+        job.data as { schedulerRunId?: unknown } | undefined
+      )?.schedulerRunId;
+      if (typeof schedulerRunId === 'string')
+        queuedRunCounts.set(
+          schedulerRunId,
+          (queuedRunCounts.get(schedulerRunId) || 0) + 1,
+        );
+    }
     return {
       queues: {
         'job-board': normal,
         'job-board-slow': slow,
       },
       queuesPaused: { normal: normalPaused, slow: slowPaused },
+      queuedRunCounts: Object.fromEntries(
+        [...queuedRunCounts.entries()].sort(([a], [b]) => a.localeCompare(b)),
+      ),
       jobStore: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
       note: 'Bull does not retain stalled jobs as a persistent queue state; inspect worker logs for stall events.',
     };
@@ -283,6 +301,31 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       ),
     );
     return { schedulerRunId: normalized, sourcesRequeued: missing.length };
+  }
+
+  /** Remove only queued Bull wrappers for an explicitly aborted run. Source
+   * audits and persisted job data are retained; active work is never removed.
+   * Both queues must already be globally paused so this cannot race a worker.
+   */
+  async cancelIngestionRun(schedulerRunId: string) {
+    this.assertQueueControlEnabled();
+    const normalized = normalizeSchedulerRunId(schedulerRunId);
+    if (!normalized) throw new Error('Invalid scheduler run ID');
+    const [normalPaused, slowPaused] = await Promise.all([
+      this.queue.isPaused(),
+      this.slowQueue.isPaused(),
+    ]);
+    if (!normalPaused || !slowPaused)
+      throw new Error('ingestion_queue_not_paused');
+    const active = await this.queueJobsForRun(normalized, ['active']);
+    if (active.length) throw new Error('ingestion_run_active');
+    const queued = await this.queueJobsForRun(normalized, [
+      'waiting',
+      'delayed',
+      'paused',
+    ]);
+    await Promise.all(queued.map(({ job }) => job.remove()));
+    return { schedulerRunId: normalized, jobsRemoved: queued.length };
   }
 
   async queueEnabledSources(context: SchedulerContext) {
