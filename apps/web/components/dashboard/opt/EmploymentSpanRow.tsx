@@ -1,6 +1,8 @@
 'use client';
 
-import { Building2, Calendar, Clock, MapPin, Trash2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, Trash2 } from 'lucide-react';
+import { employerLogoDomain } from '@/lib/company-domain';
+import { EmployerSuggestionLogo } from './EmployerSuggestionLogo';
 import {
   calculateEmploymentDuration,
   formatEmploymentDate,
@@ -22,21 +24,13 @@ export function EmploymentSpanRow({
 }: EmploymentSpanRowProps) {
   return (
     <div className="flex items-start gap-3">
-      <div
-        className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-          span.is_current
-            ? 'bg-emerald-100 dark:bg-emerald-900/30'
-            : 'bg-muted'
-        }`}
-      >
-        <Building2
-          className={`w-5 h-5 ${
-            span.is_current
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-muted-foreground'
-          }`}
-        />
-      </div>
+      <EmployerSuggestionLogo
+        name={span.employer_name}
+        domain={
+          employerLogoDomain(span.employer_name, span.employer_domain) || ''
+        }
+        className="h-10 w-10 rounded-xl"
+      />
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <h3 className="font-medium text-sm truncate max-w-full">
@@ -69,7 +63,9 @@ export function EmploymentSpanRow({
           </div>
         </div>
         {span.job_title && (
-          <p className="text-xs text-muted-foreground mt-0.5">{span.job_title}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {span.job_title}
+          </p>
         )}
         <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">

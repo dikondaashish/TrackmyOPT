@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { calendarDateISO } from '@/lib/immigration/calendar-days';
+import { normalizeCompanyDomain } from '@/lib/company-domain';
 
 // GET - Fetch all employment spans for the user
 export async function GET() {
@@ -25,9 +26,14 @@ export async function GET() {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const { data: spans, error } = await supabase
@@ -73,9 +79,14 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const body = await req.json().catch(() => null);
@@ -83,6 +94,7 @@ export async function POST(req: NextRequest) {
       spans: Array<{
         id?: string;
         employer_name: string;
+        employer_domain?: string | null;
         start_date: string;
         end_date: string | null;
         type?: string;
@@ -98,13 +110,42 @@ export async function POST(req: NextRequest) {
 
     // Validate the entire batch before writing any records.
     for (const span of spans) {
-      const start = typeof span?.start_date === 'string' ? calendarDateISO(span.start_date) : null;
-      const end = typeof span?.end_date === 'string' && span.end_date ? calendarDateISO(span.end_date) : null;
-      if (!span || typeof span.employer_name !== 'string' || !span.employer_name.trim() || !start ||
-        (span.id != null && typeof span.id !== 'string') ||
-        (span.end_date != null && span.end_date !== '' && !end) || (end && end < start)) {
+      if (
+        span?.employer_domain != null &&
+        span.employer_domain !== '' &&
+        !normalizeCompanyDomain(span.employer_domain)
+      ) {
         return NextResponse.json(
-          { ok: false, error: 'Each job needs an employer and a valid start date. End date must be valid and on or after the start date.' },
+          {
+            ok: false,
+            error: 'Enter a valid company website or leave it blank.',
+          },
+          { status: 400 }
+        );
+      }
+      const start =
+        typeof span?.start_date === 'string'
+          ? calendarDateISO(span.start_date)
+          : null;
+      const end =
+        typeof span?.end_date === 'string' && span.end_date
+          ? calendarDateISO(span.end_date)
+          : null;
+      if (
+        !span ||
+        typeof span.employer_name !== 'string' ||
+        !span.employer_name.trim() ||
+        !start ||
+        (span.id != null && typeof span.id !== 'string') ||
+        (span.end_date != null && span.end_date !== '' && !end) ||
+        (end && end < start)
+      ) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error:
+              'Each job needs an employer and a valid start date. End date must be valid and on or after the start date.',
+          },
           { status: 400 }
         );
       }
@@ -122,6 +163,11 @@ export async function POST(req: NextRequest) {
           .from('employment_spans')
           .update({
             employer_name: span.employer_name.trim(),
+            ...(span.employer_domain !== undefined
+              ? {
+                  employer_domain: normalizeCompanyDomain(span.employer_domain),
+                }
+              : {}),
             start_date: startDateISO,
             end_date: endDateISO,
           })
@@ -139,6 +185,11 @@ export async function POST(req: NextRequest) {
           .insert({
             user_id: userId,
             employer_name: span.employer_name.trim(),
+            ...(span.employer_domain !== undefined
+              ? {
+                  employer_domain: normalizeCompanyDomain(span.employer_domain),
+                }
+              : {}),
             start_date: startDateISO,
             end_date: endDateISO,
           })
@@ -150,14 +201,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ 
-      ok: true, 
-      spans: savedSpans 
+    return NextResponse.json({
+      ok: true,
+      spans: savedSpans,
     });
   } catch (error: any) {
     console.error('Employment spans save error:', error);
     return NextResponse.json(
-      { ok: false, error: 'Could not save all employment records. Reload history before retrying; some records may have saved.' },
+      {
+        ok: false,
+        error:
+          'Could not save all employment records. Reload history before retrying; some records may have saved.',
+      },
       { status: 500 }
     );
   }
@@ -185,9 +240,14 @@ export async function DELETE(req: NextRequest) {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const body = await req.json();

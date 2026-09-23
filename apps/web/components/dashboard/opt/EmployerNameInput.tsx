@@ -2,19 +2,24 @@
 
 import { useId, type RefObject } from 'react';
 import { EmployerSuggestionLogo } from './EmployerSuggestionLogo';
-import { useEmployerNameSuggestions } from './useEmployerNameSuggestions';
+import {
+  useEmployerNameSuggestions,
+  type Company,
+} from './useEmployerNameSuggestions';
 
 export function EmployerNameInput({
   value,
   onChange,
   inputRef,
+  onSelect,
 }: {
   value: string;
   onChange: (value: string) => void;
   inputRef?: RefObject<HTMLInputElement | null>;
+  onSelect?: (company: Company) => void;
 }) {
   const id = useId();
-  const suggestions = useEmployerNameSuggestions(value, onChange);
+  const suggestions = useEmployerNameSuggestions(value, onChange, onSelect);
 
   return (
     <div className="relative min-w-0">

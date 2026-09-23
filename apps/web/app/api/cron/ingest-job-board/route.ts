@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
+import { jobBoardHourlyRunId } from './scheduler-run-id';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -12,10 +13,6 @@ export const maxDuration = 60;
 // enqueue request from consuming the whole window while the service is cold.
 const RENDER_WAKE_TIMEOUT_MS = 30_000;
 const ENQUEUE_TIMEOUT_MS = 25_000;
-
-export function jobBoardHourlyRunId(now = new Date()) {
-  return `job-board-hour-${now.toISOString().slice(0, 13)}`;
-}
 
 function schedulerLedger() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

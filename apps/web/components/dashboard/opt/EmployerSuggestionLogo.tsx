@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { normalizeCompanyDomain } from '@/lib/company-domain';
 
 function initials(name: string) {
   return (
@@ -17,15 +18,7 @@ function initials(name: string) {
 
 export function employerSuggestionLogoUrl(domain: string) {
   try {
-    const normalizedDomain = domain.trim();
-    const hostname = new URL(
-      /^https?:\/\//i.test(normalizedDomain)
-        ? normalizedDomain
-        : `https://${normalizedDomain}`
-    ).hostname.replace(
-      /^www\./,
-      ''
-    );
+    const hostname = normalizeCompanyDomain(domain);
     if (!hostname) return null;
 
     const url = new URL('https://t1.gstatic.com/faviconV2');
@@ -49,7 +42,7 @@ export function EmployerSuggestionLogo({
   domain: string;
   className?: string;
 }) {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const src = employerSuggestionLogoUrl(domain);
 
   return (
@@ -60,7 +53,7 @@ export function EmployerSuggestionLogo({
         className
       )}
     >
-      {src && !imageFailed ? (
+      {src && failedSrc !== src ? (
         // The public favicon endpoint is a dynamic, third-party response; do
         // not proxy each autocomplete result through the Next.js image loader.
         // eslint-disable-next-line @next/next/no-img-element
@@ -72,12 +65,10 @@ export function EmployerSuggestionLogo({
           loading="lazy"
           referrerPolicy="no-referrer"
           className="h-full w-full object-contain p-1"
-          onError={() => setImageFailed(true)}
+          onError={() => setFailedSrc(src)}
         />
       ) : (
-        <span className="bg-gradient-to-br from-primary/15 to-cyan-100 bg-clip-text text-transparent dark:to-cyan-950">
-          {initials(name)}
-        </span>
+        <span className="text-primary">{initials(name)}</span>
       )}
     </span>
   );

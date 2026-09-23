@@ -1,10 +1,13 @@
 'use client';
 
-import type { RefObject } from 'react';
+import { useId, type RefObject } from 'react';
 import { EmployerNameInput } from './EmployerNameInput';
+import { normalizeCompanyDomain } from '@/lib/company-domain';
 
 interface EmploymentSpanFormProps {
   employer: string;
+  employerDomain?: string;
+  onEmployerDomainChange?: (value: string) => void;
   startDate: string;
   endDate: string;
   isCurrent: boolean;
@@ -22,6 +25,8 @@ interface EmploymentSpanFormProps {
 
 export function EmploymentSpanForm({
   employer,
+  employerDomain = '',
+  onEmployerDomainChange,
   startDate,
   endDate,
   isCurrent,
@@ -36,6 +41,7 @@ export function EmploymentSpanForm({
   onCancel,
   onSubmit,
 }: EmploymentSpanFormProps) {
+  const websiteId = useId();
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
@@ -44,6 +50,11 @@ export function EmploymentSpanForm({
             inputRef={employerInputRef}
             value={employer}
             onChange={onEmployerChange}
+            onSelect={(company) =>
+              onEmployerDomainChange?.(
+                normalizeCompanyDomain(company.domain) || ''
+              )
+            }
           />
         </div>
         <div className="w-full sm:w-36">
@@ -72,6 +83,33 @@ export function EmploymentSpanForm({
           />
         </div>
       </div>
+      {onEmployerDomainChange && (
+        <div>
+          <label
+            htmlFor={websiteId}
+            className="block text-xs font-medium text-muted-foreground mb-1"
+          >
+            Company website (optional)
+          </label>
+          <input
+            id={websiteId}
+            type="text"
+            inputMode="url"
+            autoComplete="off"
+            value={employerDomain}
+            onChange={(event) => onEmployerDomainChange(event.target.value)}
+            aria-describedby={`${websiteId}-help`}
+            placeholder="example.com"
+            className="w-full min-h-11 px-3 py-2 text-sm border border-border rounded-md bg-background"
+          />
+          <p
+            id={`${websiteId}-help`}
+            className="mt-1 text-xs text-muted-foreground"
+          >
+            Used for the company logo. Confirm the website before saving.
+          </p>
+        </div>
+      )}
       <label className="flex items-center gap-2 text-sm cursor-pointer">
         <input
           type="checkbox"

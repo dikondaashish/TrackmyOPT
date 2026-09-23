@@ -14,6 +14,10 @@ import { EmploymentSpanRow } from './EmploymentSpanRow';
 import { EmploymentStatsSummary } from './EmploymentStatsSummary';
 import { useEmploymentSetupAck } from '@/hooks/useEmploymentSetupAck';
 import {
+  employerLogoDomain,
+  normalizeCompanyDomain,
+} from '@/lib/company-domain';
+import {
   clearEmploymentSetupAck,
   isEmploymentTrackingIncomplete,
   shouldShowUnemploymentComplianceNumbers,
@@ -53,11 +57,13 @@ export function EmploymentHistoryLog({
   const [spans, setSpans] = useState<EmploymentSpan[]>(employmentSpans);
   const [showInlineForm, setShowInlineForm] = useState(false);
   const [newEmployer, setNewEmployer] = useState('');
+  const [newEmployerDomain, setNewEmployerDomain] = useState('');
   const [newStartDate, setNewStartDate] = useState('');
   const [newEndDate, setNewEndDate] = useState('');
   const [newIsCurrent, setNewIsCurrent] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editEmployer, setEditEmployer] = useState('');
+  const [editEmployerDomain, setEditEmployerDomain] = useState('');
   const [editStartDate, setEditStartDate] = useState('');
   const [editEndDate, setEditEndDate] = useState('');
   const [editIsCurrent, setEditIsCurrent] = useState(false);
@@ -112,6 +118,15 @@ export function EmploymentHistoryLog({
       return;
     }
 
+    if (
+      newEmployerDomain.trim() &&
+      !normalizeCompanyDomain(newEmployerDomain)
+    ) {
+      setFormError(
+        'Enter a valid company website, such as example.com, or leave it blank.'
+      );
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch('/api/employment-spans', {
@@ -122,6 +137,7 @@ export function EmploymentHistoryLog({
           spans: [
             {
               employer_name: newEmployer.trim(),
+              employer_domain: normalizeCompanyDomain(newEmployerDomain),
               start_date: newStartDate.trim(),
               end_date: newIsCurrent ? null : newEndDate.trim() || null,
             },
@@ -147,6 +163,7 @@ export function EmploymentHistoryLog({
 
       setShowInlineForm(false);
       setNewEmployer('');
+      setNewEmployerDomain('');
       setNewStartDate('');
       setNewEndDate('');
       setNewIsCurrent(true);
@@ -161,6 +178,9 @@ export function EmploymentHistoryLog({
     setFormError(null);
     setEditingId(span.id);
     setEditEmployer(span.employer_name || '');
+    setEditEmployerDomain(
+      employerLogoDomain(span.employer_name, span.employer_domain) || ''
+    );
     setEditStartDate(toEmploymentInputDate(span.start_date));
     setEditEndDate(toEmploymentInputDate(span.end_date));
     setEditIsCurrent(span.is_current ?? !span.end_date);
@@ -169,6 +189,7 @@ export function EmploymentHistoryLog({
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditEmployer('');
+    setEditEmployerDomain('');
     setEditStartDate('');
     setEditEndDate('');
     setEditIsCurrent(false);
@@ -183,6 +204,15 @@ export function EmploymentHistoryLog({
       return;
     }
 
+    if (
+      editEmployerDomain.trim() &&
+      !normalizeCompanyDomain(editEmployerDomain)
+    ) {
+      setFormError(
+        'Enter a valid company website, such as example.com, or leave it blank.'
+      );
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch('/api/employment-spans', {
@@ -194,6 +224,7 @@ export function EmploymentHistoryLog({
             {
               id: editingId,
               employer_name: editEmployer.trim(),
+              employer_domain: normalizeCompanyDomain(editEmployerDomain),
               start_date: editStartDate.trim(),
               end_date: editIsCurrent ? null : editEndDate.trim() || null,
             },
@@ -339,7 +370,12 @@ export function EmploymentHistoryLog({
             formError={formError}
             employerInputRef={employerInputRef}
             submitLabel="Save Employment"
-            onEmployerChange={setNewEmployer}
+            employerDomain={newEmployerDomain}
+            onEmployerDomainChange={setNewEmployerDomain}
+            onEmployerChange={(value) => {
+              setNewEmployer(value);
+              setNewEmployerDomain('');
+            }}
             onStartDateChange={setNewStartDate}
             onEndDateChange={setNewEndDate}
             onIsCurrentChange={(checked) => {
@@ -392,7 +428,12 @@ export function EmploymentHistoryLog({
                   saving={saving}
                   submitLabel="Save Changes"
                   formError={formError}
-                  onEmployerChange={setEditEmployer}
+                  employerDomain={editEmployerDomain}
+                  onEmployerDomainChange={setEditEmployerDomain}
+                  onEmployerChange={(value) => {
+                    setEditEmployer(value);
+                    setEditEmployerDomain('');
+                  }}
                   onStartDateChange={setEditStartDate}
                   onEndDateChange={setEditEndDate}
                   onIsCurrentChange={(checked) => {

@@ -17,7 +17,8 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: createClientMock,
 }));
 
-import { GET, jobBoardHourlyRunId } from './route';
+import { GET } from './route';
+import { jobBoardHourlyRunId } from './scheduler-run-id';
 
 describe('job board ingestion cron', () => {
   const pendingCallbacks: Array<() => Promise<void>> = [];

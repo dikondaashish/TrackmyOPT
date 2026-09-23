@@ -198,6 +198,21 @@ it('uses the hostname from scheme-bearing company domains', () => {
   expect(logoUrl.searchParams.get('size')).toBe('256');
 });
 
+it('passes the chosen website to the form without saving automatically', async () => {
+  const selected = vi.fn();
+  render(
+    <EmployerNameInput value="Ama" onChange={vi.fn()} onSelect={selected} />
+  );
+  fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+  await tick();
+  fireEvent.click(
+    screen.getByRole('option', { name: /^Amazon\s*amazon.com$/ })
+  );
+  expect(selected).toHaveBeenCalledWith(
+    expect.objectContaining({ domain: 'amazon.com', name: 'Amazon' })
+  );
+});
+
 it('falls back to company initials if a logo cannot be loaded', async () => {
   render(<Form />);
   type('Ama');
