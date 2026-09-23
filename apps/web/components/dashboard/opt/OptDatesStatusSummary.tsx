@@ -69,16 +69,16 @@ function StatCard({
   const content = (
     <div
       className={cn(
-        'group flex h-full min-w-0 flex-col rounded-2xl border p-5 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none sm:p-6',
+        'group flex h-full min-w-0 flex-col rounded-2xl border p-4 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none sm:p-5',
         toneStyles[tone],
         href && 'cursor-pointer hover:border-primary/30 hover:shadow-md'
       )}
     >
-      <div className="mb-5 flex items-start justify-between gap-3">
+      <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5 text-muted-foreground">
           <span
             className={cn(
-              'grid h-9 w-9 shrink-0 place-items-center rounded-xl',
+              'grid h-8 w-8 shrink-0 place-items-center rounded-lg',
               iconStyles[tone]
             )}
           >
@@ -95,14 +95,14 @@ function StatCard({
       </div>
       <div
         className={cn(
-          'text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl',
+          'text-2xl font-semibold tabular-nums tracking-tight',
           valueStyles[tone]
         )}
       >
         {progress ? (
           <>
             {progress.used}
-            <span className="ml-2 text-base font-medium text-muted-foreground">
+            <span className="ml-2 text-sm font-medium text-muted-foreground">
               / {progress.total} days used
             </span>
           </>
@@ -115,7 +115,7 @@ function StatCard({
       </p>
       {progress && (
         <div
-          className="mt-5"
+          className="mt-3"
           role="progressbar"
           aria-label={`${label} days used`}
           aria-valuemin={0}
@@ -123,7 +123,7 @@ function StatCard({
           aria-valuenow={Math.min(progress.used, progress.total)}
           aria-valuetext={`${progress.used} of ${progress.total} unemployment days used. ${detail}.`}
         >
-          <div className="h-2 overflow-hidden rounded-full bg-foreground/10">
+          <div className="h-1.5 overflow-hidden rounded-full bg-foreground/10">
             <div
               className={cn(
                 'h-full rounded-full',
@@ -139,7 +139,7 @@ function StatCard({
         </div>
       )}
       {href && (
-        <span className="mt-auto flex items-center gap-1.5 pt-4 text-xs font-semibold text-foreground">
+        <span className="mt-auto flex items-center gap-1.5 pt-3 text-xs font-semibold text-foreground">
           View employment history{' '}
           <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
         </span>

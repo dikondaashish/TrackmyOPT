@@ -479,17 +479,17 @@ export function OptDatesSection() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 pb-4 sm:px-6">
+    <div className="mx-auto max-w-6xl space-y-5 px-4 pb-4 sm:px-6">
       {/* Header */}
-      <header className="flex items-center justify-between gap-5 rounded-2xl bg-blue-800 px-5 py-6 text-blue-50 dark:bg-blue-950 sm:px-7 sm:py-7">
+      <header className="flex items-center justify-between gap-4 rounded-2xl bg-blue-800 px-4 py-4 text-blue-50 dark:bg-blue-950 sm:px-5 sm:py-5">
         <div className="max-w-2xl">
-          <p className="mb-2 text-xs font-medium tracking-wide text-blue-200">
+          <p className="mb-1 text-xs font-medium tracking-wide text-blue-200">
             Your OPT timeline
           </p>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             OPT Dates
           </h1>
-          <p className="mt-2 text-sm leading-6 text-blue-100">
+          <p className="mt-1 text-sm leading-6 text-blue-100">
             Track filing windows, OPT dates, and employment history in one
             place.
           </p>
@@ -497,7 +497,7 @@ export function OptDatesSection() {
         <CalendarDays
           aria-hidden="true"
           strokeWidth={1.25}
-          className="hidden h-14 w-14 shrink-0 text-blue-200 sm:block"
+          className="hidden h-10 w-10 shrink-0 text-blue-200 sm:block"
         />
       </header>
 
