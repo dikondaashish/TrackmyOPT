@@ -117,7 +117,12 @@ export default function ResumeEditorPage() {
             updateText(generatedLatex, true);
         }
     });
-    stopStreamingRef.current = stopStreaming;
+
+    // Keep the start-over action connected to the latest stream controller
+    // after React commits. Updating a ref during render is not safe in React.
+    useEffect(() => {
+        stopStreamingRef.current = stopStreaming;
+    }, [stopStreaming]);
 
     useEffect(() => {
         if (!isStreaming) return;
