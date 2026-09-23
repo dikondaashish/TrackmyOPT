@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 interface PublicOptToolPageIntroProps {
   title: string;
@@ -21,9 +21,9 @@ export function PublicOptToolPageIntro({
   return (
     <section
       aria-labelledby="public-opt-tool-heading"
-      className="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-blue-50 p-5 shadow-sm dark:border-slate-800 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/30 sm:p-7"
+      className="mx-auto max-w-6xl px-4 pb-1 pt-6 sm:px-6"
     >
-      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+      <p className="mb-2 text-sm font-medium text-blue-700 dark:text-blue-300">
         Free F-1 student planning tool
       </p>
       <h1
@@ -36,13 +36,17 @@ export function PublicOptToolPageIntro({
         {description}
       </p>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">{children}</div>
-
-      <p className="mt-6 text-sm leading-6 text-slate-600 dark:text-slate-400">
-        TrackMyOPT provides educational planning information, not legal advice.
-        Confirm current requirements and your individual situation with your DSO
-        or a qualified immigration professional.
-      </p>
+      <details className="mt-4 rounded-xl border border-border bg-muted/30 px-4 py-2">
+        <summary className="flex min-h-11 cursor-pointer items-center font-medium focus-visible:ring-2">
+          Before you start · guidance and limitations
+        </summary>
+        <div className="mt-2 grid gap-3 md:grid-cols-2">{children}</div>
+        <p className="my-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
+          TrackMyOPT provides educational planning information, not legal
+          advice. Confirm current requirements and your individual situation
+          with your DSO or a qualified immigration professional.
+        </p>
+      </details>
     </section>
   );
 }

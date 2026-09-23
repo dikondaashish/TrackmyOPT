@@ -1,265 +1,143 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { COMMUNITY_REPORTS_MESSAGING } from "@/lib/messaging/product-copy";
-import { TrendingUp, TrendingDown, Minus, Clock, CheckCircle2, AlertCircle, RefreshCw, ChevronDown, ChevronUp, Briefcase, FileText, Upload, BarChart3 } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { BarChart3, RefreshCw } from 'lucide-react';
+import type {
+  CommunityStatsBlock,
+  ToolType,
+} from '@/lib/opt/community-stats-builder';
+import { panelClass, toolThemes } from './tool-config';
 
-type ToolType = 'opt-apply' | 'opt-clock' | 'stem-apply' | 'stem-clock';
-
-interface LiveStats {
-  mainStat: { value: number; label: string; unit: string };
-  secondaryStat: { value: number; label: string };
-  trend: 'faster' | 'slower' | 'stable';
-  recentReports: {
-    value: number;
-    label: string;
-    timestamp: string;
-    positive: boolean;
-  }[];
-  lastUpdated: Date;
-  sampleSize?: number;
-  dataSource?: 'trackmyopt' | 'baseline';
-}
-
-interface LiveStatsWidgetProps {
+export function LiveStatsWidget({
+  toolType = 'opt-apply',
+}: {
   toolType?: ToolType;
-}
-
-const TOOL_CONFIGS: Record<ToolType, {
-  title: string;
-  icon: React.ReactNode;
-  gradient: string;
-  mainStatLabel: string;
-  mainStatUnit: string;
-  secondaryLabel: string;
-  reportLabel: string;
-}> = {
-  'opt-apply': {
-    title: 'OPT Approval Stats',
-    icon: <Clock className="w-4 h-4 text-white" />,
-    gradient: 'from-blue-500 to-indigo-600',
-    mainStatLabel: 'Average Approval Time',
-    mainStatUnit: 'days',
-    secondaryLabel: 'Approvals in 24h',
-    reportLabel: 'days to approval',
-  },
-  'opt-clock': {
-    title: 'Employment Stats',
-    icon: <Briefcase className="w-4 h-4 text-white" />,
-    gradient: 'from-amber-500 to-orange-600',
-    mainStatLabel: 'Avg. Time to Find Job',
-    mainStatUnit: 'days',
-    secondaryLabel: 'Found jobs this week',
-    reportLabel: 'days to employment',
-  },
-  'stem-apply': {
-    title: 'STEM Approval Stats',
-    icon: <FileText className="w-4 h-4 text-white" />,
-    gradient: 'from-green-500 to-emerald-600',
-    mainStatLabel: 'Average Approval Time',
-    mainStatUnit: 'days',
-    secondaryLabel: 'Approvals in 24h',
-    reportLabel: 'days to approval',
-  },
-  'stem-clock': {
-    title: 'Document Upload Stats',
-    icon: <Upload className="w-4 h-4 text-white" />,
-    gradient: 'from-purple-500 to-violet-600',
-    mainStatLabel: 'Avg. Document Upload',
-    mainStatUnit: 'days',
-    secondaryLabel: 'Uploads this week',
-    reportLabel: 'days to upload docs',
-  },
-};
-
-
-
-export function LiveStatsWidget({ toolType = 'opt-apply' }: LiveStatsWidgetProps) {
-  const [stats, setStats] = useState<LiveStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  const config = TOOL_CONFIGS[toolType];
-
-  const fetchStats = async (showRefreshing = false) => {
-    try {
-      if (showRefreshing) setIsRefreshing(true);
-
-      const response = await fetch('/api/opt/community-stats');
-      if (response.ok) {
-        const data = await response.json();
-        const toolData = data[toolType];
-        if (toolData) {
-          toolData.lastUpdated = new Date(toolData.lastUpdated);
-          setStats(toolData);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
+}) {
+  const theme = toolThemes[toolType];
+  const [result, setResult] = useState<{
+    tool: ToolType;
+    stats: CommunityStatsBlock;
+  } | null>(null);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    setIsLoading(true);
-    fetchStats();
-    const interval = setInterval(() => fetchStats(), 300000); // 5 minutes
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toolType]);
-
-  const getTrendIcon = () => {
-    if (!stats) return null;
-    switch (stats.trend) {
-      case 'faster': return <TrendingDown className="w-4 h-4 text-green-500" />;
-      case 'slower': return <TrendingUp className="w-4 h-4 text-red-500" />;
-      default: return <Minus className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
-  const getTrendText = () => {
-    if (!stats) return '';
-    switch (stats.trend) {
-      case 'faster': return 'Faster than usual';
-      case 'slower': return 'Slower than usual';
-      default: return 'Normal pace';
-    }
-  };
-
-  const getTrendColor = () => {
-    if (!stats) return 'text-gray-500';
-    switch (stats.trend) {
-      case 'faster': return 'text-green-600 dark:text-green-400';
-      case 'slower': return 'text-red-600 dark:text-red-400';
-      default: return 'text-gray-600 dark:text-gray-400';
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 animate-pulse">
-        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
-        <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4"></div>
-        <div className="space-y-3">
-          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
+    const controller = new AbortController();
+    void (async () => {
+      try {
+        const response = await fetch('/api/opt/community-stats', {
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error();
+        const data = await response.json();
+        if (!data[toolType]?.mainStat) throw new Error();
+        if (!controller.signal.aborted) {
+          setResult({ tool: toolType, stats: data[toolType] });
+          setError(false);
+        }
+      } catch {
+        if (!controller.signal.aborted) setError(true);
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    })();
+    return () => controller.abort();
+  }, [toolType, attempt]);
+  const stats = result?.tool === toolType ? result.stats : null;
+  // Suppress old cached "baseline" payloads too.
+  const available =
+    stats?.dataSource === 'trackmyopt' &&
+    stats.sampleSize >= 5 &&
+    Number.isFinite(stats.mainStat.value) &&
+    stats.mainStat.value !== null;
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden">
-      {/* Header */}
-      <div className={`flex items-center justify-between p-4 bg-gradient-to-r ${config.gradient}`}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            {config.icon}
-          </div>
-          <div>
-            <h3 className="font-bold text-white">{config.title}</h3>
-            <p className="text-xs text-white/70">{COMMUNITY_REPORTS_MESSAGING.sectionSubhead}</p>
-          </div>
-        </div>
+    <section
+      className={panelClass}
+      aria-label="Community approval statistics"
+      aria-busy={loading}
+    >
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => { e.stopPropagation(); fetchStats(true); }}
-            className="min-h-11 min-w-11 p-2 hover:bg-white/20 rounded-lg transition-colors"
-            disabled={isRefreshing}
-            aria-label="Refresh community report statistics"
-          >
-            <RefreshCw className={`w-4 h-4 text-white ${isRefreshing ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            type="button"
-            className="lg:hidden min-h-11 min-w-11 p-2 text-white"
-            onClick={() => setIsExpanded((expanded) => !expanded)}
-            aria-expanded={isExpanded}
-            aria-controls="live-stats-content"
-            aria-label={isExpanded ? "Collapse statistics" : "Expand statistics"}
-          >
-            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-          </button>
+          <BarChart3 aria-hidden="true" className={`h-5 w-5 ${theme.text}`} />
+          <h3 className="font-semibold">
+            {toolType.startsWith('stem') ? 'STEM' : 'OPT'} approval insights
+          </h3>
         </div>
+        <button
+          type="button"
+          aria-label="Refresh community report statistics"
+          disabled={loading}
+          onClick={() => {
+            setLoading(true);
+            setAttempt((value) => value + 1);
+          }}
+          className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg hover:bg-muted focus-visible:ring-2 disabled:opacity-50"
+        >
+          <RefreshCw
+            aria-hidden="true"
+            className={
+              'h-4 w-4 ' +
+              (loading ? 'animate-spin motion-reduce:animate-none' : '')
+            }
+          />
+        </button>
       </div>
-
-      {/* Content */}
-      <div id="live-stats-content" className={`${isExpanded ? 'block' : 'hidden lg:block'}`}>
-        {stats && (
-          <div className="p-4 space-y-4">
-            {/* Main Stat */}
-            <div className="text-center py-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{stats.mainStat.label}</p>
-              <div className="flex items-baseline justify-center gap-2">
-                <span className="text-5xl font-bold text-gray-900 dark:text-white">{stats.mainStat.value}</span>
-                <span className="text-lg text-gray-500">{stats.mainStat.unit}</span>
-              </div>
-              <div className={`flex items-center justify-center gap-1 mt-3 text-sm ${getTrendColor()}`}>
-                {getTrendIcon()}
-                <span>{getTrendText()}</span>
-              </div>
-            </div>
-
-            {/* Secondary Stat */}
-            <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{stats.secondaryStat.label}</span>
-              </div>
-              <span className="text-xl font-bold text-green-600 dark:text-green-400">{stats.secondaryStat.value}</span>
-            </div>
-
-            {/* Latest Reports */}
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                {COMMUNITY_REPORTS_MESSAGING.sectionTitle}
-              </h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                {COMMUNITY_REPORTS_MESSAGING.sourceNote}
-              </p>
-              <div className="space-y-2">
-                {stats.recentReports.map((report, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm border border-gray-100 dark:border-gray-700"
-                  >
-                    <div className="flex items-center gap-2">
-                      {report.positive ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <AlertCircle className="w-4 h-4 text-amber-500" />
-                      )}
-                      <div>
-                        <span className="font-medium text-gray-900 dark:text-white">{report.value}</span>
-                        <span className="text-gray-500 dark:text-gray-400 ml-1">{report.label}</span>
-                      </div>
-                    </div>
-                    <span className="text-gray-400 text-xs">{report.timestamp}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-              <p className="text-xs text-gray-500 text-center">
-                Last updated: {stats.lastUpdated.toLocaleTimeString()}
-              </p>
-              <p className="text-xs text-gray-400 text-center mt-1 flex items-center justify-center gap-1.5">
-                <BarChart3 className="w-3.5 h-3.5" />
-                {stats.dataSource === 'trackmyopt'
-                  ? `TrackMyOPT anonymized data · ${stats.sampleSize ?? 0} samples`
-                  : 'Planning baseline · more community data needed'}
-              </p>
+      {error ? (
+        <p role="status" className="mt-3 text-sm text-muted-foreground">
+          Statistics are temporarily unavailable. Refresh to try again.
+        </p>
+      ) : loading ? (
+        <p role="status" className="mt-3 text-sm text-muted-foreground">
+          Loading community data…
+        </p>
+      ) : available && stats ? (
+        <div className="mt-3 space-y-4">
+          <div className={`rounded-xl p-4 ${theme.surface}`}>
+            <span className="text-sm text-muted-foreground">
+              Median recorded approval time
+            </span>
+            <div
+              className={`mt-1 text-3xl font-semibold tabular-nums ${theme.text}`}
+            >
+              {stats.mainStat.value}{' '}
+              <span className="text-base font-normal">days</span>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+          <p className="text-sm text-muted-foreground">
+            {stats.sampleSize} qualifying cases with recorded approvals in the
+            last 90 days. {stats.secondaryStat.value} in the last 7 days.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-3 rounded-xl bg-muted/50 p-4">
+          <h4 className="font-medium">Not enough data yet</h4>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Approval insights appear when at least five qualifying cases from
+            different users are available.
+          </p>
+        </div>
+      )}
+      <details className="mt-4 border-t border-border pt-3">
+        <summary className="min-h-11 cursor-pointer text-sm font-medium focus-visible:ring-2">
+          About these numbers
+        </summary>
+        <p className="text-sm text-muted-foreground">
+          An anonymized sample of up to 1,000 recently received TrackMyOPT
+          cases, with a confirmed filing category and recorded receipt and
+          approval dates. Known premium-processing cases are excluded;
+          unreported premium processing may remain. A median is the middle
+          recorded duration, not an average or an approval forecast. This is not
+          an official USCIS processing-time estimate.
+        </p>
+      </details>
+      <a
+        href="https://egov.uscis.gov/processing-times/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex min-h-11 items-center text-sm font-medium text-blue-700 underline underline-offset-4 focus-visible:ring-2 dark:text-blue-300"
+      >
+        Check USCIS processing times
+      </a>
+    </section>
   );
 }
