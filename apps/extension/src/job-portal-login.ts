@@ -1,4 +1,5 @@
 import { flashAutofillField } from './autofill-visual-feedback';
+import { trackPrefillChange } from './prefill-undo';
 
 export interface JobPortalLoginCredential {
   email: string;
@@ -73,8 +74,9 @@ export function normalizeDefaultJobPortalLogin(
 
 function visible(input: HTMLInputElement): boolean {
   if (
+    !input.isConnected ||
     input.hidden ||
-    input.disabled ||
+    input.matches(':disabled') ||
     input.readOnly ||
     input.getAttribute('aria-hidden') === 'true'
   ) {
@@ -82,8 +84,11 @@ function visible(input: HTMLInputElement): boolean {
   }
   const view = input.ownerDocument.defaultView;
   if (!view) return false;
-  const style = view.getComputedStyle(input);
-  if (style.display === 'none' || style.visibility === 'hidden') return false;
+  for (let node: Element | null = input; node; node = node.parentElement ?? (node.getRootNode() as ShadowRoot).host ?? null) {
+    if (node.hasAttribute('hidden') || node.hasAttribute('inert') || node.getAttribute('aria-hidden') === 'true') return false;
+    const style = view.getComputedStyle(node);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+  }
   const isJsdom = /jsdom/i.test(view.navigator.userAgent || '');
   return isJsdom || input.getClientRects().length > 0;
 }
@@ -102,17 +107,19 @@ function queryAllDeep<T extends Element>(
 }
 
 function labelFor(input: HTMLInputElement): string {
+  const labelRoot = input.getRootNode() as Document | ShadowRoot;
   const parts: Array<string | null | undefined> = [
     input.getAttribute('aria-label'),
     input.getAttribute('name'),
     input.getAttribute('id'),
     input.getAttribute('placeholder'),
+    input.getAttribute('data-automation-id'),
     input.getAttribute('autocomplete'),
     input.closest('label')?.textContent,
   ];
   if (input.id) {
     parts.push(
-      Array.from(input.ownerDocument.querySelectorAll('label[for]')).find(
+      Array.from(labelRoot.querySelectorAll('label[for]')).find(
         (label) => label.getAttribute('for') === input.id
       )?.textContent
     );
@@ -120,23 +127,25 @@ function labelFor(input: HTMLInputElement): string {
   const labelledBy = input.getAttribute('aria-labelledby');
   if (labelledBy) {
     for (const id of labelledBy.split(/\s+/)) {
-      parts.push(input.ownerDocument.getElementById(id)?.textContent);
+      parts.push(labelRoot.getElementById(id)?.textContent);
     }
   }
   return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 }
 
 function passwordFieldDescriptor(input: HTMLInputElement): string {
+  const labelRoot = input.getRootNode() as Document | ShadowRoot;
   const parts: Array<string | null | undefined> = [
     input.getAttribute('aria-label'),
     input.getAttribute('name'),
     input.getAttribute('id'),
     input.getAttribute('placeholder'),
+    input.getAttribute('data-automation-id'),
     input.closest('label')?.textContent,
   ];
   if (input.id) {
     parts.push(
-      Array.from(input.ownerDocument.querySelectorAll('label[for]')).find(
+      Array.from(labelRoot.querySelectorAll('label[for]')).find(
         (label) => label.getAttribute('for') === input.id
       )?.textContent
     );
@@ -144,7 +153,7 @@ function passwordFieldDescriptor(input: HTMLInputElement): string {
   const labelledBy = input.getAttribute('aria-labelledby');
   if (labelledBy) {
     for (const id of labelledBy.split(/\s+/)) {
-      parts.push(input.ownerDocument.getElementById(id)?.textContent);
+      parts.push(labelRoot.getElementById(id)?.textContent);
     }
   }
   return parts
@@ -163,8 +172,7 @@ export function isApprovedJobPortalPasswordField(
   if ((input.type || '').toLowerCase() !== 'password') return false;
   const descriptor = passwordFieldDescriptor(input);
   return (
-    Boolean(descriptor) &&
-    POSITIVE_PASSWORD_FIELD_RE.test(descriptor) &&
+    (POSITIVE_PASSWORD_FIELD_RE.test(descriptor) || /^(?:new-password|current-password)$/.test(input.autocomplete)) &&
     !BLOCKED_PASSWORD_FIELD_RE.test(descriptor) &&
     !PASSWORD_CHANGE_FIELD_RE.test(descriptor)
   );
@@ -186,6 +194,7 @@ export function hasApprovedJobPortalPasswordField(root: ParentNode): boolean {
 }
 
 function setNativeValue(input: HTMLInputElement, value: string): void {
+  trackPrefillChange(input, () => {
   const view = input.ownerDocument.defaultView;
   const setter = view
     ? Object.getOwnPropertyDescriptor(
@@ -198,6 +207,7 @@ function setNativeValue(input: HTMLInputElement, value: string): void {
   const EventCtor = view?.Event || Event;
   input.dispatchEvent(new EventCtor('input', { bubbles: true, composed: true }));
   input.dispatchEvent(new EventCtor('change', { bubbles: true, composed: true }));
+  });
 }
 
 function loginScopeFor(
@@ -230,7 +240,8 @@ function isLoginIdentityField(input: HTMLInputElement): boolean {
 export function fillJobPortalLogin(
   root: ParentNode,
   credential: JobPortalLoginCredential,
-  currentHostname: string
+  currentHostname: string,
+  shouldContinue: () => boolean = () => true,
 ): JobPortalLoginFillResult {
   const verified = normalizeDefaultJobPortalLogin(credential);
   if (!verified || !normalizeJobPortalHostname(currentHostname)) {
@@ -256,21 +267,22 @@ export function fillJobPortalLogin(
     const scopePasswords = queryAllDeep<HTMLInputElement>(
       scope,
       'input[type="password"]'
-    ).filter((input) => visible(input) && !input.value);
+    ).filter((input) => visible(input));
+    const identities = queryAllDeep<HTMLInputElement>(scope, 'input[type="text"],input[type="email"],input:not([type])')
+      .filter(input => visible(input) && isLoginIdentityField(input));
+    const scopeHeading = Array.from(scope.querySelectorAll('h1,h2,h3,legend,[role="heading"]')).map(el => el.textContent).join(' ');
+    const conflicts = () => identities.some(input => input.value.trim() && input.value.trim().toLowerCase() !== verified.email.toLowerCase()) ||
+      scopePasswords.some(input => isApprovedJobPortalPasswordField(input) && input.value && input.value !== verified.password);
     if (
-      scopePasswords.length > 1 &&
-      scopePasswords.some((input) =>
-        PASSWORD_CHANGE_FIELD_RE.test(labelFor(input))
-      )
+      /\b(?:reset|change|forgot|recover)\b.{0,30}\bpassword\b/i.test(scopeHeading) ||
+      scopePasswords.some(input => PASSWORD_CHANGE_FIELD_RE.test(labelFor(input))) ||
+      conflicts()
     ) {
       continue;
     }
 
-    for (const input of queryAllDeep<HTMLInputElement>(
-      scope,
-      'input[type="text"],input[type="email"]'
-    )) {
-      if (!visible(input) || input.value || !isLoginIdentityField(input)) {
+    for (const input of identities) {
+      if (!shouldContinue() || conflicts() || !visible(input) || input.value) {
         continue;
       }
       setNativeValue(input, verified.email);
@@ -279,7 +291,7 @@ export function fillJobPortalLogin(
     }
 
     for (const input of scopePasswords) {
-      if (!isApprovedJobPortalPasswordField(input)) continue;
+      if (!shouldContinue() || conflicts() || !visible(input) || input.value || !isApprovedJobPortalPasswordField(input)) continue;
       setNativeValue(input, verified.password);
       flashAutofillField(input, 'filled');
       passwordFilled += 1;

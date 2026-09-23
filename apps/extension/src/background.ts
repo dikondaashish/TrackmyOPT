@@ -1,4 +1,6 @@
 import { WEBSITE_URL } from './config';
+import { undoPrefillInTab } from './background-prefill-undo';
+import { chromeOnboarding } from './onboarding';
 import { performExtensionSignOut } from './signOut';
 import { purgeLegacySyncToken } from './token-store';
 import {
@@ -23,6 +25,8 @@ import {
 } from './background-auth';
 import {
   clearCurrentGeneratedResumeArtifact,
+  lookupSavedJobResume,
+  retryActiveResumeSave,
 } from './background-resume-artifact';
 import {
   analyzeJobFit,
@@ -52,8 +56,17 @@ import {
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
-chrome.runtime.onInstalled.addListener(() => {
+const onboarding = chromeOnboarding();
+chrome.runtime.onInstalled.addListener((details) => {
   purgeLegacySyncToken().catch(() => {});
+  onboarding.install(details.reason).catch(() => {});
+});
+
+// Token refreshes cannot relaunch an active, skipped, or completed tour.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.idToken?.newValue) {
+    onboarding.signedIn().catch(() => {});
+  }
 });
 
 // ISS-039: refresh token whenever the user focuses the browser/extension —
@@ -77,6 +90,19 @@ chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
 // Internal message listener (from popup and content scripts)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg.type === 'OPEN_PRODUCT_TOUR' || msg.type === 'TOUR_SIGNED_IN' || msg.type === 'SAVE_TOUR_PROGRESS') {
+    // Only our packaged pages can manipulate progress or open a tour tab.
+    const ownPages = ['popup.html', 'sidepanel.html', 'tour.html'].map(path => chrome.runtime.getURL(path));
+    if (!ownPages.includes((_sender.url ?? '').split('#')[0].split('?')[0])) {
+      sendResponse({ ok: false });
+      return false;
+    }
+    const action = msg.type === 'OPEN_PRODUCT_TOUR' ? onboarding.replay()
+      : msg.type === 'SAVE_TOUR_PROGRESS' ? onboarding.save(msg.step, msg.status)
+      : getExtensionBearerToken().then(token => token ? onboarding.signedIn() : undefined);
+    action.then(() => sendResponse({ ok: true })).catch(() => sendResponse({ ok: false }));
+    return true;
+  }
   if (msg.type === 'OPEN_SIDE_PANEL') {
     // Must run in the same turn as the originating user gesture.
     const opened = openSidePanelForTab(_sender.tab?.id, _sender.tab?.windowId);
@@ -84,7 +110,12 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return false;
   }
   if (msg.type === 'BEGIN_AUTH') {
-    beginAuth().then(()=>sendResponse({ok:true})).catch(e=>sendResponse({ok:false, err:String(e)}));
+    beginAuth().then(async () => {
+      // Also covers already-cached tokens and the sign-in retry path.
+      const token = await getExtensionBearerToken();
+      if (token) await onboarding.signedIn().catch(() => {});
+      sendResponse({ok:true});
+    }).catch(e=>sendResponse({ok:false, err:String(e)}));
     return true;
   }
   if (msg.type === 'ADD_JOB_TO_TRACKER') {
@@ -157,6 +188,12 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
   if (msg.type === 'GET_PRIVATE_APPLICATION_ANSWERS') {
+    // Legacy clients can receive credentials too; keep the same boundary.
+    if (_sender.frameId !== 0 || !_sender.url?.startsWith('https://') ||
+        _sender.url !== _sender.tab?.url) {
+      sendResponse({ ok: false, error: 'unavailable' });
+      return false;
+    }
     getPrivateApplicationAnswers(_sender.tab?.url)
       .then((response) => sendResponse(response))
       .catch(() =>
@@ -164,7 +201,25 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       );
     return true;
   }
+  if (msg.type === 'GET_PRIVATE_PREFILL_ANSWERS') {
+    getPrivateApplicationAnswers(_sender.tab?.url)
+      .then(response => {
+        // Answer payloads never include credentials; explicit login Prefill
+        // requests them separately through the top-frame-only branch below.
+        const { defaultJobPortalLogin: _login, ...answers } = response.data ?? {};
+        sendResponse({ ok: response.ok, error: response.error, data: response.data ? answers : null });
+      })
+      .catch(() => sendResponse({ ok: false, error: 'unavailable' }));
+    return true;
+  }
   if (msg.type === 'GET_JOB_PORTAL_LOGIN_FOR_TAB') {
+    // Credentials never go to child frames, insecure pages, or a sender that
+    // no longer represents the current top-level document.
+    if (_sender.frameId !== 0 || !_sender.url?.startsWith('https://') ||
+        _sender.url !== _sender.tab?.url) {
+      sendResponse({ ok: false, error: 'unavailable' });
+      return false;
+    }
     getPrivateApplicationAnswers(_sender.tab?.url)
       .then((response) => {
         if (!response.ok) {
@@ -197,6 +252,22 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         sendResponse(response);
       })
       .catch(() => sendResponse({ ok: false as const, error: 'unavailable' }));
+    return true;
+  }
+  if (msg.type === 'GET_SAVED_JOB_RESUME' || msg.type === 'RETRY_JOB_RESUME_SAVE') {
+    // PDF-bearing history is for our own panel, never arbitrary content scripts.
+    if (_sender.url !== chrome.runtime.getURL('sidepanel.html') || _sender.tab) {
+      sendResponse({ok:false,error:'unavailable'});
+      return false;
+    }
+    if (msg.type === 'RETRY_JOB_RESUME_SAVE') {
+      void retryActiveResumeSave(String(msg.jobUrl ?? ''),String(msg.artifactId ?? ''))
+        .then(ok=>sendResponse({ok})).catch(()=>sendResponse({ok:false}));
+    } else void lookupSavedJobResume(String(msg.jobUrl ?? '')).then(sendResponse);
+    return true;
+  }
+  if (msg.type === 'UNDO_LAST_PREFILL') {
+    void undoPrefillInTab(_sender, msg.runId).then(sendResponse);
     return true;
   }
   if (msg.type === 'PREFILL_CHILD_FRAMES') {
@@ -250,6 +321,8 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     );
     chrome.tabs.sendMessage(_sender.tab.id, {
       type: 'RUN_PREFILL_IN_CHILD_FRAME',
+      undoRunId: typeof msg.undoRunId === 'string' && /^[a-zA-Z0-9-]{1,80}$/.test(msg.undoRunId) ? msg.undoRunId : undefined,
+      continuous: msg.continuous === true,
       prefill: {
         resume,
         coverLetter,
@@ -260,10 +333,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           AUTOFILL_FEATURE_FLAGS.skills &&
           requestedPrefill.autofillSkills === true,
         quietResultToast: requestedPrefill.quietResultToast === true,
-        sensitiveAnswers:
-          AUTOFILL_FEATURE_FLAGS.guidedAutopilot
-            ? normalizeSensitiveAnswerSession(requestedPrefill.sensitiveAnswers)
-            : undefined,
+        sensitiveAnswers: normalizeSensitiveAnswerSession(requestedPrefill.sensitiveAnswers),
       },
     }).then(() => sendResponse({ ok: true })).catch(() => {
       // A page without child-frame receivers is normal; the top-frame engine
@@ -292,7 +362,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     // Orchestrate selected resume -> tailored LaTeX -> compiled PDF. Bearer
     // stays in the background; the page receives only the result and an opaque
     // authenticated editor-handoff URL.
-    clearCurrentGeneratedResumeArtifact().then(() => generateTailoredResume({
+    generateTailoredResume({
       jobDescription: String(msg.jobDescription ?? ''),
       resumeId: String(msg.resumeId ?? ''),
       templateId: String(msg.templateId ?? ''),
@@ -300,7 +370,6 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       roleTitle: String(msg.roleTitle ?? ''),
       jobUrl: String(msg.jobUrl ?? ''),
       jobKey: String(msg.jobKey ?? ''),
-      outputFilename: String(msg.outputFilename ?? 'TrackMyOPT-resume.pdf'),
       focusKeywords: Array.isArray(msg.focusKeywords)
         ? msg.focusKeywords.map((keyword: unknown) => String(keyword ?? '')).filter(Boolean)
         : [],
@@ -311,7 +380,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           ? msg.applicationId.trim()
           : undefined,
       resumeText: typeof msg.resumeText === 'string' ? msg.resumeText : undefined,
-    }))
+    })
       .then((res) => sendResponse(res))
       .catch(() => sendResponse({ ok: false as const, error: 'error' }));
     return true;
@@ -345,7 +414,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       sendResponse({ ok: false, error: 'feature_disabled' });
       return false;
     }
-    requestScreeningDraft(msg).then(sendResponse).catch(() => sendResponse({ ok: false, error: 'generation_failed' }));
+    requestScreeningDraft({...msg,jobUrl:_sender.tab?.url ?? msg.jobUrl}).then(sendResponse).catch(() => sendResponse({ ok: false, error: 'generation_failed' }));
     return true;
   }
   if (msg.type === 'LOAD_SCREENING_ANSWER' || msg.type === 'DELETE_SCREENING_ANSWER') {

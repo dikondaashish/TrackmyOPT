@@ -72,7 +72,7 @@ export function EmploymentStatsSummary({
           <span>
             {showComplianceNumbers
               ? `${stats.totalUnemployedDays} / ${maxUnemploymentDays}`
-              : 'Add jobs to calculate'}
+              : 'Complete dates and job history to calculate'}
           </span>
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">

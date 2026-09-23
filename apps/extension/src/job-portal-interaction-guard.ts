@@ -13,5 +13,5 @@ export function isWidgetInteractionInFlight(): boolean {
   if (document.getElementById('tmo-ai-analysis')) return true;
   if (document.getElementById('tmo-application-status-dialog')) return true;
   const widget = document.getElementById(WIDGET_ROOT_ID);
-  return !!widget?.querySelector('.' + RESUME_PANEL_CLASS);
+  return !!widget?.querySelector('.' + RESUME_PANEL_CLASS + ', [aria-busy="true"]');
 }

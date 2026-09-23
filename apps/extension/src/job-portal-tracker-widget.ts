@@ -4,6 +4,8 @@
  */
 
 import { mountAlignJobTitlesControl } from './align-job-titles-control';
+import { createPrefillUndoControl } from './prefill-undo-ui';
+import type { PrefillUndoResult } from './prefill-undo';
 import { RESUME_TEMPLATES_FOR_PANEL } from './agent/panel-templates';
 import {
   type GeneratedResumeAttachment,
@@ -31,6 +33,7 @@ import {
   type WidgetAnalyticsProperties,
 } from './widget-platform';
 import {
+  jobUrlsReferToSameJob,
   normalizeJobIdentityText,
   type GeneratedResumeArtifactV1,
 } from './resume-autofill-contract';
@@ -44,13 +47,6 @@ import {
   type PrefillArtifactStateReason,
   type PrefillSourceType,
 } from './prefill-telemetry';
-import {
-  type SensitiveAnswerSession,
-} from './sensitive-autofill';
-import type { JobPortalLoginCredential } from './job-portal-login';
-import {
-  type PrivateApprovalBinding,
-} from './private-approval-session';
 import { JobInfo } from './job-posting-scrape';
 import {
   DefaultView,
@@ -91,6 +87,8 @@ import {
 } from './job-portal-job-helpers';
 import { paintPrefillCoverage } from './job-portal-prefill-coverage-ui';
 import { applyWidgetThemeScope } from './job-portal-widget-theme';
+import { SIDEBAR_SHELL_CSS } from './job-portal-sidebar-shell';
+import { sidebarHelp } from './sidebar-help';
 import {
   actionBtn,
   downloadGeneratedPdf,
@@ -118,6 +116,7 @@ export type PrefillExecutionSnapshot = {
 };
 
 export type JobTrackerWidgetHost = {
+  undoLastPrefill: () => Promise<PrefillUndoResult>;
   trackWidgetAnalytics: (
     event: WidgetAnalyticsEvent,
     properties?: WidgetAnalyticsProperties,
@@ -165,12 +164,6 @@ export type JobTrackerWidgetHost = {
   ) => void;
   getPlanEntitlements: () => Readonly<AutofillPlanEntitlements>;
   scheduleInject: () => void;
-  clearPrivateApplicationApproval: () => void;
-  commitSensitiveApproval: (payload: {
-    login: JobPortalLoginCredential | null;
-    session: SensitiveAnswerSession;
-    binding: PrivateApprovalBinding;
-  }) => void;
 };
 
 let host: JobTrackerWidgetHost;
@@ -229,9 +222,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   root.setAttribute('aria-label', 'TrackMyOPT job assistant');
   host.trackWidgetAnalyticsOnce('extension_widget_shown', job, { default_view: defaultView });
 
-  // Always dock to the right edge. A dragged vertical position is restored for
-  // this tab session and clamped to the current viewport so it cannot reappear
-  // off-screen after collapse, expansion, or a viewport-size change.
+  // Expanded: inset, full-height rail. Minimized: movable right-edge launcher.
   root.style.cssText = `
     position: fixed;
     top: 50%;
@@ -253,15 +244,16 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
     const motionStyle = document.createElement('style');
     motionStyle.id = 'tmo-minimized-motion-style';
     motionStyle.textContent = `
+      ${SIDEBAR_SHELL_CSS}
       @keyframes tmo-prefill-chip-pulse {
-        0%,100% { transform:scale(1);box-shadow:0 2px 6px rgba(15,23,42,0.14); }
-        50% { transform:scale(1.08);box-shadow:0 0 0 6px rgba(37,99,235,0.13); }
+        0%,100% { opacity:1; }
+        50% { opacity:.45; }
       }
       #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling > span:first-child {
         animation:tmo-prefill-chip-pulse 760ms ease-in-out infinite;
       }
       #${WIDGET_ROOT_ID} .tmo-prefill-button.tmo-is-filling {
-        background:var(--tmo-widget-info-surface) !important;
+        background:var(--tmo-color-action-fill);
       }
       @media (prefers-reduced-motion: reduce) {
         #${WIDGET_ROOT_ID} .tmo-minimized-tab,
@@ -275,9 +267,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   }
 
   // ---- Minimized control: close button + logo/open area + six-dot drag grip ----
-  // Keep this palette aligned with popup.css --tmo-gradient-brand and the web
-  // app's primary blue. The gradient is intentionally weighted toward navy so
-  // the small floating control stays polished without appearing too bright.
+  // Keep the compact launcher aligned with the website's deep-blue branding.
   const minimizedBrand = {
     navy: '#1e3a8a',
     deepBlue: '#1e40af',
@@ -288,7 +278,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   const tab = document.createElement('div');
   tab.className = 'tmo-minimized-tab';
   tab.style.cssText = `
-    display:none;position:relative;align-items:stretch;width:62px;height:58px;margin:0;
+    display:none;position:relative;align-items:stretch;width:52px;height:60px;margin:0;
     border:1px solid ${minimizedBrand.primary};border-right:none;border-radius:13px 0 0 13px;
     background:${minimizedBrand.deepBlue};box-shadow:0 7px 20px rgba(30,64,175,0.22);overflow:visible;
     transition:width 220ms cubic-bezier(.2,.8,.2,1),box-shadow 220ms ease;
@@ -299,9 +289,9 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   tabOpenBtn.title = 'Click to open · drag vertically to move';
   tabOpenBtn.setAttribute('aria-label', 'Open or vertically move TrackMyOPT job assistant');
   tabOpenBtn.style.cssText = `
-    width:62px;height:56px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    width:51px;height:58px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
     padding:0;border:0;border-radius:12px 0 0 12px;
-    background:linear-gradient(135deg,${minimizedBrand.navy} 0%,${minimizedBrand.deepBlue} 58%,${minimizedBrand.primary} 100%);cursor:pointer;
+    background:${minimizedBrand.deepBlue};cursor:pointer;
     transition:width 220ms cubic-bezier(.2,.8,.2,1),filter 180ms ease;
   `;
   const tabImg = document.createElement('img');
@@ -316,7 +306,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   tabDragHandle.setAttribute('aria-label', 'Drag TrackMyOPT panel');
   tabDragHandle.tabIndex = -1;
   tabDragHandle.style.cssText = `
-    width:0;height:56px;display:grid;grid-template-columns:repeat(2,4px);
+    width:0;height:58px;display:grid;grid-template-columns:repeat(2,4px);
     grid-template-rows:repeat(3,4px);align-content:center;justify-content:center;
     gap:4px;border-radius:0;background:${minimizedBrand.deepBlue};cursor:grab;outline:none;opacity:0;
     overflow:hidden;pointer-events:none;transform:translateX(10px);
@@ -365,29 +355,19 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   // ---- Expanded card ----
   const card = document.createElement('div');
   card.className = 'tmo-job-widget-card';
-  card.style.cssText = `
-    display:flex;flex-direction:column;width:min(320px,calc(100vw - 20px));
-    max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);background:var(--tmo-widget-surface);
-    border:1px solid var(--tmo-widget-border);border-right:none;border-radius:14px 0 0 14px;
-    box-shadow:var(--tmo-widget-shadow);overflow:hidden;color:var(--tmo-widget-ink);
-  `;
+  card.id = 'tmo-job-widget-panel';
+  tabOpenBtn.setAttribute('aria-controls', card.id);
 
-  // Header (drag zone)
+  // Fixed header stays reachable while the tools scroll below it.
   const header = document.createElement('div');
-  header.style.cssText = `
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 10px 10px 12px;
-    background:var(--tmo-widget-info-surface);border-bottom:1px solid var(--tmo-widget-info-border);
-    cursor: grab; user-select: none; flex:0 0 auto;
-  `;
+  header.className = 'tmo-job-widget-header';
   const logoRing = document.createElement('div');
   logoRing.style.cssText = `
-    width:28px;height:28px;border-radius:50%;background:var(--tmo-widget-surface);
+    width:28px;height:28px;border-radius:6px;background:transparent;
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    box-shadow: 0 1px 3px rgba(30,64,175,0.2);
   `;
   const logoImg = document.createElement('img');
-  logoImg.src = extIcon; logoImg.alt = ''; logoImg.width = 20; logoImg.height = 20;
+  logoImg.src = extIcon; logoImg.alt = ''; logoImg.width = 28; logoImg.height = 28;
   logoImg.style.cssText = 'object-fit:contain;border-radius:3px;';
   logoImg.addEventListener('error', () => logoImg.replaceWith(logoSvgFallback()));
   logoRing.appendChild(logoImg);
@@ -395,11 +375,18 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   const title = document.createElement('span');
   title.textContent = 'TrackMyOPT';
   title.style.cssText =
-    'font-size:13px;font-weight:800;color:var(--tmo-widget-accent-strong);letter-spacing:-0.02em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    'font-size:13px;font-weight:700;color:inherit;letter-spacing:-0.02em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
 
   const backBtn = iconBtn('‹', 'Back');
   const settingsBtn = iconBtn('⚙', 'Settings');
-  const closeBtn = iconBtn('×', 'Minimize panel');
+  const closeBtn = iconBtn('→', 'Minimize panel');
+  settingsBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h4m4 0h10M3 12h10m4 0h4M3 18h4m4 0h10"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></svg>';
+  closeBtn.innerHTML = icon('chevronRight', 18);
+  backBtn.innerHTML = icon('chevronRight', 18);
+  backBtn.style.transform = 'rotate(180deg)';
+  for (const button of [backBtn, settingsBtn, closeBtn]) {
+    button.style.color = 'inherit'; button.style.width = '40px'; button.style.height = '40px';
+  }
   backBtn.style.display = 'none'; // only shown while the Settings panel is open
 
   header.appendChild(logoRing);
@@ -412,28 +399,27 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   // from the posting. Missing location/salary rows are omitted, never guessed.
   const jobLine = document.createElement('section');
   jobLine.setAttribute('aria-label', 'Current job');
+  jobLine.className = 'tmo-sidebar-job';
   jobLine.style.cssText = `
-    margin:12px 14px 2px;padding:13px;border:1px solid var(--tmo-widget-border);border-radius:12px;
-    background:var(--tmo-widget-surface);box-shadow:0 2px 7px rgba(15,23,42,0.06);line-height:1.38;
+    margin:0;padding:16px 18px 12px;line-height:1.45;border:0;border-radius:0;
+    background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);
   `;
 
-  const jobTitleRow = document.createElement('div');
-  jobTitleRow.style.cssText = 'display:flex;align-items:flex-start;gap:8px;';
   const roleEl = document.createElement('div');
   roleEl.textContent = job.role_title || 'Selected role';
   roleEl.title = job.role_title || 'Selected role';
-  roleEl.style.cssText = 'min-width:0;flex:1;color:var(--tmo-widget-ink);font-size:15px;font-weight:800;overflow-wrap:anywhere;';
+  roleEl.style.cssText = 'margin:0;min-width:0;color:var(--tmo-widget-ink);font-size:19px;line-height:1.3;font-weight:700;letter-spacing:-.025em;overflow-wrap:anywhere;';
+  roleEl.setAttribute('role', 'heading');
+  roleEl.setAttribute('aria-level', '2');
   const savedBadge = document.createElement('span');
   savedBadge.textContent = 'Not saved';
   savedBadge.style.cssText = `
-    flex:0 0 auto;padding:5px 9px;border-radius:999px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-muted);
-    font-size:10.5px;font-weight:750;white-space:nowrap;
+    flex:0 0 auto;padding:5px 9px;border-radius:999px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-ink);
+    font-size:11px;font-weight:600;white-space:nowrap;
   `;
-  jobTitleRow.appendChild(roleEl);
-  jobTitleRow.appendChild(savedBadge);
 
   const companyRow = document.createElement('div');
-  companyRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:7px;min-width:0;';
+  companyRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:12px;min-width:0;';
   const companyMark = document.createElement('span');
   companyMark.setAttribute('aria-hidden', 'true');
   companyMark.style.cssText = `
@@ -442,9 +428,8 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   `;
   const companyInitial = (job.company_name || 'C').trim().charAt(0).toUpperCase() || 'C';
   companyMark.textContent = companyInitial;
-  if (job.company_logo_url) {
+  const paintCompanyLogo = (url: string) => {
     const companyLogo = document.createElement('img');
-    companyLogo.src = job.company_logo_url;
     companyLogo.alt = '';
     companyLogo.draggable = false;
     companyLogo.style.cssText = 'width:25px;height:25px;object-fit:contain;display:block;';
@@ -453,30 +438,47 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
       companyMark.appendChild(companyLogo);
     });
     companyLogo.addEventListener('error', () => (companyMark.textContent = companyInitial));
-  }
+    companyLogo.src = url;
+  };
+  if (job.company_logo_url) paintCompanyLogo(job.company_logo_url);
 
   const companyEl = document.createElement('div');
   companyEl.textContent = job.company_name || 'Company';
   companyEl.title = job.company_name || 'Company';
-  companyEl.style.cssText = 'min-width:0;color:var(--tmo-widget-muted);font-size:13px;font-weight:650;overflow-wrap:anywhere;';
+  companyEl.style.cssText = 'min-width:0;flex:1;color:var(--tmo-widget-ink);font-size:13px;font-weight:600;overflow-wrap:anywhere;';
   companyRow.appendChild(companyMark);
   companyRow.appendChild(companyEl);
+  companyRow.appendChild(savedBadge);
 
-  jobLine.appendChild(jobTitleRow);
+  jobLine.appendChild(roleEl);
   jobLine.appendChild(companyRow);
 
-  if (job.location) {
-    const locationEl = document.createElement('div');
-    locationEl.textContent = job.location;
-    locationEl.style.cssText = 'margin-top:11px;color:var(--tmo-widget-muted);font-size:12.5px;font-weight:600;overflow-wrap:anywhere;';
+  const locationEl = document.createElement('div');
+    locationEl.textContent = job.location || '';
+    locationEl.hidden = !job.location;
+    locationEl.style.cssText = 'margin-top:10px;color:var(--tmo-widget-muted);font-size:12px;font-weight:400;overflow-wrap:anywhere;';
     jobLine.appendChild(locationEl);
-  }
-  if (job.salary_text) {
-    const salaryEl = document.createElement('div');
-    salaryEl.textContent = job.salary_text;
-    salaryEl.style.cssText = 'margin-top:8px;color:var(--tmo-widget-muted);font-size:12.5px;font-weight:650;overflow-wrap:anywhere;';
+  const salaryEl = document.createElement('div');
+    salaryEl.textContent = job.salary_text || '';
+    salaryEl.hidden = !job.salary_text;
+    salaryEl.style.cssText = 'margin-top:4px;color:var(--tmo-widget-ink);font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;';
     jobLine.appendChild(salaryEl);
-  }
+  // Update late-arriving metadata without replaying entry motion or losing any
+  // action state. All handlers share this job object, so they get enrichment too.
+  root.addEventListener('tmo-job-enriched', (event) => {
+    const next = (event as CustomEvent<JobInfo>).detail;
+    for (const key of ['company_name','role_title','location','salary_text','company_logo_url'] as const) {
+      if (job[key] || !next[key]) continue;
+      job[key] = next[key];
+      if (key === 'location') { locationEl.textContent = next[key]!; locationEl.hidden = false; }
+      if (key === 'salary_text') { salaryEl.textContent = next[key]!; salaryEl.hidden = false; }
+      if (key === 'company_name') { companyEl.textContent = next[key]!; companyEl.title = next[key]!; }
+      if (key === 'role_title') { roleEl.textContent = next[key]!; roleEl.title = next[key]!; }
+      if (key === 'company_logo_url') paintCompanyLogo(next[key]!);
+    }
+    const snapshot = JSON.stringify(widgetJobSnapshot(job));
+    if (root.dataset.tmoJobSnapshot !== snapshot) root.dataset.tmoJobSnapshot = snapshot;
+  });
 
   // Visa-sponsorship signal — the make-or-break fact for an OPT student. Read
   // from the posting text client-side (no API). Painted once now, then refreshed
@@ -505,43 +507,47 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
     }
   }, 1400);
 
-  // Primary anchor action — Save to job tracker (filled brand gradient).
+  // Tracker is a secondary action; Prefill owns the primary blue treatment.
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
-  saveBtn.innerHTML = `${icon('bookmark', 16, '#fff')}<span class="tmo-action-label" style="flex:1;text-align:left;">Save to job tracker</span>${icon('chevronRight', 16, 'rgba(255,255,255,0.9)')}`;
+  saveBtn.className = 'tmo-sidebar-tracker';
+  saveBtn.innerHTML = `${icon('bookmark', 16)}<span class="tmo-action-label" style="flex:1;text-align:left;">Save to job tracker</span>${icon('chevronRight', 16)}`;
   saveBtn.style.cssText = `
     display:flex;align-items:center;gap:10px;width:100%;min-height:46px;margin:0;padding:11px 14px;
-    border:0;border-radius:12px;color:#fff;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;
-    background:linear-gradient(135deg,#1e40af 0%,#2563eb 55%,#0ea5e9 100%);
-    box-shadow:0 6px 16px rgba(37,99,235,0.34);transition:filter 160ms ease,transform 160ms ease,box-shadow 160ms ease;
+    border:1px solid var(--tmo-widget-info-border);border-radius:10px;color:var(--tmo-widget-accent-strong);font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+    background:var(--tmo-widget-info-surface);
   `;
   saveBtn.addEventListener('mouseenter', () => {
     if (saveBtn.disabled) return;
     saveBtn.style.filter = 'brightness(1.06)';
-    saveBtn.style.transform = 'translateY(-1px)';
   });
   saveBtn.addEventListener('mouseleave', () => {
     saveBtn.style.filter = 'none';
     saveBtn.style.transform = 'none';
   });
   saveBtn.addEventListener('focus', () => (saveBtn.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.35)'));
-  saveBtn.addEventListener('blur', () => (saveBtn.style.boxShadow = '0 6px 16px rgba(37,99,235,0.34)'));
+  saveBtn.addEventListener('blur', () => (saveBtn.style.boxShadow = 'none'));
 
   // Actions
   const actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;flex-direction:column;gap:10px;padding:10px 14px 14px;';
+  actions.style.cssText = 'display:flex;flex-direction:column;gap:14px;padding:0 18px 16px;';
 
   // Secondary tools grouped in a bordered panel with colored icon chips.
   const toolsPanel = document.createElement('div');
   toolsPanel.style.cssText =
-    'border:1px solid var(--tmo-widget-border);border-radius:12px;overflow:hidden;background:var(--tmo-widget-surface);box-shadow:0 2px 8px rgba(15,23,42,0.05);';
+    'border-top:1px solid var(--tmo-widget-border);padding-top:10px;background:var(--tmo-widget-surface);';
+  toolsPanel.appendChild(sidebarHelp('Application tools', 'Prefill uses your saved profile. A tailored resume is attached only when one is ready for this job. Review all answers before submitting. TrackMyOPT never submits your application.'));
 
   const initialPrefillCopy = prefillEntryCopy(Boolean(host.generatedResumeFor(job)));
   const prefillBtn = actionBtn(icon('zap', 16, '#fff'), initialPrefillCopy.label, {
     sublabel: initialPrefillCopy.sublabel,
-    chip: 'linear-gradient(135deg,#2563eb,#0ea5e9)',
+    chip: 'transparent',
   });
   prefillBtn.classList.add('tmo-prefill-button');
+  prefillBtn.style.minHeight = '46px';
+  // The visible resume-status row already explains the source. Keep the
+  // shared sublabel for repaints, but avoid repeating that copy on the button.
+  prefillBtn.querySelector<HTMLElement>('.tmo-action-sublabel')!.style.display = 'none';
   prefillBtn.title = initialPrefillCopy.title;
   const prefillResultLine = document.createElement('div');
   prefillResultLine.className = 'tmo-prefill-result-line';
@@ -549,14 +555,16 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   prefillResultLine.setAttribute('aria-live', 'polite');
   prefillResultLine.style.cssText =
     'display:none;align-items:center;flex-wrap:wrap;gap:4px;padding:8px 12px 9px;background:var(--tmo-widget-surface-2);color:var(--tmo-widget-muted);font-size:11.5px;line-height:1.4;border-top:1px solid var(--tmo-widget-border);';
-  const resumeBtn = actionBtn(icon('fileText', 16, '#fff'), 'Generate custom resume', {
+  const resumeBtn = actionBtn(icon('fileText', 18, 'var(--tmo-color-stem-accent-strong)'), 'Generate custom resume', {
     sublabel: 'Tailored to this role',
-    chip: 'linear-gradient(135deg,#10b981,#059669)',
+    chip: 'var(--tmo-widget-surface-2)',
   });
-  const aiBtn = actionBtn(icon('sparkles', 16, '#fff'), 'Analyze with AI', {
+  const aiBtn = actionBtn(icon('sparkles', 18, 'var(--tmo-widget-accent-strong)'), 'Analyze with AI', {
     sublabel: 'Fit score & keyword gaps',
-    chip: 'linear-gradient(135deg,#6366f1,#a855f7)',
+    chip: 'var(--tmo-widget-surface-2)',
   });
+  resumeBtn.classList.add('tmo-resume-button');
+  aiBtn.classList.add('tmo-analysis-button');
   const artifactStaleBanner = document.createElement('div');
   artifactStaleBanner.className = ARTIFACT_STALE_BANNER_CLASS;
   artifactStaleBanner.setAttribute('role', 'alert');
@@ -613,7 +621,11 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   const resumeStatusRow = createResumeStatusRow();
   toolsPanel.appendChild(resumeStatusRow);
   toolsPanel.appendChild(prefillBtn);
+  const prefillProgressSlot = document.createElement('div');
+  prefillProgressSlot.className = 'tmo-prefill-progress-slot';
+  toolsPanel.appendChild(prefillProgressSlot);
   toolsPanel.appendChild(prefillResultLine);
+  toolsPanel.appendChild(createPrefillUndoControl(() => host.undoLastPrefill()));
   if (AUTOFILL_FEATURE_FLAGS.guidedAutopilot) {
     const guidedHost = document.createElement('div');
     guidedHost.className = 'tmo-guided-status';
@@ -634,7 +646,6 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
     stop.addEventListener('click', () => void host.stopGuidedAutopilot());
     guidedHost.append(copy, stop);
     toolsPanel.appendChild(guidedHost);
-    toolsPanel.appendChild(createSensitiveAnswerPanel(job, host));
     host.paintGuidedStateUi();
   }
   toolsPanel.appendChild(artifactStaleBanner);
@@ -643,6 +654,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   toolsPanel.appendChild(resumeBtn);
   toolsPanel.appendChild(rowDivider());
   toolsPanel.appendChild(aiBtn);
+  toolsPanel.appendChild(createSensitiveAnswerPanel());
   void host.reconcileArtifactAvailabilityOnWidgetMount(
     job,
     prefillBtn,
@@ -698,12 +710,12 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
 
   // Feedback link (opens the on-page feedback modal)
   const feedbackRow = document.createElement('div');
-  feedbackRow.style.cssText = 'padding:0 12px 12px;text-align:center;';
+  feedbackRow.className = 'tmo-job-widget-footer';
   const feedbackBtn = document.createElement('button');
   feedbackBtn.type = 'button';
   feedbackBtn.innerHTML = `${icon('messageCircle', 14)}<span>Send feedback</span>`;
   feedbackBtn.style.cssText =
-    'display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;color:var(--tmo-widget-muted);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:6px 8px;min-height:32px;';
+    'display:inline-flex;align-items:center;gap:7px;border:none;background:transparent;color:var(--tmo-widget-muted);font:inherit;font-size:12px;font-weight:500;cursor:pointer;padding:6px 8px;min-height:40px;';
   feedbackBtn.addEventListener('mouseenter', () => (feedbackBtn.style.color = 'var(--tmo-widget-accent)'));
   feedbackBtn.addEventListener('mouseleave', () => (feedbackBtn.style.color = 'var(--tmo-widget-muted)'));
   feedbackBtn.addEventListener('click', (e) => {
@@ -716,8 +728,8 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   optClockRow.setAttribute('role', 'status');
   optClockRow.setAttribute('aria-live', 'polite');
   optClockRow.style.cssText = `
-    display:none;align-items:flex-start;justify-content:center;gap:6px;padding:0 14px 11px;
-    color:var(--tmo-widget-muted);font-size:11.5px;font-weight:600;line-height:1.4;text-align:center;
+    display:none;align-items:center;gap:9px;margin:0 18px 14px;padding:10px 12px;border-radius:10px;
+    background:var(--tmo-widget-info-surface);color:var(--tmo-widget-info-ink);font-size:12px;font-weight:500;line-height:1.5;
   `;
   const optClockIcon = document.createElement('span');
   optClockIcon.style.cssText = 'display:flex;flex:0 0 auto;margin-top:1px;';
@@ -732,14 +744,13 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   normalBody.setAttribute('role', 'group');
   normalBody.setAttribute('aria-label', 'Job assistant tools');
   normalBody.style.cssText = `
-    flex:1 1 auto;min-height:0;max-height:calc(100vh - 72px);max-height:calc(100dvh - 72px);
+    flex:1 1 auto;min-height:0;
     overflow-x:hidden;overflow-y:auto;
     overscroll-behavior:contain;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;
   `;
   normalBody.appendChild(jobLine);
   normalBody.appendChild(actions);
   normalBody.appendChild(optClockRow);
-  normalBody.appendChild(feedbackRow);
 
   chrome.runtime.sendMessage(
     { type: 'GET_OPT_CLOCK_NUDGE' },
@@ -747,7 +758,8 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
       if (chrome.runtime.lastError || !res?.ok || !optClockRow.isConnected) return;
       const nudge = normalizeOptClockNudge(res.nudge);
       if (!nudge) return;
-      optClockText.textContent = `${nudge.remaining} unemployment ${nudge.remaining === 1 ? 'day' : 'days'} remaining — every application counts.`;
+      optClockText.textContent = `${nudge.remaining} unemployment ${nudge.remaining === 1 ? 'day' : 'days'} remaining`;
+      optClockRow.title = 'Based on your saved employment history in TrackMyOPT. Keep your employment records up to date.';
       optClockRow.style.display = 'flex';
     },
   );
@@ -755,8 +767,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   // ---- Settings panel ("Default plugin view": Expanded / Minimized) ----
   const settingsPanel = document.createElement('div');
   settingsPanel.style.cssText = `
-    display:none;flex:1 1 auto;min-height:0;max-height:calc(100vh - 72px);
-    max-height:calc(100dvh - 72px);padding:14px 12px 16px;
+    display:none;flex:1 1 auto;min-height:0;padding:16px;
     overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
     scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;
   `;
@@ -811,12 +822,13 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   card.appendChild(header);
   card.appendChild(normalBody);
   card.appendChild(settingsPanel);
+  card.appendChild(feedbackRow);
 
   // Minimized close menu (3 hide scopes)
   const menu = document.createElement('div');
   menu.style.cssText = `
     display:none;position:absolute;top:44px;right:64px;z-index:5;
-    width:min(260px,calc(100vw - 32px));background:var(--tmo-widget-surface);border:1px solid var(--tmo-widget-border);border-radius:12px;
+    width:min(260px,calc(100vw - 80px));background:var(--tmo-widget-surface);border:1px solid var(--tmo-widget-border);border-radius:12px;
     box-shadow:var(--tmo-widget-shadow);overflow:hidden;padding:8px 0;color:var(--tmo-widget-ink);
   `;
   const menuItem = (label: string, onClick: () => void) => {
@@ -854,11 +866,11 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   const setTabControlsRevealed = (revealed: boolean) => {
     if (tabControlsRevealed === revealed) return;
     tabControlsRevealed = revealed;
-    tab.style.width = revealed ? '106px' : '62px';
+    tab.style.width = revealed ? '96px' : '52px';
     tab.style.boxShadow = revealed
       ? '0 9px 26px rgba(30,64,175,0.32)'
       : '0 7px 20px rgba(30,64,175,0.22)';
-    tabOpenBtn.style.width = revealed ? '70px' : '62px';
+    tabOpenBtn.style.width = revealed ? '59px' : '51px';
     tabDragHandle.style.width = revealed ? '36px' : '0';
     tabDragHandle.style.opacity = revealed ? '1' : '0';
     tabDragHandle.style.transform = revealed ? 'translateX(0)' : 'translateX(10px)';
@@ -884,18 +896,24 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   tab.addEventListener('focusin', () => setTabControlsRevealed(true));
   tab.addEventListener('focusout', retractTabControlsWhenIdle);
 
-  attachDragBehavior(root, header);
   attachDragBehavior(root, tabDragHandle);
 
   // ---- collapse / expand ----
   const setCollapsed = (collapsed: boolean) => {
     setCollapsedPref(collapsed);
-    card.style.display = collapsed ? 'none' : 'block';
+    root.dataset.collapsed = String(collapsed);
+    card.style.display = collapsed ? 'none' : 'flex';
     tab.style.display = collapsed ? 'flex' : 'none';
+    tabOpenBtn.setAttribute('aria-expanded', String(!collapsed));
+    const savedTop = collapsed ? readWidgetPosition()?.top : undefined;
+    root.style.top = collapsed ? (savedTop === undefined ? '50%' : `${savedTop}px`) : '16px';
+    root.style.right = collapsed ? '0' : '16px';
+    root.style.transform = collapsed && savedTop === undefined ? 'translateY(-50%)' : 'none';
     menu.style.display = 'none';
     setTabControlsRevealed(false);
     document.removeEventListener('click', onDocClick, true);
     requestAnimationFrame(() => {
+      if (root.dataset.collapsed !== 'true') return;
       const rect = root.getBoundingClientRect();
       const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
       if (rect.top < 8 || rect.top > maxTop) {
@@ -904,10 +922,12 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
       }
     });
   };
-  closeBtn.addEventListener('click', (e) => { e.stopPropagation(); setCollapsed(true); });
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); setCollapsed(true); tabOpenBtn.focus({ preventScroll:true });
+  });
   attachDragBehavior(root, tabOpenBtn, {
     allowButtonTarget: true,
-    onTap: () => setCollapsed(false),
+    onTap: () => { setCollapsed(false); closeBtn.focus({ preventScroll:true }); },
   });
 
   // ---- Settings panel open/close (swaps content in place; same widget card) ----
@@ -916,12 +936,20 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
     settingsPanel.style.display = show ? 'block' : 'none';
     title.textContent = show ? 'Settings' : 'TrackMyOPT';
     settingsBtn.style.display = show ? 'none' : 'flex';
-    closeBtn.style.display = show ? 'none' : 'flex';
+    closeBtn.style.display = 'flex';
     backBtn.style.display = show ? 'flex' : 'none';
     menu.style.display = 'none';
+    (show ? backBtn : settingsBtn).focus({ preventScroll:true });
   }
   settingsBtn.addEventListener('click', (e) => { e.stopPropagation(); showSettings(true); });
   backBtn.addEventListener('click', (e) => { e.stopPropagation(); showSettings(false); });
+  root.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || e.defaultPrevented || root.dataset.collapsed === 'true') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (settingsPanel.style.display !== 'none') showSettings(false);
+    else { setCollapsed(true); tabOpenBtn.focus({ preventScroll:true }); }
+  });
 
   /**
    * Persist the chosen default view, clear any per-session override so the new
@@ -992,23 +1020,12 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
     saveWidgetPosition(nextTop);
   });
 
-  const savedPosition = readWidgetPosition();
-  if (savedPosition) {
-    requestAnimationFrame(() => {
-      const rect = root.getBoundingClientRect();
-      const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
-      root.style.top = `${Math.min(Math.max(8, savedPosition.top), maxTop)}px`;
-      root.style.right = '0';
-      root.style.left = 'auto';
-      root.style.transform = 'none';
-    });
-  }
-
   const clampWidgetToViewport = () => {
     if (!root.isConnected) {
       window.removeEventListener('resize', clampWidgetToViewport);
       return;
     }
+    if (root.dataset.collapsed !== 'true') return;
     const rect = root.getBoundingClientRect();
     const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
     const nextTop = Math.min(Math.max(8, rect.top), maxTop);
@@ -1045,20 +1062,17 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
         // is on a later step or already holds a file.
         const status = resumeStatusAfterPrefill({
           attachedCount: result.groups.resume.filled,
+          attachmentResult: result.resumeAttachmentResult,
           hasResume: execution.hasResume,
         });
         paintResumeStatusRow(resumeStatusRow, status.state, status.detail);
-        if (AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
-          await host.mountScreeningQuestionReviews(
-            card,
-            job,
-            execution.hasResume,
-            execution.jobDescription,
-          );
-        }
+        // Smart answers run as part of this explicit Prefill action. Their
+        // inline review markers replace the extra Generate/Insert clicks.
         host.trackPrefillExecution(execution, 'step_by_step', 'success');
       } catch {
         host.trackPrefillRuntimeFailure('step_by_step', hasResume);
+        prefillResultLine.style.display = 'block';
+        prefillResultLine.textContent = 'Prefill could not finish. Review the application and try again. If the extension was updated, reopen the application first.';
       } finally {
         prefillBtn.disabled = false;
         prefillBtn.setAttribute('aria-busy', 'false');
@@ -1079,15 +1093,13 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
     // a user gesture, and the gesture may not survive the message round trip to
     // the service worker, so the in-widget chooser stays as the fallback and
     // remains the behaviour on Chrome < 114.
-    try {
-      chrome.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' }, (response) => {
-        if (chrome.runtime.lastError || !response?.ok) {
-          openResumeChooser(card, job);
-        }
-      });
-    } catch {
-      openResumeChooser(card, job);
-    }
+    void prepareJobTool(card, resumeBtn, async (isCurrent) => {
+      const response = await new Promise<{ok?: boolean} | undefined>(resolve =>
+        sendToolMessage({ type: 'OPEN_SIDE_PANEL' }, resolve, 8000));
+      if (!isCurrent() || response?.ok) return;
+      const description = await resolveJobDescription();
+      if (isCurrent()) openResumeChooserWithDescription(card, job, [], description);
+    });
   });
 
   aiBtn.addEventListener('click', () => {
@@ -1123,14 +1135,20 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
     saveBtn.style.opacity = '1';
     const label = saveBtn.querySelector('.tmo-action-label') as HTMLElement | null;
     if (label) label.textContent = 'View in tracker';
-    savedBadge.textContent = statusText === 'Wishlist' ? 'Wishlist' : 'Saved ✓';
-    savedBadge.style.background = 'var(--tmo-widget-success-surface)';
-    savedBadge.style.color = 'var(--tmo-widget-success-ink)';
-    saveBtn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-    saveBtn.style.boxShadow = '0 4px 12px rgba(16,185,129,0.28)';
+    savedBadge.textContent = statusText;
+    savedBadge.style.background = statusText === 'Wishlist' ? 'var(--tmo-widget-info-surface)' : 'var(--tmo-widget-success-surface)';
+    savedBadge.style.color = statusText === 'Wishlist' ? 'var(--tmo-widget-info-ink)' : 'var(--tmo-widget-success-ink)';
+    saveBtn.style.boxShadow = 'none';
     saveBtn.style.filter = 'none';
     saveBtn.style.transform = 'none';
   };
+
+  root.addEventListener('tmo-tracker-saved', event => {
+    const detail = (event as CustomEvent).detail;
+    if (detail?.jobUrl !== job.job_url) return;
+    host.rememberTrackerApplicationId(job, detail.id);
+    markJobSaved(detail.status === 'Wishlist' ? 'Wishlist' : 'Applied');
+  });
 
   const saveJobWithStatus = (status: ApplicationSaveStatus) => {
     const label = saveBtn.querySelector('.tmo-action-label') as HTMLElement | null;
@@ -1144,7 +1162,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
         job: buildJobSaveSnapshot(job, scrapeJobDescription()),
         status,
       },
-      (response: { ok?: boolean; error?: string; id?: string } | undefined) => {
+      (response: { ok?: boolean; error?: string; id?: string; status?: string } | undefined) => {
         saveBtn.disabled = false;
         if (chrome.runtime.lastError) {
           if (label) label.textContent = prev;
@@ -1158,9 +1176,10 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
         }
         if (response?.ok) {
           host.rememberTrackerApplicationId(job, response.id);
-          markJobSaved(status === 'Applied' ? 'Applied' : 'Wishlist');
+          const actualStatus = response.status || status;
+          markJobSaved(actualStatus === 'Wishlist' ? 'Wishlist' : 'Applied');
           void showPostSaveSuggestionOnce();
-          showMessage(status === 'Applied' ? 'Application added to Job Tracker!' : 'Job saved to your Wishlist!', false);
+          showMessage(actualStatus === 'Wishlist' ? 'Job saved to your Wishlist!' : 'Job saved in your tracker.', false);
           host.trackWidgetAnalytics('extension_widget_job_saved', {
             status,
             outcome: 'success',
@@ -1236,6 +1255,55 @@ const SIDE_PANEL_TEMPLATES = RESUME_TEMPLATES_FOR_PANEL;
 
 // ── Analyze with AI (in-widget ATS fit) ─────────────────────────────────────
 
+/** Every UI request settles, including an invalidated extension or lost reply. */
+function sendToolMessage<T>(message: object, callback: (value: T | undefined) => void, timeout = 45_000): void {
+  let finished = false;
+  const complete = (value?: T) => {
+    if (finished) return;
+    finished = true;
+    window.clearTimeout(timer);
+    callback(value);
+  };
+  const timer = window.setTimeout(() => complete(), timeout);
+  try {
+    chrome.runtime.sendMessage(message, (value: T) => {
+      complete(chrome.runtime.lastError ? undefined : value);
+    });
+  } catch { complete(); }
+}
+
+/** Preserve the user gesture, deduplicate clicks, and invalidate slow work. */
+async function prepareJobTool(
+  card: HTMLElement,
+  button: HTMLButtonElement | null,
+  work: (isCurrent: () => boolean) => Promise<void>,
+): Promise<void> {
+  if (card.dataset.tmoPreparingTool === 'true') return;
+  const pageUrl = location.href;
+  let finished = false;
+  const isCurrent = () => !finished && card.isConnected && location.href === pageUrl;
+  const label = button?.querySelector('.tmo-action-label');
+  const previousLabel = label?.textContent;
+  card.dataset.tmoPreparingTool = 'true';
+  if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); }
+  if (label) label.textContent = 'Opening…';
+  let timer: number | undefined;
+  try {
+    await Promise.race([
+      work(isCurrent),
+      new Promise<never>((_, reject) => { timer = window.setTimeout(() => reject(new Error('timeout')), 20_000); }),
+    ]);
+  } catch {
+    if (isCurrent()) showMessage('Could not open this tool. Please try again.', true);
+  } finally {
+    finished = true;
+    window.clearTimeout(timer);
+    delete card.dataset.tmoPreparingTool;
+    if (button) { button.disabled = false; button.setAttribute('aria-busy', 'false'); }
+    if (label && previousLabel) label.textContent = previousLabel;
+  }
+}
+
 interface AnalyzeJobFitResponse {
   ok: boolean;
   error?: string;
@@ -1253,12 +1321,13 @@ interface AnalyzeJobFitResponse {
  * /api/resume-generator/analyze-gap route (Bearer stays in the background).
  */
 function openAiAnalysis(card: HTMLElement, job: JobInfo): void {
-  document.getElementById('tmo-ai-analysis')?.remove();
   // Capture the posting text before mounting our modal so our own UI can never
   // leak into the analyzed job description. On apply routes, resolve the
   // sibling listing page so we score against the real JD.
-  void resolveJobDescription().then((jobDescription) => {
-    openAiAnalysisWithDescription(card, job, jobDescription);
+  void prepareJobTool(card, card.querySelector('.tmo-analysis-button'), async (isCurrent) => {
+    if (document.getElementById('tmo-ai-analysis')) return;
+    const jobDescription = await resolveJobDescription();
+    if (isCurrent()) openAiAnalysisWithDescription(card, job, jobDescription);
   });
 }
 
@@ -1267,13 +1336,15 @@ export function openAiAnalysisWithDescription(
   job: JobInfo,
   jobDescription: string,
 ): void {
+  const actionUrl = location.href;
   const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
   const overlay = document.createElement('div');
   overlay.id = 'tmo-ai-analysis';
+  overlay.setAttribute('popover', 'manual');
   applyWidgetThemeScope(overlay);
   overlay.style.cssText = `
-    position:fixed;inset:0;z-index:2147483647;background:var(--tmo-widget-overlay);
+    position:fixed;inset:0;width:100%;height:100%;margin:0;border:0;box-sizing:border-box;z-index:2147483647;background:var(--tmo-widget-overlay);
     display:flex;align-items:center;justify-content:center;padding:16px;
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   `;
@@ -1319,6 +1390,7 @@ export function openAiAnalysisWithDescription(
 
   const cleanup = () => {
     document.removeEventListener('keydown', onKeyDown, true);
+    document.removeEventListener('tmo-page-context-changed', cleanup);
     try { overlay.hidePopover?.(); } catch { /* already closed */ }
     overlay.remove();
     returnFocusTo?.focus();
@@ -1326,10 +1398,18 @@ export function openAiAnalysisWithDescription(
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.preventDefault();
+      event.stopImmediatePropagation();
       cleanup();
+    }
+    if (event.key === 'Tab') {
+      const items = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled])'));
+      const first = items[0]; const last = items[items.length - 1];
+      if (first && event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (last && !event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }
   };
   document.addEventListener('keydown', onKeyDown, true);
+  document.addEventListener('tmo-page-context-changed', cleanup);
   close.addEventListener('click', cleanup);
   overlay.addEventListener('click', (event) => {
     if (event.target === overlay) cleanup();
@@ -1354,9 +1434,10 @@ export function openAiAnalysisWithDescription(
   loading.append('Scoring your resume against this job…');
   body.appendChild(loading);
 
-  chrome.runtime.sendMessage(
+  sendToolMessage(
     { type: 'ANALYZE_JOB_FIT', jobDescription },
     (res: AnalyzeJobFitResponse | undefined) => {
+      if (!overlay.isConnected || !card.isConnected || location.href !== actionUrl) return;
       if (chrome.runtime.lastError) {
         host.trackWidgetAnalytics('extension_widget_job_analyzed', {
           outcome: 'error',
@@ -1407,9 +1488,10 @@ export function openAiAnalysisWithDescription(
 
 /** Explicit resume/template chooser displayed before any generation starts. */
 function openResumeChooser(card: HTMLElement, job: JobInfo, analyzedMissingKeywords: string[] = []): void {
-  document.getElementById('tmo-resume-chooser')?.remove();
-  void resolveJobDescription().then((jobDescription) => {
-    openResumeChooserWithDescription(card, job, analyzedMissingKeywords, jobDescription);
+  void prepareJobTool(card, card.querySelector('.tmo-resume-button'), async (isCurrent) => {
+    if (document.getElementById('tmo-resume-chooser')) return;
+    const jobDescription = await resolveJobDescription();
+    if (isCurrent()) openResumeChooserWithDescription(card, job, analyzedMissingKeywords, jobDescription);
   });
 }
 
@@ -1419,6 +1501,7 @@ export function openResumeChooserWithDescription(
   analyzedMissingKeywords: string[],
   jobDescription: string,
 ): void {
+  const actionUrl = location.href;
   // Capture before mounting TrackMyOPT's modal so extension UI can never enter
   // the job-description payload or preview.
   const focusKeywords = [...new Set(analyzedMissingKeywords.map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 12);
@@ -1428,9 +1511,10 @@ export function openResumeChooserWithDescription(
 
   const overlay = document.createElement('div');
   overlay.id = 'tmo-resume-chooser';
+  overlay.setAttribute('popover', 'manual');
   applyWidgetThemeScope(overlay);
   overlay.style.cssText = `
-    position:fixed;inset:0;z-index:2147483647;background:var(--tmo-widget-overlay);
+    position:fixed;inset:0;width:100%;height:100%;margin:0;border:0;box-sizing:border-box;z-index:2147483647;background:var(--tmo-widget-overlay);
     display:flex;align-items:center;justify-content:center;padding:16px;
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   `;
@@ -1483,11 +1567,14 @@ export function openResumeChooserWithDescription(
 
   const cleanup = () => {
     document.removeEventListener('keydown', onKeyDown, true);
+    document.removeEventListener('tmo-page-context-changed', cleanup);
     overlay.remove();
     returnFocusTo?.focus();
   };
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       cleanup();
       return;
     }
@@ -1510,13 +1597,15 @@ export function openResumeChooserWithDescription(
     }
   };
   document.addEventListener('keydown', onKeyDown, true);
+  document.addEventListener('tmo-page-context-changed', cleanup);
   close.addEventListener('click', cleanup);
   overlay.addEventListener('click', (event) => {
     if (event.target === overlay) cleanup();
   });
   close.focus();
 
-  chrome.runtime.sendMessage(
+  try { overlay.showPopover?.(); } catch { overlay.removeAttribute('popover'); }
+  sendToolMessage(
     { type: 'LIST_SAVED_RESUMES' },
     (response: {
       ok?: boolean;
@@ -1524,7 +1613,7 @@ export function openResumeChooserWithDescription(
       resumes?: SavedResumeOption[];
       accountEmail?: string;
     } | undefined) => {
-      if (!document.body.contains(overlay)) return;
+      if (!overlay.isConnected || !card.isConnected || location.href !== actionUrl) return;
       body.textContent = '';
       if (chrome.runtime.lastError || !response?.ok) {
         const message = document.createElement('p');
@@ -1678,6 +1767,7 @@ export function renderResumeResult(
     generatedScore?: number;
     scoreError?: 'limit_reached' | 'scan_failed';
   },
+  generatedFilename?: string,
 ): void {
   panel.textContent = '';
   const head = document.createElement('div');
@@ -1744,7 +1834,7 @@ export function renderResumeResult(
 
   const row = document.createElement('div');
   row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
-  const filename = artifact?.pdf.filename || generatedResumeFilename(job);
+  const filename = artifact?.pdf.filename || generatedFilename || generatedResumeFilename(job);
   if (artifact) {
     host.setCurrentGeneratedArtifact(artifact);
   } else {
@@ -1823,6 +1913,7 @@ export function openResumePanel(
   baselineScore?: number,
   alignJobTitles = false,
 ): void {
+  const generationUrl = location.href;
   lastResumeGenerationRequest = {
     job: { ...job },
     resumeId,
@@ -1840,7 +1931,7 @@ export function openResumePanel(
   panel.setAttribute('role', 'status');
   panel.setAttribute('aria-live', 'polite');
   panel.style.cssText = 'position:relative;padding:14px 34px 14px 14px;border-top:1px solid var(--tmo-widget-border);background:var(--tmo-widget-surface-2);';
-  card.appendChild(panel);
+  (card.querySelector('.tmo-job-widget-scroll-body') || card).appendChild(panel);
 
   const line = document.createElement('div');
   line.style.cssText =
@@ -1866,11 +1957,12 @@ export function openResumePanel(
 
   let seconds = 0;
   const interval = window.setInterval(() => {
+    if (!panel.isConnected) { window.clearInterval(interval); return; }
     seconds += 1;
     timer.textContent = `${seconds}s`;
   }, 1000);
 
-  chrome.runtime.sendMessage(
+  sendToolMessage(
     {
       type: 'GENERATE_RESUME',
       jobDescription,
@@ -1884,7 +1976,6 @@ export function openResumePanel(
         companyName: job.company_name || '',
         roleTitle: job.role_title || '',
       }),
-      outputFilename: generatedResumeFilename(job),
       focusKeywords,
       baselineScore,
       applicationId: host.trackerApplicationIdFor(job),
@@ -1896,6 +1987,7 @@ export function openResumePanel(
         error?: string;
         detail?: string;
         pdfBase64?: string;
+        filename?: string;
         editorUrl?: string;
         baselineScore?: number;
         generatedScore?: number;
@@ -1905,6 +1997,7 @@ export function openResumePanel(
       } | undefined
     ) => {
       window.clearInterval(interval);
+      if (!panel.isConnected || !jobUrlsReferToSameJob(generationUrl, location.href)) return;
       if (chrome.runtime.lastError) {
         host.trackWidgetAnalytics('extension_widget_resume_generated', {
           outcome: 'error',
@@ -1931,7 +2024,7 @@ export function openResumePanel(
           baselineScore: res.baselineScore,
           generatedScore: res.generatedScore,
           scoreError: res.scoreError,
-        });
+        }, res.filename);
         if (res.structuredFieldsAvailable === false) {
           const copy = autofillErrorCopy('extraction_failed');
           const notice = document.createElement('p');
@@ -1983,7 +2076,7 @@ export function openResumePanel(
         default:
           renderResumeError(panel, "Couldn't generate the resume. Please try again.", host.scheduleInject);
       }
-    }
+    },
+    180_000,
   );
 }
-

@@ -18,6 +18,7 @@ import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import rateLimit from '@/lib/auth/rate-limit';
 import {
   buildArtifactRow,
+  MAX_STORED_ARTIFACTS_PER_USER,
   overflowArtifactIds,
   reviveStoredArtifact,
   selectMatchingArtifact,
@@ -30,7 +31,8 @@ import type { GeneratedResumeArtifactV1 } from '../../../../../extension/src/res
 
 export const dynamic = 'force-dynamic';
 
-const IDENTITY_COLUMNS = 'id, source_url, requisition_id, created_at, expires_at';
+const IDENTITY_COLUMNS =
+  'id, source_url, requisition_id, created_at, expires_at';
 /** A compiled resume PDF is well under this; the cap stops absurd payloads. */
 const MAX_REQUEST_BODY_CHARACTERS = 24 * 1024 * 1024;
 /** Bounded so one signed-in token cannot sweep an account's whole history. */
@@ -45,7 +47,9 @@ export async function OPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
-async function loadCandidates(userId: string): Promise<StoredArtifactCandidate[] | null> {
+async function loadCandidates(
+  userId: string
+): Promise<StoredArtifactCandidate[] | null> {
   const { data, error } = await getSupabaseAdminClient()
     .from('generated_resume_artifacts')
     .select(IDENTITY_COLUMNS)
@@ -57,20 +61,32 @@ async function loadCandidates(userId: string): Promise<StoredArtifactCandidate[]
 }
 
 export async function GET(req: NextRequest) {
-  const headers = corsHeadersWebAndExtension(req);
+  const headers = {
+    ...corsHeadersWebAndExtension(req),
+    'Cache-Control': 'private, no-store',
+  };
   const userId = await getUserId(req);
   if (!userId) {
-    return NextResponse.json({ ok: false, error: 'not_signed_in' }, { status: 401, headers });
+    return NextResponse.json(
+      { ok: false, error: 'not_signed_in' },
+      { status: 401, headers }
+    );
   }
 
   const jobUrl = (req.nextUrl.searchParams.get('jobUrl') || '').trim();
   if (!jobUrl) {
-    return NextResponse.json({ ok: false, error: 'missing_job_url' }, { status: 400, headers });
+    return NextResponse.json(
+      { ok: false, error: 'missing_job_url' },
+      { status: 400, headers }
+    );
   }
 
   const candidates = await loadCandidates(userId);
   if (!candidates) {
-    return NextResponse.json({ ok: false, error: 'storage_failed' }, { status: 500, headers });
+    return NextResponse.json(
+      { ok: false, error: 'storage_failed' },
+      { status: 500, headers }
+    );
   }
 
   const match = selectMatchingArtifact(candidates, { jobUrl });
@@ -85,7 +101,10 @@ export async function GET(req: NextRequest) {
     .eq('id', match.id)
     .maybeSingle();
   if (error || !data?.artifact) {
-    return NextResponse.json({ ok: false, error: 'storage_failed' }, { status: 500, headers });
+    return NextResponse.json(
+      { ok: false, error: 'storage_failed' },
+      { status: 500, headers }
+    );
   }
 
   const stored = data.artifact as GeneratedResumeArtifactV1;
@@ -93,7 +112,11 @@ export async function GET(req: NextRequest) {
   // is still the short review window. Hand back a freshly stamped copy so the
   // client-side lifecycle checks behave identically to a new generation.
   const artifact = reviveStoredArtifact(stored, RESUME_ARTIFACT_TTL_MS);
-  if (!(await validateGeneratedResumeArtifactV1(artifact, { validateCoverLetter: true }))) {
+  if (
+    !(await validateGeneratedResumeArtifactV1(artifact, {
+      validateCoverLetter: true,
+    }))
+  ) {
     // A stored row that no longer satisfies the contract is unusable; drop it
     // rather than serving something the extension will reject anyway.
     await getSupabaseAdminClient()
@@ -104,60 +127,98 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, artifact: null }, { headers });
   }
 
-  return NextResponse.json({ ok: true, artifact }, { headers });
+  return NextResponse.json(
+    {
+      ok: true,
+      artifact,
+      generatedAt: stored.generatedAt,
+      expiresAt: match.expires_at,
+    },
+    { headers }
+  );
 }
 
 export async function POST(req: NextRequest) {
   const headers = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) {
-    return NextResponse.json({ ok: false, error: 'not_signed_in' }, { status: 401, headers });
+    return NextResponse.json(
+      { ok: false, error: 'not_signed_in' },
+      { status: 401, headers }
+    );
   }
   const { isRateLimited } = await artifactWriteLimiter.check(
     req,
     30,
-    `resume-artifact:${userId}`,
+    `resume-artifact:${userId}`
   );
   if (isRateLimited) {
-    return NextResponse.json({ ok: false, error: 'rate_limited' }, { status: 429, headers });
+    return NextResponse.json(
+      { ok: false, error: 'rate_limited' },
+      { status: 429, headers }
+    );
   }
 
   const raw = await req.text().catch(() => '');
   if (!raw || raw.length > MAX_REQUEST_BODY_CHARACTERS) {
-    return NextResponse.json({ ok: false, error: 'invalid_artifact' }, { status: 400, headers });
+    return NextResponse.json(
+      { ok: false, error: 'invalid_artifact' },
+      { status: 400, headers }
+    );
   }
   let body: { artifact?: unknown } | null = null;
   try {
     body = JSON.parse(raw) as { artifact?: unknown };
   } catch {
-    return NextResponse.json({ ok: false, error: 'invalid_artifact' }, { status: 400, headers });
+    return NextResponse.json(
+      { ok: false, error: 'invalid_artifact' },
+      { status: 400, headers }
+    );
   }
 
   // Same strict structural check the extension applies before prefilling, so a
   // malformed or oversized artifact can never reach storage.
-  if (!(await validateGeneratedResumeArtifactV1(body?.artifact, { validateCoverLetter: true }))) {
-    return NextResponse.json({ ok: false, error: 'invalid_artifact' }, { status: 400, headers });
+  if (
+    !(await validateGeneratedResumeArtifactV1(body?.artifact, {
+      validateCoverLetter: true,
+    }))
+  ) {
+    return NextResponse.json(
+      { ok: false, error: 'invalid_artifact' },
+      { status: 400, headers }
+    );
   }
   const artifact = body!.artifact as GeneratedResumeArtifactV1;
 
   const supabase = getSupabaseAdminClient();
   const candidates = await loadCandidates(userId);
   if (!candidates) {
-    return NextResponse.json({ ok: false, error: 'storage_failed' }, { status: 500, headers });
+    return NextResponse.json(
+      { ok: false, error: 'storage_failed' },
+      { status: 500, headers }
+    );
   }
 
   const { error } = await supabase
     .from('generated_resume_artifacts')
     .insert(buildArtifactRow(userId, artifact));
   if (error) {
-    return NextResponse.json({ ok: false, error: 'storage_failed' }, { status: 500, headers });
+    return NextResponse.json(
+      { ok: false, error: 'storage_failed' },
+      { status: 500, headers }
+    );
   }
 
   // Retire the previous resume for this posting and anything past the per-user
   // cap. Best-effort: the new row is already stored and usable either way.
+  const superseded = supersededArtifactIds(candidates, artifact);
   const stale = [
-    ...supersededArtifactIds(candidates, artifact),
-    ...overflowArtifactIds(candidates),
+    ...superseded,
+    // The newly inserted row takes one of the 50 slots.
+    ...overflowArtifactIds(
+      candidates.filter((candidate) => !superseded.includes(candidate.id)),
+      MAX_STORED_ARTIFACTS_PER_USER - 1
+    ),
   ];
   if (stale.length > 0) {
     await supabase

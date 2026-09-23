@@ -314,7 +314,9 @@ function decodeBase64(value: string): Uint8Array {
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
   const copy = new Uint8Array(bytes.length);
   copy.set(bytes);
-  const digest = await globalThis.crypto.subtle.digest('SHA-256', copy.buffer);
+  // Use a typed BufferSource. Node 20 rejects the ArrayBufferLike backing
+  // store in some runtime realms even though the same byte view is valid.
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', copy);
   return Array.from(new Uint8Array(digest), (byte) =>
     byte.toString(16).padStart(2, '0')
   ).join('');

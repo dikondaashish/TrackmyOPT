@@ -1,6 +1,7 @@
 'use client';
 
 import type { RefObject } from 'react';
+import { EmployerNameInput } from './EmployerNameInput';
 
 interface EmploymentSpanFormProps {
   employer: string;
@@ -39,16 +40,10 @@ export function EmploymentSpanForm({
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[180px]">
-          <label className="block text-xs font-medium text-muted-foreground mb-1">
-            Employer Name
-          </label>
-          <input
-            ref={employerInputRef}
-            type="text"
+          <EmployerNameInput
+            inputRef={employerInputRef}
             value={employer}
-            onChange={(e) => onEmployerChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
-            placeholder="Company Inc."
+            onChange={onEmployerChange}
           />
         </div>
         <div className="w-full sm:w-36">

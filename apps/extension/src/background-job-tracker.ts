@@ -8,7 +8,7 @@ export interface CheckJobSavedResult {
   error?: string;
   saved?: boolean;
   id?: string;
-  status?: 'Applied' | 'Wishlist';
+  status?: string;
   savedAt?: string | null;
   duplicateApplication?: DuplicateApplicationNotice;
 }
@@ -59,7 +59,7 @@ export async function checkJobSaved(input: {
     ok: true,
     saved: !!data.saved,
     id: typeof data.id === 'string' ? data.id : undefined,
-    status: data.status === 'Wishlist' ? 'Wishlist' : data.status === 'Applied' ? 'Applied' : undefined,
+    status: typeof data.status === 'string' ? data.status : undefined,
     savedAt: data.saved_at ?? null,
     duplicateApplication: data.duplicate_application,
   };
@@ -134,10 +134,16 @@ export async function handleAddJobToTracker(
     }
     throw new Error(msg);
   }
+  // Older servers omit status. On duplicate responses, look it up rather than
+  // reporting the requested status as if it were persisted.
+  let savedStatus = typeof data.status === 'string' ? data.status : status;
+  if (data.already_saved && typeof data.status !== 'string') {
+    const existing = await checkJobSaved({ jobUrl: snapshot.job_url || '', companyName: snapshot.company_name, roleTitle: snapshot.role_title });
+    if (!existing.ok || !existing.saved || !existing.status) throw new Error('Job already exists. Open your tracker to confirm its status.');
+    savedStatus = existing.status;
+  }
   if (chrome.notifications) {
-    const message = autoAdd
-      ? `Application auto-added: "${job.role_title}" at ${job.company_name}`
-      : `"${job.role_title}" at ${job.company_name} added to Job Tracker!`;
+    const message = `"${job.role_title}" at ${job.company_name} saved in Job Tracker (${savedStatus}).`;
     chrome.notifications.create({
       type: 'basic',
       iconUrl: chrome.runtime.getURL('icons/icon128.png'),
@@ -148,6 +154,6 @@ export async function handleAddJobToTracker(
   return {
     ok: true,
     id: typeof (data as { id?: string }).id === 'string' ? (data as { id: string }).id : undefined,
-    status,
+    status: savedStatus,
   };
 }

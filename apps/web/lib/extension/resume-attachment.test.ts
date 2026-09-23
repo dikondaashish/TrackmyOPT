@@ -114,7 +114,7 @@ describe('generated resume attachment DOM boundary', () => {
     expect(resume.files?.[0]?.name).toBe('TrackMyOPT-resume.pdf');
   });
 
-  it('attaches when the form has exactly one PDF upload and no resume label', () => {
+  it('does not guess a resume when the only PDF upload has no resume label', () => {
     installDataTransfer();
     const form = document.createElement('form');
     form.innerHTML =
@@ -126,7 +126,7 @@ describe('generated resume attachment DOM boundary', () => {
       configurable: true,
     });
 
-    expect(attachGeneratedResume(form, attachment)).toBe('attached');
-    expect(resume.files).toHaveLength(1);
+    expect(attachGeneratedResume(form, attachment)).toBe('not_found');
+    expect(resume.files).toHaveLength(0);
   });
 });

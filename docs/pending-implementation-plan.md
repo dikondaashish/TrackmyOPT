@@ -25,7 +25,10 @@ They are not backlog items:
   social URLs, visa type, annual/hourly compensation, work preferences, date
   of birth, and optional DEI answers.
 - Sensitive/private answers are stored separately with authenticated
-  encryption and require explicit review and approval for each application.
+  encryption. Clicking Prefill loads matching answers without a separate
+  approval step; users review the filled application before submitting.
+  Saved portal passwords fill supported top-level HTTPS login/create-account
+  forms on the same explicit Prefill click, without automatic navigation.
 - Visual filling progress, field highlights, success/error states, and Stop UI.
 - Durable Supabase AI quotas and user-owned screening-answer storage.
 - Workday/Greenhouse adapter fixtures and extension unit tests.
@@ -43,7 +46,7 @@ They are not backlog items:
 ### 1. Release the Chrome extension safely
 
 This is the highest-priority remaining product task. The candidate is built as
-version `0.1.14`, but it has not completed the manual release gate.
+version `0.2.0`, but it has not completed the manual release gate.
 
 - [ ] Test in a fresh Chrome profile: sign in, token refresh, sign out, service
   worker restart, and full browser restart.
@@ -53,8 +56,9 @@ version `0.1.14`, but it has not completed the manual release gate.
 - [ ] Run the equivalent Greenhouse single-page matrix.
 - [ ] Confirm existing values and existing files are never overwritten.
 - [ ] Review the user-facing autofill/privacy disclosure with the owner or
-  counsel.
-- [ ] Record the Chrome Web Store justification for `all_frames` and
+  counsel. Source copy is updated; publication and sign-off remain pending in
+  [the privacy release review](compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md).
+- [x] Record the Chrome Web Store justification for `all_frames` and
   `match_about_blank`; confirm no new permission is unnecessary.
 - [ ] Build the final package, upload it to the Chrome Web Store, review the
   listing, and use a staged rollout.

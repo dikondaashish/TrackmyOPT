@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-
-// Convert MM/DD/YYYY to ISO format
-function mmddyyyyToISO(dateStr: string): string | null {
-  if (!dateStr) return null;
-  const parts = dateStr.split('/');
-  if (parts.length !== 3) return null;
-  const [month, day, year] = parts;
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-}
+import { calendarDateISO } from '@/lib/immigration/calendar-days';
 
 // GET - Fetch all employment spans for the user
 export async function GET() {
@@ -86,8 +78,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { spans } = body as {
+    const body = await req.json().catch(() => null);
+    const { spans } = (body ?? {}) as {
       spans: Array<{
         id?: string;
         employer_name: string;
@@ -97,29 +89,39 @@ export async function POST(req: NextRequest) {
       }>;
     };
 
-    if (!spans || !Array.isArray(spans)) {
+    if (!Array.isArray(spans) || spans.length === 0) {
       return NextResponse.json(
-        { ok: false, error: 'spans array is required' },
+        { ok: false, error: 'A non-empty spans array is required' },
         { status: 400 }
       );
     }
 
-    const userId = user.id;
-    const savedSpans: any[] = [];
-
+    // Validate the entire batch before writing any records.
     for (const span of spans) {
-      // Skip spans without required fields
-      if (!span.employer_name && !span.start_date) continue;
+      const start = typeof span?.start_date === 'string' ? calendarDateISO(span.start_date) : null;
+      const end = typeof span?.end_date === 'string' && span.end_date ? calendarDateISO(span.end_date) : null;
+      if (!span || typeof span.employer_name !== 'string' || !span.employer_name.trim() || !start ||
+        (span.id != null && typeof span.id !== 'string') ||
+        (span.end_date != null && span.end_date !== '' && !end) || (end && end < start)) {
+        return NextResponse.json(
+          { ok: false, error: 'Each job needs an employer and a valid start date. End date must be valid and on or after the start date.' },
+          { status: 400 }
+        );
+      }
+    }
 
-      const startDateISO = span.start_date ? mmddyyyyToISO(span.start_date) : null;
-      const endDateISO = span.end_date ? mmddyyyyToISO(span.end_date) : null;
+    const userId = user.id;
+    const savedSpans: unknown[] = [];
+    for (const span of spans) {
+      const startDateISO = calendarDateISO(span.start_date)!;
+      const endDateISO = span.end_date ? calendarDateISO(span.end_date) : null;
 
       if (span.id && !span.id.startsWith('temp-')) {
         // Update existing span
         const { data, error } = await supabase
           .from('employment_spans')
           .update({
-            employer_name: span.employer_name,
+            employer_name: span.employer_name.trim(),
             start_date: startDateISO,
             end_date: endDateISO,
           })
@@ -128,10 +130,7 @@ export async function POST(req: NextRequest) {
           .select()
           .single();
 
-        if (error) {
-          console.error('Update error:', error);
-          continue;
-        }
+        if (error || !data) throw new Error('Employment update failed');
         savedSpans.push(data);
       } else {
         // Insert new span
@@ -139,17 +138,14 @@ export async function POST(req: NextRequest) {
           .from('employment_spans')
           .insert({
             user_id: userId,
-            employer_name: span.employer_name || '',
+            employer_name: span.employer_name.trim(),
             start_date: startDateISO,
             end_date: endDateISO,
           })
           .select()
           .single();
 
-        if (error) {
-          console.error('Insert error:', error);
-          continue;
-        }
+        if (error || !data) throw new Error('Employment insert failed');
         savedSpans.push(data);
       }
     }
@@ -161,7 +157,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Employment spans save error:', error);
     return NextResponse.json(
-      { ok: false, error: 'Failed to save employment spans' },
+      { ok: false, error: 'Could not save all employment records. Reload history before retrying; some records may have saved.' },
       { status: 500 }
     );
   }

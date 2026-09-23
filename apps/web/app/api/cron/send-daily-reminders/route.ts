@@ -29,11 +29,11 @@ import { sendDailyReminder, type EmailReminderData } from '@/lib/notifications/e
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import {
   calculateUnemploymentDays,
-  addDays,
   getFilingWindow,
   daysBetween,
   type EmploymentSpan,
 } from '@/lib/immigration/opt-calculations';
+import { formatStemDate, getStemFilingEmailDetails } from '@/lib/notifications/stem-filing-email';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time
@@ -49,6 +49,7 @@ interface UserOptData {
   opt_start_date: string | null;
   opt_ead_end_date: string | null;
   stem_start_date: string | null;
+  stem_dso_recommendation_date: string | null;
 }
 
 interface UserToolEmails {
@@ -211,9 +212,22 @@ export async function GET(req: NextRequest) {
           continue;
         }
 
-        // Determine which email to send to (use first available)
-        const targetEmail = profile.opt_apply_email || profile.opt_clock_email || 
-                          profile.stem_apply_email || profile.stem_clock_email;
+        // Keep the existing per-user/day claim, then deliver only the tools
+        // enrolled at each address. A single user may have several recipients.
+        const recipientTools = new Map<string, EmailReminderData['tools']>();
+        for (const tool of tools) {
+          const emailKey = `${tool.toolType.replace('-', '_')}_email` as keyof Omit<UserToolEmails, 'user_id'>;
+          const address = toolPrefs[emailKey]?.trim();
+          if (!address) continue;
+          const group = recipientTools.get(address) ?? [];
+          group.push(tool);
+          recipientTools.set(address, group);
+        }
+        const targetEmail = recipientTools.keys().next().value;
+        if (!targetEmail) {
+          results.skipped++;
+          continue;
+        }
 
         const subject = `Daily OPT Reminder - ${tools.length} active`;
         const claim = await claimDailyReminderSlot(
@@ -235,47 +249,40 @@ export async function GET(req: NextRequest) {
           continue;
         }
 
-        // Send email (queue row reserved with status pending)
-        const emailData: EmailReminderData = {
-          userId: profile.user_id,
-          userEmail: targetEmail,
-          firstName: profile.first_name || 'there',
-          tools,
-        };
-
-        const result = await sendDailyReminder(emailData);
-
-        if (result.success) {
-          results.sent++;
-          secureLog.info('Daily reminder sent', { user: logIdPrefix(profile.user_id) });
-
-          const { error: updateError } = await supabase
-            .from('email_queue')
-            .update({
-              sent_at: new Date().toISOString(),
-              status: 'sent',
-              provider_message_id: result.messageId,
-            })
-            .eq('id', claim.queueId);
-
-          if (updateError) {
-            secureLog.error('daily-reminder queue update failed:', {
-              user: logIdPrefix(profile.user_id),
-              err: sanitizeError(updateError),
-            });
+        const messageIds: string[] = [];
+        const sendErrors: string[] = [];
+        for (const [address, enrolledTools] of recipientTools) {
+          const result = await sendDailyReminder({
+            userId: profile.user_id,
+            userEmail: address,
+            firstName: profile.first_name || 'there',
+            tools: enrolledTools,
+          });
+          if (result.success) {
+            results.sent++;
+            if (result.messageId) messageIds.push(result.messageId);
+          } else {
+            results.failed++;
+            const message = sanitizeError(result.error);
+            sendErrors.push(message);
+            results.errors.push(`${logIdPrefix(profile.user_id)}: ${message}`);
           }
-        } else {
-          results.failed++;
-          results.errors.push(`${logIdPrefix(profile.user_id)}: ${result.error}`);
-          secureLog.error('Daily reminder send failed', { user: logIdPrefix(profile.user_id) });
+        }
 
-          await supabase
-            .from('email_queue')
-            .update({
-              status: 'failed',
-              error_message: result.error ?? 'send failed',
-            })
-            .eq('id', claim.queueId);
+        const { error: updateError } = await supabase
+          .from('email_queue')
+          .update({
+            status: sendErrors.length ? 'failed' : 'sent',
+            sent_at: messageIds.length ? new Date().toISOString() : null,
+            provider_message_id: messageIds.join(', ') || null,
+            error_message: sendErrors.length ? sendErrors.join('; ') : null,
+          })
+          .eq('id', claim.queueId);
+        if (updateError) {
+          secureLog.error('daily-reminder queue update failed:', {
+            user: logIdPrefix(profile.user_id),
+            err: sanitizeError(updateError),
+          });
         }
 
         // Rate limiting delay
@@ -381,21 +388,21 @@ function calculateActiveTools(
 
   // 3) STEM APPLY — extension filing window
   if (optData.opt_ead_end_date && toolEmails.stem_apply_email) {
-    const optEadEnd = new Date(optData.opt_ead_end_date);
-    const earliestStemFiling = new Date(`${addDays(optData.opt_ead_end_date, -90)}T00:00:00`);
-    const today = new Date(todayIso);
+    const stemFiling = getStemFilingEmailDetails(optData.opt_ead_end_date, optData.stem_dso_recommendation_date);
 
-    if (!optData.stem_start_date && today >= earliestStemFiling && today <= optEadEnd) {
-      const daysLeft = daysBetween(todayIso, optData.opt_ead_end_date);
+    // Keep the warning visible after a DSO deadline passes, while the EAD is active.
+    if (!optData.stem_start_date && todayIso >= stemFiling.earliestFile && todayIso <= optData.opt_ead_end_date) {
+      const { daysLeft, totalDays } = stemFiling;
       tools.push({
         name: 'STEM OPT Extension',
         toolType: 'stem-apply',
         daysLeft,
-        totalDays: 90,
-        startDate: formatDate(earliestStemFiling),
-        endDate: formatDate(optEadEnd),
-        urgency: getUrgency(daysLeft, 90),
-        message: getStemApplyMessage(daysLeft),
+        totalDays,
+        startDate: formatStemDate(stemFiling.earliestFile),
+        endDate: formatStemDate(stemFiling.hardDeadline),
+        urgency: stemFiling.deadlinePassed ? 'critical' : getUrgency(daysLeft, totalDays),
+        message: stemFiling.message,
+        stemFiling,
       });
     }
   }
@@ -476,27 +483,6 @@ function getOptApplyMessage(daysLeft: number, programEnd: Date, today: Date): st
     return `EMERGENCY: Just ${daysLeft} days left! Contact your DSO immediately if you haven't submitted!`;
   } else {
     return `FINAL DAYS: Only ${daysLeft} days remaining! Submit NOW or you will miss your OPT window entirely!`;
-  }
-}
-
-/**
- * STEM Apply reminder messages
- */
-function getStemApplyMessage(daysLeft: number): string {
-  if (daysLeft > 75) {
-    return `STEM PREP: Start gathering documents. You'll need Form I-983 completed with your employer and proof they're E-Verified.`;
-  } else if (daysLeft > 60) {
-    return `FORM I-983: Work with your employer to complete the Training Plan. This requires detailed mentorship info.`;
-  } else if (daysLeft > 45) {
-    return `DSO MEETING: Schedule appointment for STEM I-20 recommendation. Have Form I-983 ready!`;
-  } else if (daysLeft > 30) {
-    return `PREPARE APPLICATION: Get new passport photos. Verify your degree is STEM-eligible (check CIP code).`;
-  } else if (daysLeft > 14) {
-    return `SUBMIT SOON: Your current OPT expires in ${daysLeft} days. Mail STEM application with tracking!`;
-  } else if (daysLeft > 7) {
-    return `URGENT: Only ${daysLeft} days before OPT expires! Submit NOW to maintain work authorization!`;
-  } else {
-    return `CRITICAL: ${daysLeft} days left! A gap in filing could void your work authorization - submit TODAY!`;
   }
 }
 

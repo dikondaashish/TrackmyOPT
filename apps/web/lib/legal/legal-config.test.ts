@@ -6,6 +6,8 @@ import {
   DEDICATED_CONSULTATION_MINUTES,
   EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE,
   EXTENSION_AUTOFILL_SUPPORT_NOTICE,
+  EXTENSION_AUTOFILL_PLAN_NOTICE,
+  PRIVATE_ANSWER_PREFILL_NOTICE,
   getPricingModalDedicatedConsentLabel,
   getPricingModalProConsentLabel,
   LEGAL_FOOTER_LINKS,
@@ -18,6 +20,7 @@ import {
   USCIS_API_DISCLOSURE,
   formatPolicyVersionLabel,
 } from './legal-config';
+import { PLAN_LIMITS } from '@/lib/pricing/plan-config';
 
 describe('legal-config', () => {
   it('uses consistent policy version ids', () => {
@@ -102,11 +105,36 @@ describe('legal-config', () => {
       'never uses this credential on TrackMyOPT pages'
     );
     expect(EXTENSION_AUTOFILL_SUPPORT_NOTICE).toContain(
-      'requires approval in the extension for every application'
+      'Saved portal login details, including password confirmation, fill when you click Prefill'
     );
     expect(EXTENSION_AUTOFILL_SUPPORT_NOTICE).toContain(
       'never clicks Login, Continue, Next, Create Account, or Submit'
     );
+  });
+
+  it('explains click-to-fill private answers without the removed approval gate', () => {
+    expect(PRIVATE_ANSWER_PREFILL_NOTICE).toContain('Prefill this application');
+    expect(PRIVATE_ANSWER_PREFILL_NOTICE).toContain('No separate approval step');
+    expect(PRIVATE_ANSWER_PREFILL_NOTICE).toContain('before submitting');
+    for (const notice of [EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE, EXTENSION_AUTOFILL_SUPPORT_NOTICE]) {
+      expect(notice).toContain(PRIVATE_ANSWER_PREFILL_NOTICE);
+      expect(notice).not.toContain('loads saved private data into a review panel');
+      expect(notice).not.toContain('requires approval in the extension for every application');
+    }
+  });
+
+  it('discloses AI insertion, optional answer memory, and application boundaries', () => {
+    expect(EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE).toContain('inserted into eligible empty fields');
+    expect(EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE).toContain('Remember my answer');
+    expect(EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE).toContain('same application');
+    expect(EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE).toContain('date of birth can fill');
+    expect(EXTENSION_AUTOFILL_SUPPORT_NOTICE).toContain('does not retrieve codes from your inbox');
+  });
+
+  it('derives displayed AI allowances from the plan configuration', () => {
+    expect(EXTENSION_AUTOFILL_PLAN_NOTICE).toContain(`${PLAN_LIMITS.free.screeningDraftsPerMonth} AI screening drafts per month`);
+    expect(EXTENSION_AUTOFILL_PLAN_NOTICE).toContain(`${PLAN_LIMITS.free.coverLettersPerMonth} AI cover letter per month`);
+    expect(EXTENSION_AUTOFILL_PLAN_NOTICE).toContain(`${PLAN_LIMITS.pro.aiWritingActionsPerMonth} shared AI writing actions per month`);
   });
 
   it('pricing modal Pro consent explains the once-per-account paid introduction', () => {

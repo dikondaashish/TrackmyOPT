@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
 import {
   ATS_PREFILL_ADAPTERS,
   genericPrefillAdapter,
@@ -22,11 +24,11 @@ function documentFixture(
 
 {
   const ids = ATS_PREFILL_ADAPTERS.map((adapter) => adapter.id);
-  assert.deepEqual(ids, ['workday', 'greenhouse', 'generic']);
-  assert.equal(new Set(ids).size, 3);
+  assert.deepEqual(ids, ['workday', 'greenhouse', 'lever', 'smartrecruiters', 'ashby', 'generic']);
+  assert.equal(new Set(ids).size, 6);
 
   const source = readFileSync('src/ats-prefill-adapters.ts', 'utf8');
-  assert.doesNotMatch(source, /id:\s*['"](?:lever|ashby|icims)['"]/i);
+  assert.doesNotMatch(source, /id:\s*['"]icims['"]/i);
 }
 
 {
@@ -54,11 +56,10 @@ function documentFixture(
 }
 
 {
-  const applicationRoot = {};
-  const selector =
-    '[data-automation-id="jobApplicationPage"], [data-automation-id="applicationPage"], [data-automation-id="applyFlowPage"], form';
-  const document = documentFixture('acme.myworkdayjobs.com', { [selector]: applicationRoot });
-  assert.equal(workdayPrefillAdapter.findApplicationRoot(document), applicationRoot);
+  const { JSDOM } = createRequire(resolve('package.json'))('jsdom');
+  const dom = new JSDOM('<div data-automation-id="jobApplicationPage"><input></div>');
+  assert.equal(workdayPrefillAdapter.findApplicationRoot(dom.window.document), dom.window.document.querySelector('div'));
+  dom.window.close();
 }
 
 function control(label: string, record: object): HTMLInputElement {

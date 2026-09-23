@@ -1,106 +1,92 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Info, Save, Shield, GraduationCap, Lightbulb, ChevronRight, FileText, Calendar, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { DateInput } from "../DateInput";
+import { DateInput } from "../../opt/OptDateInput";
 import { ResultCard } from "../ResultCard";
 import { LiveStatsWidget } from "../LiveStatsWidget";
 import { EmailReminder } from "../EmailReminder";
 import { TickingClock, TickingClockCompact } from "../TickingClock";
 import { PricingModal } from "@/components/pricing/PricingModal";
-import { addDays, daysBetween } from "@/lib/immigration/opt-calculations";
+import { addDays, daysBetween, getStemFilingWindow } from "@/lib/immigration/opt-calculations";
+import { optDateInputToISO } from "@/lib/immigration/opt-dates-page-utils";
 
 export function StemApplyTool() {
   const router = useRouter();
   const [optEndDate, setOptEndDate] = useState("");
-  const [results, setResults] = useState<{
-    earliestFile: Date;
-    deadline: Date;
-    capGapEnd: Date;
-    daysUntilDeadline: number;
-  } | null>(null);
+  const [recommendationDate, setRecommendationDate] = useState("");
+  const [savedDates, setSavedDates] = useState({ optEndDate: '', recommendationDate: '' });
+  const editVersion = useRef(0);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
-    loadSavedData();
-     
-  }, []);
-
-  useEffect(() => {
-    if (optEndDate) calculate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [optEndDate]);
-
-  const loadSavedData = async () => {
-    setIsLoading(true);
-    try {
-      const [datesRes, premiumRes] = await Promise.all([
-        fetch('/api/opt/calculator', { credentials: 'include', cache: 'no-store' }),
-        fetch('/api/premium/status', { credentials: 'include' }),
-      ]);
-
-      if (datesRes.ok) {
-        const result = await datesRes.json();
-        if (result.ok && result.data?.opt_ead_end_date) {
-          setOptEndDate(result.data.opt_ead_end_date);
+    let cancelled = false;
+    const version = editVersion.current;
+    void (async () => {
+      try {
+        const response = await fetch('/api/opt/calculator', { credentials: 'include', cache: 'no-store' });
+        if (!response.ok) throw new Error('Failed to load dates');
+        const result = await response.json();
+        if (!result.ok) throw new Error('Failed to load dates');
+        if (!cancelled && version === editVersion.current) {
+          setOptEndDate(result.data?.opt_ead_end_date || '');
+          setRecommendationDate(result.data?.stem_dso_recommendation_date || '');
+          setSavedDates({
+            optEndDate: result.data?.opt_ead_end_date || '',
+            recommendationDate: result.data?.stem_dso_recommendation_date || '',
+          });
         }
+      } catch {
+        if (!cancelled) setLoadError(true);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-
-      if (premiumRes.ok) {
-        const premiumData = await premiumRes.json();
-        setIsPremium(premiumData.isPremium || false);
+    })();
+    void (async () => {
+      try {
+        const response = await fetch('/api/premium/status', { credentials: 'include' });
+        if (response.ok) {
+          const result = await response.json();
+          if (!cancelled) setIsPremium(result.isPremium || false);
+        }
+      } catch {
+        // Premium status must not prevent dates from loading.
       }
-
-    } catch (error) {
-      console.error('Failed to load data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    })();
+    return () => { cancelled = true; };
+  }, [loadAttempt]);
 
   const formatDateForDisplay = (date: Date) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const parseDate = (dateStr: string): Date | null => {
-    if (!dateStr) return null;
-    const parts = dateStr.split('/');
-    if (parts.length === 3) {
-      const [month, day, year] = parts.map(Number);
-      if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
-        return new Date(year, month - 1, day);
-      }
-    }
-    return null;
-  };
-
-  const calculate = () => {
-    const optEnd = parseDate(optEndDate);
-    if (!optEnd) {
-      setResults(null);
-      return;
-    }
-
-    const earliestFile = new Date(`${addDays(optEnd, -90)}T00:00:00`);
-    const deadline = optEnd;
-    const capGapEnd = new Date(`${addDays(optEnd, 180)}T00:00:00`);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    setResults({
-      earliestFile,
-      deadline,
-      capGapEnd,
-      daysUntilDeadline: daysBetween(today, deadline),
-    });
-  };
+  const optEndISO = optDateInputToISO(optEndDate);
+  const recommendationISO = optDateInputToISO(recommendationDate);
+  const recommendationInvalid = !!recommendationDate.trim() && !recommendationISO;
+  const filingWindow = optEndISO && !recommendationInvalid
+    ? getStemFilingWindow(optEndISO, recommendationISO)
+    : null;
+  const today = new Date();
+  const todayISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const results = filingWindow && optEndISO ? {
+    earliestFile: new Date(`${filingWindow.earliestFile}T00:00:00`),
+    deadline: new Date(`${filingWindow.hardDeadline}T00:00:00`),
+    pendingExtensionEnd: new Date(`${addDays(optEndISO, 180)}T00:00:00`),
+    daysUntilDeadline: daysBetween(todayISO, filingWindow.hardDeadline),
+  } : null;
+  const isDirty = optEndDate.trim() !== savedDates.optEndDate || recommendationDate.trim() !== savedDates.recommendationDate;
 
   const handleSave = async () => {
+    if (isSaving || loadError || !optEndISO || recommendationInvalid) return;
+    const version = editVersion.current;
+    const submittedDates = { optEndDate: optEndDate.trim(), recommendationDate: recommendationDate.trim() };
     setIsSaving(true);
     setSaveSuccess(false);
 
@@ -111,16 +97,16 @@ export function StemApplyTool() {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          opt_ead_end_date: optEndDate,
+          opt_ead_end_date: optEndDate.trim(),
+          stem_dso_recommendation_date: recommendationDate.trim() || null,
         }),
       });
 
-      if (response.ok) {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
-      } else {
-        alert('Failed to save. Please try again.');
-      }
+      if (!response.ok) throw new Error('Failed to save dates');
+      const result = await response.json();
+      if (!result.ok) throw new Error('Failed to save dates');
+      setSavedDates(submittedDates);
+      if (version === editVersion.current) setSaveSuccess(true);
     } catch {
       alert('Failed to save. Please try again.');
     } finally {
@@ -186,7 +172,7 @@ export function StemApplyTool() {
                     <h2 className="text-lg font-bold mb-2">STEM OPT Extension Rules</h2>
                     <p className="text-emerald-100 leading-relaxed">
                       Apply up to <span className="font-semibold text-white">90 days before</span> your OPT expires.
-                      If filed timely, you get automatic <span className="font-semibold text-white">180-day cap-gap</span> work authorization while waiting for approval.
+                      A timely STEM application may extend work authorization for <span className="font-semibold text-white">up to 180 days</span> while it is pending. Confirm eligibility with your DSO.
                     </p>
                   </div>
                 </div>
@@ -201,28 +187,63 @@ export function StemApplyTool() {
                     <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your OPT End Date</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Enter the date from your EAD card</p>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your STEM Filing Dates</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Use your EAD card and STEM recommendation</p>
                   </div>
                 </div>
               </div>
 
               <div className="p-4 sm:p-6">
-                <div className="max-w-md">
+                <div className="max-w-md space-y-6 text-gray-900 dark:text-gray-100">
                   <DateInput
+                    id="stem-apply-opt-end-date"
                     label="Current OPT EAD End Date"
                     value={optEndDate}
-                    onChange={setOptEndDate}
+                    onChange={(value) => {
+                      editVersion.current += 1;
+                      setSaveSuccess(false);
+                      setOptEndDate(value);
+                    }}
                     description="From your OPT Employment Authorization Document"
-                    required
+                    error={optEndDate.trim() && !optEndISO ? 'Enter a valid date (MM/DD/YYYY)' : null}
+                  />
+                  <DateInput
+                    id="stem-apply-dso-recommendation-date"
+                    label="STEM DSO Recommendation Date"
+                    value={recommendationDate}
+                    onChange={(value) => {
+                      editVersion.current += 1;
+                      setSaveSuccess(false);
+                      setRecommendationDate(value);
+                    }}
+                    description="Date your DSO recommended the STEM extension in SEVIS; separate from your initial OPT recommendation. Clear to remove."
+                    error={recommendationInvalid ? 'Enter a valid date (MM/DD/YYYY)' : null}
+                    optional
                   />
                 </div>
+
+                {loadError && (
+                  <p role="alert" className="mt-4 text-sm text-red-600">
+                    Could not load your saved dates.{' '}
+                    <button type="button" className="underline" onClick={() => {
+                      setIsLoading(true);
+                      setLoadError(false);
+                      setLoadAttempt(attempt => attempt + 1);
+                    }}>Try again</button>
+                  </p>
+                )}
+
+                {!loadError && isDirty && (
+                  <p role="status" className="mt-4 text-sm text-amber-700 dark:text-amber-300">
+                    Unsaved preview: dashboard dates and email reminders still use your saved dates. Save to sync these changes.
+                  </p>
+                )}
 
                 {/* Save Button */}
                 <div className="flex justify-end mt-6">
                   <button
                     onClick={handleSave}
-                    disabled={isSaving || !optEndDate}
+                    disabled={isSaving || loadError || !optEndISO || recommendationInvalid}
                     className={`flex items-center gap-2 px-6 py-3 font-medium rounded-xl shadow-lg transition-all duration-200 ${saveSuccess
                       ? 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
                       : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25'
@@ -241,7 +262,7 @@ export function StemApplyTool() {
                 {/* Live Ticking Clock */}
                 <TickingClock
                   targetDate={results.deadline}
-                  title="Time Until OPT Expires"
+                  title="Time Until STEM Filing Deadline"
                   subtitle={`File STEM extension before ${formatDateForDisplay(results.deadline)}`}
                   gradient="from-emerald-500 via-green-500 to-teal-500"
                   toolType="stem-apply"
@@ -280,7 +301,7 @@ export function StemApplyTool() {
                         }
                         label="Filing Deadline"
                         value={formatDateForDisplay(results.deadline)}
-                        subtext="Before OPT expires"
+                        subtext={filingWindow?.isDsoLimited ? 'Limited by STEM DSO recommendation' : 'Before OPT expires'}
                         status={results.daysUntilDeadline <= 14 ? 'critical' : results.daysUntilDeadline <= 30 ? 'warning' : 'ok'}
                       />
                       <ResultCard
@@ -289,15 +310,15 @@ export function StemApplyTool() {
                             <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                           </div>
                         }
-                        label="Cap-Gap Ends"
-                        value={formatDateForDisplay(results.capGapEnd)}
-                        subtext="If filed timely"
+                        label="Pending Extension Limit"
+                        value={formatDateForDisplay(results.pendingExtensionEnd)}
+                        subtext="Up to 180 days; may end sooner"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Cap-Gap Info */}
+                {/* Pending STEM extension work authorization */}
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white shadow-xl">
                   <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-24 translate-x-24"></div>
                   <div className="relative z-10 flex gap-4">
@@ -305,9 +326,9 @@ export function StemApplyTool() {
                       <Shield className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg mb-1">Cap-Gap Protection</h3>
+                      <h3 className="font-bold text-lg mb-1">Work Authorization While STEM Is Pending</h3>
                       <p className="text-emerald-100 leading-relaxed">
-                        If you file timely, you can continue working for <span className="font-semibold text-white">180 days</span> after your OPT expires while waiting for your STEM extension approval.
+                        If eligible and filed timely, your work authorization may continue for <span className="font-semibold text-white">up to 180 days</span> after your OPT expires or until USCIS makes a decision, whichever comes first. Confirm your eligibility and dates with your DSO.
                       </p>
                     </div>
                   </div>

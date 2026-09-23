@@ -32,6 +32,10 @@ const request: ScreeningQuestionDraftRequest = {
 };
 
 describe('screening draft grounding validation', () => {
+  it('does not treat a job-required dbt skill as applicant experience', () => {
+    const dbtRequest={...request,questionText:'What do you use dbt with?',job:{...request.job,jobDescription:'Use dbt with Snowflake and TypeScript'}};
+    expect(validateScreeningDraftGrounding('I use dbt with Snowflake and TypeScript to build reliable models.',dbtRequest)).toEqual({valid:false,reason:'insufficient_context'});
+  });
   it('accepts a draft that connects job and resume evidence', () => {
     expect(
       validateScreeningDraftGrounding(

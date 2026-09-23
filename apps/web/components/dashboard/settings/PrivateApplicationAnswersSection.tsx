@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertCircle,
   Check,
@@ -9,14 +9,18 @@ import {
   Loader2,
   LockKeyhole,
   Trash2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DefaultJobPortalLoginPanel } from "./DefaultJobPortalLoginPanel";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  PRIVATE_ANSWER_PREFILL_NOTICE,
+  PORTAL_LOGIN_PREFILL_NOTICE,
+} from '@/lib/legal/legal-config';
+import { DefaultJobPortalLoginPanel } from './DefaultJobPortalLoginPanel';
 import {
   PrivateAnswersField,
   PrivateAnswersSelectField,
-} from "./PrivateAnswersField";
+} from './PrivateAnswersField';
 import {
   EMPTY_PRIVATE_ANSWERS_FORM,
   asPrivateAnswersForm,
@@ -24,10 +28,12 @@ import {
   type DefaultJobPortalLoginForm,
   type LegacyJobPortalLogin,
   type PrivateAnswersForm,
-} from "./private-application-answers-form";
+} from './private-application-answers-form';
 
 export function PrivateApplicationAnswersSection() {
-  const [form, setForm] = useState<PrivateAnswersForm>(EMPTY_PRIVATE_ANSWERS_FORM);
+  const [form, setForm] = useState<PrivateAnswersForm>(
+    EMPTY_PRIVATE_ANSWERS_FORM
+  );
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -41,7 +47,9 @@ export function PrivateApplicationAnswersSection() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const reviewAbortRef = useRef<AbortController | null>(null);
-  const decryptedFormRef = useRef<PrivateAnswersForm>(EMPTY_PRIVATE_ANSWERS_FORM);
+  const decryptedFormRef = useRef<PrivateAnswersForm>(
+    EMPTY_PRIVATE_ANSWERS_FORM
+  );
   const decryptedLegacyLoginsRef = useRef<LegacyJobPortalLogin[]>([]);
   const plaintextAllowedRef = useRef(false);
 
@@ -82,22 +90,24 @@ export function PrivateApplicationAnswersSection() {
     setError(null);
     setSuccess(null);
     try {
-      const response = await fetch("/api/private-application-answers", {
-        credentials: "include",
-        cache: "no-store",
+      const response = await fetch('/api/private-application-answers', {
+        credentials: 'include',
+        cache: 'no-store',
         signal: controller.signal,
       });
       const body = await response.json().catch(() => ({}));
       if (controller.signal.aborted) return;
       if (!response.ok) {
         plaintextAllowedRef.current = false;
-        setError(
-          body?.error || "Private answers are temporarily unavailable."
-        );
+        setError(body?.error || 'Private answers are temporarily unavailable.');
         return;
       }
-      const nextForm = body?.data ? asPrivateAnswersForm(body.data) : EMPTY_PRIVATE_ANSWERS_FORM;
-      const legacyLogins = body?.data ? legacyJobPortalLoginsFrom(body.data) : [];
+      const nextForm = body?.data
+        ? asPrivateAnswersForm(body.data)
+        : EMPTY_PRIVATE_ANSWERS_FORM;
+      const legacyLogins = body?.data
+        ? legacyJobPortalLoginsFrom(body.data)
+        : [];
       decryptedFormRef.current = nextForm;
       decryptedLegacyLoginsRef.current = legacyLogins;
       setForm(nextForm);
@@ -108,12 +118,12 @@ export function PrivateApplicationAnswersSection() {
     } catch (caught) {
       if (
         controller.signal.aborted ||
-        (caught instanceof DOMException && caught.name === "AbortError")
+        (caught instanceof DOMException && caught.name === 'AbortError')
       ) {
         return;
       }
       plaintextAllowedRef.current = false;
-      setError("Could not load private answers. Please try again.");
+      setError('Could not load private answers. Please try again.');
     } finally {
       if (reviewAbortRef.current === controller) {
         reviewAbortRef.current = null;
@@ -123,12 +133,8 @@ export function PrivateApplicationAnswersSection() {
   }, []);
 
   const update =
-    (
-      key: Exclude<keyof PrivateAnswersForm, "defaultJobPortalLogin">
-    ) =>
-    (
-      event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
+    (key: Exclude<keyof PrivateAnswersForm, 'defaultJobPortalLogin'>) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setForm((previous) => ({ ...previous, [key]: event.target.value }));
       setSuccess(null);
       setError(null);
@@ -180,20 +186,20 @@ export function PrivateApplicationAnswersSection() {
 
   const save = async () => {
     if (!consent) {
-      setError("Please confirm the privacy notice before saving.");
+      setError('Please confirm the privacy notice before saving.');
       return;
     }
     if (!legacyLoginDecisionMade) {
       setError(
-        "Choose one older login as the default, enter a new default, or choose not to use the older logins."
+        'Choose one older login as the default, enter a new default, or choose not to use the older logins.'
       );
       return;
     }
     const defaultLogin = form.defaultJobPortalLogin;
     const hasAnyLoginValue = Boolean(
       defaultLogin.email.trim() ||
-      defaultLogin.password ||
-      defaultLogin.passwordConfirmation
+        defaultLogin.password ||
+        defaultLogin.passwordConfirmation
     );
     if (
       hasAnyLoginValue &&
@@ -201,17 +207,14 @@ export function PrivateApplicationAnswersSection() {
         !defaultLogin.password ||
         !defaultLogin.passwordConfirmation)
     ) {
-      setError("Enter the email, password, and re-entered password.");
+      setError('Enter the email, password, and re-entered password.');
       return;
     }
     if (defaultLogin.password !== defaultLogin.passwordConfirmation) {
-      setError("The default job-portal passwords must match.");
+      setError('The default job-portal passwords must match.');
       return;
     }
-    const {
-      defaultJobPortalLogin: _defaultJobPortalLogin,
-      ...answers
-    } = form;
+    const { defaultJobPortalLogin: _defaultJobPortalLogin, ...answers } = form;
     const savePayload = {
       ...answers,
       ...(hasAnyLoginValue
@@ -228,16 +231,16 @@ export function PrivateApplicationAnswersSection() {
     setSuccess(null);
     setError(null);
     try {
-      const response = await fetch("/api/private-application-answers", {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/private-application-answers', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(savePayload),
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) {
         setError(
-          body?.error || "Could not save your private application answers."
+          body?.error || 'Could not save your private application answers.'
         );
         return;
       }
@@ -252,10 +255,10 @@ export function PrivateApplicationAnswersSection() {
       setHasSavedAnswers(true);
       setConsent(false);
       setSuccess(
-        "Private application data saved. The extension will still ask you to review it for each application."
+        'Private application data saved. Click Prefill this application to fill matching answers and your saved portal login. Review everything before continuing.'
       );
     } catch {
-      setError("Network error. Please try again.");
+      setError('Network error. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -264,7 +267,7 @@ export function PrivateApplicationAnswersSection() {
   const deleteAnswers = async () => {
     if (
       !window.confirm(
-        "Delete every saved private application answer and job-portal login? This cannot be undone."
+        'Delete every saved private application answer and job-portal login? This cannot be undone.'
       )
     ) {
       return;
@@ -273,13 +276,13 @@ export function PrivateApplicationAnswersSection() {
     setSuccess(null);
     setError(null);
     try {
-      const response = await fetch("/api/private-application-answers", {
-        method: "DELETE",
-        credentials: "include",
+      const response = await fetch('/api/private-application-answers', {
+        method: 'DELETE',
+        credentials: 'include',
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setError(body?.error || "Could not delete private answers.");
+        setError(body?.error || 'Could not delete private answers.');
         return;
       }
       setForm(EMPTY_PRIVATE_ANSWERS_FORM);
@@ -291,31 +294,41 @@ export function PrivateApplicationAnswersSection() {
       setConsent(false);
       setHasSavedAnswers(false);
       setRevealed(false);
-      setSuccess("All saved private application answers were deleted.");
+      setSuccess('All saved private application answers were deleted.');
     } catch {
-      setError("Network error. Please try again.");
+      setError('Network error. Please try again.');
     } finally {
       setDeleting(false);
     }
   };
 
   return (
-    <section className="mt-6 rounded-xl border border-amber-200 bg-amber-50/50 p-5 dark:border-amber-900 dark:bg-amber-950/15 sm:p-6">
+    <section
+      id="application-login-answers"
+      className="scroll-mt-6 border-t border-border pt-6"
+    >
       <div className="mb-2 flex items-center gap-3">
-        <LockKeyhole className="h-5 w-5 text-amber-700 dark:text-amber-400" />
-        <h3 className="text-base font-semibold">Private application answers</h3>
+        <LockKeyhole className="h-5 w-5 text-primary" />
+        <h3 className="text-lg font-semibold">
+          Login &amp; application answers
+        </h3>
       </div>
       <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-        An optional shared job-portal login and answers for work
-        authorization, visa, compensation, work preferences, date of birth,
-        and DEI questions. They are protected with authenticated encryption and
-        are never sent to AI or analytics.
+        Optional details for job applications, stored encrypted and excluded
+        from AI prompts and analytics. Leave anything you do not want filled
+        blank.
       </p>
-      <p className="mb-5 text-xs leading-5 text-gray-500 dark:text-gray-400">
-        The TrackMyOPT extension loads these into a private review panel. You
-        must approve them for each application before they can fill empty
-        fields. TrackMyOPT never submits an application.
-      </p>
+      <details className="mb-5 text-sm text-muted-foreground">
+        <summary className="cursor-pointer py-2 font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+          How Prefill uses these details
+        </summary>
+        <p className="mt-2 max-w-prose text-xs leading-5">
+          {PRIVATE_ANSWER_PREFILL_NOTICE}
+        </p>
+        <p className="mb-5 text-xs leading-5 text-gray-500 dark:text-gray-400">
+          {PORTAL_LOGIN_PREFILL_NOTICE} TrackMyOPT never submits an application.
+        </p>
+      </details>
 
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -329,7 +342,7 @@ export function PrivateApplicationAnswersSection() {
           className="h-10"
         >
           <Eye className="mr-2 h-4 w-4" />
-          Review private answers
+          Edit login &amp; answers
         </Button>
       ) : (
         <div className="space-y-5">
@@ -339,7 +352,7 @@ export function PrivateApplicationAnswersSection() {
               onClick={clearDecryptedAnswers}
               className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
-              <EyeOff className="h-4 w-4" /> Hide answers
+              <EyeOff className="h-4 w-4" /> Hide saved details
             </button>
           </div>
 
@@ -351,49 +364,52 @@ export function PrivateApplicationAnswersSection() {
             onDiscardLegacy={discardLegacyJobPortalLogins}
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <fieldset className="grid grid-cols-1 gap-4 border-t border-border pt-5 sm:grid-cols-2">
+            <legend className="pr-3 text-sm font-semibold">
+              Work eligibility
+            </legend>
             <PrivateAnswersSelectField
               label="Authorized to work in the U.S.?"
               value={form.workAuthorization}
-              onChange={update("workAuthorization")}
+              onChange={update('workAuthorization')}
               options={[
-                ["yes", "Yes"],
-                ["no", "No"],
+                ['yes', 'Yes'],
+                ['no', 'No'],
               ]}
             />
             <PrivateAnswersSelectField
               label="Need sponsorship now or later?"
               value={form.requiresSponsorship}
-              onChange={update("requiresSponsorship")}
+              onChange={update('requiresSponsorship')}
               options={[
-                ["yes", "Yes"],
-                ["no", "No"],
+                ['yes', 'Yes'],
+                ['no', 'No'],
               ]}
             />
             <PrivateAnswersSelectField
               label="Visa / work status"
               value={form.visaType}
-              onChange={update("visaType")}
+              onChange={update('visaType')}
               options={[
-                ["us_citizen", "U.S. citizen"],
-                ["permanent_resident", "Permanent resident"],
-                ["h1b", "H-1B"],
-                ["f1_student", "F-1 student"],
-                ["opt", "OPT"],
-                ["cpt", "CPT"],
-                ["j1", "J-1"],
-                ["l1", "L-1"],
-                ["o1", "O-1"],
-                ["tn", "TN"],
-                ["e3", "E-3"],
-                ["other", "Other"],
+                ['us_citizen', 'U.S. citizen'],
+                ['permanent_resident', 'Permanent resident'],
+                ['h1b', 'H-1B'],
+                ['f1_student', 'F-1 student'],
+                ['opt', 'OPT'],
+                ['cpt', 'CPT'],
+                ['j1', 'J-1'],
+                ['l1', 'L-1'],
+                ['o1', 'O-1'],
+                ['tn', 'TN'],
+                ['e3', 'E-3'],
+                ['other', 'Other'],
               ]}
             />
-            {form.visaType === "other" && (
+            {form.visaType === 'other' && (
               <PrivateAnswersField label="Other visa / work status">
                 <Input
                   value={form.visaOther}
-                  onChange={update("visaOther")}
+                  onChange={update('visaOther')}
                   placeholder="Enter the exact status"
                   autoComplete="off"
                 />
@@ -402,15 +418,20 @@ export function PrivateApplicationAnswersSection() {
             <PrivateAnswersField label="Citizenship">
               <Input
                 value={form.citizenship}
-                onChange={update("citizenship")}
+                onChange={update('citizenship')}
                 placeholder="Exact answer to use"
                 autoComplete="off"
               />
             </PrivateAnswersField>
+          </fieldset>
+          <fieldset className="grid grid-cols-1 gap-4 border-t border-border pt-5 sm:grid-cols-2">
+            <legend className="pr-3 text-sm font-semibold">
+              Pay &amp; work preferences
+            </legend>
             <PrivateAnswersField label="Expected annual salary">
               <Input
                 value={form.expectedAnnualSalary}
-                onChange={update("expectedAnnualSalary")}
+                onChange={update('expectedAnnualSalary')}
                 placeholder="Example: $120,000"
                 inputMode="decimal"
                 autoComplete="off"
@@ -419,7 +440,7 @@ export function PrivateApplicationAnswersSection() {
             <PrivateAnswersField label="Expected hourly rate">
               <Input
                 value={form.expectedHourlyRate}
-                onChange={update("expectedHourlyRate")}
+                onChange={update('expectedHourlyRate')}
                 placeholder="Example: $58"
                 inputMode="decimal"
                 autoComplete="off"
@@ -428,117 +449,138 @@ export function PrivateApplicationAnswersSection() {
             <PrivateAnswersSelectField
               label="Can work in-person?"
               value={form.canWorkInPerson}
-              onChange={update("canWorkInPerson")}
-              options={[["yes", "Yes"], ["no", "No"]]}
+              onChange={update('canWorkInPerson')}
+              options={[
+                ['yes', 'Yes'],
+                ['no', 'No'],
+              ]}
             />
             <PrivateAnswersSelectField
               label="Willing to relocate?"
               value={form.willingToRelocate}
-              onChange={update("willingToRelocate")}
-              options={[["yes", "Yes"], ["no", "No"]]}
+              onChange={update('willingToRelocate')}
+              options={[
+                ['yes', 'Yes'],
+                ['no', 'No'],
+              ]}
             />
             <PrivateAnswersSelectField
               label="Can start immediately?"
               value={form.canStartImmediately}
-              onChange={update("canStartImmediately")}
-              options={[["yes", "Yes"], ["no", "No"]]}
+              onChange={update('canStartImmediately')}
+              options={[
+                ['yes', 'Yes'],
+                ['no', 'No'],
+              ]}
             />
             <PrivateAnswersSelectField
               label="Has reliable transportation?"
               value={form.reliableTransportation}
-              onChange={update("reliableTransportation")}
-              options={[["yes", "Yes"], ["no", "No"]]}
+              onChange={update('reliableTransportation')}
+              options={[
+                ['yes', 'Yes'],
+                ['no', 'No'],
+              ]}
             />
-            <PrivateAnswersSelectField
-              label="Needs accommodations?"
-              value={form.needsAccommodations}
-              onChange={update("needsAccommodations")}
-              options={[["yes", "Yes"], ["no", "No"]]}
-            />
-            <PrivateAnswersField label="Date of birth">
-              <Input
-                type="date"
-                value={form.dateOfBirth}
-                onChange={update("dateOfBirth")}
-                autoComplete="bday"
+          </fieldset>
+          <details className="border-t border-border pt-4">
+            <summary className="cursor-pointer py-2 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+              Optional personal &amp; demographic answers
+            </summary>
+            <p className="mb-4 max-w-prose text-xs leading-5 text-muted-foreground">
+              These answers are optional. Saved values may fill matching
+              questions when you click Prefill. Choose what you are comfortable
+              sharing with employers.
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <PrivateAnswersSelectField
+                label="Needs accommodations?"
+                value={form.needsAccommodations}
+                onChange={update('needsAccommodations')}
+                options={[
+                  ['yes', 'Yes'],
+                  ['no', 'No'],
+                ]}
               />
-            </PrivateAnswersField>
-            <PrivateAnswersSelectField
-              label="Gender (optional)"
-              value={form.sexGender}
-              onChange={update("sexGender")}
-              options={[
-                ["female", "Female"],
-                ["male", "Male"],
-                ["non_binary", "Non-binary"],
-                ["prefer_not_to_answer", "Prefer not to answer"],
-              ]}
-            />
-            <PrivateAnswersSelectField
-              label="Ethnicity / race (optional)"
-              value={form.raceEthnicity}
-              onChange={update("raceEthnicity")}
-              options={[
-                [
-                  "american_indian_or_alaska_native",
-                  "American Indian or Alaska Native",
-                ],
-                ["asian", "Asian"],
-                [
-                  "black_or_african_american",
-                  "Black or African American",
-                ],
-                ["hispanic_or_latino", "Hispanic or Latino"],
-                [
-                  "native_hawaiian_or_pacific_islander",
-                  "Native Hawaiian or Pacific Islander",
-                ],
-                ["white", "White"],
-                ["two_or_more_races", "Two or more races"],
-                ["prefer_not_to_answer", "Prefer not to answer"],
-              ]}
-            />
-            <PrivateAnswersSelectField
-              label="Hispanic or Latino?"
-              value={form.hispanicLatino}
-              onChange={update("hispanicLatino")}
-              options={[
-                ["yes", "Yes"],
-                ["no", "No"],
-                ["prefer_not_to_answer", "Prefer not to answer"],
-              ]}
-            />
-            <PrivateAnswersSelectField
-              label="Veteran (optional)"
-              value={form.veteranStatus}
-              onChange={update("veteranStatus")}
-              options={[
-                ["not_protected_veteran", "Not a protected veteran"],
-                ["protected_veteran", "Protected veteran"],
-                ["prefer_not_to_answer", "Prefer not to answer"],
-              ]}
-            />
-            <PrivateAnswersSelectField
-              label="Has disability (optional)"
-              value={form.disabilityStatus}
-              onChange={update("disabilityStatus")}
-              options={[
-                ["yes", "Yes"],
-                ["no", "No"],
-                ["prefer_not_to_answer", "Prefer not to answer"],
-              ]}
-            />
-            <PrivateAnswersSelectField
-              label="Other EEO questions"
-              value={form.eeoPreference}
-              onChange={update("eeoPreference")}
-              options={[
-                ["prefer_not_to_answer", "Prefer not to answer"],
-              ]}
-            />
-          </div>
-
-          <label className="flex items-start gap-3 rounded-lg border border-amber-200 bg-white/70 p-3 text-sm dark:border-amber-900 dark:bg-zinc-950/40">
+              <PrivateAnswersField label="Date of birth">
+                <Input
+                  type="date"
+                  value={form.dateOfBirth}
+                  onChange={update('dateOfBirth')}
+                  autoComplete="bday"
+                />
+              </PrivateAnswersField>
+              <PrivateAnswersSelectField
+                label="Gender (optional)"
+                value={form.sexGender}
+                onChange={update('sexGender')}
+                options={[
+                  ['female', 'Female'],
+                  ['male', 'Male'],
+                  ['non_binary', 'Non-binary'],
+                  ['prefer_not_to_answer', 'Prefer not to answer'],
+                ]}
+              />
+              <PrivateAnswersSelectField
+                label="Ethnicity / race (optional)"
+                value={form.raceEthnicity}
+                onChange={update('raceEthnicity')}
+                options={[
+                  [
+                    'american_indian_or_alaska_native',
+                    'American Indian or Alaska Native',
+                  ],
+                  ['asian', 'Asian'],
+                  ['black_or_african_american', 'Black or African American'],
+                  ['hispanic_or_latino', 'Hispanic or Latino'],
+                  [
+                    'native_hawaiian_or_pacific_islander',
+                    'Native Hawaiian or Pacific Islander',
+                  ],
+                  ['white', 'White'],
+                  ['two_or_more_races', 'Two or more races'],
+                  ['prefer_not_to_answer', 'Prefer not to answer'],
+                ]}
+              />
+              <PrivateAnswersSelectField
+                label="Hispanic or Latino?"
+                value={form.hispanicLatino}
+                onChange={update('hispanicLatino')}
+                options={[
+                  ['yes', 'Yes'],
+                  ['no', 'No'],
+                  ['prefer_not_to_answer', 'Prefer not to answer'],
+                ]}
+              />
+              <PrivateAnswersSelectField
+                label="Veteran (optional)"
+                value={form.veteranStatus}
+                onChange={update('veteranStatus')}
+                options={[
+                  ['not_protected_veteran', 'Not a protected veteran'],
+                  ['protected_veteran', 'Protected veteran'],
+                  ['prefer_not_to_answer', 'Prefer not to answer'],
+                ]}
+              />
+              <PrivateAnswersSelectField
+                label="Has disability (optional)"
+                value={form.disabilityStatus}
+                onChange={update('disabilityStatus')}
+                options={[
+                  ['yes', 'Yes'],
+                  ['no', 'No'],
+                  ['prefer_not_to_answer', 'Prefer not to answer'],
+                ]}
+              />
+              <PrivateAnswersSelectField
+                label="Other EEO questions"
+                value={form.eeoPreference}
+                onChange={update('eeoPreference')}
+                options={[['prefer_not_to_answer', 'Prefer not to answer']]}
+              />
+            </div>
+          </details>
+          <label className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-3 text-sm">
             <input
               type="checkbox"
               checked={consent}
@@ -546,11 +588,11 @@ export function PrivateApplicationAnswersSection() {
               className="mt-1 h-4 w-4"
             />
             <span>
-              I understand that TrackMyOPT will make this same saved login
-              available for my review on job portals across different
-              employers and hiring systems. I choose to save it and these
-              optional sensitive answers, and I can edit or delete them at any
-              time.
+              I choose to save these optional details. Clicking Prefill will use
+              my matching answers and the same saved login on supported job
+              portals across different employers, without another approval step.
+              Filled values are shared with that portal. I can edit or delete
+              these details and will review the form before continuing.
             </span>
           </label>
 
@@ -577,7 +619,7 @@ export function PrivateApplicationAnswersSection() {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
                 </>
               ) : (
-                "Save private answers"
+                'Save login & answers'
               )}
             </Button>
             {hasSavedAnswers && (
@@ -593,7 +635,7 @@ export function PrivateApplicationAnswersSection() {
                 ) : (
                   <Trash2 className="mr-2 h-4 w-4" />
                 )}
-                Delete saved answers
+                Delete saved login &amp; answers
               </Button>
             )}
           </div>
@@ -604,8 +646,8 @@ export function PrivateApplicationAnswersSection() {
         <p
           className={`mt-4 flex items-start gap-2 text-sm ${
             error
-              ? "text-red-700 dark:text-red-400"
-              : "text-green-700 dark:text-green-400"
+              ? 'text-red-700 dark:text-red-400'
+              : 'text-green-700 dark:text-green-400'
           }`}
         >
           {error ? (

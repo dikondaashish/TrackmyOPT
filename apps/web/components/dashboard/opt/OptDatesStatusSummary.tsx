@@ -81,7 +81,7 @@ export function OptDatesStatusSummary({ status }: OptDatesStatusSummaryProps) {
       />
       <StatCard
         icon={<Calendar className="h-4 w-4" />}
-        label="OPT expires in"
+        label={status.optEndHeading}
         value={status.optEndLabel}
         detail={status.optEndDetail}
         tone={
@@ -94,7 +94,7 @@ export function OptDatesStatusSummary({ status }: OptDatesStatusSummaryProps) {
       />
       <StatCard
         icon={<FileText className="h-4 w-4" />}
-        label="Filing window"
+        label="Initial OPT filing"
         value={status.filingLabel}
         detail={status.filingDetail}
         tone={status.filingTone}

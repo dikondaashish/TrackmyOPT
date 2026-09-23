@@ -4,14 +4,17 @@
  */
 
 import type { FieldKind } from './easy-apply-matchers';
+import { trackPrefillChange } from './prefill-undo';
 import type { BasicContactProfile } from './resume-autofill-contract';
 import {
   CUSTOM_DROPDOWN_SELECTOR,
+  isCustomDropdownControl,
   chooseSmartDropdownOption,
   type SmartDropdownContext,
   type SmartDropdownMatchKind,
 } from './smart-dropdown';
 import { resolveDialCode } from './phone-country-codes';
+import { linkedControlElement, isInActiveControlTree } from './scoped-control-dom';
 
 type AutofillProfile = BasicContactProfile;
 
@@ -89,9 +92,14 @@ export function getLabelText(el: HTMLElement): string {
   }
   for (const relation of ['aria-labelledby', 'aria-describedby']) {
     const ids = el.getAttribute(relation)?.split(/\s+/).filter(Boolean) || [];
-    for (const relatedId of ids) push(ownerDocument.getElementById(relatedId)?.textContent);
+    for (const relatedId of ids) push(linkedControlElement(el, relatedId)?.textContent);
   }
+  const component = (rootNode as ShadowRoot).host;
+  if (component?.matches('spl-input, spl-textarea')) push(component.getAttribute('label'));
   push(el.closest('label')?.textContent);
+  const ashbyField = el.closest('.ashby-application-form-field-entry');
+  if (ashbyField?.getAttribute('data-field-path') === '_systemfield_name') push('full name');
+  push(ashbyField?.querySelector(':scope > .ashby-application-form-question-title')?.textContent);
   // LinkedIn's artdeco form label + fieldset legend
   push(el.closest('.artdeco-text-input--container, [data-test-form-element]')
     ?.querySelector('label, .artdeco-text-input--label')?.textContent);
@@ -127,13 +135,12 @@ export function getLabelText(el: HTMLElement): string {
 /**
  * True for react-select / autocomplete / typeahead widgets. Their visible
  * <input> is a combobox: setting .value shows text but does NOT register a
- * real selection, so filling one is misleading. Never fill these — the user
- * picks from the dropdown themselves. (Greenhouse Country/EEO dropdowns, a
- * LinkedIn location typeahead, etc.)
+ * real selection, so plain text filling is misleading. Route these controls
+ * through selectSmartDropdown; only a matching, accepted selection counts.
  */
 export function isComboboxLike(el: HTMLElement): boolean {
   return (
-    el.getAttribute('role') === 'combobox' ||
+    isCustomDropdownControl(el) ||
     el.hasAttribute('aria-autocomplete') ||
     el.classList.contains('select__input') ||
     Boolean(el.parentElement?.closest(CUSTOM_DROPDOWN_SELECTOR))
@@ -180,14 +187,14 @@ export function isPlainSkillsControl(el: HTMLElement): el is HTMLInputElement | 
 }
 
 export function isVisibleEditableEmpty(el: HTMLInputElement | HTMLTextAreaElement): boolean {
-  if (el.disabled || el.readOnly) return false;
+  if (el.disabled || el.readOnly || el.matches(':disabled')) return false;
   if (el.value && el.value.trim() !== '') return false; // never overwrite
   if (!isControlVisible(el)) return false;
   return true;
 }
 
 export function isControlVisible(el: HTMLElement): boolean {
-  if (!el.isConnected || el.hidden || el.getAttribute('aria-hidden') === 'true') return false;
+  if (!el.isConnected || !isInActiveControlTree(el)) return false;
   const view = el.ownerDocument.defaultView;
   if (!view) return false;
   const style = view.getComputedStyle(el);
@@ -272,10 +279,12 @@ export function matchingSelectValue(
   context: SmartDropdownContext = {},
 ): string | null {
   const candidates = Array.from(select.options)
-    .filter((option) => !option.disabled && option.value)
+    .filter((option) =>
+      !option.disabled && !option.closest('optgroup[disabled]') && option.value
+    )
     .map((option) => ({
       value: option.value,
-      text: option.textContent || '',
+      text: option.label || option.textContent || '',
       option,
     }));
   const chosen = chooseSmartDropdownOption(
@@ -284,16 +293,25 @@ export function matchingSelectValue(
     dropdownMatchKind(kind),
     context,
   );
-  return chosen ? chosen.option.value : null;
+  // Duplicate stored values cannot identify which option the native setter chose.
+  return chosen && Array.from(select.options).filter(
+    (option) => option.value === chosen.option.value
+  ).length === 1 ? chosen.option.value : null;
 }
 
 export function isFillableSelect(el: HTMLElement): el is HTMLSelectElement {
-  if (!isSelectElement(el) || el.disabled || el.multiple || !isControlVisible(el)) return false;
+  if (
+    !isSelectElement(el) || el.disabled || el.matches(':disabled') ||
+    el.multiple || !isControlVisible(el)
+  ) return false;
   const selected = el.selectedOptions[0];
-  return !el.value || !selected || selected.disabled || /select|choose|please/i.test(selected.textContent || '');
+  const placeholder = /^(?:please\s+)?(?:select|choose)(?:\s+(?:an?\s+)?(?:option|country|state|city|one))?[.\u2026:]*$/i;
+  return !el.value || !selected ||
+    placeholder.test((selected.label || selected.textContent || '').trim());
 }
 
 export function setNativeSelectValue(el: HTMLSelectElement, value: string): void {
+  trackPrefillChange(el, () => {
   const view = el.ownerDocument.defaultView;
   const proto = view?.HTMLSelectElement.prototype;
   const setter = proto ? Object.getOwnPropertyDescriptor(proto, 'value')?.set : undefined;
@@ -302,10 +320,12 @@ export function setNativeSelectValue(el: HTMLSelectElement, value: string): void
   const EventCtor = view?.Event || Event;
   el.dispatchEvent(new EventCtor('input', { bubbles: true, composed: true }));
   el.dispatchEvent(new EventCtor('change', { bubbles: true, composed: true }));
+  });
 }
 
 /** Set a value the way frameworks (React/Ember) expect: native setter + input/change. */
 export function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement, value: string): void {
+  trackPrefillChange(el, () => {
   const view = el.ownerDocument.defaultView;
   const proto = isTextAreaElement(el)
     ? view?.HTMLTextAreaElement.prototype
@@ -330,4 +350,5 @@ export function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement, value
   }
   el.dispatchEvent(new EventCtor('change', { bubbles: true, composed: true }));
   el.dispatchEvent(new EventCtor('blur', { bubbles: true, composed: true }));
+  });
 }

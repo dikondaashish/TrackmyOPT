@@ -52,8 +52,8 @@ for (const source of [standaloneLogin, privateDelivery]) {
 }
 assert.match(
   portal,
-  /sensitiveAnswerSession\.confirmed[\s\S]+sensitiveAnswers: sensitiveAnswerSession/,
-  'only explicitly confirmed session answers enter the ephemeral frame relay',
+  /answersForRun\.confirmed[\s\S]+sensitiveAnswers: answersForRun/,
+  'only answers loaded for an explicit Prefill run enter the ephemeral relay',
 );
 const confirmedAnswerRelay = portal.slice(
   portal.indexOf("type: 'PREFILL_CHILD_FRAMES'"),
@@ -68,35 +68,29 @@ assert.doesNotMatch(
   'confirmed answers work with ordinary Prefill while portal passwords never enter the frame relay',
 );
 const sensitivePanelSource = readFileSync('src/job-portal-sensitive-answer-panel.ts', 'utf8');
-const savedPrivateAnswerLoad = sensitivePanelSource.slice(
-  sensitivePanelSource.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'"),
-  sensitivePanelSource.indexOf(
-    "toggle.addEventListener('click'",
-    sensitivePanelSource.indexOf("type: 'GET_PRIVATE_APPLICATION_ANSWERS'")
-  ),
-);
+const savedPrivateAnswerLoad = readFileSync('src/private-prefill-request.ts', 'utf8');
 assert.doesNotMatch(
   savedPrivateAnswerLoad,
-  /sensitiveAnswerSession\s*=/,
-  'loading saved private answers must never approve them automatically',
+  /chrome\.storage|trackWidgetAnalytics|console\.(?:log|info|debug)/,
+  'private request results never enter storage, analytics, or logs',
 );
 assert.match(
   savedPrivateAnswerLoad,
-  /Review them, then approve for this application/,
-  'saved private answers must visibly require per-application review',
+  /GET_PRIVATE_PREFILL_ANSWERS/,
+  'manual Prefill uses the credential-free request',
 );
 const privatePanel = sensitivePanelSource.slice(
   sensitivePanelSource.indexOf('function createSensitiveAnswerPanel'),
 );
-assert.match(
+assert.doesNotMatch(
   privatePanel,
-  /toggle\.addEventListener\('click'[\s\S]+if \(!body\.hidden\) loadSavedAnswersForReview\(\)/,
-  'saved private answers are fetched only after the user opens the review panel',
+  /sendMessage|loadSavedAnswersForReview|commitSensitiveApproval/,
+  'opening the panel never fetches or releases private answers',
 );
 assert.match(
   privatePanel,
-  /Password: ••••••••/,
-  'the extension review panel may acknowledge a saved password only as fixed masking',
+  /saved portal login can also fill supported login and create-account forms/,
+  'the help explicitly discloses password filling on the Prefill click',
 );
 assert.doesNotMatch(
   privatePanel,

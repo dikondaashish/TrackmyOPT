@@ -22,6 +22,24 @@ for (const [theme, values] of Object.entries(COLORS)) {
   }
 }
 
+// Filled actions keep their brand shade in both themes. Their label contrast
+// must not depend on the lighter accent used for links and focus rings.
+function luminance(hex: string): number {
+  const channels = hex.slice(1).match(/.{2}/g)!.map(value => {
+    const channel = parseInt(value, 16) / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+}
+for (const [theme, values] of Object.entries(COLORS)) {
+  for (const fill of ['actionFill', 'stemActionFill'] as const) {
+    const a = luminance(values[fill]);
+    const b = luminance(values.onAction);
+    const contrast = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    assert.ok(contrast >= 4.5, `${theme}.${fill} label contrast is ${contrast.toFixed(2)}:1`);
+  }
+}
+
 // --- the widget must not hold a second copy of the palette ------------------
 
 assert.equal(WIDGET_TOKENS.light.surface, COLORS.light.surface);

@@ -1,4 +1,6 @@
 import { WEBSITE_URL } from './config';
+import { looksLikeRealJobPostingText } from './job-description';
+import { buildResumePdfFilename } from './resume-filename';
 import { isJobFitLimitResponse } from './job-fit';
 import { buildScoreComparison } from './smart-flow';
 import {
@@ -14,9 +16,9 @@ import type {
 import { buildGeneratedResumeArtifactV1 } from './resume-artifact-lifecycle';
 import { arrayBufferToBase64 } from './resume-file-upload';
 import { getExtensionBearerToken } from './background-auth';
+import { readCachedToken } from './token-store';
 import {
   cacheCurrentGeneratedResumeArtifact,
-  clearCurrentGeneratedResumeArtifact,
 } from './background-resume-artifact';
 
 export interface GenerateResumeResult {
@@ -24,6 +26,7 @@ export interface GenerateResumeResult {
   error?: string;
   detail?: string;
   pdfBase64?: string;
+  filename?: string;
   editorUrl?: string;
   baselineScore?: number;
   generatedScore?: number;
@@ -32,6 +35,7 @@ export interface GenerateResumeResult {
   generatedContentHash?: string;
   snapshot?: ResumeAutofillSnapshotV1;
   artifact?: GeneratedResumeArtifactV1;
+  savedToAccount?: boolean;
 }
 
 /**
@@ -47,7 +51,6 @@ export async function generateTailoredResume(input: {
   roleTitle: string;
   jobUrl: string;
   jobKey: string;
-  outputFilename: string;
   focusKeywords?: string[];
   alignJobTitles?: boolean;
   baselineScore?: number;
@@ -71,7 +74,6 @@ export async function generateTailoredResume(input: {
     roleTitle,
     jobUrl,
     jobKey,
-    outputFilename,
     applicationId,
   } = input;
   const focusKeywords = [...new Set((input.focusKeywords ?? [])
@@ -79,9 +81,10 @@ export async function generateTailoredResume(input: {
     .filter(Boolean))].slice(0, 12);
   const alignJobTitles = input.alignJobTitles === true;
   const pastedResumeText = input.resumeText?.trim();
-  if (!jobDescription.trim()) return { ok: false, error: 'no_job_description' };
+  if (!looksLikeRealJobPostingText(jobDescription)) return { ok: false, error: 'no_job_description' };
   if (!pastedResumeText && !resumeId.trim()) return { ok: false, error: 'no_base_resume' };
   if (!templateId.trim()) return { ok: false, error: 'no_template' };
+  const generationOwnerId = (await readCachedToken())?.userId;
 
   const auth = { 'Content-Type': 'application/json', Authorization: `Bearer ${bearer}` };
 
@@ -220,6 +223,8 @@ export async function generateTailoredResume(input: {
   run?.throwIfCancelled();
   run?.step('extract', 'active');
   const latex = compiled.finalLatex;
+  // Derive from the exact compiled resume, not a caller's branded placeholder.
+  const filename = buildResumePdfFilename({ latex, jobDescription, jobTitle: roleTitle, templateId });
 
   // Extract a structured snapshot only after the exact, possibly repaired,
   // LaTeX has compiled. Extraction is deliberately non-blocking: the PDF is
@@ -256,10 +261,12 @@ export async function generateTailoredResume(input: {
   run?.step('package', 'active');
 
   const pdfBase64 = arrayBufferToBase64(compiled.pdf);
+  if ((await readCachedToken())?.userId !== generationOwnerId) return {ok:false,error:'account_changed'};
   let artifact: GeneratedResumeArtifactV1 | undefined;
+  let savedToAccount = false;
   try {
     const builtArtifact = await buildGeneratedResumeArtifactV1({
-      sourceResumeId: resumeId,
+      sourceResumeId: pastedResumeText ? '__pasted__' : resumeId,
       sourceResumeFilename: base.filename || 'resume',
       templateId,
       jobKey: jobKey || `${companyName}|${roleTitle}|${jobUrl}`,
@@ -273,10 +280,10 @@ export async function generateTailoredResume(input: {
       extractedContentHash: snapshotExtraction?.generatedContentHash,
       extractedSnapshot: snapshotExtraction?.snapshot,
       pdfBase64,
-      pdfFilename: outputFilename,
+      pdfFilename: filename,
     });
     artifact = builtArtifact.artifact;
-    await cacheCurrentGeneratedResumeArtifact(artifact);
+    savedToAccount = await cacheCurrentGeneratedResumeArtifact(artifact);
     snapshotExtraction = {
       structuredFieldsAvailable: builtArtifact.structuredFieldsAvailable,
       generatedContentHash: artifact.generatedContentHash,
@@ -286,7 +293,7 @@ export async function generateTailoredResume(input: {
       reason: snapshotExtraction?.reason,
     };
   } catch {
-    await clearCurrentGeneratedResumeArtifact();
+    // Keep the previous working resume if packaging the replacement fails.
     // PDF download remains available if local hashing is unexpectedly unavailable.
   }
 
@@ -354,10 +361,12 @@ export async function generateTailoredResume(input: {
   run?.step('package', 'done');
   return buildGeneratedResumeResult({
     pdfBase64,
+    filename,
     editorUrl,
     baselineScore,
     generatedScore,
     scoreError,
     artifact,
+    savedToAccount,
   }, snapshotExtraction);
 }

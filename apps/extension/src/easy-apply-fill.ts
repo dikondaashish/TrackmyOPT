@@ -16,7 +16,19 @@
  * child frames through the background worker.
  */
 
-import { runPrefill, type PrefillOptions } from './easy-apply-engine';
+import { runPrefill, findApplicationForm, type PrefillOptions } from './easy-apply-engine';
+import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, isPrefillUndoAllowed, getPrefillUndoState } from './prefill-undo';
+import { mountPrefillUndoFallback } from './prefill-undo-ui';
+import { requestPrefillUndo } from './prefill-undo-request';
+import { loadPrivateAnswersForPrefill } from './private-prefill-request';
+import { prefillSavedPortalLogin } from './portal-login-prefill';
+import { createAutofillVisualFeedback } from './autofill-visual-feedback';
+import { scanApplicationFields } from './application-field-scan';
+import { runSmartAnswers } from './smart-answers';
+import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+import { fillConfirmedSensitiveAnswers, normalizeSensitiveAnswerSession } from './sensitive-autofill';
+import { withPrefillModeGuard } from './prefill-mode-guard';
+import { AUTOFILL_PREFERENCES_KEY, normalizeAutofillPreferences } from './autofill-preferences';
 import type {
   BasicContactProfile,
   GeneratedResumeAttachment,
@@ -30,9 +42,12 @@ type RelayedPrefill = {
   generatedContentHash?: string;
   snapshot?: ResumeAutofillSnapshotV1;
   profileFallback?: BasicContactProfile;
+  autofillSkills?: boolean;
+  sensitiveAnswers?: unknown;
 };
 
 const isTopFrame = window.top === window.self;
+getPrefillUndoState();
 
 // Registered synchronously, before the top frame's async resolve round-trip, so
 // a child frame is listening by the time the relay arrives.
@@ -40,21 +55,39 @@ if (!isTopFrame) {
   chrome.runtime.onMessage.addListener((message) => {
     if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME') return false;
     const prefill = (message.prefill ?? {}) as RelayedPrefill;
-    void runPrefill({
-      resume: prefill.resume,
-      coverLetter: prefill.coverLetter,
-      generatedContentHash: prefill.generatedContentHash,
-      snapshot: prefill.snapshot,
-      profileFallback: prefill.profileFallback,
-      quietResultToast: true,
-      quietIfNoForm: true,
-    });
+    void withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
+      await runPrefill({
+        resume: prefill.resume,
+        coverLetter: prefill.coverLetter,
+        generatedContentHash: prefill.generatedContentHash,
+        snapshot: prefill.snapshot,
+        profileFallback: prefill.profileFallback,
+        autofillSkills: prefill.autofillSkills === true,
+        quietResultToast: true,
+        quietIfNoForm: true,
+        animateFields: message.continuous !== true,
+        shouldContinue,
+      });
+      const answers = normalizeSensitiveAnswerSession(prefill.sensitiveAnswers);
+      if (answers && shouldContinue()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, answers, shouldContinue);
+    }), message.undoRunId).catch(() => {});
     return false;
   });
 }
 
 async function prefillFromActiveArtifact(): Promise<void> {
   if (!isTopFrame) return;
+  const pageUrl = window.location.href;
+  const shouldContinue = () => isPrefillUndoAllowed() && window.location.href === pageUrl;
+  const login = await prefillSavedPortalLogin({ shouldContinue });
+  if (!shouldContinue() || login.status === 'stopped') return;
+  const privateLoad = await loadPrivateAnswersForPrefill(shouldContinue);
+  if (!shouldContinue()) return;
+  if (privateLoad.status === 'unavailable') {
+    document.querySelector('.tmo-sensitive-answer-panel')?.dispatchEvent(
+      new CustomEvent('tmo-private-prefill-status', { detail: 'unavailable' })
+    );
+  }
 
   const resolved = (await chrome.runtime
     .sendMessage({
@@ -77,9 +110,15 @@ async function prefillFromActiveArtifact(): Promise<void> {
   // No profile and no artifact — let the engine resolve the profile itself and
   // surface its own sign-in guidance.
   if (!resolved?.ok) {
-    await runPrefill({});
+    await runPrefill({ shouldContinue });
+    if (shouldContinue()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, privateLoad.answers, shouldContinue);
+    if (shouldContinue() && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) await runSmartAnswers({root:findApplicationForm() ?? document,job:{jobUrl:pageUrl,companyName:'',roleTitle:''},hasResume:false,shouldContinue});
     return;
   }
+
+  const stored: Record<string, unknown> = await chrome.storage.sync.get(AUTOFILL_PREFERENCES_KEY).catch(() => ({}));
+  const preferences = normalizeAutofillPreferences(stored[AUTOFILL_PREFERENCES_KEY]);
+  if (window.location.href !== pageUrl) return;
 
   const prefill: PrefillOptions =
     resolved.source === 'generated_resume'
@@ -89,18 +128,37 @@ async function prefillFromActiveArtifact(): Promise<void> {
           generatedContentHash: resolved.generatedContentHash,
           snapshot: resolved.snapshot,
           profileFallback: resolved.profileFallback,
+          autofillSkills: preferences.autofillSkills,
         }
       : // Profile-only: nothing was generated for this posting, so no file is
         // attached. Never fall back to some other job's résumé.
         { profileFallback: resolved.profileFallback };
 
   chrome.runtime
-    .sendMessage({ type: 'PREFILL_CHILD_FRAMES', prefill })
+    .sendMessage({ type: 'PREFILL_CHILD_FRAMES', undoRunId: currentPrefillUndoRunId(), prefill: { ...prefill, sensitiveAnswers: privateLoad.answers } })
     .catch(() => {
       // A page with no accessible child frames is the normal case.
     });
 
-  await runPrefill(prefill);
+  markPrefillUndoDelegated();
+
+  const root = findApplicationForm();
+  const visual = privateLoad.answers.confirmed && root ? createAutofillVisualFeedback(document) : undefined;
+  try {
+    const result = await runPrefill({ ...prefill, shouldContinue, visualFeedback: visual, quietResultToast: privateLoad.answers.confirmed });
+    if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
+    const sensitive = await fillConfirmedSensitiveAnswers(root ?? document, privateLoad.answers, shouldContinue, visual);
+    if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
+    const smartFilled = AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts ? await runSmartAnswers({
+      root:root ?? document,
+      job:{jobUrl:pageUrl,companyName:'',roleTitle:'',jobDescription:resolved.source === 'generated_resume' ? resolved.jobDescription : ''},
+      hasResume:resolved.source === 'generated_resume',snapshot:resolved.source === 'generated_resume' ? resolved.snapshot : undefined,shouldContinue,
+    }) : 0;
+    if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
+    visual?.finish({ filled: result.filled + sensitive.filled + smartFilled, skipped: scanApplicationFields(root ?? document).unansweredRequired });
+  } catch {
+    visual?.fail('Prefill paused. Try again.');
+  }
 }
 
-void prefillFromActiveArtifact();
+if (isTopFrame) void withPrefillUndo(prefillFromActiveArtifact).catch(() => {}).finally(() => mountPrefillUndoFallback(requestPrefillUndo));

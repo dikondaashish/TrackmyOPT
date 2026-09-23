@@ -1,5 +1,5 @@
-import { runStandaloneJobPortalLoginPrefill } from './standalone-job-portal-prefill';
+import { prefillSavedPortalLogin } from './portal-login-prefill';
 
 if (window.top === window.self) {
-  runStandaloneJobPortalLoginPrefill();
+  void prefillSavedPortalLogin();
 }

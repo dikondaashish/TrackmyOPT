@@ -258,7 +258,7 @@ export async function GET(request: NextRequest) {
     const { data: status, error: statusError } = await dataClient
       .from('opt_status')
       .select(
-        'program_end_date, dso_recommendation_date, opt_ead_end_date, opt_start_date, stem_start_date'
+        'program_end_date, dso_recommendation_date, stem_dso_recommendation_date, opt_ead_end_date, opt_start_date, stem_start_date'
       )
       .eq('user_id', userId)
       .single();

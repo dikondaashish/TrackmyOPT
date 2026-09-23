@@ -62,6 +62,7 @@ import {
 import { scanApplicationFields } from './application-field-scan';
 import {
   isCustomDropdownControl,
+  customDropdownHasValue,
   selectSmartDropdown,
   type SmartDropdownContext,
 } from './smart-dropdown';
@@ -116,6 +117,12 @@ export interface PrefillOptions {
   quietIfNoForm?: boolean;
   /** Continuous mode reports through the widget instead of spawning toasts. */
   quietResultToast?: boolean;
+  /** Short visual sequencing for explicit fills; never used for evasion. */
+  animateFields?: boolean;
+  /** Local-only shared progress across profile and saved private answers. */
+  visualFeedback?: AutofillVisualFeedback;
+  /** Local-only cancellation guard; never serialized in frame messages. */
+  shouldContinue?: () => boolean;
   /** Tests/future remote config only. Runtime message boundaries do not relay
    * feature overrides from job pages. */
   featureFlags?: Partial<AutofillFeatureFlags>;
@@ -149,6 +156,12 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const featureFlags = resolveAutofillFeatureFlags(options.featureFlags);
   const emptyCoverage = emptyPrefillCoverage();
   let visual: AutofillVisualFeedback | undefined;
+  const stopped = () => {
+    if (options.shouldContinue?.() !== false) return false;
+    visual?.fail('Prefill stopped');
+    return true;
+  };
+  if (stopped()) return emptyCoverage;
   let latestNotice = '';
   const notify = (message: string) => {
     if (visual) {
@@ -168,10 +181,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     return emptyCoverage;
   }
   const adapter = selectAtsPrefillAdapter(
-    document,
+    container.ownerDocument,
     featureFlags.atsAdapters
   );
-  visual = createAutofillVisualFeedback(container.ownerDocument);
+  visual = options.visualFeedback ?? createAutofillVisualFeedback(container.ownerDocument, { animateFields: options.animateFields });
 
   const resumeResult = attachGeneratedResume(
     container,
@@ -227,8 +240,9 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       adapterId: adapter.id,
       remainingRecords: historyRemaining,
       applicationScan: scanApplicationFields(container),
+      resumeAttachmentResult: resumeResult,
     };
-    visual.finish(result, latestNotice);
+    if (!options.visualFeedback) visual.finish(result, latestNotice);
     return result;
   };
 
@@ -241,6 +255,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         error?: string;
         profile?: AutofillProfile;
       } | null);
+
+  if (stopped()) return emptyCoverage;
 
   if (!resp?.ok || !resp.profile) {
     if (
@@ -275,7 +291,11 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const profile = buildContactAutofillProfile(snapshot, resp.profile);
   // "+1" is shared by the US and Canada, so a dial-code list that also names
   // countries needs the applicant's country to resolve to one option.
-  const dropdownContext: SmartDropdownContext = { countryName: profile.country };
+  const dropdownContext: SmartDropdownContext = {
+    countryName: profile.country,
+    stateName: profile.state,
+    shouldContinue: options.shouldContinue,
+  };
   const controls = queryAllDeep<HTMLElement>(
     container,
     APPLICATION_CONTROL_SELECTOR
@@ -287,6 +307,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   ];
 
   for (const el of controls) {
+    if (stopped()) return emptyCoverage;
     const kind = classifyField(getLabelText(el));
     if (!kind) continue; // no confident match, or a sensitive field -> leave it
     const value = kind === 'skills'
@@ -301,14 +322,25 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     if (kind === 'skills' && (!isPlainSkillsControl(el) || !isFillable(el))) {
       continue; // tag editors/custom widgets require a tested ATS adapter
     } else if (isFillable(el)) {
+      await visual.prepareField(el, kind === 'skills' ? 'skills' : 'contact');
+      if (stopped()) return emptyCoverage;
+      // The applicant may type, navigate, or disable a field during feedback.
+      if (!el.isConnected || !isFillable(el)) { visual.clearActiveField(); continue; }
       setNativeValue(el, value);
-      changed = true;
+      changed = el.isConnected && el.value === value;
     } else if (isFillableSelect(el)) {
       const selectValue = matchingSelectValue(el, kind, value, dropdownContext);
       if (!selectValue) continue; // never guess a dropdown option
+      await visual.prepareField(el, 'contact');
+      if (stopped()) return emptyCoverage;
+      if (!el.isConnected || !isFillableSelect(el) || matchingSelectValue(el, kind, value, dropdownContext) !== selectValue) { visual.clearActiveField(); continue; }
       setNativeSelectValue(el, selectValue);
-      changed = true;
+      changed = el.isConnected && el.value === selectValue;
     } else if (isCustomDropdownControl(el)) {
+      if (customDropdownHasValue(el)) continue;
+      await visual.prepareField(el, 'contact');
+      if (stopped()) return emptyCoverage;
+      if (!el.isConnected) { visual.clearActiveField(); continue; }
       const selection = await selectSmartDropdown(
         el,
         value,
@@ -321,7 +353,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     } else {
       continue;
     }
-    if (!changed) continue;
+    if (stopped()) return emptyCoverage;
+    if (!changed) { visual.clearActiveField(); continue; }
     filled += 1;
     filledOutcomes.push({
       filled: true,
@@ -386,7 +419,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     }
     notify(
       'Nothing to prefill here. Private work-authorization, visa, compensation, ' +
-        'and DEI fields require review and approval in the TrackMyOPT panel. ' +
+        'and DEI fields use saved private answers when available; unmatched questions need your input. ' +
         autofillErrorCopy('unsupported_control').message
     );
   } else {

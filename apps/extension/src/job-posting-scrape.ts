@@ -207,7 +207,7 @@ function getCompanyFromDomain(hostname: string): string {
 }
 
 function parseTitleAndCompany(title: string): { role_title: string; company_name: string } | null {
-  const t = title.trim();
+  const t = title.trim().replace(/^Job Application for\s+/i, '');
   if (!t || t.length < 3) return null;
   // "Job Title | Company", "Job Title at Company", "Company - Job Title", "Company: Job Title"
   const at = t.split(/\s+at\s+/i);
@@ -624,6 +624,14 @@ export function getJobInfo(): JobInfo | null {
   const job =
     structuredJob ||
     (weakParsersAllowed ? getMetaAndTitleJob() || getDomFallbackJob() : null);
+  // Greenhouse's browser title contains application chrome, while its visible
+  // posting header carries the actual role/location (including embedded pages).
+  if (job && /(^|\.)greenhouse\.io$/i.test(host)) {
+    const heading = cleanRoleCandidate(document.querySelector('h1')?.textContent);
+    if (isSpecificRoleTitle(heading, job.company_name)) job.role_title = heading;
+    const location = document.querySelector('.job__location, .job-post-header__location, #header .location, .location')?.textContent?.replace(/\s+/g, ' ').trim();
+    if (!job.location && location && location.length < 200) job.location = location;
+  }
   if (job && !isSpecificRoleTitle(cleanRoleCandidate(job.role_title), job.company_name)) {
     const specificRole = findSpecificRoleFromDom(job.company_name);
     if (specificRole) job.role_title = specificRole;

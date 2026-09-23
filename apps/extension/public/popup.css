@@ -84,6 +84,13 @@ button {
   color: #fff;
   display: block;
 }
+.brandmark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: inherit;
+}
 
 .brandtext {
   flex: 1;
@@ -650,6 +657,7 @@ body.dark-mode .notice .dot {
   width: 56px;
   height: 56px;
   border-radius: 16px;
+  overflow: hidden;
   background: var(--tmo-gradient-brand);
   display: inline-grid;
   place-items: center;
@@ -659,6 +667,12 @@ body.dark-mode .notice .dot {
 .hero .bm svg {
   color: #fff;
   display: block;
+}
+.hero .bm img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 .hero h1 {
   font-size: 20px;
@@ -754,6 +768,7 @@ body.dark-mode .header {
   width: 34px;
   height: 34px;
   border-radius: 10px;
+  display: block;
   object-fit: cover;
   flex-shrink: 0;
   border: 1px solid var(--border);
@@ -828,3 +843,192 @@ body.dark-mode .header {
 .tmo-icon {
   display: block;
 }
+
+/* Tool families share structure, with blue OPT and teal STEM accents. */
+#root[data-tool-family] {
+  --accent: var(--tmo-color-accent);
+  --tool-action: var(--tmo-color-action-fill);
+  --tool-tint: color-mix(in srgb, var(--accent) 9%, var(--surface));
+  --tool-accent-border: color-mix(in srgb, var(--accent) 25%, var(--border));
+}
+#root[data-tool-family="stem"] {
+  --accent: var(--tmo-color-stem-accent);
+  --tool-action: var(--tmo-color-stem-action-fill);
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0 16px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+body.dark-mode .header { box-shadow: none; }
+.header .back-btn, .header-buttons {
+  position: static;
+  transform: none;
+  flex-shrink: 0;
+}
+.header .back-btn { width: 28px; height: 32px; }
+.header .back-btn:hover { transform: none; background: var(--tool-tint); }
+.header button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.header-content { flex: 1; min-width: 0; width: auto; }
+.header-content--with-logo { gap: 8px; }
+.header-page-logo { width: 30px; height: 30px; object-fit: contain; border: 0; border-radius: 9px; box-shadow: 0 3px 10px color-mix(in srgb, var(--accent) 15%, transparent); }
+.header .title { font-size: 14px; line-height: 1.3; font-weight: 700; }
+.header .subtitle { display: none; }
+.header-buttons { gap: 4px; }
+.header-buttons button { width: 28px; height: 32px; }
+.header .logout-btn { color: var(--muted); border-color: var(--border); }
+.header .logout-btn:hover { color: var(--tool-red-ink); background: var(--tool-red-surface); }
+.tool-content { margin-top: 18px; font-size: 13px; }
+.tool-form {
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
+  border-radius: 20px;
+  background: linear-gradient(160deg, var(--tool-tint), var(--surface) 55%);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--ink) 5%, transparent), inset 0 1px 0 var(--surface);
+}
+.tool-section-heading, .tool-field-heading, .tool-heading-end {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tool-section-heading { justify-content: space-between; margin-bottom: 14px; font-weight: 650; }
+.tool-heading-label { display: inline-flex; align-items: center; gap: 9px; }
+.tool-heading-icon {
+  display: grid; place-items: center; width: 30px; height: 30px;
+  border-radius: 10px; color: var(--accent); background: var(--tool-tint);
+  border: 1px solid var(--tool-accent-border); flex-shrink: 0;
+}
+.tool-form > .tool-section-heading { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--tool-accent-border); }
+.tool-field { margin-bottom: 18px; }
+.tool-field-heading { margin-bottom: 7px; min-height: 24px; }
+.tool-field-heading label { font-weight: 600; }
+.tool-field-heading .tool-help { margin-left: auto; }
+.tool-optional { color: var(--muted); font-size: 10px; font-weight: 500; }
+.tool-heading-end > .tool-optional { padding: 3px 7px; border-radius: 6px; background: var(--surface-2); }
+.tool-date-input, .tool-email-row input {
+  width: 100%; min-width: 0; height: 44px;
+  border: 1px solid var(--tmo-color-border-strong);
+  border-radius: 12px;
+  padding: 10px 44px 10px 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.tool-date-input::placeholder, .tool-email-row input::placeholder { color: var(--muted); opacity: 1; }
+.tool-date-input:hover:not(:focus), .tool-email-row input:hover:not(:focus) { border-color: var(--accent); }
+.tool-date-input:not(:placeholder-shown) { background: color-mix(in srgb, var(--accent) 4%, var(--surface)); font-weight: 600; }
+.tool-date-input:focus, .tool-email-row input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+.tool-calendar-button {
+  position: absolute; top: 6px; right: 6px;
+  width: 32px; height: 32px;
+  border: 0; border-radius: 8px;
+  display: grid; place-items: center;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.tool-calendar-button:hover { background: var(--surface-2); color: var(--accent); }
+.tool-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 44px; padding: 10px 14px;
+  border: 1px solid transparent; border-radius: 12px;
+  font: inherit; font-weight: 600; line-height: 1.4; cursor: pointer;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out, box-shadow 180ms ease-out, transform 120ms ease-out;
+}
+.tool-button-primary {
+  background: var(--tool-action);
+  color: var(--tmo-color-on-action);
+  border-color: color-mix(in srgb, var(--tool-action) 80%, var(--ink));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--tmo-color-on-action) 16%, transparent), 0 3px 8px color-mix(in srgb, var(--tool-action) 16%, transparent);
+}
+.tool-button-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--tool-action) 90%, var(--tmo-blue-900)); box-shadow: 0 4px 12px color-mix(in srgb, var(--tool-action) 24%, transparent); }
+.tool-button:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.tool-button-secondary { background: var(--surface); color: var(--ink); border-color: var(--border); }
+.tool-button-secondary:hover:not(:disabled) { background: var(--surface-2); border-color: var(--tmo-color-border-strong); }
+.tool-button:disabled { opacity: .55; cursor: wait; }
+.tool-button:focus-visible, .tool-help-button:focus-visible, .tool-calendar-button:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.tool-help { display: inline-flex; flex-shrink: 0; }
+.tool-help-button {
+  display: grid; place-items: center;
+  width: 24px; height: 24px;
+  border: 1px solid var(--tmo-color-border-strong); border-radius: 50%;
+  background: transparent; color: var(--muted);
+  font-size: 12px; font-weight: 650; cursor: help;
+}
+.tool-help-button:hover { background: var(--surface-2); color: var(--accent); border-color: var(--accent); }
+.tool-tooltip {
+  position: fixed; z-index: 10000; display: block;
+  padding: 12px 14px; border: 1px solid var(--tmo-color-border-strong);
+  border-radius: 12px; background: var(--surface); color: var(--ink);
+  box-shadow: var(--tmo-shadow-3);
+  font-size: 12px; font-weight: 400; line-height: 1.6; text-align: left;
+  white-space: normal; overflow-wrap: anywhere;
+}
+.tool-tooltip[hidden] { display: none; }
+.tool-limit {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 0; margin: -2px 0 16px; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 12px;
+}
+.tool-limit strong { margin-left: auto; color: var(--ink); font-size: 13px; white-space: nowrap; }
+.tool-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+.tool-date-summary { padding: 12px 16px; min-width: 0; }
+.tool-date-summary + .tool-date-summary { border-left: 1px solid var(--border); }
+.tool-date-summary--deadline { background: var(--tool-tint); }
+.tool-date-summary--deadline strong { color: var(--accent); }
+.tool-date-summary span, .tool-date-summary small { display: block; color: var(--muted); font-size: 11px; }
+.tool-date-summary strong { display: block; font-size: 20px; font-weight: 650; margin: 5px 0 1px; font-variant-numeric: tabular-nums; }
+.tool-countdown, .tool-usage {
+  --result-accent: var(--accent);
+  padding: 20px 16px 16px;
+  background: color-mix(in srgb, var(--result-accent) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--result-accent) 28%, var(--border));
+  border-radius: 20px; margin-bottom: 16px; text-align: center;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ink) 4%, transparent), inset 0 1px 0 color-mix(in srgb, var(--surface) 75%, transparent);
+}
+.tool-countdown-title, .tool-usage-headline { font-size: 28px; font-weight: 700; letter-spacing: -.8px; color: var(--result-accent); font-variant-numeric: tabular-nums; }
+.tool-usage-detail { font-size: 12px; font-weight: 600; margin-top: 8px; }
+.tool-usage-phase { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.tool-usage-track { height: 7px; background: color-mix(in srgb, var(--result-accent) 12%, var(--surface)); border-radius: 999px; overflow: hidden; margin-top: 18px; }
+.tool-usage-track > div { height: 100%; width: 0; background: var(--result-accent); border-radius: inherit; transition: width .3s ease; }
+.tool-time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--result-accent) 20%, var(--border)); }
+.tool-time-grid > div { padding: 0 4px; }
+.tool-time-grid > div + div { border-left: 1px solid color-mix(in srgb, var(--result-accent) 15%, var(--border)); }
+.tool-time-grid strong { display: block; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tool-time-grid span { color: var(--muted); font-size: 11px; }
+.tool-status { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 10px; }
+.tool-status:empty, #results-container:empty { display: none; }
+.tool-countdown[data-tone="red"], .tool-usage[data-tone="red"] { --result-accent: var(--tool-red-ink); }
+.tool-countdown[data-tone="orange"], .tool-usage[data-tone="orange"] { --result-accent: var(--tool-orange-ink); }
+.tool-reminders { padding-top: 16px; margin-top: 20px; border-top: 1px solid var(--border); }
+.tool-reminders .tool-section-heading { margin-bottom: 10px; }
+.tool-reminders .tool-heading-icon { width: 26px; height: 26px; background: var(--surface-2); color: var(--muted); border-color: var(--border); border-radius: 8px; }
+.tool-upgrade-row, .tool-email-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tool-upgrade-row .tool-button { width: auto; min-height: 36px; padding: 7px 16px; }
+.tool-email-row input { padding-right: 12px; }
+.tool-email-row .tool-button { width: 44px; flex-shrink: 0; }
+.tool-email-row .tool-button-primary { background: var(--tool-tint); color: var(--accent); border-color: var(--tool-accent-border); box-shadow: none; }
+.tool-email-row .tool-button-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+.tool-stop { width: auto; min-height: 32px; margin: 8px 0 0 auto; padding: 4px 0; display: flex; border-color: transparent; background: transparent; color: var(--muted); font-size: 12px; }
+.tool-stop:hover:not(:disabled) { color: var(--tool-red-ink); background: transparent; border-color: transparent; text-decoration: underline; }
+.tool-inline-link { display: inline-block; margin-top: 12px; color: var(--accent); font-weight: 600; text-decoration: none; }
+.tool-inline-link:hover { text-decoration: underline; }
+.tool-usage > .tool-section-heading { margin: 14px 0 0; color: var(--muted); font-size: 11px; }
+@media (prefers-reduced-motion: reduce) {
+  .tool-content *, .tool-tooltip { transition: none !important; animation: none !important; }
+}
+/* Replay is a button, with the same quiet treatment as the footer links. */
+.foot button.link { font: inherit; border: 0; background: transparent; padding: 4px 0; cursor: pointer; }
+.tour-signin-note { color: var(--muted); text-align: center; font-size: 12px; line-height: 1.5; margin: 12px 8px 0; }

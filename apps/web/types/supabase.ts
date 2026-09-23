@@ -1233,6 +1233,7 @@ export type Database = {
         Row: {
           created_at: string | null
           dso_recommendation_date: string | null
+          stem_dso_recommendation_date: string | null
           last_updated_field: string | null
           most_recent_field: string | null
           opt_ead_end_date: string | null
@@ -1245,6 +1246,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           dso_recommendation_date?: string | null
+          stem_dso_recommendation_date?: string | null
           last_updated_field?: string | null
           most_recent_field?: string | null
           opt_ead_end_date?: string | null
@@ -1257,6 +1259,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           dso_recommendation_date?: string | null
+          stem_dso_recommendation_date?: string | null
           last_updated_field?: string | null
           most_recent_field?: string | null
           opt_ead_end_date?: string | null

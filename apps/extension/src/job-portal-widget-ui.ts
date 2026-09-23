@@ -11,6 +11,7 @@ import {
   type ResumeStatusState,
 } from './resume-status-row';
 import type { SponsorshipResult } from './sponsorship-signal';
+import { applyWidgetThemeScope } from './job-portal-widget-theme';
 
 /** Small icon button for the widget header (collapse / close). */
 export function iconBtn(glyph: string, label: string): HTMLButtonElement {
@@ -50,7 +51,7 @@ export function paintSponsorshipPill(host: HTMLElement, result: SponsorshipResul
     },
     unclear: {
       bg: 'var(--tmo-widget-surface-2)',
-      fg: 'var(--tmo-widget-muted)',
+      fg: 'var(--tmo-widget-ink)',
       border: 'var(--tmo-widget-border)',
       iconName: 'info' as const,
       label: 'Sponsorship not stated',
@@ -82,13 +83,13 @@ export function paintPrefillButton(
   button: HTMLButtonElement | null | undefined,
   hasResume: boolean,
 ): void {
-  if (!button) return;
+  if (!button || button.getAttribute('aria-busy') === 'true') return;
   const copy = prefillEntryCopy(hasResume);
   const label = button.querySelector<HTMLElement>('.tmo-action-label');
-  if (label) label.textContent = copy.label;
+  if (label && label.textContent !== copy.label) label.textContent = copy.label;
   const sublabel = button.querySelector<HTMLElement>('.tmo-action-sublabel');
-  if (sublabel) sublabel.textContent = copy.sublabel;
-  button.title = copy.title;
+  if (sublabel && sublabel.textContent !== copy.sublabel) sublabel.textContent = copy.sublabel;
+  if (button.title !== copy.title) button.title = copy.title;
 }
 
 /** Repaint every mounted status row — the widget may be rebuilt mid-flow. */
@@ -110,31 +111,20 @@ export function actionBtn(
   label: string,
   opts: { sublabel?: string; chip?: string; trailing?: string } = {}
 ): HTMLButtonElement {
-  const chip = opts.chip || 'linear-gradient(135deg,#2563eb,#0ea5e9)';
+  const chip = opts.chip || 'var(--tmo-widget-info-surface)';
   const b = document.createElement('button');
   b.type = 'button';
+  b.className = 'tmo-sidebar-action';
   b.style.cssText = `
-    display:flex;align-items:center;gap:11px;width:100%;min-height:56px;padding:11px 12px;
-    border:0;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;text-align:left;cursor:pointer;
-    transition:background 160ms ease;
+    display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:8px;
+    border:0;border-radius:10px;font:inherit;text-align:left;cursor:pointer;
   `;
-  b.addEventListener('mouseenter', () => (b.style.background = 'var(--tmo-widget-surface-2)'));
-  b.addEventListener('mouseleave', () => (b.style.background = 'var(--tmo-widget-surface)'));
-  b.addEventListener('focus', () => {
-    b.style.background = 'var(--tmo-widget-info-surface)';
-    b.style.outline = '2px solid var(--tmo-widget-focus)';
-    b.style.outlineOffset = '-2px';
-  });
-  b.addEventListener('blur', () => {
-    b.style.background = 'var(--tmo-widget-surface)';
-    b.style.outline = 'none';
-  });
 
   const chipEl = document.createElement('span');
   chipEl.innerHTML = iconSvg;
   chipEl.style.cssText = `
     width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:${chip};
-    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,23,42,0.14);
+    display:flex;align-items:center;justify-content:center;
   `;
 
   const textWrap = document.createElement('span');
@@ -142,18 +132,18 @@ export function actionBtn(
   const l = document.createElement('span');
   l.className = 'tmo-action-label';
   l.textContent = label;
-  l.style.cssText = 'display:block;font-size:13px;font-weight:750;letter-spacing:-0.1px;';
+  l.style.cssText = 'display:block;font-size:13px;font-weight:600;line-height:1.4;letter-spacing:-0.1px;';
   textWrap.appendChild(l);
   if (opts.sublabel) {
     const s = document.createElement('span');
     s.className = 'tmo-action-sublabel';
     s.textContent = opts.sublabel;
-    s.style.cssText = 'display:block;font-size:11px;color:var(--tmo-widget-muted);margin-top:1px;';
+    s.style.cssText = 'display:block;font-size:12px;line-height:1.4;margin-top:2px;';
     textWrap.appendChild(s);
   }
 
   const trail = document.createElement('span');
-  trail.style.cssText = 'display:flex;flex:0 0 auto;margin-left:auto;align-items:center;color:var(--tmo-widget-muted);';
+  trail.style.cssText = 'display:flex;flex:0 0 auto;margin-left:auto;align-items:center;';
   trail.innerHTML = opts.trailing ?? icon('chevronRight', 16, 'currentColor');
 
   b.appendChild(chipEl);
@@ -309,6 +299,8 @@ export function logoSvgFallback(): SVGSVGElement {
 
 export function showMessage(message: string, isError: boolean): void {
   const el = document.createElement('div');
+  applyWidgetThemeScope(el);
+  el.setAttribute('role', isError ? 'alert' : 'status');
   el.textContent = message;
   el.style.cssText = `
     position: fixed;
@@ -317,8 +309,9 @@ export function showMessage(message: string, isError: boolean): void {
     z-index: 2147483647;
     padding: 12px 20px;
     font-size: 14px;
-    color: #fff;
-    background: ${isError ? 'var(--tmo-color-danger-ink)' : '#059669'};
+    color: var(--tmo-widget-${isError ? 'danger' : 'success'}-ink);
+    background: var(--tmo-widget-${isError ? 'danger' : 'success'}-surface);
+    border: 1px solid var(--tmo-widget-${isError ? 'danger' : 'success'}-border);
     border-radius: 8px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.2);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

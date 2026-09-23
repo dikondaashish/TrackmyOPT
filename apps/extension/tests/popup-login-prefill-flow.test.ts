@@ -8,8 +8,8 @@ const build = readFileSync(resolve('esbuild.config.js'), 'utf8');
 
 assert.match(
   home,
-  /files:\s*\['job-portal-login-entry\.js'\]/,
-  'the ordinary popup Prefill path injects the standalone reviewed login entry',
+  /files:\s*\['easy-apply-fill\.js'/,
+  'every popup Prefill click uses the same application and login entry',
 );
 assert.match(
   build,

@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data: optRows, error: optErr } = await supabase
       .from("opt_status")
-      .select("user_id, opt_ead_end_date, stem_start_date")
+      .select("user_id, opt_ead_end_date, stem_start_date, stem_dso_recommendation_date")
       .is("stem_start_date", null)
       .gte("opt_ead_end_date", minEad)
       .lte("opt_ead_end_date", maxEad);
@@ -101,6 +101,7 @@ export async function GET(req: NextRequest) {
     type Candidate = {
       user_id: string;
       opt_ead_end_date: string;
+      stem_dso_recommendation_date: string | null;
       first_name: string | null;
       toEmail: string;
     };
@@ -121,6 +122,7 @@ export async function GET(req: NextRequest) {
       candidates.push({
         user_id: row.user_id,
         opt_ead_end_date: row.opt_ead_end_date as string,
+        stem_dso_recommendation_date: row.stem_dso_recommendation_date,
         first_name: prof.first_name,
         toEmail,
       });
@@ -137,6 +139,7 @@ export async function GET(req: NextRequest) {
           toEmail: c.toEmail,
           firstName: c.first_name,
           optEadEndDate: c.opt_ead_end_date,
+          stemDsoRecommendationDate: c.stem_dso_recommendation_date,
         });
 
         if (result.ok) {

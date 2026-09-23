@@ -4,6 +4,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatStemDate, getStemFilingEmailDetails, renderStemFilingTimeline } from "../stem-filing-email";
 import { EMAIL } from "../email-brand";
 import {
   buildTransactionalEmail,
@@ -14,7 +15,6 @@ import {
   emailTextList,
   emailTextMuted,
   emailTextP,
-  emailTextStrong,
 } from "../email-layout";
 import { LEGAL_CONTACT } from "@/lib/legal/legal-config";
 import { escapeHtml } from "./formatting";
@@ -31,96 +31,77 @@ function getStemOptDashboardBaseUrl(): string {
   ).replace(/\/$/, "");
 }
 
-/**
- * STEM OPT extension filing window opened (90 days before current OPT EAD end).
- * Queues stem_opt_window_open, sends via SMTP, updates email_queue.
- */
+export function buildStemOptWindowEmailBodies(args: {
+  firstName: string | null;
+  optEadEndDate: string;
+  stemDsoRecommendationDate?: string | null;
+}) {
+  const details = getStemFilingEmailDetails(args.optEadEndDate, args.stemDsoRecommendationDate);
+  const dashUrl = `${getStemOptDashboardBaseUrl()}/dashboard`;
+  const subject = details.deadlinePassed
+    ? "Your STEM OPT filing deadline has passed — contact your DSO"
+    : details.notYetOpen
+      ? "Your STEM OPT filing window is approaching"
+      : "Your STEM OPT filing dates — review your deadline";
+  const requirements = [
+    "Complete Form I-983 with your employer and submit it to your DSO before requesting the STEM recommendation.",
+    "Confirm your employer participates in E-Verify.",
+    "File Form I-765 up to 90 days before your OPT EAD expires and within 60 days of your DSO entering the STEM recommendation in SEVIS. The earlier deadline controls.",
+    "A timely and properly filed STEM OPT application may extend work authorization for up to 180 days while pending, ending sooner if USCIS decides the application.",
+  ];
+  const html = buildTransactionalEmail({
+    headerTitle: "STEM OPT extension window",
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead(escapeHtml(subject))}
+${emailTextP(args.firstName ? `Hi ${escapeHtml(args.firstName)},` : "Hi,")}
+${renderStemFilingTimeline(details)}
+${emailTextLead("STEM OPT filing requirements")}
+${emailTextList(requirements.map(escapeHtml), { ordered: true })}
+${emailPrimaryButton(dashUrl, "Open my dashboard")}
+${emailTextMuted(`Questions? Contact <a href="mailto:${LEGAL_CONTACT.support}" style="color:${EMAIL.link};">${LEGAL_CONTACT.support}</a>`)}
+${emailBodySectionClose()}`,
+  });
+  const text = `${args.firstName ? `Hi ${args.firstName},` : "Hi,"}
+
+${subject}
+
+Earliest filing date: ${formatStemDate(details.earliestFile)}
+OPT EAD expiration: ${formatStemDate(details.eadExpirationDate)}
+STEM DSO recommendation date: ${details.recommendationDate ? formatStemDate(details.recommendationDate) : "Not saved"}
+DSO recommendation deadline (60 days): ${details.recommendationDeadline ? formatStemDate(details.recommendationDeadline) : "Unknown"}
+${details.deadlineIsEstimate ? "Estimated filing deadline (EAD only)" : "Effective filing deadline"}: ${formatStemDate(details.hardDeadline)}
+
+${details.message}
+
+${requirements.map((item, index) => `${index + 1}. ${item}`).join("\n\n")}
+
+Track your STEM OPT timeline: ${dashUrl}
+
+Questions? Contact ${LEGAL_CONTACT.support}`;
+  return { subject, html, text };
+}
+
+/** The original queue/dedup policy also applies to DSO-limited window alerts. */
 export async function sendStemOptWindowEmail(args: {
   supabase: SupabaseClient;
   userId: string;
   toEmail: string;
   firstName: string | null;
   optEadEndDate: string;
+  stemDsoRecommendationDate?: string | null;
 }): Promise<QueueTransactionalResult> {
-  const { supabase, userId, toEmail, firstName, optEadEndDate } = args;
-  const dashUrl = `${getStemOptDashboardBaseUrl()}/dashboard`;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
-
-  let eadDisplay = optEadEndDate;
-  try {
-    const d = new Date(optEadEndDate + (optEadEndDate.includes("T") ? "" : "T12:00:00Z"));
-    if (!Number.isNaN(d.getTime())) {
-      eadDisplay = d.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-        timeZone: "UTC",
-      });
-    }
-  } catch {
-    // keep raw string
-  }
-
-  const html = buildTransactionalEmail({
-    headerTitle: "STEM OPT extension window",
-    bodyHtml: `
-${emailBodySectionOpen()}
-${emailTextLead("Your 90-day filing window is open")}
-${emailTextP(greeting)}
-${emailTextP(emailTextStrong("Your STEM OPT extension window is now open."))}
-${emailTextP(
-  `Your current OPT EAD expires on ${emailTextStrong(escapeHtml(eadDisplay))}. You are within the 90-day window to apply for a 24-month STEM OPT extension &mdash; act before your EAD expires.`
-)}
-${emailTextLead("Here&rsquo;s what to do right now:")}
-${emailTextList(
-  [
-    "<strong>Talk to your DSO</strong> &mdash; request a STEM OPT recommendation in SEVIS before you file.",
-    "<strong>Confirm E-Verify enrollment</strong> &mdash; your employer must participate in E-Verify.",
-    "<strong>File Form I-765 with USCIS</strong> &mdash; file before your EAD expires for cap-gap protection.",
-    "<strong>Complete Form I-983</strong> &mdash; training plan with your employer (due within 10 days of starting).",
-  ],
-  { ordered: true }
-)}
-${emailTextP("Track your STEM OPT timeline in your dashboard.")}
-${emailPrimaryButton(dashUrl, "Open my dashboard")}
-${emailTextMuted(
-  `Questions? Reply to this email or contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
-)}
-${emailBodySectionClose()}`,
-  });
-
-  const text = `${firstName ? `Hi ${firstName},` : "Hi,"}
-
-Your STEM OPT extension window is now open.
-
-Your current OPT EAD expires on ${eadDisplay}. You are now within the 90-day window to apply for a 24-month STEM OPT extension — but you must act before your EAD expires.
-
-Here's what to do right now:
-
-1. Talk to your DSO — request a STEM OPT recommendation in your school's system (SEVIS). This is required before you can file.
-
-2. Confirm your employer is E-Verify enrolled — your employer must be actively participating in E-Verify. Check with your HR team.
-
-3. File Form I-765 with USCIS — file before your current EAD expires. If filed on time, you get an automatic 180-day cap-gap extension.
-
-4. Complete Form I-983 with your employer — training plan required for STEM OPT. Due within 10 days of starting.
-
-Track your STEM OPT application timeline in your TrackMyOPT dashboard:
-${dashUrl}
-
-Questions? Reply to this email or contact support@trackmyopt.com
-
-© ${new Date().getFullYear()} Zyene, Inc.`;
-
+  const bodies = buildStemOptWindowEmailBodies(args);
   return queueTransactionalEmailSend({
-    supabase,
-    userId,
-    emailAddress: toEmail,
+    supabase: args.supabase,
+    userId: args.userId,
+    emailAddress: args.toEmail,
     emailType: "stem_opt_window_open",
-    subject: "Your STEM OPT extension window is now open — here's what to do",
-    html,
-    text,
-    emailData: { opt_ead_end_date: optEadEndDate },
+    ...bodies,
+    emailData: {
+      opt_ead_end_date: args.optEadEndDate,
+      stem_dso_recommendation_date: args.stemDsoRecommendationDate ?? null,
+    },
     dedupe: { kind: "stem_opt_window" },
   });
 }

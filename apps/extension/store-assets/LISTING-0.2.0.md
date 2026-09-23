@@ -4,6 +4,11 @@ Copy below is written to match what the extension **actually does** as of this
 build. Do not add claims beyond this without checking the code first — Chrome
 Web Store rejects listings whose description overstates functionality.
 
+**Draft — not approved for submission.** Private-answer and AI wording has been
+aligned with the current local implementation. Owner/legal review and live-build
+verification remain required; see
+`../../../docs/compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md`.
+
 Package to upload: `apps/extension/trackmyopt-0.2.0.zip`
 
 ---
@@ -60,8 +65,17 @@ WHAT IT DOES
 • Job fit analysis — see how your résumé scores against a posting and which
   keywords are missing.
 
-• Screening question drafts — AI-drafted answers you review and edit before
-  anything is entered.
+• Saved private answers — clicking Prefill this application fills matching
+  empty supported fields from your saved answers without a separate approval
+  step. Saved portal login email, password, and confirmation can fill supported
+  secure login/create-account forms on the same click. Review every filled
+  field before continuing; you click Login or Create Account yourself.
+
+• Screening question drafts — on your Prefill click, eligible non-sensitive
+  questions can receive saved matching answers or job/resume-grounded AI
+  drafts directly in empty fields. Review and edit these answers before
+  continuing. Choose Remember my answer only if you want an answer saved for
+  later matching reuse.
 
 NEW IN 0.2.0
 
@@ -79,9 +93,16 @@ NEW IN 0.2.0
 
 PRIVACY
 
-The extension never auto-submits an application. Your data stays in your
-TrackMyOPT account; the extension reads a page only to detect a job posting
-and to fill fields you have asked it to fill.
+The extension never auto-submits an application. It reads supported pages to
+detect job postings and application fields. Requested job-tracking and AI
+features send relevant page information to TrackMyOPT; AI drafting also sends
+the question, job description, and generated-resume context to our AI provider.
+Saved private answers and portal credentials are not used to prompt AI.
+Filling a form discloses the filled information to that employer or portal,
+which may read it before submission. Optional private data is stored encrypted
+on TrackMyOPT's server, not end-to-end encrypted. Manage or delete it on Chrome
+Job Prefill. The extension does not retrieve email verification codes.
+Full privacy policy: https://www.trackmyopt.com/privacy
 ```
 
 ---
@@ -111,9 +132,11 @@ Justification to give:
 > Job applications are hosted on tens of thousands of company career pages and
 > white-labelled ATS domains, not a fixed list of sites. The extension matches
 > common career-page URL paths so it can detect a posting and offer prefill.
-> It reads page content only to identify a job posting and to fill fields the
-> user explicitly requests. It never transmits page content except the job
-> description the user asks to analyse, and it never submits a form.
+> Page content supports job detection, requested job tracking, prefill, and AI
+> assistance. Requested AI features can send the question, job description,
+> and generated-resume context to our AI provider through TrackMyOPT. Filling
+> an answer discloses it to the employer or ATS operating the form. The
+> extension never submits a form. Verify permissions against the final manifest.
 
 ### Data-usage disclosures you must complete yourself
 
@@ -137,6 +160,8 @@ from your own knowledge of the backend — I have not audited the server side:
 - [ ] Screenshots re-rendered if UI changed materially
 - [ ] Permission justifications entered
 - [ ] Data-usage disclosures completed
+- [ ] Owner/legal approve the updated disclosure, consent treatment for existing
+  users, policy dates, listing copy, and matching final-build screenshots
 
 ### Smoke test before submitting
 

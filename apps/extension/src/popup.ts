@@ -1,3 +1,4 @@
+import { applyPopupTheme } from './design/popup-theme';
 import { API_ENDPOINTS } from './config.js';
 import { EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut.js';
 import { getIdToken, setIdToken } from './token-store.js';
@@ -113,16 +114,8 @@ async function isSignedIn(): Promise<boolean> {
  */
 async function applyTheme(): Promise<void> {
   const { theme } = await chrome.storage.sync.get('theme');
+  applyPopupTheme(theme);
   
-  // Default to light mode if no theme is saved
-  if (theme === 'dark') {
-    document.body.classList.add('dark-mode');
-    document.body.classList.remove('light-mode');
-  } else {
-    // Light mode is default (no class needed for light mode)
-    document.body.classList.remove('dark-mode');
-    document.body.classList.remove('light-mode');
-  }
 }
 
 /**
@@ -153,12 +146,20 @@ async function navigateToPage(page: string, data?: any): Promise<void> {
       if (data && data.results) {
         setCurrentPage('opt-countdown');
         const { renderOptCountdown } = await import('./pages/opt-countdown.js');
+        const latestEnd = new Date(data.results.latestEnd);
+        const uscisDeadline = data.results.uscisDeadline ? new Date(data.results.uscisDeadline) : null;
         // Convert ISO strings back to Date objects
         const results = {
           earliestStart: new Date(data.results.earliestStart),
-          latestEnd: new Date(data.results.latestEnd),
-          uscisDeadline: data.results.uscisDeadline ? new Date(data.results.uscisDeadline) : null,
-          programEndDate: new Date(data.results.programEndDate)
+          latestEnd,
+          uscisDeadline,
+          filingDeadline: data.results.filingDeadline
+            ? new Date(data.results.filingDeadline)
+            : (uscisDeadline && uscisDeadline < latestEnd ? uscisDeadline : latestEnd),
+          programEndDate: new Date(data.results.programEndDate),
+          dsoRecommendationDate: data.results.dsoRecommendationDate
+            ? new Date(data.results.dsoRecommendationDate)
+            : null,
         };
         renderOptCountdown(root, () => navigateToPage('opt-apply'), results);
       } else {
@@ -166,19 +167,10 @@ async function navigateToPage(page: string, data?: any): Promise<void> {
       }
       break;
     case 'stem-countdown':
-      if (data && data.results) {
-        setCurrentPage('stem-countdown');
-        const { renderStemCountdown } = await import('./pages/stem-countdown.js');
-        // Convert ISO strings back to Date objects
-        const results = {
-          earliestStart: new Date(data.results.earliestStart),
-          latestEnd: new Date(data.results.latestEnd),
-          currentOptEndDate: new Date(data.results.currentOptEndDate)
-        };
-        renderStemCountdown(root, () => navigateToPage('stem-apply'), results);
-      } else {
-        navigateToPage('stem-apply');
-      }
+      // Recompute from the server, including dashboard edits/clears. The form
+      // owns loading/errors so stale cached dates are never shown or saved.
+      setCurrentPage('stem-apply');
+      renderStemApply(root, () => navigateToPage('home'), true);
       break;
     case 'clock-tracker':
       if (data && data.startDate) {
@@ -221,6 +213,7 @@ async function render(): Promise<void> {
   const signedIn = await isSignedIn();
 
   if (signedIn) {
+    void chrome.runtime.sendMessage({ type: 'TOUR_SIGNED_IN' }).catch(() => {});
     const lastPage = await getLastPage();
     
     if (lastPage && lastPage !== 'home') {

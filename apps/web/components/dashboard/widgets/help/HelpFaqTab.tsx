@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { EXTENSION_AUTOFILL_PLAN_NOTICE, EXTENSION_AUTOFILL_SUPPORT_NOTICE } from "@/lib/legal/legal-config";
 import {
   HelpCircle,
   ChevronDown,
@@ -167,7 +168,7 @@ export function HelpFaqTab() {
               />
               <FAQItem
                 question="Is the extension free?"
-                answer="Yes. Free includes OPT tools, job tracking, Step-by-step application prefill, skills, private-answer review, 2 AI screening drafts per month, and 1 AI cover letter per month. Pro adds Continuous filling, Guided Autopilot, 100 shared AI writing actions per month, Document Vault, daily reminders, and USCIS status alerts."
+                answer={`Yes. OPT tools and job tracking are free. ${EXTENSION_AUTOFILL_PLAN_NOTICE}`}
               />
               <FAQItem
                 question="Does the extension work offline?"
@@ -175,11 +176,11 @@ export function HelpFaqTab() {
               />
               <FAQItem
                 question="What does application Prefill change?"
-                answer="Prefill adds eligible information from your dedicated job-portal profile and active job-scoped resume only to empty supported fields. Optional private answers can fill only after you review and approve their exact values for the current application. Guided Autopilot may advance allowlisted Next, Continue, and Done steps, but it stops before Review and never submits. Existing values and files are never replaced; review every field and attachment yourself."
+                answer={`Prefill adds eligible information from your dedicated job-portal profile and active job-scoped resume only to empty supported fields. ${EXTENSION_AUTOFILL_SUPPORT_NOTICE}`}
               />
               <FAQItem
                 question="Why did Prefill leave a field or attachment blank?"
-                answer="The control may already contain a value, require a custom dropdown, be a sensitive question, reject PDF upload, or be unsupported on that application. Generated resume data also expires after 30 minutes or when the job URL, company, or role changes. Enter or upload the value manually and contact support with the content-free error category shown by the extension."
+                answer="The control may already contain a value, have no safe matching dropdown option, ask for a private answer you have not saved, reject PDF upload, or be unsupported. New AI drafts need a current job-scoped resume and available quota; uncertain questions stay for you. Generated resume data expires after 30 minutes or when the job URL, company, or role changes. Complete remaining fields manually. Share only the content-free error category with support, not private answers or passwords."
               />
             </div>
           </div>

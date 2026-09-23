@@ -3,8 +3,7 @@ import Link from 'next/link';
 import { LegalPageShell } from '@/components/legal/LegalPageShell';
 import {
   COMPANY,
-  EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE,
-  EXTENSION_AUTOFILL_SUPPORT_NOTICE,
+  EXTENSION_AUTOFILL_PRIVACY_PARAGRAPHS,
   LEGAL_CONTACT,
   THIRD_PARTY_SERVICES,
 } from '@/lib/legal/legal-config';
@@ -172,24 +171,9 @@ export default function PrivacyPage() {
       </p>
 
       <h3>2.8 Chrome extension application prefill</h3>
-      <p>{EXTENSION_AUTOFILL_PRIVACY_DISCLOSURE}</p>
-      <p>{EXTENSION_AUTOFILL_SUPPORT_NOTICE}</p>
-      <p>
-        Saving private application answers is optional and requires an explicit
-        consent action. The encrypted record is retained while you keep it in
-        your account, and you may edit or permanently delete it from Settings.
-        If you save a default job-portal login, TrackMyOPT stores one login
-        email and password in that encrypted record. After your review and
-        approval for each application, the same credential may be offered on
-        third-party job portals across different employers and hiring systems.
-        This cross-portal reuse increases the potential impact if any one portal
-        is compromised. The server must decrypt it to provide autofill, so this
-        is not end-to-end encryption. Do not save your TrackMyOPT password or a
-        primary password used for sensitive accounts. When you choose to use an
-        answer, it is disclosed to the employer or applicant-tracking system
-        whose form you are completing. Private application answers are not used
-        to train or prompt our AI features.
-      </p>
+      {EXTENSION_AUTOFILL_PRIVACY_PARAGRAPHS.map((paragraph) => (
+        <p key={paragraph}>{paragraph}</p>
+      ))}
 
       <h2>3. How we use information</h2>
       <ul>
@@ -302,7 +286,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Private application answers:</strong> Review, change, or
-          delete all saved answers in Settings → Profile
+          delete your saved private answers and portal login on{' '}
+          <Link href="/dashboard/extension">Chrome Job Prefill</Link>
         </li>
         <li>
           <strong>Deletion:</strong> Delete your account in Settings (or email{' '}

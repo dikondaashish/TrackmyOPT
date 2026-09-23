@@ -4,9 +4,9 @@ import { useMemo } from "react";
 import { Calendar, Clock, AlertTriangle, ChevronRight, FileText, Briefcase, Bell } from "lucide-react";
 import Link from "next/link";
 import {
-  addDays,
   daysBetween,
   getFilingWindow,
+  getStemFilingWindow,
 } from "@/lib/immigration/opt-calculations";
 
 interface Deadline {
@@ -28,6 +28,7 @@ interface UpcomingDeadlinesPanelProps {
     opt_start_date: string;
     opt_ead_end_date: string;
     stem_start_date?: string | null;
+    stem_dso_recommendation_date?: string | null;
   } | null;
   isStemEligible?: boolean;
 }
@@ -38,16 +39,17 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const calculatedDeadlines: Deadline[] = [];
 
     // Calculate filing window dates
-    const filingWindow = getFilingWindow(optStatus.program_end_date);
-    const earliestFileDate = new Date(`${filingWindow.earliestFile}T00:00:00`);
-    const mustArriveBy = new Date(`${filingWindow.hardDeadline}T00:00:00`);
+    const filingWindow = optStatus.program_end_date ? getFilingWindow(optStatus.program_end_date) : null;
+    const earliestFileDate = new Date(`${filingWindow?.earliestFile}T00:00:00`);
+    const mustArriveBy = new Date(`${filingWindow?.hardDeadline}T00:00:00`);
 
     // OPT EAD End Date
-    const optEndDate = new Date(optStatus.opt_ead_end_date);
-    const optEndDaysLeft = daysBetween(today, optEndDate);
+    const optEndDate = new Date(`${optStatus.opt_ead_end_date}T00:00:00`);
+    const optEndDaysLeft = daysBetween(todayISO, optStatus.opt_ead_end_date);
 
     // Filing window open
     const filingOpenDaysLeft = daysBetween(today, earliestFileDate);
@@ -100,9 +102,10 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
     }
 
     // STEM Extension deadline (if eligible and on OPT)
-    if (isStemEligible && optEndDaysLeft > 0 && optEndDaysLeft <= 120) {
-      const stemDeadline = new Date(`${addDays(optStatus.opt_ead_end_date, -90)}T00:00:00`);
-      const stemDeadlineDaysLeft = daysBetween(today, stemDeadline);
+    if (isStemEligible && !optStatus.stem_start_date && optEndDaysLeft >= 0 && optEndDaysLeft <= 120) {
+      const stem = getStemFilingWindow(optStatus.opt_ead_end_date, optStatus.stem_dso_recommendation_date);
+      const stemDeadline = new Date(`${stem.earliestFile}T00:00:00`);
+      const stemDeadlineDaysLeft = daysBetween(todayISO, stem.earliestFile);
       
       if (stemDeadlineDaysLeft > 0) {
         calculatedDeadlines.push({
@@ -118,6 +121,17 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
           },
         });
       }
+      const filingDaysLeft = daysBetween(todayISO, stem.hardDeadline);
+      calculatedDeadlines.push({
+        id: 'stem-filing-deadline',
+        title: filingDaysLeft < 0 ? 'STEM Recommendation Deadline Passed'
+          : optStatus.stem_dso_recommendation_date ? 'STEM OPT Filing Deadline' : 'STEM Filing Deadline Estimate',
+        date: new Date(`${stem.hardDeadline}T00:00:00`),
+        daysLeft: filingDaysLeft,
+        type: 'filing',
+        priority: filingDaysLeft <= 14 ? 'urgent' : filingDaysLeft <= 30 ? 'warning' : 'normal',
+        action: { label: filingDaysLeft < 0 ? 'Review with DSO' : 'Review STEM Dates', href: '/tools/stem-apply' },
+      });
     }
 
     // Employment reporting reminder (every 6 months on STEM)
@@ -268,7 +282,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
                         {formatDate(deadline.date)}
                       </span>
                       <span className={`px-2 py-0.5 rounded-full font-medium ${styles.badge}`}>
-                        {deadline.daysLeft === 0
+                        {deadline.daysLeft < 0 ? `${Math.abs(deadline.daysLeft)} days ago` : deadline.daysLeft === 0
                           ? "Today"
                           : deadline.daysLeft === 1
                           ? "Tomorrow"

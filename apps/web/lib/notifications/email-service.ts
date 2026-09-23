@@ -33,6 +33,7 @@ import {
   renderDailyReminderEmailHtml,
 } from './templates/daily-reminder-html';
 import { emailSectionHeading } from './email-icons';
+import { renderStemFilingTimeline, type StemFilingEmailDetails } from './stem-filing-email';
 
 export interface ToolReminderDetail {
   name: string;
@@ -46,6 +47,7 @@ export interface ToolReminderDetail {
   // OPT specific fields
   optType?: 'Pre-Completion OPT' | 'Post-Completion OPT';
   programEndDate?: string;
+  stemFiling?: StemFilingEmailDetails;
 }
 
 export interface EmailReminderData {
@@ -118,6 +120,7 @@ ${emailBodySectionClose()}`,
  * Enrollment email data including timeline information
  */
 export interface EnrollmentEmailData {
+  stemFiling?: StemFilingEmailDetails;
   startDate?: string;
   endDate?: string;
   programEndDate?: string;
@@ -268,21 +271,7 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
         subtitle: 'Your 24-Month Extension Application Reminder',
         icon: '',
         accent: EMAIL.accent.stemApply,
-        timelineHtml: data?.startDate && data?.endDate ? `
-          <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">${emailSectionHeading('Your STEM OPT Filing Window', 'calendar', '#065F46')}</h3>
-            <div style="display: flex; justify-content: space-between; gap: 16px;">
-              <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
-                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">Earliest Apply Date</p>
-                <p style="margin: 0; color: #059669; font-size: 16px; font-weight: 700;">${data.startDate}</p>
-              </div>
-              <div style="flex: 1; background: white; border-radius: 8px; padding: 12px; text-align: center;">
-                <p style="margin: 0 0 4px 0; color: #6B7280; font-size: 12px; text-transform: uppercase;">OPT EAD Expires</p>
-                <p style="margin: 0; color: #DC2626; font-size: 16px; font-weight: 700;">${data.endDate}</p>
-              </div>
-            </div>
-          </div>
-        ` : '',
+        timelineHtml: renderStemFilingTimeline(data?.stemFiling),
         preparationHtml: `
           <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 20px; margin: 20px 0;">
             <h3 style="${baseStyles.sectionTitle}">${emailSectionHeading('Documents Required for STEM Extension', 'fileText')}</h3>
@@ -303,8 +292,8 @@ function getToolEnrollmentContent(toolName: string, data?: EnrollmentEmailData):
             <ul style="margin: 0; padding: 0 0 0 20px;">
               <li style="${baseStyles.listItem}"><strong>Verify E-Verify:</strong> Confirm your employer is enrolled in E-Verify before starting the process</li>
               <li style="${baseStyles.listItem}"><strong>I-983 Training Plan:</strong> Work with your employer to create a detailed, degree-related training plan</li>
-              <li style="${baseStyles.listItem}"><strong>Apply Early:</strong> Submit up to 90 days before your OPT EAD expires</li>
-              <li style="${baseStyles.listItem}"><strong>Cap-Gap:</strong> If your OPT expires while application is pending, you get automatic extension</li>
+              <li style="${baseStyles.listItem}"><strong>Filing rules:</strong> Apply up to 90 days before your OPT EAD expires and within 60 days of your DSO entering the STEM recommendation in SEVIS. The earlier deadline controls.</li>
+              <li style="${baseStyles.listItem}"><strong>Automatic extension:</strong> A timely and properly filed STEM OPT application may extend work authorization for up to 180 days while pending, ending sooner if USCIS decides the application</li>
               <li style="${baseStyles.listItem}"><strong>6-Month Reports:</strong> Remember you must report to your school every 6 months during STEM OPT</li>
             </ul>
           </div>

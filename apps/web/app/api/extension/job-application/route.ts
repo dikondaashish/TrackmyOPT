@@ -262,17 +262,42 @@ export async function POST(req: NextRequest) {
         // The partial unique index makes concurrent clicks/tabs atomic. Treat
         // the conflict as idempotent success so the widget paints Saved/View.
         let existingId: string | null = null;
+        let savedStatus: string | null = null;
         if (job_url) {
-          const { data: existing } = await supabase
+          const { data: existing, error: lookupError } = await supabase
             .from('job_applications')
-            .select('id')
+            .select('id, status')
             .eq('user_id', userId)
             .eq('job_url', String(job_url).trim())
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle();
+          if (lookupError) throw lookupError;
           existingId = existing?.id ?? null;
+          savedStatus = existing?.status ?? null;
+          if (existingId && savedStatus === 'Wishlist' && status === 'Applied') {
+            // A real application may advance Wishlist, never overwrite a later
+            // stage. The status predicate protects concurrent tracker edits.
+            const { data: promoted, error: updateError } = await supabase
+              .from('job_applications')
+              .update({ status: 'Applied', applied_at: new Date().toISOString().split('T')[0] })
+              .eq('id', existingId).eq('user_id', userId).eq('status', 'Wishlist')
+              .select('id, status').maybeSingle();
+            if (updateError) throw updateError;
+            if (promoted) savedStatus = promoted.status;
+            else {
+              const { data: current, error: currentError } = await supabase
+                .from('job_applications').select('id, status')
+                .eq('id', existingId).eq('user_id', userId).maybeSingle();
+              if (currentError) throw currentError;
+              savedStatus = current?.status ?? null;
+            }
+          }
         }
+        if (!existingId || !savedStatus) return NextResponse.json(
+          { error: 'Could not confirm the saved job. Please refresh your tracker and try again.' },
+          { status: 409, headers: corsHeaders }
+        );
         if (existingId) {
           await attachMatchingResume({
             userId,
@@ -286,6 +311,7 @@ export async function POST(req: NextRequest) {
           {
             ok: true,
             already_saved: true,
+            status: savedStatus,
             ...(existingId ? { id: existingId } : {}),
             message: 'This job is already in your tracker.',
           },
@@ -318,7 +344,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { ok: true, id: data.id, message: 'Job added to tracker' },
+      { ok: true, id: data.id, status: data.status, message: 'Job added to tracker' },
       { headers: corsHeaders }
     );
   } catch (error) {

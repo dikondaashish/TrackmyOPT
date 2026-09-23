@@ -1,4 +1,5 @@
 import type { ScreeningQuestionDraftRequest } from './screening-answer-contract';
+import { hasQuestionEvidence, hasUnsupportedTools } from '../../../extension/src/screening-answer-evidence';
 
 type ScreeningDraftGroundingValidation =
   | { valid: true }
@@ -41,6 +42,9 @@ export function validateScreeningDraftGrounding(
   }
   if (SENSITIVE_DRAFT_RE.test(normalizedDraft)) {
     return { valid: false, reason: 'sensitive' };
+  }
+  if (!hasQuestionEvidence(request.questionText, request.snapshot) || hasUnsupportedTools(normalizedDraft, request.snapshot)) {
+    return { valid: false, reason: 'insufficient_context' };
   }
 
   const resumeEvidence = {

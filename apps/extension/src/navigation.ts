@@ -1,9 +1,11 @@
+import { applyPopupTheme } from './design/popup-theme';
 /**
  * Navigation state management for extension popup
  */
 
 import { performExtensionSignOut } from './signOut';
 import { icon, themeToggleIcon } from './icons';
+import { setupToolHelp } from './tool-ui';
 
 type Page = 'home' | 'opt-apply' | 'stem-apply' | 'clock' | 'opt-countdown' | 'stem-countdown' | 'clock-tracker' | 'stem-clock' | 'stem-clock-tracker';
 
@@ -57,10 +59,12 @@ export async function getPageData(page: Page): Promise<any> {
  * Render a page header with back button
  */
 export function renderPageHeader(root: HTMLElement, title: string, subtitle: string): void {
-  const logoUrl = chrome.runtime.getURL('icons/icon48.png');
+  root.dataset.toolFamily = title.includes('STEM') ? 'stem' : 'opt';
+  setupToolHelp(root);
+  const logoUrl = chrome.runtime.getURL('icons/logo.gif');
   const headerHTML = `
     <div class="header" role="region" aria-label="${title}">
-      <button class="back-btn" id="back-btn" title="Back to home" aria-label="Back to home">
+      <button class="back-btn" id="back-btn" title="Back" aria-label="Back">
         <span>←</span>
       </button>
       <div class="header-content header-content--with-logo">
@@ -121,6 +125,7 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
   
   // Set initial icon based on current theme
   const { theme } = await chrome.storage.sync.get('theme');
+  applyPopupTheme(theme);
   if (themeIconPage) {
     themeIconPage.innerHTML = themeToggleIcon(theme === 'dark', 16);
   }
@@ -131,11 +136,11 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
       const isDarkMode = body.classList.contains('dark-mode');
 
       if (isDarkMode) {
-        body.classList.remove('dark-mode');
+        applyPopupTheme('light');
         await chrome.storage.sync.set({ theme: 'light' });
         if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(false, 16);
       } else {
-        body.classList.add('dark-mode');
+        applyPopupTheme('dark');
         await chrome.storage.sync.set({ theme: 'dark' });
         if (themeIconPage) themeIconPage.innerHTML = themeToggleIcon(true, 16);
       }
@@ -166,4 +171,3 @@ export async function setupPageHandlers(onBack: () => void): Promise<void> {
     });
   }
 }
-

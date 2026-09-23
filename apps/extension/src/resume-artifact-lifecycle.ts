@@ -68,7 +68,10 @@ function bytesToHex(bytes: Uint8Array): string {
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
   const copy = new Uint8Array(bytes.byteLength);
   copy.set(bytes);
-  const digest = await globalThis.crypto.subtle.digest('SHA-256', copy.buffer);
+  // Pass the typed view rather than its backing store. Node 20's WebCrypto
+  // rejects an ArrayBufferLike backing store even when the byte data itself is
+  // valid; a Uint8Array is a portable BufferSource in browsers and Node.
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', copy);
   return bytesToHex(new Uint8Array(digest));
 }
 

@@ -1,3 +1,5 @@
+import { calendarDateISO, employmentWindowStats, estimatedStemEndISO, localTodayISO } from './calendar-days';
+
 export type ISODateString = string;
 
 interface OPTDates {
@@ -55,22 +57,34 @@ export function addDays(dateLike: string | Date, days: number): string {
     return next.toISOString().slice(0, 10);
 }
 
+/** Calendar-day estimate; STEM recommendations are distinct from initial OPT. */
+export function getStemFilingWindow(optEadEndISO: string, recommendationISO?: string | null) {
+    const recommendationDeadline = recommendationISO ? addDays(recommendationISO, 60) : null;
+    const isDsoLimited = !!recommendationDeadline && recommendationDeadline < optEadEndISO;
+    return {
+        earliestFile: addDays(optEadEndISO, -90),
+        hardDeadline: isDsoLimited ? recommendationDeadline! : optEadEndISO,
+        recommendationDeadline,
+        isDsoLimited,
+    };
+}
+
 export function isoToMMDDYYYY(dateStr: string): string {
-    const d = new Date(dateStr);
-    if (Number.isNaN(d.getTime())) return dateStr;
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const yyyy = d.getFullYear();
+    const iso = calendarDateISO(dateStr);
+    if (!iso) return dateStr;
+    const [yyyy, mm, dd] = iso.split('-');
     return `${mm}/${dd}/${yyyy}`;
 }
 
 export function formatDate(dateLike: string | Date): string {
-    const d = typeof dateLike === "string" ? new Date(dateLike) : dateLike;
+    const iso = typeof dateLike === 'string' ? calendarDateISO(dateLike) : null;
+    const d = iso ? new Date(`${iso}T00:00:00Z`) : new Date(dateLike);
     if (Number.isNaN(d.getTime())) return String(dateLike);
     return d.toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",
+        ...(iso ? { timeZone: 'UTC' } : {}),
     });
 }
 
@@ -185,47 +199,10 @@ function computeUnemployedInWindow(
     spans: EmploymentSpan[],
     todayRef: Date,
 ): number {
-    if (windowEnd.getTime() <= windowStart.getTime()) return 0;
-
-    const totalDays = Math.max(
-        0,
-        Math.ceil((windowEnd.getTime() - windowStart.getTime()) / MS_PER_DAY),
-    );
-
-    if (!spans || spans.length === 0) return totalDays;
-
-    const intervals: Array<[number, number]> = [];
-    for (const span of spans) {
-        const spanStart = toUTCDate(span.start_date);
-        const spanEnd = span.end_date ? toUTCDate(span.end_date) : todayRef;
-
-        const clampedStart = spanStart.getTime() > windowStart.getTime() ? spanStart : windowStart;
-        const clampedEnd = spanEnd.getTime() < windowEnd.getTime() ? spanEnd : windowEnd;
-
-        if (clampedEnd.getTime() >= clampedStart.getTime()) {
-            intervals.push([clampedStart.getTime(), clampedEnd.getTime()]);
-        }
-    }
-
-    if (intervals.length === 0) return totalDays;
-
-    intervals.sort((a, b) => a[0] - b[0]);
-    const merged: Array<[number, number]> = [];
-    for (const [s, e] of intervals) {
-        const last = merged[merged.length - 1];
-        if (!last || s > last[1] + MS_PER_DAY) {
-            merged.push([s, e]);
-        } else {
-            last[1] = Math.max(last[1], e);
-        }
-    }
-
-    const employedDays = merged.reduce(
-        (sum, [s, e]) => sum + Math.ceil((e - s) / MS_PER_DAY),
-        0,
-    );
-
-    return Math.max(0, totalDays - employedDays);
+    return employmentWindowStats(
+        windowStart.toISOString().slice(0, 10), windowEnd.toISOString().slice(0, 10),
+        spans, todayRef.toISOString().slice(0, 10),
+    ).totalUnemployedDays;
 }
 
 /**
@@ -253,7 +230,7 @@ export function calculateUnemploymentDays(
     stemEndDate?: string | null,
     asOfDate?: string | Date,
 ): UnemploymentBreakdown {
-    const today = toUTCDate(asOfDate ?? new Date());
+    const today = toUTCDate(asOfDate ?? localTodayISO());
     const start = toUTCDate(optStartDate);
     const initialEnd = toUTCDate(optEadEndDate);
 
@@ -263,15 +240,7 @@ export function calculateUnemploymentDays(
     const stemEnd = stemEndDate
         ? toUTCDate(stemEndDate)
         : stemStart
-            ? toUTCDate(
-                new Date(
-                    Date.UTC(
-                        stemStart.getUTCFullYear() + 2,
-                        stemStart.getUTCMonth(),
-                        stemStart.getUTCDate(),
-                    ),
-                ),
-            )
+            ? toUTCDate(estimatedStemEndISO(stemStartDate!))
             : null; // STEM is 24 months by default
 
     const stemHasStarted = !!(stemStart && today.getTime() >= stemStart.getTime());
@@ -284,14 +253,12 @@ export function calculateUnemploymentDays(
 
     // Cumulative-counting window. Uses STEM end if STEM started, else OPT EAD end.
     const cumulativeWindowEnd = stemHasStarted ? (stemEnd ?? initialEnd) : initialEnd;
-    const cumulativeEffectiveEnd =
-        cumulativeWindowEnd.getTime() < today.getTime() ? cumulativeWindowEnd : today;
 
     // Initial-phase end: STEM start − 1 day if STEM exists, else OPT EAD end.
     // For "how much initial-phase unemployment has the user actually incurred so far"
     // we also clamp by today (they can't have unemployment days in the future).
     const initialPhaseEnd = stemStart
-        ? new Date(Math.min(stemStart.getTime() - MS_PER_DAY, today.getTime()))
+        ? new Date(Math.min(initialEnd.getTime(), stemStart.getTime() - MS_PER_DAY, today.getTime()))
         : new Date(Math.min(initialEnd.getTime(), today.getTime()));
 
     // Phase the user is in right now
@@ -309,14 +276,6 @@ export function calculateUnemploymentDays(
     //  - Once STEM has started (or already ended), cap = 150 cumulative.
     const max: 90 | 150 = stemHasStarted ? 150 : 90;
 
-    // Cumulative usage: from OPT start to whichever phase end is "current".
-    const cumulativeUsed = computeUnemployedInWindow(
-        start,
-        cumulativeEffectiveEnd,
-        employmentSpans,
-        today,
-    );
-
     // Initial-OPT-only usage: from OPT start to initialPhaseEnd.
     // We always compute this so the UI can show "Initial OPT: A / 90" even
     // when the user is currently in the STEM phase, and so the
@@ -328,9 +287,12 @@ export function calculateUnemploymentDays(
         today,
     );
 
-    // STEM-period usage = cumulative − initial. Guard against negative due to
-    // rounding edge cases.
-    const stemUnemploymentDays = Math.max(0, cumulativeUsed - initialOptUnemploymentDays);
+    // Count each authorized phase separately, including its final day. Never
+    // attribute the last initial-OPT day or a gap between authorizations to STEM.
+    const stemUnemploymentDays = stemHasStarted && stemStart && stemEnd
+        ? computeUnemployedInWindow(new Date(Math.max(stemStart.getTime(), start.getTime())), stemEnd, employmentSpans, today)
+        : 0;
+    const cumulativeUsed = initialOptUnemploymentDays + stemUnemploymentDays;
 
     const exceededInitialOptCap = initialOptUnemploymentDays > INITIAL_OPT_CAP;
     const exceededCumulativeCap = cumulativeUsed > CUMULATIVE_STEM_CAP;
@@ -338,7 +300,7 @@ export function calculateUnemploymentDays(
     const warnings: string[] = [];
     if (exceededInitialOptCap) {
         warnings.push(
-            `Initial OPT unemployment exceeded 90 days (used ${initialOptUnemploymentDays}). This is an F-1 status violation regardless of whether STEM was later approved.`,
+            `Initial OPT unemployment recorded exceeds 90 days (used ${initialOptUnemploymentDays}). STEM does not erase earlier excess days; review your records with your DSO immediately.`,
         );
     }
     if (exceededCumulativeCap) {
@@ -372,12 +334,13 @@ export function calculateUnemploymentDays(
 
 export function getUnemploymentStatus(used: number, max: number): UnemploymentStatus {
     const ratio = max > 0 ? used / max : 0;
-    if (ratio >= 1) {
+    if (ratio > 1) {
         return {
             level: "critical",
             label: "Limit exceeded — OPT status termination risk",
         };
     }
+    if (ratio === 1) return { level: 'critical', label: 'Unemployment limit reached — no days remaining' };
     if (ratio >= 0.75) {
         return {
             level: "warning",
@@ -393,10 +356,11 @@ export function getUnemploymentStatus(used: number, max: number): UnemploymentSt
 /**
  * Single source of truth for OPT filing window edges.
  * Earliest: 90 days before program end.
- * Hard deadline: 60 days after program end (USCIS must receive within 60 days
- * of the DSO recommendation, which is typically within 30 days of program end).
+ * Historical initial-OPT outer window: program end +60; recommendation +30
+ * may shorten it. Not a determination of eligibility under the September 2026
+ * transition: callers must require DSO/I-94 review for affected windows.
  */
-export function getFilingWindow(programEndDate: string | Date): {
+export function getFilingWindow(programEndDate: string | Date, recommendationDate?: string | null): {
     earliestFile: string;
     recommendedTarget: string;
     hardDeadline: string;
@@ -404,7 +368,9 @@ export function getFilingWindow(programEndDate: string | Date): {
     return {
         earliestFile: addDays(programEndDate, -90),
         recommendedTarget: addDays(programEndDate, -60),
-        hardDeadline: addDays(programEndDate, 60),
+        hardDeadline: recommendationDate
+            ? [addDays(programEndDate, 60), addDays(recommendationDate, 30)].sort()[0]
+            : addDays(programEndDate, 60),
     };
 }
 

@@ -11,7 +11,7 @@ import { toolSurfaceCard } from '../src/tool-page-theme';
 assert.equal(WIDGET_TOKENS.light.surface, '#ffffff');
 assert.equal(WIDGET_TOKENS.light.ink, '#0f172a');
 assert.equal(WIDGET_TOKENS.dark.surface, '#161b22');
-assert.equal(WIDGET_TOKENS.dark.accent, '#5eead4');
+assert.equal(WIDGET_TOKENS.dark.accent, '#60a5fa');
 
 const themeCss = buildWidgetThemeCss('.tmo-widget-theme-scope');
 assert.match(themeCss, /\.tmo-widget-theme-scope/);

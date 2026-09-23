@@ -1,4 +1,5 @@
 import { WEBSITE_URL } from './config';
+import { looksLikeRealJobPostingText } from './job-description';
 import { normalizeQuestionText } from './screening-question-drafts';
 import {
   deleteSavedScreeningAnswer,
@@ -9,10 +10,22 @@ import {
 import { resolveScreeningDraftJobContext } from './screening-draft-context';
 import { getExtensionBearerToken } from './background-auth';
 import { readCurrentGeneratedResumeArtifact } from './background-resume-artifact';
+import { validateArtifactForPrefill } from './resume-artifact-lifecycle';
+import { isSensitiveApplicationQuestion } from './sensitive-question-policy';
+import {hasQuestionEvidence} from './screening-answer-evidence';
 
 export async function requestScreeningDraft(input: Record<string, unknown>) {
+  if (isSensitiveApplicationQuestion(String(input.questionText ?? ''))) return {ok:false,error:'sensitive'};
   const artifact = await readCurrentGeneratedResumeArtifact();
   if (!artifact) return { ok: false, error: 'artifact_unavailable' };
+  if (typeof input.jobUrl !== 'string' || !input.jobUrl) return {ok:false,error:'job_changed'};
+  const validation = validateArtifactForPrefill(artifact, {
+    jobUrl: input.jobUrl,
+    companyName: String(input.companyName ?? ''),
+    roleTitle: String(input.roleTitle ?? ''),
+  });
+  if (!validation.valid) return {ok:false,error:validation.reason};
+  if (!hasQuestionEvidence(String(input.questionText ?? ''),artifact.snapshot)) return {ok:false,error:'insufficient_context'};
   const job = resolveScreeningDraftJobContext({
     artifactJob: artifact.job,
     pageContext: {
@@ -21,7 +34,7 @@ export async function requestScreeningDraft(input: Record<string, unknown>) {
       jobDescription: String(input.jobDescription ?? ''),
     },
   });
-  if (!job.jobDescription) {
+  if (!looksLikeRealJobPostingText(job.jobDescription)) {
     return { ok: false, error: 'insufficient_context' };
   }
   const bearer = await getExtensionBearerToken();
@@ -38,7 +51,8 @@ export async function requestScreeningDraft(input: Record<string, unknown>) {
       regenerate: input.regenerate === true,
     }),
   });
-  return response.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+  const body = await response.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+  return response.ok ? body : {ok:false,error:body.error || 'generation_failed'};
 }
 
 export async function requestSavedScreeningAnswer(method: 'GET' | 'DELETE', questionHash: string) {

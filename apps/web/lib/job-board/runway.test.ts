@@ -13,14 +13,15 @@ describe('getRunwayContext', () => {
       new Date('2026-08-29T12:00:00Z'),
     );
 
-    expect(runway).toMatchObject({ used: 28, remaining: 62, max: 90, phase: 'initial', stemActive: false });
+    // Inclusive estimate through Aug 29: Aug 1–29 is 29 calendar days.
+    expect(runway).toMatchObject({ used: 29, remaining: 61, max: 90, phase: 'initial', stemActive: false });
   });
 
   it('uses the STEM cumulative cap from a stored STEM start date', () => {
     const runway = getRunwayContext(
       {
         opt_start_date: '2026-06-01',
-        opt_ead_end_date: '2027-05-31',
+        opt_ead_end_date: '2026-08-14',
         stem_start_date: '2026-08-15',
       },
       [{

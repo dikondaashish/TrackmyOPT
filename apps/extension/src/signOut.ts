@@ -12,7 +12,11 @@ export async function clearExtensionAuthStorage(): Promise<void> {
   await chrome.storage.sync.remove(['signedIn']);
   await purgeLegacySyncToken(); // drop any legacy token that older builds put in sync
   await clearIdToken(); // token now lives in local
-  await chrome.storage.local.remove(['authToken', 'lastPage']);
+  await chrome.storage.local.remove([
+    'authToken', 'lastPage',
+    'opt-countdown_data', 'stem-countdown_data',
+    'clock-tracker_data', 'stem-clock-tracker_data',
+  ]);
   await chrome.storage.session.clear();
   await chrome.storage.sync.set({
     signedIn: false,

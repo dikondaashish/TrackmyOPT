@@ -1,37 +1,8 @@
+import { renderStemFilingTimeline } from '../../stem-filing-email';
 import type { ToolReminderDetail } from '../../email-service';
 import { emailChecklistItem, emailIcon, emailSectionHeading } from '../../email-icons';
 
 export function generateStemApplySection(tool: ToolReminderDetail): string {
-  const urgencyColor = tool.urgency === 'critical' ? '#DC2626' :
-    tool.urgency === 'urgent' ? '#D97706' : '#2563EB';
-
-  const daysElapsed = tool.totalDays - tool.daysLeft;
-  const progressPercent = Math.round((daysElapsed / tool.totalDays) * 100);
-  const today = new Date().toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric', month: 'numeric', day: 'numeric',
-    hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
-  });
-
-  // Get urgency-based styling
-  const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
-  let statusBg = '#F5F3FF';
-  let statusBorder = '#8B5CF6';
-  let statusEmoji = '';
-  let motivationalMessage = 'You have time to prepare your STEM OPT extension carefully. Start gathering documents now!';
-
-  if (percentRemaining <= 33) {
-    statusBg = '#FEF2F2';
-    statusBorder = '#EF4444';
-    statusEmoji = '';
-    motivationalMessage = 'URGENT! Your OPT expires soon. Submit your STEM extension application immediately!';
-  } else if (percentRemaining <= 66) {
-    statusBg = '#FFFBEB';
-    statusBorder = '#F59E0B';
-    statusEmoji = '';
-    motivationalMessage = 'Time is moving! Don\'t wait - apply for your STEM extension now.';
-  }
-
   return `
     <div style="padding: 24px 28px; border-bottom: 1px solid #E5E7EB;">
       
@@ -45,45 +16,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
         </p>
       </div>
 
-      <!-- Application Status Section -->
-      <div style="background: ${statusBg}; border: 1px solid ${statusBorder}; border-top: none; padding: 24px;">
-        <h3 style="margin: 0 0 16px 0; color: #1F2937; font-size: 16px; font-weight: 600;">
-          Your STEM Extension Status:
-        </h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Time Remaining:</td>
-            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${tool.daysLeft} days</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Days Elapsed:</td>
-            <td style="padding: 8px 0; color: #374151; font-size: 14px; font-weight: 600; text-align: right;">${daysElapsed} days</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Filing Window Used:</td>
-            <td style="padding: 8px 0; color: ${urgencyColor}; font-size: 14px; font-weight: 700; text-align: right;">${progressPercent}%</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• OPT Expiration Date:</td>
-            <td style="padding: 8px 0; color: #DC2626; font-size: 14px; font-weight: 700; text-align: right;">${tool.endDate}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Earliest Filing Date:</td>
-            <td style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 600; text-align: right;">${tool.startDate}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px;">• Today (ET):</td>
-            <td style="padding: 8px 0; color: #6B7280; font-size: 14px; text-align: right;">${today}</td>
-          </tr>
-        </table>
-        
-        <!-- Progress Bar -->
-        <div style="margin-top: 16px;">
-          <div style="background: #E5E7EB; border-radius: 10px; height: 10px; overflow: hidden;">
-            <div style="background: linear-gradient(90deg, #8B5CF6, #A78BFA); width: ${progressPercent}%; height: 100%; border-radius: 10px;"></div>
-          </div>
-        </div>
-      </div>
+      ${renderStemFilingTimeline(tool.stemFiling)}
 
       <!-- STEM Extension Requirements -->
       <div style="background: #EFF6FF; border: 1px solid #3B82F6; border-top: none; padding: 24px;">
@@ -94,8 +27,8 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
           <li><strong>STEM Degree:</strong> Your degree must be on the STEM Designated Degree Program List</li>
           <li><strong>E-Verify Employer:</strong> Your employer MUST be enrolled in E-Verify</li>
           <li><strong>Form I-983:</strong> Training Plan signed by you and your employer</li>
-          <li><strong>Timely Filing:</strong> Apply up to 90 days before OPT expires</li>
-          <li><strong>Cap-Gap Protection:</strong> If filed on time, you can continue working while pending</li>
+          <li><strong>Timely Filing:</strong> Apply up to 90 days before OPT expires and within 60 days of your DSO entering the STEM recommendation in SEVIS. The earlier deadline controls.</li>
+          <li><strong>Automatic extension:</strong> A timely and properly filed STEM application may extend work authorization for up to 180 days while pending, ending sooner upon a USCIS decision.</li>
         </ul>
       </div>
 
@@ -112,7 +45,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
           ${emailChecklistItem("<strong>Copy of STEM Degree</strong> - Diploma or official transcript")}
           ${emailChecklistItem("<strong>2 Passport Photos</strong> - 2x2 inches, white background")}
           ${emailChecklistItem("<strong>Passport Copy</strong> - Bio page (valid for 6+ months)")}
-          ${emailChecklistItem("<strong>Filing Fee</strong> - $410 (check current fee)")}
+          ${emailChecklistItem("<strong>Filing Fee</strong> - <a href=\"https://www.uscis.gov/g-1055\">Check the current USCIS fee schedule</a>")}
         </ul>
       </div>
 
@@ -126,7 +59,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
           <li><strong>Avoid: Incomplete I-983:</strong> All sections must be completed and signed by both you and employer</li>
           <li><strong>Avoid: Wrong Job Title:</strong> Job must be directly related to your STEM degree field</li>
           <li><strong>Avoid: Missing DSO Endorsement:</strong> I-20 must be updated with STEM recommendation</li>
-          <li><strong>Avoid: Late Filing:</strong> Must file BEFORE your current OPT expires</li>
+          <li><strong>Avoid: Late Filing:</strong> Must meet BOTH the EAD expiration and 60-day STEM recommendation deadlines</li>
           <li><strong>Avoid: Part-time Work:</strong> Must work at least 20 hours per week</li>
         </ul>
       </div>
@@ -159,16 +92,16 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
         </a>
       </div>
 
-      <!-- Cap-Gap Information -->
+      <!-- Automatic extension information -->
       <div style="background: #ECFDF5; border: 1px solid #10B981; border-top: none; padding: 24px;">
         <h3 style="margin: 0 0 16px 0; color: #065F46; font-size: 16px; font-weight: 600;">
-          Cap-Gap Protection:
+          Automatic STEM OPT Extension:
         </h3>
         <ul style="margin: 0; padding: 0 0 0 20px; color: #374151; font-size: 14px; line-height: 1.8;">
-          <li>If you file before OPT expires, you get automatic <strong>180-day extension</strong></li>
-          <li>You can continue working while your STEM extension is pending</li>
+          <li>A timely and properly filed STEM OPT application may extend work authorization for <strong>up to 180 days</strong></li>
+          <li>This extension applies while the STEM application is pending and ends earlier if USCIS decides it</li>
           <li>Keep your receipt notice as proof of pending application</li>
-          <li>Cap-gap ends when STEM extension is approved or denied</li>
+          <li>Confirm your work authorization with your DSO</li>
         </ul>
       </div>
 
@@ -188,7 +121,7 @@ export function generateStemApplySection(tool: ToolReminderDetail): string {
       <!-- Motivational Message -->
       <div style="background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 0 0 12px 12px; padding: 24px; text-align: center;">
         <p style="margin: 0 0 12px 0; color: #5B21B6; font-size: 15px; font-weight: 500; line-height: 1.6;">
-          ${motivationalMessage}
+          Review your saved dates and confirm your filing requirements with your DSO.
         </p>
         <p style="margin: 0; color: #7C3AED; font-size: 14px; font-weight: 600;">
           Your STEM skills are in demand - keep going! </p>

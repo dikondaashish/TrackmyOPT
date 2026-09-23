@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS public.opt_status (
   -- Critical Dates
   program_end_date DATE NOT NULL,             -- Academic program completion date
   dso_recommendation_date DATE,               -- Date DSO recommended OPT
+  stem_dso_recommendation_date DATE,          -- Separate STEM OPT SEVIS recommendation
   opt_start_date DATE NOT NULL,               -- OPT period start date
   opt_ead_end_date DATE NOT NULL,             -- OPT EAD expiration date
   stem_start_date DATE,                       -- STEM extension start date (if applicable)
