@@ -103,6 +103,13 @@ function toRow(job: JobStoreRecord) {
 export class SupabaseJobDataStore implements JobDataStore {
   constructor(private readonly supabase: SupabaseClient) {}
 
+  private isStatementTimeout(error: { code?: string; message?: string }) {
+    return (
+      error.code === '57014' ||
+      /statement timeout|canceling statement/i.test(error.message || '')
+    );
+  }
+
   static fromEnvironment(env: Record<string, string | undefined>) {
     const url = env.NEXT_PUBLIC_SUPABASE_URL?.trim();
     const key = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -126,7 +133,10 @@ export class SupabaseJobDataStore implements JobDataStore {
     if (error) throw new Error(error.message);
   }
 
-  async listJobs(query: JobStoreSearch): Promise<JobStorePage> {
+  async listJobs(
+    query: JobStoreSearch,
+    retryOnStatementTimeout = true,
+  ): Promise<JobStorePage> {
     const page = Math.max(1, Math.floor(query.page));
     const pageSize = Math.min(100, Math.max(1, Math.floor(query.pageSize)));
     let request = this.supabase
@@ -353,7 +363,24 @@ export class SupabaseJobDataStore implements JobDataStore {
       )
       .order('id', { ascending: true })
       .range((page - 1) * pageSize, page * pageSize - 1);
-    if (result.error) throw new Error(result.error.message);
+    if (result.error) {
+      // Render's free Postgres tier can cancel the first broad description
+      // scan while the database is waking up. Retry once against the same
+      // query so a transient cold-start timeout does not become an API 500.
+      // If the broad scan remains too expensive, return the title matches as
+      // a bounded fallback; callers still receive a useful, ordered page.
+      if (this.isStatementTimeout(result.error) && query.query?.trim()) {
+        if (retryOnStatementTimeout) {
+          return this.listJobs(query, false);
+        }
+        if (
+          (query.searchScope || 'title_description') === 'title_description'
+        ) {
+          return this.listJobs({ ...query, searchScope: 'title' }, false);
+        }
+      }
+      throw new Error(result.error.message);
+    }
     return {
       rows: (result.data || []).map((row) =>
         mapSupabaseJobRow(row as SupabaseJobRow),

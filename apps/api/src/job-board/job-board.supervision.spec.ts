@@ -124,6 +124,51 @@ describe('ingestion supervision incident regressions', () => {
     });
   });
 
+  it('removes only queued wrappers for an aborted run while both queues are paused', async () => {
+    const { service, queue } = setup();
+    queue.isPaused.mockResolvedValue(true);
+    const remove = jest.fn().mockResolvedValue(undefined);
+    queue.getJobs.mockResolvedValue([
+      {
+        data: { schedulerRunId: context.schedulerRunId },
+        getState: jest.fn().mockResolvedValue('paused'),
+        remove,
+      },
+    ]);
+    queue.getJobs.mockImplementation((states: string[]) =>
+      states.includes('active')
+        ? []
+        : [
+            {
+              data: { schedulerRunId: context.schedulerRunId },
+              getState: jest.fn().mockResolvedValue('paused'),
+              remove,
+            },
+          ],
+    );
+    const result = await service.cancelIngestionRun(context.schedulerRunId);
+    expect(result).toEqual({
+      schedulerRunId: context.schedulerRunId,
+      jobsRemoved: 2,
+    });
+    expect(remove).toHaveBeenCalledTimes(2);
+  });
+
+  it('refuses cancellation when an aborted run still has active work', async () => {
+    const { service, queue } = setup();
+    queue.isPaused.mockResolvedValue(true);
+    queue.getJobs.mockResolvedValue([
+      {
+        data: { schedulerRunId: context.schedulerRunId },
+        getState: jest.fn().mockResolvedValue('active'),
+        remove: jest.fn(),
+      },
+    ]);
+    await expect(
+      service.cancelIngestionRun(context.schedulerRunId),
+    ).rejects.toThrow('active');
+  });
+
   it('fails the worker when its durable audit completion fails', async () => {
     const { internal, rpc } = setup();
     rpc.mockResolvedValue({
