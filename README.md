@@ -1,185 +1,190 @@
+<div align="center">
+
 # TrackMyOPT
 
-A SaaS platform that helps F-1 students manage their OPT, STEM OPT, and US immigration journey — compliance clocks, USCIS case status, document vault, AI resume generator, H-1B sponsor research, and a companion Chrome extension.
+### Your OPT journey. Your career. One workspace.
+
+OPT and STEM OPT timelines, job applications, tailored resumes, and important documents—connected across the web and Chrome.
+
+[Visit TrackMyOPT](https://www.trackmyopt.com) · [Documentation](./docs/README.md) · [Local setup](#local-development) · [Chrome extension](#chrome-extension)
+
+</div>
 
 ---
 
-## Tech stack
+## Built for the journey from student to professional
 
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **Language**: TypeScript (strict)
-- **Database / Auth**: Supabase (Postgres + RLS + Auth)
-- **Styling**: Tailwind CSS + Radix UI
-- **State**: Zustand
-- **AI**: Google Gemini, AWS Textract (OCR)
-- **Payments**: Stripe
-- **Email**: SMTP (Resend) + custom queue
-- **Analytics**: PostHog
-- **Hosting**: Vercel (web), Render (Nest API)
-- **Background jobs**: Vercel Cron (case status batch only) + cron-job.org (everything else)
+TrackMyOPT helps F-1 students organize their employment timeline and career search without switching between disconnected tools.
 
----
+| Workspace                   | What it helps you do                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------------------- |
+| **OPT & STEM OPT**          | Track dates, filing windows, employment history, and unemployment-day estimates.            |
+| **Job search & tracker**    | Research employers, save roles, and organize applications.                                  |
+| **AI resume tools**         | Create job-specific resumes and review role fit and keyword gaps.                           |
+| **Chrome companion**        | Capture jobs, prefill supported application fields, and use job-specific generated resumes. |
+| **Case status & reminders** | Check USCIS case status and receive configured timeline and document reminders.             |
+| **Document vault**          | Store and manage important documents with controlled access.                                |
 
-## Repository layout
+> TrackMyOPT is an organizational tool, not legal advice. Confirm immigration dates, eligibility, and employment records with your DSO or a qualified immigration attorney. Review generated resumes and prefilled answers before submitting applications. Portal compatibility varies; see the [extension guide](./apps/extension/README.md).
 
-```
-.
+## Inside the repository
+
+```text
+TrackMyOPT/
 ├── apps/
-│   ├── web/                Next.js App Router (the SaaS frontend + APIs)
-│   ├── extension/          Chrome extension (job tracker, case status checker)
-│   └── api/                NestJS backend on Render (USCIS batch scrape)
-├── docs/                   Architecture, ops, compliance, PostHog playbooks
-├── supabase/               Top-level migrations + RLS policies (source of truth)
-├── scripts/                Repo-wide tooling (IndexNow submitter, etc.)
-└── apps/web/vercel.json    Vercel case-status cron only (all other crons → cron-job.org)
+│   ├── web/          Next.js dashboard, public website, and web APIs
+│   ├── extension/    Chrome extension and application-prefill tools
+│   └── api/          NestJS backend and processing services
+├── supabase/
+│   └── migrations/   Canonical database migration history
+├── scripts/          Operations, ingestion, and repository tooling
+└── docs/             Architecture, operations, and compliance references
 ```
 
-For architecture details, see [`docs/architecture/ARCHITECTURE.md`](./docs/architecture/ARCHITECTURE.md).
+### Technology & services
 
----
+| Layer                             | Technology                                                                                   |
+| --------------------------------- | -------------------------------------------------------------------------------------------- |
+| Web experience                    | Next.js, React, TypeScript, Tailwind CSS, Radix UI                                           |
+| Browser extension                 | Chrome Manifest V3, TypeScript, esbuild                                                      |
+| Backend                           | NestJS and background processing                                                             |
+| Application data & authentication | Supabase PostgreSQL, Auth, and row-level security                                            |
+| Job-data infrastructure           | Oracle integration; see the [cutover runbook](./docs/architecture/oracle-cutover-runbook.md) |
+| AI & documents                    | Gemini through Vertex AI, AWS S3/Textract, private LaTeX compiler                            |
+| Billing & email                   | Stripe and SMTP-based email delivery                                                         |
+| Cache & queues                    | Upstash Redis for web features; Redis/Bull for backend queues                                |
+| Analytics & hosting               | PostHog, Vercel for web, Render for backend                                                  |
 
-## Quick start
+Versions are defined in each application's `package.json`. This is a codebase overview, not confirmation that every external service is currently configured or healthy.
+
+## Local development
+
+### 1. Install dependencies
+
+Use Node.js compatible with the repository's `>=20.9.0` requirement and **pnpm 10.18.2**, pinned in the root package manifest.
 
 ```bash
-# 1. Install
-pnpm install
-
-# 2. Configure environment
-cp .env.example .env.local
-# Edit .env.local — at minimum: Supabase URL + keys + JWT_SIGNING_SECRET.
-
-# 3. Run dev server (Next + extension dev script in parallel)
-pnpm dev
+git clone https://github.com/dikondaashish/TrackmyOPT.git
+cd TrackmyOPT
+pnpm install --frozen-lockfile
 ```
 
-The web app boots at `http://localhost:3000`.
+### 2. Configure the web app
 
----
+Copy the [environment template](./.env.example) into `apps/web/.env.local` if that file does not already exist. Do not overwrite an existing configuration.
 
-## Scripts (monorepo root)
+For a new checkout:
 
-| Script | What it does |
-|---|---|
-| `pnpm dev` | Run all packages in dev mode (parallel) |
-| `pnpm build` | Production build of `apps/web` |
-| `pnpm lint` | ESLint for `apps/api` (Nest) + `apps/web` |
-| `pnpm lint:fix` | ESLint autofix on `apps/web` |
-| `pnpm typecheck` | `tsc --noEmit` for `apps/web` + `apps/extension` |
-| `pnpm test` | Vitest unit tests |
-| `pnpm test:e2e` | Playwright e2e tests |
-| `pnpm format` | Prettier write |
-| `pnpm format:check` | Prettier check (CI-friendly, no writes) |
+```bash
+cp -n .env.example apps/web/.env.local
+```
 
-Each script can also be called inside `apps/web` directly (e.g., `pnpm -C apps/web test`).
+Replace placeholders with development credentials. Start with:
 
----
-
-## Environment variables
-
-Every variable used in the codebase is documented in [`./.env.example`](./.env.example).
-Validation lives in [`apps/web/lib/env.ts`](./apps/web/lib/env.ts) using zod schemas.
-
-**Required to boot any environment:**
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (server only)
-- `JWT_SIGNING_SECRET` (≥ 32 chars)
+- `SUPABASE_SERVICE_ROLE_KEY` — server only
+- `JWT_SIGNING_SECRET` — a random secret of at least 32 characters
+- `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_APP_URL` — `http://localhost:3000`
 
-**Required to enable specific features** — missing values fail closed at the route level with a friendly error, NOT at boot:
-- Billing: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-- USCIS case status: `USCIS_CLIENT_ID`, `USCIS_CLIENT_SECRET` (live by default; `USCIS_MOCK=true` ignored in prod)
-- Document Vault + OCR: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`
-- AI resume generator: `GEMINI_API_KEY`
-- Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
-- Cron protection: `CRON_SECRET` (cron-job.org auth header; also used by Vercel case-status cron)
-- Admin bulk notifications API: `ADMIN_SECRET` (server only; never `NEXT_PUBLIC_*`)
+Use a development Supabase project with the required migrations. Feature-specific integrations need their own credentials; copying the template alone does not enable them. Remove or comment out unused optional settings instead of leaving invalid placeholders or empty values—some optional fields still validate their format when present.
 
-> **Note** — `lib/env.ts` validates these lazily so partial preview deployments still boot.
-
----
-
-## Architecture decisions
-
-| Decision | File / location |
-|---|---|
-| Phase-aware OPT/STEM unemployment math (90 + cumulative 150) | [`apps/web/lib/immigration/opt-calculations.ts`](./apps/web/lib/immigration/opt-calculations.ts) + tests |
-| Stripe self-heal (premium status reconciles with Stripe even after DB drift) | [`apps/web/app/api/premium/status/route.ts`](./apps/web/app/api/premium/status/route.ts) |
-| Webhook idempotency + 5xx-on-error so Stripe retries | [`apps/web/app/api/premium/webhook/route.ts`](./apps/web/app/api/premium/webhook/route.ts) |
-| USCIS mock cannot run in production | [`apps/web/app/api/case-status/check/route.ts`](./apps/web/app/api/case-status/check/route.ts) |
-| Standard API response envelope | [`apps/web/lib/api/response.ts`](./apps/web/lib/api/response.ts) |
-| Premium shared via React context (no duplicate fetches) | [`apps/web/lib/premium/usePremiumStatus.tsx`](./apps/web/lib/premium/usePremiumStatus.tsx) |
-| Document Vault forgot-passcode self-service | [`apps/web/app/api/documents/passcode/forgot/`](./apps/web/app/api/documents/passcode/forgot/) |
-| OCR job state durable in Supabase (not in-memory) | [`apps/web/app/api/resume-generator/ocr/`](./apps/web/app/api/resume-generator/ocr/) |
-
----
-
-## Testing
+### 3. Start the web app
 
 ```bash
-pnpm test               # vitest unit tests
-pnpm test:watch         # watch mode
-pnpm test:coverage      # coverage report
-pnpm test:e2e           # Playwright (requires browsers installed)
+pnpm --filter web dev
 ```
 
-Critical tests live in [`apps/web/lib/immigration/__tests__/opt-calculations.test.ts`](./apps/web/lib/immigration/__tests__/opt-calculations.test.ts) and cover the entire OPT/STEM compliance model. **Do not change `calculateUnemploymentDays` without rerunning these.**
-
----
-
-## Deployment
-
-### Web app — Vercel (project: `trackmy-opt-web`)
-
-Pushing to `main` triggers a production deploy. No manual step needed.
+Open [localhost:3000](http://localhost:3000). Run the backend separately when working on backend-dependent features:
 
 ```bash
-# To force a redeploy without code changes:
-vercel --prod
+pnpm --filter api start:dev
 ```
 
-### Database — Supabase (project: `deknauqkqqzwuvopqott`)
+Configure the backend in `apps/api/.env` before starting it. Its [startup validation](./apps/api/src/app.module.ts) requires an API secret, Supabase service credentials, AWS settings, and USCIS credentials. It also needs a reachable Redis instance. Give it a different port from the web app and set the web app's `NEXT_PUBLIC_API_URL` accordingly. Do not use the Upstash HTTP REST endpoint as a backend Redis connection URL.
 
-Migrations live in `supabase/migrations/`. Apply via the Supabase CLI or MCP.
+### Chrome extension
 
-### Cron jobs
-
-| Job | Trigger | Schedule |
-|---|---|---|
-| USCIS case status batch | **Vercel Cron only** | `0 14 * * *` (daily 14:00 UTC / 9 AM ET) |
-| Daily reminders | cron-job.org | 9 AM ET |
-| Document expiry reminders | cron-job.org | daily |
-| STEM OPT window alert | cron-job.org | daily |
-| D1 activation nudge | cron-job.org | hourly |
-| At-risk reengagement | cron-job.org | weekly |
-| PostHog LTV / partner sync | cron-job.org | daily / weekly |
-| Retry pending emails | cron-job.org | every 30 min |
-
-All cron-triggered routes require `Authorization: Bearer ${CRON_SECRET}`. Full setup: [`docs/ops/CRON_SETUP.md`](./docs/ops/CRON_SETUP.md).
-
----
-
-## Production-readiness checklist (run before every release)
+For extension development against your local web app:
 
 ```bash
-pnpm lint        # 0 errors expected; warnings OK
-pnpm typecheck   # must pass
-pnpm test        # must pass
-pnpm build       # must succeed
+pnpm --filter extension dev:local
 ```
 
-CI on GitHub runs the same four. If anything is red, do not promote.
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Choose **Load unpacked** and select `apps/extension/dist`.
+3. Configure the development extension ID and authentication/CORS settings using the [extension guide](./apps/extension/README.md) and [CORS policy](./docs/ops/CORS_POLICY.md).
+4. Reload the extension after a rebuild and refresh the application tab when testing content-script changes.
 
----
+**Important:** Default extension `dev` and `build` commands target the live website. Use `dev:local` when testing locally. Root `pnpm dev` starts packages with a `dev` script; it does not start the NestJS backend.
+
+## Configuration by feature
+
+See [`.env.example`](./.env.example) for configuration groups and [`apps/web/lib/env.ts`](./apps/web/lib/env.ts) for validation. Keep server credentials out of `NEXT_PUBLIC_*` variables, browser bundles, screenshots, and commits.
+
+| Feature                     | Configuration to review                                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Resume AI                   | Vertex AI project, location, and server credentials. `GEMINI_API_KEY` is an intentional local fallback when Vertex is disabled. |
+| Documents & resume PDFs     | AWS credentials, S3 bucket, malware-scanner URL/token, and private LaTeX compiler URL/token.                                    |
+| Billing                     | Stripe keys, webhook secret, and price IDs. Use test-mode credentials locally.                                                  |
+| Email                       | SMTP host, port, username, `SMTP_PASS`, and a verified sender address.                                                          |
+| Case status                 | USCIS API credentials; production must not rely on mock responses.                                                              |
+| Web cache & rate limits     | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`, or supported Vercel `KV_REST_API_*` equivalents.                         |
+| Private application answers | Server-side `PRIVATE_APPLICATION_ANSWERS_ENCRYPTION_KEY`.                                                                       |
+| Scheduled work              | `CRON_SECRET`, service-specific credentials, and required feature flags.                                                        |
+
+Never carry development-only security bypasses such as `DOCUMENT_SCAN_MODE=disabled` into production.
+
+## Development checks
+
+Run commands from the repository root:
+
+| Command                                   | Scope                                                                      |
+| ----------------------------------------- | -------------------------------------------------------------------------- |
+| `pnpm lint`                               | Workspace lint scripts                                                     |
+| `pnpm typecheck`                          | Web and extension type checks                                              |
+| `pnpm test`                               | Web unit tests                                                             |
+| `pnpm build`                              | Web production build                                                       |
+| `pnpm --filter extension test`            | Extension unit tests                                                       |
+| `pnpm --filter extension build`           | Extension bundle                                                           |
+| `pnpm --filter api exec jest --runInBand` | Backend unit tests                                                         |
+| `pnpm test:e2e`                           | Web Playwright tests; requires browser installation and test configuration |
+| `pnpm --filter web test:watch`            | Web unit tests in watch mode                                               |
+| `pnpm --filter web test:coverage`         | Web coverage report                                                        |
+
+The [CI workflow](./.github/workflows/test.yml) defines release checks, including additional backend and ingestion tests. A passing web build alone does not verify extension behavior or external integrations.
+
+For date-logic changes, run the [immigration tests](./apps/web/lib/immigration/__tests__/) and review boundary cases. For prefill changes, also test real application forms without submitting them.
+
+## Deployment & operations
+
+- **Web:** Vercel configuration lives in [`apps/web/vercel.json`](./apps/web/vercel.json). Verify the connected production branch, environment variables, and deployment result in Vercel.
+- **Backend:** [`render.yaml`](./render.yaml) describes backend and queue infrastructure. Check actual service settings and health after deployment.
+- **Database:** [`supabase/migrations`](./supabase/migrations/) is the source of truth. Review and apply pending migrations to the intended project; do not initialize from legacy schema snapshots or reset a production database.
+- **Scheduled jobs:** Check committed Vercel cron configuration and the [cron runbook](./docs/ops/CRON_SETUP.md) before registering external schedules. Avoid duplicate scheduling; Vercel cron expressions use UTC.
+- **Releases:** Confirm CI, migrations, service health, and relevant user flows before calling a deployment complete. Chrome extension releases have a separate checklist in the [extension guide](./apps/extension/README.md).
+
+## Documentation map
+
+| Need                           | Start here                                                                                |
+| ------------------------------ | ----------------------------------------------------------------------------------------- |
+| System architecture            | [Architectural overview](./docs/architecture/ARCHITECTURAL_OVERVIEW.md)                   |
+| Codebase navigation            | [Directory deep dive](./docs/architecture/DIRECTORY_DEEP_DIVE.md)                         |
+| Database structure             | [Database inventory](./docs/architecture/DATABASE_INVENTORY.md)                           |
+| OPT calculation implementation | [Immigration module](./apps/web/lib/immigration/README.md)                                |
+| Email delivery & schedules     | [Email templates](./docs/ops/EMAIL_TEMPLATES.md) · [Cron setup](./docs/ops/CRON_SETUP.md) |
+| Compliance review              | [Legal & billing QA](./docs/compliance/LEGAL_BILLING_COMPLIANCE_QA.md)                    |
+| Remaining work                 | [Pending implementation plan](./docs/pending-implementation-plan.md)                      |
+| All documentation              | [Documentation index](./docs/README.md)                                                   |
 
 ## Contributing
 
-1. Branch from `main`.
-2. Run `pnpm typecheck` + `pnpm test` before pushing.
-3. PRs that touch `lib/immigration/`, `app/api/premium/`, or `app/api/case-status/` require attorney-style review for compliance correctness — see `docs/COMPLIANCE.md` if it exists, or open a discussion.
-4. Never commit secrets. Use `.env.local` (gitignored).
-
----
+1. Create a focused branch from the latest `main`.
+2. Keep changes scoped and add tests for changed behavior.
+3. Run the relevant checks above and open a pull request.
+4. Give immigration calculations, authentication, billing, and sensitive-data handling extra review.
+5. Update documentation when configuration or behavior changes. Never commit secrets or real applicant data.
 
 ## License
 
-Proprietary. © Zyene, Inc.
+Proprietary. © Zyene, Inc. This repository is not offered under an open-source license.
