@@ -2,6 +2,9 @@ name: CI
 
 on:
   workflow_dispatch:
+  schedule:
+    # Exercise browser routing daily even when the application has no code changes.
+    - cron: '17 3 * * *'
   push:
     branches: ['main']
   pull_request:
@@ -59,7 +62,7 @@ jobs:
         run: pnpm --filter web run lint
 
       - name: Typecheck
-        run: pnpm --filter web run typecheck
+        run: pnpm typecheck
 
       - name: Unit tests
         run: pnpm --filter web run test
@@ -98,11 +101,12 @@ jobs:
         run: pnpm --filter api run build
 
   e2e:
-    name: Playwright E2E (manual / nightly)
+    name: Playwright E2E
     runs-on: ubuntu-latest
     needs: verify
-    if: github.event_name == 'workflow_dispatch'
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -115,3 +119,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter web exec playwright install --with-deps
       - run: pnpm --filter web run test:e2e
+        env:
+          CI: 'true'
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          if-no-files-found: ignore
