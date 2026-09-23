@@ -1,6 +1,6 @@
 # Email templates inventory
 
-Complete reference for **subject lines**, **who receives** each mail, and **what it contains**. Implementation lives in `lib/notifications/email-service.ts`, `lib/notifications/transactional-emails.ts`, `lib/notifications/email-brand.ts`, and the API routes listed below.
+Complete reference for **subject lines**, **who receives** each mail, and **what it contains**. Implementation lives in `lib/notifications/email-service.ts`, `lib/notifications/transactional/`, `lib/notifications/email-brand.ts`, and the API routes listed below.
 
 **Related:** [EMAIL_ROADMAP.md](./EMAIL_ROADMAP.md) ·
 [legal/billing manual QA](../compliance/LEGAL_BILLING_COMPLIANCE_QA.md)
@@ -33,7 +33,7 @@ Subjects and HTML are **not** defined in this repo.
 
 ## Queued transactional mail (`email_queue` + SMTP)
 
-Defined in `lib/notifications/transactional-emails.ts` via `queueTransactionalEmailSend`.
+Defined in `lib/notifications/transactional/` via `queueTransactionalEmailSend`.
 
 | `email_type` | Subject | Content summary |
 |--------------|---------|-----------------|
@@ -107,9 +107,9 @@ Subject: **`Welcome to {title} — TrackMyOPT`**.
 
 ## Internal (operations — not end-user product email)
 
-| Subject | To | Purpose |
-|---------|-----|---------|
-| `New contact form submission from {name}` | `support@trackmyopt.com` | Staff alert with submission details | `sendInternalContactFormNotification` in `transactional-emails.ts` |
+| Subject | To | Purpose | Source |
+|---------|-----|---------|--------|
+| `New contact form submission from {name}` | `support@trackmyopt.com` | Staff alert with submission details | `sendInternalContactFormNotification` in `transactional/internal.ts` |
 
 ---
 

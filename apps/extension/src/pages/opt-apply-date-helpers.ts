@@ -170,19 +170,6 @@ export function calculateStemFilingWindow(
 }
 
 /**
- * Get formatted date for card display
- */
-export function getCardDateFormat(date: Date): { day: string; month: string; year: string } {
-  const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-    'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
-  return {
-    day: String(date.getDate()),
-    month: months[date.getMonth()],
-    year: String(date.getFullYear())
-  };
-}
-
-/**
  * Calculate time remaining
  */
 export function calculateTimeRemaining(targetDate: Date, now = new Date()): {

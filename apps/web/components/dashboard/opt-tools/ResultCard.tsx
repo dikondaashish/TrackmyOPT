@@ -38,12 +38,6 @@ export function ResultCard({ icon, label, value, subtext, status, large }: Resul
   );
 }
 
-interface CountdownCardProps {
-  days: number;
-  label: string;
-  deadline: string;
-}
-
 interface ProgressBarProps {
   used: number;
   max: number;

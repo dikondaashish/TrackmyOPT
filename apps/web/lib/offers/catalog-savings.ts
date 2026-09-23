@@ -34,10 +34,6 @@ export const OFFERS_CATALOG_TOTAL_SAVINGS_USD = Object.values(ESTIMATED_SAVINGS_
     0,
 );
 
-export function getOfferSavings(offerId: string) {
-    return ESTIMATED_SAVINGS_USD[offerId] ?? 0;
-}
-
 export function formatUsd(amount: number) {
     return amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }

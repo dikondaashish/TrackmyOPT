@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { H1BSponsor } from "@/lib/mock/h1b-sponsors";
+import type { H1BSponsor } from "@/lib/career/h1b/types";
 import { H1BSponsorCard } from "@/components/career/h1b/H1BSponsorCard";
 import { H1BSponsorTabs } from "@/components/career/h1b/H1BSponsorTabs";
 import { H1BSponsorSearchFilters } from "@/components/career/h1b/H1BSponsorSearchFilters";

@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    FileCheck,
-    Search,
     Download,
     Eye,
     Lock,

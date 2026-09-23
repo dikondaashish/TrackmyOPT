@@ -122,12 +122,6 @@ function dispatch(action: Action) {
     })
 }
 
-interface Toast extends ToastProps {
-    id: string
-    dismiss: () => void
-    update: (props: ToasterToast) => void
-}
-
 function toast({ ...props }: ToastProps) {
     const id = genId()
 

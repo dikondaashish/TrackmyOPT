@@ -1,6 +1,9 @@
 import { ResumeService } from './resume.service';
 
-type ResumeServiceWithMocks = ResumeService & {
+type ResumeServiceWithMocks = Pick<
+  ResumeService,
+  'getResumeById' | 'deleteResume'
+> & {
   supabase: unknown;
 };
 
@@ -27,12 +30,7 @@ describe('ResumeService ownership enforcement', () => {
       from: jest.fn().mockReturnValue(query),
     };
 
-    await (
-      service.getResumeById as unknown as (
-        id: string,
-        userId: string,
-      ) => Promise<unknown>
-    )('resume-1', 'user-1');
+    await service.getResumeById('resume-1', 'user-1');
 
     expect(query.eq).toHaveBeenCalledWith('id', 'resume-1');
     expect(query.eq).toHaveBeenCalledWith('user_id', 'user-1');
@@ -50,13 +48,8 @@ describe('ResumeService ownership enforcement', () => {
       from: jest.fn().mockReturnValue({ delete: del }),
     };
 
-    await expect(
-      (
-        service.deleteResume as unknown as (
-          id: string,
-          userId: string,
-        ) => Promise<unknown>
-      )('resume-1', 'user-1'),
-    ).rejects.toThrow('Resume not found');
+    await expect(service.deleteResume('resume-1', 'user-1')).rejects.toThrow(
+      'Resume not found',
+    );
   });
 });

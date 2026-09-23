@@ -82,7 +82,6 @@ function ResultsContent() {
   const showPossibleCard = eligibility.showStateProgram && eligibility.status === 'POSSIBLY_ELIGIBLE';
   const showWaitlistCard = eligibility.showStateProgram && eligibility.status === 'WAITLIST';
   const showProgramEndingCard = eligibility.showStateProgram && eligibility.status === 'PROGRAM_ENDING';
-  const showNotEligibleCard = !showEligibleCard && !showPossibleCard && !showWaitlistCard && !showProgramEndingCard;
 
   // NY Essential Plan special case - now F-1 students CAN qualify with residency
   const isNYEssentialPlan = state === "NY" && showEligibleCard;

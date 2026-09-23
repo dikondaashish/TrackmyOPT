@@ -212,31 +212,6 @@ function getExpiryTextColor(status: string): string {
   return colors[status] || 'text-gray-600 dark:text-gray-400';
 }
 
-function getExpiryBadge(status: string, expiryDate: string, now: Date = new Date()) {
-  const days = Math.ceil(
-    (new Date(expiryDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  const badges: Record<string, { icon: LucideIcon; label: string; class: string }> = {
-    good: { icon: CheckCircle2, label: `${days} days remaining`, class: 'bg-green-100 text-green-800' },
-    attention: { icon: AlertTriangle, label: `${days} days remaining`, class: 'bg-yellow-100 text-yellow-800' },
-    warning: { icon: Circle, label: `${days} days remaining`, class: 'bg-orange-100 text-orange-800' },
-    critical: { icon: Circle, label: `${days} days remaining`, class: 'bg-red-100 text-red-800' },
-    expired: { icon: XCircle, label: 'Expired', class: 'bg-gray-100 text-gray-800' },
-    no_expiry: { icon: Info, label: 'No expiry date', class: 'bg-blue-100 text-blue-800' },
-  };
-
-  const badge = badges[status] || badges.no_expiry;
-  const BadgeIcon = badge.icon;
-
-  return (
-    <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${badge.class}`}>
-      <BadgeIcon className="w-3.5 h-3.5 shrink-0" aria-hidden />
-      <span>{badge.label}</span>
-    </div>
-  );
-}
-
 function getExpiryBadgeColor(status: string): string {
   const colors: Record<string, string> = {
     good: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',

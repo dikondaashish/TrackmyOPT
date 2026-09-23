@@ -25,7 +25,6 @@ import { useAnimatedNumber } from "./useAnimatedNumber";
 import { FuelDealModal } from "./FuelDealModal";
 
 export default function OffersPage() {
-    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [selectedFuelDeal, setSelectedFuelDeal] = useState<FuelDeal | null>(null);
     const [showStepsPopup, setShowStepsPopup] = useState(false);
     const catalogSavings = useMemo(() => getCatalogSavings(OFFERS, FUEL_DEALS), []);
@@ -89,8 +88,6 @@ export default function OffersPage() {
                             href={offer.link}
                             target={offer.link.startsWith("http") ? "_blank" : "_self"}
                             rel={offer.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                            onMouseEnter={() => setHoveredCard(offer.id)}
-                            onMouseLeave={() => setHoveredCard(null)}
                             className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-6 hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02]"
                         >
                             {/* Badge */}

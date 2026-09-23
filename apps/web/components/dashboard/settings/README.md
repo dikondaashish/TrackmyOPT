@@ -1,39 +1,28 @@
-# `components/dashboard/settings/`
+# Settings dashboard
 
-Settings dashboard. **Open refactor** — `SettingsSection.tsx` is 2,564 LOC and should be split by tab.
+[`SettingsSection.tsx`](SettingsSection.tsx) coordinates shared profile loading,
+state, actions, and tab navigation. Tab rendering has already been extracted;
+keep new tab-specific UI in `tabs/` instead of growing the parent.
 
-## Current state
+## Structure
 
-A single mega-component (`SettingsSection.tsx`) renders all settings tabs in one file. It is hard to test, slow to type-check, and accumulates accidental coupling.
+- `tabs/`: Profile, Security, Documents, Notifications, Privacy, Extension, and
+  Subscription panels.
+- `settings-types.ts` and `settings-constants.ts`: shared contracts and values.
+- `useDocumentPasscode.ts`: passcode and recovery workflow.
+- `useDataExport.ts`: export workflow.
+- `useSettingsExtension.ts`: extension connection state.
+- `useSettingsNotificationEmails.ts`: notification email settings.
+- `SubscriptionSettings.tsx`, `BillingHistory.tsx`, and
+  `PlanComparisonModal.tsx`: subscription UI.
+- `ApplicationProfileSection.tsx` and `PrivateApplicationAnswersSection.tsx`:
+  application profile and private-answer forms.
 
-## Target shape
+## Maintenance
 
-```
-settings/
-├── SettingsSection.tsx              ← thin shell: tab nav + routing only (~150 LOC)
-├── tabs/
-│   ├── AccountTab.tsx               ← email, name, password change
-│   ├── SubscriptionTab.tsx          ← Stripe portal link, plan, invoices
-│   ├── NotificationsTab.tsx         ← per-tool email preferences
-│   ├── SecurityTab.tsx              ← passcode change, OTP recovery
-│   ├── PrivacyTab.tsx               ← export data, delete account, policy consent
-│   └── DangerZoneTab.tsx            ← delete account, sign out everywhere
-├── BillingHistory.tsx               (already exists — keep)
-├── PlanComparisonModal.tsx          (already exists — keep)
-└── README.md
-```
-
-## Migration steps (one tab per PR)
-
-1. Pick a tab. Find its render block inside `SettingsSection.tsx`.
-2. Identify the local state slices it uses and the API calls it makes.
-3. Move both into a new `tabs/<Name>Tab.tsx` component as a self-contained client component.
-4. Replace the inline render block in `SettingsSection.tsx` with `<NameTab />`.
-5. Re-run `pnpm test && pnpm build`. Verify the tab still works.
-
-## Why this is risky
-
-- The mega-component has shared local state between tabs (e.g. a single `loading` flag toggled by all tabs).
-- Some tabs read the same Supabase row — extracting without a shared context risks duplicate fetches.
-
-**Recommended approach:** introduce a `SettingsDataProvider` context that owns the shared profile fetch, and have each tab read from it.
+Further refactors should isolate one responsibility at a time. Trace shared
+loading/error state and profile requests before moving an action into a hook;
+avoid introducing duplicate requests or a new provider just to shorten a file.
+Preserve the existing tab and callback contracts. Run `pnpm typecheck`,
+`pnpm lint`, `pnpm test`, and `pnpm build` from the repository root, then verify
+any changed interaction in the browser.

@@ -57,7 +57,6 @@ export default function ResumeGeneratorPage() {
     const [isResumeUrlProcessing, setIsResumeUrlProcessing] = useState(false);
     const [isJobUrlProcessing, setIsJobUrlProcessing] = useState(false);
     const [errors, setErrors] = useState<{ resume?: string; job?: string }>({});
-    const [showHistory, setShowHistory] = useState(false);
 
     // Usage limit state
     const [usageLimit, setUsageLimit] = useState<ResumeUsageData | null>(null);

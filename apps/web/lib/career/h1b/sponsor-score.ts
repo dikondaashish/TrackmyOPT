@@ -1,4 +1,4 @@
-import { H1BSponsor } from "@/lib/mock/h1b-sponsors";
+import type { H1BSponsor } from "@/lib/career/h1b/types";
 
 interface SponsorScore {
     score: number;

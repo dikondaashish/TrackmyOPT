@@ -139,13 +139,14 @@ Do these as separate small changes; none is required to submit the extension.
 1. **Regenerate Supabase types.** The checked-in type snapshot contains 35
    tables and 6 views, while applied migrations add nine more tables. Generate
    types from the live project and review the diff.
-2. **Split Settings.** `SettingsSection.tsx` is about 2,560 lines. Follow
-   `apps/web/components/dashboard/settings/README.md`: extract one tab per
-   change, keep orchestration in the parent, and test after each extraction.
-3. **Finish email modularization.** Extract remaining templates from the
-   2,564-line `transactional-emails.ts`, migrate direct SMTP flows to
-   `email_queue`, and add notification-email double opt-in if the product still
-   wants it.
+2. **Simplify remaining Settings orchestration.** Tab components and focused
+   hooks already exist. Follow `apps/web/components/dashboard/settings/README.md`
+   when separating remaining shared loading and action state; preserve callback
+   contracts and avoid duplicate profile requests.
+3. **Finish email modularization.** Email families already live under
+   `apps/web/lib/notifications/transactional/`. Separate remaining rendering
+   from delivery, migrate direct SMTP flows to `email_queue`, and add
+   notification-email double opt-in if the product still wants it.
 4. **Require signed email links in production.** Make
    `EMAIL_LINK_SIGNING_SECRET` a production requirement, plan the legacy-link
    transition, and test click tracking.
@@ -153,10 +154,14 @@ Do these as separate small changes; none is required to submit the extension.
    Nest/Bull, but several resume, email, document, and cron routes remain in
    Next.js. Move only workloads with measured timeout/reliability problems;
    do not perform a speculative rewrite.
-6. **Replace stale non-`docs/` README content.** In particular,
-   `apps/api/README.md` is still Nest starter text, and Supabase/root setup
-   instructions should be reconciled with the canonical migrations and current
-   SMTP variable names.
+6. **Review remaining setup guidance.** API, root, Settings, and notification
+   template READMEs now reflect their current structure. Reconcile Supabase
+   operational instructions with canonical migrations and current SMTP names.
+7. **Review React diagnostics by behavior.** The September structural scan
+   still reports effect-driven state updates, nested component definitions,
+   and hook dependency warnings. Prioritize `useCaseStatusController.ts`,
+   `SettingsSection.tsx`, and the resume editor hooks. Add focused behavioral
+   coverage before changing request ordering or component state lifetimes.
 
 **Done when:** each change has focused tests, no public API change is hidden,
 and the repository documentation matches the resulting boundary.

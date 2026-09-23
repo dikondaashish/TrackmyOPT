@@ -449,12 +449,9 @@ export const glossaryData: Record<string, GlossaryTerm[]> = {
     ],
 };
 
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const activeLetters = Object.keys(glossaryData);
-
 export function getAllTermsForSchema() {
     const terms = [];
-    for (const [letter, group] of Object.entries(glossaryData)) {
+    for (const group of Object.values(glossaryData)) {
         for (const term of group) {
             terms.push({
                 name: term.term,

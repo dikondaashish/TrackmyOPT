@@ -215,46 +215,6 @@ export function modalSelect(id: string): HTMLSelectElement {
   return select;
 }
 
-export function selectField(
-  label: string,
-  options: Array<[string, string]>
-): { wrapper: HTMLLabelElement; control: HTMLSelectElement } {
-  const wrapper = document.createElement('label');
-  wrapper.style.cssText =
-    'display:grid;gap:3px;color:var(--tmo-widget-ink);font-size:10.5px;font-weight:700;';
-  wrapper.append(label);
-  const control = document.createElement('select');
-  control.style.cssText =
-    'width:100%;min-height:32px;padding:5px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:11px;';
-  for (const [value, text] of options) {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = text;
-    control.appendChild(option);
-  }
-  wrapper.appendChild(control);
-  return { wrapper, control };
-}
-
-export function textField(
-  label: string,
-  type: 'text' | 'date' = 'text',
-  placeholder = ''
-): { wrapper: HTMLLabelElement; control: HTMLInputElement } {
-  const wrapper = document.createElement('label');
-  wrapper.style.cssText =
-    'display:grid;gap:3px;color:var(--tmo-widget-ink);font-size:10.5px;font-weight:700;';
-  wrapper.append(label);
-  const control = document.createElement('input');
-  control.type = type;
-  control.placeholder = placeholder;
-  control.autocomplete = 'off';
-  control.style.cssText =
-    'box-sizing:border-box;width:100%;min-height:32px;padding:5px 7px;border:1px solid var(--tmo-widget-border);border-radius:7px;background:var(--tmo-widget-surface);color:var(--tmo-widget-ink);font:inherit;font-size:11px;';
-  wrapper.appendChild(control);
-  return { wrapper, control };
-}
-
 /** Segmented-control option button for the Settings panel (Expanded / Minimized). */
 export function viewOptionBtn(label: string): HTMLButtonElement {
   const b = document.createElement('button');

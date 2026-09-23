@@ -156,25 +156,22 @@ describe('ats-scrapers process runner', () => {
   });
 
   it('fetches and normalizes a Greenhouse board natively', async () => {
-    const request = jest.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: () =>
-        JSON.stringify({
-          jobs: [
-            {
-              id: 42,
-              title: 'Platform Engineer',
-              company: { name: 'Example Co' },
-              location: { name: 'Remote - US' },
-              departments: [{ name: 'Engineering' }],
-              content: '<p>Build platforms</p>',
-              absolute_url: 'https://boards.greenhouse.io/example/jobs/42',
-              first_published: '2026-09-01T12:00:00Z',
-            },
-          ],
-        }),
-    } as Response);
+    const request = jest.spyOn(global, 'fetch').mockResolvedValue(
+      Response.json({
+        jobs: [
+          {
+            id: 42,
+            title: 'Platform Engineer',
+            company: { name: 'Example Co' },
+            location: { name: 'Remote - US' },
+            departments: [{ name: 'Engineering' }],
+            content: '<p>Build platforms</p>',
+            absolute_url: 'https://boards.greenhouse.io/example/jobs/42',
+            first_published: '2026-09-01T12:00:00Z',
+          },
+        ],
+      }),
+    );
 
     await expect(
       fetchAuthorizedAtsJobs({ ...SOURCE, employer_board_name: 'Example Co' }),
@@ -196,23 +193,20 @@ describe('ats-scrapers process runner', () => {
   });
 
   it('fetches and normalizes an Ashby board using its board name fallback', async () => {
-    jest.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: () =>
-        JSON.stringify({
-          jobs: [
-            {
-              id: 'ashby-1',
-              title: 'Data Engineer',
-              location: 'New York, NY',
-              team: 'Data',
-              descriptionHtml: '<p>SQL</p>',
-              applyUrl: 'https://jobs.ashbyhq.com/example/ashby-1',
-            },
-          ],
-        }),
-    } as Response);
+    jest.spyOn(global, 'fetch').mockResolvedValue(
+      Response.json({
+        jobs: [
+          {
+            id: 'ashby-1',
+            title: 'Data Engineer',
+            location: 'New York, NY',
+            team: 'Data',
+            descriptionHtml: '<p>SQL</p>',
+            applyUrl: 'https://jobs.ashbyhq.com/example/ashby-1',
+          },
+        ],
+      }),
+    );
 
     await expect(
       fetchAuthorizedAtsJobs({

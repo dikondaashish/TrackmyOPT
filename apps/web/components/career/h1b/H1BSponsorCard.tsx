@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Star, Check, AlertTriangle } from "lucide-react";
-import { H1BSponsor } from "@/lib/mock/h1b-sponsors";
+import type { H1BSponsor } from "@/lib/career/h1b/types";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsor-score";
 import { getLogoUrl, handleLogoError } from "@/lib/documents/image-utils";
 

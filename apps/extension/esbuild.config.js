@@ -20,19 +20,7 @@ fs.copyFileSync(
 // Copy public directory if it exists
 const publicDir = path.join(__dirname, 'public');
 if (fs.existsSync(publicDir)) {
-  const copyRecursive = (src, dest) => {
-    if (fs.statSync(src).isDirectory()) {
-      if (!fs.existsSync(dest)) {
-        fs.mkdirSync(dest);
-      }
-      fs.readdirSync(src).forEach((file) => {
-        copyRecursive(path.join(src, file), path.join(dest, file));
-      });
-    } else {
-      fs.copyFileSync(src, dest);
-    }
-  };
-  copyRecursive(publicDir, distDir);
+  fs.cpSync(publicDir, distDir, { recursive: true });
 }
 
 // Generate dist/tokens.css from the design tokens. Keeping this in the build

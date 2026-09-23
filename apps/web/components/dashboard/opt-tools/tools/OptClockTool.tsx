@@ -31,11 +31,6 @@ export function OptClockTool() {
   const [results, setResults] = useState<{ used: number; remaining: number; max: number } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [syncStatus, setSyncStatus] = useState({
-    lastSynced: null as Date | null,
-    isSyncing: false,
-    error: null as string | null,
-  });
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
@@ -121,7 +116,6 @@ export function OptClockTool() {
         setIsPremium(premiumData.isPremium || false);
       }
 
-      setSyncStatus(prev => ({ ...prev, lastSynced: new Date() }));
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {

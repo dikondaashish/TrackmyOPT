@@ -180,7 +180,6 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                                 const certifiedPct = Math.round((certified / stats.total) * 100);
                                 const withdrawn = stats.statusCounts['Withdrawn'] || 0;
                                 const withdrawnPct = Math.round((withdrawn / stats.total) * 100);
-                                const denied = (stats.statusCounts['Denied'] || 0) + (stats.statusCounts['Certified - Withdrawn'] || 0);
 
                                 // Colors: Certified=Emerald, Withdrawn=Gray, Denied=Red
                                 const gradient = `conic-gradient(

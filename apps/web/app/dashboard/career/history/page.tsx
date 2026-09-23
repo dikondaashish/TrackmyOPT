@@ -50,7 +50,6 @@ export default function HistoryPage() {
     const [resumes, setResumes] = useState<SavedResume[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
-    const [deleteId, setDeleteId] = useState<string | null>(null);
     const [loadingId, setLoadingId] = useState<string | null>(null);
 
     useEffect(() => {

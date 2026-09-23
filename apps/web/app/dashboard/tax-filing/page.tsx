@@ -60,26 +60,6 @@ const FAQ_ITEMS = [
   }
 ];
 
-// Tax status questions
-const TAX_STATUS_QUESTIONS = [
-  {
-    id: "years",
-    question: "How many calendar years have you been in the U.S. on F-1/J-1 visa?",
-    options: [
-      { label: "Less than 5 years", result: "non-resident" },
-      { label: "5 or more years", result: "may-be-resident" }
-    ]
-  },
-  {
-    id: "income",
-    question: "Did you have any U.S. income this year?",
-    options: [
-      { label: "Yes (wages, scholarship, stipend)", result: "has-income" },
-      { label: "No U.S. income", result: "no-income" }
-    ]
-  }
-];
-
 export default function TaxFilingPage() {
   const router = useRouter();
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);

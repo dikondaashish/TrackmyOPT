@@ -142,7 +142,7 @@ Run commands from the repository root:
 | Command                                   | Scope                                                                      |
 | ----------------------------------------- | -------------------------------------------------------------------------- |
 | `pnpm lint`                               | Workspace lint scripts                                                     |
-| `pnpm typecheck`                          | Web and extension type checks                                              |
+| `pnpm typecheck`                          | Web, API, and extension type checks                                        |
 | `pnpm test`                               | Web unit tests                                                             |
 | `pnpm build`                              | Web production build                                                       |
 | `pnpm --filter extension test`            | Extension unit tests                                                       |

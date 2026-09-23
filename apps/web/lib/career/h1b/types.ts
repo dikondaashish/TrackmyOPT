@@ -1,5 +1,3 @@
-// lib/mock/h1b-sponsors.ts
-
 export interface H1BSponsor {
     id: string;
     name: string;
@@ -21,7 +19,3 @@ export interface H1BSponsor {
     top_law_firm?: string | null;
     entry_level_percent?: number | null;
 }
-
-// Deprecated: Data is now fetched from Supabase.
-// Keeping this file for the Interface definition shared across the app.
-export const H1B_SPONSORS: H1BSponsor[] = [];

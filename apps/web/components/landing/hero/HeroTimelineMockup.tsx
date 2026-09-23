@@ -3,10 +3,7 @@
 import { motion } from "framer-motion";
 import {
     Calendar,
-    Bell,
     CheckCircle,
-    Shield,
-    Sparkles,
 } from "lucide-react";
 
 export function HeroTimelineMockup() {

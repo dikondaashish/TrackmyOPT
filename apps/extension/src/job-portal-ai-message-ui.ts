@@ -5,15 +5,6 @@
 import { WEBSITE_URL } from './config';
 import type { JobInfo } from './job-posting-scrape';
 
-/** Simple centered message inside the analysis dialog body. */
-export function renderAiMessage(body: HTMLElement, message: string): void {
-  body.textContent = '';
-  const p = document.createElement('p');
-  p.textContent = message;
-  p.style.cssText = 'margin:0;color:var(--tmo-widget-muted);font-size:13px;line-height:1.5;';
-  body.appendChild(p);
-}
-
 /** Error / empty states, with an action button where one helps. */
 export function renderAiError(body: HTMLElement, error: string, _card: HTMLElement, _job: JobInfo): void {
   body.textContent = '';

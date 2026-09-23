@@ -25,7 +25,7 @@ describe('AppModule environment validation', () => {
   });
 
   it('fills official USCIS URL defaults when omitted', () => {
-    const config = { ...completeConfig };
+    const config: Partial<typeof completeConfig> = { ...completeConfig };
     delete config.USCIS_API_BASE_URL;
     delete config.USCIS_TOKEN_URL;
 
@@ -39,7 +39,7 @@ describe('AppModule environment validation', () => {
   });
 
   it('starts without notification fan-out env (Render-compatible)', () => {
-    const config = { ...completeConfig };
+    const config: Partial<typeof completeConfig> = { ...completeConfig };
     delete config.NEXT_PUBLIC_SITE_URL;
     delete config.CRON_SECRET;
 
@@ -60,7 +60,7 @@ describe('AppModule environment validation', () => {
     'AWS_S3_BUCKET',
     'USCIS_CLIENT_SECRET',
   ])('fails startup when %s is missing', (key) => {
-    const config = { ...completeConfig };
+    const config: Partial<typeof completeConfig> = { ...completeConfig };
     delete config[key as keyof typeof config];
 
     expect(appConfigValidationSchema.validate(config).error).toBeDefined();

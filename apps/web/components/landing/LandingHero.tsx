@@ -12,21 +12,17 @@ import {
     Bell,
     CheckCircle,
     ArrowRight,
-    Shield,
     Sparkles,
     LayoutDashboard,
     Briefcase,
     FileCheck,
-    Search,
-    Filter,
-    ChevronLeft,
-    Download,
-    Eye,
-    Lock,
     Send,
-    GripVertical,
     type LucideIcon,
 } from "lucide-react";
+
+import { HeroTimelineMockup } from "./hero/HeroTimelineMockup";
+import { HeroCrmMockup } from "./hero/HeroCrmMockup";
+import { HeroDocumentsMockup } from "./hero/HeroDocumentsMockup";
 
 // Animation variants
 const fadeInUp: Variants = {
@@ -50,11 +46,6 @@ const tabContentVariants: Variants = {
     exit: { opacity: 0, x: -20 },
 };
 
-
-import { HeroTimelineMockup } from "./hero/HeroTimelineMockup";
-import { HeroCrmMockup } from "./hero/HeroCrmMockup";
-import { HeroDocumentsMockup } from "./hero/HeroDocumentsMockup";
-
 type TabType = "timeline" | "crm" | "docs" | "resume";
 
 // Tab configuration with badges
@@ -73,14 +64,6 @@ const toastMessages: Record<TabType, { icon: LucideIcon; message: string }> = {
     resume: { icon: Sparkles, message: "AI suggestions ready!" },
 };
 
-// Tooltip content
-const tooltipContent: Record<string, string> = {
-    "days-remaining": "Days remaining until your OPT expires",
-    "unemployment": "Days of unemployment used out of 90 allowed",
-    "program-end": "Your graduation date from the university",
-    "opt-start": "When your OPT authorization begins",
-};
-
 export function LandingHero() {
     const prefersReducedMotion = usePrefersReducedMotion();
     const [activeTab, setActiveTab] = useState<TabType>("timeline");
@@ -90,7 +73,6 @@ export function LandingHero() {
     const [toastContent, setToastContent] = useState(toastMessages.timeline);
     const [showConfetti, setShowConfetti] = useState(false);
     const [tiltStyle, setTiltStyle] = useState({ rotateX: 0, rotateY: 0 });
-    const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const mockupRef = useRef<HTMLDivElement>(null);
 
     const AUTO_ROTATE_INTERVAL = 6000; // 6 seconds
@@ -164,7 +146,7 @@ export function LandingHero() {
         setIsHovered(false);
     };
 
-    // Confetti trigger (called from CrmMockup on successful drag)
+    // Confetti trigger (called from HeroCrmMockup on successful drag)
     const triggerConfetti = () => {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 2000);

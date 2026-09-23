@@ -8,7 +8,7 @@ import {
   type OracleConnection,
   type OracleDriver,
 } from './oracle-job-data-store';
-import type { JobStoreRecord } from './job-data-store.contract';
+import type { JobStoreRecord, JobStoreSearch } from './job-data-store.contract';
 
 const now = '2026-09-03T12:00:00.000Z';
 
@@ -72,7 +72,7 @@ function setup() {
         } as { rows: T[] });
       }
       if (sql.trim().startsWith('DELETE'))
-        return { rowsAffected: 1 } as { rowsAffected: number };
+        return Promise.resolve({ rowsAffected: 1 });
       if (sql.trim().startsWith('SELECT 1 AS'))
         return Promise.resolve({ rows: [{ ok: 1 }] } as { rows: T[] });
       return Promise.resolve({
@@ -680,7 +680,7 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(executed.at(-1)?.binds).toEqual({ jobId0: 'job-1' });
   });
 
-  it.each([
+  it.each<[string, Partial<JobStoreSearch>, string]>([
     ['exclude', { exclude: 'clearance' }, 'NOT LIKE :exclude'],
     ['workplace', { workplace: 'remote' }, 'description_filter_flags'],
     ['degree', { degree: 'master' }, 'description_filter_flags'],

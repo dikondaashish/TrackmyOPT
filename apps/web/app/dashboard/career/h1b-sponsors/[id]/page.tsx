@@ -8,7 +8,7 @@ import {
     Scale, DollarSign, Lock
 } from "lucide-react";
 import { Database } from "@/types/supabase";
-import type { H1BSponsor } from "@/lib/mock/h1b-sponsors";
+import type { H1BSponsor } from "@/lib/career/h1b/types";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsor-score";
 import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
 import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";

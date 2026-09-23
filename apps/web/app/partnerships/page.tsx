@@ -11,54 +11,6 @@ import { FeatureCTA } from "../../components/features/FeatureCTA";
 import { UniversityDashboardPreview } from "@/components/features/UniversityDashboardPreview";
 import { CountUp } from "@/components/ui/count-up";
 
-// Partnership Visual
-function PartnershipVisual() {
-    return (
-        <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl blur-2xl opacity-20" />
-            <div className="relative bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-2xl">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Partner Dashboard</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 text-center"
-                    >
-                        <Building2 className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">50+</p>
-                        <p className="text-xs text-purple-600 dark:text-purple-400">Universities</p>
-                    </motion.div>
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center"
-                    >
-                        <GraduationCap className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">100+</p>
-                        <p className="text-xs text-blue-600 dark:text-blue-400">Ambassadors</p>
-                    </motion.div>
-                </div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-4 text-white text-center"
-                >
-                    <p className="text-sm opacity-80 mb-1">Registered Users</p>
-                    <p className="text-3xl font-bold">2,500+</p>
-                </motion.div>
-            </div>
-        </div>
-    );
-}
-
 // Benefits Section
 function PartnershipBenefits() {
     const benefits = [

@@ -9,14 +9,7 @@ import { setupToolHelp } from './tool-ui';
 
 type Page = 'home' | 'opt-apply' | 'stem-apply' | 'clock' | 'opt-countdown' | 'stem-countdown' | 'clock-tracker' | 'stem-clock' | 'stem-clock-tracker';
 
-let currentPage: Page = 'home';
-
-export function getCurrentPage(): Page {
-  return currentPage;
-}
-
 export function setCurrentPage(page: Page): void {
-  currentPage = page;
   chrome.storage.local.set({ lastPage: page }).catch(() => {});
 }
 
@@ -87,25 +80,6 @@ export function renderPageHeader(root: HTMLElement, title: string, subtitle: str
   
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = headerHTML;
-  root.appendChild(tempDiv.firstElementChild!);
-}
-
-/**
- * Render "Coming Soon" notice
- */
-export function renderComingSoon(root: HTMLElement, message: string): void {
-  const noticeHTML = `
-    <div class="notice" style="margin-top:12px;">
-      <div class="dot">${icon('wrench', 18)}</div>
-      <div>
-        <div style="font-weight:800; margin-bottom: 4px;">Coming soon</div>
-        <div>${message}</div>
-      </div>
-    </div>
-  `;
-  
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = noticeHTML;
   root.appendChild(tempDiv.firstElementChild!);
 }
 

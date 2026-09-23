@@ -71,8 +71,6 @@ export function SettingsSection() {
 
   // Notification preferences
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [caseStatusAlerts, setCaseStatusAlerts] = useState(true);
-  const [documentReminders, setDocumentReminders] = useState(true);
 
   // Security
   const [isChangingPassword, setIsChangingPassword] = useState(false);

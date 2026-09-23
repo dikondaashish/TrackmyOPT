@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MessageCircle, Clock, Send, CheckCircle, HelpCircle, FileText, CreditCard, Bug, ChevronDown } from "lucide-react";
+import { Mail, MessageCircle, Clock, CheckCircle, HelpCircle, FileText, CreditCard, Bug, ChevronDown } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
@@ -158,109 +158,6 @@ function HelpCategories() {
                         </motion.div>
                     ))}
                 </div>
-            </div>
-        </section>
-    );
-}
-
-// Contact Form
-function ContactForm() {
-    const [isSubmitted, setIsSubmitted] = useState(false);
-
-    if (isSubmitted) {
-        return (
-            <section className="py-24">
-                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-8 text-center"
-                    >
-                        <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 mx-auto mb-4">
-                            <CheckCircle className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Message Sent!</h3>
-                        <p className="text-gray-600 dark:text-gray-400">We'll get back to you within 4 hours.</p>
-                    </motion.div>
-                </div>
-            </section>
-        );
-    }
-
-    return (
-        <section className="py-24">
-            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-8"
-                >
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Send Us a Message
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Fill out the form and we'll get back to you shortly
-                    </p>
-                </motion.div>
-
-                <motion.form
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    onSubmit={(e) => { e.preventDefault(); setIsSubmitted(true); }}
-                    className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 lg:p-8"
-                >
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Name</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Your name"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Email</label>
-                            <input
-                                type="email"
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="your@email.com"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Topic</label>
-                        <select className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>OPT & Compliance</option>
-                            <option>Billing & Premium</option>
-                            <option>Technical Issues</option>
-                            <option>Account & Settings</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Message</label>
-                        <textarea
-                            rows={5}
-                            className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                            placeholder="How can we help?"
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all"
-                    >
-                        <Send className="w-5 h-5" />
-                        Send Message
-                    </button>
-                </motion.form>
             </div>
         </section>
     );

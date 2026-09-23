@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Crown, Menu, Tag } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { formatUsd, OFFERS_CATALOG_TOTAL_SAVINGS_USD } from "@/lib/offers/catalog-savings";
@@ -15,8 +14,7 @@ interface HeaderProps {
     onMenuToggle?: () => void;
 }
 
-export function Header({ userEmail, userName, isPremium, onMenuToggle }: HeaderProps) {
-    const router = useRouter();
+export function Header({ isPremium, onMenuToggle }: HeaderProps) {
 
     return (
         <header className="fixed left-0 right-0 top-[var(--tmopt-dashboard-promo,0px)] z-50 flex h-14 items-center justify-between bg-[#0F3162] px-4">

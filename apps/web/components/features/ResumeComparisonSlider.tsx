@@ -6,7 +6,6 @@ import { ChevronsLeftRight, FileX, FileCheck2 } from "lucide-react";
 
 export function ResumeComparisonSlider() {
     const [sliderPosition, setSliderPosition] = useState(50);
-    const [isDragging, setIsDragging] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => { // Type fix
@@ -106,8 +105,6 @@ export function ResumeComparisonSlider() {
                 dragElastic={0}
                 dragMomentum={false}
                 onDrag={handleDrag}
-                onDragStart={() => setIsDragging(true)}
-                onDragEnd={() => setIsDragging(false)}
             >
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-xl border-2 border-white cursor-ew-resize">
                     <ChevronsLeftRight className="w-4 h-4 text-white" />

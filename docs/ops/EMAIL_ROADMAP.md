@@ -21,7 +21,8 @@ These flows still bypass the durable `email_queue` pattern:
 
 ## 2. Extract remaining templates
 
-`apps/web/lib/notifications/transactional-emails.ts` is about 2,564 lines.
+Email families already live under `apps/web/lib/notifications/transactional/`.
+Some family modules still combine HTML rendering with delivery orchestration.
 
 - [ ] Extract one email family at a time into
   `lib/notifications/templates/`.
@@ -63,7 +64,7 @@ No bulk marketing workflow should launch from the transactional mail system.
 
 ## Implementation rules
 
-- Use `transactional-emails.ts` queue primitives and the shared
+- Use `lib/notifications/transactional/queue.ts` queue primitives and the shared
   `sendMailWithRetry` transport.
 - Preserve `blocked_emails`, idempotency, and content-free error logging.
 - For Stripe, return success only after primary entitlement processing

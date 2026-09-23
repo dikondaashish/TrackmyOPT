@@ -26,10 +26,6 @@ const DEFAULT_WIDGETS: WidgetConfig[] = [
   { id: "resources", label: "Resource Center", visible: false, order: 12 },
 ];
 
-interface DashboardWidgetsProps {
-  onConfigChange: (config: WidgetConfig[]) => void;
-}
-
 export function useDashboardWidgets() {
   const [widgets, setWidgets] = useState<WidgetConfig[]>(DEFAULT_WIDGETS);
   const [isLoaded, setIsLoaded] = useState(false);

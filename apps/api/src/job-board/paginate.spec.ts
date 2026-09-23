@@ -6,7 +6,7 @@ describe('fetchAllPages', () => {
     const ranges: Array<[number, number]> = [];
     const result = await fetchAllPages((from, to) => {
       ranges.push([from, to]);
-      return { data: rows.slice(from, to + 1), error: null };
+      return Promise.resolve({ data: rows.slice(from, to + 1), error: null });
     });
 
     expect(result).toHaveLength(1_100);
@@ -18,10 +18,12 @@ describe('fetchAllPages', () => {
 
   it('surfaces page errors without returning partial data', async () => {
     await expect(
-      fetchAllPages(() => ({
-        data: null,
-        error: { message: 'temporary database failure' },
-      })),
+      fetchAllPages(() =>
+        Promise.resolve({
+          data: null,
+          error: { message: 'temporary database failure' },
+        }),
+      ),
     ).rejects.toThrow('temporary database failure');
   });
 });

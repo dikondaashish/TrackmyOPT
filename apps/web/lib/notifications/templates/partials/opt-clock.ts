@@ -18,18 +18,15 @@ export function generateOptClockSection(tool: ToolReminderDetail): string {
   const percentRemaining = (tool.daysLeft / tool.totalDays) * 100;
   let statusBg = '#ECFDF5';
   let statusBorder = '#10B981';
-  let statusEmoji = '';
   let motivationalMessage = 'You have time on your side! Stay consistent and you\'ll find the right opportunity.';
 
   if (percentRemaining <= 33) {
     statusBg = '#FEF2F2';
     statusBorder = '#EF4444';
-    statusEmoji = '';
     motivationalMessage = 'Time is running short! Intensify your job search efforts immediately.';
   } else if (percentRemaining <= 66) {
     statusBg = '#FFFBEB';
     statusBorder = '#F59E0B';
-    statusEmoji = '';
     motivationalMessage = 'You\'re making progress! Stay focused and consistent with your job search.';
   }
 
