@@ -382,7 +382,7 @@ export function CaseStatusSection() {
                 premiumUpgrade={communityEvidence?.premiumUpgrade}
                 currentStatus={caseStatus.current_status}
                 stages={communityStages}
-                phase={deriveJourneyPhase(caseStatus.current_status)}
+                phase={deriveJourneyPhase(caseStatus.current_status, safeStatusHistory)}
                 heatmap={communityHeatmap}
                 weeklyTrend={communityWeeklyTrend}
                 histogram={communityHistogram}

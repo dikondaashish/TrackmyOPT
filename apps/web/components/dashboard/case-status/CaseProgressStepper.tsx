@@ -1,51 +1,80 @@
-"use client";
+'use client';
 
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle } from 'lucide-react';
 import {
   biometricsAppliesToCase,
+  getBiometricsState,
   getVisibleI765Steps,
   mapStatusToRawStep,
   toDisplayStep,
-} from "@/lib/case-status/i765-stepper";
+} from '@/lib/case-status/i765-stepper';
 
 interface CaseProgressStepperProps {
   currentStatus: string | null;
-  statusHistory?: Array<{ status?: string | null }>;
+  statusHistory?: Array<{
+    status?: string | null;
+    description?: string | null;
+  }>;
   className?: string;
 }
 
 export function CaseProgressStepper({
   currentStatus,
   statusHistory = [],
-  className = "",
+  className = '',
 }: CaseProgressStepperProps) {
   const skipBiometrics = !biometricsAppliesToCase(currentStatus, statusHistory);
   const steps = getVisibleI765Steps(skipBiometrics);
-  const currentStep = toDisplayStep(mapStatusToRawStep(currentStatus), skipBiometrics);
+  const currentStep = toDisplayStep(
+    mapStatusToRawStep(currentStatus),
+    skipBiometrics
+  );
+  const biometrics = getBiometricsState(currentStatus, statusHistory);
+  const biometricsDone = ['completed', 'reused', 'waived'].includes(biometrics);
+  const milestoneStates = steps.map((step, index) => ({
+    ...step,
+    completed:
+      step.key === 'biometrics' ? biometricsDone : index + 1 < currentStep,
+    label:
+      step.key === 'biometrics'
+        ? {
+            completed: 'Biometrics completed',
+            reused: 'Biometrics reused',
+            waived: 'Biometrics waived',
+            pending: 'Biometrics — completion not recorded',
+            unrecorded: 'Biometrics',
+          }[biometrics]
+        : step.name,
+  }));
+  const completedCount = milestoneStates.filter(
+    (step) => step.completed
+  ).length;
 
   if (currentStep === 0) {
     return null;
   }
 
-  const progressPct = Math.round((currentStep / steps.length) * 100);
-
   return (
     <div className={`w-full ${className}`}>
       {skipBiometrics && (
         <p className="text-xs text-muted-foreground mb-3">
-          Biometrics step hidden — many I-765 OPT cases skip ASC appointments unless USCIS requests them.
+          No biometrics update recorded. Not every OPT case requires an
+          appointment.
         </p>
       )}
 
       {/* Desktop: Horizontal Stepper with animated bars */}
       <div className="hidden md:flex items-center justify-between">
-        {steps.map((step, index) => {
+        {milestoneStates.map((step, index) => {
           const stepNum = index + 1;
-          const resolvedCompleted = stepNum < currentStep;
-          const isCurrent = stepNum === currentStep;
+          const resolvedCompleted = step.completed;
+          const isCurrent = !resolvedCompleted && stepNum === currentStep;
 
           return (
-            <div key={step.key} className="flex items-center flex-1 last:flex-initial">
+            <div
+              key={step.key}
+              className="flex items-center flex-1 last:flex-initial"
+            >
               <div className="flex flex-col items-center">
                 {/* Step circle */}
                 <div
@@ -53,10 +82,10 @@ export function CaseProgressStepper({
                     w-11 h-11 rounded-full flex items-center justify-center transition-all duration-500 relative
                     ${
                       resolvedCompleted
-                        ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20"
+                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20'
                         : isCurrent
-                          ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20 animate-ripple"
-                          : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-2 border-gray-200 dark:border-gray-700"
+                          ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20 animate-ripple'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-2 border-gray-200 dark:border-gray-700'
                     }
                   `}
                 >
@@ -75,14 +104,14 @@ export function CaseProgressStepper({
                     mt-2.5 text-xs font-semibold text-center max-w-[90px] leading-tight
                     ${
                       resolvedCompleted
-                        ? "text-emerald-600 dark:text-emerald-400"
+                        ? 'text-emerald-600 dark:text-emerald-400'
                         : isCurrent
-                          ? "text-indigo-600 dark:text-indigo-400 font-bold"
-                          : "text-gray-400 dark:text-gray-500"
+                          ? 'text-indigo-600 dark:text-indigo-400 font-bold'
+                          : 'text-gray-400 dark:text-gray-500'
                     }
                   `}
                 >
-                  {step.name}
+                  {step.label}
                 </span>
               </div>
 
@@ -94,20 +123,20 @@ export function CaseProgressStepper({
                       className={`
                         h-full rounded-full transition-all duration-700 ease-out animate-progress-fill
                         ${
-                          index + 1 < currentStep
-                            ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
-                            : index + 1 === currentStep
-                              ? "bg-gradient-to-r from-indigo-500 to-indigo-300"
-                              : ""
+                          resolvedCompleted
+                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-400'
+                            : isCurrent
+                              ? 'bg-gradient-to-r from-indigo-500 to-indigo-300'
+                              : ''
                         }
                       `}
                       style={{
                         width:
-                          index + 1 < currentStep
-                            ? "100%"
-                            : index + 1 === currentStep
-                              ? "50%"
-                              : "0%",
+                          resolvedCompleted
+                            ? '100%'
+                            : isCurrent
+                              ? '50%'
+                              : '0%',
                       }}
                     />
                   </div>
@@ -130,24 +159,24 @@ export function CaseProgressStepper({
             <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold">
               Step {currentStep} of {steps.length}
             </p>
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
-              {steps[currentStep - 1]?.name || "Processing"}
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100 break-words">
+              {milestoneStates[currentStep - 1]?.label || 'Processing'}
             </p>
           </div>
 
           <div className="text-right shrink-0">
             <p className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
-              {progressPct}%
+              {completedCount}/{steps.length}
             </p>
           </div>
         </div>
 
         {/* Segmented bar */}
         <div className="flex gap-1.5">
-          {steps.map((step, index) => {
+          {milestoneStates.map((step, index) => {
             const stepNum = index + 1;
-            const resolvedCompleted = stepNum < currentStep;
-            const isCurrent = stepNum === currentStep;
+            const resolvedCompleted = step.completed;
+            const isCurrent = !resolvedCompleted && stepNum === currentStep;
 
             return (
               <div
@@ -156,13 +185,13 @@ export function CaseProgressStepper({
                   h-2.5 rounded-full flex-1 transition-all duration-500
                   ${
                     resolvedCompleted
-                      ? "bg-emerald-500 shadow-sm shadow-emerald-500/30"
+                      ? 'bg-emerald-500 shadow-sm shadow-emerald-500/30'
                       : isCurrent
-                        ? "bg-gradient-to-r from-blue-500 to-indigo-500 shadow-sm shadow-indigo-500/30"
-                        : "bg-gray-200 dark:bg-gray-700"
+                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 shadow-sm shadow-indigo-500/30'
+                        : 'bg-gray-200 dark:bg-gray-700'
                   }
                 `}
-                title={step.name}
+                title={step.label}
               />
             );
           })}
@@ -170,9 +199,14 @@ export function CaseProgressStepper({
 
         {/* Step labels (completed count) */}
         <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-          <span>{currentStep - 1} completed</span>
-          <span>{steps.length - currentStep} remaining</span>
+          <span>{completedCount} completed milestones</span>
+          <span>Not a processing-time estimate</span>
         </div>
+        {!skipBiometrics && (
+          <p className="text-xs text-muted-foreground">
+            {milestoneStates.find((step) => step.key === 'biometrics')?.label}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -64,7 +64,7 @@ const result = await esbuild.build({
       return {ok:true,json:async()=>({ok:true,data:params.has('empty')?null:{program_end_date:'2025-05-15',dso_recommendation_date:'2025-04-20',opt_start_date:'2025-06-01',opt_ead_end_date:'2026-05-31',stem_start_date:'2026-06-01',stem_ead_end_date:'2028-05-31'}})};
     };
     const stopped=params.has('stopped');
-    const status=stopped?'Request for Additional Evidence Was Sent':params.has('approved')?'Case Was Approved':params.has('pp')?'Premium Processing Clock Was Started':'Case Was Received';
+    const status=stopped?'Request for Additional Evidence Was Sent':params.has('approved')?'Case Was Approved':params.has('pp')?'Premium Processing Clock Was Started':params.has('biometrics')?'Case Was Updated To Show Fingerprints Were Taken':'Case Was Received';
     const prediction={cohortSize:20,medianDays:60,p25Days:45,p75Days:75,fastestDays:10,estimatedDecisionRange:['2026-07-01','2026-08-01'],distribution:[],cohortPosition:{behind:2,ahead:18,percentile:90},approvalsLast24h:0,matchLevel:'pp',caseKind:'initial_opt',serviceCenter:null,premiumProcessing:false,sourceNote:'Synthetic fixture'};
     createRoot(document.getElementById('root')).render(<main style={{width,maxWidth:'100%',margin:'auto',padding:16}} className='space-y-5'>
       <h1 className='text-xl font-bold'>Case status · synthetic preview</h1>

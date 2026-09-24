@@ -36,6 +36,7 @@ interface CaseHeroCardProps {
     received_date?: string | null;
     last_status_change_at?: string | null;
     current_status?: string | null;
+    status_description?: string | null;
     status_history?: CaseStatusHistoryEntry[];
     pp_start_date?: string | null;
   };
@@ -153,15 +154,16 @@ export function CaseHeroCard({
 
       {/* Stepper */}
       {caseStatus.current_status && (
-        <details className="mb-4">
-          <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            Case milestones
-          </summary>
+        <section className="mb-4" aria-label="Case milestones">
+          <h3 className="py-3 text-sm font-medium">Case milestones</h3>
           <CaseProgressStepper
             currentStatus={caseStatus.current_status}
-            statusHistory={caseStatus.status_history}
+            statusHistory={[
+              ...(caseStatus.status_history ?? []),
+              { description: caseStatus.status_description },
+            ]}
           />
-        </details>
+        </section>
       )}
 
       <dl className="grid grid-cols-2 gap-x-5 gap-y-3 border-y border-border py-4 mb-4 sm:grid-cols-4 text-sm">

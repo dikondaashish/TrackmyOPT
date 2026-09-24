@@ -12,6 +12,7 @@
  */
 
 import { daysBetweenDates } from './clean';
+import { getBiometricsState } from '@/lib/case-status/i765-stepper';
 import { COMMUNITY_ESTIMATE_SOURCE_NOTE, percentile } from './estimate';
 import { maturityCutoffMs, parseUtcDate } from './weekly-trend';
 
@@ -184,10 +185,10 @@ export type JourneyPhase =
   | 'delivered';
 
 export function deriveJourneyPhase(
-  currentStatus: string | null | undefined
+  currentStatus: string | null | undefined,
+  history: Array<{ status?: string | null; description?: string | null }> = []
 ): JourneyPhase {
   const s = (currentStatus ?? '').toLowerCase();
-  if (!s) return 'filed';
   // Most advanced first: USCIS status text is cumulative, so "Card Was
   // Delivered To Me By The Post Office" also contains "card was".
   if (s.includes('card') && s.includes('delivered')) return 'delivered';
@@ -198,7 +199,11 @@ export function deriveJourneyPhase(
   )
     return 'card_produced';
   if (s.includes('approved')) return 'approved';
-  if (s.includes('fingerprint') || s.includes('biometric')) {
+  if (
+    ['completed', 'reused', 'waived'].includes(
+      getBiometricsState(currentStatus, history)
+    )
+  ) {
     return 'biometrics_done';
   }
   return 'filed';

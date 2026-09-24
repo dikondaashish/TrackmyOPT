@@ -743,7 +743,8 @@ describe("journey stages", () => {
     expect(
       deriveJourneyPhase("Card Was Delivered To Me By The Post Office")
     ).toBe("delivered");
-    expect(deriveJourneyPhase("Fingerprint Fee Received")).toBe("biometrics_done");
+    expect(deriveJourneyPhase("Fingerprint Fee Received")).toBe("filed");
+    expect(deriveJourneyPhase("Case Was Updated To Show Fingerprints Were Taken")).toBe("biometrics_done");
     expect(deriveJourneyPhase("Case Was Received")).toBe("filed");
     expect(deriveJourneyPhase(null)).toBe("filed");
   });
