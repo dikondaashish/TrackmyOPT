@@ -187,14 +187,16 @@ it('does not display legacy fabricated baseline statistics', async () => {
     })
   );
   render(<LiveStatsWidget />);
-  expect(await screen.findByText('Not enough data yet')).toBeInTheDocument();
+  expect(await screen.findByText('USCIS processing time')).toBeInTheDocument();
   expect(screen.queryByText('90')).not.toBeInTheDocument();
 });
 it('displays API failures explicitly instead of an empty statistics card', async () => {
   fetchMock.mockResolvedValue(response({}, 500));
   render(<LiveStatsWidget />);
-  expect(await screen.findByRole('status')).toHaveTextContent(
-    'temporarily unavailable'
+  await waitFor(() =>
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'temporarily unavailable'
+    )
   );
 });
 it('shows median and sample size for real aggregates', async () => {

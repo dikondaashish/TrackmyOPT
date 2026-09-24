@@ -7,13 +7,13 @@ import type {
   ToolType,
 } from '@/lib/opt/community-stats-builder';
 import { panelClass, toolThemes } from './tool-config';
+import { useClientDate } from '@/hooks/useClientDate';
+import {
+  OFFICIAL_PROCESSING_SNAPSHOTS,
+  usableOfficialSnapshot,
+} from '@/lib/case-status/official-processing-times';
 
-export function LiveStatsWidget({
-  toolType = 'opt-apply',
-}: {
-  toolType?: ToolType;
-}) {
-  const theme = toolThemes[toolType];
+function useCommunityStats(toolType: ToolType) {
   const [result, setResult] = useState<{
     tool: ToolType;
     stats: CommunityStatsBlock;
@@ -44,6 +44,24 @@ export function LiveStatsWidget({
     return () => controller.abort();
   }, [toolType, attempt]);
   const stats = result?.tool === toolType ? result.stats : null;
+  return {
+    stats,
+    error,
+    loading,
+    refresh: () => {
+      setLoading(true);
+      setAttempt((value) => value + 1);
+    },
+  };
+}
+
+export function LiveStatsWidget({
+  toolType = 'opt-apply',
+}: {
+  toolType?: ToolType;
+}) {
+  const theme = toolThemes[toolType];
+  const { stats, error, loading, refresh } = useCommunityStats(toolType);
   // Suppress old cached "baseline" payloads too.
   const available =
     stats?.dataSource === 'trackmyopt' &&
@@ -53,7 +71,7 @@ export function LiveStatsWidget({
   return (
     <section
       className={panelClass}
-      aria-label="Community approval statistics"
+      aria-label="Approval processing insights"
       aria-busy={loading}
     >
       <div className="flex items-center justify-between gap-2">
@@ -67,10 +85,7 @@ export function LiveStatsWidget({
           type="button"
           aria-label="Refresh community report statistics"
           disabled={loading}
-          onClick={() => {
-            setLoading(true);
-            setAttempt((value) => value + 1);
-          }}
+          onClick={refresh}
           className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg hover:bg-muted focus-visible:ring-2 disabled:opacity-50"
         >
           <RefreshCw
@@ -82,15 +97,17 @@ export function LiveStatsWidget({
           />
         </button>
       </div>
-      {error ? (
+      {error && !loading && (
         <p role="status" className="mt-3 text-sm text-muted-foreground">
-          Statistics are temporarily unavailable. Refresh to try again.
+          Community statistics are temporarily unavailable. Refresh to try
+          again.
         </p>
-      ) : loading ? (
+      )}
+      {loading ? (
         <p role="status" className="mt-3 text-sm text-muted-foreground">
           Loading community data…
         </p>
-      ) : available && stats ? (
+      ) : !error && available && stats ? (
         <div className="mt-3 space-y-4">
           <div className={`rounded-xl p-4 ${theme.surface}`}>
             <span className="text-sm text-muted-foreground">
@@ -109,26 +126,31 @@ export function LiveStatsWidget({
           </p>
         </div>
       ) : (
-        <div className="mt-3 rounded-xl bg-muted/50 p-4">
-          <h4 className="font-medium">Not enough data yet</h4>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Approval insights appear when at least five qualifying cases from
-            different users are available.
-          </p>
-        </div>
+        <OfficialProcessingFallback toolType={toolType} />
       )}
       <details className="mt-4 border-t border-border pt-3">
         <summary className="min-h-11 cursor-pointer text-sm font-medium focus-visible:ring-2">
           About these numbers
         </summary>
-        <p className="text-sm text-muted-foreground">
-          An anonymized sample of up to 1,000 recently received TrackMyOPT
-          cases, with a confirmed filing category and recorded receipt and
-          approval dates. Known premium-processing cases are excluded;
-          unreported premium processing may remain. A median is the middle
-          recorded duration, not an average or an approval forecast. This is not
-          an official USCIS processing-time estimate.
-        </p>
+        {!loading && !error && available ? (
+          <p className="text-sm text-muted-foreground">
+            An anonymized sample of up to 1,000 recently received TrackMyOPT
+            cases, with a confirmed filing category and recorded receipt and
+            approval dates. Known premium-processing cases are excluded;
+            unreported premium processing may remain. A median is the middle
+            recorded duration, not an average or an approval forecast. This is
+            not an official USCIS processing-time estimate.
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            USCIS measures completed cases over the past six months, not just
+            approvals. This combined student category is not a separate OPT or
+            STEM estimate and is not a premium-processing deadline. We show the
+            verified official figure when community reports are limited or
+            unavailable; it is not a TrackMyOPT median or a live USCIS feed.
+            Figures older than 30 days are hidden until reverified.
+          </p>
+        )}
       </details>
       <a
         href="https://egov.uscis.gov/processing-times/"
@@ -139,5 +161,44 @@ export function LiveStatsWidget({
         Check USCIS processing times
       </a>
     </section>
+  );
+}
+
+function OfficialProcessingFallback({ toolType }: { toolType: ToolType }) {
+  const theme = toolThemes[toolType];
+  const now = useClientDate();
+  const official = now
+    ? usableOfficialSnapshot(OFFICIAL_PROCESSING_SNAPSHOTS.at(-1), now)
+    : null;
+  return (
+    <div className={`mt-3 rounded-xl p-4 ${theme.surface}`}>
+      <h4 className="text-sm font-medium">USCIS processing time</h4>
+      {official ? (
+        <>
+          <p
+            className={`mt-1 text-3xl font-semibold tabular-nums ${theme.text}`}
+          >
+            {official.months}{' '}
+            <span className="text-base font-normal">months</span>
+          </p>
+          <p className="mt-1 text-sm">
+            80% of cases completed within this time
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            I-765 · F-1 student category · {official.office}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Verified {official.checkedDate}. Not a minimum wait or guaranteed
+            approval date.
+          </p>
+        </>
+      ) : (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Check the latest time on USCIS: select I-765, the F-1 student category
+          and the applicable office. A current verified figure is not available
+          here.
+        </p>
+      )}
+    </div>
   );
 }
