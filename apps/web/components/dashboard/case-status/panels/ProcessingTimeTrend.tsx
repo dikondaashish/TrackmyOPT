@@ -156,13 +156,14 @@ export function ProcessingTimeTrend({
                 : "Roughly stable across the period shown."}
           </p>
         )}
-        {/* Method note only — the compliance notice is stated once for the
-            whole analytics section rather than repeated per chart. */}
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
-          Median shown, not average. Weeks with fewer than 5 reported approvals, and
-          weeks too recent for their slower cases to have been decided, are excluded
-          so the trend does not show a false speed-up.
-        </p>
+        <details className="text-xs text-muted-foreground">
+          <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">How this trend is calculated</summary>
+          <p className="mt-2 leading-relaxed">
+            Median shown, not average. Weeks with fewer than 5 reported approvals, and
+            weeks too recent for their slower cases to have been decided, are excluded
+            so the trend does not show a false speed-up.
+          </p>
+        </details>
       </div>
     </div>
   );

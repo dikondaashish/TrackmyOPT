@@ -450,9 +450,9 @@ export function AnalyticsPanels({
 
       {caseType?.trim().toUpperCase() === 'I-765' && <I765ObservedTrends />}
 
-      {/* State the data-source and USCIS disclaimer once below all four charts,
-          keeping it beside the results without repeating it in every panel. */}
-      <div className="mt-6 pt-4 border-t border-border">
+      {/* Keep the source evidence beside the charts, with the longer methodology
+          available on demand instead of turning the default view into a wall of text. */}
+      <div className="mt-6">
         <ComparisonEvidence
           evidence={evidence}
           premiumUpgrade={premiumUpgrade}
@@ -463,14 +463,19 @@ export function AnalyticsPanels({
             premium={premiumProcessing}
           />
         )}
-        <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Community charts use partner-reported timelines (opt-tracker,
-          opt-pulse) shared with permission. TrackMyOPT benchmarks are
-          separately labeled and use enrolled cases, never scans of neighboring
-          receipt numbers. These are historical comparisons, not official USCIS
-          processing times, not affiliated with USCIS, and not a prediction of
-          your own outcome.
-        </p>
+        <details className="mt-4 text-xs text-muted-foreground">
+          <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            Data sources and limitations
+          </summary>
+          <p className="mt-2 max-w-3xl leading-relaxed">
+            Community charts use partner-reported timelines (opt-tracker,
+            opt-pulse) shared with permission. TrackMyOPT benchmarks are
+            separately labeled and use enrolled cases, never scans of neighboring
+            receipt numbers. These are historical comparisons, not official USCIS
+            processing times, not affiliated with USCIS, and not a prediction of
+            your own outcome.
+          </p>
+        </details>
       </div>
     </div>
   );

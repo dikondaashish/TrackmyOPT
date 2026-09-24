@@ -176,12 +176,13 @@ export function ProcessingTimeDistribution({
             into. Cases do run longer than this; the community data thins out here.
           </p>
         )}
-        {/* Method note only — the compliance notice is stated once for the
-            whole analytics section rather than repeated per chart. */}
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
-          7-day ranges. Only filing weeks old enough for their slower cases to have
-          been decided are counted, so the long tail is not undercounted.
-        </p>
+        <details className="text-xs text-muted-foreground">
+          <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">How this spread is calculated</summary>
+          <p className="mt-2 leading-relaxed">
+            7-day ranges. Only filing weeks old enough for their slower cases to have
+            been decided are counted, so the long tail is not undercounted.
+          </p>
+        </details>
       </div>
     </div>
   );

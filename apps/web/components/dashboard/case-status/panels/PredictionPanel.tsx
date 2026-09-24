@@ -108,12 +108,11 @@ function PositionTrack({
       <p className="mt-8 text-xs text-muted-foreground leading-relaxed">
         {past ? (
           <>
-            You are past the window most reported cases were decided in. Cases
-            do run longer; the community data simply thins out here.
+            Beyond the middle 50% of reported approvals; longer waits do occur.
           </>
         ) : (
           <>
-            The shaded band is where the middle 50% of comparable cases landed:{' '}
+            Shaded band · middle 50% of comparable approvals:{' '}
             <span className="font-semibold text-foreground">
               {p25}–{p75} days
             </span>
@@ -121,17 +120,6 @@ function PositionTrack({
           </>
         )}
       </p>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 py-2 sm:block sm:py-0">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-sm font-semibold text-foreground mt-0.5 tabular-nums shrink-0">
-        {value}
-      </dd>
     </div>
   );
 }
@@ -164,26 +152,33 @@ export function PredictionPanel({
 
   return (
     <div className="space-y-4">
-      <div
-        className="rounded-lg px-4 py-3"
-        style={{ background: 'var(--chart-seq-1)' }}
-      >
-        <p className="text-xs font-medium text-muted-foreground">
-          Historical approval range · middle 50%
-        </p>
-        <p className="mt-1 text-xl font-semibold text-foreground leading-tight tracking-tight tabular-nums">
-          {low}–{high} days
-        </p>
-        {pastRange && (
-          <p className="mt-1 text-sm font-medium text-foreground">
-            Beyond the historical range
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+        <div className="rounded-xl border border-border bg-[var(--chart-seq-1)] p-4 sm:p-5">
+          <p className="text-xs font-medium text-muted-foreground">
+            Typical completed report
           </p>
-        )}
-        <p className="mt-2 text-xs text-muted-foreground leading-relaxed max-w-prose">
-          Based on {cohortSize.toLocaleString()} reported {cohortLabel}{' '}
-          approvals. This is not a USCIS queue position or a prediction of your
-          decision date.
-        </p>
+          <p className="mt-1 text-4xl font-semibold tracking-tight tabular-nums text-foreground">
+            {medianDays}
+            <span className="ml-1 text-base font-medium">days</span>
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {cohortSize.toLocaleString()} reported {cohortLabel} approvals
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
+          <p className="text-xs font-medium text-muted-foreground">
+            Historical approval range · middle 50%
+          </p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+            {low}–{high}
+            <span className="ml-1 text-sm font-medium">days</span>
+          </p>
+          {pastRange && (
+            <p className="mt-2 text-xs font-semibold text-[var(--chart-you)]">
+              Beyond the historical range
+            </p>
+          )}
+        </div>
       </div>
 
       <PositionTrack
@@ -193,25 +188,37 @@ export function PredictionPanel({
         p75={high}
       />
 
-      <dl className="grid sm:grid-cols-3 sm:gap-5 border-t border-border pt-3">
-        <Stat label="Typical wait" value={`${medianDays} days`} />
-        <Stat
-          label="Historical approvals taking longer"
-          value={cohortPosition.behind.toLocaleString()}
-        />
-        <Stat
-          label="Fastest reported"
-          value={fastestDays !== undefined ? `${fastestDays} days` : '—'}
-        />
-      </dl>
-
-      <p className="text-xs text-muted-foreground leading-relaxed">
-        <span className="font-semibold text-foreground">
-          {cohortPosition.ahead.toLocaleString()}
-        </span>{' '}
-        of {cohortSize.toLocaleString()} comparable {cohortLabel} cases were
-        already decided by day {daysSinceFiled}.
+      <p className="text-xs font-medium text-muted-foreground">
+        Historical reports, not a USCIS queue position or a decision-date
+        forecast.
       </p>
+      <details className="border-t border-border pt-3 text-xs text-muted-foreground">
+        <summary className="w-fit cursor-pointer rounded font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          About this sample
+        </summary>
+        <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <dt>
+              Historical approvals taking longer than day {daysSinceFiled}
+            </dt>
+            <dd className="mt-1 font-semibold tabular-nums text-foreground">
+              {cohortPosition.behind.toLocaleString()} completed reports
+            </dd>
+          </div>
+          <div>
+            <dt>Fastest reported</dt>
+            <dd className="mt-1 font-semibold tabular-nums text-foreground">
+              {fastestDays !== undefined ? `${fastestDays} days` : '—'}
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-3 leading-relaxed">
+          {cohortPosition.ahead.toLocaleString()} of{' '}
+          {cohortSize.toLocaleString()} completed reports were decided by day{' '}
+          {daysSinceFiled}. Only completed reports are counted, so this is not
+          an approval probability for pending cases.
+        </p>
+      </details>
     </div>
   );
 }
