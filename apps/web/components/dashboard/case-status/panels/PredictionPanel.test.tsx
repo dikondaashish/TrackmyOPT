@@ -28,9 +28,7 @@ it('describes historical approvals without promising an imminent decision or a l
   expect(
     screen.getByText(/Historical approvals taking longer than day 100/)
   ).toBeInTheDocument();
-  expect(
-    screen.getByText(/not a USCIS queue position or a decision-date forecast/i)
-  ).toBeVisible();
+  expect(screen.getByText('Not a decision-date forecast.')).toBeVisible();
   expect(screen.getByText('About this sample')).toBeVisible();
   expect(screen.getByText('Beyond the historical range')).toBeInTheDocument();
 });

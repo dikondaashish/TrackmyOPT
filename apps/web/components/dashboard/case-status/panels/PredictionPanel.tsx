@@ -189,8 +189,7 @@ export function PredictionPanel({
       />
 
       <p className="text-xs font-medium text-muted-foreground">
-        Historical reports, not a USCIS queue position or a decision-date
-        forecast.
+        Not a decision-date forecast.
       </p>
       <details className="border-t border-border pt-3 text-xs text-muted-foreground">
         <summary className="w-fit cursor-pointer rounded font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
