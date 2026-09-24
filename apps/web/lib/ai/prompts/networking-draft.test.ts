@@ -15,5 +15,10 @@ describe('buildNetworkingDraftPrompt', () => {
     expect(prompt).toContain('Ask about the team and mention my application.');
     expect(prompt).toContain('Do not invent a referral');
     expect(prompt).toContain('under 300 characters');
+    expect(prompt).toContain(
+      'targetRoleTitle is a role the candidate is interested in'
+    );
+    expect(prompt).toContain('"targetRoleTitle":"Software Engineer"');
+    expect(prompt).not.toContain('"roleTitle":"Software Engineer"');
   });
 });
