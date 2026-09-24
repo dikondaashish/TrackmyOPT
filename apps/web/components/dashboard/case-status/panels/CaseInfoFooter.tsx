@@ -9,7 +9,6 @@ import {
 } from "@/lib/case-status/case-status-display";
 import { getFilingCategoryLabel } from "@/lib/case-status/filing-category";
 import { daysSinceEpochMs, formatDisplayDateShort } from "@/lib/case-status/safe-dates";
-import { CASE_STATUS_DISCLAIMER } from "@/lib/legal/legal-config";
 import { useClientDate } from "@/hooks/useClientDate";
 
 interface CaseInfoFooterProps {
@@ -68,11 +67,6 @@ export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
           </div>
         )}
       </div>
-
-      {/* Single disclaimer — only appears here */}
-      <p className="text-xs text-muted-foreground leading-relaxed px-1">
-        {CASE_STATUS_DISCLAIMER}
-      </p>
     </div>
   );
 }
