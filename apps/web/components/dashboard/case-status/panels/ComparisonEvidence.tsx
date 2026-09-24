@@ -107,9 +107,9 @@ export function ComparisonEvidence({
             </p>
           )}
           <ul className="space-y-1">
-            {evidence.sources.map((source) => (
+            {evidence.sources.map((source, index) => (
               <li key={source.name}>
-                {source.name}: {source.reports.toLocaleString()} stored reports
+                Community source {index + 1}: {source.reports.toLocaleString()} stored reports
                 · Last observed import:{' '}
                 {source.lastRefreshedAt
                   ? formatDisplayDateNoon(source.lastRefreshedAt)

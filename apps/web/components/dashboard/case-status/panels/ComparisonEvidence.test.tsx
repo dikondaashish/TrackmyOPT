@@ -38,4 +38,11 @@ it('shows chart coverage at a glance and keeps data-quality details available', 
   expect(screen.getByText(/not verified unique applicants/i)).toBeVisible();
   fireEvent.click(screen.getByText('Sources and calculation details'));
   expect(screen.getByText(/RFE pauses are not captured/i)).toBeVisible();
+  expect(screen.getByText(/Community source 1: 60 stored reports/)).toHaveTextContent(
+    'Last observed import: Sep 23, 2026'
+  );
+  expect(screen.getByText(/Community source 2: 40 stored reports/)).toHaveTextContent(
+    'Last observed import: Sep 22, 2026'
+  );
+  expect(screen.queryByText(/OPT Tracker|OPT Pulse/i)).not.toBeInTheDocument();
 });
