@@ -11,10 +11,12 @@ type Schedule = {
 };
 export function CheckSchedule({ caseId }: { caseId: string }) {
   const [state, setState] = useState<Schedule | null>(null);
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     const abort = new AbortController();
-    const load = () =>
-      fetch(
+    const load = () => {
+      setNow(new Date());
+      return fetch(
         `/api/case-status/monitor-schedule?case_id=${encodeURIComponent(caseId)}`,
         { signal: abort.signal, credentials: 'include' }
       )
@@ -28,6 +30,7 @@ export function CheckSchedule({ caseId }: { caseId: string }) {
         .catch(() => {
           if (!abort.signal.aborted) setState(null);
         });
+    };
     void load();
     const timer = setInterval(() => void load(), 60000);
     return () => {
@@ -35,13 +38,47 @@ export function CheckSchedule({ caseId }: { caseId: string }) {
       clearInterval(timer);
     };
   }, [caseId]);
+  const next = state?.next;
+  const delayed =
+    next?.state !== 'running' &&
+    now &&
+    next &&
+    new Date(next.scheduled_for).getTime() < now.getTime();
   return (
-    <span className="basis-full mt-1">
-      {state?.next
-        ? `${state.next.state === 'running' ? 'Check started from queue' : 'Queued check (scheduled start)'}: ${formatCheckedAt(state.next.scheduled_for)}. If this time has passed, the check is delayed; use manual refresh.`
-        : 'Daily batch configured for 14:00 UTC; no per-case queued time is confirmed yet.'}
-      {state?.attempt &&
-        ` Last worker attempt: ${formatCheckedAt(state.attempt.attempted_at)} (${state.attempt.state}).`}
-    </span>
+    <div>
+      <div className="font-medium text-foreground tabular-nums">
+        {next
+          ? formatCheckedAt(next.scheduled_for)
+          : 'Queue time not confirmed'}
+      </div>
+      {next && (
+        <div className="mt-1">
+          {next.state === 'running'
+            ? 'Started · not yet completed'
+            : delayed
+              ? 'Delayed · refresh manually to retry'
+              : 'Queued · scheduled start'}
+        </div>
+      )}
+      <details className="mt-2">
+        <summary className="w-fit cursor-pointer rounded text-blue-600 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-400">
+          Schedule details
+        </summary>
+        <div className="mt-2 space-y-1">
+          <div>
+            Daily batch: 14:00 UTC. Queue timing varies; a scheduled start is
+            not a completed check.
+          </div>
+          {state?.attempt ? (
+            <div>
+              Last worker attempt: {formatCheckedAt(state.attempt.attempted_at)}{' '}
+              ({state.attempt.state}).
+            </div>
+          ) : (
+            <div>No worker attempt confirmed.</div>
+          )}
+        </div>
+      </details>
+    </div>
   );
 }

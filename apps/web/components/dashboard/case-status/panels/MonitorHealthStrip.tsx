@@ -23,9 +23,6 @@ interface MonitorHealthStripProps {
   onUpgrade?: () => void;
 }
 
-const Dot = () => (
-  <span className="text-gray-300 dark:text-gray-700 mx-1.5">·</span>
-);
 const FAILURE_REASONS: Record<string, string> = {
   CHECK_RETRIES_EXHAUSTED: 'The automatic check exhausted its retries.',
   USCIS_UNAVAILABLE: 'The USCIS connection is temporarily unavailable.',
@@ -61,116 +58,130 @@ export function MonitorHealthStrip({
     unconfirmed: 'Awaiting a confirmed check',
   };
   return (
-    <div className="flex flex-wrap items-center gap-y-1 text-xs text-muted-foreground py-2 px-1">
-      <span className="flex items-center gap-1 font-medium">
-        {health === 'recent' ? (
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-        ) : monitorActive ? (
-          <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-        ) : (
-          <XCircle className="w-3.5 h-3.5 text-gray-400" />
-        )}
-        <span
-          className={cn(
-            health === 'recent'
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-muted-foreground'
-          )}
-        >
-          {labels[health]}
-        </span>
-      </span>
-
-      {!monitorActive && (
-        <>
-          <Dot />
-          {onUpgrade ? (
-            <button
-              type="button"
-              onClick={onUpgrade}
-              className="text-blue-600 dark:text-blue-400 hover:underline font-medium cursor-pointer"
-            >
-              {CASE_STATUS_MESSAGING.upgradeForAutoChecks}
-            </button>
+    <section
+      aria-label="Case monitoring"
+      className="rounded-xl border border-border bg-muted/20 p-4 text-xs text-muted-foreground"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="flex items-center gap-1 font-medium">
+          {health === 'recent' ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+          ) : monitorActive ? (
+            <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
           ) : (
-            <span>{CASE_STATUS_MESSAGING.autoMonitorOffHint}</span>
+            <XCircle className="w-3.5 h-3.5 text-gray-400" />
           )}
-        </>
-      )}
-
-      {lastCheckedAt && (
-        <>
-          <Dot />
-          <span>
-            Last successful check {formatCheckedAt(lastCheckedAt)}{' '}
-            <span className="text-gray-400">
-              ({formatRelativePast(lastCheckedAt, now?.getTime() ?? NaN)})
-            </span>
+          <span
+            className={cn(
+              health === 'recent'
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-muted-foreground'
+            )}
+          >
+            {labels[health]}
           </span>
-        </>
-      )}
-
-      {monitorActive && health !== 'recent' && (
-        <>
-          <Dot />
-          <span>Daily checks enabled. Refresh manually to retry now.</span>
-        </>
-      )}
-      {health === 'failed' && lastCheckFailedAt && (
-        <span className="basis-full mt-1">
-          Last failed attempt: {formatCheckedAt(lastCheckFailedAt)}.{' '}
-          {FAILURE_REASONS[lastCheckErrorCode ?? ''] ??
-            'The check did not complete; a detailed cause is not available.'}
         </span>
-      )}
-      {monitorActive && caseId ? (
-        <CheckSchedule key={caseId} caseId={caseId} />
-      ) : (
-        monitorActive && (
-          <span className="basis-full mt-1">
-            Configured daily batch: 14:00 UTC. Queue timing varies; the next
-            case check is not yet confirmed.
-          </span>
-        )
-      )}
 
-      <Dot />
-      <span className="flex items-center gap-1">
-        <Mail className="w-3 h-3" />
-        Email alerts:
-        {emailAlertsEnabled && emailAddress ? (
+        {!monitorActive && (
           <>
-            <span
-              className="font-medium text-foreground ml-0.5 ph-mask"
-              data-ph-mask
-            >
-              {emailAddress}
-            </span>
-            {onEditEmail && (
+            {onUpgrade ? (
               <button
-                onClick={onEditEmail}
-                className="ml-1 text-blue-500 hover:text-blue-600 transition-colors cursor-pointer"
-                aria-label="Edit notification email"
+                type="button"
+                onClick={onUpgrade}
+                className="text-blue-600 dark:text-blue-400 hover:underline font-medium cursor-pointer"
               >
-                <Pencil className="w-3 h-3" />
+                {CASE_STATUS_MESSAGING.upgradeForAutoChecks}
               </button>
+            ) : (
+              <span>{CASE_STATUS_MESSAGING.autoMonitorOffHint}</span>
             )}
           </>
-        ) : (
-          <span className="ml-0.5 text-amber-500">
-            {emailAlertsEnabled ? 'No email set' : 'Off'}
-            {onEditEmail && (
-              <button
-                onClick={onEditEmail}
-                className="ml-1 text-blue-500 hover:text-blue-600 transition-colors cursor-pointer"
-                aria-label="Set notification email"
-              >
-                <Pencil className="w-3 h-3 inline-block" />
-              </button>
-            )}
-          </span>
         )}
-      </span>
-    </div>
+      </div>
+      {health === 'failed' && lastCheckFailedAt && (
+        <div className="mt-3 border-l-2 border-amber-500 pl-3 text-foreground">
+          {FAILURE_REASONS[lastCheckErrorCode ?? ''] ??
+            'The check did not complete; a detailed cause is not available.'}
+          <span className="mt-1 block text-muted-foreground">
+            Last failed attempt: {formatCheckedAt(lastCheckFailedAt)}. Refresh
+            manually to retry.
+          </span>
+        </div>
+      )}
+      {health === 'delayed' && (
+        <div className="mt-2">
+          No recent successful check. Refresh manually to retry.
+        </div>
+      )}
+      <dl className="mt-3 grid gap-4 border-t border-border pt-3 sm:grid-cols-3">
+        <div className="min-w-0">
+          <dt>Last successful check</dt>
+          <dd className="mt-1 font-medium text-foreground tabular-nums">
+            {lastCheckedAt ? formatCheckedAt(lastCheckedAt) : 'Not confirmed'}
+          </dd>
+          {lastCheckedAt && (
+            <dd className="mt-1">
+              {formatRelativePast(lastCheckedAt, now?.getTime() ?? NaN)}
+            </dd>
+          )}
+        </div>
+        <div className="min-w-0">
+          <dt>Next automatic check</dt>
+          <dd className="mt-1">
+            {monitorActive && caseId ? (
+              <CheckSchedule key={caseId} caseId={caseId} />
+            ) : (
+              <span className="font-medium text-foreground">
+                {monitorActive
+                  ? 'Queue time not confirmed'
+                  : 'Automatic checks off'}
+              </span>
+            )}
+          </dd>
+        </div>
+        <div className="min-w-0">
+          <dt className="flex items-center gap-1.5">
+            <Mail aria-hidden="true" className="h-3.5 w-3.5" />
+            Email alerts
+          </dt>
+          <dd className="mt-1 flex min-w-0 items-center gap-1">
+            {emailAlertsEnabled && emailAddress ? (
+              <>
+                <span
+                  className="min-w-0 break-all font-medium text-foreground ph-mask"
+                  data-ph-mask
+                >
+                  {emailAddress}
+                </span>
+                {onEditEmail && (
+                  <button
+                    onClick={onEditEmail}
+                    type="button"
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-blue-600 hover:bg-muted focus-visible:outline focus-visible:outline-2 dark:text-blue-400"
+                    aria-label="Edit notification email"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                )}
+              </>
+            ) : (
+              <span className="flex items-center text-muted-foreground">
+                {emailAlertsEnabled ? 'No email set' : 'Off'}
+                {onEditEmail && (
+                  <button
+                    onClick={onEditEmail}
+                    type="button"
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-blue-600 hover:bg-muted focus-visible:outline focus-visible:outline-2 dark:text-blue-400"
+                    aria-label="Set notification email"
+                  >
+                    <Pencil className="w-3 h-3 inline-block" />
+                  </button>
+                )}
+              </span>
+            )}
+          </dd>
+        </div>
+      </dl>
+    </section>
   );
 }

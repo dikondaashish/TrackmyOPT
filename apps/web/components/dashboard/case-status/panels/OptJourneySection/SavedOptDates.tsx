@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { CalendarDays } from 'lucide-react';
 import { calendarDateISO } from '@/lib/immigration/calendar-days';
 import {
   formatDisplayDateNoon,
@@ -72,11 +73,18 @@ export function SavedOptDates({
   const dates = FIELDS.filter(([key]) => parseValidDate(state.data?.[key]));
   return (
     <section
-      className="mt-5 rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-950/20"
+      className="mt-5 border-t border-border pt-4"
       aria-labelledby="saved-opt-dates-title"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 id="saved-opt-dates-title" className="text-sm font-semibold">
+        <h3
+          id="saved-opt-dates-title"
+          className="flex items-center gap-2 text-sm font-semibold"
+        >
+          <CalendarDays
+            aria-hidden="true"
+            className="h-4 w-4 text-blue-600 dark:text-blue-400"
+          />
           Your saved OPT dates
         </h3>
         <Link
@@ -100,23 +108,44 @@ export function SavedOptDates({
         </p>
       ) : (
         <>
-          <dl
-            data-ph-mask
-            className="ph-mask mt-2 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 lg:grid-cols-3"
-          >
-            {dates.map(([key, label]) => (
-              <div key={key}>
-                <dt className="text-xs text-muted-foreground">{label}</dt>
-                <dd className="mt-1 text-sm font-semibold tabular-nums">
-                  {formatDisplayDateNoon(state.data?.[key])}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-            From your OPT Dates settings, not a USCIS approval or confirmation
-            of work authorization. Verify against your I-20 and EAD.
-          </p>
+          <div className="mt-2 grid gap-4 sm:grid-cols-3">
+            {(['Program', 'OPT', 'STEM'] as const).map((phase) => {
+              const phaseDates = dates.filter(([key]) =>
+                phase === 'Program'
+                  ? key === 'program_end_date'
+                  : phase === 'STEM'
+                    ? key.startsWith('stem_')
+                    : key !== 'program_end_date' && !key.startsWith('stem_')
+              );
+              if (!phaseDates.length) return null;
+              return (
+                <div
+                  key={phase}
+                  className="border-l-2 border-blue-200 pl-3 dark:border-blue-800"
+                >
+                  <h4 className="mb-3 text-xs font-semibold tracking-wide text-blue-700 dark:text-blue-300">
+                    {phase}
+                  </h4>
+                  <dl data-ph-mask className="ph-mask space-y-3">
+                    {phaseDates.map(([key, label]) => (
+                      <div key={key}>
+                        <dt className="text-xs text-muted-foreground">
+                          {label}
+                        </dt>
+                        <dd className="mt-0.5 text-base font-semibold tabular-nums">
+                          {formatDisplayDateNoon(state.data?.[key])}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 text-xs leading-relaxed text-muted-foreground">
+            Saved by you · not a USCIS approval or work authorization. Verify
+            with your I-20 and EAD.
+          </div>
         </>
       )}
     </section>

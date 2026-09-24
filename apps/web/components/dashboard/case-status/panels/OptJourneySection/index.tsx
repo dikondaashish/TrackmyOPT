@@ -20,6 +20,7 @@ import {
   type FilingCategory,
 } from '@/lib/case-status/filing-category';
 import { useClientDate } from '@/hooks/useClientDate';
+import { formatDisplayDateNoon } from '@/lib/case-status/safe-dates';
 
 interface OptJourneySectionProps {
   caseId?: string;
@@ -107,17 +108,36 @@ export function OptJourneySection({
       <SavedOptDates onLoaded={setSaved} />
       <EmploymentContext onChangeDate={setSavedEmploymentChange} />
       {savedWindow && (
-        <p className="mt-3 text-sm text-muted-foreground">
-          STEM filing window from your saved dates: {savedWindow.earliestFile}{' '}
-          to {savedWindow.hardDeadline}. Confirm eligibility and your
-          recommendation date with your DSO.{' '}
+        <section
+          aria-label="STEM filing window from saved dates"
+          className="mt-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-950/20"
+        >
+          <h3 className="text-sm font-semibold">STEM filing window</h3>
+          <dl className="mt-3 grid grid-cols-2 gap-4 ph-mask" data-ph-mask>
+            <div>
+              <dt className="text-xs text-muted-foreground">Opens</dt>
+              <dd className="mt-1 text-base font-semibold tabular-nums">
+                {formatDisplayDateNoon(savedWindow.earliestFile)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">Deadline</dt>
+              <dd className="mt-1 text-base font-semibold tabular-nums">
+                {formatDisplayDateNoon(savedWindow.hardDeadline)}
+              </dd>
+            </div>
+          </dl>
+          <div className="mt-3 text-xs text-muted-foreground">
+            From saved dates · confirm eligibility and your recommendation date
+            with your DSO.
+          </div>
           <Link
             href="/dashboard/opt-dates#employment"
-            className="text-blue-600 underline"
+            className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 dark:text-blue-300"
           >
             Review employment and reminder settings
           </Link>
-        </p>
+        </section>
       )}
 
       {/* EAD + Cap-gap cards */}
