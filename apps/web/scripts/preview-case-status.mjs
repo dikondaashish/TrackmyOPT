@@ -49,6 +49,7 @@ const result = await esbuild.build({
     let notices=[];
     let digestEnabled=false;
     window.fetch=async(url,options)=>{
+      if(url==='/api/case-status/biometrics') return {ok:true,json:async()=>({ok:true})};
       if(String(url).startsWith('/api/case-status/monitor-schedule')) return {ok:true,json:async()=>({next:{scheduled_for:'2026-09-24T14:00:00Z',state:'queued'},attempt:{attempted_at:'2026-09-23T14:00:00Z',state:'succeeded'}})};
       if(url==='/api/case-status/digest-preferences') { if(options?.method==='PATCH')digestEnabled=JSON.parse(options.body).enabled; return {ok:true,json:async()=>({enabled:digestEnabled})}; }
       if(String(url).startsWith('/api/case-status/notices')) {
@@ -64,7 +65,7 @@ const result = await esbuild.build({
       return {ok:true,json:async()=>({ok:true,data:params.has('empty')?null:{program_end_date:'2025-05-15',dso_recommendation_date:'2025-04-20',opt_start_date:'2025-06-01',opt_ead_end_date:'2026-05-31',stem_start_date:'2026-06-01',stem_ead_end_date:'2028-05-31'}})};
     };
     const stopped=params.has('stopped');
-    const status=stopped?'Request for Additional Evidence Was Sent':params.has('approved')?'Case Was Approved':params.has('pp')?'Premium Processing Clock Was Started':params.has('biometrics')?'Case Was Updated To Show Fingerprints Were Taken':'Case Was Received';
+    const status=stopped?'Request for Additional Evidence Was Sent':params.has('approved')?'Case Was Approved':params.has('pp')?'Premium Processing Clock Was Started':params.has('appointment')?'We scheduled you for a biometrics appointment':params.has('biometrics')?'Case Was Updated To Show Fingerprints Were Taken':'Case Was Received';
     const prediction={cohortSize:20,medianDays:60,p25Days:45,p75Days:75,fastestDays:10,estimatedDecisionRange:['2026-07-01','2026-08-01'],distribution:[],cohortPosition:{behind:2,ahead:18,percentile:90},approvalsLast24h:0,matchLevel:'pp',caseKind:'initial_opt',serviceCenter:null,premiumProcessing:false,sourceNote:'Synthetic fixture'};
     createRoot(document.getElementById('root')).render(<main style={{width,maxWidth:'100%',margin:'auto',padding:16}} className='space-y-5'>
       <h1 className='text-xl font-bold'>Case status · synthetic preview</h1>

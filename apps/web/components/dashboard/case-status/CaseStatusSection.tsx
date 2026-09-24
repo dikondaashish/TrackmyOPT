@@ -286,6 +286,7 @@ export function CaseStatusSection() {
           ) : (
             <CaseStatusPanelErrorBoundary area="hero">
               <CaseHeroCard
+                onBiometricsSaved={() => void loadCaseStatus()}
                 key={caseStatus.id}
                 caseStatus={{
                   ...caseStatus,

@@ -67,7 +67,7 @@ it('does not mark a scheduled appointment complete just because review started',
   );
   expect(screen.queryByText('Biometrics completed')).not.toBeInTheDocument();
   expect(
-    screen.getAllByText('Biometrics — completion not recorded').length
+    screen.getAllByText('Biometrics appointment scheduled').length
   ).toBeGreaterThan(0);
 });
 

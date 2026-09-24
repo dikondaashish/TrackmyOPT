@@ -44,6 +44,7 @@ export function biometricsAppliesToCase(
 export type BiometricsState =
   | 'unrecorded'
   | 'pending'
+  | 'scheduled'
   | 'completed'
   | 'reused'
   | 'waived';
@@ -67,6 +68,13 @@ export function getBiometricsState(
       if (!mentionsBiometrics(sentence)) continue;
       if (result === 'unrecorded') result = 'pending';
       if (/\b(fee|payment)\b/.test(sentence)) continue;
+      if (
+        /\bappointment\b/.test(sentence) &&
+        /\bscheduled\b/.test(sentence) &&
+        !/\b(not|cancelled|canceled)\b/.test(sentence) &&
+        result === 'pending'
+      )
+        result = 'scheduled';
       if (
         /\b(not|never|awaiting|pending|will|must|need to|scheduled|unable|failed)\b/.test(
           sentence

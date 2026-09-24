@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { normalizeStatusCategory } from '@/lib/posthog/uscis-status-category';
 import {
   biometricsAppliesToCase,
   getBiometricsState,
@@ -9,6 +10,19 @@ import {
 } from '../i765-stepper';
 
 describe('i765-stepper', () => {
+  it.each([
+    'We scheduled you for a biometrics appointment',
+    'Biometrics Appointment Was Scheduled',
+  ])('distinguishes an appointment from completed attendance: %s', (status) => {
+    expect(getBiometricsState(status)).toBe('scheduled');
+    expect(normalizeStatusCategory(status)).toBe('pending');
+    expect(
+      getBiometricsState('Case Is Being Actively Reviewed', [
+        { description: status },
+      ])
+    ).toBe('scheduled');
+  });
+
   it.each([
     'Case Was Updated To Show Fingerprints Were Taken',
     'Biometrics Appointment Was Completed',
@@ -21,7 +35,6 @@ describe('i765-stepper', () => {
   it.each([
     'Fingerprint Fee Was Received',
     'Your biometrics fee was processed',
-    'Biometrics Appointment Was Scheduled',
     'Biometrics have not been completed',
     'Your fingerprints will be taken',
     'Biometrics are pending',

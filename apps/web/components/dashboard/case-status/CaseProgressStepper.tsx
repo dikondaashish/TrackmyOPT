@@ -16,35 +16,45 @@ interface CaseProgressStepperProps {
     description?: string | null;
   }>;
   className?: string;
+  userBiometricsDate?: string | null;
 }
 
 export function CaseProgressStepper({
   currentStatus,
   statusHistory = [],
   className = '',
+  userBiometricsDate,
 }: CaseProgressStepperProps) {
-  const skipBiometrics = !biometricsAppliesToCase(currentStatus, statusHistory);
+  const skipBiometrics =
+    !userBiometricsDate &&
+    !biometricsAppliesToCase(currentStatus, statusHistory);
   const steps = getVisibleI765Steps(skipBiometrics);
   const currentStep = toDisplayStep(
     mapStatusToRawStep(currentStatus),
     skipBiometrics
   );
   const biometrics = getBiometricsState(currentStatus, statusHistory);
-  const biometricsDone = ['completed', 'reused', 'waived'].includes(biometrics);
+  const officialBiometricsDone = ['completed', 'reused', 'waived'].includes(
+    biometrics
+  );
+  const biometricsDone = officialBiometricsDone || Boolean(userBiometricsDate);
   const milestoneStates = steps.map((step, index) => ({
     ...step,
     completed:
       step.key === 'biometrics' ? biometricsDone : index + 1 < currentStep,
     label:
-      step.key === 'biometrics'
-        ? {
-            completed: 'Biometrics completed',
-            reused: 'Biometrics reused',
-            waived: 'Biometrics waived',
-            pending: 'Biometrics — completion not recorded',
-            unrecorded: 'Biometrics',
-          }[biometrics]
-        : step.name,
+      step.key === 'biometrics' && userBiometricsDate && !officialBiometricsDone
+        ? 'Biometrics completed · Confirmed by you'
+        : step.key === 'biometrics'
+          ? {
+              completed: 'Biometrics completed',
+              reused: 'Biometrics reused',
+              waived: 'Biometrics waived',
+              pending: 'Biometrics — completion not recorded',
+              scheduled: 'Biometrics appointment scheduled',
+              unrecorded: 'Biometrics',
+            }[biometrics]
+          : step.name,
   }));
   const completedCount = milestoneStates.filter(
     (step) => step.completed
@@ -131,12 +141,11 @@ export function CaseProgressStepper({
                         }
                       `}
                       style={{
-                        width:
-                          resolvedCompleted
-                            ? '100%'
-                            : isCurrent
-                              ? '50%'
-                              : '0%',
+                        width: resolvedCompleted
+                          ? '100%'
+                          : isCurrent
+                            ? '50%'
+                            : '0%',
                       }}
                     />
                   </div>

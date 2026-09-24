@@ -51,6 +51,7 @@ export function normalizeStatusCategory(status: string | null | undefined): stri
     s.includes("currently processing") ||
     s.includes("actively reviewed") ||
     s.includes("fingerprints") ||
+    s.includes("biometrics") ||
     s.includes("interview")
   ) {
     return "pending";

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { CaseProgressStepper } from '@/components/dashboard/case-status/CaseProgressStepper';
+import { BiometricsMilestones } from '@/components/dashboard/case-status/BiometricsMilestones';
 import {
   getServiceCenterLabel,
   getServiceCenterLocation,
@@ -39,6 +39,7 @@ interface CaseHeroCardProps {
     status_description?: string | null;
     status_history?: CaseStatusHistoryEntry[];
     pp_start_date?: string | null;
+    biometrics_attended_date?: string | null;
   };
   caseState: CaseState;
   ppOverdueDays?: number;
@@ -50,6 +51,7 @@ interface CaseHeroCardProps {
   onDelete?: () => void;
   isDeleting?: boolean;
   refreshError?: string | null;
+  onBiometricsSaved?: () => void;
 }
 
 export function CaseHeroCard({
@@ -64,6 +66,7 @@ export function CaseHeroCard({
   onDelete,
   isDeleting = false,
   refreshError,
+  onBiometricsSaved,
 }: CaseHeroCardProps) {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
@@ -156,11 +159,15 @@ export function CaseHeroCard({
       {caseStatus.current_status && (
         <section className="mb-4" aria-label="Case milestones">
           <h3 className="py-3 text-sm font-medium">Case milestones</h3>
-          <CaseProgressStepper
+          <BiometricsMilestones
+            key={`${caseStatus.id}:${caseStatus.biometrics_attended_date ?? ''}`}
+            caseId={caseStatus.id}
+            attendedDate={caseStatus.biometrics_attended_date}
+            onSaved={onBiometricsSaved}
             currentStatus={caseStatus.current_status}
-            statusHistory={[
+            history={[
               ...(caseStatus.status_history ?? []),
-              { description: caseStatus.status_description },
+              { description: caseStatus.status_description ?? undefined },
             ]}
           />
         </section>

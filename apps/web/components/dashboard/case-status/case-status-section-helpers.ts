@@ -9,6 +9,8 @@ export interface CaseStatus {
   case_type: string | null;
   received_date: string | null;
   pp_start_date?: string | null;
+  biometrics_attended_date?: string | null;
+  biometrics_confirmed_at?: string | null;
   last_checked_at: string | null;
   last_status_change_at: string | null;
   last_status_viewed_at?: string | null;
