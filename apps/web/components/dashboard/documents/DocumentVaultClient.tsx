@@ -380,25 +380,6 @@ export function DocumentVaultClient() {
   // Main document vault interface
   return (
     <div className="space-y-4" data-document-vault data-ph-no-capture>
-      {/* Security details */}
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
-        <div className="flex items-start gap-3">
-          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden />
-          <div>
-            <h2 className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">How your vault is secured</h2>
-            <p className="mt-1 text-xs text-emerald-800 dark:text-emerald-300">
-              Account sign-in controls access to your documents. The vault passcode locks this screen;
-              it does not encrypt your files or replace your account password.
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-emerald-900 dark:text-emerald-200">
-              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Encrypted in transit</span>
-              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">AES-256 at rest in AWS S3</span>
-              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Time-limited preview links</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Modern Header with Email Notifications */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-xl p-6">
         <div className="flex justify-between items-start mb-4">
@@ -509,6 +490,25 @@ export function DocumentVaultClient() {
           onRefresh={loadDocuments}
         />
       )}
+
+      {/* Security details */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden />
+          <div>
+            <h2 className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">How your vault is secured</h2>
+            <p className="mt-1 text-xs text-emerald-800 dark:text-emerald-300">
+              Account sign-in controls access to your documents. The vault passcode locks this screen;
+              it does not encrypt your files or replace your account password.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-emerald-900 dark:text-emerald-200">
+              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Encrypted in transit</span>
+              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">AES-256 at rest in AWS S3</span>
+              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Time-limited preview links</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Upload Modal */}
       {showUploadModal && (
