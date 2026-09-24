@@ -284,9 +284,13 @@ describe('STEM apply tool', () => {
   });
   it('loads a separate optional STEM date and uses the shared filing deadline', async () => {
     render(<StemApplyTool />);
-    expect(
-      await screen.findByLabelText(/STEM DSO Recommendation Date/)
-    ).toHaveValue(saved.stem_dso_recommendation_date);
+    // The input mounts before the saved dates arrive; wait for hydration, not
+    // just for the input's presence (CI can resolve the fetch later).
+    await waitFor(() =>
+      expect(screen.getByLabelText(/STEM DSO Recommendation Date/)).toHaveValue(
+        saved.stem_dso_recommendation_date
+      )
+    );
     expect(getStemFilingWindow).toHaveBeenCalledWith(
       '2027-05-31',
       '2027-03-01'
