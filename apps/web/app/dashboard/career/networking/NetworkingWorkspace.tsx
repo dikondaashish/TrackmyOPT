@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowUpRight, Check, ChevronRight, Copy, LoaderCircle, Mail, Search, Send, Sparkles } from 'lucide-react';
 import { captureClientEvent } from '@/lib/posthog-client';
+import { BrowserEmailRecovery } from './BrowserEmailRecovery';
 
 type Application = { id: string; company_name: string; role_title: string };
 type Company = { id: string; name: string; domain: string | null };
@@ -234,20 +235,22 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
             <div className="flex items-center gap-2"><Sparkles className="size-5 text-blue-700 dark:text-blue-300" aria-hidden="true" /><h3 className="font-semibold text-slate-950 dark:text-white">Research progress</h3></div>
             <ol className="mt-4 space-y-3" aria-live="polite" aria-atomic="true">
               {stages.map(([key, label], index) => {
-                const current = stageIndex(bundle.status); const done = ['completed','partial'].includes(bundle.status) || current > index ||
-                  (bundle.status === 'failed' && (key === 'discovering_contacts' ? bundle.discoveryStatus === 'completed' : key === 'checking_emails' ? ['completed','partial'].includes(bundle.emailLookupStatus) : key === 'generating_outreach' ? bundle.draftStatus === 'completed' : bundle.discoveryStatus === 'completed'));
+                const current = stageIndex(bundle.status);
+                const emailIncomplete = key === 'checking_emails' && bundle.emailLookupStatus === 'partial';
+                const done = !emailIncomplete && (['completed','partial'].includes(bundle.status) || current > index ||
+                  (bundle.status === 'failed' && (key === 'discovering_contacts' ? bundle.discoveryStatus === 'completed' : key === 'checking_emails' ? ['completed','partial'].includes(bundle.emailLookupStatus) : key === 'generating_outreach' ? bundle.draftStatus === 'completed' : bundle.discoveryStatus === 'completed')));
                 return <li key={key} className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
                   <span className={`flex size-6 shrink-0 items-center justify-center rounded-full ${done ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : current === index ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
                     {done ? <Check className="size-3.5" aria-hidden="true" /> : current === index ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" /> : index + 1}</span>
-                  <span>{label}{current === index ? '…' : done ? ' — done' : ''}</span>
+                  <span>{label}{emailIncomplete ? ' — incomplete' : current === index ? '…' : done ? ' — done' : ''}</span>
                 </li>;
               })}
             </ol>
-            {['completed','partial'].includes(bundle.status) && <p role="status" className="mt-4 border-t border-slate-200 pt-4 text-sm font-semibold text-slate-900 dark:border-slate-800 dark:text-white">Your outreach bundle is ready. {contacts.length} relevant {contacts.length === 1 ? 'contact' : 'contacts'} found.</p>}
+            {['completed','partial'].includes(bundle.status) && <p role="status" className="mt-4 border-t border-slate-200 pt-4 text-sm font-semibold text-slate-900 dark:border-slate-800 dark:text-white">{bundle.status === 'partial' ? 'Your LinkedIn outreach is ready.' : 'Your outreach bundle is ready.'} {contacts.length} relevant {contacts.length === 1 ? 'contact' : 'contacts'} found.</p>}
             {(bundle.status === 'failed' || bundle.stale) && <div className="mt-4 space-y-3 border-t border-slate-200 pt-4 dark:border-slate-800"><p role="alert" className="text-sm text-amber-800 dark:text-amber-200">{errorText(bundle.errorCode)}</p><button type="button" disabled={busy || bundle.errorCode === 'zero_contacts'} onClick={retry} className={subtleClass}>Retry from saved stage</button></div>}
-            {bundle.status === 'partial' && <p className="mt-3 text-sm text-amber-800 dark:text-amber-200">Email verification is temporarily unavailable for some contacts. LinkedIn outreach is ready.</p>}
+            {bundle.status === 'partial' && <p className="mt-3 text-sm text-amber-800 dark:text-amber-200">Some saved email checks failed. Use “Retry email lookup” on the affected contacts. LinkedIn outreach is ready.</p>}
           </div>
-          {contacts.map((contact, index) => <ContactCard key={`${contact.id}-${contact.emailSubject}-${contact.emailBody}-${contact.linkedinNote}`} contact={contact} index={index} bundleId={bundle.id} />)}
+          {contacts.map((contact, index) => <ContactCard key={`${contact.id}-${contact.emailSubject}-${contact.emailBody}-${contact.linkedinNote}`} contact={contact} index={index} bundleId={bundle.id} targetRole={bundle.targetRole} userIntent={bundle.userIntent} />)}
         </section>}
       </div>
       <aside className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-6" aria-label="Recent outreach">
@@ -261,7 +264,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
   );
 }
 
-function ContactCard({ contact, index, bundleId }: { contact: Contact; index: number; bundleId: string }) {
+function ContactCard({ contact, index, bundleId, targetRole, userIntent }: { contact: Contact; index: number; bundleId: string; targetRole: string; userIntent: string }) {
   const [subject, setSubject] = useState(contact.emailSubject ?? '');
   const [body, setBody] = useState(contact.emailBody ?? '');
   const [note, setNote] = useState(contact.linkedinNote ?? '');
@@ -295,7 +298,8 @@ function ContactCard({ contact, index, bundleId }: { contact: Contact; index: nu
     <p className="mt-4 text-sm leading-6 text-slate-700 dark:text-slate-200"><span className="font-semibold text-slate-950 dark:text-white">Why relevant:</span> {contact.relevanceReason}</p>
     <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-950/40"><p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">Work email</p>
       {verified ? <div className="mt-1 flex flex-wrap items-center gap-2"><Mail className="size-4 text-emerald-700 dark:text-emerald-300" aria-hidden="true" /><a href={`mailto:${contact.email}`} className="min-w-0 break-all text-sm font-medium text-blue-700 hover:underline dark:text-blue-300">{contact.email}</a><span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">Verified by ApplyBolt</span><button type="button" onClick={() => copy(contact.email!, 'networking_email_copied')} className={subtleClass}><Copy className="size-3.5" aria-hidden="true" />Copy email</button></div> :
-        <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{contact.emailStatus === 'provider_error' ? 'Verification temporarily unavailable.' : contact.emailStatus === 'pending' ? 'Checking email…' : 'No verified work email found. You can still reach out on LinkedIn.'}</p>}
+        <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">{contact.emailStatus === 'provider_error' ? 'The saved bundle could not check this email.' : contact.emailStatus === 'pending' ? 'Checking email…' : 'No verified work email found. You can still reach out on LinkedIn.'}</p>}
+      {contact.emailStatus === 'provider_error' && <BrowserEmailRecovery contact={contact} targetRole={targetRole} userIntent={userIntent} />}
     </div>
     {verified && contact.emailSubject && <div className="mt-5 space-y-3"><h4 className="font-semibold text-slate-950 dark:text-white">Email draft</h4><div><label htmlFor={`subject-${contact.id}`} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Subject</label><input id={`subject-${contact.id}`} maxLength={160} value={subject} onChange={(event) => setSubject(event.target.value)} className={fieldClass} /></div><div><label htmlFor={`body-${contact.id}`} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Message</label><textarea id={`body-${contact.id}`} rows={6} maxLength={2000} value={body} onChange={(event) => setBody(event.target.value)} className={`${fieldClass} resize-y`} /></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => copy(`${subject}\n\n${body}`, 'networking_email_copied')} className={subtleClass}><Copy className="size-4" aria-hidden="true" />Copy draft</button>{canCompose && <><a href={gmailUrl(contact.email!, subject, body)} target="_blank" rel="noopener noreferrer" onClick={() => captureClientEvent('networking_gmail_opened', { contact_position: index + 1 })} className={subtleClass}>Open Gmail <ArrowUpRight className="size-4" aria-hidden="true" /></a><a href={outlookUrl(contact.email!, subject, body)} target="_blank" rel="noopener noreferrer" onClick={() => captureClientEvent('networking_outlook_opened', { contact_position: index + 1 })} className={subtleClass}>Open Outlook <ArrowUpRight className="size-4" aria-hidden="true" /></a></>}</div></div>}
     {contact.linkedinNote && <div className="mt-5 space-y-3"><h4 className="font-semibold text-slate-950 dark:text-white">LinkedIn connection note</h4><label htmlFor={`note-${contact.id}`} className="sr-only">LinkedIn note for {contact.name}</label><textarea id={`note-${contact.id}`} rows={3} maxLength={300} value={note} onChange={(event) => setNote(event.target.value)} className={`${fieldClass} resize-y`} /><div className="flex flex-wrap gap-2"><button type="button" onClick={() => copy(note, 'networking_linkedin_note_copied')} className={subtleClass}><Copy className="size-4" aria-hidden="true" />Copy note</button><a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer" onClick={() => captureClientEvent('networking_linkedin_opened', { contact_position: index + 1 })} className={subtleClass}>Open LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" /></a></div></div>}

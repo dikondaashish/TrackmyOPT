@@ -3,6 +3,8 @@ import { GoogleGenAI } from '@google/genai';
 import { AI_MODEL_POLICIES, generateAiContent } from '@/lib/ai/google-ai';
 import { normalizeDomain, normalizeKey, normalizeLinkedInProfile, validateGroundedDiscovery, type GroundedSource, type ValidContact } from './validation';
 import { discoverContactsWithOpenAI } from './openai-discovery';
+import { parseWorkEmailResult, type EmailResult } from './email-result';
+export type { EmailResult } from './email-result';
 
 export type DiscoveryProvider = 'gemini' | 'openai';
 type DiscoveryInput = { companyName: string; companyDomain: string | null; targetRole: string; userId: string };
@@ -110,13 +112,6 @@ async function discoverContactsWithGemini(input: DiscoveryInput): Promise<{
   };
 }
 
-const ApplyBoltSchema = z.union([
-  z.object({ found: z.literal(false) }),
-  z.object({ found: z.literal(true), email: z.string().email(), validation: z.string().optional(), company: z.string().nullable().optional() }),
-]);
-
-export type EmailResult = { email: string | null; status: 'verified' | 'not_found' | 'unverified' | 'provider_error' };
-
 export async function lookupWorkEmail(linkedinUrl: string, expectedCompany: string): Promise<EmailResult> {
   const normalized = normalizeLinkedInProfile(linkedinUrl);
   if (!normalized) return { email: null, status: 'provider_error' };
@@ -126,19 +121,18 @@ export async function lookupWorkEmail(linkedinUrl: string, expectedCompany: stri
       body: JSON.stringify({ linkedinUrl: normalized }), cache: 'no-store',
       redirect: 'error', signal: AbortSignal.timeout(45_000),
     });
-    if (!response.ok) return { email: null, status: 'provider_error' };
-    const parsed = ApplyBoltSchema.safeParse(await response.json());
-    if (!parsed.success) return { email: null, status: 'provider_error' };
-    if (!parsed.data.found) return { email: null, status: 'not_found' };
-    const expected = normalizeKey(expectedCompany);
-    const providerCompany = normalizeKey(parsed.data.company ?? '');
-    const companyMatches = Boolean(providerCompany) &&
-      (providerCompany === expected || providerCompany.includes(`${expected}-`) || expected.includes(`${providerCompany}-`));
-    if (parsed.data.validation === 'valid' && companyMatches) {
-      return { email: parsed.data.email, status: 'verified' };
+    if (!response.ok) {
+      console.warn('[networking-email] ApplyBolt HTTP status', response.status);
+      return { email: null, status: 'provider_error' };
     }
-    return { email: null, status: 'unverified' };
-  } catch { return { email: null, status: 'provider_error' }; }
+    const result = parseWorkEmailResult(await response.json(), expectedCompany);
+    if (result.status === 'provider_error') console.warn('[networking-email] Invalid ApplyBolt response');
+    return result;
+  } catch (error) {
+    const timedOut = error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name);
+    console.warn('[networking-email]', timedOut ? 'Request timed out' : 'Request or response failed');
+    return { email: null, status: 'provider_error' };
+  }
 }
 
 const DraftSchema = z.object({ drafts: z.array(z.object({
