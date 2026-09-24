@@ -22,9 +22,10 @@ interface Document {
 
 interface DocumentStatsProps {
   documents: Document[];
+  loading?: boolean;
 }
 
-export function DocumentStats({ documents }: DocumentStatsProps) {
+export function DocumentStats({ documents, loading = false }: DocumentStatsProps) {
   // Calculate stats
   const total = documents.length;
 
@@ -47,38 +48,38 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
   const mostCommonType = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {/* Total Documents */}
       <StatCard
-        icon={<FileText className="w-5 h-5" />}
+        icon={<FileText className="w-4 h-4 shrink-0" />}
         label="Total Documents"
-        value={total}
+        value={loading ? '…' : total}
         color="blue"
       />
 
       {/* Expiring Soon */}
       <StatCard
-        icon={<Clock className="w-5 h-5" />}
+        icon={<Clock className="w-4 h-4 shrink-0" />}
         label="Expiring Soon"
-        value={expiringSoon}
+        value={loading ? '…' : expiringSoon}
         color="orange"
         subtitle="Within 30 days"
       />
 
       {/* Expired */}
       <StatCard
-        icon={<AlertCircle className="w-5 h-5" />}
+        icon={<AlertCircle className="w-4 h-4 shrink-0" />}
         label="Expired"
-        value={expired}
+        value={loading ? '…' : expired}
         color="red"
         subtitle="Review dates"
       />
 
       {/* Most Common Type */}
       <StatCard
-        icon={<BarChart3 className="w-5 h-5" />}
+        icon={<BarChart3 className="w-4 h-4 shrink-0" />}
         label="Most Common"
-        value={mostCommonType ? documentTypeLabel(mostCommonType[0]) : 'None'}
+        value={loading ? '…' : mostCommonType ? documentTypeLabel(mostCommonType[0]) : 'None'}
         color="purple"
         subtitle={mostCommonType ? `${mostCommonType[1]} document${mostCommonType[1] > 1 ? 's' : ''}` : '0 documents'}
         isText
@@ -111,12 +112,12 @@ function StatCard({
   };
 
   return (
-    <div className={`rounded-lg border p-4 ${colorClasses[color]}`}>
-      <div className="flex items-center gap-2 mb-2">
+    <div className={`min-w-0 rounded-lg border p-3 sm:p-4 ${colorClasses[color]}`}>
+      <div className="flex items-center gap-2 mb-1">
         {icon}
-        <span className="text-sm font-medium dark:text-white">{label}</span>
+        <span className="text-xs sm:text-sm font-medium dark:text-white">{label}</span>
       </div>
-      <div className={`${isText ? 'text-xl' : 'text-3xl'} font-bold capitalize dark:text-white`}>
+      <div className={`${isText ? 'text-lg' : 'text-2xl'} break-words font-bold capitalize dark:text-white`}>
         {value}
       </div>
       {subtitle && (

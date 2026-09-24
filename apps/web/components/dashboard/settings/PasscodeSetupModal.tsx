@@ -6,7 +6,7 @@
  * First-time setup for 6-digit passcode protection
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Lock } from 'lucide-react';
 
 interface PasscodeSetupModalProps {
@@ -15,10 +15,17 @@ interface PasscodeSetupModalProps {
 }
 
 export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (open && dialog && !dialog.open) dialog.showModal();
+    return () => { if (dialog?.open) dialog.close(); };
+  }, [open]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,8 +73,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+    <dialog ref={dialogRef} aria-labelledby="setup-vault-title" onCancel={event => { event.preventDefault(); }} className="bg-white rounded-lg max-w-md w-[calc(100%-2rem)] max-h-[92dvh] overflow-y-auto p-6 backdrop:bg-black/50">
         {/* Icon */}
         <div className="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +82,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-center mb-2">Secure Your Document Vault</h2>
+        <h2 id="setup-vault-title" className="text-2xl font-bold text-center mb-2">Secure Your Document Vault</h2>
         <p className="text-gray-600 text-center mb-6">
           Set up a 6-digit passcode to protect your documents
         </p>
@@ -85,7 +91,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Passcode Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="new-document-passcode" className="block text-sm font-medium text-gray-700 mb-2">
               Enter Passcode
             </label>
             <input
@@ -98,6 +104,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               placeholder="● ● ● ● ● ●"
               autoComplete="off"
+              id="new-document-passcode"
               name="new-document-passcode"
               data-lpignore="true"
               data-form-type="other"
@@ -107,7 +114,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
 
           {/* Confirm Passcode */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="confirm-document-passcode" className="block text-sm font-medium text-gray-700 mb-2">
               Confirm Passcode
             </label>
             <input
@@ -120,6 +127,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               placeholder="● ● ● ● ● ●"
               autoComplete="off"
+              id="confirm-document-passcode"
               name="confirm-document-passcode"
               data-lpignore="true"
               data-form-type="other"
@@ -129,7 +137,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
 
           {/* Error Message */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
@@ -167,8 +175,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
             )}
           </button>
         </form>
-      </div>
-    </div>
+    </dialog>
   );
 }
 

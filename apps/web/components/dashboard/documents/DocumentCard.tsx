@@ -10,7 +10,7 @@
  * - Quick actions (view, delete)
  */
 
-import { getDocumentTypeIcon } from '@/lib/document-type-icons';
+import { DOCUMENT_TYPE_ICONS } from '@/lib/document-type-icons';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -22,18 +22,7 @@ import {
 import { useClientDate } from '@/hooks/useClientDate';
 import { daysUntilExpiry, documentTypeLabel, formatExpiryDate } from '@/lib/documents/vault-utils';
 
-interface Document {
-  id: string;
-  filename: string;
-  documentType: string;
-  category: string;
-  issueDate: string | null;
-  expiryDate: string | null;
-  summary: string;
-  extractedFields: Record<string, any>;
-  aiConfidence: number;
-  uploadedAt: string;
-}
+import type { VaultDocument as Document } from '@/lib/documents/vault-utils';
 
 interface DocumentCardProps {
   document: Document;
@@ -41,9 +30,11 @@ interface DocumentCardProps {
   onDelete: () => void;
   onAddExpiry?: () => void;
   onDownload?: () => void;
+  downloading?: boolean;
+  downloadDisabled?: boolean;
 }
 
-export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownload }: DocumentCardProps) {
+export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownload, downloading = false, downloadDisabled = false }: DocumentCardProps) {
   // useClientDate returns null during SSR/hydration so server and client render
   // identical HTML, avoiding hydration error #418.
   const clientNow = useClientDate();
@@ -52,19 +43,19 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
   const formattedExpiry = formatExpiryDate(document.expiryDate, { month: 'short', day: 'numeric', year: 'numeric' });
   // Use category first (which holds the updated type), fall back to documentType
   const displayType = document.category || document.documentType || 'other';
-  const DocIcon = getDocumentTypeIcon(displayType);
+  const DocIcon = DOCUMENT_TYPE_ICONS[displayType] ?? DOCUMENT_TYPE_ICONS.other;
 
   return (
-    <div className="group bg-white dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-all duration-200 overflow-hidden">
+    <article aria-label={document.filename} className="group flex min-w-0 flex-col bg-white dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none overflow-hidden">
       {/* Modern Header */}
       <div className={`p-4 ${getHeaderColor(expiryStatus)}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/80 dark:bg-slate-900/40">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex shrink-0 h-9 w-9 items-center justify-center rounded-lg bg-white/80 dark:bg-slate-900/40">
               <DocIcon className="w-5 h-5 text-gray-700 dark:text-slate-200" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white capitalize text-sm">
+              <h3 className="break-words font-semibold text-gray-900 dark:text-white capitalize text-sm">
                 {documentTypeLabel(displayType)}
               </h3>
               <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
@@ -93,7 +84,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
+      <div className="p-4 flex flex-1 flex-col gap-3">
         {/* Filename */}
         <div>
           <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={document.filename}>
@@ -111,7 +102,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
         {/* Expiry Date - Prominent Display */}
         {formattedExpiry ? (
           <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 border border-gray-100 dark:border-slate-600">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-gray-600 dark:text-slate-400">Expires on</span>
               <span className={`text-sm font-semibold ${getExpiryTextColor(expiryStatus)}`}>
                 {formattedExpiry}
@@ -123,7 +114,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
             onClick={onAddExpiry}
             className="w-full bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg p-3 border border-amber-200 dark:border-amber-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-amber-700 dark:text-amber-400">No expiry date</span>
               <span className="text-sm font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,16 +127,19 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2 mt-auto pt-2">
           <button
             onClick={onView}
-            className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium hover:shadow-md"
+            className="min-h-11 flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium hover:shadow-md"
           >
             View Document
           </button>
           <button
             onClick={onDownload}
-            className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+            disabled={downloadDisabled}
+            aria-label={downloading ? 'Downloading document' : 'Download document'}
+            aria-busy={downloading}
+            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title="Download document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +148,8 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
           </button>
           <button
             onClick={onDelete}
-            className="px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-all"
+            aria-label="Delete document"
+            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             title="Delete document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,7 +158,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
           </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

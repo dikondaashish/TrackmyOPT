@@ -9,6 +9,7 @@ export interface VaultDocument {
   extractedFields: Record<string, unknown>;
   aiConfidence: number;
   uploadedAt: string;
+  fileType?: string;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;

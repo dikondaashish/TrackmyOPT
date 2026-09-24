@@ -9,13 +9,13 @@ import { Suspense } from 'react';
 import { DocumentVaultClient } from '@/components/dashboard/documents/DocumentVaultClient';
 
 export const metadata = {
-  title: 'Document Vault | TrackMyOPT',
+  title: 'Document Vault',
   description: 'Securely store and manage your immigration documents with AI-powered analysis',
 };
 
 export default function DocumentVaultPage() {
   return (
-    <div className="container mx-auto px-6 pt-0 pb-6 max-w-7xl">
+    <div className="container mx-auto px-0 sm:px-4 lg:px-6 pt-0 pb-6 max-w-7xl">
       <Suspense fallback={<DocumentVaultSkeleton />}>
         <DocumentVaultClient />
       </Suspense>
@@ -27,16 +27,16 @@ function DocumentVaultSkeleton() {
   return (
     <div className="space-y-6">
       {/* Header Skeleton */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-3">
         <div>
           <div className="h-8 w-48 bg-gray-200 dark:bg-muted rounded animate-pulse mb-2" />
-          <div className="h-4 w-96 bg-gray-200 dark:bg-muted rounded animate-pulse" />
+          <div className="h-4 w-64 max-w-full bg-gray-200 dark:bg-muted rounded animate-pulse" />
         </div>
         <div className="h-10 w-32 bg-gray-200 dark:bg-muted rounded animate-pulse" />
       </div>
 
       {/* Stats Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="bg-white dark:bg-card rounded-lg border dark:border-border p-4">
             <div className="h-4 w-24 bg-gray-200 dark:bg-muted rounded animate-pulse mb-2" />

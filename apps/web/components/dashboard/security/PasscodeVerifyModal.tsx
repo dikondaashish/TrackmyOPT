@@ -8,7 +8,7 @@
  * - Shows remaining attempts
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Lock } from 'lucide-react';
 
 interface PasscodeVerifyModalProps {
@@ -18,6 +18,7 @@ interface PasscodeVerifyModalProps {
 }
 
 export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerifyModalProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,6 +61,12 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
 
     return () => clearInterval(interval);
   }, [lockedUntil]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (open && dialog && !dialog.open) dialog.showModal();
+    return () => { if (dialog?.open) dialog.close(); };
+  }, [open]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -113,8 +120,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
   const isLocked = lockedUntil && remainingMinutes && remainingMinutes > 0;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-card rounded-lg max-w-md w-full p-6">
+    <dialog ref={dialogRef} aria-labelledby="unlock-vault-title" onCancel={event => { event.preventDefault(); if (!loading) onCancel(); }} className="bg-white dark:bg-card rounded-lg max-w-md w-[calc(100%-2rem)] max-h-[92dvh] overflow-y-auto p-6 backdrop:bg-black/50">
         {/* Icon */}
         <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isLocked ? 'bg-red-100' : 'bg-blue-100'
           }`}>
@@ -130,7 +136,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-center mb-2 flex items-center justify-center gap-2">
+        <h2 id="unlock-vault-title" className="text-2xl font-bold text-center mb-2 flex items-center justify-center gap-2">
           {isLocked ? (
             <>
               <Lock className="w-6 h-6 text-red-600" />
@@ -157,6 +163,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
           <div>
             <input
               type="text"
+              aria-label="Vault passcode"
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={6}
@@ -177,7 +184,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
 
           {/* Error Message */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
               {remainingAttempts !== null && remainingAttempts > 0 && !isLocked && (
                 <div className="mt-2 font-medium">
@@ -232,8 +239,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </dialog>
   );
 }
 

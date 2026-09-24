@@ -10,14 +10,15 @@
  * - Expiry tracking and reminders
  */
 
-import { useState, useEffect, useMemo } from 'react';
-import { Clock, FolderOpen, Lock, ScanLine, Mail, ShieldCheck } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Clock, FolderOpen, Lock, ScanLine, ShieldCheck } from 'lucide-react';
 import { PasscodeSetupModal } from '../settings/PasscodeSetupModal';
 import { PasscodeVerifyModal } from '../security/PasscodeVerifyModal';
 import { DocumentUploadModal } from './DocumentUploadModal';
 import { DocumentGrid } from './DocumentGrid';
 import { DocumentStats } from './DocumentStats';
 import { DocumentFilters } from './DocumentFilters';
+import { DocumentReminderEmail } from './DocumentReminderEmail';
 import { filterAndSortDocuments, type VaultDocument } from '@/lib/documents/vault-utils';
 
 export function DocumentVaultClient() {
@@ -44,20 +45,15 @@ export function DocumentVaultClient() {
     [documents, selectedCategory, searchQuery, sortBy],
   );
 
-  // Email notification state
-  const [notificationEmail, setNotificationEmail] = useState('');
-  const [editingEmail, setEditingEmail] = useState(false);
-  const [emailSaving, setEmailSaving] = useState(false);
-
   // Auto-lock timeout state
   const [autoLockTimeout, setAutoLockTimeout] = useState<number>(5); // Default 5 minutes
-  const [lastActivity, setLastActivity] = useState<number>(0);
+  const lastActivity = useRef(0);
 
   // Check premium status
   useEffect(() => {
     checkPremiumStatus();
     // Initialize lastActivity to current time after hydration
-    setLastActivity(Date.now());
+    lastActivity.current = Date.now();
      
   }, []);
 
@@ -72,9 +68,7 @@ export function DocumentVaultClient() {
   useEffect(() => {
     if (isUnlocked) {
       loadDocuments();
-      loadNotificationEmail();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUnlocked]);
 
   // Auto-lock timer - locks vault after period of inactivity
@@ -83,7 +77,7 @@ export function DocumentVaultClient() {
 
     const checkInactivity = () => {
       const now = Date.now();
-      const inactiveTime = (now - lastActivity) / 1000 / 60; // in minutes
+      const inactiveTime = (now - lastActivity.current) / 1000 / 60; // in minutes
 
       if (inactiveTime >= autoLockTimeout) {
         setDocuments([]);
@@ -95,13 +89,13 @@ export function DocumentVaultClient() {
     const interval = setInterval(checkInactivity, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
-  }, [isUnlocked, autoLockTimeout, lastActivity]);
+  }, [isUnlocked, autoLockTimeout]);
 
   // Track user activity to reset auto-lock timer
   useEffect(() => {
     if (!isUnlocked) return;
 
-    const resetActivity = () => setLastActivity(Date.now());
+    const resetActivity = () => { lastActivity.current = Date.now(); };
 
     // Track mouse, keyboard, touch events
     window.addEventListener('mousemove', resetActivity);
@@ -118,47 +112,6 @@ export function DocumentVaultClient() {
       window.removeEventListener('touchstart', resetActivity);
     };
   }, [isUnlocked]);
-
-  async function loadNotificationEmail() {
-    try {
-      const res = await fetch('/api/user/notification-email');
-      if (res.ok) {
-        const data = await res.json();
-        setNotificationEmail(data.email || '');
-      }
-    } catch (_error) {
-    }
-  }
-
-  async function saveNotificationEmail() {
-    if (!notificationEmail || !notificationEmail.trim()) {
-      alert('Please enter a valid email address');
-      return;
-    }
-
-    setEmailSaving(true);
-    try {
-      const res = await fetch('/api/user/notification-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: notificationEmail.trim(), toolType: 'documents' }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setEditingEmail(false);
-        // Optionally show success message
-      } else {
-        const errorMessage = data.error || 'Failed to save notification email';
-        alert(errorMessage);
-      }
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to save notification email. Please try again.');
-    } finally {
-      setEmailSaving(false);
-    }
-  }
 
   async function checkPremiumStatus() {
     try {
@@ -227,7 +180,7 @@ export function DocumentVaultClient() {
   function handlePasscodeVerifySuccess() {
     setShowPasscodeVerify(false);
     setIsUnlocked(true);
-    setLastActivity(Date.now()); // Reset activity timer on unlock
+    lastActivity.current = Date.now(); // Reset activity timer on unlock
   }
 
   function handleUploadClick() {
@@ -273,7 +226,7 @@ export function DocumentVaultClient() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-                <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <Lock className="w-6 h-6 shrink-0 text-blue-600 dark:text-blue-400" />
                 Document Vault (Pro)
               </h1>
               <p className="text-sm text-gray-700 dark:text-muted-foreground mt-2 max-w-xl">
@@ -381,11 +334,11 @@ export function DocumentVaultClient() {
   return (
     <div className="space-y-4" data-document-vault data-ph-no-capture>
       {/* Modern Header with Email Notifications */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-xl p-5">
-        <div className="flex justify-between items-start mb-3">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-xl p-4 sm:p-5">
+        <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-              <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <Lock className="w-6 h-6 shrink-0 text-blue-600 dark:text-blue-400" />
               Document Vault
             </h1>
             <p className="text-sm text-gray-600 dark:text-muted-foreground mt-1">
@@ -394,7 +347,7 @@ export function DocumentVaultClient() {
           </div>
           <button
             onClick={handleUploadClick}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+            className="min-h-11 shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -403,65 +356,11 @@ export function DocumentVaultClient() {
           </button>
         </div>
 
-        {/* Email Notification Setup */}
-        <div className="bg-white dark:bg-card rounded-lg p-3 border border-gray-200 dark:border-border">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span className="text-sm font-medium text-gray-900 dark:text-foreground">Expiry Reminder Email</span>
-            </div>
-            {!editingEmail && notificationEmail && (
-              <button
-                onClick={() => setEditingEmail(true)}
-                className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-
-          {editingEmail || !notificationEmail ? (
-            <div className="flex gap-2">
-              <input
-                type="email"
-                value={notificationEmail}
-                onChange={(e) => setNotificationEmail(e.target.value)}
-                placeholder="Enter email for document reminders"
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-muted dark:text-foreground"
-              />
-              <button
-                onClick={saveNotificationEmail}
-                disabled={emailSaving || !notificationEmail}
-                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition-colors font-medium"
-              >
-                {emailSaving ? 'Saving...' : 'Save'}
-              </button>
-              {notificationEmail && editingEmail && (
-                <button
-                  onClick={() => {
-                    setEditingEmail(false);
-                    loadNotificationEmail();
-                  }}
-                  className="px-4 py-2 border border-gray-300 dark:border-border text-gray-700 dark:text-foreground text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-600 dark:text-muted-foreground">{notificationEmail}</p>
-          )}
-          <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1.5 flex items-start gap-1.5">
-            <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-            <span>Get email reminders before your documents expire.</span>
-          </p>
-        </div>
+        <DocumentReminderEmail />
       </div>
 
       {/* Stats */}
-      <DocumentStats documents={documents} />
+      <DocumentStats documents={documents} loading={loading} />
 
       {/* Filters */}
       <DocumentFilters
@@ -473,6 +372,17 @@ export function DocumentVaultClient() {
         onSortChange={setSortBy}
         customCategories={[...new Set(documents.map(d => d.category || d.documentType).filter(Boolean))]}
       />
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-foreground" aria-live="polite">
+          {loading ? 'Loading documents…' : `${visibleDocuments.length} of ${documents.length} documents`}
+        </h2>
+        {(selectedCategory !== 'all' || searchQuery.trim()) && (
+          <button onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }} className="min-h-11 text-sm font-medium text-blue-600 hover:text-blue-700">
+            Clear filters
+          </button>
+        )}
+      </div>
 
       {/* Documents Grid */}
       {documentsError && (
@@ -488,6 +398,8 @@ export function DocumentVaultClient() {
           hasFilters={selectedCategory !== 'all' || searchQuery.trim().length > 0}
           onDocumentDelete={handleDocumentDelete}
           onRefresh={loadDocuments}
+          onUpload={handleUploadClick}
+          onClearFilters={() => { setSelectedCategory('all'); setSearchQuery(''); }}
         />
       )}
 

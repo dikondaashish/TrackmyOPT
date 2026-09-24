@@ -9,7 +9,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ScanLine } from 'lucide-react';
-import { formatExpiryDate } from '@/lib/documents/vault-utils';
+import { documentTypeLabel, formatExpiryDate } from '@/lib/documents/vault-utils';
 import type { VaultDocument } from '@/lib/documents/vault-utils';
 
 interface DocumentUploadModalProps {
@@ -45,13 +45,23 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
+    e.target.value = '';
+    if (selectedFile) selectFile(selectedFile);
+  }
+
+  function selectFile(selectedFile: File) {
 
     // Validate file type
     const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!validTypes.includes(selectedFile.type)) {
       setFile(null);
       setError('Invalid file type. Only PDF, JPEG, PNG, and WebP are allowed.');
+      return;
+    }
+
+    if (selectedFile.size === 0) {
+      setFile(null);
+      setError('This file is empty. Choose a document with content.');
       return;
     }
 
@@ -67,7 +77,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
   }
 
   async function handleUpload() {
-    if (!file) return;
+    if (!file || stage === 'saving') return;
 
     setStage('saving');
     setError('');
@@ -90,9 +100,6 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
       setNeedsManualExpiry(Boolean(data.needsManualExpiry));
       setStage('complete');
 
-      if (!data.needsManualExpiry) {
-        setTimeout(onComplete, 2000);
-      }
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
@@ -101,6 +108,8 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
   }
 
   function handleClose() {
+    if (stage === 'saving') return;
+    if (stage === 'complete') { onComplete(); return; }
     resetState();
     onClose();
   }
@@ -128,12 +137,12 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
         event.preventDefault();
         if (stage !== 'saving') handleClose();
       }}
-      className="w-[calc(100%-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg bg-white p-6 backdrop:bg-black/50"
+      className="w-[calc(100%-2rem)] max-w-xl max-h-[92dvh] overflow-y-auto rounded-lg bg-white p-4 sm:p-6 backdrop:bg-black/50"
     >
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Upload Document</h2>
-          {stage === 'select' && (
+          {stage !== 'saving' && (
             <button
               type="button"
               onClick={handleClose}
@@ -152,6 +161,12 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
           <div className="space-y-4">
             {/* Drop Zone */}
             <div
+              onDragOver={event => event.preventDefault()}
+              onDrop={event => {
+                event.preventDefault();
+                if (event.dataTransfer.files.length !== 1) { setError('Choose one document at a time.'); return; }
+                selectFile(event.dataTransfer.files[0]);
+              }}
               onClick={() => fileInputRef.current?.click()}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
@@ -162,13 +177,13 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
               role="button"
               tabIndex={0}
               aria-label="Select a document to upload"
-              className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-cyan-500 transition-colors"
+              className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center cursor-pointer hover:border-cyan-500 transition-colors"
             >
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
-              <p className="text-lg font-medium text-gray-700 mb-2">
-                {file ? file.name : 'Click to select a file'}
+              <p className="break-all text-base font-medium text-gray-700 mb-2">
+                {file ? file.name : 'Choose a file or drop it here'}
               </p>
               <p className="text-sm text-gray-500">
                 PDF, JPEG, PNG, or WebP • Max 10MB
@@ -177,6 +192,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
 
             <input
               ref={fileInputRef}
+              aria-label="Document file"
               type="file"
               accept=".pdf,.jpg,.jpeg,.png,.webp"
               onChange={handleFileSelect}
@@ -184,7 +200,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
             />
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                 {error}
               </div>
             )}
@@ -192,10 +208,10 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
             {file && (
               <div className="flex gap-3">
                 <button
-                  onClick={() => setFile(null)}
+                  onClick={() => { setFile(null); setError(''); }}
                   className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
-                  Cancel
+                  Remove file
                 </button>
                 <button
                   onClick={handleUpload}
@@ -219,7 +235,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
 
         {/* Complete */}
         {stage === 'complete' && result && (
-          <div className="text-center space-y-4">
+          <div role="status" className="text-center space-y-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -232,16 +248,16 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
 
             {/* Results Summary */}
             <div className="bg-gray-50 rounded-lg p-4 text-left space-y-2">
-              <div className="flex justify-between text-sm">
+              <div className="flex flex-wrap justify-between gap-2 text-sm">
                 <span className="text-gray-600">Document Type:</span>
-                <span className="font-medium capitalize">{result.documentType?.replace('_', ' ') || 'Document'}</span>
+                <span className="font-medium capitalize">{documentTypeLabel(result.documentType || 'other')}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex flex-wrap justify-between gap-2 text-sm">
                 <span className="text-gray-600">AI Confidence:</span>
                 <span className="font-medium">{result.aiConfidence}%</span>
               </div>
               {result.expiryDate && (
-                <div className="flex justify-between text-sm">
+                <div className="flex flex-wrap justify-between gap-2 text-sm">
                   <span className="text-gray-600">Expiry Date:</span>
                   <span className="font-medium">{formatExpiryDate(result.expiryDate, { month: 'short', day: 'numeric', year: 'numeric' }) || 'Not detected'}</span>
                 </div>
@@ -258,7 +274,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
                 </button>
               </div>
             ) : (
-              <p className="text-xs text-gray-500">Closing automatically...</p>
+              <button onClick={onComplete} className="min-h-11 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700">View documents</button>
             )}
           </div>
         )}
@@ -273,7 +289,7 @@ export function DocumentUploadModal({ open, onClose, onComplete }: DocumentUploa
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Upload Failed</h3>
-              <p className="text-red-600">{error}</p>
+              <p role="alert" className="text-red-600">{error}</p>
             </div>
 
             <div className="flex gap-3">
