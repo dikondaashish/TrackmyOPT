@@ -1,0 +1,63 @@
+Subject: Your next steps, a little clearer ✨
+Preheader: Clearer OPT dates, richer case tracking, a smoother Document Vault, and new networking tools.
+
+TrackMyOPT | Product update | September 28, 2026
+
+Less guesswork. More next steps.
+
+Hi there,
+
+We’ve been working on the details that make your day easier: finding a date, understanding a case update, managing a document, and starting a conversation. Here are the highlights from September 15–24.
+
+01. Your dates. Easier to follow.
+
+A refreshed OPT Dates dashboard brings deadlines and employment history into a clearer view. The OPT and STEM tools now show when changes are saved, and employer suggestions include company logos.
+
+Review your OPT dates:
+https://www.trackmyopt.com/dashboard/opt-dates?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+
+02. A clearer picture of your case.
+
+See milestones, monitoring status, and comparison charts together. Organize notices and confirmed deadlines, export them to your calendar, and mark tasks complete.
+
+For paid members: opt into deadline emails and a weekly case digest. You choose which reminders to turn on.
+
+Explore your case view:
+https://www.trackmyopt.com/dashboard/case-status?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+
+03. Less friction in your Document Vault.
+
+A more compact layout puts your files first, especially on mobile. Uploads, downloads, preview retries, and expiry-date edits now have clearer feedback.
+
+Document Vault is a paid-plan feature.
+
+Open your Document Vault:
+https://www.trackmyopt.com/dashboard/documents?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+
+04. Start your next conversation.
+
+The new Networking workspace helps you look up an available work email from a LinkedIn profile and draft a personal email or LinkedIn note. Review and edit the draft before sending it yourself.
+
+Also in pilot: outreach bundles bring contact discovery and drafts into one flow. Lookup results depend on available data.
+
+Try Networking:
+https://www.trackmyopt.com/dashboard/career/networking?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+
+Take a look at what’s new.
+Start with the part of your journey that matters most today.
+
+Open TrackMyOPT:
+https://www.trackmyopt.com/dashboard?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+
+Have feedback? Tell us what would help: support@trackmyopt.com
+
+The TrackMyOPT team
+
+TrackMyOPT is independent software, not affiliated with USCIS or any government agency. Comparisons are historical context, not approval predictions. Always verify important dates and updates with your official notices and DSO.
+
+You’re receiving this product update because you have a TrackMyOPT account and receive product emails. Feature access depends on your plan.
+
+© 2026 Zyene, Inc. · TrackMyOPT
+{{POSTAL_ADDRESS}}
+Unsubscribe from product updates: {{UNSUBSCRIBE_URL}}
+Privacy: https://www.trackmyopt.com/privacy

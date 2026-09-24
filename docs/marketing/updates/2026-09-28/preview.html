@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monday update · TrackMyOPT</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e7edf6;color:#172d4e;font-family:Arial,Helvetica,sans-serif}
+.toolbar{padding:22px 28px;background:#fdfefe;border-bottom:1px solid #d3dfed;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.identity{display:flex;align-items:center;gap:12px;margin-right:auto}.identity img{width:32px;height:32px}
+.identity strong{font-size:16px}.identity small{display:block;color:#526781;font-size:12px;margin-top:4px}
+.badge{padding:7px 11px;border-radius:20px;background:#fff0d3;color:#74511a;font-size:12px;font-weight:700}
+.controls{display:flex;gap:6px}button,.file{border:1px solid #cad7e8;background:#fdfefe;color:#294d86;padding:10px 13px;border-radius:7px;cursor:pointer;font:600 13px Arial;text-decoration:none}
+button[aria-pressed=true]{background:#184fc4;color:#f7faff;border-color:#184fc4}button:focus-visible,a:focus-visible{outline:3px solid #3a73e5;outline-offset:3px}
+.envelope{max-width:880px;margin:28px auto 16px;padding:0 24px}.envelope p{font-size:13px;line-height:22px;color:#526781;margin:6px 0}
+.envelope h1{font-size:22px;line-height:30px;letter-spacing:-.5px;margin:10px 0}.notice{padding:14px 18px;background:#f5f8fc;border:1px solid #d3dfed;border-radius:8px}
+.stage{margin:0 auto 40px;max-width:100%;transition:width .25s ease-out;width:680px}iframe{display:block;width:100%;height:2400px;border:0;background:#edf2f8}
+@media(prefers-reduced-motion:reduce){.stage{transition:none}}@media(max-width:600px){.toolbar{padding:16px;gap:14px}.envelope{padding:0 16px;margin-top:20px}.envelope h1{font-size:20px}}
+</style></head><body>
+<header class="toolbar"><div class="identity"><img src="assets/logo.png" alt=""><div><strong>TrackMyOPT / Product update</strong><small>Monday, September 28, 2026</small></div></div>
+<span class="badge">Draft · not sent</span><div class="controls" aria-label="Preview width"><button type="button" id="desktop" aria-pressed="true">Desktop</button><button type="button" id="mobile" aria-pressed="false">Mobile</button></div><a class="file" href="email.txt">Plain text ↗</a></header>
+<main><section class="envelope" aria-label="Email details"><p><strong>From</strong> TrackMyOPT &lt;support@trackmyopt.com&gt; &nbsp; / &nbsp; <strong>To</strong> Eligible product-update subscribers</p>
+<h1>Your next steps, a little clearer ✨</h1><p>Clearer OPT dates, richer case tracking, a smoother Document Vault, and new networking tools.</p>
+<p class="notice">Review preview. The animation plays once; its first frame works as a still. Before sending, host the images and insert your email provider’s unsubscribe URL and verified postal address. No send is scheduled.</p></section>
+<div class="stage" id="stage"><iframe id="email" title="TrackMyOPT product update email" src="preview-email.html"></iframe></div></main>
+<script>
+const stage=document.getElementById('stage'), frame=document.getElementById('email');
+function fit(){frame.style.height=frame.contentDocument.documentElement.scrollHeight+'px'}
+frame.addEventListener('load',()=>{fit();new ResizeObserver(fit).observe(frame.contentDocument.body)});
+for(const [id,width] of [['desktop',680],['mobile',375]])document.getElementById(id).onclick=()=>{stage.style.width=width+'px';for(const name of ['desktop','mobile'])document.getElementById(name).setAttribute('aria-pressed',String(name===id));};
+</script></body></html>
