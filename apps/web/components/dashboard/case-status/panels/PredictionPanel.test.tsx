@@ -21,6 +21,8 @@ it('describes historical approvals without promising an imminent decision or a l
     sourceNote: 'Community reports',
   };
   render(<PredictionPanel prediction={prediction} daysSinceFiled={100} />);
+  expect(screen.getByText('Typical completed report').tagName).toBe('DT');
+  expect(screen.getByText('60').closest('dd')).toHaveTextContent('60days');
   expect(screen.queryByText('Any time now')).not.toBeInTheDocument();
   expect(screen.queryByText('Still waiting')).not.toBeInTheDocument();
   expect(

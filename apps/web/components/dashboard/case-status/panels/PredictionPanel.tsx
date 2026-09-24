@@ -152,34 +152,34 @@ export function PredictionPanel({
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+      <dl className="grid gap-3 sm:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <div className="rounded-xl border border-border bg-[var(--chart-seq-1)] p-4 sm:p-5">
-          <p className="text-xs font-medium text-muted-foreground">
+          <dt className="text-xs font-medium text-muted-foreground">
             Typical completed report
-          </p>
-          <p className="mt-1 text-4xl font-semibold tracking-tight tabular-nums text-foreground">
+          </dt>
+          <dd className="mt-1 text-4xl font-semibold tracking-tight tabular-nums text-foreground">
             {medianDays}
             <span className="ml-1 text-base font-medium">days</span>
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
+          </dd>
+          <div className="mt-2 text-xs text-muted-foreground">
             {cohortSize.toLocaleString()} reported {cohortLabel} approvals
-          </p>
+          </div>
         </div>
         <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
-          <p className="text-xs font-medium text-muted-foreground">
+          <dt className="text-xs font-medium text-muted-foreground">
             Historical approval range · middle 50%
-          </p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+          </dt>
+          <dd className="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
             {low}–{high}
             <span className="ml-1 text-sm font-medium">days</span>
-          </p>
+          </dd>
           {pastRange && (
             <p className="mt-2 text-xs font-semibold text-[var(--chart-you)]">
               Beyond the historical range
             </p>
           )}
         </div>
-      </div>
+      </dl>
 
       <PositionTrack
         daysSinceFiled={daysSinceFiled}
