@@ -73,6 +73,11 @@ it('does not offer OPT comparison charts for a non-OPT case', () => {
   ).toBeInTheDocument();
 });
 
+it('does not show broad I-765 data on other USCIS form types', () => {
+  render(<AnalyticsPanels {...props} caseType="I-129" />);
+  expect(screen.queryByRole('heading', { name: 'Broader I-765 data' })).not.toBeInTheDocument();
+});
+
 it('keeps all comparison panels visible with their free-plan upgrade previews', () => {
   render(<AnalyticsPanels {...props} isPremium={false} />);
   expect(

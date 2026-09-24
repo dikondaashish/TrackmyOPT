@@ -3,6 +3,7 @@
 import { useId } from 'react';
 import { ComparisonEvidence } from './ComparisonEvidence';
 import { OfficialProcessingComparison } from './OfficialProcessingComparison';
+import { I765ObservedTrends } from './I765ObservedTrends';
 import type {
   CommunityEvidence,
   PremiumUpgradeStats,
@@ -62,6 +63,7 @@ interface AnalyticsPanelsProps {
   /** False for non-OPT filing types — community estimates are OPT-only. */
   estimatesAvailable?: boolean;
   filingCategory?: FilingCategory | string | null;
+  caseType?: string | null;
 }
 
 interface AnalyticsPanel {
@@ -237,6 +239,7 @@ export function AnalyticsPanels({
   estimateLoading = false,
   estimatesAvailable = true,
   filingCategory = null,
+  caseType = null,
 }: AnalyticsPanelsProps) {
   const caseKind = filingCategoryToCaseKind(filingCategory);
   const id = useId();
@@ -444,6 +447,8 @@ export function AnalyticsPanels({
           </div>
         </section>
       )}
+
+      {caseType?.trim().toUpperCase() === 'I-765' && <I765ObservedTrends />}
 
       {/* State the data-source and USCIS disclaimer once below all four charts,
           keeping it beside the results without repeating it in every panel. */}

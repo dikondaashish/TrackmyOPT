@@ -393,6 +393,7 @@ export function CaseStatusSection() {
                 estimateLoading={communityEstimateLoading}
                 estimatesAvailable={isOptCase}
                 filingCategory={caseStatus.filing_category}
+                caseType={caseStatus.case_type}
               />
             </CaseStatusPanelErrorBoundary>
           </Card>
