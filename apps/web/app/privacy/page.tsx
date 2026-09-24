@@ -72,8 +72,8 @@ export default function PrivacyPage() {
       <p>
         Premium users may upload files to the document vault (e.g.
         immigration-related PDFs or images). Files are stored using our cloud
-        infrastructure (Supabase Storage). The vault is protected by an optional
-        account passcode (stored as a hash).{' '}
+        infrastructure (AWS S3). The vault screen uses a passcode
+        (stored as a hash).{' '}
         <strong>
           The passcode controls access in the product; it is not end-to-end
           encryption.

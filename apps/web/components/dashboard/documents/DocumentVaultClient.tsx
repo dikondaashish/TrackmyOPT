@@ -10,37 +10,27 @@
  * - Expiry tracking and reminders
  */
 
-import { useState, useEffect } from 'react';
-import { Clock, FolderOpen, Lock, ScanLine, Mail } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Clock, FolderOpen, Lock, ScanLine, Mail, ShieldCheck } from 'lucide-react';
 import { PasscodeSetupModal } from '../settings/PasscodeSetupModal';
 import { PasscodeVerifyModal } from '../security/PasscodeVerifyModal';
 import { DocumentUploadModal } from './DocumentUploadModal';
 import { DocumentGrid } from './DocumentGrid';
 import { DocumentStats } from './DocumentStats';
 import { DocumentFilters } from './DocumentFilters';
-
-interface Document {
-  id: string;
-  filename: string;
-  documentType: string;
-  category: string;
-  issueDate: string | null;
-  expiryDate: string | null;
-  summary: string;
-  extractedFields: Record<string, any>;
-  aiConfidence: number;
-  uploadedAt: string;
-}
+import { filterAndSortDocuments, type VaultDocument } from '@/lib/documents/vault-utils';
 
 export function DocumentVaultClient() {
   // State
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [premiumCheckError, setPremiumCheckError] = useState(false);
   const [hasPasscode, setHasPasscode] = useState<boolean | null>(null);
+  const [passcodeStatusError, setPasscodeStatusError] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
 
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<VaultDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [documentsError, setDocumentsError] = useState('');
 
   const [showPasscodeSetup, setShowPasscodeSetup] = useState(false);
   const [showPasscodeVerify, setShowPasscodeVerify] = useState(false);
@@ -49,6 +39,10 @@ export function DocumentVaultClient() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const visibleDocuments = useMemo(
+    () => filterAndSortDocuments(documents, selectedCategory, searchQuery, sortBy),
+    [documents, selectedCategory, searchQuery, sortBy],
+  );
 
   // Email notification state
   const [notificationEmail, setNotificationEmail] = useState('');
@@ -81,7 +75,7 @@ export function DocumentVaultClient() {
       loadNotificationEmail();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUnlocked, selectedCategory, searchQuery, sortBy]);
+  }, [isUnlocked]);
 
   // Auto-lock timer - locks vault after period of inactivity
   useEffect(() => {
@@ -92,6 +86,7 @@ export function DocumentVaultClient() {
       const inactiveTime = (now - lastActivity) / 1000 / 60; // in minutes
 
       if (inactiveTime >= autoLockTimeout) {
+        setDocuments([]);
         setIsUnlocked(false);
         setShowPasscodeVerify(true);
       }
@@ -188,7 +183,9 @@ export function DocumentVaultClient() {
   async function checkPasscodeStatus() {
     try {
       const res = await fetch('/api/documents/passcode/status');
+      if (!res.ok) throw new Error('Could not check vault passcode');
       const data = await res.json();
+      setPasscodeStatusError(false);
       setHasPasscode(data.hasPasscode);
 
       // Set auto-lock timeout from settings
@@ -202,24 +199,20 @@ export function DocumentVaultClient() {
         setShowPasscodeVerify(true);
       }
     } catch (_error) {
-      setHasPasscode(false);
-      setShowPasscodeSetup(true);
+      setPasscodeStatusError(true);
     }
   }
 
   async function loadDocuments() {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (selectedCategory !== 'all') params.append('category', selectedCategory);
-      if (searchQuery) params.append('search', searchQuery);
-      params.append('sort', sortBy);
-
-      const res = await fetch(`/api/documents?${params}`);
+      const res = await fetch('/api/documents', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Could not load your documents. Please try again.');
       const data = await res.json();
       setDocuments(data.documents || []);
-    } catch (_error) {
-      setDocuments([]);
+      setDocumentsError('');
+    } catch (error) {
+      setDocumentsError(error instanceof Error ? error.message : 'Could not load your documents. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -330,7 +323,7 @@ export function DocumentVaultClient() {
               Smart expiry reminders
             </h2>
             <p className="text-sm text-muted-foreground">
-              Get email alerts at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before any critical document expires.
+              Get email reminders before a document expires.
             </p>
           </div>
         </div>
@@ -338,6 +331,17 @@ export function DocumentVaultClient() {
         <p className="text-xs text-muted-foreground text-center">
           Upgrade to Pro to unlock Document Vault — secure storage for EAD, I-20, and passport with expiry reminders.
         </p>
+      </div>
+    );
+  }
+
+  if (passcodeStatusError) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-sm text-gray-600 dark:text-muted-foreground">Unable to check your vault passcode. Please try again.</p>
+          <button onClick={checkPasscodeStatus} className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">Retry</button>
+        </div>
       </div>
     );
   }
@@ -376,84 +380,20 @@ export function DocumentVaultClient() {
   // Main document vault interface
   return (
     <div className="space-y-4" data-document-vault data-ph-no-capture>
-      {/* Security Trust Banner */}
-      <div className="bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 overflow-hidden relative">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-teal-500 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-        </div>
-
-        <div className="relative">
-          {/* Header */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-emerald-900 dark:text-emerald-300 text-sm">Enterprise-Grade Security</h3>
-              <p className="text-xs text-emerald-700 dark:text-emerald-400">Your documents are protected with bank-level security</p>
-            </div>
-          </div>
-
-          {/* Security Badges */}
-          <div className="flex flex-wrap gap-2">
-            {/* SSL/TLS Encryption */}
-            <div className="flex items-center gap-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700 shadow-sm">
-              <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">SSL/TLS Encrypted</span>
-            </div>
-
-            {/* AWS S3 */}
-            <div className="flex items-center gap-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700 shadow-sm">
-              <svg className="w-4 h-4 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">AWS S3 Storage</span>
-            </div>
-
-            {/* AES-256 Encryption */}
-            <div className="flex items-center gap-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700 shadow-sm">
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-              </svg>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">AES-256 Encryption</span>
-            </div>
-
-            {/* Secure Authentication */}
-            <div className="flex items-center gap-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700 shadow-sm">
-              <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">2FA Ready</span>
-            </div>
-
-            {/* Passcode Protected */}
-            <div className="flex items-center gap-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700 shadow-sm">
-              <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-              </svg>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Passcode Protected</span>
-            </div>
-
-            {/* Secure storage */}
-            <div className="flex items-center gap-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700 shadow-sm">
-              <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-              </svg>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Encrypted in transit</span>
-            </div>
-
-            {/* GDPR Compliant */}
-            <div className="flex items-center gap-1.5 bg-white/80 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700 shadow-sm">
-              <svg className="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">GDPR Ready</span>
+      {/* Security details */}
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden />
+          <div>
+            <h2 className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">How your vault is secured</h2>
+            <p className="mt-1 text-xs text-emerald-800 dark:text-emerald-300">
+              Account sign-in controls access to your documents. The vault passcode locks this screen;
+              it does not encrypt your files or replace your account password.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-emerald-900 dark:text-emerald-200">
+              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Encrypted in transit</span>
+              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">AES-256 at rest in AWS S3</span>
+              <span className="rounded-md border border-emerald-200 bg-white/80 px-2.5 py-1 dark:border-emerald-800 dark:bg-emerald-900/30">Time-limited preview links</span>
             </div>
           </div>
         </div>
@@ -534,7 +474,7 @@ export function DocumentVaultClient() {
           )}
           <p className="text-xs text-gray-500 dark:text-muted-foreground mt-2 flex items-start gap-1.5">
             <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-            <span>Get notified at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before your documents expire</span>
+            <span>Get email reminders before your documents expire.</span>
           </p>
         </div>
       </div>
@@ -554,12 +494,21 @@ export function DocumentVaultClient() {
       />
 
       {/* Documents Grid */}
-      <DocumentGrid
-        documents={documents}
-        loading={loading}
-        onDocumentDelete={handleDocumentDelete}
-        onRefresh={loadDocuments}
-      />
+      {documentsError && (
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
+          {documentsError}
+          <button onClick={loadDocuments} className="ml-3 font-semibold underline">Retry</button>
+        </div>
+      )}
+      {(!documentsError || documents.length > 0) && (
+        <DocumentGrid
+          documents={visibleDocuments}
+          loading={loading}
+          hasFilters={selectedCategory !== 'all' || searchQuery.trim().length > 0}
+          onDocumentDelete={handleDocumentDelete}
+          onRefresh={loadDocuments}
+        />
+      )}
 
       {/* Upload Modal */}
       {showUploadModal && (
@@ -572,4 +521,3 @@ export function DocumentVaultClient() {
     </div>
   );
 }
-

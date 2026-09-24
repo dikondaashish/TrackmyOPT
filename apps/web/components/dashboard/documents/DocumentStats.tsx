@@ -11,11 +11,13 @@
  */
 
 import { FileText, Clock, AlertCircle, BarChart3 } from 'lucide-react';
+import { daysUntilExpiry, documentTypeLabel } from '@/lib/documents/vault-utils';
 
 interface Document {
   id: string;
   expiryDate: string | null;
   documentType: string;
+  category?: string;
 }
 
 interface DocumentStatsProps {
@@ -27,20 +29,18 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
   const total = documents.length;
 
   const expiringSoon = documents.filter(doc => {
-    if (!doc.expiryDate) return false;
-    const daysUntilExpiry = Math.ceil(
-      (new Date(doc.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return daysUntilExpiry > 0 && daysUntilExpiry <= 30;
+    const days = daysUntilExpiry(doc.expiryDate);
+    return days !== null && days >= 0 && days <= 30;
   }).length;
 
   const expired = documents.filter(doc => {
-    if (!doc.expiryDate) return false;
-    return new Date(doc.expiryDate) < new Date();
+    const days = daysUntilExpiry(doc.expiryDate);
+    return days !== null && days < 0;
   }).length;
 
   const categoryCounts = documents.reduce((acc, doc) => {
-    acc[doc.documentType] = (acc[doc.documentType] || 0) + 1;
+    const type = doc.category || doc.documentType || 'other';
+    acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -71,14 +71,14 @@ export function DocumentStats({ documents }: DocumentStatsProps) {
         label="Expired"
         value={expired}
         color="red"
-        subtitle="Action required"
+        subtitle="Review dates"
       />
 
       {/* Most Common Type */}
       <StatCard
         icon={<BarChart3 className="w-5 h-5" />}
         label="Most Common"
-        value={mostCommonType?.[0]?.replace(/_/g, ' ') || 'None'}
+        value={mostCommonType ? documentTypeLabel(mostCommonType[0]) : 'None'}
         color="purple"
         subtitle={mostCommonType ? `${mostCommonType[1]} document${mostCommonType[1] > 1 ? 's' : ''}` : '0 documents'}
         isText
@@ -127,4 +127,3 @@ function StatCard({
     </div>
   );
 }
-

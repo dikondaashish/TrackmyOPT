@@ -10,6 +10,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { FileText } from 'lucide-react';
 import { DOCUMENT_TYPE_ICONS } from '@/lib/document-type-icons';
+import { documentTypeLabel } from '@/lib/documents/vault-utils';
 
 interface DocumentFiltersProps {
   selectedCategory: string;
@@ -56,7 +57,7 @@ export function DocumentFilters({
     ...DEFAULT_CATEGORIES.slice(0, -1),
     ...uniqueCustomCategories.map((c) => ({
       value: c,
-      label: c.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+      label: documentTypeLabel(c),
       icon: FileText,
     })),
     DEFAULT_CATEGORIES[DEFAULT_CATEGORIES.length - 1],
@@ -78,6 +79,7 @@ export function DocumentFilters({
             <button
               key={category.value}
               onClick={() => onCategoryChange(category.value)}
+              aria-pressed={selectedCategory === category.value}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                 selectedCategory === category.value
                   ? 'bg-blue-600 text-white shadow-sm'
@@ -108,6 +110,7 @@ export function DocumentFilters({
           </svg>
           <input
             type="text"
+            aria-label="Search documents"
             placeholder="Search documents..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -116,6 +119,7 @@ export function DocumentFilters({
         </div>
 
         <select
+          aria-label="Sort documents"
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value)}
           className="px-4 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-800/60 dark:text-white"

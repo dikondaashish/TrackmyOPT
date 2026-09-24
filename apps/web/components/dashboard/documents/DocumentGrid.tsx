@@ -27,6 +27,7 @@ interface Document {
 interface DocumentGridProps {
   documents: Document[];
   loading: boolean;
+  hasFilters?: boolean;
   onDocumentDelete: (id: string) => void;
   onRefresh: () => void;
 }
@@ -34,6 +35,7 @@ interface DocumentGridProps {
 export function DocumentGrid({
   documents,
   loading,
+  hasFilters = false,
   onDocumentDelete,
   onRefresh,
 }: DocumentGridProps) {
@@ -59,9 +61,9 @@ export function DocumentGrid({
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete(id: string): Promise<boolean> {
     if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
-      return;
+      return false;
     }
 
     try {
@@ -75,8 +77,10 @@ export function DocumentGrid({
       }
 
       onDocumentDelete(id);
+      return true;
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to delete document');
+      return false;
     }
   }
 
@@ -110,9 +114,9 @@ export function DocumentGrid({
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">No documents yet</h3>
-        <p className="text-gray-600">
-          Upload your first document to get started
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{hasFilters ? 'No matching documents' : 'No documents yet'}</h3>
+        <p className="text-gray-600 dark:text-slate-300">
+          {hasFilters ? 'Try another category or search term.' : 'Upload your first document to get started.'}
         </p>
       </div>
     );
@@ -143,9 +147,8 @@ export function DocumentGrid({
             setSelectedDocument(null);
             setOpenEditExpiry(false);
           }}
-          onDelete={() => {
-            handleDelete(selectedDocument.id);
-            setSelectedDocument(null);
+          onDelete={async () => {
+            if (await handleDelete(selectedDocument.id)) setSelectedDocument(null);
           }}
           onUpdate={(updatedDoc) => {
             // Update the selected document with new data
@@ -159,4 +162,3 @@ export function DocumentGrid({
     </>
   );
 }
-

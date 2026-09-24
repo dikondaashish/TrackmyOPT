@@ -55,8 +55,7 @@ export async function GET(request: NextRequest) {
         break;
       case 'expiring-soon':
         query = query
-          .not('expiry_date', 'is', null)
-          .order('expiry_date', { ascending: true });
+          .order('expiry_date', { ascending: true, nullsFirst: false });
         break;
       case 'name':
         query = query.order('filename', { ascending: true });

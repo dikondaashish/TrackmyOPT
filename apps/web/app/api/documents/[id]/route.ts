@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateSignedUrl, deleteFromS3 } from '@/lib/aws/s3';
 import { generateRemindersForDocument } from '@/lib/notifications/reminders';
+import { daysUntilExpiry } from '@/lib/documents/vault-utils';
 
 type RouteContext = {
   params: Promise<{
@@ -97,16 +98,29 @@ export async function PATCH(
 
     const body = await request.json();
     const { category, notes, issueDate, expiryDate } = body;
+    const updates: Record<string, string | null> = {};
+    if (category !== undefined) {
+      if (typeof category !== 'string' || !category.trim() || category.length > 100) {
+        return NextResponse.json({ error: 'Invalid document type' }, { status: 400 });
+      }
+      updates.category = category.trim();
+    }
+    if (notes !== undefined) updates.notes = notes === null ? null : String(notes);
+    if (issueDate !== undefined) updates.issue_date = issueDate;
+    if (expiryDate !== undefined) {
+      if (expiryDate !== null && (typeof expiryDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(expiryDate) || daysUntilExpiry(expiryDate) === null)) {
+        return NextResponse.json({ error: 'Invalid expiry date' }, { status: 400 });
+      }
+      updates.expiry_date = expiryDate;
+    }
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: 'No changes provided' }, { status: 400 });
+    }
 
     // Update document
     const { data: document, error: dbError } = await supabase
       .from('documents')
-      .update({
-        category: category || undefined,
-        notes: notes || undefined,
-        issue_date: issueDate || undefined,
-        expiry_date: expiryDate || undefined,
-      })
+      .update(updates)
       .eq('id', id)
       .eq('user_id', user.id)
       .select()
@@ -129,6 +143,16 @@ export async function PATCH(
         );
       } catch (remErr) {
         console.error('Failed to (re)generate reminders for document', document.id, remErr);
+      }
+    } else if (expiryDate === null) {
+      const { error: remindersError } = await supabase
+        .from('document_reminders')
+        .delete()
+        .eq('document_id', id)
+        .eq('user_id', user.id);
+      if (remindersError) {
+        console.error('Failed to clear reminders for document', id, remindersError);
+        return NextResponse.json({ error: 'Expiry date cleared, but reminders could not be removed. Please try again.' }, { status: 500 });
       }
     }
 

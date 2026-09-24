@@ -4,7 +4,7 @@
  * POST /api/documents/passcode/setup
  * Body: { passcode: "123456" }
  * 
- * Creates or updates user's document vault passcode
+ * Creates a document vault passcode for a user who does not have one
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -36,43 +36,28 @@ export async function POST(request: NextRequest) {
     const hashedPasscode = await hashPasscode(passcode);
 
     // Check if passcode already exists
-    const { data: existing } = await supabase
+    const { data: existing, error: lookupError } = await supabase
       .from('document_passcodes')
       .select('id')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
+
+    if (lookupError) throw lookupError;
 
     if (existing) {
-      // Update existing passcode
-      const { error: updateError } = await supabase
-        .from('document_passcodes')
-        .update({
-          passcode_hash: hashedPasscode,
-          failed_attempts: 0,
-          locked_until: null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id);
+      return NextResponse.json({ error: 'Passcode already set. Use change or reset passcode.' }, { status: 409 });
+    }
 
-      if (updateError) {
-        console.error('❌ Update error:', updateError);
-        throw updateError;
-      }
+    const { error: insertError } = await supabase
+      .from('document_passcodes')
+      .insert({
+        user_id: user.id,
+        passcode_hash: hashedPasscode,
+      });
 
-    } else {
-      // Create new passcode
-      const { error: insertError } = await supabase
-        .from('document_passcodes')
-        .insert({
-          user_id: user.id,
-          passcode_hash: hashedPasscode,
-        });
-
-      if (insertError) {
-        console.error('❌ Insert error:', insertError);
-        throw insertError;
-      }
-
+    if (insertError) {
+      console.error('❌ Insert error:', insertError);
+      throw insertError;
     }
 
     return NextResponse.json({
@@ -88,4 +73,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

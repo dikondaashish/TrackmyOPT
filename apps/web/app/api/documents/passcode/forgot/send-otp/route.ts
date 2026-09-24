@@ -4,9 +4,8 @@
  * Sends a one-time code to the user's verified email. Unlike the "change"
  * flow, the user does NOT need to know their current passcode. Verifying the
  * code lets them set a brand-new passcode AND wipes the document vault
- * contents because the OLD documents are not recoverable client-side (we use
- * passcode-derived UX gating, not encryption — but the policy stays: forgot
- * = vault reset). The OLD passcode rows + reminders are removed.
+ * contents by product policy. The passcode is a screen lock, not file
+ * encryption. Stored files and reminder rows are removed during reset.
  */
 
 import { NextRequest, NextResponse } from 'next/server';

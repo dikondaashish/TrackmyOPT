@@ -98,9 +98,9 @@ export default function ForgotPasscodePage() {
                 <div className="space-y-4">
                     <p className="text-sm text-gray-600 dark:text-muted-foreground">
                         We'll email you a 6-digit code to verify it's you. Resetting your passcode
-                        will <strong>permanently remove the documents currently in your vault</strong>{" "}
-                        because we cannot decrypt them without your current passcode. You can re-upload
-                        them after the reset.
+                        will <strong>remove the documents currently in your vault</strong>.
+                        This is our reset policy; the passcode does not encrypt your files.
+                        You can re-upload them after the reset.
                     </p>
                     {error && (
                         <div role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">
@@ -177,7 +177,7 @@ export default function ForgotPasscodePage() {
                             className="mt-1"
                         />
                         <span>
-                            I understand that completing this reset will permanently remove all current documents in my vault.
+                            I understand that completing this reset will remove all current documents from my vault.
                         </span>
                     </label>
                     {error && (

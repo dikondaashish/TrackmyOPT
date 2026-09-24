@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
     // ISS-016: signal when AI couldn't detect an expiry so client can prompt
     // the user to enter one manually. Otherwise reminders never schedule.
     const needsManualExpiry =
-      !analysis.expiryDate || (typeof analysis.confidence === 'number' && analysis.confidence < 0.5);
+      !analysis.expiryDate || (typeof analysis.confidence === 'number' && analysis.confidence < 50);
 
     return NextResponse.json({
       success: true,

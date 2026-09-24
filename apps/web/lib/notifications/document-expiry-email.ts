@@ -216,7 +216,7 @@ ${emailTextP(`<span class="tmo-force-text" style="color:${EMAIL.text} !important
 </div>
 ${renewalTips}
 ${emailTextP(
-  `You added <strong>${safeType}</strong> to your Document Vault with expiry <strong>${escapeHtml(expiryDate)}</strong>. We remind you at 60, 45, 30, 20, 15, 10, 5, 3, 2, and 1 day before expiry.`
+  `You added <strong>${safeType}</strong> to your Document Vault with expiry <strong>${escapeHtml(expiryDate)}</strong>. We send reminders before expiry.`
 )}
 ${emailTextP(
   "<strong>Already renewed?</strong> Update the expiry date in your vault and reminders for this document will stop."

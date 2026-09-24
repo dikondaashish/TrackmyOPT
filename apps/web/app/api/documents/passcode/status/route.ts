@@ -24,11 +24,13 @@ export async function GET(_request: NextRequest) {
     }
 
     // Check if passcode exists
-    const { data: passcode } = await supabase
+    const { data: passcode, error: passcodeError } = await supabase
       .from('document_passcodes')
       .select('id, locked_until, failed_attempts, auto_lock_timeout, lockout_duration')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
+
+    if (passcodeError) throw passcodeError;
 
     const hasPasscode = !!passcode;
     const isLocked = passcode?.locked_until 
@@ -138,4 +140,3 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
-

@@ -11,9 +11,10 @@
  * - Edit expiry date
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Calendar, Clock, FileText, FolderOpen, Upload } from 'lucide-react';
 import { triggerBrowserDownload } from '@/lib/browser-download';
+import { daysUntilExpiry, documentTypeLabel, formatExpiryDate, isValidExpiryDate } from '@/lib/documents/vault-utils';
 
 interface Document {
   id: string;
@@ -43,10 +44,7 @@ function isValidDate(dateString: string | null): boolean {
 }
 
 function formatDateForInput(dateString: string | null): string {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '';
-  return date.toISOString().split('T')[0];
+  return isValidExpiryDate(dateString) ? dateString!.slice(0, 10) : '';
 }
 
 // Default document type options
@@ -63,6 +61,7 @@ const DEFAULT_DOC_TYPES = [
 ];
 
 export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoEditExpiry = false }: DocumentViewModalProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [viewUrl, setViewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -79,6 +78,20 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
   const [savingType, setSavingType] = useState(false);
   const [currentDocumentType, setCurrentDocumentType] = useState(initialDocType);
   const [isCustomType, setIsCustomType] = useState(!DEFAULT_DOC_TYPES.some(t => t.value === initialDocType));
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
+    return () => {
+      if (dialog?.open) {
+        if (typeof dialog.close === 'function') dialog.close();
+        else dialog.removeAttribute('open');
+      }
+    };
+  }, []);
 
   useEffect(() => {
     loadDocument();
@@ -153,7 +166,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
   async function handleSaveDocumentType() {
     setSavingType(true);
     try {
-      const newType = isCustomType ? customType.toLowerCase().replace(/\s+/g, '_') : documentType;
+      const newType = isCustomType ? customType.trim().toLowerCase().replace(/\s+/g, '_') : documentType;
 
       if (!newType || newType.trim() === '') {
         setError('Please enter a document type');
@@ -187,7 +200,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
 
   function handleCancelTypeEdit() {
     setDocumentType(currentDocumentType);
-    setCustomType('');
+    setCustomType(!DEFAULT_DOC_TYPES.some(t => t.value === currentDocumentType) ? currentDocumentType.replace(/_/g, ' ') : '');
     setIsCustomType(!DEFAULT_DOC_TYPES.some(t => t.value === currentDocumentType));
     setIsEditingType(false);
   }
@@ -203,18 +216,26 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <dialog
+      ref={dialogRef}
+      aria-label={`View ${document.filename}`}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      className="w-[calc(100%-2rem)] max-w-4xl max-h-[90vh] overflow-hidden rounded-lg bg-white p-0 text-left dark:bg-slate-800 open:flex flex-col backdrop:bg-black/50"
+    >
         {/* Header */}
         <div className="p-6 border-b dark:border-slate-700 flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold capitalize dark:text-white">
-              {currentDocumentType?.replace(/_/g, ' ') || 'Document'}
+              {documentTypeLabel(currentDocumentType)}
             </h2>
             <p className="text-gray-600 dark:text-slate-400 text-sm mt-1">{document.filename}</p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close document preview"
             className="text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,7 +262,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
             )}
 
             {/* Document Preview/Info */}
-            {!loading && !error && (
+            {!loading && (
               <>
                 {/* Document Viewer */}
                 {viewUrl && (
@@ -328,7 +349,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                         </button>
                       </div>
                       <p className="font-semibold text-gray-900 dark:text-white capitalize mt-1">
-                        {currentDocumentType?.replace(/_/g, ' ') || 'Document'}
+                        {documentTypeLabel(currentDocumentType)}
                       </p>
                     </div>
                   )}
@@ -361,7 +382,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                         </button>
                       </div>
                     </div>
-                  ) : currentExpiryDate && isValidDate(currentExpiryDate) ? (
+                  ) : isValidExpiryDate(currentExpiryDate) ? (
                     <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-800/40 dark:to-red-800/40 rounded-lg p-4 border border-orange-200 dark:border-orange-500/40">
                       <div className="flex justify-between items-start">
                         <label className="text-xs text-orange-700 dark:text-orange-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
@@ -375,14 +396,17 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
                         </button>
                       </div>
                       <p className="font-bold text-orange-900 dark:text-orange-200 mt-1">
-                        {new Date(currentExpiryDate).toLocaleDateString('en-US', {
+                        {formatExpiryDate(currentExpiryDate, {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
                         })}
                       </p>
                       <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">
-                        {Math.ceil((new Date(currentExpiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
+                        {(() => {
+                          const days = daysUntilExpiry(currentExpiryDate);
+                          return days === null ? '' : days < 0 ? `Expired ${-days} days ago` : days === 0 ? 'Expires today' : `${days} days remaining`;
+                        })()}
                       </p>
                     </div>
                   ) : (
@@ -476,8 +500,6 @@ export function DocumentViewModal({ document, onClose, onDelete, onUpdate, autoE
             Download
           </button>
         </div>
-      </div>
-    </div>
+    </dialog>
   );
 }
-

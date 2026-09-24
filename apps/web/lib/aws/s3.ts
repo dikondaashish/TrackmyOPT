@@ -10,6 +10,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createHash } from 'crypto';
@@ -135,6 +136,23 @@ export async function deleteFromS3(key: string): Promise<void> {
   } catch (error) {
     console.error('❌ S3 delete error:', error);
     throw new Error('Failed to delete file from S3');
+  }
+}
+
+/** Remove every file in a vault reset, checking S3's per-object errors. */
+export async function deleteManyFromS3(keys: string[]): Promise<void> {
+  const bucket = getBucketName();
+  const batches = Array.from({ length: Math.ceil(keys.length / 1000) }, (_, index) =>
+    keys.slice(index * 1000, (index + 1) * 1000)
+  );
+
+  const responses = await Promise.all(batches.map(batch => s3Client.send(new DeleteObjectsCommand({
+    Bucket: bucket,
+    Delete: { Objects: batch.map(Key => ({ Key })), Quiet: true },
+  }))));
+
+  if (responses.some(response => response.Errors?.length)) {
+    throw new Error('Some vault files could not be removed from S3');
   }
 }
 

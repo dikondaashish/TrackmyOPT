@@ -20,6 +20,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useClientDate } from '@/hooks/useClientDate';
+import { daysUntilExpiry, documentTypeLabel, formatExpiryDate } from '@/lib/documents/vault-utils';
 
 interface Document {
   id: string;
@@ -47,6 +48,8 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
   // identical HTML, avoiding hydration error #418.
   const clientNow = useClientDate();
   const expiryStatus = clientNow ? getExpiryStatus(document.expiryDate, clientNow) : 'no_expiry';
+  const daysLeft = clientNow ? daysUntilExpiry(document.expiryDate, clientNow) : null;
+  const formattedExpiry = formatExpiryDate(document.expiryDate, { month: 'short', day: 'numeric', year: 'numeric' });
   // Use category first (which holds the updated type), fall back to documentType
   const displayType = document.category || document.documentType || 'other';
   const DocIcon = getDocumentTypeIcon(displayType);
@@ -62,7 +65,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-white capitalize text-sm">
-                {displayType?.replace(/_/g, ' ') || 'Document'}
+                {documentTypeLabel(displayType)}
               </h3>
               <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                 {document.uploadedAt && isValidDate(document.uploadedAt)
@@ -73,13 +76,13 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
           </div>
 
           {/* Expiry Badge */}
-          {document.expiryDate && isValidDate(document.expiryDate) ? (
+          {formattedExpiry ? (
             <div className={`flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium ${getExpiryBadgeColor(expiryStatus)}`}>
               {(() => {
                 const ExpiryIcon = getExpiryIcon(expiryStatus);
                 return <ExpiryIcon className="w-3.5 h-3.5 shrink-0" aria-hidden />;
               })()}
-              <span>{clientNow ? `${Math.ceil((new Date(document.expiryDate).getTime() - clientNow.getTime()) / (1000 * 60 * 60 * 24))}d` : '—'}</span>
+              <span>{daysLeft === null ? '—' : daysLeft < 0 ? 'Expired' : daysLeft === 0 ? 'Today' : `${daysLeft}d left`}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full px-2.5 py-1 font-medium">
@@ -106,16 +109,12 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
         )}
 
         {/* Expiry Date - Prominent Display */}
-        {document.expiryDate && isValidDate(document.expiryDate) ? (
+        {formattedExpiry ? (
           <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 border border-gray-100 dark:border-slate-600">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-600 dark:text-slate-400">Expires on</span>
               <span className={`text-sm font-semibold ${getExpiryTextColor(expiryStatus)}`}>
-                {new Date(document.expiryDate).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
+                {formattedExpiry}
               </span>
             </div>
           </div>
@@ -175,11 +174,8 @@ function isValidDate(dateString: string | null): boolean {
 }
 
 function getExpiryStatus(expiryDate: string | null, now: Date = new Date()): 'good' | 'attention' | 'warning' | 'critical' | 'expired' | 'no_expiry' {
-  if (!expiryDate) return 'no_expiry';
-
-  const days = Math.ceil(
-    (new Date(expiryDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const days = daysUntilExpiry(expiryDate, now);
+  if (days === null) return 'no_expiry';
 
   if (days < 0) return 'expired';
   if (days <= 7) return 'critical';
@@ -235,4 +231,3 @@ function getExpiryIcon(status: string): LucideIcon {
   };
   return icons[status] || Info;
 }
-
