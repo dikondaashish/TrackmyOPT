@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { JobApplication, JobFollowup, JobInterview, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
-import { X, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText, Download, BadgeDollarSign } from "lucide-react";
+import { X, MapPin, ExternalLink, Trash2, CheckCircle, Clock, Archive, FileText, Download, BadgeDollarSign, MailSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -477,6 +477,16 @@ export function ApplicationDrawer({ application, onClose, interviews = [], follo
                                 <Button variant="outline" size="sm" onClick={() => setIsAddingFollowup(true)}>+ Add Reminder</Button>
                             )}
                         </div>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="mb-4 min-h-11 w-full gap-2"
+                            onClick={() => router.push("/dashboard/career/email-finder")}
+                        >
+                            <MailSearch className="h-4 w-4" aria-hidden="true" />
+                            Find a contact's work email
+                        </Button>
 
                         {isAddingFollowup && (
                             <div className="p-4 mb-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 space-y-3">
