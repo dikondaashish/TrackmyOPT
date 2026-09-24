@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, ClipboardList, FileText, ScanSearch, ArrowRight, Rocket, MailSearch } from "lucide-react";
+import { Building2, ClipboardList, FileText, ScanSearch, ArrowRight, Rocket, MessageSquareText } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function CareerHubCards() {
@@ -44,10 +44,10 @@ export function CareerHubCards() {
             hoverShadow: "hover:shadow-amber-500/40",
         },
         {
-            title: "Work Email Finder",
-            description: "Find a recruiter or hiring manager's work email from a LinkedIn profile",
-            icon: MailSearch,
-            href: "/dashboard/career/email-finder",
+            title: "Networking",
+            description: "Find work emails and draft outreach for up to three contacts",
+            icon: MessageSquareText,
+            href: "/dashboard/career/networking",
             gradient: "from-sky-600 via-blue-600 to-indigo-700",
             shadowColor: "shadow-sky-500/25",
             hoverShadow: "hover:shadow-sky-500/40",

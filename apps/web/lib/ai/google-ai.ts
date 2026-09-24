@@ -23,7 +23,8 @@ export type AiTask =
   | 'screening_answer'
   | 'document_analysis'
   | 'autofill_extract'
-  | 'resume_job_profile';
+  | 'resume_job_profile'
+  | 'networking_draft';
 
 type ModelChoice = {
   model: string;
@@ -94,6 +95,7 @@ export const AI_MODEL_POLICIES: Readonly<Record<AiTask, AiModelPolicy>> = {
   document_analysis: { primary: FLASH_LITE_35, fallback: FLASH_37_LOW },
   autofill_extract: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
   resume_job_profile: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
+  networking_draft: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
 };
 
 type AiBackendConfig =

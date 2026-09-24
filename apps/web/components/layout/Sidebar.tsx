@@ -22,7 +22,7 @@ import {
     BookOpen,
     Heart,
     Receipt,
-    MailSearch,
+    MessageSquareText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserProfileMenu } from "./UserProfileMenu";
@@ -91,7 +91,7 @@ export const SIDEBAR_CONFIG: SidebarItem[] = [
                 { label: "Resume Generator", href: "/dashboard/career/resume-generator", icon: FileText },
                 { label: "Saved Resumes", href: "/dashboard/career/saved-resumes", icon: BookOpen },
                 { label: "ATS Scanner", href: "/dashboard/career/ats-scanner", icon: BarChart3 },
-                { label: "Work Email Finder", href: "/dashboard/career/email-finder", icon: MailSearch },
+                { label: "Networking", href: "/dashboard/career/networking", icon: MessageSquareText },
             ]
         }
     },
