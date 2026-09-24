@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { z } from 'zod';
 import {
   ArrowUpRight,
   Check,
@@ -34,6 +35,7 @@ type Draft = {
   linkedinNote: string;
 };
 type ApiResponse<T> = { ok: true; data: T } | { ok: false; error: string };
+const APPLYBOLT_URL = 'https://api.applybolt.app/public/findEmailByLinkedIn';
 
 const inputClass =
   'min-h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none transition-colors placeholder:text-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-blue-400 dark:focus:ring-blue-900';
@@ -62,19 +64,90 @@ function normalizeCompany(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+function optionalText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim()
+    ? value.trim().slice(0, 200)
+    : null;
+}
+
+function parseProviderResult(value: unknown): FinderResult | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const result = value as Record<string, unknown>;
+  if (result.found === false) return { found: false };
+  if (result.found !== true) return null;
+
+  const email = z.string().email().max(320).safeParse(result.email);
+  if (!email.success) return null;
+
+  return {
+    found: true,
+    email: email.data,
+    fullName: optionalText(result.fullName),
+    company: optionalText(result.company),
+    jobTitle: optionalText(result.jobTitle),
+    verified: result.validation === 'valid',
+  };
+}
+
 async function requestEmailLookup(linkedinUrl: string): Promise<FinderResult> {
   const response = await fetch('/api/career/email-finder', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ linkedinUrl: linkedinUrl.trim() }),
   });
-  const payload = (await response.json()) as ApiResponse<FinderResult>;
+  const payload = (await response.json()) as ApiResponse<{
+    linkedinUrl: string;
+  }>;
   if (!response.ok || !payload.ok) {
     throw new Error(
       payload.ok ? 'Email lookup failed. Please try again.' : payload.error
     );
   }
-  return payload.data;
+  let providerResponse: Response;
+  try {
+    providerResponse = await fetch(APPLYBOLT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ linkedinUrl: payload.data.linkedinUrl }),
+      cache: 'no-store',
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer',
+      redirect: 'error',
+      signal: AbortSignal.timeout(75_000),
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === 'TimeoutError' || error.name === 'AbortError')
+    ) {
+      throw new Error('This lookup took too long. Please try again.');
+    }
+    throw new Error('Could not connect to ApplyBolt. Please try again.');
+  }
+  if (providerResponse.status === 429) {
+    throw new Error(
+      'ApplyBolt has reached its lookup limit. Please wait a few minutes.'
+    );
+  }
+  if (!providerResponse.ok) {
+    throw new Error('Email lookup is unavailable right now. Please try again.');
+  }
+
+  let providerData: unknown;
+  try {
+    providerData = await providerResponse.json();
+  } catch {
+    throw new Error(
+      'Email lookup returned an unexpected result. Please try again.'
+    );
+  }
+  const result = parseProviderResult(providerData);
+  if (!result) {
+    throw new Error(
+      'Email lookup returned an unexpected result. Please try again.'
+    );
+  }
+  return result;
 }
 
 async function requestNetworkingDraft(input: {

@@ -11,14 +11,19 @@ describe('NetworkingWorkspace', () => {
         return new Response(
           JSON.stringify({
             ok: true,
-            data: {
-              found: true,
-              email: 'alex@example.com',
-              fullName: 'Alex Example',
-              company: 'Amazon',
-              jobTitle: 'Recruiter',
-              verified: true,
-            },
+            data: { linkedinUrl: 'https://www.linkedin.com/in/alex-example' },
+          })
+        );
+      }
+      if (url === 'https://api.applybolt.app/public/findEmailByLinkedIn') {
+        return new Response(
+          JSON.stringify({
+            found: true,
+            email: 'alex@example.com',
+            fullName: 'Alex Example',
+            company: 'Amazon',
+            jobTitle: 'Recruiter',
+            validation: 'valid',
           })
         );
       }
@@ -56,6 +61,16 @@ describe('NetworkingWorkspace', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
     expect(await screen.findByText('alex@example.com')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.applybolt.app/public/findEmailByLinkedIn',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          linkedinUrl: 'https://www.linkedin.com/in/alex-example',
+        }),
+        referrerPolicy: 'no-referrer',
+      })
+    );
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Draft outreach with AI' })
@@ -114,21 +129,24 @@ describe('NetworkingWorkspace', () => {
   });
 
   it('withholds email drafting when the lookup reports another employer', async () => {
-    const fetchMock = vi.fn(
-      async () =>
-        new Response(
-          JSON.stringify({
-            ok: true,
-            data: {
+    const fetchMock = vi.fn(async (url: string) =>
+      url === '/api/career/email-finder'
+        ? new Response(
+            JSON.stringify({
+              ok: true,
+              data: { linkedinUrl: 'https://www.linkedin.com/in/alex' },
+            })
+          )
+        : new Response(
+            JSON.stringify({
               found: true,
               email: 'alex@other.com',
               fullName: 'Alex',
               company: 'Other Company',
               jobTitle: 'Recruiter',
-              verified: true,
-            },
-          })
-        )
+              validation: 'valid',
+            })
+          )
     );
     vi.stubGlobal('fetch', fetchMock);
     render(
@@ -147,6 +165,39 @@ describe('NetworkingWorkspace', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
     expect(
       await screen.findByText(/reported company differs/)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /Open in Gmail/ })
+    ).not.toBeInTheDocument();
+  });
+
+  it('explains the provider lookup limit without showing an email', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url === '/api/career/email-finder'
+          ? new Response(
+              JSON.stringify({
+                ok: true,
+                data: { linkedinUrl: 'https://www.linkedin.com/in/alex' },
+              })
+            )
+          : new Response('', { status: 429 })
+      )
+    );
+    render(
+      <NetworkingWorkspace
+        applications={[]}
+        initialApplicationId=""
+        applicationsUnavailable={false}
+      />
+    );
+    fireEvent.change(screen.getByLabelText('LinkedIn profile URL'), {
+      target: { value: 'https://www.linkedin.com/in/alex' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
+    expect(
+      await screen.findByText(/ApplyBolt has reached its lookup limit/)
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: /Open in Gmail/ })

@@ -33,7 +33,9 @@ describe('POST /api/career/email-finder', () => {
 
   it('requires a signed-in user before calling ApplyBolt', async () => {
     mocks.getUser.mockResolvedValue({ data: { user: null } });
-    const response = await POST(request('https://www.linkedin.com/in/example-person'));
+    const response = await POST(
+      request('https://www.linkedin.com/in/example-person')
+    );
     expect(response.status).toBe(401);
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -51,59 +53,30 @@ describe('POST /api/career/email-finder', () => {
     expect(mocks.checkRateLimitByUser).not.toHaveBeenCalled();
   });
 
-  it('normalizes the profile URL and returns only the fields used by the UI', async () => {
-    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({
-      found: true,
-      email: 'alex@example.com',
-      fullName: 'Alex Example',
-      jobTitle: 'Recruiter',
-      company: 'Example',
-      validation: 'valid',
-      providerSecret: 'must not reach the browser',
-    }), { status: 200 }));
-
-    const response = await POST(request('linkedin.com/in/alex-example/?trk=public_profile'));
+  it('normalizes the profile URL after authentication and rate limiting', async () => {
+    const response = await POST(
+      request('linkedin.com/in/alex-example/?trk=public_profile')
+    );
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toContain('no-store');
     expect(await response.json()).toEqual({
       ok: true,
-      data: {
-        found: true,
-        email: 'alex@example.com',
-        fullName: 'Alex Example',
-        jobTitle: 'Recruiter',
-        company: 'Example',
-        verified: true,
-      },
+      data: { linkedinUrl: 'https://www.linkedin.com/in/alex-example' },
     });
-    expect(fetch).toHaveBeenCalledWith(
-      'https://api.applybolt.app/public/findEmailByLinkedIn',
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ linkedinUrl: 'https://www.linkedin.com/in/alex-example' }),
-      }),
-    );
-  });
-
-  it('returns a no-result state when ApplyBolt finds no email', async () => {
-    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ found: false }), { status: 200 }));
-    const response = await POST(request('https://www.linkedin.com/in/example-person'));
-    expect(await response.json()).toEqual({ ok: true, data: { found: false } });
+    expect(fetch).not.toHaveBeenCalled();
+    expect(mocks.checkRateLimitByUser).toHaveBeenCalledOnce();
   });
 
   it('stops at the per-user limit', async () => {
-    mocks.checkRateLimitByUser.mockResolvedValue({ success: false, retryAfter: 120 });
-    const response = await POST(request('https://www.linkedin.com/in/example-person'));
+    mocks.checkRateLimitByUser.mockResolvedValue({
+      success: false,
+      retryAfter: 120,
+    });
+    const response = await POST(
+      request('https://www.linkedin.com/in/example-person')
+    );
     expect(response.status).toBe(429);
     expect(response.headers.get('Retry-After')).toBe('120');
     expect(fetch).not.toHaveBeenCalled();
-  });
-
-  it('handles a provider failure without exposing its response', async () => {
-    vi.mocked(fetch).mockResolvedValue(new Response('internal provider detail', { status: 500 }));
-    const response = await POST(request('https://www.linkedin.com/in/example-person'));
-    const body = await response.json();
-    expect(response.status).toBe(502);
-    expect(body.error).not.toContain('internal provider detail');
   });
 });
