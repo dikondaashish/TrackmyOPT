@@ -69,7 +69,7 @@ function SuccessStatsVisual() {
 // Stats Section
 function StatsSection() {
     const stats = [
-        { value: "3,000+", label: "Registered Users" },
+        { value: "3,000+", label: "Users Signed Up" },
         { value: "500+", label: "Jobs Landed" },
         { value: "85%", label: "Found H-1B" },
         { value: "4.9/5", label: "Rating" },

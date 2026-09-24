@@ -35,7 +35,7 @@ export function AuthorBio({ compact = false }: AuthorBioProps) {
                             Content Writer
                         </span>
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-                            3,000+ Registered Users
+                            3,000+ Users Signed Up
                         </span>
                     </div>
                     <div className="flex items-center gap-4 mt-3">

@@ -7,16 +7,15 @@ production data only; do not add personal information to this file.
 
 ## Current claims
 
-- **“3,000+ registered users”**: The owner checked production Supabase Auth on
+- **“3,000+ users have signed up”**: The owner checked production Supabase Auth on
   2026-09-24 and reported 3,018 non-anonymous, non-deleted accounts. This is a
   cumulative signup count, not a count of active users or F-1 students.
-- **“10,000+ Google Search clicks to free tools each month”**: The owner
-  reported a monthly 10,000+ figure from Google Search Console on 2026-09-24
-  and described it as free-tool traffic. The page filter and date range were
-  not independently available in this workspace. Search clicks are traffic,
-  not distinct users or confirmed tool usage. The PostHog connection required
-  reauthentication during this copy update, so it could not corroborate a
-  monthly user count.
+- **“10,000+ people regularly use our free tools”**: The owner requested this
+  public wording on 2026-09-24. The supporting figure was described as Google
+  Search Console clicks or visits; the PostHog connection required
+  reauthentication. Clicks or visits do not independently establish a count of
+  distinct people or confirmed tool usage. Recheck the tool-page and
+  distinct-person measures before relying on this claim in a campaign.
 
 The previous Supabase Auth check on 2026-08-27 recorded 2,580 non-anonymous,
 non-deleted registered users, 2,537 confirmed email addresses, 2,038
@@ -33,4 +32,5 @@ require separate written evidence and consent.
 
 Recheck both aggregate measures at least monthly and before any campaign that
 uses a numerical claim. Record the Search Console date range and page filter.
-Use a distinct-person count from PostHog before claiming monthly tool users.
+Check distinct free-tool users in PostHog to corroborate the public people
+claim.

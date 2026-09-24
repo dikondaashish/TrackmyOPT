@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: 'OPT Tracker & H-1B Finder for F-1 Students | TrackMyOPT',
     template: '%s | TrackMyOPT',
   },
-  description: 'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — 3,000+ registered users and 10,000+ monthly search clicks to free tools. Start now.',
+  description: 'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever. 3,000+ users have signed up, and 10,000+ people regularly use our free tools. Start now.',
   keywords: ['F1 Visa', 'OPT Tracker', 'STEM OPT Calculator', 'H1B Sponsors', 'International Student Jobs', 'USCIS Case Status', 'AI Resume Builder', 'OPT processing time 2026', '90 day rule OPT'],
   authors: [{ name: 'Zyene Inc' }],
   creator: 'Zyene Inc',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'OPT Timeline Tracker & H-1B Finder for F-1 Students',
-    description: 'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever — 3,000+ registered users and 10,000+ monthly search clicks to free tools.',
+    description: 'Track OPT deadlines, monitor unemployment days, find H-1B sponsors, and build AI resumes. Free forever. 3,000+ users have signed up, and 10,000+ people regularly use our free tools.',
     url: 'https://www.trackmyopt.com',
     siteName: 'TrackMyOPT',
     images: [

@@ -59,7 +59,7 @@ function TeamVisual() {
                     </div>
                     <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
                         <p className="text-2xl font-bold text-green-700 dark:text-green-300">3,000+</p>
-                        <p className="text-xs text-green-600 dark:text-green-400">Registered Users</p>
+                        <p className="text-xs text-green-600 dark:text-green-400">Users Signed Up</p>
                     </div>
                 </div>
             </div>
@@ -126,7 +126,7 @@ function FounderStory() {
         { year: "2019", title: "The Struggle Begins", description: "Navigating OPT as an F-1 student, missing deadlines, and the stress of uncertainty", icon: GraduationCap },
         { year: "2020", title: "The Idea", description: "Built a simple spreadsheet to track OPT deadlines, friends started asking for copies", icon: Target },
         { year: "2022", title: "TrackMyOPT Launches", description: "Turned the spreadsheet into a full platform, helping hundreds of students", icon: Zap },
-        { year: "2026", title: "3,000+ Registered Users", description: "More people signing up to plan their OPT and careers", icon: Users },
+        { year: "2026", title: "3,000+ Users Signed Up", description: "More people signing up to plan their OPT and careers", icon: Users },
     ];
 
     return (
@@ -180,8 +180,8 @@ function FounderStory() {
 // Stats Section
 function StatsSection() {
     const stats = [
-        { value: "3,000+", label: "Registered Users", color: "blue" },
-        { value: "10,000+", label: "Monthly Tool Search Clicks", color: "green" },
+        { value: "3,000+", label: "Users Signed Up", color: "blue" },
+        { value: "10,000+", label: "People Using Free Tools", color: "green" },
         { value: "25K+", label: "H-1B Sponsors", color: "purple" },
         { value: "98%", label: "Satisfaction", color: "amber" },
     ];
@@ -306,7 +306,7 @@ export default function AboutPage() {
 
             {/* CTA */}
             <FeatureCTA
-                headline="Join 3,000+ Registered Users"
+                headline="Join 3,000+ People Who Signed Up"
                 subheadline="Start your journey with the tools built by people who understand your path."
                 primaryCTA={{
                     text: "Start Free Today",

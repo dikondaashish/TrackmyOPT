@@ -227,7 +227,7 @@ function StatsSection() {
     const stats = [
         { value: 50, suffix: "+", label: "Partner Universities" },
         { value: 100, suffix: "+", label: "Campus Ambassadors" },
-        { value: 3000, suffix: "+", label: "Registered Users" },
+        { value: 3000, suffix: "+", label: "Users Signed Up" },
         { value: 98, suffix: "%", label: "DSO Satisfaction" },
     ];
 
