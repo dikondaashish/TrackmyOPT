@@ -36,6 +36,7 @@ const result = await esbuild.build({
     import {PremiumProcessingCountdown} from './components/dashboard/case-status/PremiumProcessingCountdown';
     import {MonitorHealthStrip} from './components/dashboard/case-status/panels/MonitorHealthStrip';
     import {AnalyticsPanels} from './components/dashboard/case-status/panels/AnalyticsPanels';
+    import {I765ObservedTrends} from './components/dashboard/case-status/panels/I765ObservedTrends';
     import {CaseNoticeOrganizer} from './components/dashboard/case-status/panels/CaseNoticeOrganizer';
     import {WeeklyDigestSettings} from './components/dashboard/case-status/panels/WeeklyDigestSettings';
     import {OptJourneySection} from './components/dashboard/case-status/panels/OptJourneySection';
@@ -49,6 +50,7 @@ const result = await esbuild.build({
     let notices=[];
     let digestEnabled=false;
     window.fetch=async(url,options)=>{
+      if(url==='/api/case-status/i765-observed-trends') return {ok:true,json:async()=>({trends:{medianDays:165,p25Days:75,p75Days:315,decidedCases:1000,distribution:[{label:'Under 60d',count:220},{label:'60–119d',count:170},{label:'120–179d',count:130},{label:'180–359d',count:300},{label:'360d+',count:180}]}})};
       if(url==='/api/case-status/biometrics') return {ok:true,json:async()=>({ok:true})};
       if(String(url).startsWith('/api/case-status/monitor-schedule')) return {ok:true,json:async()=>({next:{scheduled_for:'2026-09-24T14:00:00Z',state:'queued'},attempt:{attempted_at:'2026-09-23T14:00:00Z',state:'succeeded'}})};
       if(url==='/api/case-status/digest-preferences') { if(options?.method==='PATCH')digestEnabled=JSON.parse(options.body).enabled; return {ok:true,json:async()=>({enabled:digestEnabled})}; }
@@ -75,6 +77,7 @@ const result = await esbuild.build({
       <WeeklyDigestSettings isPro={!params.has('free')}/>
       {(params.has('pp')||stopped) && <PremiumProcessingCountdown caseId='synthetic' ppStartDate='2026-05-12' currentStatus={status} statusHistory={[{status:'Premium Processing Clock Was Started',date:'2026-05-12'}]} onSaved={()=>{}}/>}
       <section className='rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm'><AnalyticsPanels phase={deriveJourneyPhase(status)} currentStatus={status} receiptNumber='IOE0000000000' filingCategory='initial_opt' isPremium={!params.has('free')} onUpgrade={()=>{}} daysSinceFiled={100} prediction={params.has('empty')?undefined:prediction} summary={params.has('empty')?null:{medianDays:60,cohortSize:20,caseKind:'initial_opt',premiumProcessing:false}} estimateLoading={params.has('loading')} estimatesAvailable={!params.has('nonopt')} heatmap={[{month:'2026-06',buckets:[2,5,7,4,1,1]}]} evidence={{totalReports:100,includedReports:90,excludedStale:10,excludedUnknownFreshness:0,duplicateIdsRemoved:0,possibleCrossSourceDuplicates:2,freshnessDays:30,filingRange:['2026-01-01','2026-06-01'],sources:[{name:'OPT Tracker',reports:100,lastRefreshedAt:'2026-09-23'}]}} premiumUpgrade={params.has('pp')?{sampleSize:40,medianDays:12,p25Days:8,p75Days:20}:null}/></section>
+      <I765ObservedTrends />
       <OptJourneySection caseId='11111111-1111-4111-8111-111111111111' isPro={!params.has('free')} optFiledDate='2025-06-15'/>
       <CaseNoticeOrganizer caseId='11111111-1111-4111-8111-111111111111' isPro={!params.has('free')}/>
     </main>);

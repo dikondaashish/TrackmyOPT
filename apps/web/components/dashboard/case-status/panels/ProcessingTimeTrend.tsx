@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Bar,
@@ -9,11 +9,11 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import type { WeeklyTrendPoint } from "@/lib/community-opt/weekly-trend";
-import type { CommunityCaseKind } from "@/lib/community-opt/types";
-import { communityChartSegmentSuffix } from "@/lib/case-status/filing-category";
-import { CHART } from "@/lib/community-opt/chart-theme";
+} from 'recharts';
+import type { WeeklyTrendPoint } from '@/lib/community-opt/weekly-trend';
+import type { CommunityCaseKind } from '@/lib/community-opt/types';
+import { communityChartSegmentSuffix } from '@/lib/case-status/filing-category';
+import { CHART } from '@/lib/community-opt/chart-theme';
 
 interface ProcessingTimeTrendProps {
   points: WeeklyTrendPoint[];
@@ -34,10 +34,15 @@ function TrendTooltip({
   if (!point) return null;
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
-      <p className="font-semibold text-foreground">Filed week of {point.weekStart}</p>
+      <p className="font-semibold text-foreground">
+        Filed week of {point.weekStart}
+      </p>
       <p className="text-muted-foreground mt-1">
-        Median <span className="font-semibold text-foreground">{point.medianDays}d</span> to
-        approval
+        Median{' '}
+        <span className="font-semibold text-foreground">
+          {point.medianDays}d
+        </span>{' '}
+        to approval
       </p>
       <p className="text-muted-foreground">
         Middle 50%: {point.p25Days}–{point.p75Days}d
@@ -51,7 +56,7 @@ export function ProcessingTimeTrend({
   points,
   filedWeekStart,
   premiumProcessing,
-  caseKind = "initial_opt",
+  caseKind = 'initial_opt',
 }: ProcessingTimeTrendProps) {
   if (points.length < 2) {
     return (
@@ -83,7 +88,10 @@ export function ProcessingTimeTrend({
 
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={points} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+          <BarChart
+            data={points}
+            margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
+          >
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
@@ -110,7 +118,7 @@ export function ProcessingTimeTrend({
             />
             <Tooltip
               content={<TrendTooltip />}
-              cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+              cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
             />
             {/* One series, so one hue — the reader's own week takes the second
                 hue rather than a darker shade of the first, which reads as
@@ -128,7 +136,9 @@ export function ProcessingTimeTrend({
               {points.map((p) => (
                 <Cell
                   key={p.weekStart}
-                  fill={p.weekStart === filedWeekStart ? CHART.you : CHART.series}
+                  fill={
+                    p.weekStart === filedWeekStart ? CHART.you : CHART.series
+                  }
                 />
               ))}
             </Bar>
@@ -153,16 +163,64 @@ export function ProcessingTimeTrend({
               ? `Trending faster — about ${Math.abs(delta)} days shorter than the earliest week shown.`
               : delta > 3
                 ? `Trending slower — about ${delta} days longer than the earliest week shown.`
-                : "Roughly stable across the period shown."}
+                : 'Roughly stable across the period shown.'}
           </p>
         )}
         <details className="text-xs text-muted-foreground">
-          <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">How this trend is calculated</summary>
+          <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            How this trend is calculated
+          </summary>
           <p className="mt-2 leading-relaxed">
-            Median shown, not average. Weeks with fewer than 5 reported approvals, and
-            weeks too recent for their slower cases to have been decided, are excluded
-            so the trend does not show a false speed-up.
+            Median shown, not average. Weeks with fewer than 5 reported
+            approvals, and weeks too recent for their slower cases to have been
+            decided, are excluded so the trend does not show a false speed-up.
           </p>
+        </details>
+        <details className="text-xs text-muted-foreground">
+          <summary className="w-fit cursor-pointer rounded py-2 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            View weekly values
+          </summary>
+          <table className="mt-2 w-full text-left tabular-nums">
+            <caption className="sr-only">
+              Reported approval times by filing week, in days
+            </caption>
+            <thead>
+              <tr className="border-b border-border">
+                <th scope="col" className="py-2">
+                  Filed week
+                </th>
+                <th scope="col">Median</th>
+                <th scope="col">Middle 50%</th>
+                <th scope="col" className="text-right">
+                  Reports
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {points.map((point) => (
+                <tr
+                  key={point.weekStart}
+                  className="border-b border-border last:border-0"
+                >
+                  <th scope="row" className="py-2 font-medium">
+                    {point.weekStart}
+                    {point.weekStart === filedWeekStart && (
+                      <span className="block text-blue-700 dark:text-blue-300">
+                        Your filing week
+                      </span>
+                    )}
+                  </th>
+                  <td>{point.medianDays}d</td>
+                  <td>
+                    {point.p25Days}–{point.p75Days}d
+                  </td>
+                  <td className="text-right">
+                    {point.sampleSize.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </details>
       </div>
     </div>

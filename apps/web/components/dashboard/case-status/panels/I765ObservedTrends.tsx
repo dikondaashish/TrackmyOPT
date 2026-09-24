@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { BarChart3 } from 'lucide-react';
 import type { I765ObservedTrends as Trends } from '@/lib/case-status/i765-observed-trends';
+import { DecisionTimeBreakdown } from './DecisionTimeBreakdown';
 
 export function I765ObservedTrends() {
   const [trends, setTrends] = useState<Trends | null>(null);
@@ -88,48 +89,10 @@ export function I765ObservedTrends() {
             </div>
           </dl>
 
-          <figure className="mt-5" aria-label="Decision time distribution">
-            <figcaption className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-xs">
-              <span className="font-semibold text-foreground">
-                When decisions were recorded
-              </span>
-              <span className="text-muted-foreground">
-                Share of this sample
-              </span>
-            </figcaption>
-            <div
-              className="flex h-5 overflow-hidden rounded-full bg-muted"
-              aria-hidden="true"
-            >
-              {trends.distribution.map((group, index) => (
-                <div
-                  key={group.label}
-                  style={{
-                    width: `${(group.count / trends.decidedCases) * 100}%`,
-                    background: `var(--chart-seq-${index + 2})`,
-                  }}
-                />
-              ))}
-            </div>
-            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-5">
-              {trends.distribution.map((group, index) => (
-                <li key={group.label} className="min-w-0">
-                  <span className="flex items-center gap-1.5 font-medium text-foreground">
-                    <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-sm border border-border"
-                      style={{ background: `var(--chart-seq-${index + 2})` }}
-                      aria-hidden="true"
-                    />
-                    {group.label}
-                  </span>
-                  <span className="ml-4 text-muted-foreground tabular-nums">
-                    {group.count.toLocaleString()} ·{' '}
-                    {Math.round((group.count / trends.decidedCases) * 100)}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </figure>
+          <DecisionTimeBreakdown
+            distribution={trends.distribution}
+            total={trends.decidedCases}
+          />
           <p className="mt-5 text-xs font-medium text-muted-foreground">
             All I-765 types, not an OPT- or STEM-only sample. Not a forecast for
             your case.

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Bar,
@@ -10,11 +10,14 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import type { HistogramBin, ProcessingHistogram } from "@/lib/community-opt/estimate";
-import type { CommunityCaseKind } from "@/lib/community-opt/types";
-import { communityChartSegmentSuffix } from "@/lib/case-status/filing-category";
-import { CHART } from "@/lib/community-opt/chart-theme";
+} from 'recharts';
+import type {
+  HistogramBin,
+  ProcessingHistogram,
+} from '@/lib/community-opt/estimate';
+import type { CommunityCaseKind } from '@/lib/community-opt/types';
+import { communityChartSegmentSuffix } from '@/lib/case-status/filing-category';
+import { CHART } from '@/lib/community-opt/chart-theme';
 
 interface ProcessingTimeDistributionProps {
   histogram: ProcessingHistogram | null;
@@ -42,8 +45,9 @@ function DistributionTooltip({
         {bin.from}–{bin.to} days
       </p>
       <p className="text-muted-foreground mt-1">
-        <span className="font-semibold text-foreground">{bin.count}</span> approved
-        {share > 0 ? ` · ${share}% of reports` : ""}
+        <span className="font-semibold text-foreground">{bin.count}</span>{' '}
+        approved
+        {share > 0 ? ` · ${share}% of reports` : ''}
       </p>
     </div>
   );
@@ -53,7 +57,7 @@ export function ProcessingTimeDistribution({
   histogram,
   daysSinceFiled = 0,
   premiumProcessing,
-  caseKind = "initial_opt",
+  caseKind = 'initial_opt',
 }: ProcessingTimeDistributionProps) {
   if (!histogram) {
     return (
@@ -64,7 +68,9 @@ export function ProcessingTimeDistribution({
   }
 
   const { bins, totalCases, medianDays } = histogram;
-  const medianBin = bins.find((b) => medianDays >= b.from && medianDays <= b.to);
+  const medianBin = bins.find(
+    (b) => medianDays >= b.from && medianDays <= b.to
+  );
   const userBin =
     daysSinceFiled > 0
       ? bins.find((b) => daysSinceFiled >= b.from && daysSinceFiled <= b.to)
@@ -95,7 +101,10 @@ export function ProcessingTimeDistribution({
         <ResponsiveContainer width="100%" height="100%">
           {/* Top margin leaves room for the median reference label, which is
               drawn above the plot area and is otherwise clipped away. */}
-          <BarChart data={bins} margin={{ top: 18, right: 4, bottom: 0, left: 0 }}>
+          <BarChart
+            data={bins}
+            margin={{ top: 18, right: 4, bottom: 0, left: 0 }}
+          >
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
@@ -121,7 +130,7 @@ export function ProcessingTimeDistribution({
             />
             <Tooltip
               content={<DistributionTooltip total={totalCases} />}
-              cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+              cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
             />
             {medianBin && (
               <ReferenceLine
@@ -130,7 +139,7 @@ export function ProcessingTimeDistribution({
                 strokeDasharray="4 3"
                 label={{
                   value: `median ${medianDays}d`,
-                  position: "top",
+                  position: 'top',
                   fontSize: 10,
                   fill: CHART.axis,
                 }}
@@ -166,22 +175,64 @@ export function ProcessingTimeDistribution({
               className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5 align-middle"
               style={{ background: CHART.you }}
             />
-            You are {daysSinceFiled} days in — {decidedShare}% of reported cases like
-            yours were approved by this point.
+            Your wait: {daysSinceFiled} days. {decidedShare}% of sampled
+            approvals fall in time ranges ending by this point. This is not your
+            approval probability.
           </p>
         )}
         {!userBin && daysSinceFiled > 0 && (
           <p className="text-xs text-muted-foreground">
-            You are {daysSinceFiled} days in, beyond the range most reported cases fall
-            into. Cases do run longer than this; the community data thins out here.
+            You are {daysSinceFiled} days in, beyond the range most reported
+            cases fall into. Cases do run longer than this; the community data
+            thins out here.
           </p>
         )}
         <details className="text-xs text-muted-foreground">
-          <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">How this spread is calculated</summary>
+          <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            How this spread is calculated
+          </summary>
           <p className="mt-2 leading-relaxed">
-            7-day ranges. Only filing weeks old enough for their slower cases to have
-            been decided are counted, so the long tail is not undercounted.
+            7-day ranges. Only filing weeks old enough for their slower cases to
+            have been decided are counted, so the long tail is not undercounted.
           </p>
+        </details>
+        <details className="text-xs text-muted-foreground">
+          <summary className="w-fit cursor-pointer rounded py-2 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            View range counts
+          </summary>
+          <table className="mt-2 w-full text-left tabular-nums">
+            <caption className="sr-only">
+              Reported approvals by processing-time range
+            </caption>
+            <thead>
+              <tr className="border-b border-border">
+                <th scope="col" className="py-2">
+                  Days to approval
+                </th>
+                <th scope="col" className="text-right">
+                  Reports
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {bins.map((bin) => (
+                <tr
+                  key={bin.from}
+                  className="border-b border-border last:border-0"
+                >
+                  <th scope="row" className="py-2 font-medium">
+                    {bin.from}–{bin.to} days
+                    {userBin?.from === bin.from && (
+                      <span className="ml-2 text-blue-700 dark:text-blue-300">
+                        Your wait
+                      </span>
+                    )}
+                  </th>
+                  <td className="text-right">{bin.count.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </details>
       </div>
     </div>

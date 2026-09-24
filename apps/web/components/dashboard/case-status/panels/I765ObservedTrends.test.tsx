@@ -33,11 +33,12 @@ it('shows broad scope, sample, and a disclaimer without presenting individual od
   expect((await screen.findByText('165')).closest('dd')).toHaveTextContent(
     '165days'
   );
-  expect(screen.getByText('289,428')).toBeVisible();
+  expect(screen.getByText('289,428', { selector: 'dd' })).toBeVisible();
   expect(
     screen.getByText(/all I-765 types, not an OPT- or STEM-only sample/i)
   ).toBeVisible();
-  expect(screen.getByText('40,000 · 14%')).toBeVisible();
+  expect(screen.getByText('40,000')).toBeVisible();
+  expect(screen.getByText('13.8%')).toBeVisible();
   expect(screen.getByText('About this dataset')).toBeVisible();
   expect(screen.queryByText(/mycaseshub/i)).not.toBeInTheDocument();
   expect(screen.queryByText(/approval chance/i)).not.toBeInTheDocument();
