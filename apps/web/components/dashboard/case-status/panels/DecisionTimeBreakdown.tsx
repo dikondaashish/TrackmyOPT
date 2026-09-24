@@ -26,7 +26,7 @@ export function DecisionTimeBreakdown({
   if (!valid)
     return (
       <div className="py-6 text-sm text-muted-foreground">
-        A complete decision-time breakdown is not available for this sample.
+        A complete decision-time breakdown is not available for these records.
       </div>
     );
 
@@ -48,7 +48,7 @@ export function DecisionTimeBreakdown({
           When decisions were recorded
         </h4>
         <div className="mt-1 text-xs text-muted-foreground">
-          Select a time range to highlight its share of the sample.
+          Select a time range to highlight its share of reported cases.
         </div>
       </figcaption>
       <div className="mt-4 grid items-center gap-5 md:grid-cols-[200px_minmax(0,1fr)]">
@@ -119,7 +119,7 @@ export function DecisionTimeBreakdown({
         <table className="w-full table-fixed text-xs tabular-nums">
           <caption className="sr-only">
             Decision-time ranges, recorded case counts, and percentage of the
-            complete sample. Percentages are rounded.
+            total reported cases. Percentages are rounded.
           </caption>
           <thead className="text-muted-foreground">
             <tr>
@@ -185,7 +185,7 @@ export function DecisionTimeBreakdown({
         </table>
       </div>
       <div className="mt-2 text-xs text-muted-foreground">
-        Ring and bars show the same sample. Shares are rounded, not approval
+        Ring and bars show the same reported cases. Shares are rounded, not approval
         probabilities.
       </div>
     </figure>

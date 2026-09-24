@@ -7,7 +7,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it('shows broad scope, sample, and a disclaimer without presenting individual odds', async () => {
+it('shows concise I-765 scope and reported counts without presenting individual odds', async () => {
   vi.stubGlobal(
     'fetch',
     vi.fn().mockResolvedValue({
@@ -35,13 +35,14 @@ it('shows broad scope, sample, and a disclaimer without presenting individual od
   );
   expect(screen.getByText('289,428', { selector: 'dd' })).toBeVisible();
   expect(
-    screen.getByText(/all I-765 types, not an OPT- or STEM-only sample/i)
+    screen.getByText('All I-765 categories · 6 months')
   ).toBeVisible();
   expect(screen.getByText('40,000')).toBeVisible();
   expect(screen.getByText('13.8%')).toBeVisible();
   expect(screen.getByText('About this dataset')).toBeVisible();
   expect(screen.queryByText(/mycaseshub/i)).not.toBeInTheDocument();
   expect(screen.queryByText(/approval chance/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(/\bsample\b/i)).not.toBeInTheDocument();
 });
 
 it('does not disturb case status when the supplemental feed is down', async () => {

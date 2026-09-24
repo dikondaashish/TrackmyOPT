@@ -175,7 +175,7 @@ export function ProcessingTimeDistribution({
               className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5 align-middle"
               style={{ background: CHART.you }}
             />
-            Your wait: {daysSinceFiled} days. {decidedShare}% of sampled
+            Your wait: {daysSinceFiled} days. {decidedShare}% of reported
             approvals fall in time ranges ending by this point. This is not your
             approval probability.
           </p>

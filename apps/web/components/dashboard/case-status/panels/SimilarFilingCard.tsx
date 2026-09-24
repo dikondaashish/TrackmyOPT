@@ -120,7 +120,7 @@ export function SimilarFilingCard({
           <p className="font-medium text-foreground">{copy.note}</p>
           <details className="mt-1">
             <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              Why this sample?
+              Why these reports?
             </summary>
             <p className="mt-2 leading-relaxed">{copy.caveat}</p>
           </details>

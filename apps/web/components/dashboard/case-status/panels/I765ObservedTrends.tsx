@@ -43,7 +43,7 @@ export function I765ObservedTrends() {
           Broader I-765 data
         </h3>
         <span className="rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground">
-          All I-765 types · 6-month sample
+          All I-765 categories · 6 months
         </span>
       </div>
       {loading ? (
@@ -93,11 +93,7 @@ export function I765ObservedTrends() {
             distribution={trends.distribution}
             total={trends.decidedCases}
           />
-          <p className="mt-5 text-xs font-medium text-muted-foreground">
-            All I-765 types, not an OPT- or STEM-only sample. Not a forecast for
-            your case.
-          </p>
-          <details className="mt-2 text-xs text-muted-foreground">
+          <details className="mt-5 text-xs text-muted-foreground">
             <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               About this dataset
             </summary>

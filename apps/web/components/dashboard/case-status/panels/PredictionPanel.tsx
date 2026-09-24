@@ -193,7 +193,7 @@ export function PredictionPanel({
       </p>
       <details className="border-t border-border pt-3 text-xs text-muted-foreground">
         <summary className="w-fit cursor-pointer rounded font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          About this sample
+          About these reports
         </summary>
         <dl className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>

@@ -18,7 +18,7 @@ export { USCIS_CASE_STATUS_URL };
 const EXPLAINER_BY_CATEGORY: Record<StatusExplainerCategory, Omit<StatusExplainerContent, "category">> = {
   pending: {
     title: "Still in progress",
-    meaning: "USCIS reports that your case is still in progress. This status does not establish a decision date.",
+    meaning: "USCIS reports that your case is still in progress.",
     nextStep: "Check your USCIS account and mail for notices. Follow any instructions or deadlines in those notices.",
     showUscisLink: false,
     tone: "neutral",

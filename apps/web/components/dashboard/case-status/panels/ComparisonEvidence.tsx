@@ -64,7 +64,7 @@ export function ComparisonEvidence({
           aria-hidden="true"
         />
         These are reports, not verified unique applicants. Each chart may use a
-        smaller matched sample.
+        smaller group of matching reports.
       </p>
       {premiumUpgrade && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3">

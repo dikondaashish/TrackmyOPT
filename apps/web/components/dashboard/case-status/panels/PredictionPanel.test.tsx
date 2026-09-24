@@ -29,6 +29,6 @@ it('describes historical approvals without promising an imminent decision or a l
     screen.getByText(/Historical approvals taking longer than day 100/)
   ).toBeInTheDocument();
   expect(screen.getByText('Not a decision-date forecast.')).toBeVisible();
-  expect(screen.getByText('About this sample')).toBeVisible();
+  expect(screen.getByText('About these reports')).toBeVisible();
   expect(screen.getByText('Beyond the historical range')).toBeInTheDocument();
 });

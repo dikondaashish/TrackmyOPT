@@ -59,7 +59,7 @@ export function OfficialProcessingComparison({
         </div>
       </dl>
       <p className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground">
-        Different measures and samples — neither is your approval date.
+        Different measures and case groups — neither is your approval date.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
         <a
