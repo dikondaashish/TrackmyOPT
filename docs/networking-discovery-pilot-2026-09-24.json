@@ -1,0 +1,1101 @@
+{
+  "pilotDate": "2026-09-24",
+  "targetRole": "Software Engineer",
+  "providers": {
+    "gemini": [
+      {
+        "companyName": "Microsoft",
+        "companyDomain": "microsoft.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "gemini_requests": 1,
+          "google_search_queries": 4,
+          "input_tokens": 155,
+          "output_tokens": 37,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "latency_ms": 3697
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in/ \"Microsoft\" \"Engineering Manager\" OR \"Software Engineering Manager\"",
+          "microsoft site:microsoft.com",
+          "site:linkedin.com/in/ \"Microsoft\" \"Technical Recruiter\" OR \"Talent Acquisition\" \"Software\"",
+          "site:linkedin.com/in/ \"Recruiter at Microsoft\""
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      },
+      {
+        "companyName": "Amazon",
+        "companyDomain": "amazon.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "gemini_requests": 1,
+          "google_search_queries": 4,
+          "input_tokens": 155,
+          "output_tokens": 36,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "latency_ms": 3189
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in/ \"Technical Recruiter\" Amazon \"Software\"",
+          "site:amazon.com",
+          "site:linkedin.com/in/ \"Software Development Manager\" Amazon",
+          "\"linkedin.com/in/\" \"Recruiter\" \"Amazon\""
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      },
+      {
+        "companyName": "Google",
+        "companyDomain": "google.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "gemini_requests": 1,
+          "google_search_queries": 4,
+          "input_tokens": 155,
+          "output_tokens": 36,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "latency_ms": 2032
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in/ \"Recruiter\" \"Google\" \"Software Engineering\"",
+          "site:google.com",
+          "site:linkedin.com/in/ \"Technical Recruiter\" \"Google\" \"Software Engineer\"",
+          "site:linkedin.com/in/ \"Recruiting Manager\" OR \"Lead Recruiter\" \"Google\" \"Software\""
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      },
+      {
+        "companyName": "Asana",
+        "companyDomain": "asana.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "gemini_requests": 1,
+          "google_search_queries": 4,
+          "input_tokens": 156,
+          "output_tokens": 38,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "latency_ms": 3034
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in/ \"Asana\" \"Engineering Manager\" OR \"Software Engineering Manager\"",
+          "site:asana.com",
+          "site:linkedin.com/in/ \"Asana\" \"Technical Recruiter\" OR \"Engineering Recruiter\" OR \"Talent Acquisition\"",
+          "\"Asana\" \"Technical Recruiter\" linkedin.com/in/"
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      },
+      {
+        "companyName": "Browserbase",
+        "companyDomain": "browserbase.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "gemini_requests": 1,
+          "google_search_queries": 4,
+          "input_tokens": 157,
+          "output_tokens": 38,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "latency_ms": 4077
+        },
+        "error": null,
+        "searchQueries": [
+          "site:browserbase.com",
+          "site:linkedin.com/in/ \"Browserbase\" (recruiter OR talent OR \"head of engineering\" OR \"engineering manager\" OR founder OR CTO)",
+          "\"Browserbase\" linkedin.com/in/",
+          "\"Browserbase\" \"browserbase.com\" founder OR ceo OR cto OR engineering"
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      },
+      {
+        "companyName": "Zine",
+        "companyDomain": null,
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "gemini_requests": 1,
+          "google_search_queries": 4,
+          "input_tokens": 152,
+          "output_tokens": 34,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "latency_ms": 3482
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in/ \"Zine\" \"recruiter\" OR \"talent\" OR \"engineering\"",
+          "Zine company software engineer",
+          "\"zine.co\" OR \"zine.io\" OR \"zine.com\" software engineer OR about",
+          "site:linkedin.com/in/ \"at Zine\" OR \"Zine.co\" \"Software Engineer\""
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      },
+      {
+        "companyName": "Quasar Finch Labs",
+        "companyDomain": null,
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "gemini_requests": 1,
+          "google_search_queries": 4,
+          "input_tokens": 154,
+          "output_tokens": 35,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "latency_ms": 1989
+        },
+        "error": null,
+        "searchQueries": [
+          "\"Quasar Finch Labs\" site:linkedin.com",
+          "site:linkedin.com/in/ \"Quasar Finch\"",
+          "\"Quasar Finch Labs\" OR \"Quasar Finch\"",
+          "site:linkedin.com/in/ \"Quasar Finch Labs\""
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      }
+    ],
+    "openai": [
+      {
+        "companyName": "Microsoft",
+        "companyDomain": "microsoft.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "openai_requests": 1,
+          "web_search_tool_calls": 1,
+          "web_search_queries": 3,
+          "input_tokens": 13105,
+          "cached_input_tokens": 4608,
+          "output_tokens": 657,
+          "reasoning_tokens": 308,
+          "contacts_returned": 2,
+          "valid_linkedin_count": 2,
+          "approximate_cost_usd": 0.01122428,
+          "latency_ms": 6834
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in Microsoft software engineer recruiter LinkedIn",
+          "site:linkedin.com/in Microsoft technical recruiter software engineering Microsoft",
+          "Microsoft software engineer recruiter LinkedIn current"
+        ],
+        "proposedContacts": [
+          {
+            "name": "Irina Craciun",
+            "title": "Lead Recruiter EMEA - Engineering",
+            "company": "Microsoft",
+            "linkedinUrl": "https://ro.linkedin.com/in/irina-craciun",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "Leads engineering recruitment and explicitly lists Software Engineer roles among the engineering talent she recruits.",
+            "currentEmploymentEvidence": "LinkedIn profile lists Microsoft as her current employer, with the role beginning in May 2022 and marked Present.",
+            "evidence": [
+              {
+                "url": "https://ro.linkedin.com/in/irina-craciun",
+                "title": "Irina Craciun - Lead Recruiter @ Microsoft | Strategic HR & Recruitment | LinkedIn",
+                "description": "Profile states she is Lead Recruiter at Microsoft and describes recruiting for engineering, including Software Engineer roles; experience is listed as May 2022–Present."
+              }
+            ]
+          },
+          {
+            "name": "Alexandru Vrancianu",
+            "title": "Engineering Recruiter",
+            "company": "Microsoft",
+            "linkedinUrl": "https://ro.linkedin.com/in/vrancianualexandru",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "His current engineering recruiting role at Microsoft is directly relevant to a Software Engineer search.",
+            "currentEmploymentEvidence": "LinkedIn profile lists Engineering Recruiter at Microsoft from August 2024 to Present.",
+            "evidence": [
+              {
+                "url": "https://ro.linkedin.com/in/vrancianualexandru",
+                "title": "Alexandru Vrancianu - Engineering Recruiter at Microsoft | LinkedIn",
+                "description": "Profile lists his current Microsoft Engineering Recruiter role, beginning in August 2024."
+              }
+            ]
+          }
+        ],
+        "validatedContacts": [
+          {
+            "name": "Irina Craciun",
+            "title": "Lead Recruiter EMEA - Engineering",
+            "company": "Microsoft",
+            "linkedinUrl": "https://www.linkedin.com/in/irina-craciun",
+            "relevanceReason": "Leads engineering recruitment and explicitly lists Software Engineer roles among the engineering talent she recruits.",
+            "evidence": [
+              {
+                "url": "https://ro.linkedin.com/in/irina-craciun",
+                "title": "Irina Craciun - Lead Recruiter @ Microsoft | Strategic HR & Recruitment | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          },
+          {
+            "name": "Alexandru Vrancianu",
+            "title": "Engineering Recruiter",
+            "company": "Microsoft",
+            "linkedinUrl": "https://www.linkedin.com/in/vrancianualexandru",
+            "relevanceReason": "His current engineering recruiting role at Microsoft is directly relevant to a Software Engineer search.",
+            "evidence": [
+              {
+                "url": "https://ro.linkedin.com/in/vrancianualexandru",
+                "title": "Alexandru Vrancianu - Engineering Recruiter at Microsoft | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          }
+        ],
+        "applyBolt": [
+          {
+            "name": "Irina Craciun",
+            "linkedinUrl": "https://www.linkedin.com/in/irina-craciun",
+            "status": "verified"
+          },
+          {
+            "name": "Alexandru Vrancianu",
+            "linkedinUrl": "https://www.linkedin.com/in/vrancianualexandru",
+            "status": "verified"
+          }
+        ],
+        "manualChecks": [
+          {
+            "name": "Irina Craciun",
+            "linkedinUrl": "https://ro.linkedin.com/in/irina-craciun",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          },
+          {
+            "name": "Alexandru Vrancianu",
+            "linkedinUrl": "https://ro.linkedin.com/in/vrancianualexandru",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          }
+        ]
+      },
+      {
+        "companyName": "Amazon",
+        "companyDomain": "amazon.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "openai_requests": 1,
+          "web_search_tool_calls": 4,
+          "web_search_queries": 12,
+          "input_tokens": 30311,
+          "cached_input_tokens": 4585,
+          "output_tokens": 1561,
+          "reasoning_tokens": 1077,
+          "contacts_returned": 3,
+          "valid_linkedin_count": 3,
+          "approximate_cost_usd": 0.04339895,
+          "latency_ms": 16545
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in Amazon technical recruiter software engineer recruiter",
+          "site:linkedin.com/in Amazon recruiter software development engineer talent acquisition",
+          "site:linkedin.com/in Amazon software engineer hiring manager SDE",
+          "site:amazon.jobs recruiter software development engineer Amazon LinkedIn",
+          "\"Chris Mosbacher\" Amazon technical recruiter",
+          "\"Chris Mosbacher\" Amazon recruiter LinkedIn SDE",
+          "site:linkedin.com/in/ \"Amazon\" \"Software Development Engineers\" \"Technical Recruiter\" hiring",
+          "site:linkedin.com/in/ \"Software Development Engineer\" \"Amazon\" \"Technical Recruiter\" \"hiring\"",
+          "site:linkedin.com/in/aschwanenfeld Ariel Schwanenfeld Amazon AWS recruiter",
+          "\"Ariel Schwanenfeld\" AWS Amazon SDE recruiter",
+          "site:linkedin.com/in Amazon \"AWS SDE Central Sourcing Team\" recruiter current",
+          "site:linkedin.com/in Amazon software development engineer recruiter \"2w\" hiring"
+        ],
+        "proposedContacts": [
+          {
+            "name": "Devyani Matcha",
+            "title": "Sourcing Recruiter, Amazon Web Services (AWS)",
+            "company": "Amazon Web Services (AWS)",
+            "linkedinUrl": "https://www.linkedin.com/in/devyanimatcha",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "Her recent LinkedIn activity says she is hiring early-career Software Development Engineers for AWS Database Services and Amazon Leo.",
+            "currentEmploymentEvidence": "Her LinkedIn profile identifies her as an Amazon Web Services sourcing recruiter and lists Amazon employment.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/devyanimatcha",
+                "title": "Devyani Matcha - Amazon | LinkedIn",
+                "description": "Profile describes her as a Sourcing Recruiter at AWS; recent activity includes SDE hiring posts for AWS Database Services and Amazon Leo."
+              }
+            ]
+          },
+          {
+            "name": "Shweta Kansal",
+            "title": "Technical Recruiter",
+            "company": "Amazon",
+            "linkedinUrl": "https://www.linkedin.com/in/shweta-kansal",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "She recently shared a hiring post for embedded software engineers at Amazon Robotics.",
+            "currentEmploymentEvidence": "Her LinkedIn profile is identified as Amazon and describes her as a Technical Recruiter.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/shweta-kansal",
+                "title": "Shweta Kansal - Amazon | LinkedIn",
+                "description": "Profile describes her as a Technical Recruiter; recent activity says she is hiring embedded software engineers for Amazon Robotics."
+              }
+            ]
+          },
+          {
+            "name": "Chris Mosbacher",
+            "title": "Technical Recruiter",
+            "company": "Amazon",
+            "linkedinUrl": "https://www.linkedin.com/in/chrismosbacher",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "His recent post says Amazon Robotics is actively filling Software Development Engineer roles, including embedded robotics and safe-autonomy positions.",
+            "currentEmploymentEvidence": "His LinkedIn profile lists Amazon and describes his work supporting Amazon Robotics hiring; a recommendation on the profile identifies him as a technical recruiter.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/chrismosbacher",
+                "title": "Chris Mosbacher - Amazon | LinkedIn",
+                "description": "Profile lists Amazon and describes support for Amazon Robotics hiring; recent activity names multiple SDE roles being actively filled."
+              }
+            ]
+          }
+        ],
+        "validatedContacts": [
+          {
+            "name": "Devyani Matcha",
+            "title": "Sourcing Recruiter, Amazon Web Services (AWS)",
+            "company": "Amazon Web Services (AWS)",
+            "linkedinUrl": "https://www.linkedin.com/in/devyanimatcha",
+            "relevanceReason": "Her recent LinkedIn activity says she is hiring early-career Software Development Engineers for AWS Database Services and Amazon Leo.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/devyanimatcha",
+                "title": "Devyani Matcha - Amazon | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          },
+          {
+            "name": "Shweta Kansal",
+            "title": "Technical Recruiter",
+            "company": "Amazon",
+            "linkedinUrl": "https://www.linkedin.com/in/shweta-kansal",
+            "relevanceReason": "She recently shared a hiring post for embedded software engineers at Amazon Robotics.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/shweta-kansal",
+                "title": "Shweta Kansal - Amazon | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          },
+          {
+            "name": "Chris Mosbacher",
+            "title": "Technical Recruiter",
+            "company": "Amazon",
+            "linkedinUrl": "https://www.linkedin.com/in/chrismosbacher",
+            "relevanceReason": "His recent post says Amazon Robotics is actively filling Software Development Engineer roles, including embedded robotics and safe-autonomy positions.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/chrismosbacher",
+                "title": "Chris Mosbacher - Amazon | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          }
+        ],
+        "applyBolt": [
+          {
+            "name": "Devyani Matcha",
+            "linkedinUrl": "https://www.linkedin.com/in/devyanimatcha",
+            "status": "not_found"
+          },
+          {
+            "name": "Shweta Kansal",
+            "linkedinUrl": "https://www.linkedin.com/in/shweta-kansal",
+            "status": "not_found"
+          },
+          {
+            "name": "Chris Mosbacher",
+            "linkedinUrl": "https://www.linkedin.com/in/chrismosbacher",
+            "status": "unverified"
+          }
+        ],
+        "manualChecks": [
+          {
+            "name": "Devyani Matcha",
+            "linkedinUrl": "https://www.linkedin.com/in/devyanimatcha",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          },
+          {
+            "name": "Shweta Kansal",
+            "linkedinUrl": "https://www.linkedin.com/in/shweta-kansal",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          },
+          {
+            "name": "Chris Mosbacher",
+            "linkedinUrl": "https://www.linkedin.com/in/chrismosbacher",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": false,
+            "categoryVerified": true,
+            "note": "Current Amazon employment and recruiting work are public; exact current title Technical Recruiter is not clearly confirmed."
+          }
+        ]
+      },
+      {
+        "companyName": "Google",
+        "companyDomain": "google.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "openai_requests": 1,
+          "web_search_tool_calls": 2,
+          "web_search_queries": 6,
+          "input_tokens": 21254,
+          "cached_input_tokens": 4585,
+          "output_tokens": 1117,
+          "reasoning_tokens": 501,
+          "contacts_returned": 3,
+          "valid_linkedin_count": 3,
+          "approximate_cost_usd": 0.02227125,
+          "latency_ms": 12110
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in Google software engineer recruiter technical recruiter",
+          "site:linkedin.com/in Google software engineer talent acquisition recruiter",
+          "Google software engineer recruiting LinkedIn recruiter current",
+          "site:linkedin.com/in \"Google\" \"Technical Recruiter\" \"software engineering\" recruiter",
+          "site:linkedin.com/in Google recruiter \"Software Engineering\" \"Google\" technical recruiter",
+          "site:linkedin.com/in \"Google\" \"Software Engineer\" \"Technical Recruiter\" hiring"
+        ],
+        "proposedContacts": [
+          {
+            "name": "Steen Whidden",
+            "title": "Senior Technical Recruiter",
+            "company": "Google",
+            "linkedinUrl": "https://www.linkedin.com/in/steenwhidden",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "Identifies as a Senior Technical Recruiter at Google, making him relevant to software engineering recruiting.",
+            "currentEmploymentEvidence": "His public LinkedIn profile identifies him as a Senior Technical Recruiter at Google and displays Google as his employer.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/steenwhidden",
+                "title": "Steen Whidden - Google | LinkedIn",
+                "description": "Public profile states he is a Senior Technical Recruiter at Google."
+              }
+            ]
+          },
+          {
+            "name": "Matt McMillian",
+            "title": "Senior Technical Recruiter",
+            "company": "Google",
+            "linkedinUrl": "https://www.linkedin.com/in/mattmcmillian",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "Supports Google Cloud recruiting and recently shared a post seeking a Staff Software Engineer for Google's GDC Networking team.",
+            "currentEmploymentEvidence": "His public LinkedIn profile identifies him as a Senior Technical Recruiter at Google supporting Cloud and displays Google as his employer.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/mattmcmillian",
+                "title": "Matt McMillian - Google | LinkedIn",
+                "description": "Public profile identifies him as a Senior Technical Recruiter at Google supporting Cloud; a recent post shared there concerns hiring a Staff Software Engineer at Google."
+              }
+            ]
+          },
+          {
+            "name": "Fangyu Yeh",
+            "title": "Recruiter, Google Cloud",
+            "company": "Google",
+            "linkedinUrl": "https://jp.linkedin.com/in/fangyu-yeh-12561145",
+            "contactCategory": "recruiter",
+            "relevanceReason": "Current Google Cloud recruiter with experience recruiting for engineering and software engineering roles; based in Japan.",
+            "currentEmploymentEvidence": "Her public LinkedIn profile lists Recruiter, Google Cloud at Google from June 2026 to present.",
+            "evidence": [
+              {
+                "url": "https://jp.linkedin.com/in/fangyu-yeh-12561145",
+                "title": "Fangyu Yeh - Recruiter, Google Cloud at Google | LinkedIn",
+                "description": "Public profile lists her current Google Cloud recruiter role and describes technical hiring across engineering, including prior software engineering searches."
+              }
+            ]
+          }
+        ],
+        "validatedContacts": [
+          {
+            "name": "Steen Whidden",
+            "title": "Senior Technical Recruiter",
+            "company": "Google",
+            "linkedinUrl": "https://www.linkedin.com/in/steenwhidden",
+            "relevanceReason": "Identifies as a Senior Technical Recruiter at Google, making him relevant to software engineering recruiting.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/steenwhidden",
+                "title": "Steen Whidden - Google | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          },
+          {
+            "name": "Matt McMillian",
+            "title": "Senior Technical Recruiter",
+            "company": "Google",
+            "linkedinUrl": "https://www.linkedin.com/in/mattmcmillian",
+            "relevanceReason": "Supports Google Cloud recruiting and recently shared a post seeking a Staff Software Engineer for Google's GDC Networking team.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/mattmcmillian",
+                "title": "Matt McMillian - Google | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          },
+          {
+            "name": "Fangyu Yeh",
+            "title": "Recruiter, Google Cloud",
+            "company": "Google",
+            "linkedinUrl": "https://www.linkedin.com/in/fangyu-yeh-12561145",
+            "relevanceReason": "Current Google Cloud recruiter with experience recruiting for engineering and software engineering roles; based in Japan.",
+            "evidence": [
+              {
+                "url": "https://jp.linkedin.com/in/fangyu-yeh-12561145",
+                "title": "Fangyu Yeh - Recruiter, Google Cloud at Google | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          }
+        ],
+        "applyBolt": [
+          {
+            "name": "Steen Whidden",
+            "linkedinUrl": "https://www.linkedin.com/in/steenwhidden",
+            "status": "not_found"
+          },
+          {
+            "name": "Matt McMillian",
+            "linkedinUrl": "https://www.linkedin.com/in/mattmcmillian",
+            "status": "provider_error"
+          },
+          {
+            "name": "Fangyu Yeh",
+            "linkedinUrl": "https://www.linkedin.com/in/fangyu-yeh-12561145",
+            "status": "not_found"
+          }
+        ],
+        "manualChecks": [
+          {
+            "name": "Steen Whidden",
+            "linkedinUrl": "https://www.linkedin.com/in/steenwhidden",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          },
+          {
+            "name": "Matt McMillian",
+            "linkedinUrl": "https://www.linkedin.com/in/mattmcmillian",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          },
+          {
+            "name": "Fangyu Yeh",
+            "linkedinUrl": "https://jp.linkedin.com/in/fangyu-yeh-12561145",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          }
+        ]
+      },
+      {
+        "companyName": "Asana",
+        "companyDomain": "asana.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "openai_requests": 1,
+          "web_search_tool_calls": 2,
+          "web_search_queries": 6,
+          "input_tokens": 19374,
+          "cached_input_tokens": 4585,
+          "output_tokens": 689,
+          "reasoning_tokens": 473,
+          "contacts_returned": 1,
+          "valid_linkedin_count": 1,
+          "approximate_cost_usd": 0.02186925,
+          "latency_ms": 10007
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in Asana \"Software Engineer\" recruiter",
+          "site:linkedin.com/in Asana technical recruiter talent acquisition engineer",
+          "Asana engineering leadership software engineer LinkedIn",
+          "site:linkedin.com/in/mary-conrick Asana Talent Acquisition Partner",
+          "site:linkedin.com/in/evan-g-salisbury Asana title",
+          "site:linkedin.com/in Asana \"Technical Recruiter\" \"Asana\""
+        ],
+        "proposedContacts": [
+          {
+            "name": "Mary Conrick",
+            "title": "Technical Recruiter / Talent Acquisition",
+            "company": "Asana",
+            "linkedinUrl": "https://www.linkedin.com/in/mary-conrick",
+            "contactCategory": "technical_recruiter",
+            "relevanceReason": "She has publicly recruited for Asana engineering roles, including Senior Software Engineer openings, and is seeking a Technical Talent Acquisition Partner for her team.",
+            "currentEmploymentEvidence": "Her LinkedIn profile shows recent activity recruiting for Asana, including a post from two weeks ago offering to connect people with open Asana roles and a post from three months ago promoting an Asana engineering role.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/mary-conrick",
+                "title": "Mary Conrick - Asana | LinkedIn — profile and recent recruiting activity; engineering hiring posts and technical recruiter recommendation.",
+                "description": "Public LinkedIn profile with recent Asana recruiting activity and evidence of engineering-focused recruiting."
+              }
+            ]
+          }
+        ],
+        "validatedContacts": [
+          {
+            "name": "Mary Conrick",
+            "title": "Technical Recruiter / Talent Acquisition",
+            "company": "Asana",
+            "linkedinUrl": "https://www.linkedin.com/in/mary-conrick",
+            "relevanceReason": "She has publicly recruited for Asana engineering roles, including Senior Software Engineer openings, and is seeking a Technical Talent Acquisition Partner for her team.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/mary-conrick",
+                "title": "Mary Conrick - Asana | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          }
+        ],
+        "applyBolt": [
+          {
+            "name": "Mary Conrick",
+            "linkedinUrl": "https://www.linkedin.com/in/mary-conrick",
+            "status": "unverified"
+          }
+        ],
+        "manualChecks": [
+          {
+            "name": "Mary Conrick",
+            "linkedinUrl": "https://www.linkedin.com/in/mary-conrick",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": false,
+            "categoryVerified": true,
+            "note": "Current Asana employment and technical recruiting are public; the combined title Technical Recruiter / Talent Acquisition is not confirmed as an exact current title."
+          }
+        ]
+      },
+      {
+        "companyName": "Browserbase",
+        "companyDomain": "browserbase.com",
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "openai_requests": 1,
+          "web_search_tool_calls": 2,
+          "web_search_queries": 7,
+          "input_tokens": 21324,
+          "cached_input_tokens": 4585,
+          "output_tokens": 946,
+          "reasoning_tokens": 587,
+          "contacts_returned": 2,
+          "valid_linkedin_count": 2,
+          "approximate_cost_usd": 0.02219275,
+          "latency_ms": 31005
+        },
+        "error": null,
+        "searchQueries": [
+          "site:linkedin.com/in Browserbase recruiter talent acquisition",
+          "site:linkedin.com/in Browserbase \"Software Engineer\"",
+          "Browserbase team employees engineering LinkedIn",
+          "site:linkedin.com/in \"Browserbase\" \"Software Engineer\" -Yichi",
+          "site:linkedin.com/in \"Browserbase\" engineer \"Experience\"",
+          "site:linkedin.com/in \"Browserbase\" \"Head of Engineering\" OR \"Engineering\"",
+          "site:browserbase.com careers software engineer Browserbase team"
+        ],
+        "proposedContacts": [
+          {
+            "name": "Eli Bingham",
+            "title": "Head of Engineering",
+            "company": "Browserbase",
+            "linkedinUrl": "https://www.linkedin.com/in/eli-bingham",
+            "contactCategory": "department_leader",
+            "relevanceReason": "Leads engineering, making him relevant to Software Engineer hiring. Browserbase’s careers page lists current Software Engineer openings.",
+            "currentEmploymentEvidence": "His LinkedIn profile identifies Browserbase as his current employer, and his post says he joined Browserbase as Head of Engineering.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/eli-bingham",
+                "title": "Eli Bingham - Browserbase | LinkedIn",
+                "description": "Profile lists Browserbase under Experience; a post says he joined Browserbase as Head of Engineering."
+              },
+              {
+                "url": "https://www.browserbase.com/careers",
+                "title": "Browserbase Careers: Hiring Across Functions, SF | Browserbase",
+                "description": "Lists current Software Engineer openings in Engineering."
+              }
+            ]
+          },
+          {
+            "name": "Adam McQuilkin",
+            "title": "Distributed Systems Engineer",
+            "company": "Browserbase",
+            "linkedinUrl": "https://www.linkedin.com/in/adam-mcquilkin",
+            "contactCategory": "relevant_employee",
+            "relevanceReason": "Engineering employee whose distributed-systems work is relevant to a Software Engineer role.",
+            "currentEmploymentEvidence": "His LinkedIn profile describes him as a distributed systems engineer at Browserbase and lists Browserbase under Experience.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/adam-mcquilkin",
+                "title": "Adam McQuilkin - Browserbase | LinkedIn",
+                "description": "Profile describes him as a distributed systems engineer at Browserbase and lists Browserbase under Experience."
+              }
+            ]
+          }
+        ],
+        "validatedContacts": [
+          {
+            "name": "Eli Bingham",
+            "title": "Head of Engineering",
+            "company": "Browserbase",
+            "linkedinUrl": "https://www.linkedin.com/in/eli-bingham",
+            "relevanceReason": "Leads engineering, making him relevant to Software Engineer hiring. Browserbase’s careers page lists current Software Engineer openings.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/eli-bingham",
+                "title": "Eli Bingham - Browserbase | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          },
+          {
+            "name": "Adam McQuilkin",
+            "title": "Distributed Systems Engineer",
+            "company": "Browserbase",
+            "linkedinUrl": "https://www.linkedin.com/in/adam-mcquilkin",
+            "relevanceReason": "Engineering employee whose distributed-systems work is relevant to a Software Engineer role.",
+            "evidence": [
+              {
+                "url": "https://www.linkedin.com/in/adam-mcquilkin",
+                "title": "Adam McQuilkin - Browserbase | LinkedIn",
+                "description": "Search-grounded source for this contact and company."
+              }
+            ]
+          }
+        ],
+        "applyBolt": [
+          {
+            "name": "Eli Bingham",
+            "linkedinUrl": "https://www.linkedin.com/in/eli-bingham",
+            "status": "verified"
+          },
+          {
+            "name": "Adam McQuilkin",
+            "linkedinUrl": "https://www.linkedin.com/in/adam-mcquilkin",
+            "status": "not_found"
+          }
+        ],
+        "manualChecks": [
+          {
+            "name": "Eli Bingham",
+            "linkedinUrl": "https://www.linkedin.com/in/eli-bingham",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          },
+          {
+            "name": "Adam McQuilkin",
+            "linkedinUrl": "https://www.linkedin.com/in/adam-mcquilkin",
+            "personVerified": true,
+            "profileBelongsToPerson": true,
+            "currentEmploymentVerified": true,
+            "exactTitleVerified": true,
+            "categoryVerified": true,
+            "note": "Public LinkedIn profile supports the stated person, employer, title and category."
+          }
+        ]
+      },
+      {
+        "companyName": "Zine",
+        "companyDomain": null,
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "openai_requests": 1,
+          "web_search_tool_calls": 2,
+          "web_search_queries": 7,
+          "input_tokens": 21568,
+          "cached_input_tokens": 4585,
+          "output_tokens": 474,
+          "reasoning_tokens": 446,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "approximate_cost_usd": 0.02198115,
+          "latency_ms": 9532
+        },
+        "error": null,
+        "searchQueries": [
+          "Zine company software engineer LinkedIn",
+          "Zine startup company LinkedIn software engineering",
+          "site:linkedin.com/in Zine software engineer company",
+          "\"Zine\" company software startup employees",
+          "\"Zine\" technology company software company LinkedIn",
+          "\"Zine\" software company hiring engineer",
+          "\"Zine\" company LinkedIn employees software"
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      },
+      {
+        "companyName": "Quasar Finch Labs",
+        "companyDomain": null,
+        "targetRole": "Software Engineer",
+        "metrics": {
+          "openai_requests": 1,
+          "web_search_tool_calls": 1,
+          "web_search_queries": 3,
+          "input_tokens": 8562,
+          "cached_input_tokens": 4585,
+          "output_tokens": 129,
+          "reasoning_tokens": 99,
+          "contacts_returned": 0,
+          "valid_linkedin_count": 0,
+          "approximate_cost_usd": 0.01050805,
+          "latency_ms": 4934
+        },
+        "error": null,
+        "searchQueries": [
+          "\"Quasar Finch Labs\"",
+          "\"Quasar Finch Labs\" LinkedIn",
+          "\"Quasar Finch Labs\" software engineer"
+        ],
+        "proposedContacts": [],
+        "validatedContacts": [],
+        "applyBolt": [],
+        "manualChecks": []
+      }
+    ]
+  },
+  "exploratoryRuns": [
+    {
+      "companyName": "Microsoft",
+      "metrics": {
+        "openai_requests": 1,
+        "web_search_tool_calls": 2,
+        "web_search_queries": 6,
+        "input_tokens": 21404,
+        "cached_input_tokens": 0,
+        "output_tokens": 1057,
+        "reasoning_tokens": 751,
+        "contacts_returned": 2,
+        "valid_linkedin_count": 0,
+        "approximate_cost_usd": 0.0226689,
+        "latency_ms": 13793
+      },
+      "searchQueries": [
+        "site:linkedin.com/in Microsoft \"Software Engineer Recruiter\"",
+        "site:linkedin.com/in Microsoft technical recruiter software engineer Microsoft",
+        "site:linkedin.com/in Microsoft \"Software Engineer\" Microsoft recruiter",
+        "site:linkedin.com/in \"Software Engineer Recruiter\" Microsoft \"Present\"",
+        "site:linkedin.com/in Microsoft \"Technical Recruiter\" \"Software Engineering\" recruiter",
+        "site:linkedin.com/in Microsoft recruiter software engineering hiring recruiter Microsoft 2026"
+      ],
+      "proposedContacts": [
+        {
+          "name": "Alexandru Vrancianu",
+          "title": "Engineering Recruiter",
+          "company": "Microsoft",
+          "linkedinUrl": "https://ro.linkedin.com/in/vrancianualexandru",
+          "contactCategory": "technical_recruiter",
+          "relevanceReason": "Current engineering recruiter; relevant to software engineering hiring.",
+          "currentEmploymentEvidence": "LinkedIn profile lists Engineering Recruiter at Microsoft, August 2024–Present.",
+          "evidence": [
+            {
+              "url": "https://ro.linkedin.com/in/vrancianualexandru",
+              "title": "Alexandru Vrancianu - Engineering Recruiter at Microsoft | LinkedIn",
+              "description": "Profile lists his current Microsoft role as Engineering Recruiter and describes technical recruiting experience."
+            }
+          ]
+        },
+        {
+          "name": "Poornima K.",
+          "title": "Technical Recruiter",
+          "company": "Microsoft",
+          "linkedinUrl": "https://www.linkedin.com/in/poornimakarnam",
+          "contactCategory": "technical_recruiter",
+          "relevanceReason": "Profile says she is currently a technical recruiter at Microsoft, making her relevant to software engineering recruiting.",
+          "currentEmploymentEvidence": "LinkedIn profile states, “Currently a Technical Recruiter at Microsoft.”",
+          "evidence": [
+            {
+              "url": "https://www.linkedin.com/in/poornimakarnam",
+              "title": "Poornima K. - Microsoft AI | LinkedIn",
+              "description": "Profile identifies her as currently a Technical Recruiter at Microsoft."
+            }
+          ]
+        }
+      ],
+      "validatedContacts": [],
+      "applyBolt": [],
+      "note": "Web search source URLs had no titles; existing validator rejected both proposals."
+    },
+    {
+      "companyName": "Microsoft",
+      "metrics": {
+        "openai_requests": 1,
+        "web_search_tool_calls": 1,
+        "web_search_queries": 3,
+        "input_tokens": 13093,
+        "cached_input_tokens": 4608,
+        "output_tokens": 752,
+        "reasoning_tokens": 154,
+        "contacts_returned": 3,
+        "valid_linkedin_count": 2,
+        "approximate_cost_usd": 0.01127058,
+        "latency_ms": 7765
+      },
+      "searchQueries": [
+        "site:linkedin.com/in Microsoft software engineer recruiter talent acquisition",
+        "site:linkedin.com/in Microsoft technical recruiter software engineering",
+        "Microsoft careers recruiter software engineer LinkedIn Microsoft"
+      ],
+      "proposedContacts": [
+        {
+          "name": "Irina Craciun",
+          "title": "Lead Recruiter EMEA - Engineering",
+          "company": "Microsoft",
+          "linkedinUrl": "https://www.linkedin.com/in/irina-craciun",
+          "contactCategory": "technical_recruiter",
+          "relevanceReason": "Her profile describes recruiting for engineering, including Software Engineer roles.",
+          "currentEmploymentEvidence": "Her LinkedIn profile lists her as Lead Recruiter EMEA - Engineering at Microsoft, from May 2022 to present.",
+          "evidence": [
+            {
+              "url": "https://ro.linkedin.com/in/irina-craciun",
+              "title": "Irina Craciun - Lead Recruiter @ Microsoft | Strategic HR & Recruitment | LinkedIn",
+              "description": "Profile lists current Microsoft engineering recruiting role and says she recruits for Software Engineer roles."
+            }
+          ]
+        },
+        {
+          "name": "Alexandru Vrancianu",
+          "title": "Engineering Recruiter",
+          "company": "Microsoft",
+          "linkedinUrl": "https://ro.linkedin.com/in/vrancianualexandru",
+          "contactCategory": "technical_recruiter",
+          "relevanceReason": "His current engineering recruiting role is directly relevant to a Software Engineer target role.",
+          "currentEmploymentEvidence": "His LinkedIn profile lists Engineering Recruiter at Microsoft from August 2024 to present.",
+          "evidence": [
+            {
+              "url": "https://ro.linkedin.com/in/vrancianualexandru",
+              "title": "Alexandru Vrancianu - Engineering Recruiter at Microsoft | LinkedIn",
+              "description": "Profile identifies him as an Engineering Recruiter at Microsoft and lists the position as current."
+            }
+          ]
+        },
+        {
+          "name": "Poornima K.",
+          "title": "Technical Recruiter",
+          "company": "Microsoft",
+          "linkedinUrl": "https://www.linkedin.com/in/poornimakarnam",
+          "contactCategory": "technical_recruiter",
+          "relevanceReason": "Her profile identifies her as a Technical Recruiter at Microsoft, relevant to software engineering recruitment.",
+          "currentEmploymentEvidence": "Her LinkedIn profile says she is currently a Technical Recruiter at Microsoft.",
+          "evidence": [
+            {
+              "url": "https://www.linkedin.com/in/poornimakarnam",
+              "title": "Poornima K. - Microsoft AI | LinkedIn",
+              "description": "Profile states she is currently a Technical Recruiter at Microsoft."
+            }
+          ]
+        }
+      ],
+      "validatedContacts": [
+        {
+          "name": "Irina Craciun",
+          "title": "Lead Recruiter EMEA - Engineering",
+          "company": "Microsoft",
+          "linkedinUrl": "https://www.linkedin.com/in/irina-craciun",
+          "relevanceReason": "Her profile describes recruiting for engineering, including Software Engineer roles.",
+          "evidence": [
+            {
+              "url": "https://ro.linkedin.com/in/irina-craciun",
+              "title": "Irina Craciun - Lead Recruiter @ Microsoft | Strategic HR & Recruitment | LinkedIn",
+              "description": "Search-grounded source for this contact and company."
+            }
+          ]
+        },
+        {
+          "name": "Alexandru Vrancianu",
+          "title": "Engineering Recruiter",
+          "company": "Microsoft",
+          "linkedinUrl": "https://www.linkedin.com/in/vrancianualexandru",
+          "relevanceReason": "His current engineering recruiting role is directly relevant to a Software Engineer target role.",
+          "evidence": [
+            {
+              "url": "https://ro.linkedin.com/in/vrancianualexandru",
+              "title": "Alexandru Vrancianu - Engineering Recruiter at Microsoft | LinkedIn",
+              "description": "Search-grounded source for this contact and company."
+            }
+          ]
+        }
+      ],
+      "applyBolt": [
+        {
+          "name": "Irina Craciun",
+          "linkedinUrl": "https://www.linkedin.com/in/irina-craciun",
+          "status": "verified"
+        },
+        {
+          "name": "Alexandru Vrancianu",
+          "linkedinUrl": "https://www.linkedin.com/in/vrancianualexandru",
+          "status": "verified"
+        }
+      ],
+      "note": "Including web_search_call.results exposed search-result titles; validator accepted two of three proposals."
+    }
+  ]
+}
