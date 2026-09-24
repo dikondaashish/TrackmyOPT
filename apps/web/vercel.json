@@ -4,6 +4,10 @@
   "framework": "nextjs",
   "crons": [
     {
+      "path": "/api/cron/send-case-digests",
+      "schedule": "30 * * * *"
+    },
+    {
       "path": "/api/cron/send-case-deadline-reminders",
       "schedule": "0 * * * *"
     },

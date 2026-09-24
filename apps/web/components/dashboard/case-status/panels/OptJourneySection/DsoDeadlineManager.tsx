@@ -5,9 +5,14 @@ import { formatDisplayDateNoon } from '@/lib/case-status/safe-dates';
 import type { OptComplianceAction } from '@/lib/case-status/opt-compliance-actions';
 import { cn } from '@/lib/utils';
 import { downloadDeadlineCalendar } from '@/lib/case-status/calendar';
+import { useState, useCallback, useEffect } from 'react';
+import type { CaseNotice } from '@/lib/case-status/notices';
+import { JourneyTaskActions, NOTICES_CHANGED } from './JourneyTaskActions';
 
 interface DsoDeadlineManagerProps {
   tasks: OptComplianceAction[];
+  caseId?: string;
+  isPro?: boolean;
 }
 
 const STATUS_ICON: Record<OptComplianceAction['status'], React.ReactNode> = {
@@ -22,7 +27,68 @@ const STATUS_LABEL: Record<OptComplianceAction['status'], string> = {
   overdue: 'Overdue',
 };
 
-export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
+export function DsoDeadlineManager({
+  tasks: generatedTasks,
+  caseId,
+  isPro = false,
+}: DsoDeadlineManagerProps) {
+  const [saved, setSaved] = useState<Record<string, CaseNotice | null>>({});
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState('');
+  const onNotice = useCallback(
+    (key: string, notice: CaseNotice | null) =>
+      setSaved((prev) => ({ ...prev, [key]: notice })),
+    []
+  );
+  useEffect(() => {
+    if (!caseId) return;
+    const abort = new AbortController();
+    let revision = 0;
+    function load() {
+      const request = ++revision;
+      return fetch(`/api/case-status/notices?case_id=${caseId}`, {
+        signal: abort.signal,
+        credentials: 'include',
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then((body) => {
+          if (!abort.signal.aborted && request === revision) {
+            setSaved(
+              Object.fromEntries(
+                (body.notices as CaseNotice[])
+                  .filter((n) => n.source_key)
+                  .map((n) => [n.source_key!, n])
+              )
+            );
+            setReady(true);
+            setError('');
+          }
+        })
+        .catch(() => {
+          if (!abort.signal.aborted && request === revision) {
+            setReady(false);
+            setError(
+              'Saved tasks could not load. Use the notice organizer or reload to retry.'
+            );
+          }
+        });
+    }
+    void load();
+    const refresh = () => void load();
+    window.addEventListener(NOTICES_CHANGED, refresh);
+    return () => {
+      abort.abort();
+      window.removeEventListener(NOTICES_CHANGED, refresh);
+    };
+  }, [caseId]);
+  const tasks = generatedTasks.map((task) =>
+    saved[`${task.id}:${task.dueDate}`]?.completed_at
+      ? { ...task, status: 'done' as const }
+      : task
+  );
   const open = tasks.filter(
     (t) => t.status === 'open' || t.status === 'overdue'
   );
@@ -41,14 +107,20 @@ export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
 
       <p className="mb-3 text-xs text-muted-foreground">
         Review dates with your DSO. A past date does not mean you missed a
-        report; this page does not know what you already submitted. Save
-        verified tasks in Notices &amp; confirmed deadlines to track completion
-        and email reminders.
+        report. Confirm a task below to save it in your notice organizer;
+        completion and reminder changes stay connected. Changes to the source
+        dates create a new task to review, never silently change a saved
+        deadline.
       </p>
       <div className="space-y-2">
+        {error && (
+          <p role="status" className="text-xs text-muted-foreground">
+            {error}
+          </p>
+        )}
         {tasks.map((task) => (
           <div
-            key={task.id}
+            key={`${task.id}:${task.dueDate}`}
             className={cn(
               'flex flex-wrap items-start gap-3 p-3 rounded-lg border text-sm transition-colors',
               task.status === 'overdue' &&
@@ -94,6 +166,16 @@ export function DsoDeadlineManager({ tasks }: DsoDeadlineManagerProps) {
                 >
                   Add to calendar
                 </button>
+              )}
+              {caseId && task.dueDate && (
+                <JourneyTaskActions
+                  caseId={caseId}
+                  task={task}
+                  isPro={isPro}
+                  onNotice={onNotice}
+                  notice={saved[`${task.id}:${task.dueDate}`] ?? null}
+                  ready={ready}
+                />
               )}
             </div>
             <div className="ml-7 w-full flex-shrink-0 sm:ml-0 sm:w-auto sm:text-right">

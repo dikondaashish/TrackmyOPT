@@ -10,6 +10,11 @@ describe('daily USCIS queue pagination', () => {
     const ranges: Array<[string, number]> = [];
     const from = jest.fn((table: string) => {
       const query = {
+        upsert: jest.fn().mockResolvedValue({ error: null }),
+        update: jest.fn().mockReturnThis(),
+        in: jest.fn().mockReturnThis(),
+        then: (resolve: (value: unknown) => unknown) =>
+          Promise.resolve({ error: null }).then(resolve),
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
@@ -19,6 +24,7 @@ describe('daily USCIS queue pagination', () => {
           const data = Array.from(
             { length: Math.max(0, Math.min(end + 1, count) - start) },
             (_, i) => ({
+              id: `case-${start + i}`,
               user_id: `user-${start + i}`,
               receipt_number: `receipt-${start + i}`,
             }),
@@ -52,7 +58,17 @@ describe('daily USCIS queue pagination', () => {
     });
     expect(ranges).toContainEqual(['case_status', 1000]);
     expect(ranges).toContainEqual(['profiles', 1000]);
-    expect(addBulk.mock.calls[0][0]).toHaveLength(1100);
+    expect(addBulk.mock.calls[0][0]).toHaveLength(2200);
+  });
+
+  it('dry run reads every page but does not queue or persist jobs', async () => {
+    const { service, addBulk } = setup();
+    expect(await service.queueAllActiveCases(true)).toEqual({
+      count: 1100,
+      skippedFree: 581,
+      dryRun: true,
+    });
+    expect(addBulk).not.toHaveBeenCalled();
   });
 
   it('does not queue an incomplete population after a page error', async () => {

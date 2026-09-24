@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { ChevronDown, Calendar as CalendarIcon } from "lucide-react";
+import { useState, useEffect, useCallback } from 'react';
+import { ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
 
 interface OptDatesData {
   program_end_date?: string | null;
@@ -9,6 +9,7 @@ interface OptDatesData {
   opt_start_date?: string | null;
   opt_ead_end_date?: string | null;
   stem_start_date?: string | null;
+  stem_ead_end_date?: string | null;
   stem_dso_recommendation_date?: string | null;
   last_updated_field?: string | null;
 }
@@ -19,15 +20,22 @@ const DATE_OPTIONS = [
   { value: 'opt_start_date', label: 'OPT Start Date' },
   { value: 'opt_ead_end_date', label: 'Current OPT EAD End Date' },
   { value: 'stem_start_date', label: 'STEM Extension Start Date' },
-  { value: 'stem_dso_recommendation_date', label: 'STEM DSO Recommendation Date' },
+  { value: 'stem_ead_end_date', label: 'STEM EAD End Date' },
+  {
+    value: 'stem_dso_recommendation_date',
+    label: 'STEM DSO Recommendation Date',
+  },
 ];
 
 export function DateSelector() {
   const [dates, setDates] = useState<OptDatesData>({});
-  const [selectedDateType, setSelectedDateType] = useState<string>('program_end_date');
+  const [selectedDateType, setSelectedDateType] =
+    useState<string>('program_end_date');
   const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [lastUpdatedFieldFromAPI, setLastUpdatedFieldFromAPI] = useState<string | null>(null);
+  const [lastUpdatedFieldFromAPI, setLastUpdatedFieldFromAPI] = useState<
+    string | null
+  >(null);
 
   const loadDates = useCallback(async () => {
     try {
@@ -40,9 +48,9 @@ export function DateSelector() {
         const result = await response.json();
         if (result.ok && result.data) {
           setDates(result.data);
-          
+
           const newLastUpdatedField = result.data.last_updated_field;
-          
+
           // Auto-select logic:
           // 1. If we have a last_updated_field from API
           // 2. AND it's different from what we previously had
@@ -69,7 +77,7 @@ export function DateSelector() {
   // Load dates from API
   useEffect(() => {
     loadDates();
-    
+
     // Poll for updates every 3 seconds to stay in sync
     const interval = setInterval(loadDates, 3000);
     return () => clearInterval(interval);
@@ -81,9 +89,12 @@ export function DateSelector() {
     // Don't update lastUpdatedFieldFromAPI here - we only update it from API responses
   };
 
-  const selectedOption = DATE_OPTIONS.find(opt => opt.value === selectedDateType);
+  const selectedOption = DATE_OPTIONS.find(
+    (opt) => opt.value === selectedDateType
+  );
   const selectedDateValue = dates[selectedDateType as keyof OptDatesData];
-  const selectedDate = selectedDateValue && selectedDateValue !== 'null' ? selectedDateValue : '—';
+  const selectedDate =
+    selectedDateValue && selectedDateValue !== 'null' ? selectedDateValue : '—';
 
   if (isLoading) {
     return (
@@ -100,7 +111,7 @@ export function DateSelector() {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Choose date type
         </label>
-        
+
         <div className="relative">
           <button
             type="button"
@@ -117,8 +128,8 @@ export function DateSelector() {
                 </span>
               )}
             </div>
-            <ChevronDown 
-              className={`w-5 h-5 text-slate-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 
+            <ChevronDown
+              className={`w-5 h-5 text-slate-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
             />
           </button>
 
@@ -131,8 +142,8 @@ export function DateSelector() {
                   type="button"
                   onClick={() => handleSelectChange(option.value)}
                   className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
-                    selectedDateType === option.value 
-                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-medium' 
+                    selectedDateType === option.value
+                      ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-medium'
                       : 'text-slate-700 dark:text-slate-300'
                   }`}
                 >
@@ -145,8 +156,8 @@ export function DateSelector() {
 
         {/* Close dropdown when clicking outside */}
         {isDropdownOpen && (
-          <div 
-            className="fixed inset-0 z-0" 
+          <div
+            className="fixed inset-0 z-0"
             onClick={() => setIsDropdownOpen(false)}
           />
         )}
@@ -166,7 +177,7 @@ export function DateSelector() {
               {selectedOption?.label}
             </p>
           </div>
-          
+
           {/* Calendar Icon */}
           <a
             href="/dashboard/opt-dates"

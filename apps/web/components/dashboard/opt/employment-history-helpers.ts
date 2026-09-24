@@ -67,19 +67,21 @@ export function computeEmploymentStats(
   optStartDate: string | undefined,
   optEndDate: string | undefined,
   stemStartDate?: string,
-  asOfISO = localTodayISO()
+  asOfISO = localTodayISO(),
+  stemEndDate?: string
 ): EmploymentStats {
   const start = optStartDate ? calendarDateISO(optStartDate) : null;
   const end = optEndDate ? calendarDateISO(optEndDate) : null;
   if (!start || !end) return EMPTY_EMPLOYMENT_STATS;
   const stem = stemStartDate ? calendarDateISO(stemStartDate) : null;
   const activeStem = stem && stem <= asOfISO ? stem : null;
+  const confirmedStemEnd = stemEndDate ? calendarDateISO(stemEndDate) : null;
   const initialEnd = stem ? [end, addDays(stem, -1)].sort()[0] : end;
   const initial = employmentWindowStats(start, initialEnd, spans, asOfISO);
   const extension = activeStem
     ? employmentWindowStats(
         activeStem,
-        estimatedStemEndISO(activeStem),
+        confirmedStemEnd ?? estimatedStemEndISO(activeStem),
         spans,
         asOfISO
       )
@@ -88,7 +90,7 @@ export function computeEmploymentStats(
     activeStem && Date.parse(activeStem) === Date.parse(initialEnd) + 86400000
       ? employmentWindowStats(
           start,
-          estimatedStemEndISO(activeStem),
+          confirmedStemEnd ?? estimatedStemEndISO(activeStem),
           spans,
           asOfISO
         )
@@ -100,7 +102,7 @@ export function computeEmploymentStats(
     end,
     spans,
     stem,
-    null,
+    confirmedStemEnd,
     asOfISO
   );
   return {

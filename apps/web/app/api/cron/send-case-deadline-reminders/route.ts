@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { getSmtpFromHeader } from '@/lib/notifications/email-smtp';
 import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
+import { observeCaseWorker } from '@/lib/case-status/worker-observability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -11,6 +12,10 @@ export const maxDuration = 300;
 /** Opt-in notices only. Atomic claims prevent concurrent runs sending twice.
  * Ambiguous SMTP outcomes are marked failed, never blindly auto-replayed. */
 export async function GET(request: NextRequest) {
+  return observeCaseWorker('case-deadlines', request, () => run(request));
+}
+
+async function run(request: NextRequest) {
   const denied = verifyCronAuth(request);
   if (denied) return denied;
   const db = createClient(
@@ -22,6 +27,20 @@ export async function GET(request: NextRequest) {
   const horizon = new Date(now.getTime() + 3 * 86400000)
     .toISOString()
     .slice(0, 10);
+  if (request.nextUrl.searchParams.get('dry_run') === '1') {
+    const result = await db
+      .from('case_notices')
+      .select('id', { count: 'exact', head: true })
+      .eq('reminder_state', 'pending')
+      .eq('email_reminder', true)
+      .is('completed_at', null)
+      .gte('due_date', today)
+      .lte('due_date', horizon);
+    return NextResponse.json(
+      { ok: !result.error, dryRun: true, eligible: result.count ?? 0, sent: 0 },
+      { status: result.error ? 503 : 200 }
+    );
+  }
   // A process killed mid-send must not leave a permanently reassuring state.
   // We cannot know whether SMTP accepted it, so do not automatically resend it.
   const { error: staleError } = await db
@@ -95,7 +114,7 @@ export async function GET(request: NextRequest) {
           .maybeSingle(),
         db
           .from('email_preferences')
-          .select('document_reminders_enabled')
+          .select('email_enabled')
           .eq('user_id', notice.user_id)
           .maybeSingle(),
         getActiveUserPlanTier(notice.user_id),
@@ -108,7 +127,7 @@ export async function GET(request: NextRequest) {
         profile.data?.notification_email?.trim() || profile.data?.email?.trim();
       if (
         tier === 'free' ||
-        prefs.data?.document_reminders_enabled === false ||
+        prefs.data?.email_enabled === false ||
         !caseResult.data ||
         !address
       ) {

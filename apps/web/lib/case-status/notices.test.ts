@@ -62,6 +62,9 @@ const snapshot: OfficialProcessingSnapshot = {
 it('never displays an unofficial, future, stale or missing official snapshot', () => {
   const now = new Date('2026-09-23T12:00:00Z');
   expect(usableOfficialSnapshot(snapshot, now)).toEqual(snapshot);
+  expect(
+    usableOfficialSnapshot({ ...snapshot, publishedDate: null }, now)
+  ).not.toBeNull();
   expect(usableOfficialSnapshot(undefined, now)).toBeNull();
   expect(
     usableOfficialSnapshot(

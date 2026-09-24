@@ -4,6 +4,7 @@ import * as Bull from 'bull';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { UscisService } from './uscis.service';
+import { isTerminalCase, checkFailureCode } from './check-schedule';
 
 type StatusHistoryEntry = { status: string; date: string; description: string };
 
@@ -81,14 +82,6 @@ export function buildStatusHistoryFromUscis(
  * Final status keywords — cases in these states will never change again.
  * Skipping them avoids wasting USCIS API quota.
  */
-const FINAL_STATUS_KEYWORDS = [
-  'Card Was Delivered',
-  'Case Was Denied',
-  'Withdrawal Acknowledged',
-  'Notice Explaining USCIS Actions Was Mailed',
-  'Termination Notice Sent',
-  'Refund Of An Unused Fee',
-];
 
 /**
  * Circuit breaker for USCIS API outages.
@@ -127,9 +120,10 @@ export class UscisProcessor {
     error: Error,
   ) {
     const { receiptNumber, userId } = job.data;
-    const isFinalFailure = job.attemptsMade >= (job.opts?.attempts || 3);
+    const isFinalFailure = job.attemptsMade >= (job.opts?.attempts || 1);
 
     if (isFinalFailure) {
+      await this.recordSchedule(job, 'failed', checkFailureCode(error.message));
       this.logger.error(
         `[DEAD LETTER] Job ${job.id} permanently failed for ${receiptNumber} ` +
           `(User: ${userId}) after ${job.attemptsMade} attempts: ${error.message}`,
@@ -141,7 +135,7 @@ export class UscisProcessor {
           .from('case_status')
           .update({
             last_check_failed_at: new Date().toISOString(),
-            last_check_error_code: 'CHECK_RETRIES_EXHAUSTED',
+            last_check_error_code: checkFailureCode(error.message),
             last_check_error_message:
               'Automatic check could not complete after retries. Try a manual refresh.',
             updated_at: new Date().toISOString(),
@@ -167,6 +161,7 @@ export class UscisProcessor {
     job: Bull.Job<{ receiptNumber: string; userId: string }>,
   ) {
     const { receiptNumber, userId } = job.data;
+    await this.recordSchedule(job, 'running');
     this.logger.log(
       `[Job ${job.id}] Checking status for ${receiptNumber} (User: ${userId})...`,
     );
@@ -177,10 +172,7 @@ export class UscisProcessor {
         `[Job ${job.id}] Circuit OPEN — skipping ${receiptNumber} ` +
           `(resumes in ${Math.ceil((this.circuitOpenUntil - Date.now()) / 1000)}s)`,
       );
-      return {
-        skipped: true,
-        reason: 'Circuit breaker open — USCIS API outage',
-      };
+      throw new Error('USCIS_CIRCUIT_OPEN');
     }
 
     try {
@@ -202,15 +194,31 @@ export class UscisProcessor {
       }
 
       if (existingCase?.current_status) {
-        const isFinalState = FINAL_STATUS_KEYWORDS.some((keyword) =>
-          String(existingCase.current_status).includes(keyword),
+        const isFinalState = isTerminalCase(
+          String(existingCase.current_status),
         );
 
         if (isFinalState) {
+          await this.recordSchedule(job, 'cancelled');
           this.logger.log(
             `[Job ${job.id}] Skipping ${receiptNumber} — final state: ${existingCase.current_status}`,
           );
           return { skipped: true, reason: 'Final State' };
+        }
+      }
+
+      // Delayed daily jobs re-check entitlement before calling USCIS.
+      if (String(job.id).startsWith('daily-')) {
+        const profile = await this.supabase
+          .from('profiles')
+          .select('premium_status')
+          .eq('user_id', userId)
+          .single();
+        if (profile.error)
+          throw new Error('Could not verify monitoring entitlement');
+        if (!profile.data?.premium_status) {
+          await this.recordSchedule(job, 'cancelled');
+          return { skipped: true, reason: 'Automatic monitoring disabled' };
         }
       }
 
@@ -319,6 +327,8 @@ export class UscisProcessor {
         );
       }
 
+      await this.recordSchedule(job, 'succeeded');
+
       return {
         receiptNumber,
         status: result.status,
@@ -344,6 +354,27 @@ export class UscisProcessor {
       );
       throw error;
     }
+  }
+
+  private async recordSchedule(
+    job: Bull.Job<{ receiptNumber: string; userId: string }>,
+    state: string,
+    errorCode: string | null = null,
+  ) {
+    if (!String(job.id).startsWith('daily-')) return;
+    const stamp = new Date().toISOString();
+    const { error } = await this.supabase
+      .from('case_check_jobs')
+      .update({
+        state,
+        error_code: errorCode,
+        ...(state === 'running'
+          ? { attempted_at: stamp }
+          : { completed_at: stamp }),
+      })
+      .eq('job_id', String(job.id))
+      .eq('user_id', job.data.userId);
+    if (error) throw new Error('Could not record scheduled check outcome');
   }
 
   /**

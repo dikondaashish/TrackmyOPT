@@ -159,6 +159,11 @@ async function saveNotice(userId: string, body: unknown, noticeId?: string) {
     .insert(savedRecord)
     .select(NOTICE_COLUMNS)
     .single();
+  if (error?.code === '23505')
+    return json(
+      { error: 'This journey task is already saved. Refresh to view it.' },
+      409
+    );
   if (error)
     return json({ error: 'Could not save notice. Please try again.' }, 503);
   return json({ ok: true, notice: data }, 201);

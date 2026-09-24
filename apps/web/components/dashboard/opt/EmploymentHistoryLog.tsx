@@ -34,6 +34,7 @@ interface EmploymentHistoryLogProps {
   optStartDate?: string;
   optEndDate?: string;
   stemStartDate?: string;
+  stemEndDate?: string;
   asOfISO?: string;
   maxUnemploymentDays?: number;
   /** When true, opens the add-employment form (e.g. after setup modal). */
@@ -46,6 +47,7 @@ export function EmploymentHistoryLog({
   optStartDate,
   optEndDate,
   stemStartDate,
+  stemEndDate,
   asOfISO,
   maxUnemploymentDays = 90,
   autoOpenForm = false,
@@ -74,7 +76,8 @@ export function EmploymentHistoryLog({
     optStartDate,
     optEndDate,
     stemStartDate,
-    asOfISO
+    asOfISO,
+    stemEndDate
   );
 
   useEffect(() => {

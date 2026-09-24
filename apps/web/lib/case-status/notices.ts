@@ -7,6 +7,11 @@ export const noticeSchema = z
     document_id: z.string().uuid().nullable().default(null),
     title: z.string().trim().min(1).max(120),
     kind: z.enum(['receipt', 'rfe', 'noid', 'approval', 'dso', 'other']),
+    source_key: z
+      .string()
+      .regex(/^[a-z0-9-]+:\d{4}-\d{2}-\d{2}$/)
+      .max(140)
+      .optional(),
     due_date: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -48,6 +53,7 @@ export type CaseNotice = {
     | 'failed'
     | 'cancelled';
   reminder_sent_at: string | null;
+  source_key?: string | null;
 };
 export const NOTICE_COLUMNS =
-  'id, case_id, title, kind, document_id, due_date, completed_at, email_reminder, reminder_state, reminder_sent_at';
+  'id, case_id, title, kind, document_id, due_date, completed_at, email_reminder, reminder_state, reminder_sent_at, source_key';

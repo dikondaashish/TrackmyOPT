@@ -9,6 +9,13 @@ const mocks = vi.hoisted(() => ({
   close: vi.fn(),
 }));
 vi.mock('@/lib/api/verify-cron-auth', () => ({ verifyCronAuth: mocks.auth }));
+vi.mock('@/lib/case-status/worker-observability', () => ({
+  observeCaseWorker: (
+    _name: string,
+    _req: unknown,
+    run: () => Promise<unknown>
+  ) => run(),
+}));
 vi.mock('@supabase/supabase-js', () => ({ createClient: mocks.create }));
 vi.mock('@/lib/premium/user-plan-tier', () => ({
   getActiveUserPlanTier: mocks.tier,
@@ -65,7 +72,7 @@ function setup({ claim = true, optedOut = false, error = false } = {}) {
     )
     .mockReturnValueOnce(query({ data: { id: 'case' }, error: null }))
     .mockReturnValueOnce(
-      query({ data: { document_reminders_enabled: !optedOut }, error: null })
+      query({ data: { email_enabled: !optedOut }, error: null })
     )
     .mockReturnValueOnce(claimQuery)
     .mockReturnValue(save);
@@ -124,5 +131,17 @@ it('does not falsely report a rejected email as sent', async () => {
 it('reports database failure rather than success', async () => {
   setup({ error: true });
   expect((await GET(req())).status).toBe(503);
+  expect(mocks.send).not.toHaveBeenCalled();
+});
+it('dry run never reconciles, claims or sends any email', async () => {
+  const q = query({ count: 2, error: null });
+  mocks.create.mockReturnValue({ from: () => q });
+  const res = await GET(new NextRequest(req().url + '?dry_run=1'));
+  expect(await res.json()).toMatchObject({
+    dryRun: true,
+    eligible: 2,
+    sent: 0,
+  });
+  expect(q.update).not.toHaveBeenCalled();
   expect(mocks.send).not.toHaveBeenCalled();
 });

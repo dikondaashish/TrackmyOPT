@@ -5,6 +5,7 @@ import * as Bull from 'bull';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { fetchCaseStatus, type USCISStatus } from './uscis-client';
 import { filterCasesForPremiumAutoCheck } from './premium-auto-check';
+import { nextDailyCheck, isTerminalCase } from './check-schedule';
 
 export type { USCISHistoryItem, USCISStatus } from './uscis-client';
 
@@ -28,22 +29,29 @@ export class UscisService {
    * Queue daily auto-checks for Pro/Dedicated (premium_status) cases only.
    * Free users refresh manually via case-status/check.
    */
-  async queueAllActiveCases() {
+  async queueAllActiveCases(dryRun = false) {
     // PostgREST caps each response. Stable ordering and explicit ranges keep
     // users after the first page eligible. Queue nothing on a partial read.
-    const cases: { receipt_number: string; user_id: string }[] = [];
+    const cases: {
+      id: string;
+      receipt_number: string;
+      user_id: string;
+      current_status?: string;
+    }[] = [];
     const premiumIds: string[] = [];
     const pageSize = 1000;
     for (let offset = 0; ; offset += pageSize) {
       const { data, error } = await this.supabase
         .from('case_status')
-        .select('receipt_number, user_id')
+        .select('id, receipt_number, user_id, current_status')
         .order('id')
         .range(offset, offset + pageSize - 1);
       if (error) throw new Error(`Failed to fetch cases: ${error.message}`);
       const rows = (data ?? []) as {
+        id: string;
         receipt_number: string;
         user_id: string;
+        current_status?: string;
       }[];
       cases.push(...rows);
       if (rows.length < pageSize) break;
@@ -67,9 +75,12 @@ export class UscisService {
     }
 
     const { premiumCases, skippedFree } = filterCasesForPremiumAutoCheck(
-      cases,
+      cases.filter((c) => !isTerminalCase(c.current_status)),
       premiumIds,
     );
+
+    if (dryRun)
+      return { count: premiumCases.length, skippedFree, dryRun: true };
 
     if (premiumCases.length === 0) {
       this.logger.log(
@@ -83,19 +94,63 @@ export class UscisService {
     );
 
     // Stagger jobs with 150ms delay between each to stay within USCIS 10 TPS limit
-    const jobs = premiumCases.map((c, index) => ({
+    const now = new Date();
+    const todaySlot = new Date(now);
+    todaySlot.setUTCHours(14, 0, 0, 0);
+    const next = nextDailyCheck(
+      new Date(Math.max(now.getTime(), todaySlot.getTime())),
+    );
+    const scheduledCases = premiumCases.flatMap((c, index) => [
+      {
+        c,
+        scheduled: new Date(now.getTime() + index * 150),
+        day: now.toISOString().slice(0, 10),
+      },
+      {
+        c,
+        scheduled: new Date(next.getTime() + index * 150),
+        day: next.toISOString().slice(0, 10),
+      },
+    ]);
+    // Deterministic IDs prevent overlapping cron requests from adding duplicates.
+    const jobs = scheduledCases.map(({ c, scheduled, day }) => ({
       name: 'check-status',
       data: { receiptNumber: c.receipt_number, userId: c.user_id },
       opts: {
-        removeOnComplete: true,
+        jobId: `daily-${c.id}-${day}`,
+        removeOnComplete: { age: 3 * 86400, count: 20000 },
         removeOnFail: false, // Keep failed jobs for dead letter inspection
         attempts: 3,
         backoff: { type: 'exponential' as const, delay: 5000 },
-        delay: index * 150, // Stagger: 0ms, 150ms, 300ms, ...
+        delay: Math.max(0, scheduled.getTime() - Date.now()),
       },
     }));
 
+    const { error: scheduleError } = await this.supabase
+      .from('case_check_jobs')
+      .upsert(
+        scheduledCases.map(({ c, scheduled, day }) => ({
+          job_id: `daily-${c.id}-${day}`,
+          case_id: c.id,
+          user_id: c.user_id,
+          scheduled_for: scheduled.toISOString(),
+          state: 'scheduling',
+        })),
+        { onConflict: 'job_id', ignoreDuplicates: true },
+      );
+    if (scheduleError) throw new Error('Could not persist check schedule');
     await this.uscisQueue.addBulk(jobs);
+    for (let offset = 0; offset < jobs.length; offset += 100) {
+      const { error: queuedError } = await this.supabase
+        .from('case_check_jobs')
+        .update({ state: 'queued' })
+        .in(
+          'job_id',
+          jobs.slice(offset, offset + 100).map((j) => j.opts.jobId),
+        )
+        .eq('state', 'scheduling');
+      if (queuedError) throw new Error('Could not confirm check schedule');
+    }
 
     return { count: premiumCases.length, skippedFree };
   }

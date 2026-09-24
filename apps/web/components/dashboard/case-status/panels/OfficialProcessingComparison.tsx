@@ -26,7 +26,7 @@ export function OfficialProcessingComparison({
           <dt className="font-medium">USCIS published processing time</dt>
           <dd className="mt-1 text-muted-foreground">
             {official
-              ? `${official.months} months for 80% of completed cases. ${official.form}, ${official.category}, ${official.office}. Published ${official.publishedDate}; checked ${official.checkedDate}.`
+              ? `${official.months} months for 80% of completed cases. ${official.form}, ${official.category}, ${official.office}. ${official.publishedDate ? `Published ${official.publishedDate}.` : 'USCIS does not show a publication date.'} Verified ${official.checkedDate}; hidden after 30 days unless reverified. This is not a premium-processing deadline.`
               : 'A current, verified official figure is not available here. Select I-765 and the F-1 student category on USCIS’s website; verify the applicable office.'}
           </dd>
         </div>

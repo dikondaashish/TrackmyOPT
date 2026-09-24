@@ -22,6 +22,8 @@ import {
 import { useClientDate } from '@/hooks/useClientDate';
 
 interface OptJourneySectionProps {
+  caseId?: string;
+  isPro?: boolean;
   filingCategory?: FilingCategory | string | null;
   optFiledDate: string | null;
   eadProjected?: string | null;
@@ -36,6 +38,8 @@ interface OptJourneySectionProps {
 }
 
 export function OptJourneySection({
+  caseId,
+  isPro = false,
   filingCategory = null,
   optFiledDate,
   eadProjected = null,
@@ -75,7 +79,7 @@ export function OptJourneySection({
       uscisFiledDate: optFiledDate,
       employmentChangeDate: employmentChangeDate ?? savedEmploymentChange,
       stemStartDate: stemStartDate ?? saved?.stem_start_date,
-      stemEndDate,
+      stemEndDate: stemEndDate ?? saved?.stem_ead_end_date,
       now: clientNow ?? undefined,
     });
 
@@ -125,7 +129,12 @@ export function OptJourneySection({
       />
 
       {/* DSO deadline manager */}
-      <DsoDeadlineManager tasks={tasks} />
+      <DsoDeadlineManager
+        key={caseId}
+        caseId={caseId}
+        isPro={isPro}
+        tasks={tasks}
+      />
     </Card>
   );
 }

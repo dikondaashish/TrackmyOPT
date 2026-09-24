@@ -1,0 +1,12 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+import {NextRequest} from 'next/server';
+import {GET} from './route';
+const m=vi.hoisted(()=>({auth:vi.fn(),create:vi.fn()}));
+vi.mock('@/lib/auth/get-user-id',()=>({getUserId:m.auth}));
+vi.mock('@supabase/supabase-js',()=>({createClient:m.create}));
+const req=()=>new NextRequest('https://example.test/api/case-status/monitor-schedule?case_id=11111111-1111-4111-8111-111111111111');
+const query=(data:unknown)=>({select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),in:vi.fn().mockReturnThis(),not:vi.fn().mockReturnThis(),order:vi.fn().mockReturnThis(),limit:vi.fn().mockReturnThis(),maybeSingle:vi.fn().mockResolvedValue({data,error:null})});
+beforeEach(()=>{vi.clearAllMocks();m.auth.mockResolvedValue('owner');});
+it('requires authentication',async()=>{m.auth.mockResolvedValue(null);expect((await GET(req())).status).toBe(401);expect(m.create).not.toHaveBeenCalled();});
+it('does not read another user queue',async()=>{const q=query(null);const from=vi.fn().mockReturnValue(q);m.create.mockReturnValue({from});expect((await GET(req())).status).toBe(404);expect(from).toHaveBeenCalledTimes(1);expect(q.eq).toHaveBeenCalledWith('user_id','owner');});
+it('returns only owned scheduling metadata, without job IDs or receipt numbers',async()=>{const own=query({id:'case'}),next=query({scheduled_for:'2026-09-24T14:00:00Z',state:'queued'}),attempt=query(null);m.create.mockReturnValue({from:vi.fn().mockReturnValueOnce(own).mockReturnValueOnce(next).mockReturnValueOnce(attempt)});const body=await(await GET(req())).json();expect(body.next.state).toBe('queued');expect(next.eq).toHaveBeenCalledWith('user_id','owner');expect(next.select).not.toHaveBeenCalledWith(expect.stringContaining('receipt_number'));});

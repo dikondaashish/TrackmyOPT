@@ -15,6 +15,7 @@ const FIELDS = [
   ['opt_ead_end_date', 'OPT EAD end'],
   ['stem_dso_recommendation_date', 'STEM DSO recommendation'],
   ['stem_start_date', 'STEM start'],
+  ['stem_ead_end_date', 'STEM EAD end'],
 ] as const;
 
 export type SavedDates = Partial<

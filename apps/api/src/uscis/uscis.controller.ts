@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Query } from '@nestjs/common';
 import { UscisService } from './uscis.service';
 
 @Controller('uscis')
@@ -25,10 +25,10 @@ export class UscisController {
    * Queue checks for ALL active cases (called by Cron)
    */
   @Post('check-all')
-  async checkAll() {
-    const result = await this.uscisService.queueAllActiveCases();
+  async checkAll(@Query('dry_run') dryRun?: string) {
+    const result = await this.uscisService.queueAllActiveCases(dryRun === '1');
     return {
-      status: 'queued',
+      status: dryRun === '1' ? 'dry-run' : 'queued',
       count: result.count,
       skippedFree: result.skippedFree,
       timestamp: new Date(),

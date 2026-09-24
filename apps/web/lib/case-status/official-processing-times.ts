@@ -6,13 +6,25 @@ export type OfficialProcessingSnapshot = {
   office: string;
   months: number;
   percentile: 80;
-  publishedDate: string;
+  /** Null when USCIS does not disclose a publication date; never fabricate it. */
+  publishedDate: string | null;
   checkedDate: string;
   source: string;
 };
 /** Only add a snapshot after verifying all fields on the official page.
  * No unofficial estimates or community medians belong in this list. */
-export const OFFICIAL_PROCESSING_SNAPSHOTS: OfficialProcessingSnapshot[] = [];
+export const OFFICIAL_PROCESSING_SNAPSHOTS: OfficialProcessingSnapshot[] = [
+  {
+    form: 'I-765',
+    category: 'F-1 academic student (c)(3)',
+    office: 'Service Center Operations (SCOPS)',
+    months: 5,
+    percentile: 80,
+    publishedDate: null,
+    checkedDate: '2026-09-23',
+    source: 'https://egov.uscis.gov/processing-times',
+  },
+];
 
 export function usableOfficialSnapshot(
   snapshot: OfficialProcessingSnapshot | undefined,
@@ -29,9 +41,16 @@ export function usableOfficialSnapshot(
   )
     return null;
   const checked = calendarDateISO(snapshot.checkedDate);
-  const published = calendarDateISO(snapshot.publishedDate);
+  const published = snapshot.publishedDate
+    ? calendarDateISO(snapshot.publishedDate)
+    : null;
   const today = now.toISOString().slice(0, 10);
-  if (!checked || !published || published > checked || checked > today)
+  if (
+    !checked ||
+    (snapshot.publishedDate !== null && !published) ||
+    (published && published > checked) ||
+    checked > today
+  )
     return null;
   if (now.getTime() - Date.parse(`${checked}T00:00:00Z`) > 30 * 86400000)
     return null;

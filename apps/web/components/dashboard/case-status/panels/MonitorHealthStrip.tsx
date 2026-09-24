@@ -9,8 +9,10 @@ import {
 } from '@/lib/case-status/safe-dates';
 import { CASE_STATUS_MESSAGING } from '@/lib/messaging/product-copy';
 import { cn } from '@/lib/utils';
+import { CheckSchedule } from './CheckSchedule';
 
 interface MonitorHealthStripProps {
+  caseId?: string;
   monitorActive: boolean;
   lastCheckedAt: string | null;
   lastCheckFailedAt?: string | null;
@@ -24,8 +26,17 @@ interface MonitorHealthStripProps {
 const Dot = () => (
   <span className="text-gray-300 dark:text-gray-700 mx-1.5">·</span>
 );
+const FAILURE_REASONS: Record<string, string> = {
+  CHECK_RETRIES_EXHAUSTED: 'The automatic check exhausted its retries.',
+  USCIS_UNAVAILABLE: 'The USCIS connection is temporarily unavailable.',
+  USCIS_RATE_LIMITED: 'USCIS temporarily limited check requests.',
+  USCIS_AUTH_UNAVAILABLE:
+    'The USCIS connection needs an authorization check by our support team.',
+  USCIS_TIMEOUT: 'The USCIS connection timed out.',
+};
 
 export function MonitorHealthStrip({
+  caseId,
   monitorActive,
   lastCheckedAt,
   lastCheckFailedAt,
@@ -108,16 +119,19 @@ export function MonitorHealthStrip({
       {health === 'failed' && lastCheckFailedAt && (
         <span className="basis-full mt-1">
           Last failed attempt: {formatCheckedAt(lastCheckFailedAt)}.{' '}
-          {lastCheckErrorCode === 'CHECK_RETRIES_EXHAUSTED'
-            ? 'The automatic check exhausted its retries.'
-            : 'The check did not complete; a detailed cause is not available.'}
+          {FAILURE_REASONS[lastCheckErrorCode ?? ''] ??
+            'The check did not complete; a detailed cause is not available.'}
         </span>
       )}
-      {monitorActive && (
-        <span className="basis-full mt-1">
-          Configured daily batch: 14:00 UTC. Queue timing varies; the next case
-          check is not yet confirmed.
-        </span>
+      {monitorActive && caseId ? (
+        <CheckSchedule key={caseId} caseId={caseId} />
+      ) : (
+        monitorActive && (
+          <span className="basis-full mt-1">
+            Configured daily batch: 14:00 UTC. Queue timing varies; the next
+            case check is not yet confirmed.
+          </span>
+        )
       )}
 
       <Dot />

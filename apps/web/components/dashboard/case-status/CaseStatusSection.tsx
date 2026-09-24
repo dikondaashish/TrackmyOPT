@@ -39,6 +39,7 @@ import { CaseActionCenter } from '@/components/dashboard/case-status/panels/Case
 import { DedicatedConsultationCard } from '@/components/dashboard/case-status/panels/DedicatedConsultationCard';
 import { OptJourneySection } from '@/components/dashboard/case-status/panels/OptJourneySection';
 import { CaseNoticeOrganizer } from './panels/CaseNoticeOrganizer';
+import { WeeklyDigestSettings } from './panels/WeeklyDigestSettings';
 import { NotificationDelivery } from './panels/NotificationDelivery';
 import { CaseInfoFooter } from '@/components/dashboard/case-status/panels/CaseInfoFooter';
 import { CASE_STATUS_MESSAGING } from '@/lib/messaging/product-copy';
@@ -333,6 +334,7 @@ export function CaseStatusSection() {
           {/* ── 4. MONITOR HEALTH STRIP ── */}
           <CaseStatusPanelErrorBoundary area="monitor_health">
             <MonitorHealthStrip
+              caseId={caseStatus.id}
               monitorActive={isPremium === true}
               lastCheckedAt={caseStatus.last_checked_at}
               lastCheckFailedAt={caseStatus.last_check_failed_at}
@@ -349,6 +351,7 @@ export function CaseStatusSection() {
               caseId={caseStatus.id}
               checkedAt={caseStatus.last_checked_at}
             />
+            <WeeklyDigestSettings isPro={isPremium === true} />
           </CaseStatusPanelErrorBoundary>
 
           {/* ── 4b. PP Countdown (keep existing component) ── */}
@@ -397,6 +400,9 @@ export function CaseStatusSection() {
           {isOptCase && (
             <CaseStatusPanelErrorBoundary area="opt_journey">
               <OptJourneySection
+                key={caseStatus.id}
+                caseId={caseStatus.id}
+                isPro={isPremium === true}
                 filingCategory={caseStatus.filing_category}
                 optFiledDate={
                   isStemExtension ? null : (caseStatus.received_date ?? null)

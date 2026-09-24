@@ -12,14 +12,14 @@ export type CaseQueueRow = {
  * Keep only cases whose owner is in the premium user set.
  * Pure helper so the cron filter is unit-testable without Supabase/Bull.
  */
-export function filterCasesForPremiumAutoCheck(
-  cases: CaseQueueRow[],
+export function filterCasesForPremiumAutoCheck<T extends CaseQueueRow>(
+  cases: T[],
   premiumUserIds: Iterable<string>,
-): { premiumCases: CaseQueueRow[]; skippedFree: number } {
+): { premiumCases: T[]; skippedFree: number } {
   const premium = new Set(
     [...premiumUserIds].filter((id) => typeof id === 'string' && id.length > 0),
   );
-  const premiumCases: CaseQueueRow[] = [];
+  const premiumCases: T[] = [];
   let skippedFree = 0;
 
   for (const row of cases) {

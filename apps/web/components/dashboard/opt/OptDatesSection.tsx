@@ -324,6 +324,7 @@ export function OptDatesSection() {
       'opt_start_date',
       'opt_ead_end_date',
       'stem_start_date',
+      'stem_ead_end_date',
       'stem_dso_recommendation_date',
     ];
 
@@ -664,6 +665,17 @@ export function OptDatesSection() {
                 description="Start date of STEM OPT extension (if applicable)"
                 optional
               />
+              <DateInput
+                id="stem_ead_end_date"
+                label="STEM EAD End Date"
+                value={dates.stem_ead_end_date || ''}
+                onChange={(value) =>
+                  handleDateChange('stem_ead_end_date', value)
+                }
+                description="Actual expiration printed on your STEM EAD, not a 24-month estimate. Used for your final evaluation task."
+                error={errors.stem_ead_end_date}
+                optional
+              />
             </div>
           </div>
 
@@ -723,6 +735,7 @@ export function OptDatesSection() {
           optStartDate={savedDates.opt_start_date || undefined}
           optEndDate={savedDates.opt_ead_end_date || undefined}
           stemStartDate={savedDates.stem_start_date || undefined}
+          stemEndDate={savedDates.stem_ead_end_date || undefined}
           asOfISO={asOfISO}
           maxUnemploymentDays={statusSnapshot.unemploymentMax}
           autoOpenForm={autoOpenEmploymentForm}

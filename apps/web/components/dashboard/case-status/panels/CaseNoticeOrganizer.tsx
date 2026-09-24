@@ -7,6 +7,7 @@ import { downloadDeadlineCalendar } from '@/lib/case-status/calendar';
 import { formatDisplayDateNoon } from '@/lib/case-status/safe-dates';
 
 import { CaseNoticeForm } from './CaseNoticeForm';
+import { NOTICES_CHANGED } from './OptJourneySection/JourneyTaskActions';
 const action =
   'inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-blue-600 hover:bg-muted focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 disabled:opacity-50';
 const REMINDER_LABELS = {
@@ -39,6 +40,11 @@ export function CaseNoticeOrganizer({
     Array<{ id: string; filename: string }>
   >([]);
   const [documentsError, setDocumentsError] = useState(false);
+  useEffect(() => {
+    const refresh = () => setRevision((r) => r + 1);
+    window.addEventListener(NOTICES_CHANGED, refresh);
+    return () => window.removeEventListener(NOTICES_CHANGED, refresh);
+  }, []);
   useEffect(() => {
     const abort = new AbortController();
     fetch(`/api/case-status/notices?case_id=${encodeURIComponent(caseId)}`, {
@@ -108,6 +114,7 @@ export function CaseNoticeOrganizer({
       setLoading(true);
       setRevision((r) => r + 1);
       setMessage('Notice saved for this case.');
+      window.dispatchEvent(new Event(NOTICES_CHANGED));
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Could not save notice');
     } finally {
@@ -128,6 +135,7 @@ export function CaseNoticeOrganizer({
       if (!res.ok) throw new Error(body.error || 'Could not complete notice');
       setRevision((r) => r + 1);
       setMessage('Marked complete. Any unsent reminder is cancelled.');
+      window.dispatchEvent(new Event(NOTICES_CHANGED));
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Could not update');
     } finally {
