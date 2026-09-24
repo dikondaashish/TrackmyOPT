@@ -21,7 +21,7 @@ export const OFFICIAL_PROCESSING_SNAPSHOTS: OfficialProcessingSnapshot[] = [
     months: 5,
     percentile: 80,
     publishedDate: null,
-    checkedDate: '2026-09-23',
+    checkedDate: '2026-09-24',
     source: 'https://egov.uscis.gov/processing-times',
   },
 ];

@@ -1,6 +1,6 @@
 # Case-status delivery and operational verification
 
-Updated September 23, 2026. Implementation status is distinct from deployment health.
+Updated September 24, 2026. Implementation status is distinct from deployment health.
 
 ## Implemented
 
@@ -18,7 +18,7 @@ Updated September 23, 2026. Implementation status is distinct from deployment he
 - Confirmed DSO tasks can be saved to the notice organizer, given an opt-in reminder, and marked complete from either view. A changed source date requires a new confirmation.
 - Weekly case digests are opt-in, respect global email preferences and active paid entitlement, and record provider acceptance separately from failures. An hourly worker claims at most 20 recipients, with one delivery attempt per UTC week and no blind retry of uncertain SMTP outcomes.
 - Case workers record actual executions and numeric outcomes in a private audit table. Protected dry-run endpoints bypass writes, queueing and SMTP.
-- Official USCIS data is shown separately from community reports: a manually verified I-765 student-category SCOPS snapshot, 80% completed within 5 months, checked September 23, 2026. No publication date was supplied by USCIS. A weekly freshness check flags review after 21 days; the UI hides the number after 30 days. See [source maintenance](OFFICIAL_PROCESSING_DATA.md).
+- Official USCIS data is shown separately from community reports: a manually verified I-765 student-category SCOPS snapshot, 80% completed within 5 months, rechecked September 24, 2026. No publication date was supplied by USCIS. A weekly freshness check flags review after 21 days; the UI hides the number after 30 days. See [source maintenance](OFFICIAL_PROCESSING_DATA.md).
 
 ## Verified during implementation
 
@@ -29,15 +29,23 @@ Updated September 23, 2026. Implementation status is distinct from deployment he
 - Additive migration `20260924010100_case_completion_delivery` applied and its ledger verified. Scheduling, worker audit, digest preferences and delivery tables have forced RLS and server-only grants. No existing user was opted into digests.
 - Synthetic browser tests verified that saving and completing a journey task updates the notice organizer and journey together. This continuation used mocked/no-send email tests only, as requested by the owner.
 
+## September 24 operational verification
+
+- Release `f0601bfaea35280b1eccbde9257cd7f84b1ac584` was verified on GitHub main, Vercel production (Ready) and Render (Live). GitHub CI run `35937118015`, including browser tests, passed; official-data freshness run `35937629596` also passed.
+- At 13:30 UTC, the private worker audit contained 13 successful scheduled deadline runs (01:00–13:00 UTC) and 13 successful scheduled digest runs (00:30–12:30 UTC). Each returned HTTP 200 with zero sends and zero failures. There were no saved notices or enabled digest preferences. This verifies actual scheduler invocation, not processing a nonempty production batch.
+- With the owner's explicit approval, the actual deadline and digest handlers each sent one clearly labeled synthetic test email to the approved test mailbox. Database/auth/eligibility inputs and delivery-record writes were isolated in memory; the production SMTP transport was real. Both handlers reported one send and zero failures, and the owner confirmed both messages arrived. No real applicant records were changed and no production reminder queue was triggered by these tests. This verifies the email paths and inbox receipt, not every recipient or a full production-database delivery cycle.
+- The official USCIS browser tool was rechecked September 24: the same I-765 student category, SCOPS office and five-month figure were displayed. The observation date was refreshed without inventing a publication date.
+- The first daily case-check batch for this release is scheduled for 14:00 UTC (10:00 a.m. EDT), after this inspection. No case-check jobs existed yet. A one-time read-only follow-up is scheduled for 10:10 a.m. EDT; daily case-check completion remains unverified until its actual outcomes are inspected.
+
 ## Remaining operational work / explicit limitations
 
 - The official number is a browser-verified snapshot, not an automatic numeric feed. Direct server access returned HTTP 403. Future values require source verification; never substitute community figures or guess a publication date.
 - A queued start is not a guaranteed execution time. New per-case schedule records appear when the deployed daily batch runs; stale or missing records must not be described as healthy scheduling.
-- Verify both providers deployed the release before calling new dry-run endpoints. In particular, the older API ignores `dry_run` and can queue real checks; never probe that older endpoint as a no-send test.
-- The hourly deadline job requires a deployed Vercel cron and the existing cron/SMTP/service-role configuration. Check the first scheduled run after release. With no saved opted-in notices, a successful run should send zero messages. Scale the bounded batch if backlog approaches deadline capacity.
+- Both providers were verified on the release above before production dry-run checks. Reverify versions after rollbacks: the older API ignores `dry_run` and can queue real checks; never probe that older endpoint as a no-send test.
+- Hourly deadline and digest invocation is verified above. Continue monitoring actual eligible deliveries and scale the bounded batches if backlog approaches deadline capacity.
 - SMTP acceptance is not inbox delivery. Failed reminders require review; calendar exports and official notices remain the fallback. Existing case-change queue retry behavior is separate from the new deadline worker.
 - Actual final STEM EAD expiration and completion of past DSO reports are not inferred. Users can now save those dates and tasks, but must confirm them from their documents.
-- Check GitHub CI and both deployment providers for the release commit. A successful push is not proof that Render deployed it; earlier automatic Render deployments had been cancelled.
+- Keep checking GitHub CI and both deployment providers for subsequent releases. A successful push is not proof that Render deployed it; earlier automatic Render deployments had been cancelled.
 
 ## Sources
 

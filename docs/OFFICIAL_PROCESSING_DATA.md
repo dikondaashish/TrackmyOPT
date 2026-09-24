@@ -1,8 +1,10 @@
 # Official processing-time source maintenance
 
-## Verified September 23, 2026
+## Verified September 24, 2026
 
 Observed directly in the official USCIS browser tool, not a third-party estimate:
+
+Rechecked September 24 after the initial September 23 verification; the category, office and five-month result were unchanged.
 
 - Source: https://egov.uscis.gov/processing-times
 - Form: I-765, Application for Employment Authorization.
