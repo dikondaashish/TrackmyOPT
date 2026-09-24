@@ -149,7 +149,11 @@ export function prepareEvidence(
     included.push(row);
   }
   evidence.includedReports = included.length;
-  evidence.sources = [...sourceRows.values()];
+  // The evidence object is returned to the browser; keep partner names internal.
+  evidence.sources = [...sourceRows.values()].map((source, index) => ({
+    ...source,
+    name: `Community source ${index + 1}`,
+  }));
   const dates = included
     .flatMap((r) => (r.init_date ? [r.init_date] : []))
     .sort();

@@ -48,8 +48,8 @@ describe('community evidence', () => {
       filingRange: ['2026-01-01', '2026-01-01'],
     });
     expect(result.evidence.sources.map((s) => s.name)).toEqual([
-      'OPT Tracker',
-      'OPT Pulse',
+      'Community source 1',
+      'Community source 2',
     ]);
   });
   it('excludes a prior import for each source while keeping the latest batch of another source', () => {
