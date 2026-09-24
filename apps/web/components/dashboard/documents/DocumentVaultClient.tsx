@@ -381,8 +381,8 @@ export function DocumentVaultClient() {
   return (
     <div className="space-y-4" data-document-vault data-ph-no-capture>
       {/* Modern Header with Email Notifications */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-xl p-6">
-        <div className="flex justify-between items-start mb-4">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-xl p-5">
+        <div className="flex justify-between items-start mb-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
               <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -394,7 +394,7 @@ export function DocumentVaultClient() {
           </div>
           <button
             onClick={handleUploadClick}
-            className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -404,8 +404,8 @@ export function DocumentVaultClient() {
         </div>
 
         {/* Email Notification Setup */}
-        <div className="bg-white dark:bg-card rounded-lg p-4 border border-gray-200 dark:border-border">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-white dark:bg-card rounded-lg p-3 border border-gray-200 dark:border-border">
+          <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -453,7 +453,7 @@ export function DocumentVaultClient() {
           ) : (
             <p className="text-sm text-gray-600 dark:text-muted-foreground">{notificationEmail}</p>
           )}
-          <p className="text-xs text-gray-500 dark:text-muted-foreground mt-2 flex items-start gap-1.5">
+          <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1.5 flex items-start gap-1.5">
             <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" />
             <span>Get email reminders before your documents expire.</span>
           </p>
