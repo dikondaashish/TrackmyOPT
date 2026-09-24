@@ -16,8 +16,8 @@ export function LandingSuccessStories() {
                             <span className="text-primary">Success Stories</span>
                         </h2>
                         <p className="mx-auto lg:mx-0 max-w-[600px] text-muted-foreground text-lg sm:text-xl">
-                            Join thousands of international students who secured their future with TrackMyOPT.
-                            From finding sponsors to staying compliant, we've got you covered.
+                            Explore the tools people use to plan OPT deadlines and research sponsors.
+                            From job search to status tracking, we've got you covered.
                         </p>
                     </div>
 

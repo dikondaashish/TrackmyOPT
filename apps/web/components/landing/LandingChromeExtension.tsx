@@ -78,7 +78,7 @@ export function LandingChromeExtension() {
                                         </div>
                                     ))}
                                 </div>
-                                <span>2,500+ students using it</span>
+                                <span>TrackMyOPT: 3,000+ registered users</span>
                             </div>
                         </div>
                     </div>

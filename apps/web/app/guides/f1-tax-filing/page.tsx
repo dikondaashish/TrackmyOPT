@@ -731,7 +731,7 @@ Enclosed: W-2, Form 843, I-20, Visa stamp copy, I-94.`}
                         10. Common Tax Mistakes F-1 Students Make
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                        After helping thousands of international students, these are the most frequent — and most costly — tax filing errors we see. Each mistake includes the real-world consequence and how to fix it.
+                        These are common and costly tax filing errors to watch for. Each mistake includes the real-world consequence and how to fix it.
                     </p>
 
                     <div className="space-y-4">

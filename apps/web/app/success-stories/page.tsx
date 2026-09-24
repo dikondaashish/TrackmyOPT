@@ -69,7 +69,7 @@ function SuccessStatsVisual() {
 // Stats Section
 function StatsSection() {
     const stats = [
-        { value: "2,500+", label: "Students Helped" },
+        { value: "3,000+", label: "Registered Users" },
         { value: "500+", label: "Jobs Landed" },
         { value: "85%", label: "Found H-1B" },
         { value: "4.9/5", label: "Rating" },
@@ -137,7 +137,7 @@ export default function SuccessStoriesPage() {
             <FeatureHero
                 badge="Success Stories"
                 headline="Real Results from Real Students"
-                subheadline="See how TrackMyOPT has helped thousands of international students navigate OPT, find H-1B sponsors, and land their dream jobs at top companies."
+                subheadline="Explore stories and tools for planning OPT timelines and researching H-1B sponsors."
                 ctaText="Start Your Journey"
                 ctaHref="/login"
                 secondaryCta={{
@@ -163,7 +163,7 @@ export default function SuccessStoriesPage() {
             {/* CTA */}
             <FeatureCTA
                 headline="Ready to Write Your Story?"
-                subheadline="Join thousands of students who are taking control of their career journey."
+                subheadline="Start planning your OPT and career journey with TrackMyOPT."
                 primaryCTA={{
                     text: "Start Free Today",
                     href: "/login",

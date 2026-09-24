@@ -300,9 +300,9 @@ export default async function AnswerPage({ params }: Props) {
                         Track Your OPT Status Automatically
                     </h2>
                     <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-                        Join 2,500+ international students who use TrackMyOPT to
-                        stay compliant, track deadlines, and navigate their F-1
-                        journey with confidence.
+                        Join 3,000+ people who have signed up for TrackMyOPT. Use
+                        the tools to track deadlines and plan your OPT journey
+                        with confidence.
                     </p>
                     <Link
                         href="/login"

@@ -566,7 +566,7 @@ export default function CPTCompleteGuide() {
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Planning Your OPT After CPT?</h2>
                 <p className="text-purple-100 mb-6 max-w-lg mx-auto">
-                    Join 2,500+ F-1 students who use TrackMyOPT to track deadlines, monitor unemployment days, and find H-1B sponsors.
+                    Join 3,000+ people who have signed up for TrackMyOPT. Use it to track deadlines, monitor unemployment days, and research H-1B sponsors.
                 </p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />

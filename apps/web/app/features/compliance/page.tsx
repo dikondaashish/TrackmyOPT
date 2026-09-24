@@ -287,7 +287,7 @@ export default function CompliancePage() {
             {/* Final CTA */}
             <FeatureCTA
                 headline="Protect Your F-1 Status Today"
-                subheadline="Join thousands of international students who trust TrackMyOPT to stay compliant and stress-free."
+                subheadline="Use TrackMyOPT to organize deadlines and stay on top of your OPT journey."
                 primaryCTA={{
                     text: "Start Tracking Free",
                     href: "/login",

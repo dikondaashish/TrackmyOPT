@@ -149,7 +149,7 @@ export default function CommunityPage() {
                 accentColor="purple"
                 stats={[
                     { value: "4x", label: "Higher hire rate with referral", icon: <Award className="w-5 h-5" /> },
-                    { value: "5000+", label: "Verified alumni mentors", icon: <Users className="w-5 h-5" /> },
+                    { value: "Free", label: "Community access", icon: <Users className="w-5 h-5" /> },
                     { value: "24h", label: "Avg response time", icon: <MessageSquare className="w-5 h-5" /> },
                     { value: "100%", label: "Real student community", icon: <HeartHandshake className="w-5 h-5" /> },
                 ]}
@@ -194,7 +194,7 @@ export default function CommunityPage() {
             {/* CTA */}
             <FeatureCTA
                 headline="Build Your Support Network"
-                subheadline="Don't apply alone. Join thousands of international students helping each other secure their American Dream."
+                subheadline="Don't apply alone. Connect with other international students as you plan your next step."
                 primaryCTA={{
                     text: "Join Community Free",
                     href: "/login",
@@ -205,7 +205,7 @@ export default function CommunityPage() {
                 }}
                 gradient="purple"
                 icon={<Users className="w-12 h-12 text-white" />}
-                badge="5000+ Active Members"
+                badge="Join the Community"
             />
         </main>
         </>

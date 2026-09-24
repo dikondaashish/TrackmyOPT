@@ -741,7 +741,7 @@ export default function OPTCareerPillarGuide() {
                         <AlertTriangle className="w-7 h-7 text-red-500 flex-shrink-0" />Common Career Mistakes F-1 Students Make
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                        After advising thousands of international students, these are the most costly mistakes we see — and how to avoid them.
+                        These are costly OPT career mistakes to watch for — and how to avoid them.
                     </p>
                     <div className="space-y-3">
                         {[

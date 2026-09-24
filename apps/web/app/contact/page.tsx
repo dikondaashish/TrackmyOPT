@@ -251,7 +251,7 @@ export default function ContactPage() {
             {/* CTA */}
             <FeatureCTA
                 headline="Ready to Get Started?"
-                subheadline="Join thousands of students managing their OPT journey with TrackMyOPT."
+                subheadline="Use TrackMyOPT to plan and manage your OPT journey."
                 primaryCTA={{
                     text: "Start Free Today",
                     href: "/login",

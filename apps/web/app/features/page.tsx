@@ -60,7 +60,7 @@ const features = [
   },
   {
     title: "Student Community",
-    description: "Connect with thousands of F-1 students navigating OPT, STEM OPT, and H-1B transitions.",
+    description: "Explore tools and community resources for OPT, STEM OPT, and H-1B transitions.",
     href: "/features/community",
     icon: Users,
     color: "teal",
@@ -122,7 +122,7 @@ export default function FeaturesPage() {
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-3">Ready to protect your OPT status?</h2>
           <p className="text-blue-100 mb-6 max-w-lg mx-auto">
-            Join 2,500+ F-1 students who trust TrackMyOPT to stay compliant and find their next opportunity.
+            Join 3,000+ people who have signed up for TrackMyOPT. Explore tools for OPT planning and your job search.
           </p>
           <Link
             href="/login"

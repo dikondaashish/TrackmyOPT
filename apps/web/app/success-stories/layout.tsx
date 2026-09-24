@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     },
     openGraph: {
         title: "TrackMyOPT Success Stories",
-        description: "See how 2,500+ students used TrackMyOPT to land jobs at Google, Amazon, Microsoft, and more.",
+        description: "Explore TrackMyOPT stories and tools. More than 3,000 people have signed up to plan their OPT and careers.",
         url: "https://www.trackmyopt.com/success-stories",
         images: [{ url: "https://www.trackmyopt.com/og-image.jpg", width: 1200, height: 630, alt: "Success Stories from International Students Landing Jobs" }]
     },

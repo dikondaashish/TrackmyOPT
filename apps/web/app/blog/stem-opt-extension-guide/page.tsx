@@ -297,7 +297,7 @@ export default function STEMOPTGuideArticle() {
 
             <div className="bg-gradient-to-r from-purple-600 to-violet-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your STEM OPT Timeline & Unemployment Days</h2>
-                <p className="text-purple-100 mb-6 max-w-lg mx-auto">Join 2,500+ students using TrackMyOPT to manage their STEM OPT deadlines, employer reporting, and unemployment clock.</p>
+                <p className="text-purple-100 mb-6 max-w-lg mx-auto">Join 3,000+ people who have signed up for TrackMyOPT. Use it to plan STEM OPT deadlines, employer reporting, and unemployment days.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>
             </div>
 

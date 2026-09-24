@@ -99,7 +99,7 @@ export function LandingFooter() {
               <span className="text-xl font-bold text-gray-900 dark:text-white">TrackMyOPT</span>
             </Link>
             <p className="max-w-xs text-base text-gray-600 dark:text-gray-400 md:text-sm">
-              The #1 OPT timeline tracker trusted by 2,500+ international students worldwide.
+              More than 3,000 people have signed up for TrackMyOPT. Our free tools receive 10,000+ Google Search clicks each month.
             </p>
           </div>
 

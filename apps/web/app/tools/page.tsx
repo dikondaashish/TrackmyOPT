@@ -190,7 +190,7 @@ export default function ToolsPage() {
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Track key OPT dates, explore H-1B sponsors, and plan your next
-              career step.
+              career step. Our free tools receive 10,000+ Google Search clicks each month.
             </p>
           </div>
         </section>

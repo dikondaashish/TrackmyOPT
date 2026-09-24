@@ -217,7 +217,7 @@ export function LandingHero() {
                                     <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500" />
                                 </span>
                                 <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                                    #1 Platform for International Students
+                                    3,000+ registered users
                                 </span>
                             </div>
                         </motion.div>
@@ -253,6 +253,9 @@ export function LandingHero() {
                             </div>
                             <p className="text-sm text-muted-foreground">
                                 Free account → enter your dates → see your OPT window
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                Our free tools receive 10,000+ Google Search clicks each month.
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground lg:justify-start">
                                 <span className="text-foreground/70">Where are you?</span>

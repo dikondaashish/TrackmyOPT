@@ -52,7 +52,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'OPT Deadline Tracker for F-1 Students | TrackMyOPT',
   description:
-    'Never miss an OPT deadline. Track filing windows, unemployment days, and STEM dates in one place. Free forever — trusted by 2,500+ F-1 students.',
+    'Never miss an OPT deadline. Track filing windows, unemployment days, and STEM dates in one place. Free forever — 3,000+ registered users and 10,000+ monthly search clicks to free tools.',
 };
 
 export default function LandingPage() {

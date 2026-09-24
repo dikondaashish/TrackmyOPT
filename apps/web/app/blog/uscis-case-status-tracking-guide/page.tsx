@@ -299,7 +299,7 @@ export default function USCISCaseStatusTrackingGuide() {
 
                     <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                         <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
-                            Join thousands of F-1 students who never miss a USCIS status update.
+                            Check your USCIS case status and plan your next step.
                         </p>
                         <Link href="/login" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
                             Track Your Case Free <ArrowRight className="w-4 h-4" />
@@ -484,7 +484,7 @@ export default function USCISCaseStatusTrackingGuide() {
             <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Never Miss a USCIS Status Update</h2>
                 <p className="text-green-100 mb-6 max-w-lg mx-auto">
-                    Join 2,500+ F-1 students who use TrackMyOPT to track case status — Free with manual refresh, or Pro with daily auto-checks and email alerts.
+                    Join 3,000+ people who have signed up for TrackMyOPT. Check your case status for free with manual refresh, or use Pro for daily auto-checks and email alerts.
                 </p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 rounded-xl font-semibold hover:bg-green-50 transition-colors">
                     Start Tracking Free <ArrowRight className="w-4 h-4" />

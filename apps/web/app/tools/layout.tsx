@@ -4,21 +4,21 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export const metadata: Metadata = {
     title: "Free OPT Tools for F-1 Students | TrackMyOPT",
-    description: "Free immigration tools for F-1 students: OPT timeline calculator, unemployment day tracker, STEM OPT clock, USCIS case status checker, H-1B sponsor database, AI resume builder, and more.",
+    description: "Free OPT and immigration tools receiving 10,000+ Google Search clicks each month. Explore calculators, unemployment tracking, case status, H-1B sponsors, and AI resumes.",
     keywords: ["OPT calculator", "OPT unemployment tracker", "USCIS case tracker", "H-1B sponsor search", "F-1 student tools", "STEM OPT calculator"],
     alternates: {
         canonical: "https://www.trackmyopt.com/tools",
     },
     openGraph: {
         title: "Free OPT & Immigration Tools for F-1 Students | TrackMyOPT",
-        description: "All the free tools international students need: OPT calculators, unemployment trackers, case status checkers, H-1B sponsor database, and AI resume builder.",
+        description: "TrackMyOPT free tools receive 10,000+ Google Search clicks each month: OPT calculators, unemployment tracking, case status, H-1B sponsors, and AI resumes.",
         url: "https://www.trackmyopt.com/tools",
         images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "TrackMyOPT free tools" }],
     },
     twitter: {
         card: "summary_large_image",
         title: "Free OPT & Immigration Tools for F-1 Students | TrackMyOPT",
-        description: "All the free tools international students need: OPT calculators, unemployment trackers, case status checkers, H-1B sponsor database, and AI resume builder.",
+        description: "TrackMyOPT free tools receive 10,000+ Google Search clicks each month: OPT calculators, unemployment tracking, case status, H-1B sponsors, and AI resumes.",
         images: ["/og-image.jpg"],
     },
 };

@@ -123,7 +123,7 @@ export function LandingTestimonials() {
                         Trusted by International Students Nationwide
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Join 2,500+ F-1 students from 50+ countries who use TrackMyOPT to navigate their immigration journey.
+                        More than 3,000 people have signed up for TrackMyOPT, and our free tools receive 10,000+ Google Search clicks each month.
                     </p>
                 </div>
 
