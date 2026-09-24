@@ -9,6 +9,7 @@ it('shows chart coverage at a glance and keeps data-quality details available', 
         totalReports: 100,
         includedReports: 80,
         excludedStale: 10,
+        excludedOlderImport: 2,
         excludedUnknownFreshness: 5,
         duplicateIdsRemoved: 5,
         possibleCrossSourceDuplicates: 2,
@@ -38,6 +39,7 @@ it('shows chart coverage at a glance and keeps data-quality details available', 
   expect(screen.getByText(/not verified unique applicants/i)).toBeVisible();
   fireEvent.click(screen.getByText('Sources and calculation details'));
   expect(screen.getByText(/RFE pauses are not captured/i)).toBeVisible();
+  expect(screen.getByText(/2 absent from the latest import/i)).toBeVisible();
   expect(screen.getByText(/Community source 1: 60 stored reports/)).toHaveTextContent(
     'Last observed import: Sep 23, 2026'
   );

@@ -12,6 +12,7 @@ export type CommunityEvidence = {
   totalReports: number;
   includedReports: number;
   excludedStale: number;
+  excludedOlderImport: number;
   excludedUnknownFreshness: number;
   duplicateIdsRemoved: number;
   possibleCrossSourceDuplicates: number;
@@ -32,6 +33,8 @@ export type PremiumUpgradeStats = {
 };
 
 export const FRESHNESS_DAYS = 30;
+// Vercel allows this import five minutes; one successful batch fits within ten.
+const MAX_IMPORT_SPAN_MS = 10 * 60 * 1000;
 export function partnerName(id: string) {
   return id.startsWith('optt_')
     ? 'OPT Tracker'
@@ -42,9 +45,26 @@ export function partnerName(id: string) {
 
 /** Freshness is last observed in an import, not the date the applicant edited it.
  * Never merge different applicants just because they share filing dates. */
-export function prepareEvidence(rows: EvidenceRow[], now = new Date()) {
+export function prepareEvidence(
+  rows: EvidenceRow[],
+  now = new Date(),
+  latestSourceTimes?: ReadonlyMap<string, number>
+) {
   const nowMs = now.getTime();
   const cutoff = nowMs - FRESHNESS_DAYS * 86400000;
+  const latestImportBySource = new Map<string, number>();
+  for (const row of rows) {
+    if (!row.external_id) continue;
+    const stamp = Date.parse(row.updated_at ?? '');
+    if (!Number.isFinite(stamp) || stamp > nowMs) continue;
+    const name = partnerName(row.external_id);
+    latestImportBySource.set(name, Math.max(stamp, latestImportBySource.get(name) ?? 0));
+  }
+  for (const [name, stamp] of latestSourceTimes ?? []) {
+    if (Number.isFinite(stamp) && stamp <= nowMs) {
+      latestImportBySource.set(name, Math.max(stamp, latestImportBySource.get(name) ?? 0));
+    }
+  }
   const seen = new Set<string>();
   const sourceRows = new Map<
     string,
@@ -55,6 +75,7 @@ export function prepareEvidence(rows: EvidenceRow[], now = new Date()) {
     totalReports: rows.length,
     includedReports: 0,
     excludedStale: 0,
+    excludedOlderImport: 0,
     excludedUnknownFreshness: 0,
     duplicateIdsRemoved: 0,
     possibleCrossSourceDuplicates: 0,
@@ -96,6 +117,10 @@ export function prepareEvidence(rows: EvidenceRow[], now = new Date()) {
     }
     if (stamp < cutoff) {
       evidence.excludedStale++;
+      continue;
+    }
+    if (stamp < (latestImportBySource.get(name) ?? stamp) - MAX_IMPORT_SPAN_MS) {
+      evidence.excludedOlderImport++;
       continue;
     }
     const row = cleanPartnerCase({ ...raw, id, type: raw.case_kind }, now);

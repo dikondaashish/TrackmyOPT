@@ -52,6 +52,26 @@ describe('community evidence', () => {
       'OPT Pulse',
     ]);
   });
+  it('excludes a prior import for each source while keeping the latest batch of another source', () => {
+    const rows = [
+      { ...row, external_id: 'optt_old', updated_at: '2026-09-22T10:00:00Z' },
+      { ...row, external_id: 'optt_new', updated_at: '2026-09-23T10:00:00Z' },
+      { ...row, external_id: 'optp_current', updated_at: '2026-09-22T10:00:00Z' },
+    ];
+    const result = prepareEvidence(rows, now);
+    expect(result.rows.map((r) => r.external_id)).toEqual(['optt_new', 'optp_current']);
+    expect(result.evidence.excludedOlderImport).toBe(1);
+    expect(result.evidence.totalReports).toBe(3);
+  });
+  it('excludes a category that was absent from its source-wide latest import', () => {
+    const result = prepareEvidence(
+      [{ ...row, external_id: 'optp_old', updated_at: '2026-09-22T10:00:00Z' }],
+      now,
+      new Map([['OPT Pulse', Date.parse('2026-09-23T10:00:00Z')]])
+    );
+    expect(result.rows).toHaveLength(0);
+    expect(result.evidence.excludedOlderImport).toBe(1);
+  });
   it('uses upgrade-to-approval, not filing-to-approval, and permits same-day approvals', () => {
     const rows = Array.from({ length: 15 }, (_, i) => ({
       ...row,

@@ -119,7 +119,8 @@ export function ComparisonEvidence({
           </ul>
           <p>
             Excluded: {evidence.excludedStale} not refreshed in{' '}
-            {evidence.freshnessDays} days; {evidence.excludedUnknownFreshness}{' '}
+            {evidence.freshnessDays} days; {evidence.excludedOlderImport} absent
+            from the latest import; {evidence.excludedUnknownFreshness}{' '}
             without valid refresh evidence; {evidence.duplicateIdsRemoved}{' '}
             repeated record IDs. Missing approvals are not treated as pending
             cases.

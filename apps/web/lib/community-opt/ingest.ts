@@ -37,16 +37,22 @@ async function fetchOptTrackerCases(): Promise<SourceFetch> {
   const page1 = await fetchJson<PartnerListResponse>(
     `${base}/api/cases?page=1&per_page=${OPT_TRACKER_PER_PAGE}&sort_col=updated_at&sort_dir=desc`
   );
-  const totalPages = Math.min(
-    typeof page1.total_pages === "number" ? page1.total_pages : 1,
-    OPT_TRACKER_MAX_PAGES
-  );
+  const totalPages = page1.total_pages ?? 1;
+  if (!Number.isInteger(totalPages) || totalPages < 1 || totalPages > OPT_TRACKER_MAX_PAGES || !Array.isArray(page1.cases)) {
+    throw new Error("Incomplete partner case listing");
+  }
   const raw: PartnerCasePayload[] = [...(page1.cases ?? [])];
   for (let page = 2; page <= totalPages; page++) {
     const body = await fetchJson<PartnerListResponse>(
       `${base}/api/cases?page=${page}&per_page=${OPT_TRACKER_PER_PAGE}&sort_col=updated_at&sort_dir=desc`
     );
-    raw.push(...(body.cases ?? []));
+    if (!Array.isArray(body.cases) || !body.cases.length) {
+      throw new Error("Incomplete partner case listing");
+    }
+    raw.push(...body.cases);
+  }
+  if (typeof page1.total === "number" && raw.length < page1.total - OPT_TRACKER_PER_PAGE) {
+    throw new Error("Partner case count does not match the fetched pages");
   }
   return {
     cases: raw.map((r) => ({
@@ -61,6 +67,7 @@ async function fetchOptTrackerCases(): Promise<SourceFetch> {
 
 type OptPulseRow = {
   id: string;
+  reddit_url?: string | null;
   opt_type?: string | null;
   premium_processing?: boolean | null;
   date_applied?: string | null;
@@ -73,6 +80,18 @@ type OptPulseRow = {
   processing_center?: string | null;
 };
 
+export function pulseCommunitySource(redditUrl: string | null | undefined) {
+  if (!redditUrl) return "other";
+  try {
+    const host = new URL(redditUrl).hostname.toLowerCase();
+    return host === "reddit.com" || host.endsWith(".reddit.com") || host === "redd.it"
+      ? "reddit"
+      : "other";
+  } catch {
+    return "other";
+  }
+}
+
 /** opt-pulse.vercel.app — public Supabase `cases` table. Ids namespaced `optp_`. */
 async function fetchOptPulseCases(): Promise<SourceFetch> {
   const url =
@@ -83,7 +102,7 @@ async function fetchOptPulseCases(): Promise<SourceFetch> {
   let pages = 0;
   for (let offset = 0; offset < OPT_PULSE_MAX_ROWS; offset += OPT_PULSE_PAGE) {
     const rows = await fetchJson<OptPulseRow[]>(
-      `${url}/rest/v1/cases?select=id,opt_type,premium_processing,date_applied,biometrics_completed,pp_date,date_approved,date_card_produced,date_card_received,country_of_citizenship,processing_center&order=id.asc&limit=${OPT_PULSE_PAGE}&offset=${offset}`,
+      `${url}/rest/v1/cases?select=id,reddit_url,opt_type,premium_processing,date_applied,biometrics_completed,pp_date,date_approved,date_card_produced,date_card_received,country_of_citizenship,processing_center&order=id.asc&limit=${OPT_PULSE_PAGE}&offset=${offset}`,
       { apikey: key, Authorization: `Bearer ${key}` }
     );
     if (!rows.length) break;
@@ -91,7 +110,7 @@ async function fetchOptPulseCases(): Promise<SourceFetch> {
     for (const r of rows) {
       out.push({
         id: `optp_${r.id}`,
-        source: "reddit",
+        source: pulseCommunitySource(r.reddit_url),
         type: r.opt_type ?? null,
         service_center: r.processing_center ?? null,
         premium_processing: r.premium_processing ?? null,
@@ -106,6 +125,9 @@ async function fetchOptPulseCases(): Promise<SourceFetch> {
       });
     }
     if (rows.length < OPT_PULSE_PAGE) break;
+    if (offset + rows.length >= OPT_PULSE_MAX_ROWS) {
+      throw new Error("Partner case pagination limit reached");
+    }
   }
   return { cases: out, pages, total: out.length };
 }

@@ -3,6 +3,7 @@ import { inferCaseKind, serviceCenterFromReceipt } from './centers';
 import {
   prepareEvidence,
   premiumUpgradeStats,
+  partnerName,
   type CommunityEvidence,
   type PremiumUpgradeStats,
 } from './evidence';
@@ -111,6 +112,23 @@ export async function fetchAllTimelines(
   throw new Error('Community timeline pagination limit reached');
 }
 
+/** A category may disappear entirely from a partner's latest feed. Read the
+ * source-wide refresh time so old category rows cannot look current. */
+async function fetchLatestSourceTimes(supabase: SupabaseClient) {
+  const prefixes = ['optt_', 'optp_'];
+  const times = await Promise.all(prefixes.map(async (prefix) => {
+    const { data, error } = await supabase
+      .from('community_opt_timelines')
+      .select('updated_at')
+      .like('external_id', `${prefix}%`)
+      .order('updated_at', { ascending: false })
+      .limit(1);
+    if (error) throw new Error('Community source freshness could not be loaded');
+    return [partnerName(prefix), Date.parse(data?.[0]?.updated_at ?? '')] as const;
+  }));
+  return new Map<string, number>(times);
+}
+
 /**
  * Load cleaned partner timelines and build a matched processing-time estimate.
  */
@@ -142,10 +160,13 @@ export async function getCommunityEstimate(
   const daysSinceFiled = Math.max(0, Math.floor(query.daysSinceFiled ?? 0));
 
   const supabase = createClient(url, key);
-  const loaded = await fetchAllTimelines(supabase, caseKind);
+  const [loaded, latestSourceTimes] = await Promise.all([
+    fetchAllTimelines(supabase, caseKind),
+    fetchLatestSourceTimes(supabase),
+  ]);
   // Revalidate stored rows as well as new ingestion; no destructive cleanup needed.
   const now = new Date();
-  const { rows: data, evidence } = prepareEvidence(loaded, now);
+  const { rows: data, evidence } = prepareEvidence(loaded, now, latestSourceTimes);
   if (!data.length) return { ...empty, evidence };
   const premiumUpgrade = premiumProcessing
     ? premiumUpgradeStats(data, now)

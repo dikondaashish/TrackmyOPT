@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { cleanPartnerCase, daysBetweenDates } from "./clean";
 import { inferCaseKind, serviceCenterFromReceipt } from "./centers";
 import { fetchAllTimelines } from "./get-estimate";
-import { dedupeByExternalId } from "./ingest";
+import { dedupeByExternalId, pulseCommunitySource } from "./ingest";
 import { buildSimilarFilingPeers } from "./similar-filing";
 import {
   buildJourneyStages,
@@ -196,6 +196,13 @@ describe("ingest dedupe", () => {
     expect(dedupeByExternalId(rows)).toEqual(rows);
     expect(dedupeByExternalId([])).toEqual([]);
   });
+});
+
+it("classifies Pulse reports only when their link points to Reddit", () => {
+  expect(pulseCommunitySource("https://www.reddit.com/r/f1visa/comments/example")).toBe("reddit");
+  expect(pulseCommunitySource("https://redd.it/example")).toBe("reddit");
+  expect(pulseCommunitySource(null)).toBe("other");
+  expect(pulseCommunitySource("https://reddit.com.evil.example/comment")).toBe("other");
 });
 
 describe("timeline paging", () => {
