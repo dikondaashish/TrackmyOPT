@@ -15,6 +15,7 @@ import { LiveStatsWidget } from './LiveStatsWidget';
 import { EmailReminder } from './EmailReminder';
 import { ToolWorkspace } from './ToolWorkspace';
 import { DateInput } from '../opt/OptDateInput';
+import { StemApplyTool } from './tools/StemApplyTool';
 vi.mock('@/components/pricing/PricingModal', () => ({
   PricingModal: () => null,
 }));
@@ -66,6 +67,86 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+});
+it.each([OptApplyTool, OptClockTool, StemApplyTool, StemClockTool])(
+  'offers Pro to free users without locking the tool: %s',
+  async (Tool) => {
+    render(<Tool />);
+    expect(
+      await screen.findByRole('region', { name: 'Explore TrackMyOPT Pro' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Unlock Pro tracking' })
+    ).toHaveAttribute('href', '/pricing');
+    expect(
+      screen.queryByRole('link', { name: 'Start with a free account' })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+  }
+);
+
+it('offers signed-out visitors pricing and an optional free account', async () => {
+  const original = fetchMock.getMockImplementation()!;
+  fetchMock.mockImplementation(async (url, options) =>
+    url === '/api/opt/calculator' ? response({}, 401) : original(url, options)
+  );
+  render(<OptApplyTool />);
+  expect(
+    await screen.findByRole('link', { name: 'Explore Pro tracking' })
+  ).toHaveAttribute('href', '/pricing');
+  expect(
+    screen.getByRole('link', { name: 'Start with a free account' })
+  ).toHaveAttribute('href', '/login?redirect=%2Fdashboard%2Fcase-status');
+});
+
+it.each([true, 'failed', 'malformed', 'server-error'] as const)(
+  'does not upsell Premium or unverified plans: %s',
+  async (plan) => {
+    const original = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (url, options) =>
+      url === '/api/premium/status'
+        ? plan === true
+          ? response({ isPremium: true })
+          : plan === 'failed'
+            ? response({}, 500)
+            : plan === 'server-error'
+              ? response({
+                  isPremium: false,
+                  error: 'Unable to verify premium status',
+                })
+              : response({})
+        : original(url, options)
+    );
+    render(<OptApplyTool />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled()
+    );
+    expect(
+      screen.queryByRole('region', { name: 'Explore TrackMyOPT Pro' })
+    ).not.toBeInTheDocument();
+  }
+);
+
+it('never flashes an upsell while a Premium check is still loading', async () => {
+  const original = fetchMock.getMockImplementation()!;
+  let resolvePlan!: (value: ReturnType<typeof response>) => void;
+  const pending = new Promise<ReturnType<typeof response>>((resolve) => {
+    resolvePlan = resolve;
+  });
+  fetchMock.mockImplementation((url, options) =>
+    url === '/api/premium/status' ? pending : original(url, options)
+  );
+  render(<OptApplyTool />);
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled()
+  );
+  expect(
+    screen.queryByRole('region', { name: 'Explore TrackMyOPT Pro' })
+  ).not.toBeInTheDocument();
+  await act(async () => resolvePlan(response({ isPremium: true })));
+  expect(
+    screen.queryByRole('region', { name: 'Explore TrackMyOPT Pro' })
+  ).not.toBeInTheDocument();
 });
 it('does not invent a DSO date when program end changes and saves only the changed field', async () => {
   render(<OptApplyTool />);

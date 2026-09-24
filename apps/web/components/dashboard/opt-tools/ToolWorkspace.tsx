@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { ToolUpgradePrompt, type ToolAudience } from './ToolUpgradePrompt';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ExternalLink, Save } from 'lucide-react';
@@ -19,10 +20,12 @@ export function ToolWorkspace({
   slug,
   children,
   aside,
+  audience = 'unknown',
 }: {
   slug: ToolSlug;
   children: ReactNode;
   aside?: ReactNode;
+  audience?: ToolAudience;
 }) {
   const pathname = usePathname();
   const base = pathname.startsWith('/dashboard')
@@ -73,6 +76,7 @@ export function ToolWorkspace({
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
         <div className="min-w-0 space-y-5">{children}</div>
         <aside className="min-w-0 space-y-5">
+          <ToolUpgradePrompt slug={slug} audience={audience} />
           {aside}
           <div className={panelClass}>
             <h3 className="font-semibold">Before you act</h3>

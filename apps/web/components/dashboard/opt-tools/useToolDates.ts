@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type { ToolAudience } from './ToolUpgradePrompt';
 import { isoToMMDDYYYY } from '@/lib/immigration/opt-calculations';
 import {
   calendarDateISO,
@@ -35,6 +36,7 @@ export function useToolDates() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [premium, setPremium] = useState(false);
+  const [premiumKnown, setPremiumKnown] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const version = useRef(0);
   const saveLock = useRef(false);
@@ -84,7 +86,14 @@ export function useToolDates() {
       .then(async (res) => {
         if (res.ok) {
           const body = await res.json();
-          if (!cancelled) setPremium(body.isPremium === true);
+          if (
+            !cancelled &&
+            typeof body.isPremium === 'boolean' &&
+            (!body.error || body.error === 'Not authenticated')
+          ) {
+            setPremium(body.isPremium);
+            setPremiumKnown(true);
+          }
         }
       })
       .catch(() => {});
@@ -153,6 +162,7 @@ export function useToolDates() {
     }
   }
   function retry() {
+    setPremiumKnown(false);
     setLoading(true);
     setLoadError(false);
     setAttempt((value) => value + 1);
@@ -170,6 +180,13 @@ export function useToolDates() {
     saving,
     success,
     premium,
+    audience: (loading || loadError || !premiumKnown
+      ? 'unknown'
+      : premium
+        ? 'premium'
+        : guest
+          ? 'guest'
+          : 'free') as ToolAudience,
     today,
   };
 }

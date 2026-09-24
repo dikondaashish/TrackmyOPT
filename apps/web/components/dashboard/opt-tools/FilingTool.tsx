@@ -33,7 +33,11 @@ export function FilingTool({ kind }: { kind: 'opt' | 'stem' }) {
     <CalendarDays aria-hidden="true" className={`h-4 w-4 ${theme.text}`} />
   );
   return (
-    <ToolWorkspace slug={slug} aside={<LiveStatsWidget toolType={slug} />}>
+    <ToolWorkspace
+      slug={slug}
+      audience={state.audience}
+      aside={<LiveStatsWidget toolType={slug} />}
+    >
       <div className={panelClass} aria-busy={state.loading}>
         <h3 className="font-semibold">Your filing dates</h3>
         <p className="mb-5 mt-1 text-sm text-muted-foreground">

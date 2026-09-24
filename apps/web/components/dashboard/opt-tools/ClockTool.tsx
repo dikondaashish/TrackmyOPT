@@ -112,6 +112,7 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
   return (
     <ToolWorkspace
       slug={slug}
+      audience={state.audience}
       aside={
         <div className={panelClass}>
           <h3 className="font-semibold">What stops the clock?</h3>

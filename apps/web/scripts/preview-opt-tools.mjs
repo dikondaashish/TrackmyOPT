@@ -51,7 +51,7 @@ const result = await esbuild.build({
       if(params.has('guest') && (url==='/api/opt/calculator'||url==='/api/employment-spans')) return response({},401);
       if(url==='/api/opt/calculator') {if(options.method==='POST') dates={...dates,...JSON.parse(options.body)};return response({ok:true,data:dates});}
       if(url==='/api/employment-spans') return response({ok:true,spans});
-      if(url==='/api/premium/status') return response({isPremium:true});
+      if(url==='/api/premium/status') return response({isPremium:!params.has('free')&&!params.has('guest')});
       if(url==='/api/user/tool-email') {if(options.method==='POST'){const data=JSON.parse(options.body);emails[data.tool]=data.email;}return response({ok:true,emails});}
       if(url==='/api/opt/community-stats') {const block={mainStat:{value:null},sampleSize:0,dataSource:'insufficient'};return response({'opt-apply':block,'stem-apply':block});}
       throw Error('Network disabled: '+url);
