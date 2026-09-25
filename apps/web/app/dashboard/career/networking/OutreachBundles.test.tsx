@@ -31,6 +31,8 @@ describe('saved outreach bundle workspace', () => {
     expect(await screen.findByText('Taylor One')).toBeInTheDocument();
     expect(screen.getByText('Morgan Two')).toBeInTheDocument();
     expect(screen.getByText(/2 relevant contacts found/)).toBeInTheDocument();
+    expect(screen.getByText('Work email verified')).toBeInTheDocument();
+    expect(screen.queryByText(/ApplyBolt/i)).not.toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: /Open Gmail/ })).toHaveLength(1);
     expect(screen.getAllByRole('link', { name: /Open Outlook/ })).toHaveLength(1);
     expect(screen.getByText(/No verified work email found/)).toBeInTheDocument();
@@ -109,6 +111,8 @@ describe('saved outreach bundle workspace', () => {
     expect(fetchMock.mock.calls.every((call) => call[1]?.method !== 'POST')).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Retry email lookup' }));
     expect(await screen.findByText('taylor@microsoft.com')).toBeInTheDocument();
+    expect(screen.getByText(/Work email verified for this visit/)).toBeInTheDocument();
+    expect(screen.queryByText(/ApplyBolt/i)).not.toBeInTheDocument();
     expect(screen.getByText(/not saved to the bundle/)).toBeInTheDocument();
     const lookupCall = fetchMock.mock.calls.find((call) => call[0].startsWith('https://api.applybolt'))!;
     expect(lookupCall[1]).toMatchObject({ credentials: 'omit', referrerPolicy: 'no-referrer', redirect: 'error' });

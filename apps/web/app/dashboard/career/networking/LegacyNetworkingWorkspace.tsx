@@ -717,7 +717,7 @@ function ContactLookupForm({
         {lookupLoading ? 'Checking profile…' : 'Find work email'}
       </button>
       <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-        This profile URL is sent to ApplyBolt. A lookup can take up to a minute.
+        This profile URL is sent to our email lookup provider. A lookup can take up to a minute.
       </p>
     </form>
   );

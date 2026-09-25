@@ -61,6 +61,8 @@ describe('NetworkingWorkspace', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
     expect(await screen.findByText('alex@example.com')).toBeInTheDocument();
+    expect(screen.getByText(/sent to our email lookup provider/)).toBeInTheDocument();
+    expect(screen.queryByText(/ApplyBolt/i)).not.toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.applybolt.app/public/findEmailByLinkedIn',
       expect.objectContaining({
@@ -197,7 +199,7 @@ describe('NetworkingWorkspace', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
     expect(
-      await screen.findByText(/ApplyBolt has reached its lookup limit/)
+      await screen.findByText(/The email lookup limit has been reached/)
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: /Open in Gmail/ })

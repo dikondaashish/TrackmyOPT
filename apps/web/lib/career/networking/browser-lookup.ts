@@ -16,7 +16,7 @@ export type Draft = {
   linkedinNote: string;
 };
 type ApiResponse<T> = { ok: true; data: T } | { ok: false; error: string };
-const APPLYBOLT_URL = 'https://api.applybolt.app/public/findEmailByLinkedIn';
+const EMAIL_LOOKUP_URL = 'https://api.applybolt.app/public/findEmailByLinkedIn';
 
 function optionalText(value: unknown): string | null {
   return typeof value === 'string' && value.trim()
@@ -59,7 +59,7 @@ export async function requestEmailLookup(linkedinUrl: string): Promise<FinderRes
   }
   let providerResponse: Response;
   try {
-    providerResponse = await fetch(APPLYBOLT_URL, {
+    providerResponse = await fetch(EMAIL_LOOKUP_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ linkedinUrl: payload.data.linkedinUrl }),
@@ -76,11 +76,11 @@ export async function requestEmailLookup(linkedinUrl: string): Promise<FinderRes
     ) {
       throw new Error('This lookup took too long. Please try again.');
     }
-    throw new Error('Could not connect to ApplyBolt. Please try again.');
+    throw new Error('Could not connect to the email lookup service. Please try again.');
   }
   if (providerResponse.status === 429) {
     throw new Error(
-      'ApplyBolt has reached its lookup limit. Please wait a few minutes.'
+      'The email lookup limit has been reached. Please wait a few minutes.'
     );
   }
   if (!providerResponse.ok) {
