@@ -8,3 +8,13 @@ export function findLinkedInEasyApplyDialog(doc: Document = document): HTMLDialo
     dialog.querySelector('input, select, textarea') !== null
   ) ?? null;
 }
+
+/** LinkedIn puts the required marker on the question above the radio group,
+ * rather than on the individual inputs. */
+export function isLinkedInRequiredRadioQuestion(control: HTMLElement): boolean {
+  const dialog = control.closest('dialog[open]');
+  if (!dialog || dialog !== findLinkedInEasyApplyDialog(control.ownerDocument)) return false;
+  const group = control.closest('fieldset[role="radiogroup"]');
+  const question = group?.parentElement?.querySelector(':scope > p')?.textContent?.trim() ?? '';
+  return /\*\s*$/.test(question);
+}

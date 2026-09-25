@@ -43,6 +43,20 @@ test('Ashby unanswered and ambiguous private choices are never guessed',async()=
  const h=harness('<fieldset class="ashby-application-form-input-radio-group"><label class="ashby-application-form-question-title">Do you require sponsorship?</label><input type="radio" name="q" id="a"><label for="a">Yes, now</label><input type="radio" name="q" id="b"><label for="b">Yes, in future</label></fieldset>');
  try {assert.equal((await h.fill(h.document,{confirmed:true})).filled,0);assert.equal((await h.fill(h.document,{confirmed:true,requiresSponsorship:'yes'})).filled,0);assert.equal(h.document.querySelector(':checked'),null);}finally{h.dom.window.close();}
 });
+test('LinkedIn radio choices use their visible Yes/No text and click the saved answers',async()=>{
+ const question = (name:string,label:string) => `<div><p>${label}*</p><fieldset role="radiogroup"><div><div><input type="radio" name="${name}" aria-label="${label}"><label></label></div><div><p>Yes</p></div></div><div><div><input type="radio" name="${name}" aria-label="${label}"><label></label></div><div><p>No</p></div></div></fieldset></div>`;
+ const h=harness(question('auth','Are you legally authorized to work in the United States?')+question('sponsor','Will you now, or in the future, require sponsorship for employment visa status?'));
+ try {
+  let clicks=0;h.document.querySelectorAll('input').forEach((input:any)=>input.addEventListener('click',()=>clicks++));
+  const answers={confirmed:true,workAuthorization:'yes',requiresSponsorship:'no'};
+  assert.equal((await h.fill(h.document,answers)).filled,2);
+  assert.equal(h.document.querySelector('input[name="auth"]:checked')?.parentElement?.parentElement?.textContent?.trim(),'Yes');
+  assert.equal(h.document.querySelector('input[name="sponsor"]:checked')?.parentElement?.parentElement?.textContent?.trim(),'No');
+  assert.equal(clicks,2);
+  assert.equal((await h.fill(h.document,answers)).filled,0);
+  assert.equal(clicks,2);
+ }finally{h.dom.window.close();}
+});
 test('native private select labels outrank backend numeric values',async()=>{
   const h=harness('<label for="s">Do you require sponsorship?</label><select id="s"><option value="">Select</option><option value="1">No</option><option value="2">Yes</option></select>');
   try {await h.fill(h.document,{confirmed:true,requiresSponsorship:'yes'});assert.equal(h.document.querySelector('select').value,'2');}finally{h.dom.window.close();}

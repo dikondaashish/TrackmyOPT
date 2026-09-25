@@ -4,7 +4,7 @@
  */
 
 import { classifyField, type FieldKind } from './easy-apply-matchers';
-import { findLinkedInEasyApplyDialog } from './linkedin-easy-apply-dialog';
+import { findLinkedInEasyApplyDialog, isLinkedInRequiredRadioQuestion } from './linkedin-easy-apply-dialog';
 import { selectAtsPrefillAdapter } from './ats-prefill-adapters';
 import {
   type PrefillControlOutcome,
@@ -204,7 +204,8 @@ export function getPrefillCandidateSignature(): string {
 }
 
 function isRequiredControl(el: HTMLElement): boolean {
-  return el.hasAttribute('required') || el.getAttribute('aria-required') === 'true';
+  return el.hasAttribute('required') || el.getAttribute('aria-required') === 'true' ||
+    isLinkedInRequiredRadioQuestion(el);
 }
 
 function requiredControlNeedsUser(el: HTMLElement, container: HTMLElement): boolean {

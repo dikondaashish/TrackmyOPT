@@ -1,4 +1,5 @@
 import { ashbyQuestion, ashbyQuestionRequired, ashbyExistingUpload } from './ashby-control-context';
+import { isLinkedInRequiredRadioQuestion } from './linkedin-easy-apply-dialog';
 import {
   CUSTOM_DROPDOWN_SELECTOR,
   customDropdownHasValue,
@@ -95,7 +96,7 @@ function visible(control: HTMLElement): boolean {
 }
 
 function required(control: HTMLElement): boolean {
-  if (ashbyQuestionRequired(control)) return true;
+  if (ashbyQuestionRequired(control) || isLinkedInRequiredRadioQuestion(control)) return true;
   if (
     control.hasAttribute('required') ||
     control.getAttribute('aria-required') === 'true'

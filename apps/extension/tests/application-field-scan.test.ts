@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict';
 import {
+  scanApplicationFields,
   summarizeApplicationFields,
   type ScannedApplicationField,
 } from '../src/application-field-scan';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
+
+const requireLocal = createRequire(resolve('package.json'));
+const { JSDOM } = requireLocal('jsdom');
 
 const fields: ScannedApplicationField[] = [
   { key: 'login', label: 'Login', required: true, filled: true },
@@ -41,5 +47,16 @@ const incomplete = summarizeApplicationFields([
 ]);
 assert.equal(incomplete.requiredPercent, 50);
 assert.equal(incomplete.unansweredRequired, 1);
+
+const linkedin = new JSDOM(
+  '<dialog open><h2>Apply to Example</h2><div><p>Are you legally authorized to work in the United States?*</p><fieldset role="radiogroup"><div><input type="radio" name="auth" aria-label="Are you legally authorized to work in the United States?"><p>Yes</p></div><div><input type="radio" name="auth" aria-label="Are you legally authorized to work in the United States?"><p>No</p></div></fieldset></div><div><p>Will you require sponsorship?*</p><fieldset role="radiogroup"><div><input type="radio" name="sponsor" aria-label="Will you require sponsorship?"><p>Yes</p></div><div><input type="radio" name="sponsor" aria-label="Will you require sponsorship?"><p>No</p></div></fieldset></div></dialog>',
+  { url: 'https://www.linkedin.com/jobs/view/123' },
+);
+const dialog = linkedin.window.document.querySelector('dialog')!;
+assert.equal(scanApplicationFields(dialog).requiredTotal, 2);
+assert.equal(scanApplicationFields(dialog).unansweredRequired, 2);
+dialog.querySelector<HTMLInputElement>('input[name="auth"]')!.click();
+assert.equal(scanApplicationFields(dialog).requiredFilled, 1);
+linkedin.window.close();
 
 console.log('application-field-scan: required progress and optional grouping passed');

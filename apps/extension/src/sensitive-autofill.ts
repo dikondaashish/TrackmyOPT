@@ -429,6 +429,23 @@ function fillSelect(select: HTMLSelectElement, answer: string): boolean {
   return true;
 }
 
+/** A radio's accessible name can be the question for every choice. Read the
+ * text of its own option wrapper before falling back to a meaningful value. */
+function radioOptionText(input: HTMLInputElement): string {
+  const associatedLabel = Array.from(input.labels || [])
+    .map((label) => label.textContent?.replace(/\s+/g, ' ').trim() || '')
+    .filter(Boolean)
+    .join(' ');
+  if (associatedLabel) return associatedLabel;
+  const fieldset = input.closest('fieldset');
+  for (let wrapper = input.parentElement; wrapper && wrapper !== fieldset; wrapper = wrapper.parentElement) {
+    if (wrapper.querySelectorAll('input[type="radio"]').length !== 1) break;
+    const text = wrapper.textContent?.replace(/\s+/g, ' ').trim() || '';
+    if (text && text.length <= 120) return text;
+  }
+  return input.value === 'on' ? '' : input.value;
+}
+
 function fillInput(
   input: HTMLInputElement | HTMLTextAreaElement,
   answer: string
@@ -439,14 +456,12 @@ function fillInput(
     (input.type === 'radio' || input.type === 'checkbox')
   ) {
     if (input.checked) return false;
-    if (input.type === 'radio' && ashbyQuestion(input)) {
+    if (input.type === 'radio') {
       if (!input.name) return false;
       const group = Array.from((input.form || input.ownerDocument).querySelectorAll<HTMLInputElement>('input[type="radio"]'))
         .filter(other => other.name === input.name && other.getRootNode() === input.getRootNode());
       if (group.some(other => other.checked)) return false;
-      const optionLabel = (candidate: HTMLInputElement) =>
-        Array.from(candidate.labels || []).map(label => label.textContent || '').join(' ').trim() || candidate.getAttribute('aria-label') || candidate.value;
-      const matches = group.filter(other => !other.disabled && candidateMatches(optionLabel(other), answer));
+      const matches = group.filter(other => !other.disabled && candidateMatches(radioOptionText(other), answer));
       if (matches.length !== 1 || matches[0] !== input) return false;
       return trackPrefillChange(input, () => { input.click(); return input.checked; });
     }
