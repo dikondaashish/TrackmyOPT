@@ -45,3 +45,12 @@ Python ATS dependencies are pinned in
 [CI workflow](../../.github/workflows/test.yml) runs their raw-payload fixtures
 alongside the JavaScript checks. Deployment configuration lives in
 [`render.yaml`](../../render.yaml) and [`Dockerfile`](Dockerfile).
+
+The ATS adapter installs from a GitHub commit archive with a SHA-256 checksum,
+so pip can retry HTTP connection failures without invoking `git clone`.
+The Docker image installs system and Python dependencies before copying the
+application source, allowing source-only deployments to reuse those layers.
+When updating the pinned revision, download its archive, calculate its SHA-256,
+update both values in the requirements file, and run the raw-payload fixtures.
+Builds still require network access to the archive host and Python package index;
+installation errors stop the build rather than silently omitting the adapter.

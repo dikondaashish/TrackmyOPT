@@ -2,7 +2,9 @@
 # activation remains separately gated by platform policy and board ownership.
 # Do not use the package's `scrapers` extra here: it brings unrelated
 # browser/proxy integrations, which are permanently out of scope.
-ats-scrapers @ git+https://github.com/kalil0321/ats-scrapers.git@f654221f5236f24360719008764b23c5939fbce8
+# Use the commit archive so pip handles HTTP retries instead of spawning a
+# git clone. The checksum verifies the archive for the same pinned revision.
+ats-scrapers @ https://codeload.github.com/kalil0321/ats-scrapers/tar.gz/f654221f5236f24360719008764b23c5939fbce8#sha256=d08ef0d0eac889eaebd044598d69ee17b7472c373521d18cdbee2ed85fadf46c
 
 # The adapter registers every ATS class at import time; a few non-enabled
 # classes import BeautifulSoup. Greenhouse and Ashby themselves use HTTP JSON.

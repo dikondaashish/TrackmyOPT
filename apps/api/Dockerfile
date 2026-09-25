@@ -14,9 +14,6 @@ COPY apps/web/package.json apps/web/
 RUN corepack enable && corepack prepare pnpm@10.18.2 --activate
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
-COPY . .
-
 # The authorized ATS worker invokes the pinned, public-API ATS adapter through
 # a small Python bridge. Keep this list separate from root browser tooling:
 # this image never runs a browser worker or Playwright.
@@ -24,7 +21,12 @@ RUN apk add --no-cache python3 py3-pip git \
   texlive \
   texmf-dist-latexextra \
   texmf-dist-fontsrecommended
-RUN pip3 install --no-cache-dir --break-system-packages -r apps/api/requirements.job-board.txt
+# Cache system/Python dependencies separately from application source changes.
+COPY apps/api/requirements.job-board.txt apps/api/
+RUN pip3 install --no-cache-dir --break-system-packages --retries 5 --timeout 30 -r apps/api/requirements.job-board.txt
+
+# Copy source code after dependency installation.
+COPY . .
 
 # Build API
 RUN pnpm --filter api build
