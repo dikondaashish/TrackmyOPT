@@ -979,7 +979,7 @@ function syncLinkedInEasyApplyAction(): void {
   }
 
   const existingAction = footer.querySelector<HTMLElement>('[data-tmo-linkedin-prefill]');
-  if (existingAction?.dataset.tmoWidgetId === widget.dataset.tmoWidgetId) return;
+  if (existingAction && existingAction.dataset.tmoWidgetId === widget.dataset.tmoWidgetId) return;
   existingAction?.remove();
   linkedInPrefillObserver?.disconnect();
 
