@@ -4,9 +4,9 @@
 
 - Intended send date: Monday, September 28, 2026, America/New_York. Time is not selected.
 - Review window: September 15–24 inclusive, the last ten calendar dates as of the request. Changes after the September 24 snapshot are not included.
-- Subject: **Your next steps, a little clearer ✨**
-- Alternate subject: **New in TrackMyOPT: clearer dates, case updates, and networking**
-- Preheader: Clearer OPT dates, richer case tracking, a smoother Document Vault, and new networking tools.
+- Subject: **Your TrackMyOPT update: Chrome extension, cases & more**
+- Alternate subject: **What we built: Chrome tools, OPT dates, cases, and career**
+- Preheader: A major Chrome extension update, clearer OPT dates and case tracking, new networking tools, and more.
 - Proposed sender: TrackMyOPT `<support@trackmyopt.com>`, subject to the sending provider's verified sender configuration.
 - Audience: product users eligible to receive product updates, honoring marketing opt-outs, suppressions, bounces, and duplicate addresses. “All users” is the intended breadth, not an instruction to override email preferences.
 
@@ -18,10 +18,10 @@
 | [preview-email.html](preview-email.html) | Rendered email with local assets and visibly unfinished footer values |
 | [email.html](email.html) | Email HTML for the sending provider, with three explicit merge placeholders |
 | [email.txt](email.txt) | Plain-text counterpart, with subject/preheader metadata at the top |
-| [assets/next-steps.gif](assets/next-steps.gif) | Original journey illustration, one brief animation, about 312 KiB |
+| [assets/next-steps.gif](assets/next-steps.gif) | Original four-area illustration, one brief animation, about 320 KiB |
 | [assets/next-steps.png](assets/next-steps.png) | Static illustration, also used for reduced motion where supported |
 | [assets/logo.png](assets/logo.png) | Unmodified existing TrackMyOPT favicon |
-| [github-review.md](github-review.md) | Customer-facing feature evidence, exclusions, and all 48 first-parent commits |
+| [github-review.md](github-review.md) | Feature evidence, release limits, and the complete first-parent commit inventory |
 | [build_preview.py](build_preview.py) | Rebuilds the illustration and review pages; no network or email operations |
 
 ## Preview locally
@@ -46,7 +46,7 @@ The generator uses the existing macOS Trebuchet MS fonts. On other systems, set 
 
 This package deliberately does not implement or invoke a mailing job.
 
-1. Confirm the final draft and recheck the featured releases before Monday. Recheck the outreach pilot flag and provider availability. The Chrome extension is omitted because a Git merge does not verify a Chrome Web Store release.
+1. Confirm the final draft and recheck the featured releases before Monday. Recheck the outreach pilot flag and provider availability. The Chrome extension section explicitly describes work merged to GitHub and notes that its Chrome Web Store rollout is unverified; update that sentence only after confirming the installed store version.
 2. Upload `assets/` to the email provider or an approved public HTTPS asset location. Replace `{{ASSET_BASE_URL}}` with that directory's HTTPS URL, without a trailing slash. Do not send local image paths or GitHub HTML-page URLs as image sources.
 3. Replace `{{UNSUBSCRIBE_URL}}` in both versions with the provider's recipient-specific unsubscribe merge field. Replace `{{POSTAL_ADDRESS}}` with the verified sender postal address. Neither value was invented. The local preview's unsubscribe link is deliberately inactive.
 4. Set the provider's subject and preheader from the metadata above. Remove the `Subject:` and `Preheader:` metadata lines from `email.txt` when importing it as the MIME plain-text body. Configure the provider's subscription/suppression behavior and unsubscribe headers using its supported campaign flow.
@@ -56,7 +56,7 @@ The existing `app/api/admin/bulk-notification/route.ts` replaces only `firstName
 
 ## Design and validation
 
-The reader is an international student checking a Monday morning inbox on a phone or laptop. The light reading surface, existing brand blue, calm wording, and illustrated dates/case/connection sequence support a quick scan without creating a false application status. The illustration is conceptual, not a dashboard screenshot or applicant record. Existing Arial/Helvetica email typography is preserved, with Trebuchet headings and safe fallback fonts. There is no new `DESIGN.md`; the existing email brand and product context guided the design. The optional Impeccable `document` command can capture these choices for future campaigns.
+The reader is an international student checking a Monday morning inbox on a phone or laptop. The light reading surface, existing brand blue, calm wording, and illustrated Chrome tools/dates/case/career sequence support a quick scan without creating a false application status. The illustration is conceptual, not a dashboard screenshot or applicant record. Existing Arial/Helvetica email typography is preserved, with Trebuchet headings and safe fallback fonts. There is no new `DESIGN.md`; the existing email brand and product context guided the design. The optional Impeccable `document` command can capture these choices for future campaigns.
 
 Email uses presentation tables, inline primary styles, real HTML text, descriptive link labels, alternative image text, explicit image dimensions, and no JavaScript. The separate review wrapper has small local-only preview controls. Hex colors preserve the existing brand and email compatibility.
 
