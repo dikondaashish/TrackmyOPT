@@ -17,6 +17,7 @@
     @media (prefers-reduced-motion:reduce) {
       .motion { display:none!important; }
       .still { display:block!important; max-height:none!important; }
+      .hero-motion { background-image:url('{{ASSET_BASE_URL}}/hero-route.png')!important; }
     }
     @media screen and (max-width:620px) {
       .outer { padding:0!important; }
@@ -25,6 +26,8 @@
       .brand { font-size:20px!important; }
       .date { font-size:11px!important; }
       .feature-number { width:34px!important; font-size:18px!important; }
+      .hero-motion { background-image:none!important; }
+      .hero-description { max-width:none!important; }
     }
   </style>
 </head>
@@ -41,10 +44,10 @@
             <td class="date" align="right" style="font-size:12px;line-height:18px;color:#526781;">Product update<br>September 28, 2026</td>
           </tr></table>
         </td></tr>
-        <tr><td class="pad" bgcolor="#184fc4" style="padding:34px 36px 0;background-color:#184fc4;">
+        <tr><td class="pad hero-motion" bgcolor="#184fc4" background="{{ASSET_BASE_URL}}/hero-route.gif" style="padding:34px 36px 0;background-color:#184fc4;background-image:url('{{ASSET_BASE_URL}}/hero-route.gif');background-position:right top;background-repeat:no-repeat;background-size:cover;">
           <p style="margin:0 0 18px;font-size:12px;line-height:18px;letter-spacing:1.5px;font-weight:700;color:#d9e7ff;">BUILT AROUND YOUR NEXT STEP</p>
           <h1 class="headline" style="margin:0;font-family:'Trebuchet MS',Arial,sans-serif;font-size:48px;line-height:51px;letter-spacing:-1.7px;color:#f7faff;font-weight:700;">Less guesswork.<br>More next steps.</h1>
-          <p style="margin:20px 0 0;font-size:17px;line-height:26px;color:#e3edff;">We’ve improved the Chrome extension, OPT tools, case tracking, career outreach, and your Document Vault.</p>
+          <p class="hero-description" style="margin:20px 0 0;max-width:330px;font-size:17px;line-height:26px;color:#e3edff;">We’ve improved the Chrome extension, OPT tools, case tracking, career outreach, and your Document Vault.</p>
         </td></tr>
         <tr><td bgcolor="#184fc4" style="background-color:#184fc4;padding:12px 0 0;">
           <img class="motion" src="{{ASSET_BASE_URL}}/next-steps.gif" width="600" height="248" alt="Four areas we worked on: Chrome extension, OPT dates, case tracking, and career tools." style="display:block;width:100%;max-width:600px;height:auto;">

@@ -20,6 +20,8 @@
 | [email.txt](email.txt) | Plain-text counterpart, with subject/preheader metadata at the top |
 | [assets/next-steps.gif](assets/next-steps.gif) | Original four-area illustration, one brief animation, about 320 KiB |
 | [assets/next-steps.png](assets/next-steps.png) | Static illustration, also used for reduced motion where supported |
+| [assets/hero-route.gif](assets/hero-route.gif) | One-pass animated hero background: calendar, case, and outreach checkpoints |
+| [assets/hero-route.png](assets/hero-route.png) | Static hero background for reduced motion where supported |
 | [assets/logo.png](assets/logo.png) | Unmodified existing TrackMyOPT favicon |
 | [github-review.md](github-review.md) | Feature evidence, release limits, and the complete first-parent commit inventory |
 | [build_preview.py](build_preview.py) | Rebuilds the illustration and review pages; no network or email operations |
@@ -60,15 +62,15 @@ The reader is an international student checking a Monday morning inbox on a phon
 
 Email uses presentation tables, inline primary styles, real HTML text, descriptive link labels, alternative image text, explicit image dimensions, and no JavaScript. The separate review wrapper has small local-only preview controls. Hex colors preserve the existing brand and email compatibility.
 
-The GIF has a useful complete first frame, plays for approximately 3.62 seconds once, and does not depend on infinite motion to communicate. A media query selects the static PNG for reduced motion where supported. Clients can display only a still when animation is disabled; see [Microsoft's animation behavior documentation](https://support.microsoft.com/en-au/outlook/the-animated-graphic-in-my-e-mail-message-doesn-t-work). The email's responsive styling is an enhancement over its inline base; see [Gmail's supported CSS documentation](https://developers.google.com/workspace/gmail/design/css).
+Both GIFs have useful complete first frames, play for approximately 3.62 seconds once, and do not depend on infinite motion to communicate. The new hero GIF animates a calendar → case record → outreach route behind the live HTML headline. Inline background styles and a `background` attribute use the animated asset in supporting clients; the hero keeps a solid blue fallback when email apps block or ignore background images. A mobile media query removes the background layer to keep narrow headlines clear, while the main journey illustration still animates. A reduced-motion media query selects static PNGs where supported. Clients can display only a still when animation is disabled; see [Microsoft's animation behavior documentation](https://support.microsoft.com/en-au/outlook/the-animated-graphic-in-my-e-mail-message-doesn-t-work). The email's responsive styling is an enhancement over its inline base; see [Gmail's supported CSS documentation](https://developers.google.com/workspace/gmail/design/css).
 
 Verified for this draft:
 
 - Chromium desktop preview and 320, 375, and 600px email widths: no horizontal overflow.
 - Desktop/mobile preview controls and automatic iframe height adjustment.
-- Visible images loaded; reduced-motion mode hides the GIF and displays the PNG.
-- Image-blocked mode retains the heading, all feature descriptions, and all eight links.
-- Five product links resolve to the expected sign-in redirect; privacy returns HTTP 200. This is route verification, not authenticated feature testing.
+- Visible images and hero background loaded; reduced-motion mode hides the illustration GIF and displays both static PNGs.
+- Image-blocked mode retains the heading, all feature descriptions, and all nine links.
+- Six product links resolve to the expected sign-in redirect; privacy returns HTTP 200. This is route verification, not authenticated feature testing.
 - HTML has no scripts, forms, embedded product data, or sending credentials. Template placeholders remain only in the send-source versions.
 - Asset size, GIF frame count/duration, HTML structure, local references, and `git diff --check` checked before commit.
 

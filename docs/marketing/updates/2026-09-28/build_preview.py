@@ -78,6 +78,54 @@ def illustration(progress):
     return im
 
 
+def hero_background(progress):
+    """A quiet calendar → case → outreach route behind the real HTML headline."""
+    im = Image.new("RGB", (600, 244), "#184fc4")
+    d = ImageDraw.Draw(im)
+    muted = "#2f64cd"
+    rail = "#5681d8"
+    bright = "#a9c7ff"
+
+    # Regular rows suggest a dated journey without implying real deadlines.
+    for y in range(24, 244, 28):
+        d.line((400, y, 599, y), fill="#2056c6", width=1)
+    for x in range(412, 600, 28):
+        d.line((x, 0, x, 243), fill="#2056c6", width=1)
+
+    centers = [49, 118, 187]
+    d.line((534, centers[0], 534, centers[-1]), fill=rail, width=2)
+    active_y = centers[0] + (centers[-1] - centers[0]) * progress
+    d.line((534, centers[0], 534, active_y), fill=bright, width=3)
+
+    for i, y in enumerate(centers):
+        active = progress >= i / 2
+        color = bright if active else rail
+        d.line((427, y, 502, y), fill=color if active else muted, width=2)
+        d.ellipse((511, y - 23, 557, y + 23), fill="#275dca", outline=color, width=2)
+        if i == 0:  # Calendar
+            d.rounded_rectangle((523, y - 11, 545, y + 11), radius=3, outline=color, width=2)
+            d.line((523, y - 4, 545, y - 4), fill=color, width=2)
+            d.ellipse((528, y + 1, 531, y + 4), fill=color)
+            d.ellipse((537, y + 1, 540, y + 4), fill=color)
+        elif i == 1:  # Case record
+            d.rounded_rectangle((524, y - 12, 544, y + 12), radius=2, outline=color, width=2)
+            d.line((529, y - 5, 539, y - 5), fill=color, width=2)
+            d.line((529, y + 1, 539, y + 1), fill=color, width=2)
+            d.line((529, y + 7, 536, y + 7), fill=color, width=2)
+        else:  # Outreach message
+            d.rounded_rectangle((522, y - 10, 546, y + 7), radius=4, outline=color, width=2)
+            d.line((527, y + 7, 527, y + 12, 533, y + 7), fill=color, width=2)
+            d.line((527, y - 3, 540, y - 3), fill=color, width=2)
+        # Small progress ticks read as a timeline rather than decoration.
+        for j in range(4):
+            x = 410 + j * 8
+            d.line((x, y - 4, x, y + 4), fill=color if active else muted, width=2)
+
+    # The only moving element is a single light travelling between checkpoints.
+    d.ellipse((528, active_y - 6, 540, active_y + 6), fill="#d8e8ff")
+    return im
+
+
 # Every frame includes all four concepts. A complete first frame also works
 # for clients with animation disabled. One brief pass, no infinite loop.
 still = illustration(1)
@@ -85,6 +133,13 @@ still.save(ASSETS / "next-steps.png", optimize=True)
 frames = [still] + [illustration(i / 23) for i in range(24)] + [still]
 frames[0].save(ASSETS / "next-steps.gif", save_all=True, append_images=frames[1:],
                duration=[700] + [80] * 24 + [1000], optimize=True, disposal=2)
+hero_still = hero_background(1)
+hero_still.save(ASSETS / "hero-route.png", optimize=True)
+hero_frames = [hero_still] + [hero_background(i / 23) for i in range(24)] + [hero_still]
+hero_frames[0].save(ASSETS / "hero-route.gif", save_all=True,
+                    append_images=hero_frames[1:],
+                    duration=[700] + [80] * 24 + [1000], optimize=True,
+                    disposal=2)
 shutil.copyfile(ROOT.parents[3] / "apps/web/public/TrackMyOPT Logo/Favicon.png", ASSETS / "logo.png")
 
 email = (ROOT / "email.html").read_text()
