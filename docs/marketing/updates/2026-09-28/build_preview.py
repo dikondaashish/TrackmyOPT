@@ -148,7 +148,7 @@ email = email.replace("{{POSTAL_ADDRESS}}", "[Verified sender postal address to 
 email = email.replace('href="{{UNSUBSCRIBE_URL}}"', 'href="#unsubscribe-preview" aria-disabled="true" onclick="return false"')
 (ROOT / "preview-email.html").write_text(email)
 
-subject = "Important notice from TrackMyOPT (not usci.s 👀)"
+subject = 'TrackMyOPT: "Important notice from USC*S" — just kidding 👀'
 preview = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Monday update · TrackMyOPT</title>
@@ -168,7 +168,7 @@ button[aria-pressed=true]{{background:#184fc4;color:#f7faff;border-color:#184fc4
 <header class="toolbar"><div class="identity"><img src="assets/logo.png" alt=""><div><strong>TrackMyOPT / Product update</strong><small>Monday, September 28, 2026</small></div></div>
 <span class="badge">Draft · not sent</span><div class="controls" aria-label="Preview width"><button type="button" id="desktop" aria-pressed="true">Desktop</button><button type="button" id="mobile" aria-pressed="false">Mobile</button></div><a class="file" href="email.txt">Plain text ↗</a></header>
 <main><section class="envelope" aria-label="Email details"><p><strong>From</strong> TrackMyOPT &lt;support@trackmyopt.com&gt; &nbsp; / &nbsp; <strong>To</strong> Eligible product-update subscribers</p>
-<h1>{html.escape(subject)}</h1><p>A major Chrome extension update, clearer OPT dates and case tracking, new networking tools, and more.</p>
+<h1>{html.escape(subject)}</h1><p>Just kidding—it's a TrackMyOPT product update. Chrome extension, OPT dates, case tracking, and more.</p>
 <p class="notice">Review preview. The animation plays once; its first frame works as a still. Before sending, host the images and insert your email provider’s unsubscribe URL and verified postal address. No send is scheduled.</p></section>
 <div class="stage" id="stage"><iframe id="email" title="TrackMyOPT product update email" src="preview-email.html"></iframe></div></main>
 <script>

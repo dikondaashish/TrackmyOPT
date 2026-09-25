@@ -1,11 +1,13 @@
-Subject: Important notice from TrackMyOPT (not usci.s 👀)
-Preheader: A major Chrome extension update, clearer OPT dates and case tracking, new networking tools, and more.
+Subject: TrackMyOPT: "Important notice from USC*S" — just kidding 👀
+Preheader: Just kidding—it's a TrackMyOPT product update. Chrome extension, OPT dates, case tracking, and more.
 
 TrackMyOPT | Product update | September 28, 2026
 
 Less guesswork. More next steps.
 
 Hi there,
+
+Just kidding—this is a TrackMyOPT product update, not a USCIS notice.
 
 Over September 15–24, we improved the tools that support your OPT journey and job search. Here’s what’s new on the website and what we’ve built for the next Chrome extension release.
 

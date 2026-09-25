@@ -4,9 +4,9 @@
 
 - Intended send date: Monday, September 28, 2026, America/New_York. Time is not selected.
 - Review window: September 15–24 inclusive, the last ten calendar dates as of the request. Changes after the September 24 snapshot are not included.
-- Subject: **Important notice from TrackMyOPT (not usci.s 👀)**
+- Subject: **TrackMyOPT: "Important notice from USC*S" — just kidding 👀**
 - Alternate subject: **Important TrackMyOPT update: Chrome extension + more**
-- Preheader: A major Chrome extension update, clearer OPT dates and case tracking, new networking tools, and more.
+- Preheader: Just kidding—it's a TrackMyOPT product update. Chrome extension, OPT dates, case tracking, and more.
 - Proposed sender: TrackMyOPT `<support@trackmyopt.com>`, subject to the sending provider's verified sender configuration.
 - Audience: product users eligible to receive product updates, honoring marketing opt-outs, suppressions, bounces, and duplicate addresses. “All users” is the intended breadth, not an instruction to override email preferences.
 
@@ -58,7 +58,7 @@ The existing `app/api/admin/bulk-notification/route.ts` replaces only `firstName
 
 ## Design and validation
 
-The reader is an international student checking a Monday morning inbox on a phone or laptop. The light reading surface, existing brand blue, calm wording, and illustrated Chrome tools/dates/case/career sequence support a quick scan without creating a false application status. The illustration is conceptual, not a dashboard screenshot or applicant record. Existing Arial/Helvetica email typography is preserved, with Trebuchet headings and safe fallback fonts. There is no new `DESIGN.md`; the existing email brand and product context guided the design. The optional Impeccable `document` command can capture these choices for future campaigns.
+The reader is an international student checking a Monday morning inbox on a phone or laptop. The subject quotes the requested USC*S joke but identifies TrackMyOPT first and reveals the joke in the subject, preheader, and opening paragraph, without suggesting a real application status. The light reading surface, existing brand blue, and illustrated Chrome tools/dates/case/career sequence support a quick scan. The illustration is conceptual, not a dashboard screenshot or applicant record. Existing Arial/Helvetica email typography is preserved, with Trebuchet headings and safe fallback fonts. There is no new `DESIGN.md`; the existing email brand and product context guided the design. The optional Impeccable `document` command can capture these choices for future campaigns.
 
 Email uses presentation tables, inline primary styles, real HTML text, descriptive link labels, alternative image text, explicit image dimensions, and no JavaScript. The separate review wrapper has small local-only preview controls. Hex colors preserve the existing brand and email compatibility.
 
