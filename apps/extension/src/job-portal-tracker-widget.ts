@@ -216,13 +216,6 @@ function rememberedJobFitScore(job: JobInfo): number | undefined {
 export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): HTMLElement {
   const root = document.createElement('div');
   root.id = WIDGET_ROOT_ID;
-  // Keep clicks inside the floating extension rail from reaching the host
-  // page's delegated outside-click handlers. On LinkedIn Easy Apply, those
-  // handlers otherwise treat a Prefill click as a request to close the
-  // application dialog and show its unsaved-application prompt.
-  for (const eventName of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'touchstart', 'touchend']) {
-    root.addEventListener(eventName, (event) => event.stopPropagation());
-  }
   applyWidgetThemeScope(root);
   root.dataset.tmoJobSnapshot = JSON.stringify(widgetJobSnapshot(job));
   root.setAttribute('role', 'region');

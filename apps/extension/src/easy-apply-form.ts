@@ -4,6 +4,7 @@
  */
 
 import { classifyField, type FieldKind } from './easy-apply-matchers';
+import { findLinkedInEasyApplyDialog } from './linkedin-easy-apply-dialog';
 import { selectAtsPrefillAdapter } from './ats-prefill-adapters';
 import {
   type PrefillControlOutcome,
@@ -93,6 +94,9 @@ function historyFieldScore(container: HTMLElement): number {
 export function findApplicationForm(): HTMLElement | null {
   const documents = reachableDocuments();
   for (const doc of documents) {
+    const nativeLinkedInDialog = findLinkedInEasyApplyDialog(doc);
+    if (nativeLinkedInDialog) return nativeLinkedInDialog;
+
     const linkedin = queryAllDeep<HTMLElement>(
       doc,
       '.jobs-easy-apply-modal, [data-test-modal-id="easy-apply-modal"]',

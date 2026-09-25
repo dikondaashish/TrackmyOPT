@@ -17,7 +17,7 @@ function harness(){
   isWidgetInteractionInFlight:()=>false,WIDGET_ROOT_ID:'widget',isLinkedInJobSurface:()=>true,isApplicationSuccessPage:()=>false,saveJobContext:()=>{},generatedResumeFor:()=>{},readWidgetDismissedUrl:()=>null,
   isWidgetSuppressed:()=>new Promise(r=>waits.push(r)),getDefaultViewPref:async()=>'expanded',shouldRefreshWidget,
   createJobTrackerWidget:(j:any)=>{created.push(j);const root=dom.window.document.createElement('div');root.id='widget';root.dataset.tmoJobSnapshot=JSON.stringify(widgetJobSnapshot(j));return root;},
-  hardenInteractiveElements:()=>{},ensureWidgetAnnouncer:()=>()=>{},scheduleInject:()=>{},disconnectWidgetViewportObserver:()=>{},captureJobDescription:()=>{},
+  hardenInteractiveElements:()=>{},ensureWidgetAnnouncer:()=>()=>{},scheduleInject:()=>{},disconnectWidgetViewportObserver:()=>{},captureJobDescription:()=>{},syncLinkedInEasyApplyAction:()=>{},
  };
  const code=requireLocal('esbuild').transformSync('let widgetRefreshRevision=0; let widgetMissingSince:number|null=null; let widgetA11yObserver:MutationObserver|null=null; let announceWidgetStatus;'+inject+';globalThis.inject=injectOrRefreshButton;',{loader:'ts'}).code;
  vm.runInNewContext(code,context);

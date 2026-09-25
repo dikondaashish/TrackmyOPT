@@ -7,6 +7,7 @@
  */
 
 import { hardenInteractiveElements, ensureWidgetAnnouncer } from './design/a11y';
+import { el } from './design/primitives';
 import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, getPrefillUndoState, isPrefillUndoAllowed } from './prefill-undo';
 import { requestPrefillUndo } from './prefill-undo-request';
 import {
@@ -124,6 +125,7 @@ import {
 } from './job-description-scrape';
 import { isApplicationSuccessPage } from './job-portal-application-success';
 import { isWidgetInteractionInFlight } from './job-portal-interaction-guard';
+import { findLinkedInEasyApplyDialog } from './linkedin-easy-apply-dialog';
 import {
   jobContextFor,
   shouldRefreshWidget,
@@ -949,6 +951,74 @@ function wireJobTrackerWidgetHost(): void {
 let widgetRefreshRevision = 0;
 let widgetMissingSince: number | null = null;
 let widgetA11yObserver: MutationObserver | null = null;
+let hiddenForLinkedInDialog: HTMLElement | null = null;
+let linkedInPrefillObserver: MutationObserver | null = null;
+
+function syncLinkedInEasyApplyAction(): void {
+  const dialog = findLinkedInEasyApplyDialog();
+  const footer = dialog?.querySelector('footer');
+  const widget = document.getElementById(WIDGET_ROOT_ID);
+  const prefill = widget?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
+
+  if (hiddenForLinkedInDialog && (hiddenForLinkedInDialog !== widget || !footer || !prefill)) {
+    hiddenForLinkedInDialog.style.visibility = '';
+    hiddenForLinkedInDialog.removeAttribute('aria-hidden');
+    hiddenForLinkedInDialog = null;
+    linkedInPrefillObserver?.disconnect();
+    linkedInPrefillObserver = null;
+  }
+  if (!footer || !widget || !prefill) {
+    document.querySelectorAll('[data-tmo-linkedin-prefill]').forEach((action) => action.remove());
+    return;
+  }
+
+  if (hiddenForLinkedInDialog !== widget) {
+    widget.style.visibility = 'hidden';
+    widget.setAttribute('aria-hidden', 'true');
+    hiddenForLinkedInDialog = widget;
+  }
+
+  const existingAction = footer.querySelector<HTMLElement>('[data-tmo-linkedin-prefill]');
+  if (existingAction?.dataset.tmoWidgetId === widget.dataset.tmoWidgetId) return;
+  existingAction?.remove();
+  linkedInPrefillObserver?.disconnect();
+
+  widget.dataset.tmoWidgetId ||= crypto.randomUUID();
+  const control = el('div', {
+    style: 'display:flex;align-items:center;gap:8px;margin-right:auto;min-width:0;',
+  });
+  control.dataset.tmoLinkedinPrefill = 'true';
+  control.dataset.tmoWidgetId = widget.dataset.tmoWidgetId;
+  const action = el('button', {
+    style: 'flex:none;padding:8px 12px;border:1px solid currentColor;border-radius:6px;background:Canvas;color:LinkText;font:600 14px system-ui;cursor:pointer;',
+    text: 'Prefill with TrackMyOPT',
+  });
+  action.type = 'button';
+  const status = el('span', {
+    style: 'min-width:0;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:CanvasText;font:12px system-ui;',
+    attrs: { role: 'status', 'aria-live': 'polite' },
+  });
+  control.append(action, status);
+  footer.prepend(control);
+
+  action.addEventListener('click', (event) => {
+    event.stopPropagation();
+    if (prefill.disabled) return;
+    action.disabled = true;
+    action.textContent = 'Prefilling…';
+    status.textContent = '';
+    prefill.click();
+  });
+
+  const resultLine = widget.querySelector<HTMLElement>('.tmo-prefill-result-line');
+  linkedInPrefillObserver = new MutationObserver(() => {
+    if (prefill.getAttribute('aria-busy') !== 'false' || !action.isConnected) return;
+    action.disabled = false;
+    action.textContent = 'Prefill with TrackMyOPT';
+    status.textContent = resultLine?.textContent?.trim() || 'Prefill finished. Review the application before continuing.';
+  });
+  linkedInPrefillObserver.observe(prefill, { attributes: true, attributeFilter: ['aria-busy'] });
+}
 
 async function injectOrRefreshButton() {
   const revision = ++widgetRefreshRevision;
@@ -1065,6 +1135,7 @@ async function injectOrRefreshButton() {
     // hidden default state and continue with the z-index fallback.
     widget.removeAttribute('popover');
   }
+  syncLinkedInEasyApplyAction();
 }
 
 function scheduleInject() {
@@ -1438,6 +1509,10 @@ function teardownWidgetRuntime() {
   widgetRefreshRevision += 1;
   widgetA11yObserver?.disconnect();
   widgetA11yObserver = null;
+  linkedInPrefillObserver?.disconnect();
+  linkedInPrefillObserver = null;
+  hiddenForLinkedInDialog = null;
+  document.querySelectorAll('[data-tmo-linkedin-prefill]').forEach((action) => action.remove());
   stopContinuousPrefill();
   clearPrivateApplicationApproval();
   disconnectWidgetViewportObserver();
@@ -1476,6 +1551,7 @@ function setupSpaObservers() {
       teardownWidgetRuntime();
       return;
     }
+    syncLinkedInEasyApplyAction();
     if (location.href !== lastUrl) {
       document.dispatchEvent(new Event('tmo-page-context-changed'));
       invalidateArtifactForUrlChange(location.href);
@@ -1494,7 +1570,7 @@ function setupSpaObservers() {
       runSuccessCheckDebounced();
     }
   });
-  observer.observe(document.body, { childList: true, characterData: true, subtree: true });
+  observer.observe(document.body, { childList: true, characterData: true, attributes: true, attributeFilter: ['open'], subtree: true });
   _spaObserver = observer;
 }
 
