@@ -148,7 +148,7 @@ email = email.replace("{{POSTAL_ADDRESS}}", "[Verified sender postal address to 
 email = email.replace('href="{{UNSUBSCRIBE_URL}}"', 'href="#unsubscribe-preview" aria-disabled="true" onclick="return false"')
 (ROOT / "preview-email.html").write_text(email)
 
-subject = "Your TrackMyOPT update: Chrome extension, cases & more"
+subject = "Important notice from TrackMyOPT: New OPT tools"
 preview = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Monday update · TrackMyOPT</title>

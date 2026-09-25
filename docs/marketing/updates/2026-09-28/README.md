@@ -4,8 +4,8 @@
 
 - Intended send date: Monday, September 28, 2026, America/New_York. Time is not selected.
 - Review window: September 15–24 inclusive, the last ten calendar dates as of the request. Changes after the September 24 snapshot are not included.
-- Subject: **Your TrackMyOPT update: Chrome extension, cases & more**
-- Alternate subject: **What we built: Chrome tools, OPT dates, cases, and career**
+- Subject: **Important notice from TrackMyOPT: New OPT tools**
+- Alternate subject: **Important TrackMyOPT update: Chrome extension + more**
 - Preheader: A major Chrome extension update, clearer OPT dates and case tracking, new networking tools, and more.
 - Proposed sender: TrackMyOPT `<support@trackmyopt.com>`, subject to the sending provider's verified sender configuration.
 - Audience: product users eligible to receive product updates, honoring marketing opt-outs, suppressions, bounces, and duplicate addresses. “All users” is the intended breadth, not an instruction to override email preferences.
