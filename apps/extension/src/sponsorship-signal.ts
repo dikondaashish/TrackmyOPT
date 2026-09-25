@@ -53,7 +53,7 @@ const NO_SPONSORSHIP: RegExp[] = [
   new RegExp(`\\bwithout\\s+${GAP()}sponsorship`),
   // "immigration sponsorship support will not be available" (common on
   // employer postings) as well as "sponsorship is not available".
-  new RegExp(`\\bsponsorship(?:\\s+support)?\\s+(?:(?:is|will)\\s+)?not\\s+(?:be\\s+)?available`),
+  new RegExp(`\\bsponsorship(?:\\s+support)?\\s+(?:(?:is|will)\\s+)?not\\s+(?:be\\s+)?(?:available|offered|provided)`),
   new RegExp(`\\bsponsorship(?:\\s+support)?\\s+(?:is\\s+)?unavailable`),
   // "does not offer/provide sponsorship"
   new RegExp(`\\b(?:does\\s+not|do\\s+not|doesn't|don't)\\s+${GAP()}(?:offer|provide)s?\\s+${GAP(2)}sponsorship`),

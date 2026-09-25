@@ -31,6 +31,7 @@ expect('no-h1b-sponsorship', 'Please note: no H-1B sponsorship is provided.', 'n
 expect('do-not-offer-h1b', 'We do not offer H-1B visa sponsorship for this position.', 'no_sponsorship');
 expect('walmart-support-unavailable', 'Immigration Sponsorship support will NOT be available for this position.', 'no_sponsorship');
 expect('immigration-sponsorship-unavailable', 'Immigration sponsorship is not available for this role.', 'no_sponsorship');
+expect('visa-sponsorship-not-offered', 'Visa sponsorship is not offered for this position.', 'no_sponsorship');
 
 // ---- sponsors ----
 expect('sponsorship-available', 'Visa sponsorship is available for exceptional candidates.', 'sponsors');
