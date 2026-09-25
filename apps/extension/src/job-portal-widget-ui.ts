@@ -54,8 +54,8 @@ export function paintSponsorshipPill(host: HTMLElement, result: SponsorshipResul
       fg: 'var(--tmo-widget-ink)',
       border: 'var(--tmo-widget-border)',
       iconName: 'info' as const,
-      label: 'Sponsorship not stated',
-      fallback: "The posting doesn't clearly state its visa-sponsorship policy.",
+      label: 'Sponsorship unclear',
+      fallback: 'No clear visa-sponsorship policy was found in the job text available on this page. Verify with the employer.',
     },
   }[result.signal];
 

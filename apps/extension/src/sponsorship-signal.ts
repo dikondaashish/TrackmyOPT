@@ -51,8 +51,10 @@ const NO_SPONSORSHIP: RegExp[] = [
   new RegExp(`\\bno\\s+${GAP()}sponsorship`),
   // "without (the need for) (visa/employer) sponsorship"
   new RegExp(`\\bwithout\\s+${GAP()}sponsorship`),
-  // "sponsorship is unavailable / is not available"
-  new RegExp(`\\bsponsorship\\s+(?:is\\s+)?(?:not\\s+available|unavailable)`),
+  // "immigration sponsorship support will not be available" (common on
+  // employer postings) as well as "sponsorship is not available".
+  new RegExp(`\\bsponsorship(?:\\s+support)?\\s+(?:(?:is|will)\\s+)?not\\s+(?:be\\s+)?available`),
+  new RegExp(`\\bsponsorship(?:\\s+support)?\\s+(?:is\\s+)?unavailable`),
   // "does not offer/provide sponsorship"
   new RegExp(`\\b(?:does\\s+not|do\\s+not|doesn't|don't)\\s+${GAP()}(?:offer|provide)s?\\s+${GAP(2)}sponsorship`),
   // Citizenship / residency exclusions (imply no sponsorship for OPT holders).
@@ -77,7 +79,9 @@ const SPONSORS: RegExp[] = [
   new RegExp(`\\bwe\\s+sponsor\\b`),
   new RegExp(`\\bwe\\s+(?:provide|offer)\\s+${GAP(2)}sponsorship`),
   new RegExp(`\\b(?:h-?1b|h1-?b)\\s+${GAP(2)}(?:sponsor|transfer|candidates?\\s+welcome)`),
-  new RegExp(`\\bimmigration\\s+(?:support|assistance|sponsorship)`),
+  // The phrase "immigration sponsorship" alone is not a promise to sponsor.
+  new RegExp(`\\b(?:provide|provides|provided|offer|offers|offered)\\s+immigration\\s+(?:support|assistance|sponsorship)`),
+  new RegExp(`\\bimmigration\\s+(?:support|assistance|sponsorship)\\s+(?:is\\s+)?available`),
   new RegExp(`\\bvisa\\s+candidates?\\s+(?:welcome|encouraged)`),
   new RegExp(`\\b(?:opt|cpt|stem\\s+opt)\\b\\s+${GAP(3)}(?:welcome|eligible|accepted|considered|encouraged)`),
 ];

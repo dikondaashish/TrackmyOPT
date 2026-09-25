@@ -29,6 +29,8 @@ expect('clearance-required', 'An active security clearance is required for this 
 // negation guard: a sponsors keyword inside a negative phrase must stay red
 expect('no-h1b-sponsorship', 'Please note: no H-1B sponsorship is provided.', 'no_sponsorship');
 expect('do-not-offer-h1b', 'We do not offer H-1B visa sponsorship for this position.', 'no_sponsorship');
+expect('walmart-support-unavailable', 'Immigration Sponsorship support will NOT be available for this position.', 'no_sponsorship');
+expect('immigration-sponsorship-unavailable', 'Immigration sponsorship is not available for this role.', 'no_sponsorship');
 
 // ---- sponsors ----
 expect('sponsorship-available', 'Visa sponsorship is available for exceptional candidates.', 'sponsors');
@@ -36,6 +38,7 @@ expect('will-sponsor', 'We will sponsor the right candidate for an H-1B visa.', 
 expect('happy-to-sponsor', 'We are happy to sponsor visas for strong applicants.', 'sponsors');
 expect('h1b-transfer', 'We support H-1B transfer and green card processing.', 'sponsors');
 expect('immigration-support', 'We provide immigration support and relocation assistance.', 'sponsors');
+expect('immigration-support-available', 'Immigration support is available for qualified candidates.', 'sponsors');
 expect('opt-welcome', 'OPT and CPT candidates are welcome to apply.', 'sponsors');
 expect('open-to-sponsoring', 'We are open to sponsoring qualified international candidates.', 'sponsors');
 expect('visa-candidates-welcome', 'Visa candidates welcome — we assist with the process.', 'sponsors');
@@ -53,6 +56,7 @@ expect(
   'sponsors',
 );
 expect('generic', 'Strong communication skills and 3+ years of experience required.', 'unclear');
+expect('mere-sponsorship-mention', 'Immigration sponsorship information will be discussed during interviews.', 'unclear');
 assert.equal(classifySponsorship('short jd').signal, 'unclear', 'sub-200-char text stays unclear');
 
 // tooltip metadata is present for decided signals
