@@ -514,11 +514,15 @@ export function isCareerPage(): string | null {
 
   const rawHost = location.hostname.toLowerCase();
   const host = rawHost.replace(/^www\./, '');
+  const firstLabel = rawHost.split('.')[0];
+  const isCareerSubdomain = CAREER_SUBDOMAIN_PREFIXES.includes(firstLabel);
 
   // ── 1. Hard blocklist ──────────────────────────────────────────────────────
   for (let i = 0; i < BLOCKED_HOSTS.length; i++) {
     const b = BLOCKED_HOSTS[i];
-    if (host === b || host.endsWith('.' + b)) return null;
+    // A company's dedicated jobs host remains a career site even when its
+    // consumer-facing root domain is blocked (for example, careers.walmart.com).
+    if (!isCareerSubdomain && (host === b || host.endsWith('.' + b))) return null;
   }
   if (host === 'google.com') return null;  // google.com itself is not a career site
 
@@ -539,7 +543,6 @@ export function isCareerPage(): string | null {
   }
 
   // ── 4. Career subdomain prefix ────────────────────────────────────────────
-  const firstLabel = rawHost.split('.')[0];
   for (let i = 0; i < CAREER_SUBDOMAIN_PREFIXES.length; i++) {
     if (firstLabel === CAREER_SUBDOMAIN_PREFIXES[i]) {
       return `career-subdomain:${firstLabel}`;

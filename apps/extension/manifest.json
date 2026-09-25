@@ -481,7 +481,7 @@
         "*://*.clearcompany.com/*",
         "*://*.talentreef.com/*",
         "*://*.phenom.com/*",
-        "*://jobs.bechtel.com/us/en/job/*",
+        "*://jobs.apple.com/*/details/*",
         "*://*.manatal.com/*",
         "*://*.darwinbox.com/*",
         "*://*.keka.com/*",
@@ -545,7 +545,16 @@
         "*://*/recruitment",
         "*://*/recruitment/*",
         "*://*/jobpostings",
-        "*://*/jobpostings/*"
+        "*://*/jobpostings/*",
+        "*://*/*/job*",
+        "*://*/*/career*",
+        "*://*/*/position*",
+        "*://*/*/opening*",
+        "*://*/*/apply*",
+        "*://*/*/application*",
+        "*://*/*/requisition*",
+        "*://*/*/vacanc*",
+        "*://*/*/opportunit*"
       ],
       "exclude_matches": [
         "https://chrome.google.com/*",
