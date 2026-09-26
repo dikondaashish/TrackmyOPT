@@ -1,0 +1,725 @@
+{
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "duration": 162,
+  "scenes": [
+    {
+      "image": "job-before",
+      "duration": 1.4,
+      "chapter": "APPLICATION TOOLS",
+      "title": "Fill the form.",
+      "body": "Click Prefill this application.",
+      "action": "Your profile → the open application",
+      "crop": [
+        0,
+        0,
+        1000,
+        680
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 0
+    },
+    {
+      "image": "job-filled",
+      "duration": 3.6,
+      "chapter": "APPLICATION TOOLS",
+      "title": "Review the result.",
+      "body": "Your contact details are filled. You choose when to submit.",
+      "action": "Prefill → review",
+      "crop": [
+        0,
+        0,
+        1000,
+        680
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 1.4
+    },
+    {
+      "image": "home",
+      "duration": 5,
+      "chapter": "EXTENSION POPUP",
+      "title": "Start here.",
+      "body": "Open TrackMyOPT from Chrome’s toolbar. Find all four OPT tools together.",
+      "action": "Chrome toolbar → TrackMyOPT → OPT Tools",
+      "crop": [
+        0,
+        0,
+        360,
+        443
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 5
+    },
+    {
+      "image": "opt-clock-empty",
+      "duration": 2,
+      "chapter": "01 / OPT CLOCK",
+      "title": "Open OPT Clock.",
+      "body": "Enter the start date printed on your OPT EAD.",
+      "action": "OPT Tools → OPT Clock",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 10
+    },
+    {
+      "image": "opt-calendar",
+      "duration": 2,
+      "chapter": "01 / OPT CLOCK",
+      "title": "Choose your date.",
+      "body": "Type the date or use the calendar.",
+      "action": "OPT EAD start date",
+      "crop": [
+        0,
+        60,
+        360,
+        570
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 12
+    },
+    {
+      "image": "opt-clock-filled",
+      "duration": 3,
+      "chapter": "01 / OPT CLOCK",
+      "title": "Save & Go.",
+      "body": "The example starts on September 6. Click to open the tracker.",
+      "action": "OPT EAD start date → Save & Go",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 14
+    },
+    {
+      "image": "opt-clock-result",
+      "duration": 6,
+      "chapter": "01 / OPT CLOCK",
+      "title": "See your clock.",
+      "body": "The tracker shows days used and days remaining.",
+      "action": "Saved date → employment timeline",
+      "crop": [
+        0,
+        0,
+        360,
+        520
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 17
+    },
+    {
+      "image": "opt-reminders",
+      "duration": 5,
+      "chapter": "01 / OPT CLOCK",
+      "title": "Keep reminders on.",
+      "body": "Daily email reminders sit below the clock. Edit the address or stop reminders here.",
+      "action": "Scroll down → Daily reminders",
+      "crop": [
+        0,
+        420,
+        360,
+        230
+      ],
+      "click": false,
+      "note": "Demo account · Reminder features depend on plan",
+      "start": 23
+    },
+    {
+      "image": "stem-clock-nav",
+      "duration": 3,
+      "chapter": "02 / STEM CLOCK",
+      "title": "Find STEM Clock.",
+      "body": "Return to OPT Tools and choose STEM Clock.",
+      "action": "OPT Tools → STEM Clock",
+      "crop": [
+        0,
+        0,
+        360,
+        443
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 28
+    },
+    {
+      "image": "stem-clock-empty",
+      "duration": 2,
+      "chapter": "02 / STEM CLOCK",
+      "title": "Use your STEM date.",
+      "body": "Enter the start date on your STEM OPT EAD.",
+      "action": "STEM EAD start date",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 31
+    },
+    {
+      "image": "stem-clock-filled",
+      "duration": 3,
+      "chapter": "02 / STEM CLOCK",
+      "title": "Save & Go.",
+      "body": "Save the date to open the STEM tracker.",
+      "action": "STEM EAD start date → Save & Go",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 33
+    },
+    {
+      "image": "stem-clock-result",
+      "duration": 6,
+      "chapter": "02 / STEM CLOCK",
+      "title": "Read the STEM clock.",
+      "body": "View cumulative unemployment days used and remaining.",
+      "action": "Saved date → STEM employment timeline",
+      "crop": [
+        0,
+        0,
+        360,
+        520
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 36
+    },
+    {
+      "image": "opt-filing-nav",
+      "duration": 3,
+      "chapter": "03 / OPT APPLY DATES",
+      "title": "Find your window.",
+      "body": "Back in OPT Tools, select OPT Apply Dates.",
+      "action": "OPT Tools → OPT Apply Dates",
+      "crop": [
+        0,
+        0,
+        360,
+        443
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 42
+    },
+    {
+      "image": "opt-filing-empty",
+      "duration": 2,
+      "chapter": "03 / OPT APPLY DATES",
+      "title": "Enter your dates.",
+      "body": "Start with your program end date.",
+      "action": "Program end date + DSO recommendation",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 45
+    },
+    {
+      "image": "opt-filing-filled",
+      "duration": 3,
+      "chapter": "03 / OPT APPLY DATES",
+      "title": "Calculate the window.",
+      "body": "Add the DSO recommendation date when available. Then calculate.",
+      "action": "Dates → Calculate Filing Window",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 47
+    },
+    {
+      "image": "opt-filing-result",
+      "duration": 6,
+      "chapter": "03 / OPT APPLY DATES",
+      "title": "See the deadline.",
+      "body": "Read the opening date, deadline, and countdown. Use Modify dates to update them.",
+      "action": "Filing window → countdown",
+      "crop": [
+        0,
+        0,
+        360,
+        520
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 50
+    },
+    {
+      "image": "stem-filing-nav",
+      "duration": 3,
+      "chapter": "04 / STEM APPLY DATES",
+      "title": "Plan the extension.",
+      "body": "Choose STEM Apply Dates from OPT Tools.",
+      "action": "OPT Tools → STEM Apply Dates",
+      "crop": [
+        0,
+        0,
+        360,
+        443
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 56
+    },
+    {
+      "image": "stem-filing-empty",
+      "duration": 2,
+      "chapter": "04 / STEM APPLY DATES",
+      "title": "Enter the expiry date.",
+      "body": "Use the end date on your current OPT EAD.",
+      "action": "Current OPT expires",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 59
+    },
+    {
+      "image": "stem-filing-filled",
+      "duration": 3,
+      "chapter": "04 / STEM APPLY DATES",
+      "title": "Add the recommendation.",
+      "body": "Enter the STEM recommendation date, then calculate.",
+      "action": "Dates → Calculate Filing Window",
+      "crop": [
+        0,
+        0,
+        360,
+        440
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 61
+    },
+    {
+      "image": "stem-filing-result",
+      "duration": 6,
+      "chapter": "04 / STEM APPLY DATES",
+      "title": "Read the STEM window.",
+      "body": "The result shows the filing window and time left.",
+      "action": "Filing window → countdown",
+      "crop": [
+        0,
+        0,
+        360,
+        520
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 64
+    },
+    {
+      "image": "home",
+      "duration": 4,
+      "chapter": "CASE STATUS",
+      "title": "Check at a glance.",
+      "body": "Your case-status card appears above OPT Tools. Open it for the dashboard.",
+      "action": "Extension popup → Case status",
+      "crop": [
+        0,
+        0,
+        360,
+        205
+      ],
+      "click": false,
+      "note": "Demo case · Follow official guidance and your DSO",
+      "start": 70
+    },
+    {
+      "image": "job-before",
+      "duration": 3,
+      "chapter": "05 / JOB APPLICATIONS",
+      "title": "Open an application.",
+      "body": "The job assistant sits beside the application form.",
+      "action": "Job posting → TrackMyOPT sidebar",
+      "crop": [
+        0,
+        0,
+        1000,
+        680
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 74
+    },
+    {
+      "image": "job-filled",
+      "duration": 4,
+      "chapter": "05 / JOB APPLICATIONS",
+      "title": "Prefill. Then review.",
+      "body": "Profile fields fill from saved data. Existing answers stay in place.",
+      "action": "You review and submit the application",
+      "crop": [
+        0,
+        0,
+        1000,
+        680
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 77
+    },
+    {
+      "image": "job-save",
+      "duration": 4,
+      "chapter": "05 / JOB APPLICATIONS",
+      "title": "Read the posting signal.",
+      "body": "The sponsorship badge summarizes what the posting says. This sample does not state sponsorship.",
+      "action": "Job posting → sponsorship signal",
+      "crop": [
+        620,
+        75,
+        375,
+        145
+      ],
+      "click": false,
+      "note": "Posting language is not a sponsorship guarantee",
+      "start": 81
+    },
+    {
+      "image": "job-save",
+      "duration": 3,
+      "chapter": "06 / JOB TRACKER",
+      "title": "Save this role.",
+      "body": "Click Save to job tracker.",
+      "action": "Sidebar → Save to job tracker",
+      "crop": [
+        620,
+        12,
+        375,
+        315
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 85
+    },
+    {
+      "image": "job-status",
+      "duration": 4,
+      "chapter": "06 / JOB TRACKER",
+      "title": "Choose the status.",
+      "body": "Not applied yet? Save to Wishlist. Already applied? Select I applied.",
+      "action": "Application Status → Wishlist or Applied",
+      "crop": [
+        309,
+        219,
+        382,
+        244
+      ],
+      "click": [
+        500,
+        340
+      ],
+      "note": "Demo account · Fictional data",
+      "start": 88
+    },
+    {
+      "image": "job-saved",
+      "duration": 4,
+      "chapter": "06 / JOB TRACKER",
+      "title": "The job is saved.",
+      "body": "The badge changes to Wishlist. View in tracker opens your dashboard.",
+      "action": "Wishlist → View in tracker",
+      "crop": [
+        620,
+        12,
+        375,
+        335
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 92
+    },
+    {
+      "image": "job-analyze",
+      "duration": 3,
+      "chapter": "07 / RESUME ANALYSIS",
+      "title": "Analyze the posting.",
+      "body": "Click Analyze with AI to compare your saved résumé with this job.",
+      "action": "Sidebar → Analyze with AI",
+      "crop": [
+        620,
+        310,
+        375,
+        320
+      ],
+      "click": true,
+      "note": "Illustrative AI workflow · Plan limits apply",
+      "start": 96
+    },
+    {
+      "image": "job-analysis",
+      "duration": 5,
+      "chapter": "07 / RESUME ANALYSIS",
+      "title": "Review keyword gaps.",
+      "body": "See matched and missing keywords. Add experience only when it is accurate.",
+      "action": "Analyze with AI → keyword review",
+      "crop": [
+        320,
+        333,
+        360,
+        215
+      ],
+      "click": false,
+      "note": "Illustrative analysis output · No hiring outcome promised",
+      "start": 99
+    },
+    {
+      "image": "job-resume",
+      "duration": 3,
+      "chapter": "08 / TAILORED RÉSUMÉ",
+      "title": "Open résumé tools.",
+      "body": "Click Generate custom resume.",
+      "action": "Sidebar → Generate custom resume",
+      "crop": [
+        620,
+        320,
+        375,
+        310
+      ],
+      "click": true,
+      "note": "Demo account · Fictional data",
+      "start": 104
+    },
+    {
+      "image": "sidepanel-top",
+      "duration": 4,
+      "chapter": "08 / TAILORED RÉSUMÉ",
+      "title": "Check the job details.",
+      "body": "The Chrome side panel keeps the job and résumé controls together.",
+      "action": "Side panel → Job description",
+      "crop": [
+        0,
+        0,
+        400,
+        535
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 107
+    },
+    {
+      "image": "sidepanel-create",
+      "duration": 4,
+      "chapter": "08 / TAILORED RÉSUMÉ",
+      "title": "Choose your source.",
+      "body": "Select a saved résumé, or paste or upload one. Choose a template and create.",
+      "action": "Résumé + template → Create tailored résumé",
+      "crop": [
+        0,
+        160,
+        400,
+        405
+      ],
+      "click": true,
+      "note": "Demo account · AI features have plan limits",
+      "start": 111
+    },
+    {
+      "image": "sidepanel-running",
+      "duration": 3,
+      "chapter": "08 / TAILORED RÉSUMÉ",
+      "title": "Follow the progress.",
+      "body": "Watch the tailoring and PDF steps in the side panel.",
+      "action": "Create → progress",
+      "crop": [
+        0,
+        365,
+        400,
+        330
+      ],
+      "click": false,
+      "note": "Illustrative service response · Wait time shortened",
+      "start": 115
+    },
+    {
+      "image": "sidepanel-result",
+      "duration": 5,
+      "chapter": "08 / TAILORED RÉSUMÉ",
+      "title": "Review your résumé.",
+      "body": "Download the PDF or open it in the editor.",
+      "action": "Done → Download PDF / Open in editor",
+      "crop": [
+        0,
+        215,
+        400,
+        433
+      ],
+      "click": false,
+      "note": "Illustrative service response · Review before use",
+      "start": 118
+    },
+    {
+      "image": "resume-ready",
+      "duration": 3,
+      "chapter": "09 / COVER LETTER",
+      "title": "More résumé tools.",
+      "body": "The in-page résumé workflow also provides cover-letter controls.",
+      "action": "In-page résumé result → Generate cover letter",
+      "crop": [
+        620,
+        325,
+        375,
+        290
+      ],
+      "click": false,
+      "note": "In-page workflow · Illustrative service response",
+      "start": 123
+    },
+    {
+      "image": "cover-letter",
+      "duration": 6,
+      "chapter": "09 / COVER LETTER",
+      "title": "Review and edit.",
+      "body": "Generate a cover letter, then edit the draft before using it.",
+      "action": "Cover letter → Edit → Save",
+      "crop": [
+        620,
+        290,
+        375,
+        335
+      ],
+      "click": false,
+      "note": "Illustrative draft · Verify every statement",
+      "start": 126
+    },
+    {
+      "image": "private-answers",
+      "duration": 6,
+      "chapter": "10 / SAVED ANSWERS",
+      "title": "Keep answers together.",
+      "body": "Open Private answers to find Manage saved prefill data.",
+      "action": "Sidebar → Private answers",
+      "crop": [
+        625,
+        180,
+        360,
+        220
+      ],
+      "click": false,
+      "note": "Demo account · Review matching answers before submitting",
+      "start": 132
+    },
+    {
+      "image": "home-settings",
+      "duration": 4,
+      "chapter": "11 / PREFILL SETTINGS",
+      "title": "Choose your workflow.",
+      "body": "The popup contains prefill mode and skills settings.",
+      "action": "Popup → Job application → Prefill mode",
+      "crop": [
+        0,
+        0,
+        360,
+        650
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 138
+    },
+    {
+      "image": "continuous",
+      "duration": 4,
+      "chapter": "11 / PREFILL SETTINGS",
+      "title": "Continuous mode.",
+      "body": "Switch from Step-by-step to Continuous.",
+      "action": "Prefill mode → Continuous",
+      "crop": [
+        0,
+        275,
+        360,
+        256
+      ],
+      "click": false,
+      "note": "Demo Pro account · Availability depends on plan",
+      "start": 142
+    },
+    {
+      "image": "guided",
+      "duration": 5,
+      "chapter": "11 / PREFILL SETTINGS",
+      "title": "Guided Autopilot.",
+      "body": "Enable safe step navigation. Review the application before submitting.",
+      "action": "Guided Autopilot → enabled",
+      "crop": [
+        0,
+        275,
+        360,
+        256
+      ],
+      "click": false,
+      "note": "Demo Pro account · Guided Autopilot never clicks Submit",
+      "start": 146
+    },
+    {
+      "image": "widget-settings",
+      "duration": 5,
+      "chapter": "12 / SIDEBAR SETTINGS",
+      "title": "Make it fit your flow.",
+      "body": "Use Settings to choose whether the sidebar starts expanded or minimized.",
+      "action": "Sidebar → Settings",
+      "crop": [
+        620,
+        10,
+        375,
+        180
+      ],
+      "click": false,
+      "note": "Demo account · Fictional data",
+      "start": 151
+    },
+    {
+      "image": "home",
+      "duration": 6,
+      "chapter": "TRACKMYOPT FOR CHROME",
+      "title": "Your OPT tools.\nYour job tools.",
+      "body": "Explore TrackMyOPT from the Chrome Web Store.",
+      "action": "trackmyopt.com",
+      "crop": [
+        0,
+        0,
+        360,
+        443
+      ],
+      "click": false,
+      "note": "Demo data · Confirm immigration guidance with your DSO",
+      "start": 156
+    }
+  ]
+}

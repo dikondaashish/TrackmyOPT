@@ -1,0 +1,11 @@
+{
+  "name": "trackmyopt-chrome-store-walkthrough",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.8.78 preview",
+    "check": "npx --yes hyperframes@0.8.78 check",
+    "render": "npx --yes hyperframes@0.8.78 render --workers 1 --fps 30 --gpu --quality delivery --output ../brag.mp4",
+    "publish": "npx --yes hyperframes@0.8.78 publish"
+  }
+}

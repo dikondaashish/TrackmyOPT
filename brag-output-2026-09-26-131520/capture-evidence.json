@@ -1,0 +1,84 @@
+{
+  "posts": [],
+  "messages": [
+    {
+      "type": "GET_OPT_CLOCK_NUDGE"
+    },
+    {
+      "type": "CHECK_JOB_SAVED",
+      "jobUrl": "https://demo.example.test/",
+      "companyName": "Example Corp",
+      "roleTitle": "Junior Data Analyst"
+    },
+    {
+      "type": "ADD_JOB_TO_TRACKER",
+      "job": {
+        "role_title": "Junior Data Analyst",
+        "company_name": "Example Corp",
+        "job_url": "https://demo.example.test/",
+        "location": "Boston, MA",
+        "job_description": "Example Corp is hiring a Junior Data Analyst in Boston. Use SQL and Python to prepare reports and analyze data. Collaborate with the analytics team to create Tableau dashboards. Explain findings clearly to stakeholders. This is a fictional posting used for a product demonstration. Candidates should have project experience in data analysis and data visualization."
+      },
+      "status": "Wishlist"
+    },
+    {
+      "type": "ANALYZE_JOB_FIT",
+      "jobDescription": "EXAMPLE CORP · SAMPLE APPLICATION Junior Data Analyst\n Boston, MA · Data & analytics\n Example Corp is hiring a Junior Data Analyst in Boston. Use SQL and Python to prepare reports and analyze data. Collaborate with the analytics team to create Tableau dashboards. Explain findings clearly to stakeholders. This is a fictional posting used for a product demonstration. Candidates should have project experience in data analysis and data visualization."
+    },
+    {
+      "type": "OPEN_SIDE_PANEL"
+    },
+    {
+      "type": "LIST_SAVED_RESUMES"
+    },
+    {
+      "type": "GENERATE_RESUME",
+      "jobDescription": "EXAMPLE CORP · SAMPLE APPLICATION Junior Data Analyst\n Boston, MA · Data & analytics\n Example Corp is hiring a Junior Data Analyst in Boston. Use SQL and Python to prepare reports and analyze data. Collaborate with the analytics team to create Tableau dashboards. Explain findings clearly to stakeholders. This is a fictional posting used for a product demonstration. Candidates should have project experience in data analysis and data visualization.",
+      "resumeId": "demo-resume",
+      "templateId": "professional",
+      "companyName": "Example Corp",
+      "roleTitle": "Junior Data Analyst",
+      "jobUrl": "https://demo.example.test/",
+      "jobKey": "https://demo.example.test/|example corp|junior data analyst",
+      "focusKeywords": [],
+      "baselineScore": 75,
+      "alignJobTitles": false
+    },
+    {
+      "type": "GENERATE_COVER_LETTER",
+      "artifactId": "demo-artifact",
+      "jobDescription": "EXAMPLE CORP · SAMPLE APPLICATION Junior Data Analyst\n Boston, MA · Data & analytics\n Example Corp is hiring a Junior Data Analyst in Boston. Use SQL and Python to prepare reports and analyze data. Collaborate with the analytics team to create Tableau dashboards. Explain findings clearly to stakeholders. This is a fictional posting used for a product demonstration. Candidates should have project experience in data analysis and data visualization.",
+      "isRegeneration": false
+    }
+  ],
+  "fields": [
+    {
+      "name": "first_name",
+      "value": "Alex"
+    },
+    {
+      "name": "last_name",
+      "value": "Taylor"
+    },
+    {
+      "name": "email",
+      "value": "alex@example.test"
+    },
+    {
+      "name": "country",
+      "value": "US"
+    },
+    {
+      "name": "city",
+      "value": "Boston"
+    },
+    {
+      "name": "visa_sponsorship",
+      "value": ""
+    },
+    {
+      "name": "resume",
+      "value": ""
+    }
+  ]
+}

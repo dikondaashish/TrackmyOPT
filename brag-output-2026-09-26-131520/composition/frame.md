@@ -1,0 +1,1 @@
+1920 × 1080 landscape; 162 seconds; 30 fps. White/blue native TrackMyOPT screens, left action captions, right cropped real UI. See ../storyboard.json for editable timing and ../brag-plan.md for the storyboard.
