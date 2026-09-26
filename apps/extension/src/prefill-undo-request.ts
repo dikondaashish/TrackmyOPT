@@ -5,7 +5,8 @@ import {
 } from './autofill-preferences';
 
 export async function requestPrefillUndo(
-  runId: string
+  runId: string,
+  undoInCurrentDocument?: () => PrefillUndoResult
 ): Promise<PrefillUndoResult> {
   const stored = await chrome.storage.sync.get(AUTOFILL_PREFERENCES_KEY);
   await chrome.storage.sync.set({
@@ -19,7 +20,12 @@ export async function requestPrefillUndo(
     type: 'UNDO_LAST_PREFILL',
     runId,
   });
-  if (!response?.ok)
+  // The widget itself does not grant activeTab. Chrome can reject programmatic
+  // injection on a matched career page even though its content script is live.
+  // In that case, undo the journal in this already-running isolated document.
+  if (!response?.ok) {
+    if (undoInCurrentDocument) return undoInCurrentDocument();
     throw new Error('Could not reach the application. Try again.');
+  }
   return response.result;
 }

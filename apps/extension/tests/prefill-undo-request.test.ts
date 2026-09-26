@@ -54,3 +54,25 @@ test('undo pauses automation before messaging and transmits no field values', as
     '{"type":"UNDO_LAST_PREFILL","runId":"opaque-run"}'
   );
 });
+
+test('undo uses the current content-script journal when Chrome denies script injection', async () => {
+  const calls: string[] = [];
+  const module = { exports: {} as any };
+  vm.runInNewContext(code, {
+    module,
+    exports: module.exports,
+    chrome: {
+      storage: { sync: {
+        get: async () => ({}),
+        set: async () => { calls.push('paused'); },
+      } },
+      runtime: { sendMessage: async () => ({ ok: false }) },
+    },
+  });
+  const restored = await module.exports.requestPrefillUndo('run-1', () => {
+    calls.push('local undo');
+    return { restored: 1, skipped: 0, unsupported: 0 };
+  });
+  assert.equal(restored.restored, 1);
+  assert.equal(JSON.stringify(calls), '["paused","local undo"]');
+});

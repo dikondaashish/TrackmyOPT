@@ -1,3 +1,4 @@
+import { handleJobContextSession } from './job-context-session';
 import { WEBSITE_URL } from './config';
 import { undoPrefillInTab } from './background-prefill-undo';
 import { chromeOnboarding } from './onboarding';
@@ -90,6 +91,10 @@ chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
 // Internal message listener (from popup and content scripts)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg.type === 'JOB_CONTEXT_SESSION') {
+    void handleJobContextSession(msg, _sender).then(sendResponse).catch(() => sendResponse({ ok: false }));
+    return true;
+  }
   if (msg.type === 'OPEN_PRODUCT_TOUR' || msg.type === 'TOUR_SIGNED_IN' || msg.type === 'SAVE_TOUR_PROGRESS') {
     // Only our packaged pages can manipulate progress or open a tour tab.
     const ownPages = ['popup.html', 'sidepanel.html', 'tour.html'].map(path => chrome.runtime.getURL(path));

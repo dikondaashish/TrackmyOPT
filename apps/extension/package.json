@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "TrackMyOPT Chrome Extension",
   "scripts": {
@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node scripts/run-unit-tests.mjs",
     "test:opt-browser": "node scripts/test-opt-tools-browser.mjs",
-    "test:undo-browser": "node scripts/test-prefill-undo-browser.mjs"
+    "test:undo-browser": "node scripts/test-prefill-undo-browser.mjs",
+    "package:store": "node scripts/package-store.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",

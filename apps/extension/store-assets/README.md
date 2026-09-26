@@ -4,22 +4,23 @@ These files are the privacy-safe marketing assets for the TrackMyOPT Chrome
 Web Store listing. They use fictional application data and contain no customer
 credentials, addresses, resumes, or employer submissions.
 
-Copy and PNGs were refreshed for one-click private answers and AI draft insertion.
-They remain illustrative draft assets, not approved release screenshots. Before
-submission, complete the owner/legal and final-build checks in
-`../../../docs/compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md`.
+Version 0.2.1 lives in `output/0.2.1/`. Its five screenshots frame real tour
+components from the extension with clearly labeled fictional sample data.
+The two promotional tiles use the same branding. See `LISTING-0.2.1.md` for
+the exact listing copy and `../../../docs/releases/chrome-extension-0.2.1.md`
+for release verification.
 
 ## Render
 
-From the repository root:
+From the repository root after `pnpm install` and the extension build, run:
 
 ```bash
-NODE_PATH=/Users/ashishdikonda/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules \
-  /Users/ashishdikonda/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node \
-  apps/extension/store-assets/render-store-assets.mjs
+node apps/extension/store-assets/release-assets.mjs
 ```
 
-The renderer produces:
+Open the printed local URL in Chrome and click **Export all 7 PNGs**. The
+renderer uses the extension's tour markup and CSS with fictional data. It
+produces:
 
 - five `1280x800` Store screenshots;
 - one `440x280` small promotional tile;

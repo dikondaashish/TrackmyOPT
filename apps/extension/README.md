@@ -501,6 +501,10 @@ Rule reference: [USCIS I-765 instructions](https://www.uscis.gov/sites/default/f
 
 ## Chrome Web Store release checklist
 
+This section records the earlier 0.2.0 draft checklist. The current 0.2.1
+release package, Store copy, assets, and verification are recorded in
+`store-assets/LISTING-0.2.1.md` and `docs/releases/chrome-extension-0.2.1.md`.
+
 ### First-install product tour
 
 `tour.html` is packaged with the extension. A new install records pending
@@ -608,9 +612,9 @@ sensitive fields, non-empty fields, and existing files.
 5. Disable `aiScreeningDrafts`, `coverLetter`, or `guidedAutopilot`
    independently if production validation reveals a regression.
 
-Chrome Web Store packaging, listing changes, and submission require explicit
-owner authorization. The current `0.2.0` build remains gated by the manual
-release checks above and explicit owner authorization for draft preparation.
+The owner explicitly authorized the 0.2.1 Chrome Web Store release. Record any
+remaining test limitations and Store submission state in the 0.2.1 release
+report rather than treating this historical 0.2.0 checklist as its status.
 
 ## 📚 Resources
 

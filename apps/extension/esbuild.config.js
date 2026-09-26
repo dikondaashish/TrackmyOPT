@@ -4,6 +4,11 @@ const path = require('path');
 
 const isWatch = process.argv.includes('--watch');
 
+// Store builds must never inherit a developer's local API target.
+if (!isWatch && process.env.EXT_TARGET) {
+  throw new Error('Production builds require EXT_TARGET to be unset. Use dev:local for local development.');
+}
+
 // Clean dist directory
 const distDir = path.join(__dirname, 'dist');
 if (fs.existsSync(distDir)) {
@@ -20,7 +25,10 @@ fs.copyFileSync(
 // Copy public directory if it exists
 const publicDir = path.join(__dirname, 'public');
 if (fs.existsSync(publicDir)) {
-  fs.cpSync(publicDir, distDir, { recursive: true });
+  fs.cpSync(publicDir, distDir, {
+    recursive: true,
+    filter: (source) => fs.statSync(source).isDirectory() || /\.(html|css|png|gif)$/.test(source) && !/ 2\./.test(source),
+  });
 }
 
 // Generate dist/tokens.css from the design tokens. Keeping this in the build
@@ -68,9 +76,13 @@ const buildOptions = {
   target: 'es2020',
   format: 'iife',
   logLevel: 'info',
+  minify: !isWatch,
+  sourcemap: false,
+  drop: isWatch ? [] : ['console', 'debugger'],
+  legalComments: 'none',
   define: {
     'process.env.NODE_ENV': JSON.stringify(
-      process.env.NODE_ENV || 'development'
+      isWatch ? 'development' : 'production'
     ),
     // '' (default) -> live site; 'local' -> localhost. See src/config.ts.
     'process.env.EXT_TARGET': JSON.stringify(process.env.EXT_TARGET || ''),

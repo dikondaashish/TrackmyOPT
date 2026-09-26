@@ -175,6 +175,37 @@ export default function PrivacyPage() {
         <p key={paragraph}>{paragraph}</p>
       ))}
 
+      <h3>2.9 Chrome extension job tracking and Limited Use</h3>
+      <p>
+        On supported job pages, the assistant reads the job URL, company, role,
+        and available posting content. It sends the job identity to TrackMyOPT
+        to show whether the job is already in your tracker. Saving a job, or
+        recognizing an application-success page, can store its details and
+        application status in your account. This access supports the visible
+        job-tracking feature; it is not a collection of unrelated browsing
+        history. Extension feedback includes the message you choose to send,
+        rating, and technical request information such as IP address and browser
+        type.
+      </p>
+      <p>
+        TrackMyOPT&apos;s use and transfer of information received through the
+        Chrome extension comply with the Chrome Web Store User Data Policy,
+        including its Limited Use requirements. We use extension data only to
+        provide or improve the extension&apos;s disclosed user-facing features.
+        We do not sell extension data or use or transfer it for personalized,
+        retargeted, or interest-based advertising, creditworthiness, or lending.
+        The website advertising described elsewhere in this policy does not
+        authorize use of extension data for advertising.
+      </p>
+      <p>
+        Transfers of extension data are limited to those necessary to provide
+        or improve these features, security purposes, legal requirements, or a
+        merger, acquisition, or sale of assets consistent with the policy.
+        Human access is limited to your explicit consent for specific data,
+        necessary security or legal purposes, or aggregated and anonymized data
+        used for internal operations.
+      </p>
+
       <h2>3. How we use information</h2>
       <ul>
         <li>Provide, operate, and improve the Service</li>

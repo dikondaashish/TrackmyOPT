@@ -14,6 +14,7 @@ export const LEGAL_EFFECTIVE_DATE = 'August 26, 2026';
 export const LEGAL_VERSION_ID = '2026-08-26';
 const PRIVACY_CHOICES_EFFECTIVE_DATE = 'July 26, 2026';
 export const PRIVACY_CHOICES_VERSION_ID = '2026-07-26';
+export const EXTENSION_PRIVACY_RELEASE_VERSION_ID = '2026-09-25';
 
 export const COMPANY = {
   legalName: 'Zyene, Inc.',
@@ -48,9 +49,8 @@ export const EXTENSION_PRIVACY_SHORT =
 export const EXTENSION_FEATURE_DISCLAIMER =
   'The extension is a convenience tool for accessing TrackMyOPT workflows. It is not a government service, does not provide legal advice, and does not guarantee immigration outcomes.';
 
-// ATTORNEY REVIEW REQUIRED before publishing this new autofill disclosure or
-// treating it as a versioned policy update. The policy version/effective date
-// intentionally remain unchanged until the owner approves that release step.
+// The owner authorized the extension rollout. Keep the versioned public policy
+// and Store disclosures aligned with the actual prefill behavior.
 export const PRIVATE_ANSWER_PREFILL_NOTICE =
   'Clicking Prefill this application loads your saved private answers and fills matching empty supported fields. No separate approval step is required for these answers. Existing answers stay unchanged. Review all filled answers before submitting.';
 
@@ -59,7 +59,7 @@ export const PORTAL_LOGIN_PREFILL_NOTICE =
 
 export const EXTENSION_AUTOFILL_PLAN_NOTICE = `Free includes Step-by-step profile/resume/history prefill, optional skills, saved private answers, and one shared default job-portal login, ${PLAN_LIMITS.free.screeningDraftsPerMonth} AI screening drafts per month, and ${PLAN_LIMITS.free.coverLettersPerMonth} AI cover letter per month. Pro adds Continuous filling, opt-in Guided Autopilot, and ${PLAN_LIMITS.pro.aiWritingActionsPerMonth} shared AI writing actions per month, subject to daily and per-item safety limits.`;
 
-/** Separate paragraphs keep the public disclosure readable without changing its version. */
+/** Separate paragraphs keep the public disclosure readable. */
 export const EXTENSION_AUTOFILL_PRIVACY_PARAGRAPHS = [
   'When you click Prefill this application, the Chrome extension reads the open application form and may place eligible information from your dedicated job-portal prefill profile and the active job-scoped generated resume into empty supported fields. The dedicated profile may include contact information, address, LinkedIn, GitHub, and website details and is separate from your normal TrackMyOPT account profile. A generated resume artifact is kept in extension session storage for up to 30 minutes and is invalidated when the normalized job URL, company, or role changes.',
   `You may optionally save work-authorization, visa, sponsorship, citizenship, annual or hourly compensation, in-person/relocation/start/transportation/accommodation preferences, date-of-birth, sex/gender, race/ethnicity, veteran, disability, and EEO answers in a separate server-side record protected with authenticated encryption. ${PRIVATE_ANSWER_PREFILL_NOTICE} A saved date of birth can fill an ordinary supported date-of-birth question; it is not used as a password or verification code. Private answers are fetched on your Prefill click, not merely by opening the sidebar. If enabled, Continuous filling may reuse those loaded answers on supported steps of the same application. Changing to a different job or reloading the page requires another Prefill click. Eligible private answers may also be passed to supported application frames for the requested fill; portal credentials are excluded from that payload.`,
@@ -110,7 +110,7 @@ export const RISKY_MARKETING_PHRASES = [
 
 /** Policy version IDs (YYYY-MM-DD). Bump when copy changes materially. */
 export const LEGAL_POLICY_VERSIONS = {
-  privacy_policy: PRIVACY_CHOICES_VERSION_ID,
+  privacy_policy: EXTENSION_PRIVACY_RELEASE_VERSION_ID,
   terms_of_service: LEGAL_VERSION_ID,
   refund_policy: LEGAL_VERSION_ID,
   disclaimer: LEGAL_VERSION_ID,
@@ -360,7 +360,9 @@ export const MATERIAL_CHANGE_NOTICE =
 export function formatPolicyVersionLabel(policyType: LegalPolicyType): string {
   const version = LEGAL_POLICY_VERSIONS[policyType];
   const effectiveDate =
-    version === PRIVACY_CHOICES_VERSION_ID
+    version === EXTENSION_PRIVACY_RELEASE_VERSION_ID
+      ? 'September 25, 2026'
+      : version === PRIVACY_CHOICES_VERSION_ID
       ? PRIVACY_CHOICES_EFFECTIVE_DATE
       : LEGAL_EFFECTIVE_DATE;
   return `${effectiveDate} · Version ${version}`;

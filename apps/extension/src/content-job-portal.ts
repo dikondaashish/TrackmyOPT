@@ -1,3 +1,4 @@
+import { requestJobContextSession } from './job-context-session';
 /**
  * Content script for job / career pages (any company career site, LinkedIn, Indeed, etc.)
  * Parses job listing using JSON-LD, meta tags, and DOM. Shows a sticky, collapsible
@@ -8,7 +9,7 @@
 
 import { hardenInteractiveElements, ensureWidgetAnnouncer } from './design/a11y';
 import { el } from './design/primitives';
-import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, getPrefillUndoState, isPrefillUndoAllowed } from './prefill-undo';
+import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, getPrefillUndoState, isPrefillUndoAllowed, undoLastPrefill } from './prefill-undo';
 import { requestPrefillUndo } from './prefill-undo-request';
 import {
   isCareerPage,
@@ -149,10 +150,7 @@ import {
 let announceWidgetStatus: (message: string) => void = () => {};
 
 
-const SESSION_KEYS = {
-  LAST_JOB_CONTEXT: 'tmo_last_job_context',
-  LAST_AUTO_ADDED: 'tmo_last_auto_added',
-} as const;
+
 
 
 // chrome.storage.local: { all?: boolean; domains?: string[] } — persists across visits.
@@ -816,31 +814,14 @@ const JOB_CONTEXT_MAX_AGE_MS = 30 * 60 * 1000; // use stored context up to 30 mi
 
 
 function saveJobContext(job: JobInfo) {
-  try {
-    const snapshot = buildJobSaveSnapshot(job, scrapeJobDescription());
-    chrome.storage.session.set({
-      [SESSION_KEYS.LAST_JOB_CONTEXT]: {
-        job: {
-          company_name: snapshot.company_name,
-          role_title: snapshot.role_title,
-          job_url: snapshot.job_url,
-          location: snapshot.location,
-          salary_text: snapshot.salary_text,
-          job_description: snapshot.job_description,
-        },
-        storedAt: Date.now(),
-      },
-    });
-  } catch (_) {
-    // ignore
-  }
+  void requestJobContextSession('save', buildJobSaveSnapshot(job, scrapeJobDescription()));
 }
 
 function tryAutoAddOnSuccess() {
   if (!document.body || !isApplicationSuccessPage()) return;
   const fromPage = getJobInfo();
-  chrome.storage.session.get(SESSION_KEYS.LAST_JOB_CONTEXT, (result) => {
-    const ctx = result[SESSION_KEYS.LAST_JOB_CONTEXT] as { job: JobInfo; storedAt: number } | undefined;
+  void requestJobContextSession('read').then((result) => {
+    const ctx = result.context as { job: JobInfo; storedAt: number } | undefined;
     const storedJob = ctx?.job && Date.now() - (ctx.storedAt || 0) <= JOB_CONTEXT_MAX_AGE_MS
       ? ctx.job
       : null;
@@ -851,8 +832,8 @@ function tryAutoAddOnSuccess() {
 }
 
 function tryAutoAddWithJob(job: JobInfo) {
-  chrome.storage.session.get(SESSION_KEYS.LAST_AUTO_ADDED, (result) => {
-    const last = result[SESSION_KEYS.LAST_AUTO_ADDED] as { job_url: string; at: number } | undefined;
+  void requestJobContextSession('read').then((result) => {
+    const last = result.lastAdded as { job_url: string; at: number } | undefined;
     if (last && last.job_url === job.job_url && Date.now() - last.at < AUTO_ADD_DEBOUNCE_MS) return;
 
     chrome.runtime.sendMessage(
@@ -865,10 +846,7 @@ function tryAutoAddWithJob(job: JobInfo) {
         if (chrome.runtime.lastError) return;
         if (response?.ok) {
           rememberTrackerApplicationId(job, response.id);
-          chrome.storage.session.set({
-            [SESSION_KEYS.LAST_AUTO_ADDED]: { job_url: job.job_url, at: Date.now() },
-          });
-          chrome.storage.session.remove(SESSION_KEYS.LAST_JOB_CONTEXT);
+          void requestJobContextSession('added');
           showMessage(response.status === 'Applied' ? 'Application saved as Applied in TrackMyOPT!' : 'Job already saved. Check its status in your tracker.', false);
         }
       }
@@ -933,7 +911,7 @@ function wireJobTrackerWidgetHost(): void {
       const state = getPrefillUndoState();
       if (state.busy || !state.runId) return { restored: 0, skipped: 0, unsupported: 0 };
       await stopGuidedAutopilot();
-      return requestPrefillUndo(state.runId);
+      return requestPrefillUndo(state.runId, () => undoLastPrefill(state.runId!));
     },
     trackPrefillExecution,
     trackPrefillRuntimeFailure,
