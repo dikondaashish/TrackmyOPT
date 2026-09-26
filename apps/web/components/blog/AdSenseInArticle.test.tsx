@@ -11,6 +11,7 @@ describe('AdSenseInArticle', () => {
   beforeEach(() => {
     localStorage.clear();
     delete window.adsbygoogle;
+    document.getElementById('adsense-script')?.remove();
   });
 
   afterEach(() => cleanup());
@@ -31,6 +32,7 @@ describe('AdSenseInArticle', () => {
     expect(screen.getByRole('complementary', { name: 'Advertisement' })).toBeInTheDocument();
     expect(screen.getByRole('complementary').querySelector('[data-ad-slot="5965065084"]')).toBeInTheDocument();
     expect(window.adsbygoogle).toHaveLength(1);
+    expect(document.getElementById('adsense-script')).toBeInTheDocument();
   });
 
   it('responds when a user accepts consent after the article mounts', () => {

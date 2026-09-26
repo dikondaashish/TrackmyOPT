@@ -33,6 +33,7 @@ type ModelChoice = {
   thinkingLevel: ThinkingLevel;
   maxOutputTokens: number;
   temperature?: number;
+  timeoutMs?: number;
 };
 
 export type AiModelPolicy = {
@@ -87,8 +88,14 @@ const FLASH_LITE_31: ModelChoice = {
  * never hard-code a model name.
  */
 export const AI_MODEL_POLICIES: Readonly<Record<AiTask, AiModelPolicy>> = {
-  resume_generate: { primary: FLASH_38_MEDIUM, fallback: FLASH_37_MEDIUM },
-  resume_regenerate: { primary: FLASH_38_MEDIUM, fallback: FLASH_37_MEDIUM },
+  resume_generate: {
+    primary: { ...FLASH_38_MEDIUM, thinkingLevel: ThinkingLevel.LOW, timeoutMs: 40_000 },
+    fallback: { ...FLASH_37_MEDIUM, thinkingLevel: ThinkingLevel.LOW, timeoutMs: 40_000 },
+  },
+  resume_regenerate: {
+    primary: { ...FLASH_38_MEDIUM, thinkingLevel: ThinkingLevel.LOW, timeoutMs: 40_000 },
+    fallback: { ...FLASH_37_MEDIUM, thinkingLevel: ThinkingLevel.LOW, timeoutMs: 40_000 },
+  },
   ats_scan: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
   ats_gap: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
   latex_fix: { primary: FLASH_37_LOW, fallback: PRO_31_LOW },
@@ -367,11 +374,61 @@ async function callModel(input: {
   userId?: string;
 }): Promise<GenerateContentResponse> {
   const startedAt = Date.now();
-  const response = await input.client.models.generateContent({
-    model: input.choice.model,
-    contents: input.contents,
-    config: requestConfig(input.choice, input.config),
-  });
+  const context = {
+    requestId: getAiRequestId(), task: input.task, model: input.choice.model,
+    backend: input.backend, fallbackUsed: input.fallbackUsed,
+  };
+  console.info('[ai-start]', JSON.stringify(context));
+  const controller = new AbortController();
+  const parentSignal = input.config?.abortSignal;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let onAbort: (() => void) | undefined;
+  let response: GenerateContentResponse;
+  try {
+    const deadline = new Promise<never>((_, reject) => {
+      onAbort = () => {
+        const reason = parentSignal?.reason ?? new Error('AI request cancelled');
+        reject(reason);
+        controller.abort(reason);
+      };
+      if (parentSignal?.aborted) onAbort();
+      else parentSignal?.addEventListener('abort', onAbort, { once: true });
+      if (input.choice.timeoutMs) {
+        timer = setTimeout(() => {
+          const error = new Error('AI model attempt timed out');
+          error.name = 'ModelAttemptTimeout';
+          reject(error);
+          controller.abort(error);
+        }, input.choice.timeoutMs);
+      }
+    });
+    const config = requestConfig(input.choice, input.config);
+    response = await Promise.race([
+      input.client.models.generateContent({
+        model: input.choice.model,
+        contents: input.contents,
+        config: {
+          ...config,
+          abortSignal: controller.signal,
+          ...(input.choice.timeoutMs ? {
+            // Avoid SDK retries consuming the entire route budget before fallback.
+            httpOptions: { ...config.httpOptions, timeout: input.choice.timeoutMs, retryOptions: { attempts: 1 } },
+          } : {}),
+        },
+      }),
+      deadline,
+    ]);
+  } catch (error) {
+    console.error('[ai-failed]', JSON.stringify({
+      ...context, latencyMs: Date.now() - startedAt,
+      errorName: error instanceof Error ? error.name : 'UnknownError',
+      status: typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined,
+    }));
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    if (onAbort) parentSignal?.removeEventListener('abort', onAbort);
+  }
 
   emitUsageTelemetry({
     task: input.task,
@@ -411,7 +468,7 @@ export async function generateAiContent(input: {
 
     console.warn(
       `[ai] ${input.task} failed on ${policy.primary.model}; retrying with ${policy.fallback.model}`,
-      error instanceof Error ? error.message : 'unknown provider error'
+      error instanceof Error ? error.name : 'unknown provider error'
     );
     return callModel({
       client,

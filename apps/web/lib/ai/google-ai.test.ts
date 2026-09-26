@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const generateContent = vi.hoisted(() => vi.fn());
 vi.mock('@google/genai', () => ({
-  GoogleGenAI: class {},
+  GoogleGenAI: class { models = { generateContent }; },
   ThinkingLevel: {
     LOW: 'LOW',
     MEDIUM: 'MEDIUM',
@@ -14,6 +15,7 @@ vi.mock('@/lib/posthog-server', () => ({ captureServerEvent: vi.fn() }));
 
 import {
   AI_MODEL_POLICIES,
+  generateAiContent,
   estimateAiCostUsd,
   resolveAiBackendConfig,
 } from './google-ai';
@@ -115,5 +117,50 @@ describe('AI cost estimation', () => {
         estimateAiCostUsd(model, usage, new Date('2027-01-01T00:00:00Z'))
       ).toBeCloseTo(0.048, 6);
     }
+  });
+});
+
+
+describe('resume model deadlines', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.stubEnv('GOOGLE_CLOUD_PROJECT', 'test-project');
+    generateContent.mockReset();
+  });
+  afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); });
+
+  it('aborts a stalled primary and returns the fallback within the route deadline', async () => {
+    generateContent.mockImplementationOnce(() => new Promise(() => {}))
+      .mockResolvedValueOnce({ text: 'generated resume' });
+    const pending = generateAiContent({ task: 'resume_generate', contents: 'synthetic' });
+    await vi.advanceTimersByTimeAsync(40_000);
+    await expect(pending).resolves.toMatchObject({ text: 'generated resume' });
+    expect(generateContent).toHaveBeenCalledTimes(2);
+    const primary = generateContent.mock.calls[0][0];
+    const fallback = generateContent.mock.calls[1][0];
+    expect(primary.config.abortSignal.aborted).toBe(true);
+    expect(primary.config.thinkingConfig.thinkingLevel).toBe('LOW');
+    expect(primary.config.httpOptions.retryOptions.attempts).toBe(1);
+    expect(fallback.model).toBe('gemini-3.7-flash');
+    expect(fallback.config.abortSignal.aborted).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('does not start fallback after the overall request was cancelled', async () => {
+    generateContent.mockImplementation(() => new Promise(() => {}));
+    const controller = new AbortController();
+    const pending = generateAiContent({ task: 'resume_generate', contents: 'synthetic', config: { abortSignal: controller.signal } });
+    const assertion = expect(pending).rejects.toThrow('cancelled');
+    controller.abort(new Error('cancelled'));
+    await assertion;
+    expect(generateContent).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('does not retry invalid credentials', async () => {
+    generateContent.mockRejectedValueOnce(Object.assign(new Error('Unauthorized'), { status: 401 }));
+    await expect(generateAiContent({ task: 'resume_generate', contents: 'synthetic' })).rejects.toThrow('Unauthorized');
+    expect(generateContent).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

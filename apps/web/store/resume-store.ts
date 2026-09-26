@@ -1,5 +1,6 @@
 
 import { create } from 'zustand';
+import { createResumeStorage } from '@/lib/resume/resume-storage';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { extractJobTitle, isLikelyFilename, normalizeRoleTitle } from '@/lib/resume/extract-job-title';
 import { normalizeAtsAnalysis, type AtsAnalysis } from '@/lib/resume/ats-analysis-types';
@@ -122,6 +123,7 @@ export const useResumeStore = create<ResumeState>()(
         }),
         {
             name: 'resume-storage',
+            storage: createResumeStorage<PersistedResumeState>(),
             version: 3,
             migrate: (persistedState, version) => {
                 const state = persistedState as PersistedResumeState;

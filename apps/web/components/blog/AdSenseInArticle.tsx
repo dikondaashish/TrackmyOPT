@@ -5,6 +5,7 @@ import {
   ADSENSE_BLOG_SLOT,
   ADSENSE_PUBLISHER_ID,
   ADSENSE_READY_EVENT,
+  loadAdSense,
 } from '@/lib/adsense';
 import {
   COOKIE_CONSENT_CHANGED_EVENT,
@@ -53,6 +54,7 @@ export function AdSenseInArticle() {
 
     window.addEventListener(ADSENSE_READY_EVENT, renderAd);
     renderAd();
+    loadAdSense();
 
     return () => window.removeEventListener(ADSENSE_READY_EVENT, renderAd);
   }, [consent]);

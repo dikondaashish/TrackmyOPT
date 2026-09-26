@@ -31,6 +31,11 @@ export async function generateResumeWithDeadline(
             }),
             deadline,
         ]);
+    } catch (error) {
+        if (error instanceof Error && /Timeout/i.test(error.name)) {
+            throw new ResumeGenerationTimeout();
+        }
+        throw error;
     } finally {
         clearTimeout(timer);
     }

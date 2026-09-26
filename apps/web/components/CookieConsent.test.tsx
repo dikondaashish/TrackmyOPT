@@ -81,24 +81,22 @@ describe('CookieConsent', () => {
       'src',
       'https://www.googletagmanager.com/gtag/js?id=G-SC3M6PN10V'
     );
-    expect(document.getElementById('adsense-script')).toHaveAttribute(
-      'src',
-      expect.stringContaining('pagead2.googlesyndication.com')
-    );
+    expect(document.getElementById('adsense-script')).toBeNull();
     expect(
       screen.getByRole('button', { name: 'Open privacy choices' })
     ).toBeInTheDocument();
   });
 
-  it('hides the floating trigger on dashboard routes', () => {
+  it('keeps dashboard routes free of advertising scripts and floating triggers', () => {
     storeChoice('accepted');
-    mockPathname.mockReturnValue('/dashboard');
+    mockPathname.mockReturnValue('/dashboard/career/resume-generator');
 
     render(<CookieConsent />);
 
     expect(
       screen.queryByRole('button', { name: 'Open privacy choices' })
     ).not.toBeInTheDocument();
+    expect(document.getElementById('adsense-script')).toBeNull();
   });
 
   it('opens the panel when privacy choices are requested elsewhere', () => {

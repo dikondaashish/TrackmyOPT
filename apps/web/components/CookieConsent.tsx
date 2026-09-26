@@ -11,7 +11,6 @@ import {
   type CookieConsentStatus,
 } from '@/lib/cookie-consent';
 import { setPostHogAnalyticsConsent } from '@/lib/posthog/posthog-browser';
-import { loadAdSense } from '@/lib/adsense';
 
 const GA_ID = 'G-SC3M6PN10V';
 
@@ -85,7 +84,6 @@ export function CookieConsent({
       } catch (error) {
         console.warn('Third-party init failed: PostHog consent', error);
       }
-      loadAdSense();
       loadGA4();
     } else if (stored === 'declined') {
       try {
@@ -116,7 +114,6 @@ export function CookieConsent({
     } catch (error) {
       console.warn('Third-party init failed: PostHog consent', error);
     }
-    loadAdSense();
     loadGA4();
   }, []);
 

@@ -32,6 +32,25 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe("resume editor pipeline", () => {
+    it("shows a timeout once and accurately reports a released credit", async () => {
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        const message = "Resume generation took too long. Please try again.";
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ error: message, details: message, creditRefunded: true }, 504)));
+        const { result } = renderActions();
+        await act(async () => { await result.current.generateResume("Resume", "Job", "modern"); });
+        expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ description: message + " Your credit was not charged." }));
+        expect(result.current.isGenerating).toBe(false);
+    });
+
+    it("handles an infrastructure timeout without a JSON response", async () => {
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 504, json: async () => { throw new SyntaxError("Unexpected token"); } }));
+        const { result } = renderActions();
+        await act(async () => { await result.current.generateResume("Resume", "Job", "modern"); });
+        expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ description: "Resume generation took too long. Please try again." }));
+        expect(result.current.isGenerating).toBe(false);
+    });
+
     it("keeps a successful preview when ATS analysis fails", async () => {
         vi.spyOn(console, "error").mockImplementation(() => {});
         const blob = new Blob(["pdf"]);

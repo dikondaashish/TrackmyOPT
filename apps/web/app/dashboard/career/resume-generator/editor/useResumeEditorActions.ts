@@ -345,7 +345,14 @@ export function useResumeEditorActions({
                 })
             });
 
-            const data = await response.json();
+            const data = await response.json().catch(() => {
+                if (response.ok) throw new Error("The server returned an invalid resume response. Please try again.");
+                return {
+                    error: response.status === 504
+                        ? "Resume generation took too long. Please try again."
+                        : "Resume generation is temporarily unavailable. Please try again.",
+                };
+            });
             if (!isCurrent()) return;
 
             if (!response.ok) {
@@ -362,7 +369,7 @@ export function useResumeEditorActions({
                         : "";
                 const refundNote = data.creditRefunded ? " Your credit was not charged." : "";
                 const detailNote =
-                    typeof data.details === "string" && data.details.trim()
+                    typeof data.details === "string" && data.details.trim() && data.details.trim() !== data.error
                         ? ` ${data.details.trim()}`
                         : "";
                 throw new Error(
