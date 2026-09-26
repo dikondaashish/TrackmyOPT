@@ -11,6 +11,12 @@
       "sourceType": "github",
       "computedHash": "cc9d4d1fb231a1b56e8b5a4f99249b53527607fa7f4ecf4a373d1541658e9c2e"
     },
+    "brag": {
+      "source": "latent-spaces/brag",
+      "sourceType": "github",
+      "skillPath": "skills/brag/SKILL.md",
+      "computedHash": "23538f72c11ab6e872e54d156d8fe76b0966e88f5365167e9166e58709d9aa86"
+    },
     "competitor-analysis": {
       "source": "aaron-he-zhu/seo-geo-claude-skills",
       "sourceType": "github",
