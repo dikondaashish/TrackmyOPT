@@ -59,6 +59,38 @@ describe('saved outreach bundle workspace', () => {
     expect(body.idempotencyKey).toMatch(/^[0-9a-f-]{36}$/);
   });
 
+  it('uses a selected Brandfetch company and its domain for the search', async () => {
+    const fetchMock = vi.fn(async (url: string, options?: RequestInit) => {
+      if (url.startsWith('https://api.brandfetch.io/v2/search/'))
+        return new Response(JSON.stringify([
+          { name: 'Microsoft', domain: 'microsoft.com', brandId: 'msft' },
+        ]));
+      if (url === '/api/career/networking/bundles')
+        return options?.method === 'POST'
+          ? ok({ bundleId })
+          : ok({ remaining: 15, history: [] });
+      return ok({ bundle: ready, contacts: [] });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    render(<NetworkingWorkspace applications={[]} initialApplicationId="" initialBundleId="" applicationsUnavailable={false} />);
+
+    fireEvent.change(screen.getByLabelText('Company'), { target: { value: 'Micro' } });
+    const option = await screen.findByRole('option', { name: /Microsoft/ });
+    expect(option.querySelector('img')?.getAttribute('src')).toContain('microsoft.com');
+    fireEvent.click(option);
+    expect(screen.getByLabelText('Company')).toHaveValue('Microsoft');
+    expect(screen.getByText('Company website (microsoft.com)')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Target role'), { target: { value: 'Software Engineer' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Find contacts' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([url, options]) =>
+      url === '/api/career/networking/bundles' && options?.method === 'POST')).toBe(true));
+    const post = fetchMock.mock.calls.find(([url, options]) =>
+      url === '/api/career/networking/bundles' && options?.method === 'POST')!;
+    expect(JSON.parse(post[1]!.body as string)).toMatchObject({
+      companyName: 'Microsoft', companyDomain: 'microsoft.com',
+    });
+  });
+
   it('shows zero reliable contacts without suggesting a guessed profile', async () => {
     const fetchMock = vi.fn(async (url: string) => url.endsWith(`/${bundleId}`)
       ? ok({ bundle: { ...ready, status: 'failed', discoveryStatus: 'zero_contacts',

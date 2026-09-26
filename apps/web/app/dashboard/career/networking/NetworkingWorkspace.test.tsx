@@ -5,6 +5,20 @@ import { NetworkingWorkspace } from './LegacyNetworkingWorkspace';
 describe('NetworkingWorkspace', () => {
   beforeEach(() => vi.restoreAllMocks());
 
+  it('shows company names and logos while keeping manual company entry available', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify([{ name: 'Amazon', domain: 'amazon.com' }]))
+    ));
+    render(<NetworkingWorkspace applications={[]} initialApplicationId="" applicationsUnavailable={false} />);
+    fireEvent.change(screen.getByLabelText('Company (optional)'), { target: { value: 'Ama' } });
+    const option = await screen.findByRole('option', { name: /Amazon/ });
+    expect(option.querySelector('img')?.getAttribute('src')).toContain('amazon.com');
+    fireEvent.click(option);
+    expect(screen.getByLabelText('Company (optional)')).toHaveValue('Amazon');
+    fireEvent.change(screen.getByLabelText('Company (optional)'), { target: { value: 'Amazon Web Services, Inc.' } });
+    expect(screen.getByLabelText('Company (optional)')).toHaveValue('Amazon Web Services, Inc.');
+  });
+
   it('uses the candidate message and opens a prefilled Gmail draft for a verified contact', async () => {
     const fetchMock = vi.fn(async (url: string) => {
       if (url === '/api/career/email-finder') {

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { OutreachGoal } from './OutreachGoal';
+import { CompanySearchInput } from './CompanySearchInput';
 import { requestEmailLookup, requestNetworkingDraft, type FinderResult, type Draft } from '@/lib/career/networking/browser-lookup';
 import {
   ArrowUpRight,
@@ -101,8 +102,12 @@ export function NetworkingWorkspace({
                 {applications.map((application) => <option key={application.id} value={application.id}>{application.company_name} · {application.role_title}</option>)}
               </select>
             </div>}
-            <div className="space-y-2"><label htmlFor="network-company" className="block text-sm font-medium text-slate-900 dark:text-white">Company (optional)</label>
-              <input id="network-company" value={companyName} onChange={(event) => { setCompanyName(event.target.value); setApplicationId(''); }} maxLength={120} placeholder="Company name" className={inputClass} /></div>
+            <CompanySearchInput
+              id="network-company"
+              label="Company (optional)"
+              value={companyName}
+              onChange={(name) => { setCompanyName(name); setApplicationId(''); }}
+            />
             <div className="space-y-2"><label htmlFor="network-role" className="block text-sm font-medium text-slate-900 dark:text-white">Role (optional)</label>
               <input id="network-role" value={roleTitle} onChange={(event) => { setRoleTitle(event.target.value); setApplicationId(''); }} maxLength={120} placeholder="Role you applied for" className={inputClass} /></div>
           </div>

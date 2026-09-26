@@ -1,14 +1,15 @@
 'use client';
 
 import { OutreachGoal } from './OutreachGoal';
+import { CompanySearchInput } from './CompanySearchInput';
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowUpRight, Check, ChevronRight, Copy, LoaderCircle, Mail, Search, Send, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Check, ChevronRight, Copy, LoaderCircle, Mail, Send, Sparkles } from 'lucide-react';
 import { captureClientEvent } from '@/lib/posthog-client';
+import { normalizeCompanyDomain } from '@/lib/company-domain';
 import { BrowserEmailRecovery } from './BrowserEmailRecovery';
 
 type Application = { id: string; company_name: string; role_title: string };
-type Company = { id: string; name: string; domain: string | null };
 type Contact = {
   id: string; name: string; title: string; company: string; linkedinUrl: string;
   relevanceReason: string; evidence: Array<{ url: string; title: string; description: string }>;
@@ -69,8 +70,6 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
   const [role, setRole] = useState(selectedApplication?.role_title ?? '');
   const [intent, setIntent] = useState('');
   const [applicationId, setApplicationId] = useState(selectedApplication?.id ?? '');
-  const [suggestions, setSuggestions] = useState<Company[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [bundleId, setBundleId] = useState(initialBundleId);
   const [bundle, setBundle] = useState<Bundle | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -108,18 +107,6 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
     void poll();
     return () => { cancelled = true; if (timer) window.clearTimeout(timer); };
   }, [bundleId, loadBundle]);
-
-  useEffect(() => {
-    if (companyName.trim().length < 2 || !showSuggestions) return;
-    const controller = new AbortController();
-    const timer = window.setTimeout(async () => {
-      try {
-        const data = await readApi<{ companies: Company[] }>(await fetch(`/api/career/networking/companies?q=${encodeURIComponent(companyName)}`, { signal: controller.signal }));
-        setSuggestions(data.companies);
-      } catch { if (!controller.signal.aborted) setSuggestions([]); }
-    }, 300);
-    return () => { window.clearTimeout(timer); controller.abort(); };
-  }, [companyName, showSuggestions]);
 
   function openBundle(id: string) {
     setError(''); setBundleId(id); setBundle(null); setContacts([]);
@@ -195,26 +182,25 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
                 </select>
               </div></details>}
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="relative">
-                  <label htmlFor="network-company" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Company</label>
-                  <div className="relative"><Search className="absolute left-3.5 top-3.5 size-4 text-slate-500" aria-hidden="true" />
-                    <input id="network-company" required maxLength={120} autoComplete="off" value={companyName}
-                      onChange={(event) => { requestKey.current = null; setCompanyName(event.target.value); setCompanyDomain(''); setApplicationId(''); setSuggestions([]); setShowSuggestions(true); }}
-                      onFocus={() => setShowSuggestions(true)} onKeyDown={(event) => { if (event.key === 'Escape') setShowSuggestions(false); }}
-                      placeholder="Microsoft" className={`${fieldClass} pl-10`} />
-                  </div>
-                  {showSuggestions && suggestions.length > 0 && <div className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-slate-700 dark:bg-slate-900" role="listbox" aria-label="Company suggestions">
-                    {suggestions.map((item) => <button type="button" role="option" aria-selected={false} key={item.id}
-                      onClick={() => { requestKey.current = null; setCompanyName(item.name); setCompanyDomain(item.domain ?? ''); setShowSuggestions(false); }}
-                      className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-left text-sm text-slate-900 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-white dark:hover:bg-slate-800">
-                      <span className="truncate">{item.name}</span><span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{item.domain}</span>
-                    </button>)}
-                  </div>}
-                </div>
+                <CompanySearchInput
+                  id="network-company"
+                  label="Company"
+                  required
+                  value={companyName}
+                  onChange={(name) => {
+                    requestKey.current = null;
+                    setCompanyName(name);
+                    setCompanyDomain('');
+                    setApplicationId('');
+                  }}
+                  onSelect={(company) =>
+                    setCompanyDomain(normalizeCompanyDomain(company.domain) ?? '')
+                  }
+                />
                 <div><label htmlFor="network-role" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Target role</label>
                   <input id="network-role" required maxLength={120} value={role} onChange={(event) => { requestKey.current = null; setRole(event.target.value); setApplicationId(''); }} placeholder="Software Engineer" className={fieldClass} /></div>
               </div>
-              <details><summary className="cursor-pointer text-sm font-medium text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300">Company website (optional)</summary><div className="mt-3"><label htmlFor="network-domain" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Company website <span className="font-normal text-slate-500">(for similar company names)</span></label>
+              <details><summary className="cursor-pointer text-sm font-medium text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300">Company website {companyDomain ? `(${companyDomain})` : '(optional)'}</summary><div className="mt-3"><label htmlFor="network-domain" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Company website <span className="font-normal text-slate-500">(for similar company names)</span></label>
                 <input id="network-domain" maxLength={253} value={companyDomain} onChange={(event) => { requestKey.current = null; setCompanyDomain(event.target.value); }} placeholder="microsoft.com" className={fieldClass} />
                 {companyDomain && <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300">Selected: {companyName} · {companyDomain}</p>}
               </div>

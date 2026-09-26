@@ -48,12 +48,13 @@ function normalizeCompanies(data: unknown): Company[] {
 function statusMessage(
   visible: boolean,
   result: SearchState | null,
-  count: number
+  count: number,
+  name: string
 ): string {
   if (!visible) return '';
   if (result?.status === 'loading') return 'Searching companies…';
   if (result?.status === 'error')
-    return 'Suggestions unavailable. You can still enter your employer name.';
+    return `Suggestions unavailable. You can still enter your ${name} name.`;
   return count
     ? `${count} suggestions. Use arrow keys and Enter to select.`
     : 'No matches. You can keep the name you typed.';
@@ -62,7 +63,8 @@ function statusMessage(
 export function useEmployerNameSuggestions(
   value: string,
   onChange: (value: string) => void,
-  onSelect?: (company: Company) => void
+  onSelect?: (company: Company) => void,
+  name = 'employer'
 ) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -178,7 +180,7 @@ export function useEmployerNameSuggestions(
     active,
     companies,
     expanded,
-    status: statusMessage(visible, result, companies.length),
+    status: statusMessage(visible, result, companies.length, name),
     onBlur: dismiss,
     onChange: (text: string) => {
       onChange(text);
