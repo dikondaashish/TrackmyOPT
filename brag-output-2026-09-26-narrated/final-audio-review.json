@@ -1,0 +1,107 @@
+{
+  "transcript": "Prefill your application, then review. Open TrackMyOPT in Chrome, choose OPT Clock, enter your EAD start date, and save. See unemployment days used and remaining, and manage daily reminders. For STEM, enter your EAD start date, save to see cumulative unemployment days used and remaining. OPT Apply dates uses your program end date and optional DSO recommendation date to show your filing window. For STEM Apply dates, enter your current OPT expiry and recommendation dates, calculate your window, and count down. Check case status at a glance. Prefill supported application fields, review your answers, and check the posting sponsorship signal. Save roles to Wishlist or Applied, then open them in your tracker. Analyze your resume against the posting, review matching keywords and gaps, create a tailored resume. Check the job description, choose a saved, pasted, or uploaded resume and template, then follow progress. Download the PDF or edit. Generate a cover letter, review the draft, and save your edits. Manage saved answers for future applications, choose step-by-step or continuous prefill. Guided autopilot helps navigate steps without clicking submit. Expand or minimize the sidebar. TrackMyOPT for Chrome.",
+  "segments": [
+    {
+      "start_seconds": 0.0,
+      "end_seconds": 2.8,
+      "text": "Prefill your application, then review."
+    },
+    {
+      "start_seconds": 2.8,
+      "end_seconds": 5.3,
+      "text": "Open TrackMyOPT in Chrome,"
+    },
+    {
+      "start_seconds": 5.3,
+      "end_seconds": 9.6,
+      "text": "choose OPT Clock, enter your EAD start date, and save."
+    },
+    {
+      "start_seconds": 9.6,
+      "end_seconds": 15.5,
+      "text": "See unemployment days used and remaining, and manage daily reminders."
+    },
+    {
+      "start_seconds": 15.5,
+      "end_seconds": 19.4,
+      "text": "For STEM, enter your EAD start date,"
+    },
+    {
+      "start_seconds": 19.4,
+      "end_seconds": 23.6,
+      "text": "save to see cumulative unemployment days used and remaining."
+    },
+    {
+      "start_seconds": 23.6,
+      "end_seconds": 31.0,
+      "text": "OPT Apply dates uses your program end date and optional DSO recommendation date to show your filing window."
+    },
+    {
+      "start_seconds": 31.0,
+      "end_seconds": 38.9,
+      "text": "For STEM Apply dates, enter your current OPT expiry and recommendation dates, calculate your window, and count down."
+    },
+    {
+      "start_seconds": 38.9,
+      "end_seconds": 41.8,
+      "text": "Check case status at a glance."
+    },
+    {
+      "start_seconds": 41.8,
+      "end_seconds": 47.8,
+      "text": "Prefill supported application fields, review your answers, and check the posting sponsorship signal."
+    },
+    {
+      "start_seconds": 47.8,
+      "end_seconds": 53.6,
+      "text": "Save roles to Wishlist or Applied, then open them in your tracker."
+    },
+    {
+      "start_seconds": 53.6,
+      "end_seconds": 101.4,
+      "text": "Analyze your resume against the posting, review matching keywords and gaps, create a tailored resume."
+    },
+    {
+      "start_seconds": 101.4,
+      "end_seconds": 108.1,
+      "text": "Check the job description, choose a saved, pasted, or uploaded resume and template, then follow progress."
+    },
+    {
+      "start_seconds": 108.1,
+      "end_seconds": 110.5,
+      "text": "Download the PDF or edit."
+    },
+    {
+      "start_seconds": 110.5,
+      "end_seconds": 115.1,
+      "text": "Generate a cover letter, review the draft, and save your edits."
+    },
+    {
+      "start_seconds": 115.1,
+      "end_seconds": 121.0,
+      "text": "Manage saved answers for future applications, choose step-by-step or continuous prefill."
+    },
+    {
+      "start_seconds": 121.0,
+      "end_seconds": 124.7,
+      "text": "Guided autopilot helps navigate steps without clicking submit."
+    },
+    {
+      "start_seconds": 124.7,
+      "end_seconds": 127.2,
+      "text": "Expand or minimize the sidebar."
+    },
+    {
+      "start_seconds": 127.2,
+      "end_seconds": 129.8,
+      "text": "TrackMyOPT for Chrome."
+    }
+  ],
+  "quality": {
+    "intelligibility": "high",
+    "speaker_consistency": "consistent",
+    "clipped_words": [],
+    "unexpected_sounds": [],
+    "music_masking_voice": false
+  }
+}

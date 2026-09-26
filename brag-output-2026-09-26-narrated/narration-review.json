@@ -1,0 +1,117 @@
+{
+  "transcript": "Prefill your application, then review. Open Track My OPT in Chrome. Choose OPT Clock. Enter your EAD start date, and save. See unemployment days used and remaining, and manage daily reminders. For STEM, enter your EAD start date. Save to see cumulative unemployment days used and remaining. OPT apply dates uses your program end date and optional DSO recommendation date to show your filing window. For STEM apply dates, enter your current OPT expiry and recommendation dates, calculate your window, and countdown. Check case status at a glance. Prefill supported application fields, review your answers, and check the postings sponsorship signal. Save roles to wishlist or applied, then open them in your tracker. Analyze your resume against the posting. Review matching keywords and gaps. Create a tailored resume. Check the job description, choose a saved, pasted, or uploaded resume and template, then follow progress. Download the PDF, or edit. Generate a cover letter, review the draft, and save your edits. Manage saved answers for future applications. Choose step by step or continuous prefill. Guided autopilot helps navigate steps without clicking submit. Expand or minimize the side bar. Track My OPT for Chrome.",
+  "segments": [
+    {
+      "start_seconds": 0.0,
+      "end_seconds": 2.5,
+      "text": "Prefill your application, then review."
+    },
+    {
+      "start_seconds": 2.5,
+      "end_seconds": 9.4,
+      "text": "Open Track My OPT in Chrome. Choose OPT Clock. Enter your EAD start date, and save."
+    },
+    {
+      "start_seconds": 9.4,
+      "end_seconds": 13.9,
+      "text": "See unemployment days used and remaining, and manage daily reminders."
+    },
+    {
+      "start_seconds": 13.9,
+      "end_seconds": 19.3,
+      "text": "For STEM, enter your EAD start date. Save to see cumulative"
+    },
+    {
+      "start_seconds": 19.3,
+      "end_seconds": 22.4,
+      "text": "unemployment days used and remaining."
+    },
+    {
+      "start_seconds": 22.4,
+      "end_seconds": 30.0,
+      "text": "OPT apply dates uses your program end date and optional DSO recommendation date to show your filing window."
+    },
+    {
+      "start_seconds": 30.0,
+      "end_seconds": 38.3,
+      "text": "For STEM apply dates, enter your current OPT expiry and recommendation dates, calculate your window, and countdown."
+    },
+    {
+      "start_seconds": 38.3,
+      "end_seconds": 41.5,
+      "text": "Check case status at a glance."
+    },
+    {
+      "start_seconds": 41.5,
+      "end_seconds": 47.7,
+      "text": "Prefill supported application fields, review your answers, and check the postings sponsorship signal."
+    },
+    {
+      "start_seconds": 47.7,
+      "end_seconds": 53.0,
+      "text": "Save roles to wishlist or applied, then open them in your tracker."
+    },
+    {
+      "start_seconds": 53.0,
+      "end_seconds": 57.3,
+      "text": "Analyze your resume against the posting."
+    },
+    {
+      "start_seconds": 57.3,
+      "end_seconds": 60.1,
+      "text": "Review matching keywords and gaps."
+    },
+    {
+      "start_seconds": 60.1,
+      "end_seconds": 62.0,
+      "text": "Create a tailored resume."
+    },
+    {
+      "start_seconds": 62.0,
+      "end_seconds": 68.3,
+      "text": "Check the job description, choose a saved, pasted, or uploaded resume and template, then follow progress."
+    },
+    {
+      "start_seconds": 68.3,
+      "end_seconds": 70.4,
+      "text": "Download the PDF, or edit."
+    },
+    {
+      "start_seconds": 70.4,
+      "end_seconds": 74.8,
+      "text": "Generate a cover letter, review the draft, and save your edits."
+    },
+    {
+      "start_seconds": 74.8,
+      "end_seconds": 78.4,
+      "text": "Manage saved answers for future applications."
+    },
+    {
+      "start_seconds": 78.4,
+      "end_seconds": 81.3,
+      "text": "Choose step by step or continuous prefill."
+    },
+    {
+      "start_seconds": 81.3,
+      "end_seconds": 85.0,
+      "text": "Guided autopilot helps navigate steps without clicking submit."
+    },
+    {
+      "start_seconds": 85.0,
+      "end_seconds": 87.2,
+      "text": "Expand or minimize the side bar."
+    },
+    {
+      "start_seconds": 87.2,
+      "end_seconds": 90.0,
+      "text": "Track My OPT for Chrome."
+    }
+  ],
+  "quality": {
+    "intelligibility": "high",
+    "speaker_consistency": "high",
+    "clipped_words": [],
+    "unexpected_sounds": [],
+    "music_masking_voice": "none"
+  }
+}

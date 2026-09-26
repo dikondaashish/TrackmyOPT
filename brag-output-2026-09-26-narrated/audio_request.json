@@ -1,0 +1,102 @@
+{
+  "provider": "gemini",
+  "tts_model": "gemini-3.8-flash-tts",
+  "voice": "Charon",
+  "lang": "en",
+  "style": "Polished, friendly product-demo narration. Clear articulation, natural warmth, restrained enthusiasm. Brisk, natural pace around 155 words per minute.",
+  "lines": [
+    {
+      "id": "01",
+      "start": 0,
+      "end": 3.2,
+      "text": "Prefill your application. Then review."
+    },
+    {
+      "id": "02",
+      "start": 3.2,
+      "end": 16,
+      "text": "Open Track My O P T in Chrome. Choose O P T Clock, enter your E A D start date, and save. See unemployment days used and remaining, and manage daily reminders."
+    },
+    {
+      "id": "03",
+      "start": 16,
+      "end": 23.7,
+      "text": "For STEM, enter your E A D start date. Save to see cumulative unemployment days used and remaining."
+    },
+    {
+      "id": "04",
+      "start": 23.7,
+      "end": 31.6,
+      "text": "O P T Apply Dates uses your program end date and optional D S O recommendation date to show your filing window."
+    },
+    {
+      "id": "05",
+      "start": 31.6,
+      "end": 39.4,
+      "text": "For STEM Apply Dates, enter your current O P T expiry and recommendation dates. Calculate your window and countdown."
+    },
+    {
+      "id": "06",
+      "start": 39.4,
+      "end": 41.9,
+      "text": "Check case status at a glance."
+    },
+    {
+      "id": "07",
+      "start": 41.9,
+      "end": 48.4,
+      "text": "Prefill supported application fields, review your answers, and check the posting\u2019s sponsorship signal."
+    },
+    {
+      "id": "08",
+      "start": 48.4,
+      "end": 54.8,
+      "text": "Save roles to Wishlist or Applied, then open them in your tracker."
+    },
+    {
+      "id": "09",
+      "start": 54.8,
+      "end": 59.7,
+      "text": "Analyze your r\u00e9sum\u00e9 against the posting. Review matching keywords and gaps."
+    },
+    {
+      "id": "10",
+      "start": 59.7,
+      "end": 70.4,
+      "text": "Create a tailored r\u00e9sum\u00e9. Check the job description, choose a saved, pasted, or uploaded r\u00e9sum\u00e9 and template, then follow progress. Download the P D F or edit."
+    },
+    {
+      "id": "11",
+      "start": 70.4,
+      "end": 75.3,
+      "text": "Generate a cover letter, review the draft, and save your edits."
+    },
+    {
+      "id": "12",
+      "start": 75.3,
+      "end": 78.2,
+      "text": "Manage saved answers for future applications."
+    },
+    {
+      "id": "13",
+      "start": 78.2,
+      "end": 85.1,
+      "text": "Choose step-by-step or continuous prefill. Guided Autopilot helps navigate steps, without clicking Submit."
+    },
+    {
+      "id": "14",
+      "start": 85.1,
+      "end": 87.3,
+      "text": "Expand or minimize the sidebar."
+    },
+    {
+      "id": "15",
+      "start": 87.3,
+      "end": 90,
+      "text": "Track My O P T for Chrome."
+    }
+  ],
+  "bgm": {
+    "mode": "none"
+  }
+}
