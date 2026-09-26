@@ -273,10 +273,9 @@ export function LandingNavbar() {
                                 >
                                     Log in
                                 </Link>
-                                {/* Quiet header CTA — filled primary lives in the hero only */}
                                 <Link
                                     href="/login"
-                                    className="text-sm font-semibold text-blue-700 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                    className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-md shadow-blue-500/25 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-500/30"
                                 >
                                     Start free
                                 </Link>
@@ -413,7 +412,7 @@ export function LandingNavbar() {
                                         <Link
                                             href="/dashboard"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:from-blue-700 hover:to-indigo-700"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-shadow hover:from-blue-700 hover:to-indigo-700"
                                         >
                                             <LayoutDashboard className="w-4 h-4 mr-2" />
                                             Dashboard
@@ -463,7 +462,7 @@ export function LandingNavbar() {
                                         <Link
                                             href="/login"
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-blue-700 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-blue-800"
+                                            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-shadow hover:from-blue-700 hover:to-indigo-700"
                                         >
                                             Start free
                                             <ArrowRight className="w-4 h-4 ml-2" />
