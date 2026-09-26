@@ -1,0 +1,299 @@
+[
+  {
+    "name": "home",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 265.5,
+      "y": 264.9609375
+    }
+  },
+  {
+    "name": "opt-clock-nav",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 265.5,
+      "y": 264.9609375
+    }
+  },
+  {
+    "name": "opt-clock-empty",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 230
+    }
+  },
+  {
+    "name": "opt-calendar",
+    "width": 360,
+    "height": 650,
+    "target": null
+  },
+  {
+    "name": "opt-clock-filled",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 359
+    }
+  },
+  {
+    "name": "opt-clock-result",
+    "width": 360,
+    "height": 650,
+    "target": null
+  },
+  {
+    "name": "opt-reminders",
+    "width": 360,
+    "height": 650,
+    "target": null
+  },
+  {
+    "name": "stem-clock-nav",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 265.5,
+      "y": 381.8515625
+    }
+  },
+  {
+    "name": "stem-clock-empty",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 230
+    }
+  },
+  {
+    "name": "stem-clock-filled",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 359
+    }
+  },
+  {
+    "name": "stem-clock-result",
+    "width": 360,
+    "height": 650,
+    "target": null
+  },
+  {
+    "name": "opt-filing-nav",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 94.5,
+      "y": 264.9609375
+    }
+  },
+  {
+    "name": "opt-filing-empty",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 230
+    }
+  },
+  {
+    "name": "opt-filing-filled",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 385
+    }
+  },
+  {
+    "name": "opt-filing-result",
+    "width": 360,
+    "height": 650,
+    "target": null
+  },
+  {
+    "name": "stem-filing-nav",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 94.5,
+      "y": 381.8515625
+    }
+  },
+  {
+    "name": "stem-filing-empty",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 230
+    }
+  },
+  {
+    "name": "stem-filing-filled",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 180,
+      "y": 385
+    }
+  },
+  {
+    "name": "stem-filing-result",
+    "width": 360,
+    "height": 650,
+    "target": null
+  },
+  {
+    "name": "home-settings",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 257.25,
+      "y": 330.546875
+    }
+  },
+  {
+    "name": "continuous",
+    "width": 360,
+    "height": 650,
+    "target": {
+      "x": 34.5,
+      "y": 425.046875
+    }
+  },
+  {
+    "name": "guided",
+    "width": 360,
+    "height": 650,
+    "target": null
+  },
+  {
+    "name": "job-before",
+    "width": 1000,
+    "height": 680,
+    "target": {
+      "x": 804,
+      "y": 422.671875
+    }
+  },
+  {
+    "name": "job-filled",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "job-save",
+    "width": 1000,
+    "height": 680,
+    "target": {
+      "x": 804,
+      "y": 242.078125
+    }
+  },
+  {
+    "name": "job-status",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "job-saved",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "job-analyze",
+    "width": 1000,
+    "height": 680,
+    "target": {
+      "x": 804,
+      "y": 591.0859375
+    }
+  },
+  {
+    "name": "job-analysis",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "job-resume",
+    "width": 1000,
+    "height": 680,
+    "target": {
+      "x": 804,
+      "y": 537.1015625
+    }
+  },
+  {
+    "name": "resume-chooser",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "resume-ready",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "cover-letter",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "private-answers",
+    "width": 1000,
+    "height": 680,
+    "target": {
+      "x": 804,
+      "y": 207.578125
+    }
+  },
+  {
+    "name": "widget-settings",
+    "width": 1000,
+    "height": 680,
+    "target": null
+  },
+  {
+    "name": "sidepanel-top",
+    "width": 400,
+    "height": 700,
+    "target": null
+  },
+  {
+    "name": "sidepanel-create",
+    "width": 400,
+    "height": 700,
+    "target": {
+      "x": 200,
+      "y": 484.765625
+    }
+  },
+  {
+    "name": "sidepanel-running",
+    "width": 400,
+    "height": 700,
+    "target": null
+  },
+  {
+    "name": "sidepanel-result",
+    "width": 400,
+    "height": 700,
+    "target": null
+  }
+]

@@ -1,0 +1,40 @@
+TITLE
+TrackMyOPT Chrome Extension — OPT Clocks, Filing Dates & Job Application Demo
+
+DESCRIPTION
+See where to find the TrackMyOPT extension tools and how to use them:
+• OPT Clock and STEM Clock: enter an EAD start date and view the tracker.
+• OPT and STEM filing dates: calculate a filing window and review the countdown.
+• Daily reminders and case status in the extension popup.
+• Prefill supported application fields, then review the result.
+• Save jobs to Wishlist or mark them Applied.
+• Review résumé keyword gaps, create a tailored résumé, and edit a cover letter.
+• Manage saved answers, prefill modes, Guided Autopilot, and sidebar preferences.
+
+Learn more: https://www.trackmyopt.com
+
+Demonstration uses fictional data and illustrative service responses. Service waits are shortened. AI and reminder features may depend on your plan. Review all application content before submitting. Confirm official immigration guidance with your DSO. TrackMyOPT does not guarantee immigration or hiring outcomes.
+
+CHAPTER TIMESTAMPS
+0:00 Application Tools
+0:03 Extension Popup
+0:05 Opt Clock
+0:16 Stem Clock
+0:23 Opt Apply Dates
+0:31 Stem Apply Dates
+0:39 Case Status
+0:41 Job Applications
+0:48 Job Tracker
+0:54 Resume Analysis
+0:59 Tailored Résumé
+1:10 Cover Letter
+1:15 Saved Answers
+1:18 Prefill Settings
+1:25 Sidebar Settings
+1:27 Trackmyopt For Chrome
+
+CHROME WEB STORE PLACEMENT
+Upload brag.mp4 to YouTube and use that video's URL in your extension's Store listing promotional-video field. For a localized listing, use Localized promo video. Google documents that the localized video appears before localized screenshots.
+
+Official guidance: https://developer.chrome.com/docs/webstore/cws-dashboard-listing
+The 16:9 format and 1:30 duration are editorial choices for this detailed demo, not claimed Google requirements.
