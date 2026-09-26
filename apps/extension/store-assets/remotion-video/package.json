@@ -1,0 +1,28 @@
+{
+  "name": "trackmyopt-remotion-video",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts --port=59768 --no-open",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test scripts/preflight.test.mjs",
+    "render:opener": "remotion render src/index.ts Opening out/trackmyopt-opening-preview.mp4 --codec=h264",
+    "render:final": "node scripts/preflight.mjs && remotion render src/index.ts DetailedWalkthrough out/trackmyopt-walkthrough.mp4 --codec=h264",
+    "preflight": "node scripts/preflight.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.529",
+    "@remotion/media": "4.0.529",
+    "@remotion/renderer": "4.0.529",
+    "@remotion/transitions": "4.0.529",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "remotion": "4.0.529"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.16",
+    "@types/react-dom": "19.1.9",
+    "typescript": "5.9.3"
+  }
+}
