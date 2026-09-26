@@ -3,11 +3,13 @@
 import { useState, type FormEvent } from 'react';
 import { OutreachGoal } from './OutreachGoal';
 import { CompanySearchInput } from './CompanySearchInput';
+import { ContactAvatar } from './ContactAvatar';
 import { requestEmailLookup, requestNetworkingDraft, type FinderResult, type Draft } from '@/lib/career/networking/browser-lookup';
 import {
   ArrowUpRight,
   Check,
   Copy,
+  Linkedin,
   LoaderCircle,
   Mail,
   Plus,
@@ -50,6 +52,22 @@ function normalizeCompany(value: string) {
 
 function errorMessage(error: unknown, fallback: string) {
   return error instanceof Error && error.message ? error.message : fallback;
+}
+
+function linkedInProfileHref(value: string) {
+  try {
+    const url = new URL(
+      /^https?:\/\//i.test(value) ? value : `https://${value}`
+    );
+    const slug = url.pathname.match(/^\/in\/([a-zA-Z0-9._-]{2,100})\/?$/i)?.[1];
+    return ['linkedin.com', 'www.linkedin.com', 'm.linkedin.com'].includes(
+      url.hostname.toLowerCase()
+    ) && slug
+      ? `https://www.linkedin.com/in/${slug}`
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export function NetworkingWorkspace({
@@ -246,19 +264,9 @@ function ContactCard({
 
   return (
     <article
-      className="space-y-5 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-700 dark:bg-slate-800/40 sm:p-5"
-      aria-labelledby={`${contactId}-heading`}
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6"
+      aria-label={`Contact ${index + 1}`}
     >
-      <div>
-        <h3
-          id={`${contactId}-heading`}
-          className="mt-1 text-lg font-semibold text-slate-950 dark:text-white"
-        >
-          {result?.found && result.fullName
-            ? result.fullName
-            : `Contact ${index + 1}`}
-        </h3>
-      </div>
       <ContactLookupForm
         contactId={contactId}
         linkedinUrl={linkedinUrl}
@@ -270,6 +278,9 @@ function ContactCard({
       />
       <ContactLookupResult
         result={result}
+        contactName={contactName}
+        contactTitle={contactTitle}
+        linkedinUrl={linkedinUrl}
         companyMismatch={companyMismatch}
         copied={copied}
         copyValue={copyValue}
@@ -308,55 +319,69 @@ function ContactCard({
 
 function ContactLookupResult({
   result,
+  contactName,
+  contactTitle,
+  linkedinUrl,
   companyMismatch,
   copied,
   copyValue,
 }: {
   result: FinderResult | null;
+  contactName: string;
+  contactTitle: string;
+  linkedinUrl: string;
   companyMismatch: boolean;
   copied: string;
   copyValue: (key: string, value: string) => Promise<void>;
 }) {
+  const profileHref = linkedInProfileHref(linkedinUrl);
   return (
     <>
       {result?.found === false && (
-        <p
-          role="status"
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-        >
-          No work email found. You can still draft a LinkedIn note.
-        </p>
+        <div role="status" className="border-t border-slate-200 pt-5 dark:border-slate-700">
+          <p className="text-sm font-medium text-slate-900 dark:text-white">No work email found</p>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">You can still draft a LinkedIn note for this contact.</p>
+        </div>
       )}
       {result?.found === true && (
         <div
-          role="status"
-          className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30"
+          className="space-y-4 border-t border-slate-200 pt-5 dark:border-slate-700"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-slate-700 dark:text-slate-200">
-              {[result.jobTitle, result.company].filter(Boolean).join(' · ') ||
-                'Review contact details below'}
-            </p>
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            <ContactAvatar name={result.fullName || contactName} />
+            <div className="min-w-0 flex-1">
+              <p role="status" className="truncate text-base font-semibold text-slate-950 dark:text-white">
+                {result.fullName || contactName || 'Contact found'}
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                {[result.jobTitle || contactTitle, result.company]
+                  .filter(Boolean)
+                  .join(' · ') || 'Review the profile before outreach'}
+              </p>
+            </div>
             <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${result.verified ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/50 dark:text-emerald-100' : 'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-100'}`}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium ${result.verified ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'}`}
             >
-              {result.verified
-                ? 'Verified at lookup'
-                : 'Verification not confirmed'}
+              {result.verified ? 'Verified at lookup' : 'Not verified'}
             </span>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          {companyMismatch && (
+            <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+              The contact’s reported company differs from the selected company. Review their current employer before using this address.
+            </p>
+          )}
+          <div className={`flex flex-wrap items-center gap-3 rounded-xl border px-3 py-3 sm:px-4 ${result.verified && !companyMismatch ? 'border-blue-100 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30' : 'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30'}`}>
             <Mail
-              className="size-4 text-blue-700 dark:text-blue-300"
+              className="size-4 shrink-0 text-blue-700 dark:text-blue-300"
               aria-hidden="true"
             />
-            <span className="min-w-0 flex-1 select-all break-all text-sm font-medium text-slate-950 dark:text-white">
+            <span className="min-w-0 flex-1 select-all break-all text-sm font-semibold text-slate-950 dark:text-white sm:text-base">
               {result.email}
             </span>
             <button
               type="button"
               onClick={() => copyValue('address', result.email)}
-              className={secondaryButton}
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-blue-700 px-3 text-sm font-semibold text-white hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus-visible:ring-offset-slate-900"
             >
               {copied === 'address' ? (
                 <Check className="size-4" aria-hidden="true" />
@@ -366,16 +391,16 @@ function ContactLookupResult({
               {copied === 'address' ? 'Copied' : 'Copy'}
             </button>
           </div>
-          <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-            Check the person, employer, and domain before contacting them.
-            Verification does not guarantee delivery.
-          </p>
-          {companyMismatch && (
-            <p className="text-xs font-medium leading-5 text-amber-800 dark:text-amber-200">
-              The contact’s reported company differs from the selected company.
-              Review their current employer before using this address.
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <p className="max-w-lg text-xs leading-5 text-slate-500 dark:text-slate-400">
+              Check the person and employer before contacting them. Verification does not guarantee delivery.
             </p>
-          )}
+            {profileHref && (
+              <a href={profileHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-8 items-center gap-1 text-xs font-medium text-blue-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300">
+                Open profile <ArrowUpRight className="size-3.5" aria-hidden="true" />
+              </a>
+            )}
+          </div>
         </div>
       )}
     </>
@@ -542,40 +567,46 @@ function ContactLookupForm({
     <form onSubmit={findEmail} className="space-y-3" aria-busy={lookupLoading}>
       <label
         htmlFor={`${contactId}-linkedin`}
-        className="block text-sm font-medium text-slate-900 dark:text-white"
+        className="block text-sm font-semibold text-slate-900 dark:text-white"
       >
-        LinkedIn profile URL
+        LinkedIn profile<span className="sr-only"> URL</span>
       </label>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <input
-        id={`${contactId}-linkedin`}
-        type="text"
-        inputMode="url"
-        autoComplete="url"
-        required
-        disabled={lookupLoading}
-        maxLength={500}
-        value={linkedinUrl}
-        onChange={(event) => {
-          setLinkedinUrl(event.target.value);
-          setResult(null);
-          setDraft(null);
-        }}
-        placeholder="https://www.linkedin.com/in/username"
-        className={inputClass}
-      />
-      <button
-        type="submit"
-        disabled={!linkedinUrl.trim() || lookupLoading}
-        className={`${secondaryButton} shrink-0 disabled:cursor-not-allowed disabled:opacity-60`}
-      >
-        {lookupLoading ? (
-          <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-        ) : (
-          <Search className="size-4" aria-hidden="true" />
-        )}
-        {lookupLoading ? 'Checking…' : 'Find work email'}
-      </button>
+        <div className="relative min-w-0 flex-1">
+          <Linkedin
+            className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-blue-700 dark:text-blue-300"
+            aria-hidden="true"
+          />
+          <input
+            id={`${contactId}-linkedin`}
+            type="text"
+            inputMode="url"
+            autoComplete="url"
+            required
+            disabled={lookupLoading}
+            maxLength={500}
+            value={linkedinUrl}
+            onChange={(event) => {
+              setLinkedinUrl(event.target.value);
+              setResult(null);
+              setDraft(null);
+            }}
+            placeholder="linkedin.com/in/username"
+            className={`${inputClass} pl-12`}
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={!linkedinUrl.trim() || lookupLoading}
+          className={`${primaryButton} shrink-0 disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-36`}
+        >
+          {lookupLoading ? (
+            <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <Search className="size-4" aria-hidden="true" />
+          )}
+          {lookupLoading ? 'Checking…' : 'Find email'}
+        </button>
       </div>
       <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
         Profile URL sent to our email lookup provider. May take up to a minute.

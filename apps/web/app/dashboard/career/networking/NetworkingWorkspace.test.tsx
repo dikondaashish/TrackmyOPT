@@ -73,8 +73,13 @@ describe('NetworkingWorkspace', () => {
     fireEvent.change(screen.getByLabelText('LinkedIn profile URL'), {
       target: { value: 'https://www.linkedin.com/in/alex-example' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Find email' }));
     expect(await screen.findByText('alex@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Alex Example')).toBeInTheDocument();
+    expect(screen.getByText('Recruiter · Amazon')).toBeInTheDocument();
+    expect(screen.getByText('Verified at lookup')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open profile' })).toHaveAttribute('href', 'https://www.linkedin.com/in/alex-example');
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
     expect(screen.getByText(/sent to our email lookup provider/)).toBeInTheDocument();
     expect(screen.queryByText(/ApplyBolt/i)).not.toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
@@ -178,7 +183,7 @@ describe('NetworkingWorkspace', () => {
     fireEvent.change(screen.getByLabelText('LinkedIn profile URL'), {
       target: { value: 'https://www.linkedin.com/in/alex' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Find email' }));
     expect(
       await screen.findByText(/reported company differs/)
     ).toBeInTheDocument();
@@ -211,7 +216,7 @@ describe('NetworkingWorkspace', () => {
     fireEvent.change(screen.getByLabelText('LinkedIn profile URL'), {
       target: { value: 'https://www.linkedin.com/in/alex' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Find work email' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Find email' }));
     expect(
       await screen.findByText(/The email lookup limit has been reached/)
     ).toBeInTheDocument();
