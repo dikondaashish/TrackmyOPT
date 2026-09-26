@@ -25,13 +25,13 @@ export default async function NetworkingPage({ searchParams }: {
     (params.mode !== 'bundles' && !bundlesDefault);
 
   return <main className="mx-auto max-w-6xl space-y-6 px-3 py-5 sm:px-6 sm:py-8">
-    <div className="flex flex-wrap items-center justify-between gap-3">
     <Link href="/dashboard/career" className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:text-blue-300"><ArrowLeft className="size-4" aria-hidden="true" />Career Hub</Link>
-    <NetworkingUsageStats key={legacy ? "manual" : "bundles"} mode={legacy ? "manual" : "bundles"} />
-    </div>
-    <header className="space-y-2">
-      <h1 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">Networking</h1>
-      <p className="text-sm text-slate-600 dark:text-slate-300">Find a contact. Start a conversation.</p>
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">Networking</h1>
+        <p className="text-sm text-slate-600 dark:text-slate-300">Find a contact. Start a conversation.</p>
+      </div>
+      <NetworkingUsageStats key={legacy ? "manual" : "bundles"} mode={legacy ? "manual" : "bundles"} />
     </header>
     {bundlesEnabled && <nav aria-label="Networking workflows" className="inline-flex max-w-full flex-wrap gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
       <Link href={{ pathname: '/dashboard/career/networking', query: { mode: 'manual', ...(params.applicationId ? { applicationId: params.applicationId } : {}) } }} aria-current={legacy ? 'page' : undefined} className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${legacy ? 'bg-white text-blue-700 shadow-sm dark:bg-slate-950 dark:text-blue-300' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'}`}><Linkedin className="size-4" aria-hidden="true" />LinkedIn profile</Link>

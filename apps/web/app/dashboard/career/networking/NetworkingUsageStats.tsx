@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Progress } from '@/components/ui/progress';
 
 type Usage = {
   used: number;
@@ -58,64 +57,49 @@ export function NetworkingUsageStats({ mode }: { mode: 'manual' | 'bundles' }) {
   const limit = usage?.limit ?? 15;
   const reserved = usage?.reserved ?? 0;
   const consumed = (usage?.used ?? 0) + reserved;
-  const percentage = Math.min(100, Math.max(0, (consumed / limit) * 100));
-  const label = mode === 'manual' ? 'AI draft requests' : 'Outreach bundles';
   return (
     <section
       aria-label="Networking daily usage"
-      className="ml-auto shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-1.5 dark:border-gray-800 dark:bg-gray-900"
+      className="self-end rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:shrink-0"
     >
-      <div className="flex w-[168px] flex-col gap-1">
-        <div className="flex items-center justify-between gap-1.5">
-          <span className="text-[9px] font-semibold uppercase leading-none tracking-wide text-gray-400 dark:text-gray-500">
-            Daily Usage
-          </span>
-          {!failed && usage && (
-            <span className="text-[9px] text-gray-500 dark:text-gray-400">
-              {Math.round(percentage)}%
-            </span>
-          )}
-        </div>
+      <div className="min-w-[144px]">
+        <p className="text-[10px] font-semibold uppercase leading-none tracking-[0.12em] text-slate-500 dark:text-slate-400">
+          Daily usage
+        </p>
         {failed ? (
-          <div className="text-xs text-gray-500">
+          <div className="mt-1.5 text-xs text-slate-600 dark:text-slate-300">
             Usage unavailable{' '}
             <button
-              className="text-blue-600 underline dark:text-blue-400"
+              type="button"
+              className="font-medium text-blue-600 underline dark:text-blue-400"
               onClick={() => void refresh()}
             >
               Retry
             </button>
           </div>
         ) : !usage ? (
-          <span className="text-xs text-gray-500" role="status">
+          <p className="mt-1.5 text-xs text-slate-500" role="status">
             Loading usage…
-          </span>
+          </p>
         ) : (
-          <>
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="font-mono leading-none">
-                <span
-                  className={`text-xs font-bold ${consumed >= limit ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}
-                >
-                  {consumed}
-                </span>
-                <span className="text-[9px] text-gray-400"> / {limit}</span>
+          <p
+            className="mt-1.5 flex items-baseline justify-between gap-3 whitespace-nowrap"
+            role="status"
+            aria-label={`${consumed} of ${limit} daily requests used or in progress; ${usage.remaining} left today`}
+          >
+            <span
+              className={`text-sm font-semibold leading-none ${consumed >= limit ? 'text-rose-600 dark:text-rose-400' : 'text-slate-950 dark:text-white'}`}
+            >
+              {consumed}
+              <span className="font-normal text-slate-400 dark:text-slate-500">
+                {' '}
+                / {limit}
               </span>
-              <span className="text-[9px] text-gray-500 dark:text-gray-400">
-                {usage.remaining} left today
-              </span>
-            </div>
-            <Progress
-              value={percentage}
-              aria-label={`${consumed} of ${limit} ${label.toLowerCase()} used today`}
-              className={`h-1 ${percentage >= 100 ? 'bg-red-100 [&>div]:bg-red-600' : percentage >= 80 ? 'bg-amber-100 [&>div]:bg-amber-500' : 'bg-blue-100 dark:bg-blue-900/30 [&>div]:bg-blue-600'}`}
-            />
-            <span className="text-[9px] text-gray-500 dark:text-gray-400">
-              {label}
-              {reserved > 0 ? ` · ${reserved} in progress` : ''} · Resets 00:00
-              UTC
             </span>
-          </>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+              {usage.remaining} left
+            </span>
+          </p>
         )}
       </div>
     </section>
