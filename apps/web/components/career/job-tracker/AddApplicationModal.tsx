@@ -16,6 +16,7 @@ import { JobApplication, JobStage } from "@/lib/career/job-tracker/types";
 import { JOB_STAGES } from "@/lib/career/job-tracker/constants";
 import { createApplication } from "@/app/dashboard/career/job-tracker/actions";
 import { cn } from "@/lib/utils";
+import { EmployerNameInput } from "@/components/dashboard/opt/EmployerNameInput";
 
 interface AddApplicationModalProps {
     onAdd?: (app: JobApplication) => void;
@@ -101,12 +102,12 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
             }}>
                 <DialogContent
                     className={cn(
-                        "p-0 gap-0 overflow-hidden rounded-xl border-border bg-card text-card-foreground shadow-2xl",
+                        "p-0 gap-0 overflow-visible rounded-xl border-border bg-card text-card-foreground shadow-2xl",
                         "max-w-[min(100vw-1.5rem,28rem)] sm:max-w-lg w-full"
                     )}
                     onClose={() => setOpen(false)}
                 >
-                    <DialogHeader className="space-y-1.5 px-6 sm:px-8 pt-6 pb-4 pr-14 text-left border-b border-border/80 bg-muted/35 dark:bg-muted/25">
+                    <DialogHeader className="space-y-1.5 rounded-t-xl px-6 sm:px-8 pt-6 pb-4 pr-14 text-left border-b border-border/80 bg-muted/35 dark:bg-muted/25">
                         <DialogTitle className="text-xl font-semibold tracking-tight">
                             {isSuccess ? "Application added" : "Add job application"}
                         </DialogTitle>
@@ -168,18 +169,18 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                                 <div className="rounded-xl border border-border/70 bg-muted/20 dark:bg-muted/10 p-5 sm:p-6 space-y-5 sm:space-y-6">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
                                         <div className="space-y-2 min-w-0">
-                                            <Label htmlFor="tmo-add-company" className="text-sm font-medium">
-                                                Company name <span className="text-destructive">*</span>
-                                            </Label>
-                                            <Input
+                                            <EmployerNameInput
                                                 id="tmo-add-company"
-                                                className="h-11 bg-background"
-                                                placeholder="e.g. Google"
-                                                value={formData.company_name}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, company_name: e.target.value })
-                                                }
+                                                label="Company name"
                                                 required
+                                                suggestionName="company"
+                                                labelClassName="text-sm text-foreground"
+                                                inputClassName="h-11"
+                                                helpText="Choose a company or enter its name yourself."
+                                                value={formData.company_name}
+                                                onChange={(name) =>
+                                                    setFormData((current) => ({ ...current, company_name: name }))
+                                                }
                                             />
                                         </div>
                                         <div className="space-y-2 min-w-0">
@@ -274,7 +275,7 @@ export function AddApplicationModal({ onAdd, isPrimaryEmptyState }: AddApplicati
                                 </div>
                             </div>
 
-                            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-4 sm:py-5 border-t border-border/80 bg-muted/25 dark:bg-muted/15">
+                            <div className="flex flex-col-reverse rounded-b-xl sm:flex-row sm:justify-end gap-3 px-6 sm:px-8 py-4 sm:py-5 border-t border-border/80 bg-muted/25 dark:bg-muted/15">
                                 <Button
                                     type="button"
                                     variant="outline"

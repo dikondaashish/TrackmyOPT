@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Building2, MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Star, Check, AlertTriangle } from "lucide-react";
+import { MapPin, Bookmark, TrendingUp, TrendingDown, ArrowRight, Linkedin, Briefcase, Star, Check, AlertTriangle } from "lucide-react";
 import type { H1BSponsor } from "@/lib/career/h1b/types";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsor-score";
-import { getLogoUrl, handleLogoError } from "@/lib/documents/image-utils";
+import { EmployerSuggestionLogo } from "@/components/dashboard/opt/EmployerSuggestionLogo";
 
 interface H1BSponsorCardProps {
     sponsor: H1BSponsor;
@@ -48,40 +48,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     {/* Company Info */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                         {/* Logo */}
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-sm overflow-hidden">
-                            {(() => {
-                                if (!sponsor.website) return null;
-                                try {
-                                    // Ensure protocol exists for URL constructor
-                                    const urlStr = sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`;
-                                    const hostname = new URL(urlStr).hostname.replace('www.', '');
-                                    const initialSrc = getLogoUrl(hostname);
-
-                                    return (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img
-                                            src={initialSrc}
-                                            alt={sponsor.name}
-                                            className="w-full h-full object-cover p-1.5"
-                                            onError={(e) => {
-                                                const img = e.target as HTMLImageElement;
-                                                const fallback = handleLogoError(img.src, hostname);
-                                                if (fallback) {
-                                                    img.src = fallback;
-                                                } else {
-                                                    // Both failed, hide image and show icon
-                                                    img.style.display = 'none';
-                                                    img.nextElementSibling?.classList.remove('hidden');
-                                                }
-                                            }}
-                                        />
-                                    );
-                                } catch (_e) {
-                                    return null;
-                                }
-                            })()}
-                            <Building2 className={`w-6 h-6 text-gray-400 dark:text-gray-500 ${sponsor.website ? "hidden" : ""}`} />
-                        </div>
+                        <EmployerSuggestionLogo name={sponsor.name} domain={sponsor.website || ''} className="size-12" />
 
                         <div className="min-w-0">
                             <h3 className="text-base font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">

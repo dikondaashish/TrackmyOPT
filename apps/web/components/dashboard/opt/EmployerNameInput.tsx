@@ -6,33 +6,59 @@ import {
   useEmployerNameSuggestions,
   type Company,
 } from './useEmployerNameSuggestions';
+import { cn } from '@/lib/utils';
 
 export function EmployerNameInput({
   value,
   onChange,
   inputRef,
   onSelect,
+  id: inputId,
+  label = 'Employer Name',
+  required = false,
+  helpText = 'Search by Brandfetch · Or enter the legal employer name.',
+  suggestionName = 'employer',
+  labelClassName,
+  inputClassName,
 }: {
   value: string;
   onChange: (value: string) => void;
   inputRef?: RefObject<HTMLInputElement | null>;
   onSelect?: (company: Company) => void;
+  id?: string;
+  label?: string;
+  required?: boolean;
+  helpText?: string;
+  suggestionName?: string;
+  labelClassName?: string;
+  inputClassName?: string;
 }) {
   const id = useId();
-  const suggestions = useEmployerNameSuggestions(value, onChange, onSelect);
+  const fieldId = inputId ?? id;
+  const suggestions = useEmployerNameSuggestions(
+    value,
+    onChange,
+    onSelect,
+    suggestionName
+  );
 
   return (
     <div className="relative min-w-0">
       <label
-        htmlFor={id}
-        className="mb-1 block text-xs font-medium text-muted-foreground"
+        htmlFor={fieldId}
+        className={cn(
+          'mb-1 block text-xs font-medium text-muted-foreground',
+          labelClassName
+        )}
       >
-        Employer Name
+        {label} {required && <span className="text-destructive">*</span>}
       </label>
       <input
-        id={id}
+        id={fieldId}
         ref={inputRef}
         type="text"
+        required={required}
+        maxLength={120}
         role="combobox"
         autoComplete="off"
         aria-autocomplete="list"
@@ -53,7 +79,10 @@ export function EmployerNameInput({
           suggestions.onCompositionEnd(event.currentTarget.value)
         }
         onKeyDown={suggestions.onKeyDown}
-        className="min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:text-sm"
+        className={cn(
+          'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:text-sm',
+          inputClassName
+        )}
       />
       {suggestions.expanded && (
         <ul
@@ -89,7 +118,7 @@ export function EmployerNameInput({
         </ul>
       )}
       <p id={`${id}-help`} className="mt-1 text-xs text-muted-foreground">
-        Search by Brandfetch · Or enter the legal employer name.
+        {helpText}
       </p>
       <p
         id={`${id}-status`}

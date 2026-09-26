@@ -8,6 +8,7 @@ import { ArrowUpRight, Check, ChevronRight, Copy, LoaderCircle, Mail, Send, Spar
 import { captureClientEvent } from '@/lib/posthog-client';
 import { normalizeCompanyDomain } from '@/lib/company-domain';
 import { BrowserEmailRecovery } from './BrowserEmailRecovery';
+import { EmployerSuggestionLogo } from '@/components/dashboard/opt/EmployerSuggestionLogo';
 
 type Application = { id: string; company_name: string; role_title: string };
 type Contact = {
@@ -158,10 +159,13 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
           {bundleId && bundle ? (
             <div className="space-y-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-blue-700 dark:text-blue-300">Outreach workspace</p>
-                  <h2 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">{bundle.companyName}</h2>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">{bundle.companyDomain || 'Company website not confirmed'} · {bundle.targetRole}</p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <EmployerSuggestionLogo name={bundle.companyName} domain={bundle.companyDomain || ''} className="size-12" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.13em] text-blue-700 dark:text-blue-300">Outreach workspace</p>
+                    <h2 className="mt-1 truncate text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">{bundle.companyName}</h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{bundle.companyDomain || 'Company website not confirmed'} · {bundle.targetRole}</p>
+                  </div>
                 </div>
                 <button type="button" onClick={newBundle} className={subtleClass}>New search</button>
               </div>
@@ -243,6 +247,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
         <div className="flex items-center justify-between gap-2"><h2 className="font-semibold text-slate-950 dark:text-white">Recent outreach</h2><span className="text-xs text-slate-500 dark:text-slate-400">Saved</span></div>
         {history.length === 0 ? <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">Your searches appear here. Reopen anytime.</p> :
           <ul className="mt-4 space-y-1">{history.map((item) => <li key={item.id}><button type="button" onClick={() => openBundle(item.id)} className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-slate-800 ${item.id === bundleId ? 'bg-blue-50 dark:bg-blue-950/40' : ''}`}>
+            <EmployerSuggestionLogo name={item.companyName} domain={item.companyDomain || ''} />
             <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-slate-950 dark:text-white">{item.companyName}</span><span className="block truncate text-xs text-slate-600 dark:text-slate-300">{item.targetRole} · {item.contactCount} {item.contactCount === 1 ? 'contact' : 'contacts'}</span><span className="block text-xs text-slate-500 dark:text-slate-400">{item.createdAt.slice(0, 10)}</span></span><ChevronRight className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
           </button></li>)}</ul>}
       </aside>

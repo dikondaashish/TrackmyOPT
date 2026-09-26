@@ -12,7 +12,7 @@ import type { H1BSponsor } from "@/lib/career/h1b/types";
 import { calculateSponsorScore } from "@/lib/career/h1b/sponsor-score";
 import { AnalyticsDashboard } from "@/components/career/h1b/profile/analytics/AnalyticsDashboard";
 import { LCAFilingsTable } from "@/components/career/h1b/profile/LCAExplorer/LCAFilingsTable";
-import { getLogoUrl, handleLogoError } from "@/lib/documents/image-utils";
+import { EmployerSuggestionLogo } from "@/components/dashboard/opt/EmployerSuggestionLogo";
 import { Button } from "@/components/ui/button";
 import { captureUpgradePromptShown } from "@/lib/posthog-client";
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
@@ -214,39 +214,7 @@ export default function CompanyProfilePage() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center shadow-sm overflow-hidden">
-                            {(() => {
-                                if (!sponsor.website) return null;
-                                try {
-                                    const urlStr = sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`;
-                                    const hostname = new URL(urlStr).hostname.replace('www.', '');
-                                    const initialSrc = getLogoUrl(hostname);
-
-                                    return (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img
-                                            src={initialSrc}
-                                            alt={sponsor.name}
-                                            className="w-full h-full object-cover p-2"
-                                            onError={(e) => {
-                                                const img = e.target as HTMLImageElement;
-                                                const fallback = handleLogoError(img.src, hostname);
-                                                if (fallback) {
-                                                    img.src = fallback;
-                                                } else {
-                                                    // Both failed, hide image and show icon
-                                                    img.style.display = 'none';
-                                                    img.nextElementSibling?.classList.remove('hidden');
-                                                }
-                                            }}
-                                        />
-                                    );
-                                } catch (_e) {
-                                    return null;
-                                }
-                            })()}
-                            <Building2 className={`w-8 h-8 text-gray-400 ${sponsor.website ? "hidden" : ""}`} />
-                        </div>
+                        <EmployerSuggestionLogo name={sponsor.name} domain={sponsor.website || ''} className="size-16 rounded-2xl" />
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{sponsor.name}</h1>
                             <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
