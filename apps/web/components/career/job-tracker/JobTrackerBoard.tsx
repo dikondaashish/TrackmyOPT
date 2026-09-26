@@ -418,22 +418,22 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
             </div>
 
             {/* Title + Stats Row */}
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-2">
+            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-2">
                 {/* Title Section */}
-                <div className="flex items-center gap-4 min-w-0 max-md:w-full">
-                    <div className="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
-                        <ClipboardList className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
+                        <ClipboardList className="size-6 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Job Application Tracker</h1>
-                        <p className="text-muted-foreground">
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Job Application Tracker</h1>
+                        <p className="text-sm text-muted-foreground">
                             Track applications, interviews, and offers in one place
                         </p>
                     </div>
                 </div>
 
-                {/* Stats Row (Right Side) */}
-                <div className="flex-1 w-full xl:max-w-3xl">
+                {/* Stats Row */}
+                <div className="w-full xl:max-w-[680px] xl:flex-1">
                     <JobTrackerStatsRow applications={applications} />
                 </div>
             </div>

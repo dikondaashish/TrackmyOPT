@@ -20,28 +20,28 @@ export function JobTrackerStatsRow({ applications }: JobTrackerStatsRowProps) {
 
     const stats = [
         {
-            label: "Total Applications",
+            label: "Applications",
             value: totalApps,
             icon: FileText,
             color: "text-blue-500",
             bg: "bg-blue-50 dark:bg-blue-900/20"
         },
         {
-            label: "Active Interviews",
+            label: "Interviews",
             value: activeInterviews,
             icon: Users,
             color: "text-purple-500",
             bg: "bg-purple-50 dark:bg-purple-900/20"
         },
         {
-            label: "Follow-ups Due",
+            label: "Follow-ups due",
             value: followupsDue,
             icon: Bell,
             color: "text-amber-500",
             bg: "bg-amber-50 dark:bg-amber-900/20"
         },
         {
-            label: "Offers Received",
+            label: "Offers",
             value: offers,
             icon: Trophy,
             color: "text-emerald-500",
@@ -50,17 +50,15 @@ export function JobTrackerStatsRow({ applications }: JobTrackerStatsRowProps) {
     ];
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" aria-label="Application summary">
             {stats.map((stat) => (
-                <div key={stat.label} className="p-3 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 flex items-center gap-3 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors w-full min-w-0">
-                    <div className={`p-2 rounded-lg shrink-0 ${stat.bg}`}>
-                        <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                <div key={stat.label} className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800/50">
+                    <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}>
+                        <stat.icon className={`size-4 ${stat.color}`} aria-hidden="true" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-[11px] leading-snug text-gray-500 dark:text-gray-400 font-medium mb-0.5 whitespace-pre-wrap break-words">
-                            {stat.label.replace(' ', '\n')}
-                        </p>
-                        <p className="text-xl font-bold text-gray-900 dark:text-white leading-none truncate">{stat.value}</p>
+                    <div className="min-w-0">
+                        <p className="text-lg font-semibold leading-none text-gray-900 dark:text-white">{stat.value}</p>
+                        <p className="mt-1 whitespace-nowrap text-[11px] leading-none text-gray-500 dark:text-gray-400">{stat.label}</p>
                     </div>
                 </div>
             ))}
