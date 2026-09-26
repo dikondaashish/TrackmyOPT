@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { OutreachGoal } from './OutreachGoal';
 import { requestEmailLookup, requestNetworkingDraft, type FinderResult, type Draft } from '@/lib/career/networking/browser-lookup';
 import {
   ArrowUpRight,
@@ -86,187 +87,40 @@ export function NetworkingWorkspace({
     : null;
 
   return (
-    <div className="space-y-8">
-      <section className="space-y-4" aria-labelledby="network-company-heading">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-300">
-            01 · Company
-          </p>
-          <h2
-            id="network-company-heading"
-            className="mt-1 text-xl font-semibold text-slate-950 dark:text-white"
-          >
-            Add company context (optional)
-          </h2>
-        </div>
-        {applicationsUnavailable && (
-          <p
-            role="alert"
-            className="text-sm text-amber-800 dark:text-amber-200"
-          >
-            Your applications could not be loaded. You can enter a company and
-            role manually.
-          </p>
-        )}
-        {applications.length > 0 && (
-          <div className="space-y-2">
-            <label
-              htmlFor="network-application"
-              className="block text-sm font-medium text-slate-900 dark:text-white"
-            >
-              Your tracked applications
-            </label>
-            <select
-              id="network-application"
-              value={applicationId}
-              onChange={(event) => selectApplication(event.target.value)}
-              className={inputClass}
-            >
-              <option value="">Enter a company manually</option>
-              {applications.map((application) => (
-                <option key={application.id} value={application.id}>
-                  {application.company_name} · {application.role_title}
-                </option>
-              ))}
-            </select>
+    <div className="grid min-w-0 gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
+      <aside className="space-y-5 lg:sticky lg:top-6" aria-label="Outreach context">
+        <OutreachGoal value={messageIntent} onChange={setMessageIntent} />
+        <details open={Boolean(initialApplication)} className="border-y border-slate-200 py-4 dark:border-slate-800">
+          <summary className="cursor-pointer text-sm font-medium text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-200">Company & role <span className="font-normal text-slate-500">(optional)</span></summary>
+          <div className="mt-4 space-y-4">
+            {applicationsUnavailable && <p role="alert" className="text-sm text-amber-800 dark:text-amber-200">Applications unavailable. Enter details below.</p>}
+            {applications.length > 0 && <div className="space-y-2">
+              <label htmlFor="network-application" className="block text-sm font-medium text-slate-900 dark:text-white">Your tracked applications</label>
+              <select id="network-application" value={applicationId} onChange={(event) => selectApplication(event.target.value)} className={inputClass}>
+                <option value="">Enter a company manually</option>
+                {applications.map((application) => <option key={application.id} value={application.id}>{application.company_name} · {application.role_title}</option>)}
+              </select>
+            </div>}
+            <div className="space-y-2"><label htmlFor="network-company" className="block text-sm font-medium text-slate-900 dark:text-white">Company (optional)</label>
+              <input id="network-company" value={companyName} onChange={(event) => { setCompanyName(event.target.value); setApplicationId(''); }} maxLength={120} placeholder="Company name" className={inputClass} /></div>
+            <div className="space-y-2"><label htmlFor="network-role" className="block text-sm font-medium text-slate-900 dark:text-white">Role (optional)</label>
+              <input id="network-role" value={roleTitle} onChange={(event) => { setRoleTitle(event.target.value); setApplicationId(''); }} maxLength={120} placeholder="Role you applied for" className={inputClass} /></div>
           </div>
-        )}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label
-              htmlFor="network-company"
-              className="block text-sm font-medium text-slate-900 dark:text-white"
-            >
-              Company (optional)
-            </label>
-            <input
-              id="network-company"
-              value={companyName}
-              onChange={(event) => {
-                setCompanyName(event.target.value);
-                setApplicationId('');
-              }}
-              maxLength={120}
-              placeholder="Company name"
-              className={inputClass}
-            />
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="network-role"
-              className="block text-sm font-medium text-slate-900 dark:text-white"
-            >
-              Role (optional)
-            </label>
-            <input
-              id="network-role"
-              value={roleTitle}
-              onChange={(event) => {
-                setRoleTitle(event.target.value);
-                setApplicationId('');
-              }}
-              maxLength={120}
-              placeholder="Role you applied for"
-              className={inputClass}
-            />
-          </div>
+        </details>
+        <details className="text-xs leading-5 text-slate-500 dark:text-slate-400">
+          <summary className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">How your data is used</summary>
+          <p className="mt-2">Company, role, contact details, and your message are sent to our AI provider when you request a draft.</p>
+        </details>
+      </aside>
+      <section className="min-w-0 space-y-4" aria-labelledby="network-contacts-heading">
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="network-contacts-heading" className="text-lg font-semibold text-slate-950 dark:text-white">Your contacts</h2>
+          <span className="text-xs text-slate-500 dark:text-slate-400">{contactCount} / 3 contacts</span>
         </div>
-      </section>
-
-      <section
-        className="space-y-4 border-t border-slate-200 pt-7 dark:border-slate-700"
-        aria-labelledby="network-intent-heading"
-      >
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-300">
-            02 · Your message
-          </p>
-          <h2
-            id="network-intent-heading"
-            className="mt-1 text-xl font-semibold text-slate-950 dark:text-white"
-          >
-            What do you want to say?
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Tell AI what you want to communicate. Your instructions shape the
-            drafts for each contact.
-          </p>
-        </div>
-        <label htmlFor="network-message-intent" className="sr-only">
-          What you want to say
-        </label>
-        <textarea
-          id="network-message-intent"
-          value={messageIntent}
-          onChange={(event) => setMessageIntent(event.target.value)}
-          rows={4}
-          maxLength={1000}
-          placeholder="For example: I applied for the software engineer role. I would love to learn what the team looks for and ask for a short conversation."
-          className={`${inputClass} resize-y py-3`}
-        />
-        <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-          Company, role, contact details, and this message are sent to our AI
-          provider when you request a draft. Review every claim before using it.
-        </p>
-      </section>
-
-      <section
-        className="space-y-5 border-t border-slate-200 pt-7 dark:border-slate-700"
-        aria-labelledby="network-contacts-heading"
-      >
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-300">
-            03 · Contacts
-          </p>
-          <h2
-            id="network-contacts-heading"
-            className="mt-1 text-xl font-semibold text-slate-950 dark:text-white"
-          >
-            Prepare outreach for up to 3 contacts at{' '}
-            {companyName.trim() || 'a company'}
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Add LinkedIn profiles for hiring contacts or warm introductions. We
-            check work email status and prepare an email when verified, plus a
-            LinkedIn note for each contact.
-          </p>
-        </div>
-        {peopleSearchUrl && (
-          <a
-            href={peopleSearchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300"
-          >
-            Search people at {companyName.trim()} on LinkedIn{' '}
-            <ArrowUpRight className="size-4" aria-hidden="true" />
-          </a>
-        )}
-        <div className="space-y-5">
-          {Array.from({ length: contactCount }, (_, index) => (
-            <ContactCard
-              key={index}
-              index={index}
-              companyName={companyName}
-              roleTitle={roleTitle}
-              messageIntent={messageIntent}
-            />
-          ))}
-        </div>
-        {contactCount < 3 && (
-          <button
-            type="button"
-            onClick={() => setContactCount(contactCount + 1)}
-            className={secondaryButton}
-          >
-            <Plus className="size-4" aria-hidden="true" /> Add another contact
-          </button>
-        )}
-        <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-          You provide the profiles. We cannot automatically discover and verify
-          the top three people from a company name alone. No message is sent
-          automatically.
-        </p>
+        {peopleSearchUrl && <a href={peopleSearchUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-1 text-sm text-blue-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300">Find people at {companyName.trim()} on LinkedIn <ArrowUpRight className="size-4" aria-hidden="true" /></a>}
+        {Array.from({ length: contactCount }, (_, index) => <ContactCard key={index} index={index} companyName={companyName} roleTitle={roleTitle} messageIntent={messageIntent} />)}
+        {contactCount < 3 && <button type="button" onClick={() => setContactCount(contactCount + 1)} className={secondaryButton}><Plus className="size-4" aria-hidden="true" /> Add another contact</button>}
+        <p className="text-xs text-slate-500 dark:text-slate-400">Review and send yourself. Nothing is sent automatically.</p>
       </section>
     </div>
   );
@@ -391,16 +245,13 @@ function ContactCard({
       aria-labelledby={`${contactId}-heading`}
     >
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-300">
-          Contact {index + 1} of 3
-        </p>
         <h3
           id={`${contactId}-heading`}
           className="mt-1 text-lg font-semibold text-slate-950 dark:text-white"
         >
           {result?.found && result.fullName
             ? result.fullName
-            : 'Add a LinkedIn profile'}
+            : `Contact ${index + 1}`}
         </h3>
       </div>
       <ContactLookupForm
@@ -418,6 +269,7 @@ function ContactCard({
         copied={copied}
         copyValue={copyValue}
       />
+      <details className="text-sm"><summary className="cursor-pointer font-medium text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300">Contact details (optional)</summary><div className="mt-3">
       <ContactIdentityFields
         contactId={contactId}
         contactName={contactName}
@@ -426,6 +278,7 @@ function ContactCard({
         setContactTitle={setContactTitle}
         setDraft={setDraft}
       />
+      </div></details>
       <DraftAction
         draftLoading={draftLoading}
         messageIntent={messageIntent}
@@ -688,6 +541,7 @@ function ContactLookupForm({
       >
         LinkedIn profile URL
       </label>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <input
         id={`${contactId}-linkedin`}
         type="text"
@@ -708,17 +562,18 @@ function ContactLookupForm({
       <button
         type="submit"
         disabled={!linkedinUrl.trim() || lookupLoading}
-        className={primaryButton}
+        className={`${secondaryButton} shrink-0 disabled:cursor-not-allowed disabled:opacity-60`}
       >
         {lookupLoading ? (
           <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
         ) : (
           <Search className="size-4" aria-hidden="true" />
         )}
-        {lookupLoading ? 'Checking profile…' : 'Find work email'}
+        {lookupLoading ? 'Checking…' : 'Find work email'}
       </button>
+      </div>
       <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-        This profile URL is sent to our email lookup provider. A lookup can take up to a minute.
+        Profile URL sent to our email lookup provider. May take up to a minute.
       </p>
     </form>
   );
@@ -813,11 +668,11 @@ function DraftAction({
         ) : (
           <Sparkles className="size-4" aria-hidden="true" />
         )}
-        {draftLoading ? 'Writing drafts…' : 'Draft outreach with AI'}
+        {draftLoading ? 'Writing drafts…' : 'Create draft'}
       </button>
       {!messageIntent.trim() && (
         <p className="text-xs text-slate-600 dark:text-slate-300">
-          First tell us what you want to say in step 02.
+          Choose a message goal to create your draft.
         </p>
       )}
     </>

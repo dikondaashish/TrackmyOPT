@@ -48,10 +48,10 @@ describe('saved outreach bundle workspace', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
     render(<NetworkingWorkspace applications={[]} initialApplicationId="" initialBundleId="" applicationsUnavailable={false} />);
-    fireEvent.change(screen.getByLabelText('Search company'), { target: { value: 'Microsoft' } });
+    fireEvent.change(screen.getByLabelText('Company'), { target: { value: 'Microsoft' } });
     fireEvent.change(screen.getByLabelText('Target role'), { target: { value: 'Software Engineer' } });
     expect(fetchMock.mock.calls.every((call) => call[1]?.method !== 'POST')).toBe(true);
-    fireEvent.click(screen.getByRole('button', { name: 'Build outreach bundle' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Find contacts' }));
     await waitFor(() => expect(fetchMock.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(1));
     const post = fetchMock.mock.calls.find((call) => call[1]?.method === 'POST')!;
     const body = JSON.parse(post[1]?.body as string);

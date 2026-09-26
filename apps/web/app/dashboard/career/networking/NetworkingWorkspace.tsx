@@ -1,5 +1,7 @@
 'use client';
 
+import { OutreachGoal } from './OutreachGoal';
+
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowUpRight, Check, ChevronRight, Copy, LoaderCircle, Mail, Search, Send, Sparkles } from 'lucide-react';
 import { captureClientEvent } from '@/lib/posthog-client';
@@ -174,31 +176,27 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
                   <h2 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">{bundle.companyName}</h2>
                   <p className="text-sm text-slate-600 dark:text-slate-300">{bundle.companyDomain || 'Company website not confirmed'} · {bundle.targetRole}</p>
                 </div>
-                <button type="button" onClick={newBundle} className={subtleClass}>New bundle</button>
+                <button type="button" onClick={newBundle} className={subtleClass}>New search</button>
               </div>
-              <div className="ml-auto max-w-xl rounded-2xl rounded-tr-sm bg-blue-700 px-4 py-3 text-sm leading-6 text-white">
-                Find relevant contacts at {bundle.companyName} for a {bundle.targetRole} role, check work emails, and prepare personal outreach.
-                {bundle.userIntent && <p className="mt-2 text-blue-50">“{bundle.userIntent}”</p>}
-              </div>
+              {bundle.userIntent && <p className="text-sm text-slate-600 dark:text-slate-300">{bundle.userIntent}</p>}
             </div>
           ) : (
             <form onSubmit={build} className="space-y-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.13em] text-blue-700 dark:text-blue-300">Start here</p>
-                <h2 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">Build an outreach bundle</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">Choose a company and the role you want. We’ll research up to three relevant contacts.</p>
+                <h2 className="mt-1 text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">Find contacts at a company</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">Get up to 3 contacts with ready-to-edit outreach.</p>
               </div>
               {applicationsUnavailable && <p role="alert" className="text-sm text-amber-800 dark:text-amber-200">Applications could not be loaded. Enter company and role manually.</p>}
-              {applications.length > 0 && <div>
-                <label htmlFor="network-application" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Use a tracked application</label>
+              {applications.length > 0 && <details open={Boolean(selectedApplication)}><summary className="cursor-pointer text-sm font-medium text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300">Use a tracked application</summary><div className="mt-3">
+                <label htmlFor="network-application" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Tracked application</label>
                 <select id="network-application" value={applicationId} onChange={(event) => chooseApplication(event.target.value)} className={fieldClass}>
                   <option value="">Enter company manually</option>
                   {applications.map((item) => <option key={item.id} value={item.id}>{item.company_name} · {item.role_title}</option>)}
                 </select>
-              </div>}
+              </div></details>}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="relative">
-                  <label htmlFor="network-company" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Search company</label>
+                  <label htmlFor="network-company" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Company</label>
                   <div className="relative"><Search className="absolute left-3.5 top-3.5 size-4 text-slate-500" aria-hidden="true" />
                     <input id="network-company" required maxLength={120} autoComplete="off" value={companyName}
                       onChange={(event) => { requestKey.current = null; setCompanyName(event.target.value); setCompanyDomain(''); setApplicationId(''); setSuggestions([]); setShowSuggestions(true); }}
@@ -216,15 +214,15 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
                 <div><label htmlFor="network-role" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Target role</label>
                   <input id="network-role" required maxLength={120} value={role} onChange={(event) => { requestKey.current = null; setRole(event.target.value); setApplicationId(''); }} placeholder="Software Engineer" className={fieldClass} /></div>
               </div>
-              <div><label htmlFor="network-domain" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Company website <span className="font-normal text-slate-500">(helps distinguish similar names)</span></label>
+              <details><summary className="cursor-pointer text-sm font-medium text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300">Company website (optional)</summary><div className="mt-3"><label htmlFor="network-domain" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">Company website <span className="font-normal text-slate-500">(for similar company names)</span></label>
                 <input id="network-domain" maxLength={253} value={companyDomain} onChange={(event) => { requestKey.current = null; setCompanyDomain(event.target.value); }} placeholder="microsoft.com" className={fieldClass} />
                 {companyDomain && <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300">Selected: {companyName} · {companyDomain}</p>}
               </div>
-              <div><label htmlFor="network-intent" className="mb-1.5 block text-sm font-medium text-slate-900 dark:text-white">What do you want to say? <span className="font-normal text-slate-500">(optional)</span></label>
-                <textarea id="network-intent" rows={3} maxLength={1000} value={intent} onChange={(event) => { requestKey.current = null; setIntent(event.target.value); }} placeholder="I’m exploring backend engineering roles and would value a short conversation about the team." className={`${fieldClass} resize-y`} /></div>
+              </details>
+              <OutreachGoal value={intent} onChange={(value) => { requestKey.current = null; setIntent(value); }} optional />
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-slate-800">
-                <p className="text-sm text-slate-600 dark:text-slate-300">Search starts only when you build. {remaining === null ? 'Loading allowance…' : `${remaining} of 15 bundles remaining today`}</p>
-                <button type="submit" disabled={busy || remaining === 0} className={primaryClass}>{busy ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />}Build outreach bundle</button>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{remaining === 0 ? 'Daily limit reached. Come back tomorrow.' : 'Review and send yourself. Nothing is sent automatically.'}</p>
+                <button type="submit" disabled={busy || remaining === 0 || !companyName.trim() || !role.trim()} className={primaryClass}>{busy ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />}{busy ? 'Starting…' : 'Find contacts'}</button>
               </div>
             </form>
           )}
@@ -257,7 +255,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
       </div>
       <aside className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-6" aria-label="Recent outreach">
         <div className="flex items-center justify-between gap-2"><h2 className="font-semibold text-slate-950 dark:text-white">Recent outreach</h2><span className="text-xs text-slate-500 dark:text-slate-400">Saved</span></div>
-        {history.length === 0 ? <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">Your completed bundles will appear here. Reopening them is free.</p> :
+        {history.length === 0 ? <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">Your searches appear here. Reopen anytime.</p> :
           <ul className="mt-4 space-y-1">{history.map((item) => <li key={item.id}><button type="button" onClick={() => openBundle(item.id)} className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-3 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-slate-800 ${item.id === bundleId ? 'bg-blue-50 dark:bg-blue-950/40' : ''}`}>
             <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-slate-950 dark:text-white">{item.companyName}</span><span className="block truncate text-xs text-slate-600 dark:text-slate-300">{item.targetRole} · {item.contactCount} {item.contactCount === 1 ? 'contact' : 'contacts'}</span><span className="block text-xs text-slate-500 dark:text-slate-400">{item.createdAt.slice(0, 10)}</span></span><ChevronRight className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
           </button></li>)}</ul>}

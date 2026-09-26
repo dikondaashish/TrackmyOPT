@@ -75,7 +75,7 @@ describe('NetworkingWorkspace', () => {
     );
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Draft outreach with AI' })
+      screen.getByRole('button', { name: 'Create draft' })
     );
     const gmail = await screen.findByRole('link', { name: /Open in Gmail/ });
     const url = new URL(gmail.getAttribute('href') || '');
@@ -205,4 +205,19 @@ describe('NetworkingWorkspace', () => {
       screen.queryByRole('link', { name: /Open in Gmail/ })
     ).not.toBeInTheDocument();
   });
+});
+
+it('uses a goal shortcut, keeps custom edits, and limits the flow to three contacts', () => {
+  render(<NetworkingWorkspace applications={[]} initialApplicationId="" applicationsUnavailable={false} />);
+  const goal = screen.getByRole('button', { name: 'Coffee chat' });
+  fireEvent.click(goal);
+  expect(goal).toHaveAttribute('aria-pressed', 'true');
+  expect((screen.getByLabelText('What you want to say') as HTMLTextAreaElement).value).toContain('short conversation');
+  fireEvent.change(screen.getByLabelText('What you want to say'), { target: { value: 'My own introduction' } });
+  expect(goal).toHaveAttribute('aria-pressed', 'false');
+  fireEvent.click(screen.getByRole('button', { name: 'Add another contact' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add another contact' }));
+  expect(screen.getAllByLabelText('LinkedIn profile URL')).toHaveLength(3);
+  expect(screen.queryByRole('button', { name: 'Add another contact' })).not.toBeInTheDocument();
+  expect(screen.getByLabelText('What you want to say')).toHaveValue('My own introduction');
 });
