@@ -1,6 +1,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateAiContent } from '@/lib/ai/google-ai';
+import { generateResumeWithDeadline, ResumeGenerationTimeout, RESUME_AI_TIMEOUT_MS } from '@/lib/resume/generate-with-deadline';
+
+export const maxDuration = 120;
 import { runWithAiRequestContext, getAiRequestCostSummary } from '@/lib/ai/ai-request-context';
 import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildRegeneratePrompt } from '@/lib/ai/prompts/regenerate';
@@ -52,6 +54,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleRegeneratePost(req: NextRequest) {
+    const startedAt = Date.now();
     let reservationId: string | null = null;
     let reservationUserId: string | null = null;
     let reservationCommitted = false;
@@ -142,11 +145,11 @@ async function handleRegeneratePost(req: NextRequest) {
         reservationId = entitlement.reservationId;
 
         // 5. Generate
-        const response = await generateAiContent({
+        const response = await generateResumeWithDeadline({
             task: 'resume_regenerate',
             contents: prompt,
             userId,
-        });
+        }, RESUME_AI_TIMEOUT_MS - (Date.now() - startedAt));
         let latex = response.text || '';
 
         // 6. Clean Output
@@ -198,17 +201,21 @@ async function handleRegeneratePost(req: NextRequest) {
             { headers: corsHeaders }
         );
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Regeneration Error:', error);
+        if (reservationId && reservationUserId && !reservationCommitted) {
+            creditReleased = await releaseResumeGenerationReservation(reservationUserId, reservationId);
+        }
         return NextResponse.json(
             {
-                error: 'Failed to regenerate resume',
+                error: error instanceof ResumeGenerationTimeout ? error.message : 'Failed to regenerate resume',
+                ...(error instanceof ResumeGenerationTimeout ? { code: 'resume_generation_timeout' } : {}),
                 creditRefunded: creditReleased,
             },
-            { status: 500, headers: corsHeaders }
+            { status: error instanceof ResumeGenerationTimeout ? 504 : 500, headers: corsHeaders }
         );
     } finally {
-        if (reservationId && reservationUserId && !reservationCommitted) {
+        if (reservationId && reservationUserId && !reservationCommitted && !creditReleased) {
             creditReleased = await releaseResumeGenerationReservation(
                 reservationUserId,
                 reservationId,

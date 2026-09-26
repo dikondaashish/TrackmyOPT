@@ -100,4 +100,21 @@ describe("POST /api/resume-generator/regenerate", () => {
     expect(response.status).toBe(500);
     expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
   });
+  it("returns a structured timeout and releases credit before responding", async () => {
+    vi.useFakeTimers();
+    try {
+      mocks.generateAiContent.mockImplementationOnce(() => new Promise(() => {}));
+      const pending = POST(request(validBody()));
+      await vi.advanceTimersByTimeAsync(90_001);
+      const response = await pending;
+      expect(response.status).toBe(504);
+      expect(await response.json()).toMatchObject({ code: "resume_generation_timeout", creditRefunded: true });
+      expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledOnce();
+      expect(mocks.commitResumeGeneration).not.toHaveBeenCalled();
+      expect(mocks.generateAiContent.mock.calls[0][0].config.abortSignal.aborted).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
 });

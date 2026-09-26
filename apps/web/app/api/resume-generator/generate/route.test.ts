@@ -136,24 +136,11 @@ describe("POST /api/resume-generator/generate", () => {
     expect(mocks.commitResumeGeneration).not.toHaveBeenCalled();
   });
 
-  it("runs compile repair when a private compiler is configured", async () => {
+  it("returns source without waiting for duplicate server compilation", async () => {
     mocks.hasPrivateCompilerConfigured.mockReturnValue(true);
-    mocks.compileLatexWithRepair.mockResolvedValue({
-      ok: true,
-      finalLatex: "\\documentclass{article}\\begin{document}Fixed\\end{document}",
-      repaired: true,
-      repairAttempts: 1,
-      pdf: new ArrayBuffer(8),
-      compiler: "test",
-    });
-
     const response = await POST(request(validBody()));
-    const body = await response.json();
-
     expect(response.status).toBe(200);
-    expect(body.latex).toContain("Fixed");
-    expect(body.compileRepaired).toBe(true);
-    expect(mocks.compileLatexWithRepair).toHaveBeenCalledOnce();
+    expect(mocks.compileLatexWithRepair).not.toHaveBeenCalled();
   });
 
   it("releases a reservation when validation fails", async () => {
@@ -178,4 +165,21 @@ describe("POST /api/resume-generator/generate", () => {
     expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledWith("user-1", "reservation-1");
     expect(mocks.commitResumeGeneration).not.toHaveBeenCalled();
   });
+  it("returns a structured timeout and releases credit before responding", async () => {
+    vi.useFakeTimers();
+    try {
+      mocks.generateAiContent.mockImplementationOnce(() => new Promise(() => {}));
+      const pending = POST(request(validBody()));
+      await vi.advanceTimersByTimeAsync(90_001);
+      const response = await pending;
+      expect(response.status).toBe(504);
+      expect(await response.json()).toMatchObject({ code: "resume_generation_timeout", creditRefunded: true });
+      expect(mocks.releaseResumeGenerationReservation).toHaveBeenCalledOnce();
+      expect(mocks.commitResumeGeneration).not.toHaveBeenCalled();
+      expect(mocks.generateAiContent.mock.calls[0][0].config.abortSignal.aborted).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
 });

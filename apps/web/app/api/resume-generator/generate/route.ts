@@ -1,8 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generateAiContent } from '@/lib/ai/google-ai';
+import { generateResumeWithDeadline, ResumeGenerationTimeout, RESUME_AI_TIMEOUT_MS } from '@/lib/resume/generate-with-deadline';
 import { runWithAiRequestContext, getAiRequestCostSummary } from '@/lib/ai/ai-request-context';
-import { buildFixSyntaxPrompt } from '@/lib/ai/prompts/fix-syntax';
 import { loadTemplateSource, normalizeAccentHex } from '@/lib/documents/template-source';
 import { buildGeneratePrompt } from '@/lib/ai/prompts/generate';
 import { checkAtsCompliance } from '@/lib/validators/ats-checker';
@@ -19,7 +18,6 @@ import { getUserId } from '@/lib/auth/get-user-id';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { hasUpstashRedisConfig } from '@/lib/upstash-redis';
 import { isUsableResumeLatex } from '@/lib/resume/latex-to-plain-text';
-import { compileLatexWithRepair } from '@/lib/resume/compile-latex-with-repair';
 import {
     mergeModelLatexWithTemplate,
     stripModelLatexOutput,
@@ -27,10 +25,6 @@ import {
 } from '@/lib/resume/model-latex-output';
 
 export const maxDuration = 120;
-import {
-    compileLatex,
-    hasPrivateCompilerConfigured,
-} from '@/lib/resume/latex-compiler';
 import {
     JOB_DESCRIPTION_MAX_CHARS,
     prepareResumeText,
@@ -60,20 +54,6 @@ const GenerateSchema = z.object({
     alignJobTitles: z.boolean().optional().default(false),
 });
 
-async function repairLatexSyntax(
-    latexCode: string,
-    errorMessage: string,
-    userId: string,
-): Promise<string | undefined> {
-    const response = await generateAiContent({
-        task: 'latex_fix',
-        contents: buildFixSyntaxPrompt(latexCode, errorMessage),
-        userId,
-    });
-    const fixed = stripModelLatexOutput(response.text || '');
-    return isUsableResumeLatex(fixed) ? fixed : undefined;
-}
-
 export async function OPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
@@ -83,6 +63,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleGeneratePost(req: NextRequest) {
+    const startedAt = Date.now();
     const corsHeaders = corsHeadersWebAndExtension(req);
     let reservationId: string | null = null;
     let reservationUserId: string | null = null;
@@ -175,11 +156,11 @@ async function handleGeneratePost(req: NextRequest) {
         }
         reservationId = entitlement.reservationId;
 
-        const response = await generateAiContent({
+        const response = await generateResumeWithDeadline({
             task: 'resume_generate',
             contents: prompt,
             userId,
-        });
+        }, RESUME_AI_TIMEOUT_MS - (Date.now() - startedAt));
 
         let latex = stripModelLatexOutput(response.text || '');
         if (!isUsableResumeLatex(latex)) {
@@ -196,22 +177,8 @@ async function handleGeneratePost(req: NextRequest) {
             throw new Error(`Generated resume failed validation: ${structureCheck.issues.join('; ')}`);
         }
 
-        let compileRepaired = false;
-        let compileWarning: string | undefined;
-        if (hasPrivateCompilerConfigured()) {
-            const compiled = await compileLatexWithRepair({
-                initialLatex: latex,
-                maxRepairs: 2,
-                compile: (code) => compileLatex(code, { publicFallback: true }),
-                repair: (code, error) => repairLatexSyntax(code, error, userId),
-            });
-            latex = compiled.finalLatex;
-            compileRepaired = compiled.repaired;
-            if (!compiled.ok) {
-                compileWarning =
-                    compiled.error || 'Resume could not be compiled on the server';
-            }
-        }
+        // Return validated source now. The dedicated compile endpoint handles PDF work
+        // and the editor handles syntax repair without delaying this response.
 
         // ATS Validation
         const atsCheck = checkAtsCompliance(latex);
@@ -232,7 +199,6 @@ async function handleGeneratePost(req: NextRequest) {
                 ai_model: costSummary.primaryModel,
                 ai_fallback_used: costSummary.fallbackUsed,
                 template_id: templateId,
-                ...(compileRepaired ? { compile_repaired: true } : {}),
                 source: 'generate',
             });
         }
@@ -242,8 +208,7 @@ async function handleGeneratePost(req: NextRequest) {
                 success: true,
                 latex,
                 atsCheck,
-                ...(compileRepaired ? { compileRepaired: true } : {}),
-                ...(resumePrep.truncated || jobPrep.truncated || compileWarning
+                ...(resumePrep.truncated || jobPrep.truncated
                     ? {
                           warnings: [
                               resumePrep.truncated
@@ -252,7 +217,6 @@ async function handleGeneratePost(req: NextRequest) {
                               jobPrep.truncated
                                   ? `Job description trimmed from ${jobPrep.originalLength.toLocaleString()} to ${jobPrep.text.length.toLocaleString()} characters.`
                                   : null,
-                              compileWarning ?? null,
                           ].filter(Boolean),
                       }
                     : {}),
@@ -263,17 +227,21 @@ async function handleGeneratePost(req: NextRequest) {
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown generation error';
         console.error('Generation Error:', message);
+        if (reservationId && reservationUserId && !reservationCommitted) {
+            creditReleased = await releaseResumeGenerationReservation(reservationUserId, reservationId);
+        }
         return NextResponse.json(
             {
                 success: false,
-                error: 'Failed to generate resume',
+                error: error instanceof ResumeGenerationTimeout ? error.message : 'Failed to generate resume',
+                ...(error instanceof ResumeGenerationTimeout ? { code: 'resume_generation_timeout' } : {}),
                 details: message,
                 creditRefunded: creditReleased,
             },
-            { status: 500, headers: corsHeaders }
+            { status: error instanceof ResumeGenerationTimeout ? 504 : 500, headers: corsHeaders }
         );
     } finally {
-        if (reservationId && reservationUserId && !reservationCommitted) {
+        if (reservationId && reservationUserId && !reservationCommitted && !creditReleased) {
             creditReleased = await releaseResumeGenerationReservation(
                 reservationUserId,
                 reservationId,

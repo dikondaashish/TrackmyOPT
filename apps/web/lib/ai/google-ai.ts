@@ -406,6 +406,7 @@ export async function generateAiContent(input: {
       userId: input.userId,
     });
   } catch (error) {
+    if (input.config?.abortSignal?.aborted) throw error;
     if (!policy.fallback || !isRetryableProviderError(error)) throw error;
 
     console.warn(
