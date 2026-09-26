@@ -16,6 +16,7 @@ export async function extractPdfTextFromBlob(
     blob: Blob,
     expectedName?: string
 ): Promise<PdfParseResult> {
+    let loadingTask: { destroy: () => Promise<void> } | undefined;
     try {
         const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
         pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -24,7 +25,9 @@ export async function extractPdfTextFromBlob(
         ).toString();
 
         const buffer = await blob.arrayBuffer();
-        const doc = await pdfjs.getDocument({ data: buffer }).promise;
+        const task = pdfjs.getDocument({ data: buffer });
+        loadingTask = task;
+        const doc = await task.promise;
         const pages: string[] = [];
 
         for (let i = 1; i <= doc.numPages; i++) {
@@ -64,5 +67,7 @@ export async function extractPdfTextFromBlob(
             containsName: false,
             warning: "Could not extract text from PDF",
         };
+    } finally {
+        await loadingTask?.destroy().catch(() => {});
     }
 }

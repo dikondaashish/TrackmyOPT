@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { triggerUrlDownload } from "@/lib/browser-download";
 import { useToast } from "@/hooks/useToast";
@@ -25,11 +25,9 @@ type NpsPlanTier = "dedicated" | "pro" | "free";
 
 export function useResumeEditorActions({
     updateText,
-    stopStreaming,
     npsPlanTier,
 }: {
     updateText: UpdateText;
-    stopStreaming: () => void;
     npsPlanTier: NpsPlanTier;
 }) {
     const { toast } = useToast();
@@ -37,6 +35,15 @@ export function useResumeEditorActions({
     const autoRegenAttempts = useRef(0);
     const skipNextAutoRegen = useRef(false);
     const compileSeqRef = useRef(0);
+    const scanSeqRef = useRef(0);
+    const generationSeqRef = useRef(0);
+    const mountedRef = useRef(true);
+    const [compiledLatex, setCompiledLatex] = useState("");
+
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => { mountedRef.current = false; };
+    }, []);
 
     const {
         resumeText, jobDescription, selectedTemplateId, selectedColor, jobTitle, applicationId,
@@ -57,7 +64,6 @@ export function useResumeEditorActions({
     const [isAutoFixing, setIsAutoFixing] = useState(false);
     const [compiledPdfBlob, setCompiledPdfBlob] = useState<Blob | null>(null);
     const [compileFailed, setCompileFailed] = useState(false);
-    const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [pdfHighlightQuery, setPdfHighlightQuery] = useState<string | null>(null);
 
@@ -163,9 +169,11 @@ export function useResumeEditorActions({
     );
 
     const runDeepScan = useCallback(
-        async (latex: string, silent = false): Promise<AtsAnalysis | null> => {
+        async (latex: string, silent = false, isCurrent: () => boolean = () => true): Promise<AtsAnalysis | null> => {
             if (!jobDescription || !latex) return null;
 
+            const scanSeq = ++scanSeqRef.current;
+            const isLatest = () => mountedRef.current && scanSeq === scanSeqRef.current && isCurrent() && useResumeStore.getState().generatedLatex === latex;
             setIsScanning(true);
             try {
                 const generatedText = latexToPlainText(latex);
@@ -181,6 +189,7 @@ export function useResumeEditorActions({
                 });
 
                 const data = await response.json();
+                if (!isLatest()) return null;
                 if (response.status === 402) {
                     captureUpgradePromptShown({ source: "ats_limit" });
                     setShowPricingModal(true);
@@ -210,7 +219,7 @@ export function useResumeEditorActions({
                 return data as AtsAnalysis;
             } catch (error) {
                 console.error(error);
-                if (!silent) {
+                if (!silent && isLatest()) {
                     toast({
                         title: "Scan Failed",
                         description:
@@ -222,95 +231,103 @@ export function useResumeEditorActions({
                 }
                 return null;
             } finally {
-                setIsScanning(false);
+                if (mountedRef.current && scanSeq === scanSeqRef.current) setIsScanning(false);
             }
         },
         [jobDescription, setAtsAnalysis, toast, trackAtsScored]
     );
 
-    const runAutoRegenerate = useCallback(
-        async (analysis: AtsAnalysis | null) => {
-            if (autoRegenAttempts.current >= 2) return;
-            if (!analysis || (analysis.score ?? 0) >= ATS_PASS_SCORE) return;
-            if (!(analysis.keywordMatch?.missing?.length ?? 0)) return;
+    async function runAutoRegenerate(analysis: AtsAnalysis | null, sourceLatex = useResumeStore.getState().generatedLatex) {
+        if (autoRegenAttempts.current >= 2) return;
+        if (!analysis || (analysis.score ?? 0) >= ATS_PASS_SCORE) return;
+        if (!(analysis.keywordMatch?.missing?.length ?? 0)) return;
 
-            autoRegenAttempts.current += 1;
-            setIsAutoFixing(true);
-            skipNextAutoRegen.current = true;
+        const seq = ++generationSeqRef.current;
+        const isCurrent = () => mountedRef.current && seq === generationSeqRef.current && useResumeStore.getState().generatedLatex === sourceLatex;
+        autoRegenAttempts.current += 1;
+        setIsAutoFixing(true);
+        skipNextAutoRegen.current = true;
 
-            try {
-                const feedback = buildAutoRegenFeedback(analysis);
-                const response = await fetch("/api/resume-generator/regenerate", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        resumeText,
-                        jobDescription,
-                        templateId: selectedTemplateId || DEFAULT_RESUME_TEMPLATE_ID,
-                        previousLatex: generatedLatex,
-                        userFeedback: limitRegenerationFeedback(feedback),
-                        atsAnalysis: analysis,
-                        alignJobTitles,
-                    }),
-                });
+        try {
+            const feedback = buildAutoRegenFeedback(analysis);
+            const response = await fetch("/api/resume-generator/regenerate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    resumeText,
+                    jobDescription,
+                    templateId: selectedTemplateId || DEFAULT_RESUME_TEMPLATE_ID,
+                    previousLatex: sourceLatex,
+                    userFeedback: limitRegenerationFeedback(feedback),
+                    atsAnalysis: analysis,
+                    alignJobTitles,
+                }),
+            });
 
-                const data = await response.json();
-                if (response.status === 403) {
-                    handleGenerationLimitResponse(data);
-                    return;
-                }
-                if (!response.ok) throw new Error(data.error || "Regenerate failed");
-
-                updateText(data.latex, false);
-                setIsStreamingEnabled(true);
-                if (data.atsCheck) {
-                    setAtsAnalysis(data.atsCheck);
-                    trackAtsScored(data.atsCheck, "auto_regenerate");
-                }
-
-                toast({
-                    title: "Auto-improving resume",
-                    description: `Attempt ${autoRegenAttempts.current}/2 — targeting missing keywords.`,
-                });
-
-                if (data.latex) await compilePdf(data.latex, 0, true);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsAutoFixing(false);
+            const data = await response.json();
+            if (!isCurrent()) return;
+            if (response.status === 403) {
+                handleGenerationLimitResponse(data);
+                return;
             }
-        },
-        [generatedLatex, handleGenerationLimitResponse, jobDescription, resumeText, selectedTemplateId, alignJobTitles, setAtsAnalysis, toast, trackAtsScored, updateText]
-    );
+            if (!response.ok) throw new Error(data.error || "Regenerate failed");
 
-    const postCompilePipeline = useCallback(
-        async (latex: string, blob: Blob, options?: { allowAutoRegen?: boolean }) => {
-            const allowAutoRegen = options?.allowAutoRegen !== false;
-            const name = extractNameFromLatex(latex);
-            const pdfResult = await extractPdfTextFromBlob(blob, name);
-            setPdfParseOk(pdfResult.ok);
-            if (!pdfResult.ok && pdfResult.warning) {
-                toast({
-                    title: "ATS parse risk",
-                    description: pdfResult.warning,
-                    variant: "destructive",
-                });
+            updateText(data.latex);
+            if (data.atsCheck) {
+                setAtsAnalysis(data.atsCheck);
+                trackAtsScored(data.atsCheck, "auto_regenerate");
             }
 
-            const analysis = await runDeepScan(latex, true);
-            if (analysis) {
-                await saveResumeToHistory(latex, analysis);
-                if (allowAutoRegen && !skipNextAutoRegen.current) {
-                    await runAutoRegenerate(analysis);
-                }
-                skipNextAutoRegen.current = false;
+            toast({
+                title: "Auto-improving resume",
+                description: `Attempt ${autoRegenAttempts.current}/2 — targeting missing keywords.`,
+            });
+
+            if (data.latex) await compilePdf(data.latex, 0, true);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            if (mountedRef.current && seq === generationSeqRef.current) setIsAutoFixing(false);
+        }
+    }
+
+    async function postCompilePipeline(latex: string, blob: Blob, isCurrent: () => boolean, options?: { allowAutoRegen?: boolean }) {
+        if (!isCurrent()) return;
+        const allowAutoRegen = options?.allowAutoRegen !== false;
+        const name = extractNameFromLatex(latex);
+        const [pdfResult, analysis] = await Promise.all([
+            extractPdfTextFromBlob(blob, name),
+            runDeepScan(latex, true, isCurrent),
+        ]);
+        if (!isCurrent()) return;
+        setPdfParseOk(pdfResult.ok);
+        if (!pdfResult.ok && pdfResult.warning) {
+            toast({
+                title: "ATS parse risk",
+                description: pdfResult.warning,
+                variant: "destructive",
+            });
+        }
+
+        if (analysis && isCurrent()) {
+            await saveResumeToHistory(latex, analysis);
+            if (isCurrent() && allowAutoRegen && !skipNextAutoRegen.current) {
+                await runAutoRegenerate(analysis, latex);
             }
-        },
-        [runDeepScan, runAutoRegenerate, saveResumeToHistory, toast]
-    );
+            skipNextAutoRegen.current = false;
+        }
+    }
 
     // API: Generate Resume
     const generateResume = async (resume: string, job: string, template: string) => {
+        const seq = ++generationSeqRef.current;
+        const isCurrent = () => mountedRef.current && seq === generationSeqRef.current;
+        ++compileSeqRef.current;
+        ++scanSeqRef.current;
+        setIsCompiling(false);
+        setIsScanning(false);
+        setPdfParseOk(null);
+        setAtsAnalysis(null);
         setIsGenerating(true);
         autoRegenAttempts.current = 0;
 
@@ -329,6 +346,7 @@ export function useResumeEditorActions({
             });
 
             const data = await response.json();
+            if (!isCurrent()) return;
 
             if (!response.ok) {
                 const detail =
@@ -354,8 +372,8 @@ export function useResumeEditorActions({
                 );
             }
 
-            updateText(data.latex, false);
-            setIsStreamingEnabled(true);
+            updateText(data.latex);
+            setIsGenerating(false);
 
             if (data.atsCheck) {
                 setAtsAnalysis({ ...data.atsCheck, score: data.atsCheck.score ?? 0 });
@@ -364,6 +382,7 @@ export function useResumeEditorActions({
 
             if (data.latex) {
                 await compilePdf(data.latex);
+                if (!isCurrent()) return;
                 captureClientEvent("resume_generated", {
                     template_id: template,
                     job_description_length: job.length,
@@ -385,6 +404,7 @@ export function useResumeEditorActions({
             });
 
         } catch (error: unknown) {
+            if (!isCurrent()) return;
             console.error(error);
             const message = error instanceof Error ? error.message : 'An unexpected error occurred';
             toast({
@@ -393,21 +413,23 @@ export function useResumeEditorActions({
                 variant: "destructive",
             });
         } finally {
-            setIsGenerating(false);
+            if (isCurrent()) setIsGenerating(false);
         }
     };
 
     // API: Compile PDF
-    const compilePdf = async (
+    async function compilePdf(
         code: string,
         retryCount = 0,
         fromAutoRegen = false,
         allowAutoRegen = true
-    ) => {
+    ) {
         if (!code) return;
         const seq = ++compileSeqRef.current;
+        const isCurrent = () => mountedRef.current && seq === compileSeqRef.current;
         setIsCompiling(true);
         setCompileFailed(false);
+        setPdfParseOk(null);
         setPdfHighlightQuery(null);
         try {
             const response = await fetch('/api/resume-generator/compile', {
@@ -417,11 +439,13 @@ export function useResumeEditorActions({
                 body: JSON.stringify({ latexCode: code })
             });
 
+            if (!isCurrent()) return;
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({})) as {
                     error?: string;
                     code?: string;
                 };
+                if (!isCurrent()) return;
                 const errorMessage = errorData.error || 'Compilation failed';
                 const isCompilerUnavailable =
                     response.status === 503 ||
@@ -431,7 +455,7 @@ export function useResumeEditorActions({
                     throw new Error(errorMessage);
                 }
 
-                if (retryCount === 0) {
+                if (retryCount === 0 && useResumeStore.getState().generatedLatex === code) {
                     toast({
                         title: "Syntax Error Detected",
                         description: "AI is automatically fixing the LaTeX code...",
@@ -448,9 +472,10 @@ export function useResumeEditorActions({
                     });
 
                     const fixData = await fixResponse.json();
+                    if (!isCurrent()) return;
 
-                    if (fixResponse.ok && fixData.latex) {
-                        updateText(fixData.latex, false);
+                    if (fixResponse.ok && fixData.latex && useResumeStore.getState().generatedLatex === code) {
+                        updateText(fixData.latex);
                         await compilePdf(fixData.latex, 1, fromAutoRegen, allowAutoRegen);
                         return;
                     }
@@ -460,21 +485,28 @@ export function useResumeEditorActions({
             }
 
             const blob = await response.blob();
-            if (seq !== compileSeqRef.current) return;
+            if (!isCurrent()) return;
             const url = URL.createObjectURL(blob);
             const prevUrl = useResumeStore.getState().compiledPdfUrl;
             if (prevUrl) URL.revokeObjectURL(prevUrl);
             setCompiledPdfUrl(url);
+            setCompiledLatex(code);
             setCompiledPdfBlob(blob);
+            // The PDF is ready now; ATS work must not keep the preview covered.
+            setIsCompiling(false);
             setPdfHighlightQuery(null);
 
             if (!fromAutoRegen) {
                 skipNextAutoRegen.current = false;
             }
-            await postCompilePipeline(code, blob, { allowAutoRegen });
+            const isCurrentSource = () => isCurrent() && useResumeStore.getState().generatedLatex === code;
+            // Analysis failures do not turn a successfully compiled PDF into a compile error.
+            void postCompilePipeline(code, blob, isCurrentSource, { allowAutoRegen }).catch((error) => {
+                console.error("Post-compile analysis failed:", error);
+            });
 
         } catch (error: unknown) {
-            if (seq !== compileSeqRef.current) return;
+            if (!isCurrent()) return;
             setCompileFailed(true);
             console.error(error);
             const message = error instanceof Error ? error.message : "";
@@ -486,7 +518,7 @@ export function useResumeEditorActions({
                 variant: "destructive",
             });
         } finally {
-            if (seq === compileSeqRef.current) setIsCompiling(false);
+            if (isCurrent()) setIsCompiling(false);
         }
     };
 
@@ -496,6 +528,14 @@ export function useResumeEditorActions({
     };
 
     const handleRegenerate = async (feedback: string, analysisOverride?: AtsAnalysis | null) => {
+        const seq = ++generationSeqRef.current;
+        const isCurrent = () => mountedRef.current && seq === generationSeqRef.current;
+        ++compileSeqRef.current;
+        ++scanSeqRef.current;
+        setIsCompiling(false);
+        setIsScanning(false);
+        setPdfParseOk(null);
+        setAtsAnalysis(null);
         setIsGenerating(true);
 
         try {
@@ -516,6 +556,7 @@ export function useResumeEditorActions({
             });
 
             const data = await response.json();
+            if (!isCurrent()) return;
 
             if (response.status === 403) {
                 handleGenerationLimitResponse(data);
@@ -526,8 +567,8 @@ export function useResumeEditorActions({
                 throw new Error(data.error || 'Failed to regenerate resume');
             }
 
-            updateText(data.latex, false);
-            setIsStreamingEnabled(true);
+            updateText(data.latex);
+            setIsGenerating(false);
             if (data.atsCheck) {
                 setAtsAnalysis(data.atsCheck);
                 trackAtsScored(data.atsCheck, "regenerate");
@@ -543,6 +584,7 @@ export function useResumeEditorActions({
             }
 
         } catch (error: unknown) {
+            if (!isCurrent()) return;
             console.error(error);
             const message = error instanceof Error ? error.message : 'An unexpected error occurred';
             toast({
@@ -551,7 +593,7 @@ export function useResumeEditorActions({
                 variant: "destructive",
             });
         } finally {
-            setIsGenerating(false);
+            if (isCurrent()) setIsGenerating(false);
         }
     };
 
@@ -621,10 +663,11 @@ export function useResumeEditorActions({
         performDownload({ had_gate_warning: true });
     }, [performDownload]);
 
-    const handleDownload = useCallback(() => {
+    const handleDownload = () => {
         try {
-            if (!compiledPdfUrl) {
-                compilePdf(generatedLatex);
+            if (!compiledPdfUrl || compiledLatex !== generatedLatex) {
+                if (isCompiling) return;
+                void compilePdf(generatedLatex, 0, false, false);
                 toast({ description: "Compiling PDF... click download again when ready." });
                 return;
             }
@@ -648,14 +691,16 @@ export function useResumeEditorActions({
             console.error("[handleDownload] failed:", err);
             toast({ description: "Download failed. Please try again.", variant: "destructive" });
         }
-    }, [atsAnalysis, generatedLatex, jobDescription, jobTitle, pdfParseOk, performDownload, compiledPdfUrl, selectedTemplateId, toast]);
+    };
 
     const handleStartOver = useCallback(() => {
         if (!window.confirm("Clear this in-progress resume and start again? Your saved resumes will not be deleted.")) {
             return;
         }
 
-        stopStreaming();
+        ++generationSeqRef.current;
+        ++compileSeqRef.current;
+        ++scanSeqRef.current;
         const currentUrl = useResumeStore.getState().compiledPdfUrl;
         if (currentUrl) URL.revokeObjectURL(currentUrl);
         setCompiledPdfBlob(null);
@@ -666,16 +711,16 @@ export function useResumeEditorActions({
         }
         reset();
         router.replace("/dashboard/career/resume-generator");
-    }, [reset, router, stopStreaming]);
+    }, [reset, router]);
 
-    const handleFixAndDownload = useCallback(async () => {
+    const handleFixAndDownload = async () => {
         setShowDownloadGate(false);
         if (atsAnalysis) {
             await runAutoRegenerate(atsAnalysis);
         } else if (generatedLatex) {
             await runDeepScan(generatedLatex, true);
         }
-    }, [atsAnalysis, generatedLatex, runAutoRegenerate, runDeepScan]);
+    };
 
     const handleSave = async () => {
         if (!generatedLatex) return;
@@ -723,8 +768,7 @@ export function useResumeEditorActions({
         isAutoFixing,
         compiledPdfBlob,
         compileFailed,
-        isStreamingEnabled,
-        setIsStreamingEnabled,
+        isPdfStale: Boolean(compiledPdfBlob) && compiledLatex !== generatedLatex,
         isSaving,
         pdfHighlightQuery,
         setPdfHighlightQuery,

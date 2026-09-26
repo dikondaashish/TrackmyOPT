@@ -37,9 +37,7 @@ export function deriveGenerationSteps(signals: GenerationSignals): GenerationSte
         atsScore,
     } = signals;
 
-    // `isGenerating` stays true across the whole pipeline because compilation and
-    // scanning are awaited inside the generate call, so a later stage running is
-    // what tells us the tailoring request itself already came back.
+    // Each phase reports its own work; a ready PDF is independent of ATS checks.
     const isTailoring = isGenerating && !isCompiling && !isScanning && !isAutoFixing;
 
     const steps: GenerationStep[] = [
@@ -67,7 +65,7 @@ export function deriveGenerationSteps(signals: GenerationSignals): GenerationSte
                 ? "active"
                 : pdfParseOk === false
                     ? "warning"
-                    : atsScore !== null
+                    : hasPdf && pdfParseOk !== null && atsScore !== null
                         ? "completed"
                         : "pending",
             detail: !isScanning && pdfParseOk === false

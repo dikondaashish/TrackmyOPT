@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 import { useResumeStore } from "@/store/resume-store";
@@ -11,7 +11,6 @@ import { EditorHeader } from "./components/EditorHeader";
 import { LatexEditorPane } from "./components/LatexEditorPane";
 import { PdfPreviewPane } from "./components/PdfPreviewPane";
 import { useEditorHistory } from "@/hooks/useEditorHistory";
-import { useStreamingEffect } from "@/hooks/useStreamingEffect";
 import {
     JOB_DESCRIPTION_MAX_CHARS,
     prepareResumeText,
@@ -29,6 +28,14 @@ import { latexToPlainText } from "@/lib/resume/latex-to-plain-text";
 import { deriveGenerationSteps } from "@/lib/resume/generation-steps";
 import { useResumeEditorActions } from "./useResumeEditorActions";
 
+function subscribeToHydration(onChange: () => void) {
+    return useResumeStore.persist?.onFinishHydration(onChange) ?? (() => {});
+}
+
+function hasHydrated() {
+    return useResumeStore.persist?.hasHydrated() ?? false;
+}
+
 export default function ResumeEditorPage() {
     const { toast } = useToast();
     const premium = usePremiumStatus();
@@ -39,7 +46,6 @@ export default function ResumeEditorPage() {
             : "free";
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const generationStartedRef = useRef(false);
-    const stopStreamingRef = useRef<() => void>(() => {});
     const searchParams = useSearchParams();
     const handoffLoadedRef = useRef(false);
     const handoffId = searchParams.get("handoffId");
@@ -66,8 +72,7 @@ export default function ResumeEditorPage() {
         undo,
         redo,
         canUndo,
-        canRedo,
-        text: historyText
+        canRedo
     } = useEditorHistory(generatedLatex, setGeneratedLatex);
 
     const {
@@ -84,8 +89,7 @@ export default function ResumeEditorPage() {
         isAutoFixing,
         compiledPdfBlob,
         compileFailed,
-        isStreamingEnabled,
-        setIsStreamingEnabled,
+        isPdfStale,
         isSaving,
         pdfHighlightQuery,
         setPdfHighlightQuery,
@@ -103,44 +107,8 @@ export default function ResumeEditorPage() {
         handleSave,
     } = useResumeEditorActions({
         updateText,
-        stopStreaming: () => stopStreamingRef.current(),
         npsPlanTier,
     });
-
-    const { displayedText, isStreaming, stopStreaming } = useStreamingEffect({
-        text: generatedLatex,
-        isEnabled: isStreamingEnabled,
-        speed: 16,
-        chunkSize: 48,
-        onComplete: () => {
-            setIsStreamingEnabled(false);
-            updateText(generatedLatex, true);
-        }
-    });
-
-    // Keep the start-over action connected to the latest stream controller
-    // after React commits. Updating a ref during render is not safe in React.
-    useEffect(() => {
-        stopStreamingRef.current = stopStreaming;
-    }, [stopStreaming]);
-
-    useEffect(() => {
-        if (!isStreaming) return;
-        const el = textareaRef.current;
-        if (!el) return;
-
-        const nearBottomPx = 120;
-        const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-        if (distanceFromBottom > nearBottomPx) return;
-
-        requestAnimationFrame(() => {
-            const ta = textareaRef.current;
-            if (!ta) return;
-            ta.scrollTop = ta.scrollHeight;
-        });
-    }, [displayedText, isStreaming]);
-
-    const editorValue = ((isGenerating || isStreamingEnabled) && !isStreaming) ? "" : (isStreaming ? displayedText : historyText);
 
     const generationSteps = deriveGenerationSteps({
         isGenerating,
@@ -148,7 +116,7 @@ export default function ResumeEditorPage() {
         isScanning,
         isAutoFixing,
         hasLatex: Boolean(generatedLatex),
-        hasPdf: Boolean(compiledPdfUrl),
+        hasPdf: Boolean(compiledPdfBlob) && !isPdfStale,
         compileFailed,
         pdfParseOk,
         atsScore: atsAnalysis?.score ?? null,
@@ -187,16 +155,11 @@ export default function ResumeEditorPage() {
         if (appId) setApplicationId(appId);
     }, [searchParams, setApplicationId]);
 
-    const [storeHydrated, setStoreHydrated] = useState(
-        () => useResumeStore.persist.hasHydrated()
+    const storeHydrated = useSyncExternalStore(
+        subscribeToHydration,
+        hasHydrated,
+        () => false
     );
-
-    useEffect(() => {
-        if (storeHydrated) return;
-        return useResumeStore.persist.onFinishHydration(() => {
-            setStoreHydrated(true);
-        });
-    }, [storeHydrated]);
 
     useEffect(() => {
         if (!storeHydrated) return;
@@ -228,13 +191,14 @@ export default function ResumeEditorPage() {
         ) {
             generationStartedRef.current = true;
             void generateResume(resumePrep.text, jobPrep.text, selectedTemplateId);
-        } else if (generatedLatex && !compiledPdfUrl && !isCompiling) {
+        } else if (generatedLatex && !compiledPdfBlob) {
             compilePdf(generatedLatex);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [storeHydrated, handoffId]);
 
     const handleInsert = (startTag: string, endTag: string = '') => {
+        if (isGenerating || isAutoFixing) return;
         const textarea = textareaRef.current;
         if (!textarea) return;
 
@@ -303,7 +267,6 @@ export default function ResumeEditorPage() {
                 if (payload.templateId) setSelectedTemplateId(payload.templateId);
                 if (payload.applicationId) setApplicationId(payload.applicationId);
                 setAtsAnalysis(null);
-                setIsStreamingEnabled(false);
                 updateText(payload.latex, true);
 
                 const mobile = window.matchMedia("(max-width: 767px)").matches;
@@ -334,18 +297,21 @@ export default function ResumeEditorPage() {
         return () => {
             const currentUrl = useResumeStore.getState().compiledPdfUrl;
             if (currentUrl) URL.revokeObjectURL(currentUrl);
+            useResumeStore.getState().setCompiledPdfUrl("");
+            useResumeStore.getState().setIsGenerating(false);
+            useResumeStore.getState().setIsCompiling(false);
         };
     }, []);
 
     const handleLatexSelectionSync = useCallback(() => {
         const textarea = textareaRef.current;
-        if (!textarea || isStreaming) return;
+        if (!textarea) return;
 
         const selected = getTextareaSelection(textarea);
         if (selected) {
             setPdfHighlightQuery(selected);
         }
-    }, [isStreaming, setPdfHighlightQuery]);
+    }, [setPdfHighlightQuery]);
 
     const handlePdfTextSelect = useCallback(
         (text: string) => {
@@ -443,8 +409,8 @@ export default function ResumeEditorPage() {
             <LatexToolbar
                 onUndo={undo}
                 onRedo={redo}
-                canUndo={canUndo}
-                canRedo={canRedo}
+                canUndo={canUndo && !isGenerating && !isAutoFixing}
+                canRedo={canRedo && !isGenerating && !isAutoFixing}
                 onInsert={handleInsert}
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}
@@ -454,15 +420,13 @@ export default function ResumeEditorPage() {
                 <LatexEditorPane
                     viewMode={viewMode}
                     textareaRef={textareaRef}
-                    editorValue={editorValue}
+                    editorValue={generatedLatex}
                     generatedLatex={generatedLatex}
                     isGenerating={isGenerating}
-                    isStreaming={isStreaming}
                     generationSteps={generationSteps}
                     onChangeText={updateText}
                     onSelectionSync={handleLatexSelectionSync}
                     onOpenFeedback={() => setShowFeedbackModal(true)}
-                    onStopStreaming={stopStreaming}
                 />
                 <PdfPreviewPane
                     viewMode={viewMode}
@@ -474,11 +438,11 @@ export default function ResumeEditorPage() {
                     pdfParseOk={pdfParseOk}
                     compiledPdfBlob={compiledPdfBlob}
                     compileFailed={compileFailed}
+                    isPdfStale={isPdfStale}
                     isGenerating={isGenerating}
                     isCompiling={isCompiling}
                     isScanning={isScanning}
                     isAutoFixing={isAutoFixing}
-                    generationSteps={generationSteps}
                     pdfHighlightQuery={pdfHighlightQuery}
                     onRefreshPdf={() => compilePdf(generatedLatex, 0, false, false)}
                     onPdfTextSelect={handlePdfTextSelect}

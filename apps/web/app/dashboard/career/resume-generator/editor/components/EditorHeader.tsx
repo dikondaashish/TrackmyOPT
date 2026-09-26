@@ -70,12 +70,16 @@ export function EditorHeader({
                             Resume Editor
                         </h1>
                         <div className="flex items-center justify-center gap-2 mt-0.5">
-                            {isGenerating ? (
+                            {isAutoFixing ? (
+                                <span className="text-xs text-blue-600 font-medium">Improving resume…</span>
+                            ) : isGenerating ? (
                                 <span className="text-xs text-blue-600 animate-pulse font-medium inline-flex items-center gap-1"><Sparkles className="w-3.5 h-3.5" /> Generating with AI...</span>
                             ) : isCompiling ? (
                                 <span className="text-xs text-amber-600 animate-pulse font-medium inline-flex items-center gap-1"><Cog className="w-3.5 h-3.5" /> Compiling PDF...</span>
+                            ) : isScanning ? (
+                                <span className="text-xs text-blue-600 font-medium">Checking ATS…</span>
                             ) : (
-                                <span className="text-xs text-green-600 font-medium">Ready</span>
+                                <span className="text-xs text-gray-500 font-medium">{compiledPdfUrl ? "Ready" : generatedLatex ? "Source ready" : "Add a resume to begin"}</span>
                             )}
                         </div>
                     </div>
@@ -86,7 +90,7 @@ export function EditorHeader({
                             variant="ghost"
                             size="sm"
                             onClick={onStartOver}
-                            disabled={isGenerating || isCompiling}
+                            disabled={isGenerating || isCompiling || isAutoFixing}
                             className="hidden xl:flex items-center gap-1 text-gray-600"
                         >
                             <RefreshCw className="w-4 h-4" />
@@ -118,7 +122,7 @@ export function EditorHeader({
                             variant="outline"
                             size="sm"
                             onClick={onRefreshPdf}
-                            disabled={isCompiling || !generatedLatex}
+                            disabled={isGenerating || isCompiling || isAutoFixing || !generatedLatex}
                             className="hidden sm:flex items-center gap-1 text-gray-600"
                         >
                             <Play className="w-4 h-4" />
@@ -156,7 +160,7 @@ export function EditorHeader({
                         <Button
                             size="sm"
                             onClick={onDownload}
-                            disabled={(!compiledPdfUrl && !generatedLatex) || isScanning || isAutoFixing}
+                            disabled={(!compiledPdfUrl && !generatedLatex) || isGenerating || isCompiling || isScanning || isAutoFixing}
                             className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
                             {(isScanning || isAutoFixing) ? (

@@ -13,12 +13,10 @@ export type LatexEditorPaneProps = {
     editorValue: string;
     generatedLatex: string;
     isGenerating: boolean;
-    isStreaming: boolean;
     generationSteps: GenerationStep[];
     onChangeText: (value: string) => void;
     onSelectionSync: () => void;
     onOpenFeedback: () => void;
-    onStopStreaming: () => void;
 };
 
 export function LatexEditorPane({
@@ -27,16 +25,17 @@ export function LatexEditorPane({
     editorValue,
     generatedLatex,
     isGenerating,
-    isStreaming,
     generationSteps,
     onChangeText,
     onSelectionSync,
     onOpenFeedback,
-    onStopStreaming,
 }: LatexEditorPaneProps) {
+    const isWorking = generationSteps.some((step) => step.status === "active");
+    const isReplacingSource = isGenerating || generationSteps.some((step) => step.id === "improve" && step.status === "active");
+
     return (
         <div
-            className={`flex flex-col border-r border-gray-200 dark:border-gray-800 transition-all duration-300 max-md:!w-full max-md:flex-1 ${viewMode === 'visual' ? 'hidden' : 'block'}`}
+            className={`flex flex-col border-r border-gray-200 dark:border-gray-800 max-md:!w-full max-md:flex-1 ${viewMode === 'visual' ? 'hidden' : 'block'}`}
             style={{ width: viewMode === 'code' ? '100%' : viewMode === 'split' ? '50%' : '0%' }}
         >
             {/* Editor Header */}
@@ -51,7 +50,7 @@ export function LatexEditorPane({
                         variant="ghost"
                         size="sm"
                         onClick={onOpenFeedback}
-                        disabled={isGenerating}
+                        disabled={isWorking || !generatedLatex}
                         className="h-6 px-2 text-xs text-purple-600"
                     >
                         {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
@@ -64,17 +63,23 @@ export function LatexEditorPane({
             </div>
 
             {/* Code Editor */}
-            <div className="flex-1 overflow-hidden relative group">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-gray-900">
+                {isWorking && (
+                    <div className={`shrink-0 border-b border-gray-800 p-5 text-gray-200 ${!editorValue ? "flex flex-1 items-center justify-center" : ""}`}>
+                        <GenerationSteps steps={generationSteps} />
+                    </div>
+                )}
                 <textarea
                     ref={textareaRef}
                     value={editorValue}
                     onChange={(e) => {
-                        if (!isStreaming) onChangeText(e.target.value);
+                        if (!isReplacingSource) onChangeText(e.target.value);
                     }}
                     onMouseUp={onSelectionSync}
                     onKeyUp={onSelectionSync}
-                    readOnly={isStreaming}
-                    className={`w-full h-full p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none ${isStreaming ? 'cursor-not-allowed opacity-90' : ''}`}
+                    readOnly={isReplacingSource}
+                    aria-label="LaTeX source"
+                    className={`w-full min-h-0 flex-1 p-4 font-mono text-sm bg-gray-900 text-gray-100 resize-none focus:outline-none ${!editorValue && isWorking ? "hidden" : ""}`}
                     spellCheck={false}
                     placeholder="LaTeX code will appear here..."
                     style={{
@@ -83,27 +88,6 @@ export function LatexEditorPane({
                     }}
                 />
 
-                {/* Pipeline progress. In split/visual mode the PDF pane already shows it. */}
-                {viewMode === "code" && isGenerating && !editorValue && (
-                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-900/95 p-8 text-gray-200 backdrop-blur-sm">
-                        <GenerationSteps steps={generationSteps} />
-                    </div>
-                )}
-
-                {/* Stop Streaming Button */}
-                {isStreaming && (
-                    <div className="absolute bottom-6 right-6 z-10">
-                        <Button
-                            onClick={onStopStreaming}
-                            variant="secondary"
-                            size="sm"
-                            className="shadow-lg bg-white text-gray-900 hover:bg-gray-100"
-                        >
-                            <span className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse" />
-                            Stop Generating
-                        </Button>
-                    </div>
-                )}
             </div>
         </div>
 

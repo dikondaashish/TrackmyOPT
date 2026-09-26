@@ -1,14 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { AtsScorePanel } from "./AtsScorePanel";
 import { ApplyReadinessChecklist } from "./ApplyReadinessChecklist";
 import { PdfSelectablePreview } from "./PdfSelectablePreview";
-import { GenerationSteps } from "./GenerationSteps";
+import { PdfPreviewLoading } from "./PdfPreviewLoading";
 import { ATS_PASS_SCORE, type AtsAnalysis } from "@/lib/resume/ats-analysis-types";
-import type { GenerationStep } from "@/lib/resume/generation-steps";
 import type { EditorViewMode } from "./LatexToolbar";
 
 export type PdfPreviewPaneProps = {
@@ -21,11 +21,11 @@ export type PdfPreviewPaneProps = {
     pdfParseOk: boolean | null;
     compiledPdfBlob: Blob | null;
     compileFailed: boolean;
+    isPdfStale: boolean;
     isGenerating: boolean;
     isCompiling: boolean;
     isScanning: boolean;
     isAutoFixing: boolean;
-    generationSteps: GenerationStep[];
     pdfHighlightQuery: string | null;
     onRefreshPdf: () => void;
     onPdfTextSelect: (text: string) => void;
@@ -43,24 +43,27 @@ export function PdfPreviewPane({
     pdfParseOk,
     compiledPdfBlob,
     compileFailed,
+    isPdfStale,
     isGenerating,
     isCompiling,
     isScanning,
     isAutoFixing,
-    generationSteps,
     pdfHighlightQuery,
     onRefreshPdf,
     onPdfTextSelect,
     onImproveForAts,
     onDeepScan,
 }: PdfPreviewPaneProps) {
+    const [activeTab, setActiveTab] = useState("preview");
+    const isUpdating = isGenerating || isCompiling || isAutoFixing;
+
     return (
         <div
-            className={`flex flex-col bg-gray-100 dark:bg-gray-800 transition-all duration-300 max-md:!w-full max-md:flex-1 ${viewMode === 'code' ? 'hidden' : 'block'}`}
+            className={`flex flex-col bg-gray-100 dark:bg-gray-800 max-md:!w-full max-md:flex-1 ${viewMode === 'code' ? 'hidden' : 'block'}`}
             style={{ width: viewMode === 'visual' ? '100%' : viewMode === 'split' ? '50%' : '0%' }}
         >
             {/* Preview Content */}
-            <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
+            <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
                 <div className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                     <TabsList className="h-8">
                         <TabsTrigger value="preview" className="text-xs">PDF Preview</TabsTrigger>
@@ -75,13 +78,14 @@ export function PdfPreviewPane({
                         variant="ghost"
                         size="sm"
                         onClick={onRefreshPdf}
-                        disabled={isCompiling}
+                        disabled={isUpdating || !generatedLatex}
+                        aria-label="Refresh PDF preview"
                     >
                         <RefreshCw className={`w-4 h-4 ${isCompiling ? 'animate-spin' : ''}`} />
                     </Button>
                 </div>
 
-                <TabsContent value="preview" className="flex-1 overflow-hidden flex justify-center bg-gray-200/50 dark:bg-gray-900/50 m-0 data-[state=inactive]:hidden">
+                <div role="tabpanel" aria-label="PDF Preview" className={`flex-1 overflow-hidden justify-center bg-gray-200/50 dark:bg-gray-900/50 m-0 ${activeTab === "preview" ? "flex" : "hidden"}`}>
                     <div className="relative flex h-full w-full items-center justify-center">
                         {compiledPdfBlob ? (
                             <div className="h-full w-full max-w-[8.5in]">
@@ -91,34 +95,42 @@ export function PdfPreviewPane({
                                     highlightQuery={pdfHighlightQuery}
                                 />
                             </div>
-                        ) : compileFailed && generatedLatex ? (
+                        ) : compileFailed && generatedLatex && !isUpdating ? (
                             <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-8 text-center text-gray-600 dark:text-gray-400">
                                 <p className="max-w-sm">PDF preview could not be generated. Try Refresh PDF, or edit the LaTeX and compile again.</p>
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={onRefreshPdf}
-                                    disabled={isCompiling}
+                                    disabled={isUpdating}
                                 >
                                     <RefreshCw className={`mr-2 h-4 w-4 ${isCompiling ? 'animate-spin' : ''}`} />
                                     Retry compile
                                 </Button>
                             </div>
-                        ) : isGenerating || isCompiling ? null : (
+                        ) : isUpdating ? (
+                            <PdfPreviewLoading />
+                        ) : (
                             <div className="flex h-full w-full flex-col items-center justify-center p-8 text-gray-500">
                                 <div className="flex flex-col items-center">
                                     <RefreshCw className="mb-4 h-12 w-12 opacity-50" />
-                                    <p>Waiting for compilation...</p>
+                                    <p>Your PDF preview will appear here.</p>
                                 </div>
                             </div>
                         )}
-                        {(isGenerating || isCompiling) && (
-                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 p-8 text-gray-700 dark:bg-gray-950/95 dark:text-gray-200">
-                                <GenerationSteps steps={generationSteps} />
+                        {compiledPdfBlob && (isUpdating || compileFailed || isPdfStale) && (
+                            <div role="status" className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                                {compileFailed && !isUpdating ? (
+                                    <><span>Preview update failed</span><button className="font-medium text-blue-600 underline dark:text-blue-400" onClick={onRefreshPdf}>Retry</button></>
+                                ) : isPdfStale && !isUpdating ? (
+                                    <><span>Preview has earlier edits</span><button className="font-medium text-blue-600 underline dark:text-blue-400" onClick={onRefreshPdf}>Update</button></>
+                                ) : (
+                                    <><Loader2 className="size-3.5 motion-safe:animate-spin" aria-hidden="true" />Updating preview…</>
+                                )}
                             </div>
                         )}
                     </div>
-                </TabsContent>
+                </div>
 
                 <TabsContent value="ats" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 m-0 data-[state=inactive]:hidden">
                     <div className="max-w-2xl mx-auto space-y-4">
@@ -167,7 +179,7 @@ export function PdfPreviewPane({
                             <Button
                                 size="sm"
                                 onClick={onDeepScan}
-                                disabled={isScanning || isGenerating || !generatedLatex}
+                                disabled={isScanning || isGenerating || isAutoFixing || !generatedLatex}
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
                             >
                                 {isScanning ? (

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { PdfPreviewLoading } from "./PdfPreviewLoading";
 import { collapseSpacedGlyphs, normalizeSearchText } from "@/lib/resume/latex-text-sync";
 
 interface PdfSelectablePreviewProps {
@@ -64,8 +65,7 @@ async function destroyPdfDocument(document: DestroyablePdfDocument | null): Prom
 }
 
 const FIT_PADDING_PX = 24;
-const MIN_FIT_WIDTH = 280;
-const MAX_DPR = 3;
+const MAX_DPR = 2;
 const NEAREST_SPAN_PX = 36;
 
 function nearestPdfSpan(
@@ -131,7 +131,7 @@ function getOutputScale(): number {
 
 /** CSS layout scale — page fits preview pane width. */
 function computeFitScale(unscaledPageWidth: number, containerWidth: number): number {
-    const available = Math.max(MIN_FIT_WIDTH, containerWidth - FIT_PADDING_PX);
+    const available = Math.max(1, containerWidth - FIT_PADDING_PX);
     return available / unscaledPageWidth;
 }
 
@@ -147,6 +147,10 @@ function PdfPageView({
     spanMatchesHighlight: (text: string) => boolean;
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [paintState, setPaintState] = useState<{ document: PdfDocHandle; scale: number; failed: boolean } | null>(null);
+    const settled = paintState?.document === pdfDoc && paintState.scale === fitScale;
+    const renderFailed = settled && paintState.failed;
+    const rendered = settled && !paintState.failed;
 
     useEffect(() => {
         let cancelled = false;
@@ -181,6 +185,7 @@ function PdfPageView({
                 canvas,
             });
             await renderTask.promise;
+            if (!cancelled) setPaintState({ document: pdfDoc, scale: fitScale, failed: false });
         }
 
         paint().catch((e) => {
@@ -188,6 +193,7 @@ function PdfPageView({
             if (cancelled) return;
             if (isPdfRenderCancellation(e)) return;
             console.error("[PdfPageView] render failed:", e);
+            setPaintState({ document: pdfDoc, scale: fitScale, failed: true });
         });
 
         return () => {
@@ -204,8 +210,8 @@ function PdfPageView({
         <div
             className="relative bg-white shadow-lg rounded-lg overflow-hidden shrink-0 mx-auto"
             style={{
-                width: page.displayWidth,
-                height: page.displayHeight,
+                width: page.displayWidth * fitScale,
+                height: page.displayHeight * fitScale,
                 containerType: "inline-size",
             }}
         >
@@ -214,6 +220,11 @@ function PdfPageView({
                 className="block pointer-events-none"
                 aria-hidden
             />
+            {!rendered && (
+                <div role="status" className="absolute inset-0 flex items-center justify-center gap-2 bg-white text-xs text-gray-500">
+                    {renderFailed ? "Could not draw this page. Try refreshing the PDF." : <><Loader2 className="size-4 motion-safe:animate-spin" aria-hidden="true" />Rendering page {page.pageNumber}…</>}
+                </div>
+            )}
             <div className="absolute inset-0">
                 {page.textSpans.map((span, i) => {
                     const isMatch = spanMatchesHighlight(span.text);
@@ -254,137 +265,101 @@ export function PdfSelectablePreview({
     highlightQuery,
 }: PdfSelectablePreviewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const pdfDocRef = useRef<PdfDocHandle | null>(null);
     const [pdfDoc, setPdfDoc] = useState<PdfDocHandle | null>(null);
     const [pages, setPages] = useState<PageData[]>([]);
-    const [fitScale, setFitScale] = useState(1);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [fitWidth, setFitWidth] = useState(0);
-    const loadGenerationRef = useRef(0);
 
     useEffect(() => {
         const el = containerRef.current;
         if (!el) return;
-
-        const updateWidth = () => setFitWidth(el.clientWidth);
+        let frame = 0;
+        const updateWidth = () => {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => {
+                // Keep the last visible width when switching to the code view.
+                if (el.clientWidth > 0) setFitWidth(Math.round(el.clientWidth));
+            });
+        };
         updateWidth();
-        const ro = new ResizeObserver(updateWidth);
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, []);
-
-    const loadPdf = useCallback(async (pdfBlob: Blob, containerWidth: number) => {
-        const generation = ++loadGenerationRef.current;
-        setLoading(true);
-        setError(null);
-        setPages([]);
-        if (pdfDocRef.current) {
-            void destroyPdfDocument(pdfDocRef.current);
-            pdfDocRef.current = null;
-            setPdfDoc(null);
-        }
-
-        try {
-            const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-            pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-                "pdfjs-dist/legacy/build/pdf.worker.mjs",
-                import.meta.url
-            ).toString();
-
-            const buffer = await pdfBlob.arrayBuffer();
-            const doc = await pdfjs.getDocument({ data: buffer }).promise;
-
-            if (generation !== loadGenerationRef.current) {
-                await destroyPdfDocument(doc as unknown as DestroyablePdfDocument);
-                return;
-            }
-
-            const firstPage = await doc.getPage(1);
-            const unscaled = firstPage.getViewport({ scale: 1 });
-            const scale = computeFitScale(unscaled.width, containerWidth);
-            const pageList: PageData[] = [];
-
-            for (let pageNum = 1; pageNum <= doc.numPages; pageNum++) {
-                if (generation !== loadGenerationRef.current) return;
-
-                const pdfPage = pageNum === 1 ? firstPage : await doc.getPage(pageNum);
-                const viewport = pdfPage.getViewport({ scale });
-                const textContent = await pdfPage.getTextContent();
-                const spans: TextSpan[] = [];
-
-                for (const item of textContent.items) {
-                    if (!("str" in item) || !item.str?.trim()) continue;
-                    const tx = pdfjs.Util.transform(viewport.transform, item.transform);
-                    const fontSize = Math.hypot(tx[2], tx[3]);
-                    spans.push({
-                        text: item.str,
-                        left: tx[4],
-                        top: tx[5] - fontSize,
-                        fontSize,
-                    });
-                }
-
-                pageList.push({
-                    pageNumber: pageNum,
-                    displayWidth: viewport.width,
-                    displayHeight: viewport.height,
-                    textSpans: spans,
-                });
-            }
-
-            if (generation === loadGenerationRef.current) {
-                setFitScale(scale);
-                pdfDocRef.current = doc as unknown as PdfDocHandle;
-                setPdfDoc(doc as unknown as PdfDocHandle);
-                setPages(pageList);
-            } else {
-                await destroyPdfDocument(doc as unknown as DestroyablePdfDocument);
-            }
-        } catch (e) {
-            if (isPdfRenderCancellation(e)) return;
-            console.error("[PdfSelectablePreview]", e);
-            if (generation === loadGenerationRef.current) {
-                setError("Could not render PDF preview.");
-            }
-        } finally {
-            if (generation === loadGenerationRef.current) {
-                setLoading(false);
-            }
-        }
+        const observer = new ResizeObserver(updateWidth);
+        observer.observe(el);
+        return () => {
+            cancelAnimationFrame(frame);
+            observer.disconnect();
+        };
     }, []);
 
     useEffect(() => {
-        if (!blob) {
-            let active = true;
-            if (pdfDocRef.current) {
-                void destroyPdfDocument(pdfDocRef.current);
-                pdfDocRef.current = null;
-            }
-            queueMicrotask(() => {
-                if (!active) return;
+        let cancelled = false;
+        let loadingTask: { destroy: () => Promise<void> } | null = null;
+        if (!blob) return;
+
+        async function loadPdf(pdfBlob: Blob) {
+            try {
+                const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+                if (cancelled) return;
+                setError(null);
                 setPages([]);
                 setPdfDoc(null);
-            });
-            return () => {
-                active = false;
-            };
-        }
-        if (fitWidth < 100) return;
-        let active = true;
-        queueMicrotask(() => {
-            if (active) void loadPdf(blob, fitWidth);
-        });
-        return () => {
-            active = false;
-        };
-    }, [blob, fitWidth, loadPdf]);
+                pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+                    "pdfjs-dist/legacy/build/pdf.worker.mjs",
+                    import.meta.url
+                ).toString();
 
-    useEffect(() => {
+                const buffer = await pdfBlob.arrayBuffer();
+                if (cancelled) return;
+                const task = pdfjs.getDocument({ data: buffer });
+                loadingTask = task;
+                const doc = await task.promise;
+                if (cancelled) return;
+                setPdfDoc(doc as unknown as PdfDocHandle);
+
+                await Promise.all(Array.from({ length: doc.numPages }, async (_, index) => {
+                    const pageNumber = index + 1;
+                    const pdfPage = await doc.getPage(pageNumber);
+                    if (cancelled) return;
+                    // Geometry stays at scale 1. Resizing only repaints the canvas;
+                    // it never reloads the document or extracts its text again.
+                    const viewport = pdfPage.getViewport({ scale: 1 });
+                    const page: PageData = {
+                        pageNumber,
+                        displayWidth: viewport.width,
+                        displayHeight: viewport.height,
+                        textSpans: [],
+                    };
+                    setPages((current) => [...current, page].sort((a, b) => a.pageNumber - b.pageNumber));
+
+                    // Painting can start before text selection or other pages are ready.
+                    try {
+                        const textContent = await pdfPage.getTextContent();
+                        if (cancelled) return;
+                        const textSpans: TextSpan[] = [];
+                        for (const item of textContent.items) {
+                            if (!("str" in item) || !item.str?.trim()) continue;
+                            const tx = pdfjs.Util.transform(viewport.transform, item.transform);
+                            const fontSize = Math.hypot(tx[2], tx[3]);
+                            textSpans.push({ text: item.str, left: tx[4], top: tx[5] - fontSize, fontSize });
+                        }
+                        setPages((current) => current.map((entry) => entry.pageNumber === pageNumber ? { ...entry, textSpans } : entry));
+                    } catch (error) {
+                        if (!cancelled) console.error("[PdfSelectablePreview] text layer failed:", error);
+                    }
+                }));
+            } catch (error) {
+                if (cancelled || isPdfRenderCancellation(error)) return;
+                console.error("[PdfSelectablePreview]", error);
+                setError("Could not render PDF preview. Try Refresh PDF.");
+            }
+        }
+
+        void loadPdf(blob);
         return () => {
-            void destroyPdfDocument(pdfDocRef.current);
+            cancelled = true;
+            // Also terminates a pending document load, not just completed documents.
+            void destroyPdfDocument(loadingTask);
         };
-    }, []);
+    }, [blob]);
 
     useEffect(() => {
         const query = normalizeSearchText(highlightQuery ?? "");
@@ -450,17 +425,15 @@ export function PdfSelectablePreview({
                 <div className="flex items-center justify-center flex-1 text-sm text-gray-500">
                     Compile to preview PDF
                 </div>
-            ) : loading ? (
-                <div className="flex flex-col items-center justify-center flex-1 gap-2 text-gray-500">
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                    <span className="text-sm">Rendering PDF…</span>
-                </div>
-            ) : error ? (
+            ) : pages.length === 0 && !error ? (
+                <PdfPreviewLoading label="Rendering preview…" />
+            ) : error && pages.length === 0 ? (
                 <div className="flex items-center justify-center flex-1 text-sm text-red-500">
                     {error}
                 </div>
             ) : pages.length > 0 && pdfDoc ? (
                 <>
+                    {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
                     <p className="text-xs text-gray-500 dark:text-gray-400 self-start px-1 shrink-0">
                         Select text in the PDF to jump to the matching LaTeX source.
                     </p>
@@ -469,7 +442,7 @@ export function PdfSelectablePreview({
                             key={page.pageNumber}
                             pdfDoc={pdfDoc}
                             page={page}
-                            fitScale={fitScale}
+                            fitScale={computeFitScale(page.displayWidth, fitWidth || page.displayWidth + FIT_PADDING_PX)}
                             spanMatchesHighlight={spanMatchesHighlight}
                         />
                     ))}
