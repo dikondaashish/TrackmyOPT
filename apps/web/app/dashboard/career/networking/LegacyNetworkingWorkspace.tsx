@@ -348,6 +348,7 @@ function ContactCard({
       );
     } finally {
       setDraftLoading(false);
+      window.dispatchEvent(new Event("networking-usage-updated"));
     }
   }
 

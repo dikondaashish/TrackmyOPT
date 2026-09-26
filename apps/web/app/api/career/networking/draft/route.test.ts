@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   getUser: vi.fn(),
+  getRateLimitUsageByUser: vi.fn(),
   checkRateLimitByUser: vi.fn(),
   generateAiContent: vi.fn(),
 }));
@@ -12,12 +13,13 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 vi.mock('@/lib/auth/api-rate-limit', () => ({
   checkRateLimitByUser: mocks.checkRateLimitByUser,
+  getRateLimitUsageByUser: mocks.getRateLimitUsageByUser,
 }));
 vi.mock('@/lib/ai/google-ai', () => ({
   generateAiContent: mocks.generateAiContent,
 }));
 
-const { POST } = await import('./route');
+const { POST, GET } = await import('./route');
 
 function request(body: Record<string, unknown>) {
   return new NextRequest(
@@ -110,5 +112,26 @@ describe('POST /api/career/networking/draft', () => {
     const response = await POST(request(validBody));
     expect(response.status).toBe(429);
     expect(mocks.generateAiContent).not.toHaveBeenCalled();
+  });
+});
+
+describe('GET networking draft usage', () => {
+  it('requires authentication before reading usage', async () => {
+    vi.clearAllMocks();
+    mocks.getUser.mockResolvedValue({ data: { user: null } });
+    expect((await GET()).status).toBe(401);
+    expect(mocks.getRateLimitUsageByUser).not.toHaveBeenCalled();
+  });
+  it('returns private usage for the authenticated user without charging a request', async () => {
+    vi.clearAllMocks();
+    mocks.getUser.mockResolvedValue({ data: { user: { id: 'user-1' } } });
+    mocks.getRateLimitUsageByUser.mockResolvedValue({ used: 4, remaining: 11, limit: 15 });
+    const response = await GET();
+    expect((await response.json()).data).toEqual({ used: 4, remaining: 11, limit: 15 });
+    expect(response.headers.get('Cache-Control')).toContain('no-store');
+    expect(mocks.getRateLimitUsageByUser).toHaveBeenCalledWith('user-1', { limit: 15, windowSeconds: 86400, name: 'networking-draft' });
+    expect(mocks.checkRateLimitByUser).not.toHaveBeenCalled();
+    mocks.getRateLimitUsageByUser.mockResolvedValue(null);
+    expect((await GET()).status).toBe(503);
   });
 });

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { NetworkingUsageStats } from './NetworkingUsageStats';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, MessageSquareText } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
@@ -24,7 +25,10 @@ export default async function NetworkingPage({ searchParams }: {
     (params.mode !== 'bundles' && !bundlesDefault);
 
   return <main className="mx-auto max-w-6xl space-y-6 px-3 py-5 sm:px-6 sm:py-8">
+    <div className="flex flex-wrap items-center justify-between gap-3">
     <Link href="/dashboard/career" className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:text-blue-300"><ArrowLeft className="size-4" aria-hidden="true" />Back to Career Hub</Link>
+    <NetworkingUsageStats key={legacy ? "manual" : "bundles"} mode={legacy ? "manual" : "bundles"} />
+    </div>
     <header className="flex items-start gap-4">
       <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300"><MessageSquareText className="size-6" aria-hidden="true" /></div>
       <div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-300">Career tools · Networking</p><h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl">Find the right people. Reach out personally.</h1><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Find a relevant contact, check available work email, and prepare outreach you can review before sending.</p></div>

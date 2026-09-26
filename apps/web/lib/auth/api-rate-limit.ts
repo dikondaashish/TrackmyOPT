@@ -247,3 +247,16 @@ export function addRateLimitHeaders(
     response.headers.set('X-RateLimit-Reset', String(result.reset));
     return response;
 }
+
+/** Read an allowance without consuming a request. */
+export async function getRateLimitUsageByUser(userId: string, config: RateLimitConfig) {
+    const limiter = getDurableLimiter(config);
+    if (!limiter) return null;
+    try {
+        const result = await limiter.getRemaining(`user:${userId}`);
+        const remaining = Math.max(0, Math.min(config.limit, result.remaining));
+        return { limit: config.limit, used: config.limit - remaining, remaining, reset: result.reset };
+    } catch {
+        return null;
+    }
+}

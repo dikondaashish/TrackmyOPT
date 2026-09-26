@@ -3,12 +3,14 @@ import { z } from 'zod';
 import { generateAiContent } from '@/lib/ai/google-ai';
 import { buildNetworkingDraftPrompt } from '@/lib/ai/prompts/networking-draft';
 import { apiFail, apiOk, apiUnauthorized } from '@/lib/api/response';
-import { checkRateLimitByUser } from '@/lib/auth/api-rate-limit';
+import { checkRateLimitByUser, getRateLimitUsageByUser } from '@/lib/auth/api-rate-limit';
 import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
+
+const DRAFT_LIMIT = { limit: 15, windowSeconds: 86_400, name: 'networking-draft' };
 
 const PRIVATE_HEADERS = { 'Cache-Control': 'no-store, private, max-age=0' };
 const RequestSchema = z
@@ -51,11 +53,7 @@ export async function POST(req: NextRequest) {
       headers: PRIVATE_HEADERS,
     });
 
-  const limit = await checkRateLimitByUser(user.id, {
-    limit: 15,
-    windowSeconds: 86_400,
-    name: 'networking-draft',
-  });
+  const limit = await checkRateLimitByUser(user.id, DRAFT_LIMIT);
   if (!limit.success) {
     return apiFail(
       limit.unavailable
@@ -103,4 +101,13 @@ export async function POST(req: NextRequest) {
       headers: PRIVATE_HEADERS,
     });
   }
+}
+
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return apiUnauthorized('Sign in to view networking usage', { headers: PRIVATE_HEADERS });
+  const usage = await getRateLimitUsageByUser(user.id, DRAFT_LIMIT);
+  if (!usage) return apiFail('Usage is temporarily unavailable', { status: 503, headers: PRIVATE_HEADERS });
+  return apiOk(usage, { headers: PRIVATE_HEADERS });
 }

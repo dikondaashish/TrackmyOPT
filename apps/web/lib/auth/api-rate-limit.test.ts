@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   limit: vi.fn(),
+  getRemaining: vi.fn(),
   fixedWindow: vi.fn(() => ({ algorithm: 'fixed-window' })),
   fromEnv: vi.fn(() => ({ redis: true })),
 }));
@@ -11,6 +12,7 @@ vi.mock('@upstash/ratelimit', () => ({
   Ratelimit: class RatelimitMock {
     static fixedWindow = mocks.fixedWindow;
     limit = mocks.limit;
+    getRemaining = mocks.getRemaining;
   },
 }));
 vi.mock('@upstash/redis', () => ({
@@ -19,6 +21,7 @@ vi.mock('@upstash/redis', () => ({
 
 import {
   AUTH_RATE_LIMIT,
+  getRateLimitUsageByUser,
   checkRateLimit,
   checkRateLimitByIP,
 } from './api-rate-limit';
@@ -92,4 +95,17 @@ describe('durable authentication rate limiting', () => {
       vi.unstubAllEnvs();
     }
   });
+});
+
+it('reads a user allowance without consuming requests and clamps exhausted counters', async () => {
+  process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
+  process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
+  mocks.limit.mockClear();
+  mocks.getRemaining.mockResolvedValue({ remaining: -2, reset: 1800000000000 });
+  expect(await getRateLimitUsageByUser('user-1', { limit: 15, windowSeconds: 86400, name: 'networking-draft' }))
+    .toEqual({ used: 15, remaining: 0, limit: 15, reset: 1800000000000 });
+  expect(mocks.getRemaining).toHaveBeenCalledWith('user:user-1');
+  expect(mocks.limit).not.toHaveBeenCalled();
+  mocks.getRemaining.mockRejectedValue(new Error('offline'));
+  expect(await getRateLimitUsageByUser('user-1', AUTH_RATE_LIMIT)).toBeNull();
 });

@@ -82,6 +82,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
     try {
       const data = await readApi<{ remaining: number; history: History[] }>(await fetch('/api/career/networking/bundles', { cache: 'no-store' }));
       setRemaining(data.remaining); setHistory(data.history);
+      window.dispatchEvent(new Event("networking-usage-updated"));
     } catch { /* The editor remains usable when history is unavailable. */ }
   }, []);
   const loadBundle = useCallback(async (id: string) => {
@@ -156,6 +157,7 @@ export function NetworkingWorkspace({ applications, initialApplicationId, initia
     try {
       await readApi(await fetch(`/api/career/networking/bundles/${bundle.id}`, { method: 'POST' }));
       setBundleId(''); window.setTimeout(() => setBundleId(bundle.id), 0);
+      void loadHistory();
     } catch (issue) { setError(issue instanceof Error ? issue.message : 'Could not retry outreach.'); }
     finally { setBusy(false); }
   }
