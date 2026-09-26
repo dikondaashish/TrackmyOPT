@@ -141,8 +141,8 @@ export function JobDescriptionPanel({
                 </div>
             )}
 
-            <details className="mt-4">
-                <summary className="cursor-pointer text-sm font-medium text-amber-700 dark:text-amber-400">Import from a link instead</summary>
+            <div className="mt-4">
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Import from a link instead</p>
                 <div className="mt-3 flex gap-2">
                     <Input
                         value={url}
@@ -177,7 +177,7 @@ export function JobDescriptionPanel({
                     </div>
                 </div>
 
-            </details>
+            </div>
 
             {/* Tip */}
             <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
