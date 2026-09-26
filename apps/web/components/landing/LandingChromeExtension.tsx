@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Check, Download, Layers, Zap } from "lucide-react";
+import { Check, Download, Layers } from "lucide-react";
 import Image from "next/image";
+import { ExtensionHeroVideo } from "./ExtensionHeroVideo";
 
 export function LandingChromeExtension() {
     return (
@@ -83,71 +84,9 @@ export function LandingChromeExtension() {
                         </div>
                     </div>
 
-                    {/* Right Column: Visual Mockup */}
+                    {/* Right Column: Product video preview */}
                     <div className="flex-1 w-full max-w-2xl lg:max-w-none relative">
-                        <div className="relative rounded-xl border border-border shadow-2xl bg-background overflow-hidden aspect-[16/10] group">
-                            {/* Browser Toolbar Mockup */}
-                            <div className="bg-muted border-b border-border h-10 flex items-center px-4 gap-2">
-                                <div className="flex gap-1.5">
-                                    <div className="w-3 h-3 rounded-full bg-red-400/80" />
-                                    <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                                    <div className="w-3 h-3 rounded-full bg-green-400/80" />
-                                </div>
-                                <div className="flex-1 mx-4 h-6 bg-background rounded-md border border-border/50 text-xs flex items-center px-3 text-muted-foreground">
-                                    linkedin.com/jobs/view/...
-                                </div>
-                            </div>
-
-                            {/* Content Area - Simulated Job Board Overlay */}
-                            <div className="relative p-6 bg-[#F3F2EF] dark:bg-card h-full flex flex-col gap-4">
-                                {/* Simulated Job Header */}
-                                <div className="h-24 w-full bg-white dark:bg-background rounded-lg border border-border p-4 shadow-sm flex gap-4">
-                                    <div className="w-16 h-16 bg-blue-100 rounded-md" />
-                                    <div className="space-y-2 flex-1">
-                                        <div className="h-5 w-1/2 bg-gray-200 dark:bg-muted rounded" />
-                                        <div className="h-3 w-1/3 bg-gray-200 dark:bg-muted rounded" />
-                                    </div>
-                                </div>
-
-                                {/* The Extension Floating Element */}
-                                <div className="absolute top-12 right-8 w-64 bg-background rounded-lg shadow-xl border border-primary/20 p-4 animate-in slide-in-from-right-10 duration-700 fade-in fill-mode-forwards z-20">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
-                                                <Zap className="w-3.5 h-3.5 text-primary-foreground" />
-                                            </div>
-                                            <span className="font-bold text-sm">TrackMyOPT</span>
-                                        </div>
-                                        <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium">H-1B Safe</span>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="text-xs text-muted-foreground">Role detected:</label>
-                                            <div className="text-sm font-medium">Software Engineer</div>
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-muted-foreground">Company:</label>
-                                            <div className="text-sm font-medium">TechCorp Inc.</div>
-                                        </div>
-                                        {/* Decorative mock control — not a real CTA */}
-                                        <div
-                                            aria-hidden
-                                            className="flex h-9 w-full items-center justify-center rounded-md bg-blue-700 text-xs font-medium text-white"
-                                        >
-                                            Save to Dashboard
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Cursor Graphic */}
-                                <div className="absolute top-[180px] right-[100px] pointer-events-none drop-shadow-xl z-30">
-                                    <svg className="w-8 h-8 fill-black stroke-white stroke-2" viewBox="0 0 32 32">
-                                        <path d="M12 24l-6-18 18 6-8 4-4 8z" />
-                                    </svg>
-                                </div>
-
-                            </div>
-                        </div>
+                        <ExtensionHeroVideo />
                     </div>
 
                 </div>
