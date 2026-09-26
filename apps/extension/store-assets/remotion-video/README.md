@@ -9,9 +9,10 @@ This is the local, code-driven video workflow requested by the owner. ChatGPT/Co
 - 8-second animated opening, 6-second ending, and 14 individually editable feature compositions.
 - DetailedWalkthrough: 120 seconds at the default timings, including 12-frame crossfades.
 - An actual silent opening MP4 in `out/trackmyopt-opening-preview.mp4` after rendering.
+- `ReleaseTour`: a 56-second edit with an animated opening, 42 seconds of Recordly footage from the verified 0.2.1 extension tour, and a closing card. The local render is `out/trackmyopt-v0.2.1-release-tour.mp4`.
 - Footage slots are explicitly labeled RECORDING NEEDED until Recordly exports are supplied.
-- No extension footage has been captured or supplied yet. This is an editable project and opening preview, not a finished product demo.
-- No narration/music has been added yet. Existing recordings are muted so accidental microphone audio does not enter the edit.
+- The separate 14-feature `DetailedWalkthrough` still needs recordings for its feature slots. The `ReleaseTour` shows the extension's interactive sample tour; it does not depict authenticated production workflows.
+- Local recordings and renders are ignored by Git. No narration/music has been added yet; recordings are muted so accidental microphone audio does not enter the edit.
 
 ## First recording
 
@@ -41,6 +42,7 @@ npm run studio --workspaces=false
 npm run typecheck --workspaces=false
 npm test --workspaces=false
 npm run render:opener --workspaces=false
+npm run render:release-tour --workspaces=false
 ```
 
 Studio: http://localhost:59768
@@ -59,6 +61,8 @@ npm run render:final --workspaces=false
 ```
 
 The final command checks that all footage exists, has been reviewed, and is long enough, then renders `out/trackmyopt-walkthrough.mp4`. It intentionally reports missing recordings at present. Direct Studio rendering is available for drafts and does not replace that final check.
+
+The release-tour cut uses `public/recordings/release-tour-0.2.1.mp4`. The source was recorded from the 0.2.1 unpacked release ZIP, with fictional data and no account login. It is a separate sample-tour video and is not evidence that authenticated application or API workflows were recorded. See [capture and edit notes](RELEASE-TOUR.md).
 
 Each feature is a separate Studio composition, such as `Feature-prefill`. To export an individual reviewed feature:
 

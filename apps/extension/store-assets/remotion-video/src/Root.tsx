@@ -4,8 +4,17 @@ import { Opening } from './Opening';
 import { Closing } from './Closing';
 import { Feature } from './Feature';
 import { Walkthrough, totalFrames } from './Walkthrough';
+import { ReleaseTour, releaseTourFrames } from './ReleaseTour';
 export const Root = () => (
   <>
+    <Composition
+      id="ReleaseTour"
+      component={ReleaseTour}
+      durationInFrames={releaseTourFrames}
+      fps={plan.fps}
+      width={1920}
+      height={1080}
+    />
     <Composition
       id="DetailedWalkthrough"
       component={Walkthrough}

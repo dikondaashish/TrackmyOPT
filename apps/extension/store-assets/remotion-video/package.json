@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test scripts/preflight.test.mjs",
     "render:opener": "remotion render src/index.ts Opening out/trackmyopt-opening-preview.mp4 --codec=h264",
+    "render:release-tour": "node -e \"require('node:fs').statSync('public/recordings/release-tour-0.2.1.mp4')\" && remotion render src/index.ts ReleaseTour out/trackmyopt-v0.2.1-release-tour.mp4 --codec=h264",
     "render:final": "node scripts/preflight.mjs && remotion render src/index.ts DetailedWalkthrough out/trackmyopt-walkthrough.mp4 --codec=h264",
     "preflight": "node scripts/preflight.mjs"
   },
