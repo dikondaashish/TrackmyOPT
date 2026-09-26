@@ -49,11 +49,9 @@ export default function ResumeGeneratorPage() {
     // Job Description state
     // Job state
     const [jobUrl, setJobUrl] = useState("");
-    const jobFileInputRef = useRef<HTMLInputElement>(null);
 
     // UI state
     const [isResumeUploading, setIsResumeUploading] = useState(false);
-    const [isJobUploading, setIsJobUploading] = useState(false);
     const [isResumeUrlProcessing, setIsResumeUrlProcessing] = useState(false);
     const [isJobUrlProcessing, setIsJobUrlProcessing] = useState(false);
     const [errors, setErrors] = useState<{ resume?: string; job?: string }>({});
@@ -67,7 +65,6 @@ export default function ResumeGeneratorPage() {
 
     // OCR state
     const [resumeOcr, setResumeOcr] = useState<OcrStatus>({ show: false, running: false });
-    const [jobOcr, setJobOcr] = useState<OcrStatus>({ show: false, running: false });
 
     useEffect(() => {
         async function fetchUsage() {
@@ -324,10 +321,9 @@ export default function ResumeGeneratorPage() {
     };
 
     // File upload handler
-    const handleFileUpload = async (file: File, type: "resume" | "job") => {
-        const setUploading = type === "resume" ? setIsResumeUploading : setIsJobUploading;
-        setUploading(true);
-        setErrors(prev => ({ ...prev, [type]: undefined }));
+    const handleFileUpload = async (file: File) => {
+        setIsResumeUploading(true);
+        setErrors(prev => ({ ...prev, resume: undefined }));
 
         try {
             const formData = new FormData();
@@ -341,25 +337,20 @@ export default function ResumeGeneratorPage() {
             const result = await response.json();
 
             if (result.success) {
-                if (type === "resume") {
-                    setResumeText(result.text, result.filename);
-                    setResumeName(result.filename);
-                    setResumeOcr({ show: false, running: false });
+                setResumeText(result.text, result.filename);
+                setResumeName(result.filename);
+                setResumeOcr({ show: false, running: false });
 
-                    if (result.truncated) {
-                        toast({
-                            title: "Resume trimmed",
-                            description: `Extracted text was shortened from ${Number(result.originalLength || result.length).toLocaleString()} to ${Number(result.length).toLocaleString()} characters for AI processing.`,
-                        });
-                    }
+                if (result.truncated) {
+                    toast({
+                        title: "Resume trimmed",
+                        description: `Extracted text was shortened from ${Number(result.originalLength || result.length).toLocaleString()} to ${Number(result.length).toLocaleString()} characters for AI processing.`,
+                    });
+                }
 
-                    // Auto-save if checked
-                    if (saveResume) {
-                        handleSaveResume(result.text, result.filename, result.s3Key);
-                    }
-                } else {
-                    setJobDescription(result.text, result.filename);
-                    setJobOcr({ show: false, running: false });
+                // Auto-save if checked
+                if (saveResume) {
+                    handleSaveResume(result.text, result.filename, result.s3Key);
                 }
             } else if (result.error === "pdf_no_extractable_text" && result.can_ocr) {
                 // Show OCR prompt for scanned PDFs
@@ -369,20 +360,16 @@ export default function ResumeGeneratorPage() {
                     fileBuffer: result.fileBuffer,
                     filename: result.filename,
                 };
-                if (type === "resume") {
-                    setResumeOcr(ocrData);
-                    setResumeName(result.filename);
-                } else {
-                    setJobOcr(ocrData);
-                }
-                setErrors(prev => ({ ...prev, [type]: undefined }));
+                setResumeOcr(ocrData);
+                setResumeName(result.filename);
+                setErrors(prev => ({ ...prev, resume: undefined }));
             } else {
-                setErrors(prev => ({ ...prev, [type]: result.message || result.error }));
+                setErrors(prev => ({ ...prev, resume: result.message || result.error }));
             }
         } catch (_error) {
-            setErrors(prev => ({ ...prev, [type]: "Upload failed. Please try again." }));
+            setErrors(prev => ({ ...prev, resume: "Upload failed. Please try again." }));
         } finally {
-            setUploading(false);
+            setIsResumeUploading(false);
         }
     };
 
@@ -436,18 +423,16 @@ export default function ResumeGeneratorPage() {
     const clearJob = () => {
         setJobDescription("");
         setErrors(prev => ({ ...prev, job: undefined }));
-        if (jobFileInputRef.current) jobFileInputRef.current.value = "";
     };
 
     // OCR handlers - Uses direct synchronous OCR (no queue/polling)
-    const startOcr = async (type: "resume" | "job") => {
-        const ocrInfo = type === "resume" ? resumeOcr : jobOcr;
-        const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
+    const startOcr = async () => {
+        const ocrInfo = resumeOcr;
 
         if (!ocrInfo.fileBuffer) return;
 
-        setOcr(prev => ({ ...prev, running: true }));
-        setErrors(prev => ({ ...prev, [type]: undefined }));
+        setResumeOcr(prev => ({ ...prev, running: true }));
+        setErrors(prev => ({ ...prev, resume: undefined }));
 
         try {
             // Use direct OCR endpoint (synchronous, no queue)
@@ -466,30 +451,25 @@ export default function ResumeGeneratorPage() {
 
             if (result.ok && result.text) {
                 // Update data with extracted text
-                if (type === "resume") {
-                    setResumeText(result.text, result.filename);
+                setResumeText(result.text, result.filename);
 
-                    // Auto-save if checked
-                    if (saveResume) {
-                        handleSaveResume(result.text, result.filename);
-                    }
-                } else {
-                    setJobDescription(result.text, result.filename);
+                // Auto-save if checked
+                if (saveResume) {
+                    handleSaveResume(result.text, result.filename);
                 }
-                setOcr({ show: false, running: false });
+                setResumeOcr({ show: false, running: false });
             } else {
-                setOcr(prev => ({ ...prev, running: false }));
-                setErrors(prev => ({ ...prev, [type]: result.message || result.error || "OCR failed" }));
+                setResumeOcr(prev => ({ ...prev, running: false }));
+                setErrors(prev => ({ ...prev, resume: result.message || result.error || "OCR failed" }));
             }
         } catch (_error) {
-            setOcr(prev => ({ ...prev, running: false }));
-            setErrors(prev => ({ ...prev, [type]: "OCR failed. Please paste text manually." }));
+            setResumeOcr(prev => ({ ...prev, running: false }));
+            setErrors(prev => ({ ...prev, resume: "OCR failed. Please paste text manually." }));
         }
     };
 
-    const cancelOcr = (type: "resume" | "job") => {
-        const setOcr = type === "resume" ? setResumeOcr : setJobOcr;
-        setOcr({ show: false, running: false });
+    const cancelOcr = () => {
+        setResumeOcr({ show: false, running: false });
     };
 
     // Navigate to template selection
@@ -510,14 +490,7 @@ export default function ResumeGeneratorPage() {
         e.preventDefault();
         e.stopPropagation();
         const file = e.dataTransfer.files?.[0];
-        if (file) handleFileUpload(file, "resume");
-    };
-
-    const handleJobDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const file = e.dataTransfer.files?.[0];
-        if (file) handleFileUpload(file, "job");
+        if (file) handleFileUpload(file);
     };
 
     const canProceed = hasResumeGenerationInputs(resumeText, jobDescription);
@@ -563,15 +536,15 @@ export default function ResumeGeneratorPage() {
                         onOpenSaved={() => router.push("/dashboard/career/saved-resumes")}
                         error={errors.resume}
                         ocr={resumeOcr}
-                        onStartOcr={() => startOcr("resume")}
-                        onCancelOcr={() => cancelOcr("resume")}
+                        onStartOcr={() => startOcr()}
+                        onCancelOcr={() => cancelOcr()}
                         isUploading={isResumeUploading}
                         url={resumeUrl}
                         onUrlChange={setResumeUrl}
                         isUrlProcessing={isResumeUrlProcessing}
                         onUrlProcess={() => handleUrlProcess(resumeUrl, "resume")}
                         fileInputRef={resumeFileInputRef}
-                        onFileUpload={(file) => handleFileUpload(file, "resume")}
+                        onFileUpload={(file) => handleFileUpload(file)}
                         onDragOver={handleDragOver}
                         onFileDrop={handleResumeDrop}
                     />
@@ -583,18 +556,10 @@ export default function ResumeGeneratorPage() {
                         onAlignJobTitlesChange={setAlignJobTitles}
                         onClear={clearJob}
                         error={errors.job}
-                        ocr={jobOcr}
-                        onStartOcr={() => startOcr("job")}
-                        onCancelOcr={() => cancelOcr("job")}
-                        isUploading={isJobUploading}
                         url={jobUrl}
                         onUrlChange={setJobUrl}
                         isUrlProcessing={isJobUrlProcessing}
                         onUrlProcess={() => handleUrlProcess(jobUrl, "job")}
-                        fileInputRef={jobFileInputRef}
-                        onFileUpload={(file) => handleFileUpload(file, "job")}
-                        onDragOver={handleDragOver}
-                        onFileDrop={handleJobDrop}
                     />
                 </div>
 

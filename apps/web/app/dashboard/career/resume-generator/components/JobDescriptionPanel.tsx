@@ -1,6 +1,5 @@
 "use client";
 
-import { RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,13 +12,11 @@ import {
     XCircle,
     AlertCircle,
     X,
-    Upload,
     Link2,
     HelpCircle,
     Lightbulb,
 } from "lucide-react";
 import { extractJobTitle } from "@/lib/resume/extract-job-title";
-import { OcrProcessingCard, type OcrStatus } from "./OcrProcessingCard";
 
 export type JobDescriptionPanelProps = {
     text: string;
@@ -29,18 +26,10 @@ export type JobDescriptionPanelProps = {
     onAlignJobTitlesChange: (value: boolean) => void;
     onClear: () => void;
     error?: string;
-    ocr: OcrStatus;
-    onStartOcr: () => void;
-    onCancelOcr: () => void;
-    isUploading: boolean;
     url: string;
     onUrlChange: (value: string) => void;
     isUrlProcessing: boolean;
     onUrlProcess: () => void;
-    fileInputRef: RefObject<HTMLInputElement | null>;
-    onFileUpload: (file: File) => void;
-    onDragOver: (e: React.DragEvent) => void;
-    onFileDrop: (e: React.DragEvent) => void;
 };
 
 export function JobDescriptionPanel({
@@ -51,18 +40,10 @@ export function JobDescriptionPanel({
     onAlignJobTitlesChange,
     onClear,
     error,
-    ocr,
-    onStartOcr,
-    onCancelOcr,
-    isUploading,
     url,
     onUrlChange,
     isUrlProcessing,
     onUrlProcess,
-    fileInputRef,
-    onFileUpload,
-    onDragOver,
-    onFileDrop,
 }: JobDescriptionPanelProps) {
     return (
         <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
@@ -71,14 +52,15 @@ export function JobDescriptionPanel({
                     <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Job Description</h2>
-                    <p className="text-xs text-gray-500">Paste the job posting you're applying for</p>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100" id="job-description-heading">Paste the job description</h2>
+                    <p className="text-xs text-gray-500">Copy the posting from the job board or company website.</p>
                 </div>
             </div>
 
             {/* Text Area */}
             <div className="relative">
                 <textarea
+                    aria-labelledby="job-description-heading"
                     value={text}
                     onChange={(e) => onTextChange(e.target.value)}
                     onBlur={() => {
@@ -159,89 +141,43 @@ export function JobDescriptionPanel({
                 </div>
             )}
 
-            <OcrProcessingCard
-                ocr={ocr}
-                accent="amber"
-                onStart={onStartOcr}
-                onCancel={onCancelOcr}
-            />
-
-            {/* File Upload Area */}
-            <div
-                onDragOver={onDragOver}
-                onDrop={onFileDrop}
-                onClick={() => fileInputRef.current?.click()}
-                onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        fileInputRef.current?.click();
-                    }
-                }}
-                role="button"
-                tabIndex={0}
-                aria-label="Upload a job description file"
-                className="mt-4 p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/30 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 transition-all cursor-pointer group"
-            >
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.doc,.docx,.txt"
-                    onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) onFileUpload(file);
-                    }}
-                    className="hidden"
-                />
-                <div className="flex flex-col items-center text-center">
-                    {isUploading ? (
-                        <Loader2 className="w-8 h-8 text-amber-500 animate-spin mb-2" />
-                    ) : (
-                        <Upload className="w-7 h-7 text-gray-400 dark:text-gray-500 group-hover:text-amber-500 transition-colors mb-2" />
-                    )}
-                    <p className="text-sm">
-                        <span className="text-amber-600 dark:text-amber-400 font-medium">
-                            {isUploading ? "Processing..." : "Upload a file"}
-                        </span>
-                        {!isUploading && <span className="text-gray-500 dark:text-gray-400"> or drag and drop</span>}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                        PDF, DOC, DOCX, TXT (max 10MB)
-                    </p>
-                </div>
-            </div>
-
-            {/* URL Input */}
-            <div className="mt-4 flex gap-2">
-                <Input
-                    value={url}
-                    onChange={(e) => onUrlChange(e.target.value)}
-                    placeholder="Or enter job posting URL (Indeed, Glassdoor, etc.)"
-                    className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter" && url.trim()) {
-                            onUrlProcess();
-                        }
-                    }}
-                />
-                <Button
-                    onClick={onUrlProcess}
-                    disabled={!url.trim() || isUrlProcessing}
-                    className="bg-amber-500 hover:bg-amber-600 text-white px-3"
-                >
-                    {isUrlProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}
-                </Button>
-                <div className="relative group">
-                    <Button variant="ghost" size="icon" className="text-gray-400">
-                        <HelpCircle className="w-4 h-4" />
+            <details className="mt-4">
+                <summary className="cursor-pointer text-sm font-medium text-amber-700 dark:text-amber-400">Import from a link instead</summary>
+                <div className="mt-3 flex gap-2">
+                    <Input
+                        value={url}
+                        onChange={(e) => onUrlChange(e.target.value)}
+                        aria-label="Job posting URL"
+                        placeholder="https://company.com/careers/job"
+                        className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && url.trim()) {
+                                onUrlProcess();
+                            }
+                        }}
+                    />
+                    <Button
+                        aria-label="Import job description from link"
+                        onClick={onUrlProcess}
+                        disabled={!url.trim() || isUrlProcessing}
+                        className="bg-amber-500 hover:bg-amber-600 text-white px-3"
+                    >
+                        {isUrlProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Link2 className="w-4 h-4" />}
                     </Button>
-                    <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                        <div className="font-medium mb-1">Supported URLs:</div>
-                        <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" /> Indeed, Glassdoor, ZipRecruiter</div>
-                        <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" /> Company career pages</div>
-                        <div className="flex items-center gap-1.5"><XCircle className="w-3 h-3 text-red-400 shrink-0" /> LinkedIn (copy text manually)</div>
+                    <div className="relative group">
+                        <Button variant="ghost" size="icon" className="text-gray-400" aria-label="Supported job posting links">
+                            <HelpCircle className="w-4 h-4" />
+                        </Button>
+                        <div className="absolute bottom-full right-0 mb-2 p-3 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                            <div className="font-medium mb-1">Supported URLs:</div>
+                            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" /> Indeed, Glassdoor, ZipRecruiter</div>
+                            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" /> Company career pages</div>
+                            <div className="flex items-center gap-1.5"><XCircle className="w-3 h-3 text-red-400 shrink-0" /> LinkedIn (copy text manually)</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+            </details>
 
             {/* Tip */}
             <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
