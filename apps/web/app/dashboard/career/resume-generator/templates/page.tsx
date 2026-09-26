@@ -14,11 +14,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { TemplatePreviewModal } from "./TemplatePreviewModal";
-import { TemplatePdfPreview } from "./TemplatePdfPreview";
+import dynamic from "next/dynamic";
+import { TemplateThumbnail } from "./TemplateThumbnail";
 import { useResumeStore } from "@/store/resume-store";
 import { RESUME_TEMPLATES, Template, TemplateColor, DEFAULT_RESUME_TEMPLATE_ID } from "@/lib/documents/templates";
 import { hasResumeGenerationInputs } from "@/lib/resume/generation-inputs";
+
+const TemplatePreviewModal = dynamic(() => import("./TemplatePreviewModal").then((module) => module.TemplatePreviewModal));
 
 /** Soft tint behind the card copy only — never applied to the resume preview. */
 const TEMPLATE_INFO_BG: Record<string, string> = {
@@ -137,7 +139,7 @@ export default function TemplateSelectionPage() {
 
                 {/* Template Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-w-0">
-                    {RESUME_TEMPLATES.map((template) => (
+                    {RESUME_TEMPLATES.map((template, index) => (
                         <Card
                             key={template.id}
                             onClick={() => handleSelectTemplate(template.id)}
@@ -149,10 +151,10 @@ export default function TemplateSelectionPage() {
                             {/* Preview Area — the real compiled template, page 1 */}
                             <div className="relative bg-gray-100 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 p-3 overflow-hidden">
                                 <div className="rounded-md shadow-md ring-1 ring-black/10 overflow-hidden bg-white">
-                                    <TemplatePdfPreview
+                                    <TemplateThumbnail
                                         templateId={template.id}
-                                        maxPages={1}
-                                        compact
+                                        name={template.name}
+                                        eager={index < 3}
                                     />
                                 </div>
 
@@ -241,12 +243,12 @@ export default function TemplateSelectionPage() {
             </div>
 
             {/* Preview Modal */}
-            <TemplatePreviewModal
+            {previewTemplate && <TemplatePreviewModal
                 isOpen={!!previewTemplate}
                 onClose={() => setPreviewTemplate(null)}
                 template={previewTemplate}
                 onSelect={(id, color) => handleContinue(id, color)}
-            />
+            />}
         </div>
     );
 }

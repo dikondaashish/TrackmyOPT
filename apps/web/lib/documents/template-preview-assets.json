@@ -1,0 +1,44 @@
+{
+  "modern": {
+    "sourceHash": "96fd9fd9efebd8b038593809ccc9b341567ad0997ce80ca1b4110d587242fee7",
+    "pdf": "/template-previews/modern-96fc42c606c838a5.pdf",
+    "image": "/template-previews/modern-8f7622298885469b.webp",
+    "width": 960,
+    "height": 1243
+  },
+  "tech": {
+    "sourceHash": "e9690463577773e5c4dad9a58824211c350629d90731bc5b56a23daf00c7dd03",
+    "pdf": "/template-previews/tech-799de0ee8a6c29aa.pdf",
+    "image": "/template-previews/tech-e9867cbf7f243960.webp",
+    "width": 960,
+    "height": 1243
+  },
+  "professional": {
+    "sourceHash": "3db44f742a3d71b355fcf8cb18c108692c037d589017434d6f32ef61d106c365",
+    "pdf": "/template-previews/professional-33aad1623860970d.pdf",
+    "image": "/template-previews/professional-18b1161aee08b2fa.webp",
+    "width": 960,
+    "height": 1243
+  },
+  "executive": {
+    "sourceHash": "07c3d4cdd83e9e171b56065c3169869b572266513ba510373ea48024e216d12f",
+    "pdf": "/template-previews/executive-ba62308542508872.pdf",
+    "image": "/template-previews/executive-75be7962f52645cc.webp",
+    "width": 960,
+    "height": 1243
+  },
+  "academic": {
+    "sourceHash": "d48184e8d9662cbf7f3f4b013c1fa1ca780e499087e918dc4e51053e247f89e6",
+    "pdf": "/template-previews/academic-7d003ac6a671e81b.pdf",
+    "image": "/template-previews/academic-4bf7f1f40bd531ab.webp",
+    "width": 960,
+    "height": 1243
+  },
+  "creative": {
+    "sourceHash": "ddf0382f795e01de414ea6e0e89e14b355ea30abda07d7761ecbbb2399f65748",
+    "pdf": "/template-previews/creative-303adad8d61e437a.pdf",
+    "image": "/template-previews/creative-f13f69996d0f6a6c.webp",
+    "width": 960,
+    "height": 1243
+  }
+}

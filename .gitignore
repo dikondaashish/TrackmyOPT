@@ -6,6 +6,8 @@ node_modules/
 # Testing
 coverage/
 *.pdf
+# Public fictional resume samples used by the template picker
+!apps/web/public/template-previews/*.pdf
 playwright-report/
 test-results/
 

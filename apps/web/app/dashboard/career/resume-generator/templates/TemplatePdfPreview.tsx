@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertCircle, FileText } from "lucide-react";
 
-import type { PDFDocumentProxy } from "pdfjs-dist";
+import previewAssets from "@/lib/documents/template-preview-assets.json";
+import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 
 type PdfPage = { pageNumber: number; width: number; height: number };
 
@@ -51,30 +52,6 @@ function previewRenderDpr(
     return Math.max(1, Math.min(neededDpr, maxDpr));
 }
 
-// ponytail: global slot cap, raise if the compiler is dedicated and idle
-const MAX_PARALLEL_PREVIEWS = 2;
-let activePreviews = 0;
-const previewWaiters: Array<() => void> = [];
-
-function acquirePreviewSlot(): Promise<void> {
-    if (activePreviews < MAX_PARALLEL_PREVIEWS) {
-        activePreviews += 1;
-        return Promise.resolve();
-    }
-    return new Promise((resolve) => {
-        previewWaiters.push(() => {
-            activePreviews += 1;
-            resolve();
-        });
-    });
-}
-
-function releasePreviewSlot(): void {
-    activePreviews = Math.max(0, activePreviews - 1);
-    const next = previewWaiters.shift();
-    if (next) next();
-}
-
 let pdfjsLoader: Promise<typeof import("pdfjs-dist/legacy/build/pdf.mjs")> | null = null;
 
 function loadPdfjs() {
@@ -85,6 +62,9 @@ function loadPdfjs() {
                 import.meta.url
             ).toString();
             return pdfjs;
+        }).catch((error) => {
+            pdfjsLoader = null;
+            throw error;
         });
     }
     return pdfjsLoader;
@@ -98,18 +78,14 @@ function fetchPreviewPdf(templateId: string): Promise<ArrayBuffer> {
     if (pending) return pending.then(copyArrayBuffer);
 
     const task = (async () => {
-        await acquirePreviewSlot();
-        try {
-            const res = await fetch(
-                `/api/resume-generator/template-preview?templateId=${encodeURIComponent(templateId)}`
-            );
-            if (!res.ok) throw new Error(`Preview request failed: ${res.status}`);
-            const buffer = await res.arrayBuffer();
-            previewBytesCache.set(templateId, buffer);
-            return buffer;
-        } finally {
-            releasePreviewSlot();
-        }
+        const res = await fetch(
+            (previewAssets as Record<string, { pdf: string }>)[templateId].pdf,
+            { signal: AbortSignal.timeout(20_000) }
+        );
+        if (!res.ok) throw new Error(`Preview request failed: ${res.status}`);
+        const buffer = await res.arrayBuffer();
+        previewBytesCache.set(templateId, buffer);
+        return buffer;
     })();
 
     const shared = task.then(copyArrayBuffer);
@@ -121,8 +97,7 @@ function fetchPreviewPdf(templateId: string): Promise<ArrayBuffer> {
 
 /**
  * Renders a template's demo PDF — the actual compiled output of the .tex file —
- * with pdf.js. The selection card and the quick-view modal both use this, so
- * what a user sees while choosing is exactly what generation produces.
+ * with pdf.js only when Quick Preview opens. Cards use static WebP thumbnails.
  */
 export function TemplatePdfPreview({
     templateId,
@@ -137,6 +112,8 @@ export function TemplatePdfPreview({
     const generationRef = useRef(0);
     const onPageCountRef = useRef(onPageCount);
 
+    const [attempt, setAttempt] = useState(0);
+    const renderTasks = useRef<RenderTask[]>([]);
     const [pages, setPages] = useState<PdfPage[]>([]);
 
     useEffect(() => {
@@ -144,7 +121,6 @@ export function TemplatePdfPreview({
     }, [onPageCount]);
     const [containerWidth, setContainerWidth] = useState(0);
     const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-    const [inView, setInView] = useState(!compact);
 
     useEffect(() => {
         const el = containerRef.current;
@@ -158,25 +134,6 @@ export function TemplatePdfPreview({
     }, []);
 
     useEffect(() => {
-        if (!compact) {
-            setInView(true);
-            return;
-        }
-        const el = containerRef.current;
-        if (!el) return;
-        const io = new IntersectionObserver(
-            ([entry]) => {
-                if (entry?.isIntersecting) setInView(true);
-            },
-            { root: null, rootMargin: "240px 0px", threshold: 0 }
-        );
-        io.observe(el);
-        return () => io.disconnect();
-    }, [compact]);
-
-    useEffect(() => {
-        if (!inView) return;
-
         let cancelled = false;
         const generation = ++generationRef.current;
 
@@ -224,9 +181,9 @@ export function TemplatePdfPreview({
         return () => {
             cancelled = true;
         };
-    }, [templateId, maxPages, inView]);
+    }, [templateId, maxPages, attempt]);
 
-    const paint = useCallback(async () => {
+    const paint = useCallback(async (isCancelled: () => boolean) => {
         const doc = pdfDocRef.current;
         if (!doc || pages.length === 0 || containerWidth <= 0) return;
 
@@ -239,6 +196,7 @@ export function TemplatePdfPreview({
             const scale = cssWidth / meta.width;
             const dpr = previewRenderDpr(cssWidth, meta.width, compact);
             const page = await doc.getPage(meta.pageNumber);
+            if (isCancelled()) return;
             const viewport = page.getViewport({ scale: scale * dpr });
 
             canvas.width = viewport.width;
@@ -249,12 +207,25 @@ export function TemplatePdfPreview({
 
             const ctx = canvas.getContext("2d", { alpha: false });
             if (!ctx) continue;
-            await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+            const task = page.render({ canvasContext: ctx, viewport, canvas });
+            renderTasks.current.push(task);
+            await task.promise;
         }
     }, [pages, containerWidth, zoom, compact]);
 
     useEffect(() => {
-        void paint();
+        let cancelled = false;
+        void paint(() => cancelled).catch((error) => {
+            if (!cancelled) {
+                console.error("[TemplatePdfPreview] render", error);
+                setStatus("error");
+            }
+        });
+        return () => {
+            cancelled = true;
+            renderTasks.current.forEach((task) => task.cancel());
+            renderTasks.current = [];
+        };
     }, [paint]);
 
     useEffect(() => {
@@ -287,6 +258,7 @@ export function TemplatePdfPreview({
                     <p className={compact ? "text-[10px] text-center leading-tight" : "text-sm text-center"}>
                         Preview unavailable
                     </p>
+                    <button type="button" className="text-sm underline" onClick={() => { previewBytesCache.delete(templateId); setAttempt((value) => value + 1); }}>Retry preview</button>
                 </div>
             )}
 

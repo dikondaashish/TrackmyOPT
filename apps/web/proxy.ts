@@ -182,6 +182,6 @@ export const config = {
      * Host canonicalization (zyene.com, trackmyopt.com → www.trackmyopt.com)
      * must run on marketing pages too — not only dashboard/API.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
+    '/((?!_next/static|_next/image|template-previews/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
   ],
 };
