@@ -13,38 +13,50 @@ import {
 import { setPostHogAnalyticsConsent } from '@/lib/posthog/posthog-browser';
 import { loadAdSense } from '@/lib/adsense';
 
-const GA_ID = 'G-LD9XN0RHXH';
+const GA_ID = 'G-SC3M6PN10V';
 
 type GoogleConsentWindow = Window & {
   gtag?: (...args: unknown[]) => void;
+  dataLayer?: IArguments[];
+  googleConsentInitialized?: boolean;
 };
+
+function updateGoogleConsent(accepted: boolean) {
+  const googleWindow = window as GoogleConsentWindow;
+  googleWindow.dataLayer ??= [];
+  googleWindow.gtag ??= function () {
+    // Google's gtag queue uses Arguments objects, not ordinary dataLayer event arrays.
+    // eslint-disable-next-line prefer-rest-params
+    googleWindow.dataLayer!.push(arguments);
+  };
+  const consentState = (value: 'granted' | 'denied') => ({
+    ad_storage: value,
+    ad_user_data: value,
+    ad_personalization: value,
+    analytics_storage: value,
+  });
+  if (!googleWindow.googleConsentInitialized) {
+    googleWindow.gtag('consent', 'default', consentState('denied'));
+    googleWindow.googleConsentInitialized = true;
+  }
+  googleWindow.gtag('consent', 'update', consentState(accepted ? 'granted' : 'denied'));
+}
 
 function loadGA4() {
   try {
     if (document.getElementById('ga4-script')) return;
+    const googleWindow = window as GoogleConsentWindow;
+    googleWindow.gtag?.('js', new Date());
+    googleWindow.gtag?.('config', GA_ID);
     const script = document.createElement('script');
     script.id = 'ga4-script';
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
     script.crossOrigin = 'anonymous';
     document.head.appendChild(script);
-    const init = document.createElement('script');
-    init.id = 'ga4-init';
-    init.textContent = `try{window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');}catch(e){console.warn('Third-party init failed: GA4',e);}`;
-    document.head.appendChild(init);
   } catch (error) {
     console.warn('Third-party init failed: GA4', error);
   }
-}
-
-function denyGoogleBrowserTracking() {
-  const googleWindow = window as GoogleConsentWindow;
-  googleWindow.gtag?.('consent', 'update', {
-    ad_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    analytics_storage: 'denied',
-  });
 }
 
 function isDashboardPath(pathname: string | null): boolean {
@@ -66,6 +78,7 @@ export function CookieConsent({
   useEffect(() => {
     const stored = getStoredCookieConsent();
     setConsent(stored);
+    updateGoogleConsent(stored === 'accepted');
     if (stored === 'accepted') {
       try {
         setPostHogAnalyticsConsent(true);
@@ -95,6 +108,7 @@ export function CookieConsent({
 
   const handleAccept = useCallback(() => {
     setStoredCookieConsent('accepted');
+    updateGoogleConsent(true);
     setConsent('accepted');
     setVisible(false);
     try {
@@ -112,7 +126,7 @@ export function CookieConsent({
     setConsent('declined');
     setVisible(false);
     setPostHogAnalyticsConsent(false);
-    denyGoogleBrowserTracking();
+    updateGoogleConsent(false);
 
     // Google and advertising scripts may already be active after Accept All.
     // Reload once so the page restarts without loading any optional browser tags.

@@ -39,6 +39,8 @@ describe('CookieConsent', () => {
     document.getElementById('ga4-init')?.remove();
     document.getElementById('adsense-script')?.remove();
     delete (window as Window & { gtag?: unknown }).gtag;
+    delete (window as Window & { dataLayer?: unknown }).dataLayer;
+    delete (window as Window & { googleConsentInitialized?: unknown }).googleConsentInitialized;
   });
 
   afterEach(() => {
@@ -77,7 +79,7 @@ describe('CookieConsent', () => {
     expect(postHogConsent).toHaveBeenLastCalledWith(true);
     expect(document.getElementById('ga4-script')).toHaveAttribute(
       'src',
-      expect.stringContaining('googletagmanager.com')
+      'https://www.googletagmanager.com/gtag/js?id=G-SC3M6PN10V'
     );
     expect(document.getElementById('adsense-script')).toHaveAttribute(
       'src',
@@ -156,4 +158,31 @@ describe('CookieConsent', () => {
     expect(localStorage.getItem(COOKIE_CONSENT_KEY)).toBe('accepted');
     expect(reloadPage).not.toHaveBeenCalled();
   });
+  it('queues denied defaults and granted consent before configuring the tag only once', () => {
+    storeChoice('accepted');
+    const { unmount } = render(<CookieConsent />);
+    const commands = (window as Window & { dataLayer?: IArguments[] }).dataLayer!.map((entry) => Array.from(entry));
+    expect(commands[0]).toEqual(['consent', 'default', {
+      ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied',
+    }]);
+    expect(commands[1]).toEqual(['consent', 'update', {
+      ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted',
+    }]);
+    expect(commands[3]).toEqual(['config', 'G-SC3M6PN10V']);
+    unmount();
+    render(<CookieConsent />);
+    const updated = (window as Window & { dataLayer?: IArguments[] }).dataLayer!.map((entry) => Array.from(entry));
+    expect(updated.filter((entry) => entry[0] === 'config')).toHaveLength(1);
+    expect(document.querySelectorAll('#ga4-script')).toHaveLength(1);
+  });
+
+  it('loads the new tag only after a visitor accepts', () => {
+    render(<CookieConsent />);
+    act(() => { vi.advanceTimersByTime(1_500); });
+    expect(document.getElementById('ga4-script')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Accept All' }));
+    expect(document.getElementById('ga4-script')).toHaveAttribute('src', 'https://www.googletagmanager.com/gtag/js?id=G-SC3M6PN10V');
+    expect(localStorage.getItem(COOKIE_CONSENT_KEY)).toBe('accepted');
+  });
+
 });
