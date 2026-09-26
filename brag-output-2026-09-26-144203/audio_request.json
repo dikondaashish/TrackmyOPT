@@ -1,0 +1,114 @@
+{
+  "provider": "gemini",
+  "tts_model": "gemini-3.8-flash-tts",
+  "voice": "Charon",
+  "lang": "en",
+  "style": "Polished, friendly product-demo narration. Clear articulation, natural warmth, restrained enthusiasm. Brisk, natural pace around 155 words per minute.",
+  "lines": [
+    {
+      "id": "intro",
+      "start": 0,
+      "end": 4.5,
+      "text": "Introducing Track My O P T. Your Chrome extension."
+    },
+    {
+      "id": "01",
+      "start": 4.5,
+      "end": 7.344444,
+      "text": "Prefill your application. Then review."
+    },
+    {
+      "id": "02",
+      "start": 7.344444,
+      "end": 18.722222,
+      "text": "Open Track My O P T in Chrome. Choose O P T Clock, enter your E A D start date, and save. See unemployment days used and remaining, and manage daily reminders."
+    },
+    {
+      "id": "03",
+      "start": 18.722222,
+      "end": 25.566667,
+      "text": "For STEM, enter your E A D start date. Save to see cumulative unemployment days used and remaining."
+    },
+    {
+      "id": "04",
+      "start": 25.566667,
+      "end": 32.588889,
+      "text": "O P T Apply Dates uses your program end date and optional D S O recommendation date to show your filing window."
+    },
+    {
+      "id": "05",
+      "start": 32.588889,
+      "end": 39.522222,
+      "text": "For STEM Apply Dates, enter your current O P T expiry and recommendation dates. Calculate your window and countdown."
+    },
+    {
+      "id": "06",
+      "start": 39.522222,
+      "end": 41.744444,
+      "text": "Check case status at a glance."
+    },
+    {
+      "id": "07",
+      "start": 41.744444,
+      "end": 47.522222,
+      "text": "Prefill supported application fields, review your answers, and check the posting\u2019s sponsorship signal."
+    },
+    {
+      "id": "08",
+      "start": 47.522222,
+      "end": 53.211111,
+      "text": "Save roles to Wishlist or Applied, then open them in your tracker."
+    },
+    {
+      "id": "09",
+      "start": 53.211111,
+      "end": 57.566667,
+      "text": "Analyze your r\u00e9sum\u00e9 against the posting. Review matching keywords and gaps."
+    },
+    {
+      "id": "10",
+      "start": 57.566667,
+      "end": 67.077778,
+      "text": "Create a tailored r\u00e9sum\u00e9. Check the job description, choose a saved, pasted, or uploaded r\u00e9sum\u00e9 and template, then follow progress. Download the P D F or edit."
+    },
+    {
+      "id": "11",
+      "start": 67.077778,
+      "end": 71.433333,
+      "text": "Generate a cover letter, review the draft, and save your edits."
+    },
+    {
+      "id": "12",
+      "start": 71.433333,
+      "end": 74.011111,
+      "text": "Manage saved answers for future applications."
+    },
+    {
+      "id": "13",
+      "start": 74.011111,
+      "end": 80.144444,
+      "text": "Choose step-by-step or continuous prefill. Guided Autopilot helps navigate steps, without clicking Submit."
+    },
+    {
+      "id": "14",
+      "start": 80.144444,
+      "end": 82.1,
+      "text": "Expand or minimize the sidebar."
+    },
+    {
+      "id": "15",
+      "start": 82.1,
+      "end": 84.5,
+      "text": "Track My O P T for Chrome."
+    },
+    {
+      "id": "outro",
+      "start": 84.5,
+      "end": 90,
+      "text": "Thanks for watching. Start using Track My O P T today."
+    }
+  ],
+  "bgm": {
+    "mode": "none"
+  }
+}

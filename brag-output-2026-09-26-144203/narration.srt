@@ -1,0 +1,67 @@
+1
+00:00:00,060 --> 00:00:03,493
+Introducing TrackMyOPT. Your Chrome extension.
+
+2
+00:00:04,560 --> 00:00:07,109
+Prefill your application. Then review.
+
+3
+00:00:07,404 --> 00:00:18,516
+Open TrackMyOPT in Chrome. Choose OPT Clock, enter your EAD start date, and save. See unemployment days used and remaining, and manage daily reminders.
+
+4
+00:00:18,782 --> 00:00:25,365
+For STEM, enter your EAD start date. Save to see cumulative unemployment days used and remaining.
+
+5
+00:00:25,627 --> 00:00:32,382
+OPT Apply Dates uses your program end date and optional DSO recommendation date to show your filing window.
+
+6
+00:00:32,649 --> 00:00:39,325
+For STEM Apply Dates, enter your current OPT expiry and recommendation dates. Calculate your window and countdown.
+
+7
+00:00:39,582 --> 00:00:41,374
+Check case status at a glance.
+
+8
+00:00:41,804 --> 00:00:47,322
+Prefill supported application fields, review your answers, and check the posting’s sponsorship signal.
+
+9
+00:00:47,582 --> 00:00:51,566
+Save roles to Wishlist or Applied, then open them in your tracker.
+
+10
+00:00:53,271 --> 00:00:57,375
+Analyze your résumé against the posting. Review matching keywords and gaps.
+
+11
+00:00:57,627 --> 00:01:06,889
+Create a tailored résumé. Check the job description, choose a saved, pasted, or uploaded résumé and template, then follow progress. Download the PDF or edit.
+
+12
+00:01:07,138 --> 00:01:11,012
+Generate a cover letter, review the draft, and save your edits.
+
+13
+00:01:11,493 --> 00:01:13,822
+Manage saved answers for future applications.
+
+14
+00:01:14,071 --> 00:01:19,970
+Choose step-by-step or continuous prefill. Guided Autopilot helps navigate steps, without clicking Submit.
+
+15
+00:01:20,204 --> 00:01:21,914
+Expand or minimize the sidebar.
+
+16
+00:01:22,160 --> 00:01:23,961
+TrackMyOPT for Chrome.
+
+17
+00:01:24,560 --> 00:01:27,945
+Thanks for watching. Start using TrackMyOPT today.

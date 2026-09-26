@@ -1,0 +1,1 @@
+1920 × 1080 landscape; 90 seconds; 30 fps. Cool-blue background and MacBook-style laptop frame throughout; TrackMyOPT blue, native typography, animated brand introduction and thank-you closing. All 42 original source-UI scenes retain action captions, precise clicks and readable crops. See ../storyboard.json for editable timing and ../brag-plan.md for the storyboard.
