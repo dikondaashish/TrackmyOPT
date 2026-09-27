@@ -7,9 +7,10 @@ const identity = { runId: 'run-one', navigationGeneration: 4, frameId: 2, adapte
 
 test('progress snapshot carries field status and reason without answer text or URLs', () => {
   const result = emptyPrefillCoverage();
-  result.applicationScan = { requiredTotal: 1, requiredFilled: 0, requiredPercent: 0,
+  result.applicationScan = { requiredTotal: 2, requiredFilled: 1, requiredPercent: 50,
     unansweredRequired: 1, optionalTotal: 0,
-    required: [{ key: 'secret-key', label: 'Private immigration answer', required: true, filled: false }], optional: [] };
+    required: [{ key: 'secret-key', label: 'Private immigration answer', required: true, filled: false },
+      { key: 'existing', label: 'Applicant-entered answer', required: true, filled: true }], optional: [] };
   result.remainingRecords = { experience: 1, education: 0 };
   result.uploadVerification = { resume: 'unverified' };
   const snapshot = snapshotPrefillProgress(identity, result);
@@ -17,6 +18,7 @@ test('progress snapshot carries field status and reason without answer text or U
   assert.deepEqual(snapshot.operations.map(item => [item.id, item.status, item.reason]), [
     ['upload:resume', 'unverified', 'upload_unverified'],
     ['field:required:0', 'needs_user', 'required_blank'],
+    ['field:required:1', 'already_present', undefined],
     ['rows:experience', 'needs_user', 'needs_row'],
   ]);
   assert.doesNotMatch(JSON.stringify(snapshot), /immigration|secret-key|https?:\/\//i);

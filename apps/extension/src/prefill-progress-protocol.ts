@@ -3,7 +3,7 @@ import type { PrefillCoverageResult, PrefillFieldGroup } from './prefill-coverag
 import type { PrefillValueSource } from './prefill-contact-source';
 
 export const PREFILL_PROGRESS_VERSION = 1 as const;
-export type PrefillProgressStatus = 'verified' | 'unverified' | 'needs_user';
+export type PrefillProgressStatus = 'verified' | 'unverified' | 'already_present' | 'needs_user';
 export type PrefillProgressReason =
   | 'required_blank' | 'optional_blank' | 'upload_unverified'
   | 'upload_rejected' | 'upload_timeout' | 'needs_row' | 'retry_available';
@@ -55,7 +55,7 @@ export function snapshotPrefillProgress(
     fields?.forEach((field, index) => {
       const source = result.fieldSources?.find(entry => entry.control === field.control)?.source;
       operations.push({ id: `field:${required ? 'required' : 'optional'}:${index}`, group: 'other',
-        ...(source ? { source } : {}), status: field.filled ? 'verified' : 'needs_user',
+        ...(source ? { source } : {}), status: field.filled ? (source ? 'verified' : 'already_present') : 'needs_user',
         ...(!field.filled ? { reason: required ? 'required_blank' as const : 'optional_blank' as const } : {}) });
     });
   }
