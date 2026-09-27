@@ -1,6 +1,6 @@
-Your F-1 journey, organized — from OPT and STEM OPT timelines to your next career move.
+TrackMyOPT is a Chrome extension and connected web dashboard for F-1 international students and graduates. Track Optional Practical Training (OPT) and STEM OPT timelines, follow unemployment days, prepare resumes and organize your job search in one connected workspace.
 
-TrackMyOPT connects an OPT tracker, unemployment-day tools, USCIS case tracking, AI resume tools and job application prefill with your TrackMyOPT dashboard. Built for international students and graduates, it helps you keep important dates, documents and opportunities together.
+Use the extension for timeline tools, saved case status and application prefill in Chrome. Open the web dashboard for detailed case tracking, career tools, documents and student resources. An account is required; some features require a paid plan.
 
 PLAN YOUR OPT & STEM OPT JOURNEY
 
@@ -15,11 +15,11 @@ PLAN YOUR OPT & STEM OPT JOURNEY
 PREPARE FOR YOUR NEXT ROLE
 
 • AI resumes and templates: prepare a job-specific resume from your experience and the job description, choose a template, and review the result before using it. The dashboard provides resume editing and saved resumes.
-• Job-fit and ATS review: compare your resume with a role, identify keyword gaps, and review suggested improvements. Scores and suggestions are guidance, not hiring predictions.
+• Job-fit and applicant tracking system (ATS) review: compare your resume with a role, identify keyword gaps, and review suggested improvements. Scores and suggestions are guidance, not hiring predictions.
 • Screening answers and cover letters: draft responses grounded in your resume and the current role. Review facts, tone and wording before using AI output.
-• Job tracker: save a posting's company, role, link and available details from Chrome, then manage application stages in the dashboard. The assistant can recognize an existing saved job and supported application-success pages.
+• Job tracker: save a posting's company, role, link and available details from Chrome, then manage application stages in the dashboard. The assistant can recognize an existing saved job and record a recognized application result.
 • H-1B sponsor research: explore employer sponsorship information in the web dashboard. Past sponsorship does not guarantee sponsorship for a current opening.
-• Networking: use the dashboard to research relevant contacts, check available work email and prepare outreach for your review.
+• Networking: use the dashboard to research relevant contacts, find available work email addresses and prepare outreach for your review.
 
 LESS REPETITION IN YOUR BROWSER
 
@@ -48,30 +48,38 @@ GET STARTED
 COMMON QUESTIONS
 
 Who is TrackMyOPT for?
-F-1 international students and graduates planning OPT, working on OPT or STEM OPT, and organizing their job search.
+TrackMyOPT is for F-1 international students and graduates planning practical training, managing their employment timeline and organizing their job search.
+
+Can I track OPT unemployment days?
+Yes. The OPT Clock and STEM Clock use the start dates and employment history you enter. Results depend on accurate, complete information; confirm your situation with your designated school official (DSO).
 
 Does everything run inside the extension?
 No. The extension provides OPT/STEM tools, a case-status shortcut and in-browser application assistance. Your connected web dashboard provides the broader career, document and student-resource workspace.
 
-Does it automatically apply to jobs?
-No. You review and submit applications yourself. Guided Autopilot may advance supported non-final steps, but does not click final Submit.
+Does TrackMyOPT automatically apply to jobs?
+No. You review and submit applications yourself. Guided Autopilot may advance supported non-final steps, but stops before final application actions.
+
+Which job applications can I prefill?
+Prefill works with supported fields on job boards, employer career pages and application systems. Support varies by site and form; existing filled fields stay unchanged, and unsupported controls may remain blank.
 
 Do I need an account or paid plan?
 A TrackMyOPT account is required. Feature access, AI usage, automation and monitoring limits depend on your plan. Supported sites and form behavior vary. Check current plan details at https://www.trackmyopt.com/pricing.
 
 CONTROL OVER YOUR INFORMATION
 
-Optional saved private answers — including work authorization, compensation, date of birth and EEO answers — can fill matching empty fields when you click Prefill, without another approval step.
+Optional saved private answers — including work authorization, compensation, date of birth and equal employment opportunity (EEO) answers — can fill matching empty fields when you click Prefill, without another approval step.
 
 If you save a default job-portal login, the same Prefill click can fill its email and password on a supported HTTPS top-level login or create-account form. Credential filling never clicks Login or Create Account. The employer or application site can read filled values before you submit.
 
-AI screening drafts use the current job description, question and active resume. Saved private answers and portal credentials are not used to prompt AI. Passwords, tokens, resumes and answers are not stored in Chrome sync.
+AI resume, screening-answer and cover-letter tools send relevant resume and job content to our AI provider to generate output. Screening drafts also use the current question. Clicking Prefill may generate and insert an eligible screening draft for your review. Choosing Remember my answer saves that question and answer in your account for later reuse.
+
+Saved private answers and portal credentials are not used to prompt AI. Information you include yourself in a resume, job description or screening answer may still be processed as part of that content. Passwords, tokens, resumes and answers are not stored in Chrome sync. You can edit or delete saved private answers and portal login details from the dashboard's Chrome Job Prefill page.
 
 WHY CHROME ACCESS IS NEEDED
 
 Storage keeps sign-in state, preferences and working data. Tab and page access identify the current job and support requested prefill. Packaged scripts run on supported job and career pages, including supported application frames. The side panel keeps preparation tools beside the application. Notifications report relevant extension action results. TrackMyOPT website access supports sign-in and account APIs.
 
-Store images show product-tour examples with fictional sample data and explain companion dashboard features. AI output can be inaccurate and must be reviewed.
+Store images are illustrative marketing compositions based on the product tour, using fictional sample data. They also describe companion dashboard features. AI output can be inaccurate and must be reviewed.
 
 TrackMyOPT is independent software, not a government service or a legal, tax or insurance adviser. It is not affiliated with USCIS, DHS, SEVP, ICE, employers or applicant-tracking systems. Confirm immigration requirements with your DSO or qualified adviser and consult appropriate professionals for tax or insurance decisions.
 

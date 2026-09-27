@@ -8,7 +8,7 @@ Existing production item: `hfljbefkccdmlnhclfojlafipjnjbajm`, Zyene, Inc.
 
 Reposition the listing around the full F-1 student journey: OPT/STEM dates, unemployment tools, case status, career preparation, application assistance, and the connected student dashboard. Explicitly identify dashboard-only capabilities. Preserve accurate prefill, credential, privacy and plan-limit disclosures.
 
-The description has 6,771 characters, within the 16,000-character field. Natural search terms and direct question/answer sections explain audience, use, account requirements, and tool location. No rankings, employment outcomes, government affiliation, or AI-search visibility are promised.
+The description has 8,114 characters, within the 16,000-character field. Natural search terms and direct question/answer sections explain audience, use, account requirements, and tool location. No rankings, employment outcomes, government affiliation, or AI-search visibility are promised.
 
 The package-derived title remains TrackMyOPT and the package summary is unchanged. They are read-only on the listing form. Category remains Tools; language remains English (United States). No new extension version or ZIP is part of this listing-only task.
 
@@ -54,6 +54,10 @@ Visually reviewed all generated images and final small-tile crop; used OCR to ch
 
 ## Dashboard save status
 
-The full description, five screenshots (01–05 in order), and both promotional tiles were uploaded and saved to the existing production item's draft on September 27, 2026. Chrome Web Store confirmed “Item saved.” After reloading the listing, the description matched the local 6,771-character source exactly; all seven replacement images persisted and were visually checked in their intended slots. No image validation errors appeared. The original icon, category, language, website and support links remain unchanged.
+The full description, five screenshots (01–05 in order), and both promotional tiles were uploaded and saved to the existing production item's draft on September 27, 2026. Chrome Web Store confirmed “Item saved.” After reloading the listing, the description matched the local 8,114-character source exactly; all seven replacement images persisted and were visually checked in their intended slots. No image validation errors appeared. The original icon, category, language, website and support links remain unchanged.
 
 The user explicitly approved removing the seven old images before replacement. Their original local files remain preserved. No Submit for review action was taken. This is a saved draft, not a published update or a completed extension release test.
+
+## Final editorial cross-check
+
+See [the final content audit](CONTENT-AUDIT.md) for verified claims, SEO/AEO corrections, Store state, and the limits of this review. The description and single-purpose wording were corrected and saved again; the seven images were retained after a second visual and format review.
