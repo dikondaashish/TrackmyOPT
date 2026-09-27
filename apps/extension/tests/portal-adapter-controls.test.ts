@@ -245,6 +245,7 @@ test('SmartRecruiters async menu in an enclosing shadow resolves without clickin
       option.textContent = 'New York, NY, US';
       option.addEventListener('click', () => {
         input.value = option.textContent;
+        input.setAttribute('data-value', option.getAttribute('value')!);
         input.setAttribute('aria-expanded', 'false');
       });
       outer.querySelector('#menu').replaceChildren(option);

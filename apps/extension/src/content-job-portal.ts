@@ -68,6 +68,7 @@ import {
 } from './autofill-preferences';
 import { shouldRunContinuousPrefill } from './continuous-prefill';
 import { withPrefillModeGuard } from './prefill-mode-guard';
+import { acceptPrefillRelay, waitForPrefillRelayTurn } from './prefill-relay-guard';
 import { detectScreeningQuestion } from './screening-question-drafts';
 import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
@@ -472,7 +473,7 @@ async function executeResolvedPrefillBody(
 
   if (!resolved?.ok) {
     const result = mode === 'step_by_step'
-      ? await runPrefill({ autofillSkills: false, shouldContinue })
+      ? await runPrefill({ autofillSkills: false, shouldContinue, allowRowCreation: explicitPrefillClick })
       : emptyPrefillCoverage();
     if (shouldContinue() && mode === 'step_by_step') {
       const root = findApplicationForm() ?? document;
@@ -541,10 +542,12 @@ async function executeResolvedPrefillBody(
   // Frames receive only the already-resolved, ephemeral payload for this run.
   chrome.runtime.sendMessage({
     type: 'PREFILL_CHILD_FRAMES',
+    pageUrl,
     undoRunId: currentPrefillUndoRunId(),
     continuous: mode === 'continuous',
     prefill: {
       ...prefill,
+      allowRowCreation: explicitPrefillClick,
       ...(answersForRun.confirmed
         ? { sensitiveAnswers: answersForRun }
         : {}),
@@ -556,6 +559,7 @@ async function executeResolvedPrefillBody(
     : undefined;
   const result = await runPrefill({
     ...prefill,
+    allowRowCreation: explicitPrefillClick,
     shouldContinue,
     animateFields: mode === 'step_by_step',
     visualFeedback: visual,
@@ -1753,6 +1757,8 @@ export function handlePortalMessage(message: any, _sender: chrome.runtime.Messag
     return false;
   }
   if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME' || window.top === window.self) return false;
+  const relayCurrent = acceptPrefillRelay(message);
+  if (!relayCurrent) return false;
   const prefill = (message.prefill ?? {}) as {
     resume?: GeneratedResumeAttachment;
     coverLetter?: PrefillOptions['coverLetter'];
@@ -1760,13 +1766,14 @@ export function handlePortalMessage(message: any, _sender: chrome.runtime.Messag
     snapshot?: ResumeAutofillSnapshotV1;
     profileFallback?: BasicContactProfile;
     autofillSkills?: boolean;
+    allowRowCreation?: boolean;
     quietResultToast?: boolean;
     sensitiveAnswers?: unknown;
   };
   const sensitiveAnswers = normalizeSensitiveAnswerSession(
     prefill.sensitiveAnswers
   );
-  void withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
+  void waitForPrefillRelayTurn(relayCurrent, () => getPrefillUndoState().busy).then(ready => ready ? withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
     const result = await runPrefill({
       resume: prefill.resume,
       coverLetter: prefill.coverLetter,
@@ -1774,19 +1781,20 @@ export function handlePortalMessage(message: any, _sender: chrome.runtime.Messag
       snapshot: prefill.snapshot,
       profileFallback: prefill.profileFallback,
       autofillSkills: prefill.autofillSkills === true,
+      allowRowCreation: prefill.allowRowCreation === true && message.continuous !== true,
       quietResultToast: prefill.quietResultToast === true,
       quietIfNoForm: true,
       animateFields: message.continuous !== true,
-      shouldContinue,
+      shouldContinue: () => shouldContinue() && relayCurrent(),
     });
-    if (!result.paused && sensitiveAnswers && shouldContinue()) {
+    if (!result.paused && sensitiveAnswers && shouldContinue() && relayCurrent()) {
       await fillConfirmedSensitiveAnswers(
         findApplicationForm() ?? document,
         sensitiveAnswers,
-        shouldContinue,
+        () => shouldContinue() && relayCurrent(),
       );
     }
-  }), message.undoRunId).then(() => sendResponse({ ok: true }))
+  }), message.undoRunId).then(() => true) : false).then(completed => sendResponse({ ok: completed && relayCurrent() }))
     .catch(() => sendResponse({ ok: false }));
   return true;
 }

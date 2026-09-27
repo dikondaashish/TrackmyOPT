@@ -37,11 +37,24 @@ export interface ClassifiedControl {
 
 /** Named adapters are scoped capabilities, not claims of universal portal support. */
 export interface AtsPrefillAdapter {
-  id: 'generic' | 'workday' | 'greenhouse' | 'lever' | 'smartrecruiters' | 'ashby';
+  id: 'generic' | 'workday' | 'greenhouse' | 'lever' | 'smartrecruiters' | 'ashby' | 'linkedin';
   upload?: UploadCapability;
+  capabilities: AtsFieldCapabilities;
   matches(document: Document): boolean;
   findApplicationRoot(document: Document): HTMLElement | null;
   classifyRepeatableSections(root: HTMLElement): ClassifiedControl[];
+}
+
+/** Packaged, conservative operations. A declaration is not a claim that every
+ * employer customization has been validated on a live site. */
+export interface AtsFieldCapabilities {
+  contact: boolean;
+  skills: boolean;
+  experience: boolean;
+  education: boolean;
+  searchableDropdown: boolean;
+  /** A unique, visible Add button inside the matching section is required. */
+  addRecord?: Partial<Record<'experience' | 'education', string>>;
 }
 
 type AdapterHints = {
@@ -67,6 +80,26 @@ const GREENHOUSE_HINTS: AdapterHints = {
   applicationRoots:
     'form#application-form, form#application_form, form.application--form',
   repeatableRecords: '[data-record-index], fieldset, [role="group"]',
+};
+
+const CAPABILITIES: Record<AtsPrefillAdapter['id'], AtsFieldCapabilities> = {
+  generic: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true },
+  workday: {
+    contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
+    addRecord: {
+      experience: 'button,[role="button"]',
+      education: 'button,[role="button"]',
+    },
+  },
+  greenhouse: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
+    addRecord: { experience: 'button', education: 'button' } },
+  lever: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
+    addRecord: { experience: 'button', education: 'button' } },
+  ashby: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
+    addRecord: { experience: 'button', education: 'button' } },
+  smartrecruiters: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
+    addRecord: { experience: 'button', education: 'button' } },
+  linkedin: { contact: true, skills: true, experience: false, education: false, searchableDropdown: true },
 };
 
 function hostname(document: Document): string {
@@ -129,7 +162,7 @@ function controlSignal(control: HTMLElement): string {
   return normalizeFieldSignal(parts.filter(Boolean).join(' '));
 }
 
-function sectionSignal(section: HTMLElement): string {
+export function sectionSignal(section: HTMLElement): string {
   const heading = safeQuery<HTMLElement>(
     section,
     ':scope > legend, :scope > h1, :scope > h2, :scope > h3, :scope > h4'
@@ -149,7 +182,7 @@ function sectionSignal(section: HTMLElement): string {
   );
 }
 
-function classifySection(signal: string): FormSectionKind {
+export function classifySection(signal: string): FormSectionKind {
   if (
     /\b(work experience|employment|work history|professional experience|experience section)\b/.test(
       signal
@@ -280,6 +313,7 @@ function createAdapter(
   return {
     id,
     upload: UPLOAD_CAPABILITIES[id],
+    capabilities: CAPABILITIES[id],
     matches,
     findApplicationRoot: (document) =>
       safeQueryAll<HTMLElement>(document, hints.applicationRoots).find(
@@ -354,6 +388,14 @@ export const ATS_PREFILL_ADAPTERS: readonly AtsPrefillAdapter[] = [
       repeatableRecords: GENERIC_HINTS.repeatableRecords,
     },
     (document) => isHostOrSubdomain(hostname(document), 'ashbyhq.com')
+  ),
+  createAdapter(
+    'linkedin',
+    {
+      applicationRoots: '[data-test-modal],.jobs-easy-apply-modal,form',
+      repeatableRecords: GENERIC_HINTS.repeatableRecords,
+    },
+    (document) => isHostOrSubdomain(hostname(document), 'linkedin.com')
   ),
   genericPrefillAdapter,
 ];

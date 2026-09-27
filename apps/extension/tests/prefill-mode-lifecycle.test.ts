@@ -148,7 +148,8 @@ const engineCode = requireLocal('esbuild').transformSync(engine.slice(engine.ind
 function engineHarness() {
   const writes: string[] = []; let allowed = true; let resolveProfile: (v: any) => void = () => {};
   const context: any = {
-    document: { location: { href: 'https://example.test/job/1' } }, resolveAutofillFeatureFlags: () => ({}), emptyPrefillCoverage: () => ({ filled: 0, total: 0 }),
+    document: { location: { href: 'https://example.test/job/1' } }, beginPrefillOperationSession: () => () => true,
+    resolveAutofillFeatureFlags: () => ({}), emptyPrefillCoverage: () => ({ filled: 0, total: 0 }),
     findApplicationForm: () => ({ ownerDocument: {}, isConnected: true }), selectAtsPrefillAdapter: () => ({ id: 'test' }),
     createAutofillVisualFeedback: () => ({ markFieldFilled() {}, finish() {}, fail() {} }), attachGeneratedResume: () => 'not_requested',
     chrome: { runtime: { sendMessage: () => new Promise(resolve => { resolveProfile = resolve; }) } },

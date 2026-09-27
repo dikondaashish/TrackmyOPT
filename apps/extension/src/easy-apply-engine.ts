@@ -42,6 +42,7 @@ import {
   summarizePrefillOutcomes,
   type PrefillControlOutcome,
   type PrefillCoverageResult,
+  type PrefillRetryOperation,
 } from './prefill-coverage';
 import { buildContactAutofillProfile, contactValueSource } from './prefill-contact-source';
 import { buildSkillsPrefillValue } from './skills-prefill';
@@ -52,6 +53,9 @@ import type {
 } from './resume-autofill-contract';
 import { selectAtsPrefillAdapter } from './ats-prefill-adapters';
 import { fillRepeatableRecords } from './repeatable-record-engine';
+import { expandRepeatableRows } from './repeatable-row-expansion';
+import { beginPrefillOperationSession } from './prefill-operation-session';
+import { recoverPrefillControl } from './prefill-control-recovery';
 import {
   resolveAutofillFeatureFlags,
   type AutofillFeatureFlags,
@@ -128,6 +132,8 @@ export interface PrefillOptions {
   /** Tests/future remote config only. Runtime message boundaries do not relay
    * feature overrides from job pages. */
   featureFlags?: Partial<AutofillFeatureFlags>;
+  /** Row creation requires an explicit Prefill click, never continuous mode. */
+  allowRowCreation?: boolean;
 }
 
 const TOAST_ID = 'tmo-easy-apply-toast';
@@ -159,7 +165,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const emptyCoverage = emptyPrefillCoverage();
   let visual: AutofillVisualFeedback | undefined;
   const runUrl = document.location.href;
-  const current = () => document.location.href === runUrl && options.shouldContinue?.() !== false;
+  const sessionCurrent = beginPrefillOperationSession(document);
+  const current = () => sessionCurrent() && document.location.href === runUrl && options.shouldContinue?.() !== false;
   const stopped = () => {
     if (current()) return false;
     visual?.fail('Prefill stopped');
@@ -191,6 +198,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   visual = options.visualFeedback ?? createAutofillVisualFeedback(container.ownerDocument, { animateFields: options.animateFields });
 
   const fieldSources: NonNullable<PrefillCoverageResult['fieldSources']> = [];
+  const retryOperations: PrefillRetryOperation[] = [];
   const pendingUploads: Array<{ input: HTMLInputElement; group: 'resume' | 'cover_letter' }> = [];
   const resumeResult = attachGeneratedResume(
     container,
@@ -248,12 +256,19 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const historyRemaining = { experience: 0, education: 0 };
   const snapshot = featureFlags.artifactPrefill ? options.snapshot : undefined;
   if (snapshot && featureFlags.historyFields) {
-    const historyControls = adapter.classifyRepeatableSections(container);
     for (const section of ['experience', 'education'] as const) {
-      const written: Array<{ element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement; value: string; checked?: boolean }> = [];
+      if (!adapter.capabilities[section]) continue;
+      if (options.allowRowCreation) {
+        await expandRepeatableRows(adapter, container, section, snapshot[section].length, current);
+        if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
+      }
+      const historyControls = adapter.classifyRepeatableSections(container);
+      historyControls.forEach(control => recoverPrefillControl(control.element));
+      const written: Array<{ element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement; value: string; field: string; checked?: boolean }> = [];
       const outcome = fillRepeatableRecords(section, historyControls, snapshot, element => {
         const control = element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
         written.push({ element: control, value: control.value,
+          field: historyControls.find(item => item.element === control)?.field ?? 'field',
           ...(control.tagName === 'INPUT' && (control as HTMLInputElement).type === 'checkbox' ? { checked: (control as HTMLInputElement).checked } : {}) });
       });
       const accepted = await Promise.all(written.map(async entry =>
@@ -268,6 +283,26 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
           outcome.filledFields--;
           outcome.skippedFields++;
           visual.markNeedsUser(entry.element);
+          const original = entry.element;
+          retryOperations.push({
+            id: `history:${section}:${index}`,
+            fieldGroup: section,
+            label: `${section === 'experience' ? 'employment' : 'education'} ${entry.field.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+            source: 'resume',
+            originalControl: original,
+            retry: async () => {
+              if (!current()) return null;
+              const root = findApplicationForm();
+              const target = recoverPrefillControl(original);
+              if (!root || !target || !root.contains(target)) return null;
+              const controls = adapter.classifyRepeatableSections(root);
+              if (!controls.some(control => control.element === target && control.section === section)) return null;
+              let wrote = false;
+              fillRepeatableRecords(section, controls, snapshot, () => { wrote = true; }, target, entry.value);
+              if (!wrote || !current() || !await verifyNativeCommit(target, entry.value, current)) return null;
+              return { control: target, root };
+            },
+          });
         }
       }
       historyRemaining[section] = outcome.remainingRecords;
@@ -295,6 +330,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       resumeAttachmentResult: resumeResult,
       uploadVerification,
       fieldSources,
+      retryOperations,
     };
     if (!options.visualFeedback) visual.finish(result, latestNotice);
     return result;
@@ -362,8 +398,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
 
   for (const el of controls) {
     if (stopped()) return { ...emptyCoverage, paused: true };
+    recoverPrefillControl(el);
     const kind = classifyField(getLabelText(el));
     if (!kind) continue; // no confident match, or a sensitive field -> leave it
+    if (!adapter.capabilities[kind === 'skills' ? 'skills' : 'contact']) continue;
     const value = kind === 'skills'
       ? buildSkillsPrefillValue(
           snapshot?.skills ?? [],
@@ -373,6 +411,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     if (!value) continue; // we don't have this datum -> leave it blank
 
     let changed = false;
+    let retryWrite: PrefillRetryOperation['retry'] | undefined;
     if (kind === 'skills' && (!isPlainSkillsControl(el) || !isFillable(el))) {
       continue; // tag editors/custom widgets require a tested ATS adapter
     } else if (isFillable(el)) {
@@ -382,6 +421,15 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       if (!el.isConnected || !isFillable(el)) { visual.clearActiveField(); continue; }
       setNativeValue(el, value);
       changed = await verifyNativeCommit(el, value, current);
+      if (!changed) retryWrite = async () => {
+        if (!current()) return null;
+        const root = findApplicationForm();
+        const target = recoverPrefillControl(el);
+        if (!root || !target || !queryAllDeep(root, APPLICATION_CONTROL_SELECTOR).includes(target) ||
+            !isFillable(target) || (kind === 'skills' && !isPlainSkillsControl(target))) return null;
+        setNativeValue(target, value);
+        return await verifyNativeCommit(target, value, current) ? { control: target, root } : null;
+      };
     } else if (isFillableSelect(el)) {
       const selectValue = matchingSelectValue(el, kind, value, dropdownContext);
       if (!selectValue) continue; // never guess a dropdown option
@@ -390,7 +438,17 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       if (!el.isConnected || !isFillableSelect(el) || matchingSelectValue(el, kind, value, dropdownContext) !== selectValue) { visual.clearActiveField(); continue; }
       setNativeSelectValue(el, selectValue);
       changed = await verifyNativeCommit(el, selectValue, current);
+      if (!changed) retryWrite = async () => {
+        if (!current()) return null;
+        const root = findApplicationForm();
+        const target = recoverPrefillControl(el);
+        if (!root || !target || !queryAllDeep(root, APPLICATION_CONTROL_SELECTOR).includes(target) ||
+            !isFillableSelect(target) || matchingSelectValue(target, kind, value, dropdownContext) !== selectValue) return null;
+        setNativeSelectValue(target, selectValue);
+        return await verifyNativeCommit(target, selectValue, current) ? { control: target, root } : null;
+      };
     } else if (isCustomDropdownControl(el)) {
+      if (!adapter.capabilities.searchableDropdown) continue;
       if (customDropdownHasValue(el)) continue;
       await visual.prepareField(el, 'contact');
       if (stopped()) return { ...emptyCoverage, paused: true };
@@ -404,11 +462,30 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         dropdownContext
       );
       changed = selection.outcome === 'selected';
+      if (!changed && selection.outcome !== 'already_filled') retryWrite = async () => {
+        if (!current()) return null;
+        const root = findApplicationForm();
+        const target = recoverPrefillControl(el);
+        if (!root || !target || !queryAllDeep(root, APPLICATION_CONTROL_SELECTOR).includes(target) ||
+            !isCustomDropdownControl(target) || customDropdownHasValue(target)) return null;
+        const selected = await selectSmartDropdown(target, value, dropdownMatchKind(kind), undefined, undefined, dropdownContext);
+        return selected.outcome === 'selected' && current() ? { control: target, root } : null;
+      };
     } else {
       continue;
     }
     if (stopped()) return { ...emptyCoverage, paused: true };
-    if (!changed) { visual.clearActiveField(); continue; }
+    if (!changed) {
+      if (retryWrite) retryOperations.push({
+        id: `contact:${retryOperations.length}`,
+        fieldGroup: kind === 'skills' ? 'skills' : 'contact',
+        label: kind.replace(/([A-Z])/g, ' $1').toLowerCase(),
+        source: contactValueSource(snapshot, kind),
+        originalControl: el,
+        retry: retryWrite,
+      });
+      visual.clearActiveField(); continue;
+    }
     filled += 1;
     fieldSources.push({ control: el, source: contactValueSource(snapshot, kind) });
     filledOutcomes.push({

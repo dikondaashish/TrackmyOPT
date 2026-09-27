@@ -1,5 +1,6 @@
 import { markPrefillUndoUnsupported } from './prefill-undo';
 import { enclosingControlRoots, linkedControlElement, isInActiveControlTree } from './scoped-control-dom';
+import { recoverPrefillControl } from './prefill-control-recovery';
 
 export type SmartDropdownMatchKind =
   | 'country'
@@ -399,9 +400,15 @@ function optionElements(control: HTMLElement): HTMLElement[] {
 async function waitForOptionElements(
   control: HTMLElement,
   timeoutMs: number,
-  stale: Map<HTMLElement, string> = new Map()
+  stale: Map<HTMLElement, string> = new Map(),
+  shouldContinue: () => boolean = () => true,
 ): Promise<HTMLElement[]> {
-  const current = () => optionElements(control).filter(option => stale.get(option) !== JSON.stringify(optionCandidate(option)));
+  const current = () => {
+    const active = recoverPrefillControl(control);
+    return active && shouldContinue()
+      ? optionElements(active).filter(option => stale.get(option) !== JSON.stringify(optionCandidate(option)))
+      : [];
+  };
   const immediate = current();
   if (immediate.length > 0) return immediate;
   const view = control.ownerDocument.defaultView;
@@ -410,11 +417,18 @@ async function waitForOptionElements(
     let settled = false;
     const finish = () => {
       if (settled) return;
+      if (!shouldContinue()) {
+        settled = true;
+        observer.disconnect(); view.clearTimeout(timer); view.clearInterval(poll);
+        resolve([]);
+        return;
+      }
       const options = current();
       if (options.length === 0) return;
       settled = true;
       observer.disconnect();
       view.clearTimeout(timer);
+      view.clearInterval(poll);
       resolve(options);
     };
     const observer = new view.MutationObserver(finish);
@@ -425,10 +439,12 @@ async function waitForOptionElements(
       attributes: true,
       attributeFilter: ['aria-expanded', 'aria-hidden', 'class'],
     });
+    const poll = view.setInterval(finish, 50);
     const timer = view.setTimeout(() => {
       if (settled) return;
       settled = true;
       observer.disconnect();
+      view.clearInterval(poll);
       resolve(current());
     }, timeoutMs);
   });
@@ -471,19 +487,50 @@ function closeWithoutSelection(control: HTMLElement): void {
   pressDropdownKey(control, 'Escape');
 }
 
-async function waitForSelection(control: HTMLElement, ownSearch: string | undefined, timeoutMs: number): Promise<boolean> {
-  const accepted = () => customDropdownHasValue(control, ownSearch);
-  if (accepted()) return true;
+function committedChoice(control: HTMLElement, ownSearch: string | undefined): string {
+  const lever = leverLocationSelection(control);
+  if (lever) return lever.value.trim() ? (control as HTMLInputElement).value.trim() : '';
+  const attribute = control.getAttribute('aria-valuetext') || control.getAttribute('data-value');
+  if (attribute?.trim()) return attribute.trim();
+  const near = selectedTextNear(control);
+  if (near) return near;
+  if (control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement) {
+    // Search text is not a committed ATS choice. Native select controls are
+    // verified elsewhere; custom inputs need a selected token/ARIA value.
+    if (control.hasAttribute('aria-autocomplete')) return '';
+    return control.value !== ownSearch ? control.value.trim() : '';
+  }
+  return control.tagName === 'BUTTON' ? control.textContent?.trim() || '' : '';
+}
+
+function selectedExpectedOption(control: HTMLElement, option: SmartDropdownOption,
+  ownSearch: string | undefined, kind: SmartDropdownMatchKind, context: SmartDropdownContext): boolean {
+  const committed = committedChoice(control, ownSearch);
+  if (!committed || PLACEHOLDER_RE.test(committed)) return false;
+  return normalize(committed) === normalize(option.text) ||
+    Boolean(option.value && normalize(committed) === normalize(option.value)) ||
+    ((kind === 'country' || kind === 'state') &&
+      canonical(committed, kind) === canonical(option.text, kind));
+}
+
+async function waitForSelection(control: HTMLElement, option: SmartDropdownOption,
+  ownSearch: string | undefined, kind: SmartDropdownMatchKind,
+  timeoutMs: number, context: SmartDropdownContext): Promise<boolean> {
   const view = control.ownerDocument.defaultView;
   if (!view) return false;
-  return new Promise(resolve => {
-    const observer = new view.MutationObserver(() => {
-      if (!accepted()) return;
-      observer.disconnect(); view.clearTimeout(timer); resolve(true);
-    });
-    for (const root of enclosingControlRoots(control)) observer.observe(root, { childList: true, subtree: true, attributes: true, characterData: true });
-    const timer = view.setTimeout(() => { observer.disconnect(); resolve(accepted()); }, timeoutMs);
-  });
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (context.shouldContinue?.() === false) return false;
+    const active = recoverPrefillControl(control);
+    if (active && selectedExpectedOption(active, option, ownSearch, kind, context)) {
+      await new Promise<void>(resolve => view.setTimeout(resolve, 80));
+      const stable = recoverPrefillControl(control);
+      if (context.shouldContinue?.() !== false && stable &&
+          selectedExpectedOption(stable, option, ownSearch, kind, context)) return true;
+    }
+    await new Promise<void>(resolve => view.setTimeout(resolve, 50));
+  }
+  return false;
 }
 
 function setSearchValue(control: HTMLInputElement, value: string): void {
@@ -511,6 +558,7 @@ export async function selectSmartDropdown(
   if (!isCustomDropdownControl(control) || !visible(control)) {
     return { outcome: 'unsupported' };
   }
+  recoverPrefillControl(control);
   if (customDropdownHasValue(control)) {
     return { outcome: 'already_filled' };
   }
@@ -558,17 +606,18 @@ export async function selectSmartDropdown(
     // Greenhouse can load suggestions while its menu remains closed. Search
     // text alone is not a value; open the list before matching an actual option.
     if (control.getAttribute('aria-expanded') !== 'true') pressDropdownKey(control, 'ArrowDown');
-    elements = await waitForOptionElements(control, timeoutMs, stale);
+    elements = await waitForOptionElements(control, timeoutMs, stale, () => context.shouldContinue?.() !== false);
   } else if (elements.length === 0) {
-    elements = await waitForOptionElements(control, timeoutMs);
+    elements = await waitForOptionElements(control, timeoutMs, new Map(), () => context.shouldContinue?.() !== false);
   }
-  if (context.shouldContinue?.() === false || !control.isConnected || !visible(control)) {
+  const activeControl = recoverPrefillControl(control);
+  if (context.shouldContinue?.() === false || !activeControl || !visible(activeControl)) {
     cleanSearch();
     closeWithoutSelection(control);
     return { outcome: 'unsupported' };
   }
-  if (customDropdownHasValue(control, ownSearch) ||
-      (searchInput && ownSearch !== undefined && searchInput.value !== ownSearch)) {
+  if (customDropdownHasValue(activeControl, ownSearch) ||
+      (searchInput && searchInput.isConnected && ownSearch !== undefined && searchInput.value !== ownSearch)) {
     return { outcome: 'already_filled' };
   }
   const candidates = elements.map(optionCandidate);
@@ -597,10 +646,11 @@ export async function selectSmartDropdown(
     closeWithoutSelection(control);
     return { outcome: 'no_match' };
   }
+  if (!elements[selectedIndex].isConnected || context.shouldContinue?.() === false) return { outcome: 'unsupported' };
   elements[selectedIndex].click();
   markPrefillUndoUnsupported(control);
   // A dispatched click is not proof the ATS accepted the answer.
-  if (!await waitForSelection(control, ownSearch, timeoutMs)) {
+  if (!await waitForSelection(control, candidates[selectedIndex], ownSearch, kind, timeoutMs, context)) {
     cleanSearch();
     closeWithoutSelection(control);
     return { outcome: 'no_match' };

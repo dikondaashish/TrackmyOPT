@@ -2,6 +2,7 @@ import { createExtensionLifecycle, EXTENSION_RELEASE_KEY, type ExtensionReleaseS
 import { handleJobContextSession } from './job-context-session';
 import { WEBSITE_URL } from './config';
 import { undoPrefillInTab } from './background-prefill-undo';
+import { PrefillRelaySequencer, currentPrefillRelayContext } from './prefill-relay-sequence';
 import { chromeOnboarding } from './onboarding';
 import { performExtensionSignOut } from './signOut';
 import { purgeLegacySyncToken } from './token-store';
@@ -59,6 +60,7 @@ import {
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
 const onboarding = chromeOnboarding();
+const prefillRelaySequences = new PrefillRelaySequencer();
 const recordRelease = createExtensionLifecycle({
   read: async () => (await chrome.storage.local.get(EXTENSION_RELEASE_KEY))[EXTENSION_RELEASE_KEY] as ExtensionReleaseState | undefined,
   write: state => chrome.storage.local.set({ [EXTENSION_RELEASE_KEY]: state }),
@@ -293,6 +295,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       sendResponse({ ok: false, error: 'missing_tab' });
       return true;
     }
+    const tabId = _sender.tab.id;
     const requestedPrefill = (msg.prefill ?? { resume: msg.resume }) as {
       resume?: { pdfBase64?: unknown; filename?: unknown };
       coverLetter?: unknown;
@@ -300,6 +303,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       snapshot?: unknown;
       profileFallback?: unknown;
       autofillSkills?: unknown;
+      allowRowCreation?: unknown;
       quietResultToast?: unknown;
       sensitiveAnswers?: unknown;
     };
@@ -337,9 +341,16 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     const profileFallback = sanitizeBasicContactProfile(
       requestedPrefill.profileFallback
     );
-    chrome.tabs.sendMessage(_sender.tab.id, {
+    void chrome.tabs.get(tabId).then(tab => {
+      if (!currentPrefillRelayContext({ frameId: _sender.frameId, runId: msg.undoRunId,
+        requestedUrl: msg.pageUrl, currentTabUrl: tab.url })) {
+        sendResponse({ ok: false, error: 'stale_prefill_context' });
+        return;
+      }
+      return chrome.tabs.sendMessage(tabId, {
       type: 'RUN_PREFILL_IN_CHILD_FRAME',
-      undoRunId: typeof msg.undoRunId === 'string' && /^[a-zA-Z0-9-]{1,80}$/.test(msg.undoRunId) ? msg.undoRunId : undefined,
+      undoRunId: msg.undoRunId,
+      relaySequence: prefillRelaySequences.next(tabId),
       continuous: msg.continuous === true,
       prefill: {
         resume,
@@ -350,14 +361,16 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         autofillSkills:
           AUTOFILL_FEATURE_FLAGS.skills &&
           requestedPrefill.autofillSkills === true,
+        allowRowCreation: msg.continuous !== true && requestedPrefill.allowRowCreation === true,
         quietResultToast: requestedPrefill.quietResultToast === true,
         sensitiveAnswers: normalizeSensitiveAnswerSession(requestedPrefill.sensitiveAnswers),
       },
-    }).then(() => sendResponse({ ok: true })).catch(() => {
+    }).then(response => sendResponse({ ok: true, childFramesAvailable: response?.ok === true })).catch(() => {
       // A page without child-frame receivers is normal; the top-frame engine
       // has already run, so this is not a user-visible error.
       sendResponse({ ok: true, childFramesAvailable: false });
     });
+    }).catch(() => sendResponse({ ok: false, error: 'tab_unavailable' }));
     return true;
   }
   if (msg.type === 'LIST_SAVED_RESUMES') {

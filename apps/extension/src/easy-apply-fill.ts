@@ -29,6 +29,7 @@ import { runSmartAnswers } from './smart-answers';
 import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
 import { fillConfirmedSensitiveAnswers, normalizeSensitiveAnswerSession } from './sensitive-autofill';
 import { withPrefillModeGuard } from './prefill-mode-guard';
+import { acceptPrefillRelay, waitForPrefillRelayTurn } from './prefill-relay-guard';
 import { AUTOFILL_PREFERENCES_KEY, normalizeAutofillPreferences } from './autofill-preferences';
 import type {
   BasicContactProfile,
@@ -44,6 +45,7 @@ type RelayedPrefill = {
   snapshot?: ResumeAutofillSnapshotV1;
   profileFallback?: BasicContactProfile;
   autofillSkills?: boolean;
+  allowRowCreation?: boolean;
   sensitiveAnswers?: unknown;
 };
 
@@ -55,8 +57,10 @@ getPrefillUndoState();
 if (!isTopFrame) {
   chrome.runtime.onMessage.addListener((message) => {
     if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME') return false;
+    const relayCurrent = acceptPrefillRelay(message);
+    if (!relayCurrent) return false;
     const prefill = (message.prefill ?? {}) as RelayedPrefill;
-    void withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
+    void waitForPrefillRelayTurn(relayCurrent, () => getPrefillUndoState().busy).then(ready => ready ? withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
       const result = await runPrefill({
         resume: prefill.resume,
         coverLetter: prefill.coverLetter,
@@ -64,15 +68,16 @@ if (!isTopFrame) {
         snapshot: prefill.snapshot,
         profileFallback: prefill.profileFallback,
         autofillSkills: prefill.autofillSkills === true,
+        allowRowCreation: prefill.allowRowCreation === true && message.continuous !== true,
         quietResultToast: true,
         quietIfNoForm: true,
         animateFields: message.continuous !== true,
-        shouldContinue,
+        shouldContinue: () => shouldContinue() && relayCurrent(),
       });
       if (result.paused) return;
       const answers = normalizeSensitiveAnswerSession(prefill.sensitiveAnswers);
-      if (answers && shouldContinue()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, answers, shouldContinue);
-    }), message.undoRunId).catch(() => {});
+      if (answers && shouldContinue() && relayCurrent()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, answers, () => shouldContinue() && relayCurrent());
+    }), message.undoRunId) : undefined).catch(() => {});
     return false;
   });
 }
@@ -112,7 +117,7 @@ async function prefillFromActiveArtifact(): Promise<void> {
   // No profile and no artifact — let the engine resolve the profile itself and
   // surface its own sign-in guidance.
   if (!resolved?.ok) {
-    await runPrefill({ shouldContinue });
+    await runPrefill({ shouldContinue, allowRowCreation: true });
     if (shouldContinue()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, privateLoad.answers, shouldContinue);
     if (shouldContinue() && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) await runSmartAnswers({root:findApplicationForm() ?? document,job:{jobUrl:pageUrl,companyName:'',roleTitle:''},hasResume:false,shouldContinue});
     return;
@@ -137,7 +142,7 @@ async function prefillFromActiveArtifact(): Promise<void> {
         { profileFallback: resolved.profileFallback };
 
   chrome.runtime
-    .sendMessage({ type: 'PREFILL_CHILD_FRAMES', undoRunId: currentPrefillUndoRunId(), prefill: { ...prefill, sensitiveAnswers: privateLoad.answers } })
+    .sendMessage({ type: 'PREFILL_CHILD_FRAMES', pageUrl, undoRunId: currentPrefillUndoRunId(), prefill: { ...prefill, allowRowCreation: true, sensitiveAnswers: privateLoad.answers } })
     .catch(() => {
       // A page with no accessible child frames is the normal case.
     });
@@ -147,7 +152,7 @@ async function prefillFromActiveArtifact(): Promise<void> {
   const root = findApplicationForm();
   const visual = privateLoad.answers.confirmed && root ? createAutofillVisualFeedback(document) : undefined;
   try {
-    const result = await runPrefill({ ...prefill, shouldContinue, visualFeedback: visual, quietResultToast: privateLoad.answers.confirmed });
+    const result = await runPrefill({ ...prefill, shouldContinue, allowRowCreation: true, visualFeedback: visual, quietResultToast: privateLoad.answers.confirmed });
     if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
     if (result.paused) return;
     const sensitive = await fillConfirmedSensitiveAnswers(root ?? document, privateLoad.answers, shouldContinue, visual);

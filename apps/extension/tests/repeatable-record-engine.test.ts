@@ -57,6 +57,7 @@ const title1 = new FakeInput();
 const month1 = new FakeInput();
 const protectedTitle = new FakeInput();
 protectedTitle.value = 'Applicant-entered title';
+const company2 = new FakeInput();
 const customCombobox = new FakeInput();
 customCombobox.attributes.set('role', 'combobox');
 
@@ -87,22 +88,41 @@ const outcome = fillRepeatableRecords('experience', [
   control(1, 'company', company1), control(1, 'title', title1),
   control(1, 'startMonth', month1), control(1, 'title', protectedTitle),
   control(1, 'location', customCombobox),
+  control(2, 'company', company2),
 ], snapshot);
 
 assert.equal(company0.value, 'First Employer');
 assert.equal(title0.value, 'Current Engineer');
-assert.equal(company1.value, 'Second Employer');
-assert.equal(title1.value, 'Earlier Engineer');
+assert.equal(company1.value, '', 'a conflicting applicant-entered row is not mixed with resume data');
+assert.equal(title1.value, '', 'other blanks in the conflicting row stay blank');
+assert.equal(company2.value, '', 'rows after an identity conflict are not shifted onto another resume record');
 assert.equal(month0.value, '03');
 assert.equal(year0.value, '2022');
 assert.equal(month1.value, '', 'a year-precision date never receives an invented month');
 assert.equal(protectedTitle.value, 'Applicant-entered title', 'non-empty applicant data is preserved');
 assert.equal(customCombobox.value, '', 'custom comboboxes are left untouched');
-assert.equal(outcome.visibleRecordContainers, 2);
-assert.equal(outcome.remainingRecords, 1);
+assert.equal(outcome.visibleRecordContainers, 3);
+assert.equal(outcome.remainingRecords, 0);
 assert.equal(
   remainingRecordsMessage(outcome),
-  '1 more experience entries are ready. Add another record manually, then run Prefill again.',
+  undefined,
 );
+
+const matchingCompany = new FakeInput(); matchingCompany.value = 'First Employer';
+const matchingTitle = new FakeInput();
+fillRepeatableRecords('experience', [
+  control(0, 'company', matchingCompany), control(0, 'title', matchingTitle),
+], snapshot);
+assert.equal(matchingTitle.value, 'Current Engineer', 'a partially filled matching row can receive its missing field');
+assert.equal(matchingCompany.value, 'First Employer');
+
+const shifted = new FakeInput();
+fillRepeatableRecords('experience', [control(0, 'company', shifted)], snapshot, undefined,
+  shifted as unknown as Element, 'Second Employer');
+assert.equal(shifted.value, '', 'targeted retry cannot write a different source record after row reordering');
+
+const remaining = fillRepeatableRecords('experience', [control(0, 'company', new FakeInput())], snapshot);
+assert.equal(remaining.remainingRecords, 2);
+assert.equal(remainingRecordsMessage(remaining), '2 more experience entries are ready. Add another record manually, then run Prefill again.');
 
 console.log('repeatable-record-engine: two-record ordering, precision, native-control and safety guards passed');

@@ -358,7 +358,9 @@ export function fillRepeatableRecords(
   section: RepeatableSection,
   controls: readonly ClassifiedControl[],
   snapshot: ResumeAutofillSnapshotV1,
-  onFieldFilled?: (element: HTMLElement) => void
+  onFieldFilled?: (element: HTMLElement) => void,
+  onlyControl?: Element,
+  expectedValue?: string,
 ): RepeatableFillOutcome {
   const sourceRecords =
     section === 'experience' ? snapshot.experience : snapshot.education;
@@ -378,13 +380,38 @@ export function fillRepeatableRecords(
   let filledFields = 0;
   let skippedFields = 0;
 
+  // A partially completed row can belong to a different employer/school.
+  // Fill its blanks only when every existing value agrees with that exact
+  // source record; otherwise never combine two people's record data.
+  const compatible = new Map<number, boolean>();
+  for (const index of visibleIndices) {
+    const record = sourceRecords[visibleIndices.indexOf(index)];
+    compatible.set(index, Boolean(record) && eligible
+      .filter(control => control.recordIndex === index && !isEmpty(control.element))
+      .every(control => {
+        let expected = valueForControl(control, record!);
+        if (typeof expected === 'string' && control.element instanceof HTMLSelectElement &&
+            !/^(start|end)(Month|Year)$/.test(control.field)) {
+          expected = selectOptionValue(control.element, [expected]);
+        }
+        return expected !== undefined &&
+          (typeof expected === 'boolean'
+            ? control.element instanceof HTMLInputElement && control.element.checked === expected
+            : control.element.value === expected);
+      }));
+  }
+  const firstConflictingRow = visibleIndices.find(index => compatible.get(index) === false);
+
   for (const control of eligible) {
+    if (onlyControl && control.element !== onlyControl) continue;
     const displayedIndex = visibleIndices.indexOf(
       control.recordIndex as number
     );
     const record = sourceRecords[displayedIndex];
     if (
       !record ||
+      compatible.get(control.recordIndex as number) !== true ||
+      (firstConflictingRow !== undefined && (control.recordIndex as number) >= firstConflictingRow) ||
       !isNativeSafeControl(control.element) ||
       !isEmpty(control.element)
     ) {
@@ -398,6 +425,10 @@ export function fillRepeatableRecords(
       !/^(start|end)(Month|Year)$/.test(control.field)
     ) {
       value = selectOptionValue(control.element, [value]);
+    }
+    if (onlyControl && expectedValue !== undefined && value !== expectedValue) {
+      skippedFields += 1;
+      continue;
     }
     if (value === undefined || !setNativeValue(control.element, value)) {
       skippedFields += 1;

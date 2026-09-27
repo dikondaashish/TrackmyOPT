@@ -1,4 +1,7 @@
 import type { ApplicationFieldScan } from './application-field-scan';
+import { scanApplicationFields } from './application-field-scan';
+import { withPrefillUndo } from './prefill-undo';
+import type { PrefillValueSource } from './prefill-contact-source';
 
 export type PrefillFieldGroup =
   | 'resume'
@@ -27,6 +30,50 @@ export interface PrefillCoverageResult {
   firstSkippedSelector?: string;
   applicationScan?: ApplicationFieldScan;
   resumeAttachmentResult?: import('./easy-apply-attachments').ResumeAttachmentResult;
+  /** Ephemeral local actions. Never serialized or included in telemetry. */
+  retryOperations?: PrefillRetryOperation[];
+}
+
+export interface PrefillRetryOperation {
+  id: string;
+  fieldGroup: PrefillFieldGroup;
+  label: string;
+  source: PrefillValueSource;
+  originalControl: HTMLElement;
+  retry: () => Promise<{ control: HTMLElement; root: HTMLElement } | null>;
+}
+
+/** Replays exactly one failed operation against a still-blank, uniquely
+ * identified control. A changed run, page, or applicant edit makes it a no-op. */
+export async function retryPrefillOperation(
+  result: PrefillCoverageResult,
+  id: string,
+): Promise<PrefillCoverageResult> {
+  const operation = result.retryOperations?.find(item => item.id === id);
+  if (!operation) return result;
+  let committed: { control: HTMLElement; root: HTMLElement } | null = null;
+  try {
+    await withPrefillUndo(async () => { committed = await operation.retry(); });
+  } catch { return result; }
+  if (!committed) return result;
+  const { control, root } = committed as { control: HTMLElement; root: HTMLElement };
+  const groups = { ...result.groups, [operation.fieldGroup]: { ...result.groups[operation.fieldGroup] } };
+  const wasSkipped = (operation.fieldGroup === 'experience' || operation.fieldGroup === 'education' ||
+    result.applicationScan?.required.some(field => !field.filled && field.control === operation.originalControl)) &&
+    groups[operation.fieldGroup].skipped > 0;
+  groups[operation.fieldGroup].filled += 1;
+  if (wasSkipped) groups[operation.fieldGroup].skipped -= 1;
+  else groups[operation.fieldGroup].total += 1;
+  return {
+    ...result,
+    filled: result.filled + 1,
+    skipped: result.skipped - (wasSkipped ? 1 : 0),
+    total: result.total + (wasSkipped ? 0 : 1),
+    groups,
+    retryOperations: result.retryOperations?.filter(item => item !== operation),
+    fieldSources: [...(result.fieldSources ?? []), { control, source: operation.source }],
+    applicationScan: scanApplicationFields(root),
+  };
 }
 
 export interface PrefillControlOutcome {

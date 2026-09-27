@@ -1057,7 +1057,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
         const execution = await host.executeResolvedPrefill(job, 'step_by_step');
         hasResume = execution.hasResume;
         const result = execution.result;
-        paintPrefillCoverage(prefillResultLine, result, () => { if (!prefillBtn.disabled) prefillBtn.click(); });
+        paintPrefillCoverage(prefillResultLine, result);
         // Report what actually happened to the file, not what was offered:
         // a resume can be resolved and still not attach when the upload field
         // is on a later step or already holds a file.

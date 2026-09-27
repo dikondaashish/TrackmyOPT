@@ -333,6 +333,7 @@ export function undoLastPrefill(runId?: string): PrefillUndoResult {
   const result = { restored: 0, skipped: 0, unsupported: 0 };
   const s = store();
   if (s.active) return result;
+  document.dispatchEvent(new (document.defaultView?.Event || Event)('tmo-prefill-invalidated'));
   // A delayed child-frame relay must not refill after its run was undone.
   if (runId) {
     s.cancelled.add(runId);

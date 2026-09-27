@@ -24,8 +24,8 @@ function documentFixture(
 
 {
   const ids = ATS_PREFILL_ADAPTERS.map((adapter) => adapter.id);
-  assert.deepEqual(ids, ['workday', 'greenhouse', 'lever', 'smartrecruiters', 'ashby', 'generic']);
-  assert.equal(new Set(ids).size, 6);
+  assert.deepEqual(ids, ['workday', 'greenhouse', 'lever', 'smartrecruiters', 'ashby', 'linkedin', 'generic']);
+  assert.equal(new Set(ids).size, 7);
 
   const source = readFileSync('src/ats-prefill-adapters.ts', 'utf8');
   assert.doesNotMatch(source, /id:\s*['"]icims['"]/i);
@@ -53,6 +53,13 @@ function documentFixture(
   assert.equal(greenhousePrefillAdapter.matches(documentFixture('greenhouse.io.evil.example')), false);
   assert.equal(selectAtsPrefillAdapter(documentFixture('jobs.example.com')).id, 'generic');
   assert.equal(genericPrefillAdapter.matches(documentFixture('any.example')), true);
+  assert.equal(selectAtsPrefillAdapter(documentFixture('www.linkedin.com')).id, 'linkedin');
+  for (const adapter of ATS_PREFILL_ADAPTERS) {
+    assert.equal(adapter.capabilities.contact, true, `${adapter.id} declares contact support`);
+    assert.equal(adapter.capabilities.searchableDropdown, true, `${adapter.id} declares dropdown support`);
+  }
+  assert.equal(selectAtsPrefillAdapter(documentFixture('www.linkedin.com')).capabilities.experience, false);
+  assert.equal(genericPrefillAdapter.capabilities.addRecord, undefined);
 }
 
 {

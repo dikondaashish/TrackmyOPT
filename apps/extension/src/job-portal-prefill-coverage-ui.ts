@@ -5,12 +5,11 @@ import { UPLOAD_STATUS_COPY } from './upload-verification';
  */
 
 import { jumpToPrefillField, type PrefillCoverageResult } from './easy-apply-engine';
-import { formatPrefillCoverageSummary } from './prefill-coverage';
+import { formatPrefillCoverageSummary, retryPrefillOperation } from './prefill-coverage';
 
 export function paintPrefillCoverage(
   line: HTMLElement,
   result: PrefillCoverageResult,
-  retry?: () => void,
 ): void {
   const openGroups = new Map(Array.from(line.querySelectorAll('details')).map(details => [details.dataset.group, details.open]));
   line.textContent = '';
@@ -143,13 +142,18 @@ export function paintPrefillCoverage(
   summary.style.cssText =
     'display:block;margin-top:12px;font-size:12px;line-height:1.5;color:var(--tmo-widget-muted, #60718b);';
   if (summary.textContent) line.appendChild(summary);
-  if (retry && (result.paused || result.skipped > 0 || scan?.unansweredRequired || Object.values(result.uploadVerification ?? {}).some(state => state !== 'verified'))) {
+  for (const operation of result.retryOperations ?? []) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = result.paused ? 'Recheck document and retry' : 'Retry unfinished fields';
-    button.title = 'Keeps existing values and files. Rechecks this application using your current saved data.';
+    button.textContent = `Retry ${operation.label}`;
+    button.title = 'Retries only this unfinished field if it is still empty and this application is unchanged.';
     button.style.cssText = 'display:block;width:100%;margin-top:12px;padding:10px;border:1px solid var(--tmo-widget-border);border-radius:8px;color:var(--tmo-widget-ink);background:var(--tmo-widget-surface);';
-    button.addEventListener('click', retry);
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      void retryPrefillOperation(result, operation.id).then(next => {
+        if (line.isConnected) paintPrefillCoverage(line, next);
+      });
+    });
     line.appendChild(button);
   }
   const firstRemaining = scan?.required.find(field => !field.filled)?.control;
