@@ -17,11 +17,16 @@ function uniqueAddButton(root: HTMLElement, section: Section, selector: string):
     if (classifySection(sectionSignal(sectionElement)) !== section) continue;
     for (const button of Array.from(sectionElement.querySelectorAll<HTMLElement>(selector))) {
       const name = (button.getAttribute('aria-label') || button.textContent || '').replace(/\s+/g, ' ').trim();
+      // SmartRecruiters' spl-button is a wrapper; clicking its host leaves the
+      // editor closed. Its real action is the native button in the open root.
+      const action = button.localName === 'spl-button'
+        ? button.shadowRoot?.querySelector<HTMLButtonElement>('button[type="button"]') : button;
       if (!label.test(name) || !isVisibleForRepeatablePrefill(button) ||
-          (button instanceof HTMLButtonElement && button.type !== 'button') ||
+          !action || !isVisibleForRepeatablePrefill(action) ||
+          (action instanceof HTMLButtonElement && action.type !== 'button') ||
           button.matches('a[href],input[type="submit"],input[type="image"]') ||
-          button.matches(':disabled') || button.getAttribute('aria-disabled') === 'true') continue;
-      found.add(button);
+          action.matches(':disabled') || button.getAttribute('aria-disabled') === 'true') continue;
+      found.add(action);
     }
   }
   return found.size === 1 ? [...found][0] : null;

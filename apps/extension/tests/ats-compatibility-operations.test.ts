@@ -90,8 +90,10 @@ test('SmartRecruiters OneClick opens one empty editor from zero rows and waits f
     for (const section of ['experience', 'education'] as const) {
       const group = root.querySelector(`[data-test="${section}"]`)!;
       const button = group.querySelector('spl-button')!;
+      const nativeButton = button.attachShadow({ mode: 'open' });
+      nativeButton.innerHTML = '<button type="button">Add</button>';
       let clicks = 0;
-      button.addEventListener('click', () => {
+      nativeButton.querySelector('button')!.addEventListener('click', () => {
         clicks++;
         const editor = dom.window.document.createElement('div');
         editor.setAttribute('data-test', `${section}-edit-form`);
