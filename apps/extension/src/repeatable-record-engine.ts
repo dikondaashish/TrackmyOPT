@@ -126,6 +126,19 @@ function isNativeSafeControl(
     return false;
   if (element.getAttribute('role') === 'combobox') return false;
   if (element.hasAttribute('aria-autocomplete')) return false;
+  // Web components can place an editable native input inside a shadow root.
+  // Their host owns the committed value, so a native setter is not proof of
+  // a saved date or autocomplete choice.
+  let boundary: Node = element;
+  for (let depth = 0; depth < 4; depth += 1) {
+    if (typeof boundary.getRootNode !== 'function') break;
+    const root = boundary.getRootNode();
+    const host = (root as ShadowRoot).host;
+    if (!host) break;
+    if (host.matches('spl-date-field, spl-autocomplete, spl-select') ||
+        host.closest('oc-datepicker, [data-custom-datepicker], [data-typeahead]')) return false;
+    boundary = host;
+  }
   if (
     element.closest(
       '[data-custom-datepicker], [data-typeahead], [data-tag-editor]'

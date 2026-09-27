@@ -55,6 +55,7 @@ import { selectAtsPrefillAdapter } from './ats-prefill-adapters';
 import { fillRepeatableRecords } from './repeatable-record-engine';
 import { expandRepeatableRows } from './repeatable-row-expansion';
 import { beginPrefillOperationSession } from './prefill-operation-session';
+import { snapshotPrefillProgress } from './prefill-progress-protocol';
 import { recoverPrefillControl } from './prefill-control-recovery';
 import {
   resolveAutofillFeatureFlags,
@@ -195,6 +196,15 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     container.ownerDocument,
     featureFlags.atsAdapters
   );
+  let frameId = typeof window !== 'undefined' && window.top !== window.self ? -1 : 0;
+  if ((!options.profileFallback || options.quietIfNoForm) &&
+      typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+    const context = await chrome.runtime.sendMessage({ type: 'GET_PREFILL_FRAME_CONTEXT' })
+      .catch(() => null) as { frameId?: number | null } | null;
+    if (Number.isInteger(context?.frameId) && (context?.frameId ?? -1) >= 0)
+      frameId = context!.frameId!;
+  }
+  if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
   visual = options.visualFeedback ?? createAutofillVisualFeedback(container.ownerDocument, { animateFields: options.animateFields });
 
   const fieldSources: NonNullable<PrefillCoverageResult['fieldSources']> = [];
@@ -322,7 +332,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const coverageFor = (
     outcomes: PrefillControlOutcome[]
   ): PrefillCoverageResult => {
-    const result = {
+    const result: PrefillCoverageResult = {
       ...summarizePrefillOutcomes(outcomes),
       adapterId: adapter.id,
       remainingRecords: historyRemaining,
@@ -332,6 +342,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       fieldSources,
       retryOperations,
     };
+    result.progress = snapshotPrefillProgress({ runId: sessionCurrent.runId,
+      navigationGeneration: sessionCurrent.generation, frameId, adapterId: adapter.id }, result);
     if (!options.visualFeedback) visual.finish(result, latestNotice);
     return result;
   };

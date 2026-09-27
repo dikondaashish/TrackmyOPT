@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { selectAtsPrefillAdapter } from '../src/ats-prefill-adapters';
 import { expandRepeatableRows } from '../src/repeatable-row-expansion';
+import { fillRepeatableRecords } from '../src/repeatable-record-engine';
 import { recoverPrefillControl } from '../src/prefill-control-recovery';
 import { beginPrefillOperationSession } from '../src/prefill-operation-session';
 import { acceptPrefillRelay, waitForPrefillRelayTurn } from '../src/prefill-relay-guard';
@@ -53,6 +54,7 @@ for (const [host, id] of [
       }
       assert.equal(adapter.capabilities.experience, true);
       assert.equal(adapter.capabilities.education, true);
+      if (id === 'smartrecruiters') return; // OneClick uses an unsaved editor, exercised below.
       for (const section of ['experience', 'education'] as const) {
         const group = f.doc.querySelector(section === 'experience' ? 'fieldset:first-child' : 'fieldset:last-child')!;
         const button = group.querySelector('button')!;
@@ -73,6 +75,71 @@ for (const [host, id] of [
     } finally { f.dom.window.close(); }
   });
 }
+
+test('SmartRecruiters OneClick opens one empty editor from zero rows and waits for manual save', async () => {
+  const dom = new JSDOM(`<oc-oneclick-form>
+    <div data-test="experience" class="form-section"><oc-button data-test="add-experience"><spl-button aria-label="Add experience entry">Add</spl-button></oc-button></div>
+    <div data-test="education" class="form-section"><oc-button data-test="add-education"><spl-button aria-label="Add education entry">Add</spl-button></oc-button></div>
+  </oc-oneclick-form>`, { url: 'https://jobs.smartrecruiters.com/oneclick-ui/company/demo' });
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document,
+    HTMLInputElement: dom.window.HTMLInputElement, HTMLButtonElement: dom.window.HTMLButtonElement,
+    HTMLTextAreaElement: dom.window.HTMLTextAreaElement, HTMLSelectElement: dom.window.HTMLSelectElement });
+  try {
+    const root = dom.window.document.querySelector('oc-oneclick-form') as HTMLElement;
+    const adapter = selectAtsPrefillAdapter(dom.window.document);
+    for (const section of ['experience', 'education'] as const) {
+      const group = root.querySelector(`[data-test="${section}"]`)!;
+      const button = group.querySelector('spl-button')!;
+      let clicks = 0;
+      button.addEventListener('click', () => {
+        clicks++;
+        const editor = dom.window.document.createElement('div');
+        editor.setAttribute('data-test', `${section}-edit-form`);
+        editor.innerHTML = `<input aria-label="${section === 'experience' ? 'Company' : 'School'}">`;
+        group.append(editor);
+      });
+      assert.equal(await expandRepeatableRows(adapter, root, section, 3, () => true), 1);
+      assert.equal(clicks, 1);
+      assert.equal(await expandRepeatableRows(adapter, root, section, 3, () => true), 0);
+      assert.equal(clicks, 1, 'an unsaved editor must not trigger another Add');
+    }
+  } finally { dom.window.close(); }
+});
+
+test('SmartRecruiters shadow date input is not treated as a committed native date', () => {
+  const f = fixture('jobs.smartrecruiters.com');
+  try {
+    const host = f.doc.createElement('spl-date-field');
+    const shadow = host.attachShadow({ mode: 'open' });
+    shadow.innerHTML = '<input type="text" aria-label="From">';
+    f.form.append(host);
+    const input = shadow.querySelector('input')!;
+    const result = fillRepeatableRecords('experience', [{
+      element: input, section: 'experience', recordIndex: 0, field: 'startDate',
+    }], { contact: {}, skills: [], education: [], certifications: [],
+      experience: [{ company: 'Fictional Labs', title: 'Engineer', bullets: [], descriptionText: '',
+        startDate: { originalText: 'March 2022', year: 2022, month: 3, precision: 'month' } }] });
+    assert.equal(result.filledFields, 0);
+    assert.equal(input.value, '');
+  } finally { f.dom.window.close(); }
+});
+
+test('SmartRecruiters record identity crosses component shadow roots without merging rows', () => {
+  const dom = new JSDOM('<oc-oneclick-form><div data-test="experience" class="form-section"><div data-test="experience-entry"><spl-autocomplete label="Title"></spl-autocomplete></div><div data-test="experience-entry"><spl-autocomplete label="Title"></spl-autocomplete></div></div></oc-oneclick-form>',
+    { url: 'https://jobs.smartrecruiters.com/oneclick-ui/company/demo' });
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document,
+    HTMLInputElement: dom.window.HTMLInputElement, HTMLTextAreaElement: dom.window.HTMLTextAreaElement,
+    HTMLSelectElement: dom.window.HTMLSelectElement });
+  try {
+    for (const host of dom.window.document.querySelectorAll('spl-autocomplete')) {
+      host.attachShadow({ mode: 'open' }).innerHTML = '<input role="combobox">';
+    }
+    const adapter = selectAtsPrefillAdapter(dom.window.document);
+    const root = dom.window.document.querySelector('oc-oneclick-form') as HTMLElement;
+    const controls = adapter.classifyRepeatableSections(root).filter(control => control.section === 'experience');
+    assert.deepEqual(controls.map(control => [control.field, control.recordIndex]), [['title', 0], ['title', 1]]);
+  } finally { dom.window.close(); }
+});
 
 test('row creation stops at ambiguous Add controls and protects existing edits', async () => {
   const f = fixture('jobs.lever.co');

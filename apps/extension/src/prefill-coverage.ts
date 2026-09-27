@@ -2,6 +2,7 @@ import type { ApplicationFieldScan } from './application-field-scan';
 import { scanApplicationFields } from './application-field-scan';
 import { withPrefillUndo } from './prefill-undo';
 import type { PrefillValueSource } from './prefill-contact-source';
+import { applyPrefillProgressPatch, type PrefillProgressSnapshotV1 } from './prefill-progress-protocol';
 
 export type PrefillFieldGroup =
   | 'resume'
@@ -32,6 +33,8 @@ export interface PrefillCoverageResult {
   resumeAttachmentResult?: import('./easy-apply-attachments').ResumeAttachmentResult;
   /** Ephemeral local actions. Never serialized or included in telemetry. */
   retryOperations?: PrefillRetryOperation[];
+  /** Versioned, value-free operation state. Ephemeral to the current document. */
+  progress?: PrefillProgressSnapshotV1;
 }
 
 export interface PrefillRetryOperation {
@@ -73,6 +76,11 @@ export async function retryPrefillOperation(
     retryOperations: result.retryOperations?.filter(item => item !== operation),
     fieldSources: [...(result.fieldSources ?? []), { control, source: operation.source }],
     applicationScan: scanApplicationFields(root),
+    ...(result.progress ? { progress: applyPrefillProgressPatch(result.progress, {
+      version: 1, identity: result.progress.identity, revision: result.progress.revision + 1,
+      operation: { id: `retry:${operation.id}`, group: operation.fieldGroup,
+        source: operation.source, status: 'verified' },
+    }) } : {}),
   };
 }
 

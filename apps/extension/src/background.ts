@@ -106,6 +106,10 @@ chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
 // Internal message listener (from popup and content scripts)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg?.type === 'GET_PREFILL_FRAME_CONTEXT') {
+    sendResponse({ frameId: Number.isInteger(_sender.frameId) ? _sender.frameId : null });
+    return false;
+  }
   if (msg.type === 'JOB_CONTEXT_SESSION') {
     void handleJobContextSession(msg, _sender).then(sendResponse).catch(() => sendResponse({ ok: false }));
     return true;

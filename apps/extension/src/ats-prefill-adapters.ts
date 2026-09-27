@@ -82,6 +82,11 @@ const GREENHOUSE_HINTS: AdapterHints = {
   repeatableRecords: '[data-record-index], fieldset, [role="group"]',
 };
 
+const SMARTRECRUITERS_HINTS: AdapterHints = {
+  applicationRoots: 'oc-oneclick-form',
+  repeatableRecords: '[data-test="experience-entry"], [data-test="education-entry"], [data-test="experience-edit-form"], [data-test="education-edit-form"]',
+};
+
 const CAPABILITIES: Record<AtsPrefillAdapter['id'], AtsFieldCapabilities> = {
   generic: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true },
   workday: {
@@ -98,7 +103,8 @@ const CAPABILITIES: Record<AtsPrefillAdapter['id'], AtsFieldCapabilities> = {
   ashby: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
     addRecord: { experience: 'button', education: 'button' } },
   smartrecruiters: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
-    addRecord: { experience: 'button', education: 'button' } },
+    addRecord: { experience: '[data-test="add-experience"] spl-button[aria-label="Add experience entry"]',
+      education: '[data-test="add-education"] spl-button[aria-label="Add education entry"]' } },
   linkedin: { contact: true, skills: true, experience: false, education: false, searchableDropdown: true },
 };
 
@@ -140,13 +146,33 @@ function safeQueryAll<T extends Element>(
   }
 }
 
+function closestAcrossShadow(control: Element, selector: string): Element | null {
+  let current: Element | null = control;
+  for (let depth = 0; current && depth < 5; depth += 1) {
+    const match: Element | null = current.closest(selector);
+    if (match) return match;
+    current = (current.getRootNode() as ShadowRoot).host ?? null;
+  }
+  return null;
+}
+
 function controlSignal(control: HTMLElement): string {
+  const hosts: HTMLElement[] = [];
+  let boundary: Element = control;
+  for (let depth = 0; depth < 4; depth += 1) {
+    const host = (boundary.getRootNode?.() as ShadowRoot | undefined)?.host as HTMLElement | undefined;
+    if (!host) break;
+    hosts.push(host);
+    boundary = host;
+  }
   const parts = [
     control.getAttribute('aria-label'),
     control.getAttribute('name'),
     control.getAttribute('placeholder'),
     control.getAttribute('data-automation-id'),
     control.getAttribute('data-testid'),
+    ...hosts.flatMap(host => [host.getAttribute('label'), host.getAttribute('data-test'),
+      host.closest('oc-datepicker')?.getAttribute('data-test')]),
   ];
   if (control.id) {
     const root = control.getRootNode?.() as ParentNode | undefined;
@@ -172,6 +198,7 @@ export function sectionSignal(section: HTMLElement): string {
       section.getAttribute('aria-label'),
       section.getAttribute('data-automation-id'),
       section.getAttribute('data-testid'),
+      section.getAttribute('data-test'),
       section.id,
       section.className,
       heading?.textContent,
@@ -186,7 +213,7 @@ export function classifySection(signal: string): FormSectionKind {
   if (
     /\b(work experience|employment|work history|professional experience|experience section)\b/.test(
       signal
-    )
+    ) || /^experience(?:\s|$)/.test(signal)
   ) {
     return 'experience';
   }
@@ -222,8 +249,8 @@ function classifyRepeatableField(
     if (/\b(start year|from year)\b/.test(signal)) return 'startYear';
     if (/\b(end month|to month|graduation month)\b/.test(signal)) return 'endMonth';
     if (/\b(end year|to year|graduation year)\b/.test(signal)) return 'endYear';
-    if (/\b(start date|from date)\b/.test(signal)) return 'startDate';
-    if (/\b(end date|to date|graduation date)\b/.test(signal)) return 'endDate';
+    if (/\b(start date|from date|date from)\b/.test(signal)) return 'startDate';
+    if (/\b(end date|to date|date to|graduation date)\b/.test(signal)) return 'endDate';
   }
   if (section === 'experience') {
     if (
@@ -260,7 +287,7 @@ function classifyWithHints(
 ): ClassifiedControl[] {
   const sections = safeQueryAll<HTMLElement>(
     root,
-    'fieldset, section, [role="group"], [data-automation-id], [data-testid], [class*="experience" i], [class*="education" i], [class*="skills" i]'
+    'fieldset, section, [role="group"], [data-automation-id], [data-testid], [data-test], [class*="experience" i], [class*="education" i], [class*="skills" i]'
   );
   const results: ClassifiedControl[] = [];
   const seen = new Set<Element>();
@@ -288,7 +315,7 @@ function classifyWithHints(
       let recordIndex: number | undefined;
       if (section === 'experience' || section === 'education') {
         const record =
-          control.closest(hints.repeatableRecords) || sectionElement;
+          closestAcrossShadow(control, hints.repeatableRecords) || sectionElement;
         const records = recordsBySection[section];
         let index = records.indexOf(record);
         if (index < 0) {
@@ -369,10 +396,7 @@ export const leverPrefillAdapter: AtsPrefillAdapter = createAdapter(
 
 export const smartRecruitersPrefillAdapter: AtsPrefillAdapter = createAdapter(
   'smartrecruiters',
-  {
-    applicationRoots: 'oc-oneclick-form',
-    repeatableRecords: GENERIC_HINTS.repeatableRecords,
-  },
+  SMARTRECRUITERS_HINTS,
   (document) => isHostOrSubdomain(hostname(document), 'smartrecruiters.com')
 );
 

@@ -31,7 +31,8 @@ export interface ScreeningQuestionReviewOptions {
   limits: ScreeningDraftLimits;
   savedAnswer?: SavedScreeningAnswer;
   generateDraft(regenerate: boolean): Promise<ScreeningDraftResult>;
-  onReviewed(answer: string): void;
+  /** Persist only after the applicant explicitly chooses to reuse this answer. */
+  onReviewed(answer: string): Promise<boolean> | boolean;
   onReviewStateChange?(
     state: 'needs_review' | 'confirmed' | 'edited',
   ): void;
@@ -73,6 +74,7 @@ export function createScreeningQuestionReviewUI(
   let limits = options.limits;
   let selectedDraft = '';
   let insertedValue = '';
+  let reviewedValue = '';
   let reviewState: DraftReviewState | null = null;
   const renderUsage = () => {
     usage.textContent = `${formatAiAllowanceCopy(limits)} ${limits.itemRegenerationsRemaining} of ${limits.itemRegenerationLimit} regenerations remaining.`;
@@ -83,6 +85,8 @@ export function createScreeningQuestionReviewUI(
   insert.hidden = true;
   const confirm = button('Confirm reviewed');
   confirm.hidden = true;
+  const save = button('Save this answer for future applications');
+  save.hidden = true;
   insert.addEventListener('click', () => {
     if (!selectedDraft || !insertScreeningDraft(options.question, selectedDraft)) {
       status.textContent = 'The answer field must be empty before inserting.';
@@ -94,17 +98,42 @@ export function createScreeningQuestionReviewUI(
     status.dataset.reviewState = 'needs-review';
     options.onReviewStateChange?.('needs_review');
     confirm.hidden = false;
+    save.hidden = true;
   });
   confirm.addEventListener('click', () => {
     if (!reviewState?.needsReview) return;
     const current = options.question.element?.value ?? insertedValue;
     if (!current.trim()) return;
     reviewState = confirmDraftReview(reviewState, current);
+    reviewedValue = current;
     status.textContent = 'Reviewed and confirmed';
     status.dataset.reviewState = 'reviewed';
     confirm.hidden = true;
+    save.hidden = false;
     options.onReviewStateChange?.('confirmed');
-    options.onReviewed(reviewState.text);
+  });
+  save.addEventListener('click', async () => {
+    const current = options.question.element?.value ?? '';
+    if (!reviewedValue || current !== reviewedValue || !reviewState?.confirmed) {
+      status.textContent = 'Review the current answer before saving it.';
+      save.hidden = true;
+      confirm.hidden = false;
+      return;
+    }
+    save.disabled = true;
+    try {
+      const saved = await options.onReviewed(current);
+      if (options.question.element?.value !== current) {
+        status.textContent = 'Answer changed. Review it again before saving.';
+        save.hidden = true;
+        confirm.hidden = false;
+      } else if (saved) {
+        status.textContent = 'Saved for future applications';
+        save.hidden = true;
+      } else status.textContent = 'Could not save. Your application answer is unchanged.';
+    } catch {
+      status.textContent = 'Could not save. Your application answer is unchanged.';
+    } finally { save.disabled = false; }
   });
 
   const showDraft = (draft: string) => {
@@ -165,7 +194,7 @@ export function createScreeningQuestionReviewUI(
     }
   }
 
-  root.append(preview, insert, confirm, status, upgrade);
+  root.append(preview, insert, confirm, save, status, upgrade);
 
   options.question.element?.addEventListener('input', (event) => {
     if (!event.isTrusted || status.dataset.reviewState !== 'needs-review') return;
@@ -175,11 +204,12 @@ export function createScreeningQuestionReviewUI(
       reviewState ?? createDraftReviewState(insertedValue),
       current
     );
+    reviewedValue = current;
     status.textContent = 'Reviewed and edited';
     status.dataset.reviewState = 'reviewed';
     confirm.hidden = true;
+    save.hidden = false;
     options.onReviewStateChange?.('edited');
-    options.onReviewed(reviewState.text);
   });
 
   return root;

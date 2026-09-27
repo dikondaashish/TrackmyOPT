@@ -148,6 +148,17 @@ try {
   const topFrameId=(await relaySession.send('Page.getFrameTree')).frameTree.frame.id;
   const topExtensionContext=relayContexts.find(item=>item.name==='TrackMyOPT'&&item.auxData?.frameId===topFrameId);
   assert.ok(topExtensionContext,'Top-frame extension isolated world is available');
+  const childExtensionContext=relayContexts.find(item=>item.name==='TrackMyOPT'&&item.auxData?.frameId!==topFrameId);
+  assert.ok(childExtensionContext,'Child-frame extension isolated world is available');
+  for(const [executionContext,expectedTop] of [[topExtensionContext,true],[childExtensionContext,false]]){
+    const response=await relaySession.send('Runtime.evaluate',{
+      expression:'chrome.runtime.sendMessage({type:"GET_PREFILL_FRAME_CONTEXT"})',
+      contextId:executionContext.id,awaitPromise:true,returnByValue:true,
+    });
+    assert.equal(response.exceptionDetails,undefined);
+    assert.equal(Number.isInteger(response.result.value?.frameId),true);
+    assert.equal(response.result.value.frameId===0,expectedTop);
+  }
   const relayFromTop=async(suffix,runId,firstName)=>{
     const message={type:'PREFILL_CHILD_FRAMES',undoRunId:runId,prefill:{profileFallback:{firstName,lastName:'Applicant',email:'frame@example.test'}}};
     const expression=`chrome.runtime.sendMessage({...${JSON.stringify(message)},pageUrl:location.href+${JSON.stringify(suffix)}})`;
@@ -168,5 +179,5 @@ try {
   await context.close();context=undefined;
   worker=await launch();
   assert.equal(await worker.evaluate(async()=>(await chrome.storage.local.get('releaseTestSentinel')).releaseTestSentinel),'keep');
-  console.log(JSON.stringify({passed:[...(testReplacement?[`${previousVersion} to ${currentVersion} unpacked replacement preserves storage`]:[]),'release notice and dismissal','deferred informational page and explicit activation','embedded-frame activation','MV3 installation','lazy runtime import','message relay','Shadow DOM style isolation','settings and Escape','page refresh','upload acceptance and parser settlement','retry rejection pauses writes','Chrome restart and storage'],pageErrors:errors,evidence:artifact,extensionId:id},null,2));
+  console.log(JSON.stringify({passed:[...(testReplacement?[`${previousVersion} to ${currentVersion} unpacked replacement preserves storage`]:[]),'release notice and dismissal','deferred informational page and explicit activation','embedded-frame activation','MV3 installation','lazy runtime import','message relay and frame identity','Shadow DOM style isolation','settings and Escape','page refresh','upload acceptance and parser settlement','retry rejection pauses writes','Chrome restart and storage'],pageErrors:errors,evidence:artifact,extensionId:id},null,2));
 } finally { clearTimeout(deadline); await context?.close(); }

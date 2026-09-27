@@ -2,7 +2,11 @@ import { classifySection, sectionSignal, type AtsPrefillAdapter } from './ats-pr
 import { isVisibleForRepeatablePrefill } from './repeatable-record-engine';
 
 type Section = 'experience' | 'education';
-const SECTION_SELECTOR = 'fieldset,section,[role="group"],[data-automation-id],[data-testid]';
+const SECTION_SELECTOR = 'fieldset,section,[role="group"],[data-automation-id],[data-testid],[data-test]';
+
+function hasOpenSmartRecruitersEditor(root: HTMLElement, section: Section): boolean {
+  return !!root.querySelector(`[data-test="${section === 'experience' ? 'experience' : 'education'}-edit-form"]`);
+}
 
 function uniqueAddButton(root: HTMLElement, section: Section, selector: string): HTMLElement | null {
   const label = section === 'experience'
@@ -47,11 +51,15 @@ export async function expandRepeatableRows(
       (control.element.value.trim() !== '' ||
        (control.element instanceof HTMLInputElement && control.element.type === 'checkbox' && control.element.checked)))) return 0;
   let count = recordCount(adapter, root, section);
-  if (count < 1 || count >= desiredRecords) return 0;
+  // SmartRecruiters OneClick starts with zero saved rows. Add opens an inline
+  // editor; it does not persist a row. Never open another while one is active.
+  if ((count < 1 && adapter.id !== 'smartrecruiters') || count >= desiredRecords ||
+      (adapter.id === 'smartrecruiters' && hasOpenSmartRecruitersEditor(root, section))) return 0;
   let added = 0;
   while (count < desiredRecords && added < 5 && current() && root.isConnected) {
     const button = uniqueAddButton(root, section, selector);
-    if (!button || recordCount(adapter, root, section) !== count || !current()) break;
+    if (!button || recordCount(adapter, root, section) !== count || !current() ||
+        (adapter.id === 'smartrecruiters' && hasOpenSmartRecruitersEditor(root, section))) break;
     button.click();
     const view = root.ownerDocument.defaultView;
     if (!view) break;
@@ -65,6 +73,7 @@ export async function expandRepeatableRows(
     if (!current() || !root.isConnected || next !== count + 1) break;
     count = next;
     added += 1;
+    if (adapter.id === 'smartrecruiters') break;
   }
   return added;
 }

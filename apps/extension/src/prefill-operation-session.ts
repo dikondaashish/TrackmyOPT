@@ -4,8 +4,9 @@
 type State = { generation: number; url: string };
 const states = new WeakMap<Document, State>();
 const listening = new WeakSet<Document>();
+export type PrefillOperationGuard = (() => boolean) & { readonly generation: number; readonly runId: string };
 
-export function beginPrefillOperationSession(document: Document): () => boolean {
+export function beginPrefillOperationSession(document: Document): PrefillOperationGuard {
   const state = states.get(document) ?? { generation: 0, url: document.location.href };
   state.generation += 1;
   state.url = document.location.href;
@@ -20,5 +21,10 @@ export function beginPrefillOperationSession(document: Document): () => boolean 
   }
   const generation = state.generation;
   const url = state.url;
-  return () => state.generation === generation && document.location.href === url;
+  const current = (() => state.generation === generation && document.location.href === url) as PrefillOperationGuard;
+  Object.defineProperties(current, {
+    generation: { value: generation },
+    runId: { value: `${generation}-${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)}` },
+  });
+  return current;
 }

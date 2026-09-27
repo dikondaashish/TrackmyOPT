@@ -736,8 +736,8 @@ async function mountScreeningQuestionReviews(
           },
         };
       },
-      onReviewed: (answer) => {
-        void chrome.runtime.sendMessage({
+      onReviewed: async (answer) => {
+        const saved = await chrome.runtime.sendMessage({
           type: 'SAVE_SCREENING_ANSWER',
           answer: {
             questionHash: eligible.questionHash,
@@ -745,7 +745,8 @@ async function mountScreeningQuestionReviews(
             editedAnswer: answer,
             source: 'user_edited_ai_draft',
           },
-        });
+        }).catch(() => null) as { ok?: boolean } | null;
+        return saved?.ok === true;
       },
       onReviewStateChange: (reviewState) => {
         trackWidgetAnalytics('extension_widget_screening_review_state', {
