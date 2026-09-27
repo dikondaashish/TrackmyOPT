@@ -46,6 +46,7 @@ function worker() {
   const chrome = {
     runtime: {
       onInstalled: event('install'),
+      onStartup: event('startup'),
       onMessage: event('message'),
       onMessageExternal: event('external'),
       onConnect: event('connect'),
@@ -148,4 +149,17 @@ test('packaged tour saves progress, popup replays, update remains non-intrusive'
     true
   );
   assert.equal(w.opened.length, 1);
+});
+
+test('real worker records update metadata after a startup/install event race without losing settings', async () => {
+  const w=worker();
+  w.chrome.runtime.getManifest=()=>({version:'0.2.2'});
+  w.local.savedPreference='keep';
+  w.listeners.startup();
+  w.listeners.install({reason:'update',previousVersion:'0.2.1'});
+  await tick();await tick();
+  const release=w.local.extensionReleaseV1 as any;
+  assert.equal(release.version,'0.2.2');assert.equal(release.previousVersion,'0.2.1');
+  assert.equal(release.noticeDismissed,false);assert.equal(w.local.savedPreference,'keep');
+  assert.equal(w.opened.length,0);
 });

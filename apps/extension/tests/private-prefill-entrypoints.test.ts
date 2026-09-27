@@ -1,3 +1,4 @@
+import { queryWidget } from '../src/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
@@ -15,7 +16,7 @@ function harness(){
   const dom=new JSDOM('<form><input aria-label="Email"></form><section class="tmo-sensitive-answer-panel"></section>',{url:'https://jobs.example.test/1'});
   let job={job_url:dom.window.location.href,company_name:'Example',role_title:'Engineer'};
   let requests=0;let saved='yes';const fills:any[]=[];const relays:any[]=[];const visualEvents:string[]=[];
-  const ctx:any={window:dom.window,document:dom.window.document,CustomEvent:dom.window.CustomEvent,
+  const ctx:any={queryWidget:(selector:string)=>queryWidget(selector,dom.window.document),window:dom.window,document:dom.window.document,CustomEvent:dom.window.CustomEvent,
     withPrefillUndo:(run:()=>Promise<unknown>)=>run(),isPrefillUndoAllowed:()=>true,
     currentPrefillUndoRunId:()=> 'fixture-run',markPrefillUndoDelegated:()=>{},getPrefillUndoState:()=>({}),
     mountPrefillUndoFallback:()=>{},requestPrefillUndo:()=>{},

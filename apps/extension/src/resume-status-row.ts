@@ -13,11 +13,12 @@
  * preview exactly as it does in the widget.
  */
 
+import { UPLOAD_STATUS_COPY, type UploadVerification } from './upload-verification';
 import { icon, type ExtensionIconName } from './icons';
 
 export const RESUME_STATUS_ROW_CLASS = 'tmo-resume-status-row';
 
-export type ResumeStatusState = 'checking' | 'none' | 'ready' | 'attached';
+export type ResumeStatusState = 'checking' | 'none' | 'ready' | 'attached' | 'needs_review';
 
 interface ResumeStatusCopy {
   label: string;
@@ -44,6 +45,12 @@ export const RESUME_STATUS_COPY: Record<ResumeStatusState, ResumeStatusCopy> = {
     sublabel: 'Attaches to the upload field when you prefill',
     iconName: 'checkCircle',
     tone: 'success',
+  },
+  needs_review: {
+    label: 'Check resume upload',
+    sublabel: 'Review the document status on this application',
+    iconName: 'info',
+    tone: 'muted',
   },
   attached: {
     label: 'Resume attached',
@@ -172,9 +179,11 @@ export function resumeStatusAfterPrefill(input: {
   attachedCount: number;
   hasResume: boolean;
   attachmentResult?: import('./easy-apply-attachments').ResumeAttachmentResult;
+  verification?: UploadVerification;
 }): { state: ResumeStatusState; detail?: string } {
+  if (input.verification && input.verification !== 'verified') return { state: 'needs_review', detail: UPLOAD_STATUS_COPY[input.verification] };
   if (input.attachedCount > 0) return { state: 'attached' };
-  if (input.attachmentResult === 'already_present') return { state: 'ready', detail: 'An existing resume is already uploaded — kept unchanged. Review it before submitting.' };
+  if (input.attachmentResult === 'already_present') return { state: 'ready', detail: 'An existing resume upload was kept unchanged. Review it before submitting.' };
   if (input.attachmentResult === 'unsupported') return { state: 'ready', detail: 'Resume upload could not be confirmed. Check the file on the application.' };
   if (input.hasResume) {
     return {

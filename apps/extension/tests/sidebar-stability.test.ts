@@ -1,3 +1,4 @@
+import { widgetContent, widgetActiveElement, queryWidget } from '../src/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
@@ -36,7 +37,7 @@ test('posting to apply URL and casing changes preserve the sidebar on Lever',()=
 }));
 test('Prefill and pending action states protect the sidebar during page mutations',()=>withDom(w=>{
   const root=createJobTrackerWidget(job,'expanded');w.document.body.append(root);
-  root.querySelector('.tmo-prefill-button')!.setAttribute('aria-busy','true');
+  widgetContent(root)!.querySelector('.tmo-prefill-button')!.setAttribute('aria-busy','true');
   assert.equal(isWidgetInteractionInFlight(),true);
 }));
 test('accessibility sweep does not create buttons inside buttons or on headings',()=>withDom(w=>{
@@ -54,11 +55,11 @@ test('unchanged resume status causes no DOM replacement or announcements',()=>wi
 }));
 test('failed Prefill has visible recovery copy and releases its busy state',()=>withDom(async w=>{
   const root=createJobTrackerWidget(job,'expanded');w.document.body.append(root);
-  const button=root.querySelector<HTMLButtonElement>('.tmo-prefill-button')!;button.click();await flush();
-  assert.equal(button.disabled,false);assert.match(root.querySelector('.tmo-prefill-result-line')!.textContent!,/try again/i);
+  const button=widgetContent(root)!.querySelector<HTMLButtonElement>('.tmo-prefill-button')!;button.click();await flush();
+  assert.equal(button.disabled,false);assert.match(widgetContent(root)!.querySelector('.tmo-prefill-result-line')!.textContent!,/try again/i);
 }));
 test('analysis and resume chooser use the top layer above the sidebar',()=>withDom((w)=>{
-  const root=createJobTrackerWidget(job,'expanded');w.document.body.append(root);const card=root.querySelector<HTMLElement>('.tmo-job-widget-card')!;
+  const root=createJobTrackerWidget(job,'expanded');w.document.body.append(root);const card=widgetContent(root)!.querySelector<HTMLElement>('.tmo-job-widget-card')!;
   w.HTMLElement.prototype.showPopover=function(){this.dataset.shown='true';};
   openAiAnalysisWithDescription(card,job,'');assert.equal(w.document.querySelector('#tmo-ai-analysis').getAttribute('popover'),'manual');
   w.document.querySelector('[aria-label="Close analysis"]').click();
@@ -66,7 +67,7 @@ test('analysis and resume chooser use the top layer above the sidebar',()=>withD
 }));
 test('closed analysis ignores its late provider response',()=>withDom((w,messages)=>{
   const root=createJobTrackerWidget(job,'expanded');w.document.body.append(root);
-  openAiAnalysisWithDescription(root.querySelector('.tmo-job-widget-card')!,job,'Responsibilities and qualifications for engineering. '.repeat(15));
+  openAiAnalysisWithDescription(widgetContent(root)!.querySelector('.tmo-job-widget-card')!,job,'Responsibilities and qualifications for engineering. '.repeat(15));
   const overlay=w.document.querySelector('#tmo-ai-analysis');const before=overlay.textContent;
   w.document.querySelector('[aria-label="Close analysis"]').click();
   messages.find(m=>m.message.type==='ANALYZE_JOB_FIT').callback({ok:false,error:'not_signed_in'});
@@ -74,22 +75,22 @@ test('closed analysis ignores its late provider response',()=>withDom((w,message
 }));
 test('metadata enrichment preserves tool DOM, expanded private answers and scroll',()=>withDom(w=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  const prefill=root.querySelector('.tmo-prefill-button');
-  const privateToggle=root.querySelector<HTMLButtonElement>('[aria-controls="tmo-private-answers-body"]')!;privateToggle.click();
-  const scroll=root.querySelector<HTMLElement>('.tmo-job-widget-scroll-body')!;scroll.scrollTop=120;
+  const prefill=widgetContent(root)!.querySelector('.tmo-prefill-button');
+  const privateToggle=widgetContent(root)!.querySelector<HTMLButtonElement>('[aria-controls="tmo-private-answers-body"]')!;privateToggle.click();
+  const scroll=widgetContent(root)!.querySelector<HTMLElement>('.tmo-job-widget-scroll-body')!;scroll.scrollTop=120;
   root.dispatchEvent(new w.CustomEvent('tmo-job-enriched',{detail:{...job,location:'New York',salary_text:'$100,000'}}));
-  assert.match(root.querySelector('.tmo-sidebar-job')!.textContent!,/New York/);
-  assert.equal(root.querySelector('.tmo-prefill-button'),prefill);assert.equal(scroll.scrollTop,120);
+  assert.match(widgetContent(root)!.querySelector('.tmo-sidebar-job')!.textContent!,/New York/);
+  assert.equal(widgetContent(root)!.querySelector('.tmo-prefill-button'),prefill);assert.equal(scroll.scrollTop,120);
   assert.equal(privateToggle.getAttribute('aria-expanded'),'true');
 }));
 test('private panel explicitly owns its background instead of inheriting portal section styles',()=>withDom(w=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  assert.equal(root.querySelector<HTMLElement>('.tmo-sensitive-answer-panel')!.style.background,'var(--tmo-widget-surface)');
-  assert.equal(root.querySelector<HTMLElement>('.tmo-sidebar-job')!.style.background,'var(--tmo-widget-surface)');
+  assert.equal(widgetContent(root)!.querySelector<HTMLElement>('.tmo-sensitive-answer-panel')!.style.background,'var(--tmo-widget-surface)');
+  assert.equal(widgetContent(root)!.querySelector<HTMLElement>('.tmo-sidebar-job')!.style.background,'var(--tmo-widget-surface)');
 }));
 test('stale analysis response cannot show results on another job',()=>withDom((w,messages)=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  openAiAnalysisWithDescription(root.querySelector('.tmo-job-widget-card')!,job,'Responsibilities and qualifications for engineering. '.repeat(15));
+  openAiAnalysisWithDescription(widgetContent(root)!.querySelector('.tmo-job-widget-card')!,job,'Responsibilities and qualifications for engineering. '.repeat(15));
   const overlay=w.document.querySelector('#tmo-ai-analysis');const before=overlay.textContent;
   w.history.pushState({},'','/example/another');
   messages.find(m=>m.message.type==='ANALYZE_JOB_FIT').callback({ok:false,error:'not_signed_in'});
@@ -107,7 +108,7 @@ test('portal observer ignores extension-only updates but notices external page c
 }));
 test('repeated Analyze clicks start only one request and late modal opening is blocked',()=>withDom(async(w,messages)=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  const analysis=Array.from(root.querySelectorAll('button')).find(b=>b.textContent?.includes('Analyze with AI'))!;
+  const analysis=Array.from(widgetContent(root)!.querySelectorAll('button')).find(b=>b.textContent?.includes('Analyze with AI'))!;
   analysis.click();analysis.click();
   assert.equal(analysis.getAttribute('aria-busy'),'true');
   w.history.pushState({},'','/example/another');await flush();
@@ -116,7 +117,7 @@ test('repeated Analyze clicks start only one request and late modal opening is b
 }));
 test('late sidepanel failure must not open the old job resume chooser after navigation',()=>withDom(async(w,messages)=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  const generate=Array.from(root.querySelectorAll('button')).find(b=>b.textContent?.includes('Generate custom resume'))!;
+  const generate=Array.from(widgetContent(root)!.querySelectorAll('button')).find(b=>b.textContent?.includes('Generate custom resume'))!;
   generate.click();generate.click();
   assert.equal(messages.filter(m=>m.message.type==='OPEN_SIDE_PANEL').length,1);
   w.history.pushState({},'','/example/another');messages.find(m=>m.message.type==='OPEN_SIDE_PANEL').callback({ok:false});await flush();
@@ -124,21 +125,21 @@ test('late sidepanel failure must not open the old job resume chooser after navi
 }));
 test('a background resume check cannot replace the busy Prefill label',()=>withDom(w=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  const prefill=root.querySelector<HTMLButtonElement>('.tmo-prefill-button')!;
+  const prefill=widgetContent(root)!.querySelector<HTMLButtonElement>('.tmo-prefill-button')!;
   prefill.setAttribute('aria-busy','true');prefill.querySelector('.tmo-action-label')!.textContent='Prefilling…';
   paintPrefillButton(prefill,true);assert.equal(prefill.querySelector('.tmo-action-label')!.textContent,'Prefilling…');
 }));
 test('analysis dialog closes on page-context change and releases its interaction guard',()=>withDom((w,messages)=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
   messages.find(m=>m.message.type==='CHECK_JOB_SAVED')?.callback({ok:true,saved:false});
-  openAiAnalysisWithDescription(root.querySelector('.tmo-job-widget-card')!,job,'');
+  openAiAnalysisWithDescription(widgetContent(root)!.querySelector('.tmo-job-widget-card')!,job,'');
   w.document.dispatchEvent(new w.Event('tmo-page-context-changed'));
   assert.equal(w.document.querySelector('#tmo-ai-analysis'),null);assert.equal(isWidgetInteractionInFlight(),false);
 }));
 test('analysis timeout replaces the spinner and ignores a later reply',()=>withDom((w,messages)=>{
   const timers=new Map();let id=0;w.setTimeout=(fn:any,ms:number)=>{timers.set(++id,{fn,ms});return id;};w.clearTimeout=(n:number)=>timers.delete(n);
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  openAiAnalysisWithDescription(root.querySelector('.tmo-job-widget-card')!,job,'Responsibilities and qualifications for engineering. '.repeat(15));
+  openAiAnalysisWithDescription(widgetContent(root)!.querySelector('.tmo-job-widget-card')!,job,'Responsibilities and qualifications for engineering. '.repeat(15));
   [...timers.values()].find(t=>t.ms===45000).fn();
   const overlay=w.document.querySelector('#tmo-ai-analysis');const text=overlay.textContent;
   assert.doesNotMatch(text,/Scoring your resume/);
@@ -146,8 +147,8 @@ test('analysis timeout replaces the spinner and ignores a later reply',()=>withD
 }));
 test('detached resume panel ignores a late generation result',()=>withDom((w,messages)=>{
   const root=createJobTrackerWidget({...job},'expanded');w.document.body.append(root);
-  openResumePanel(root.querySelector('.tmo-job-widget-card')!,job,'resume','tech','Synthetic description');
-  const panel=root.querySelector('.tmo-resume-panel')!;const before=panel.textContent;root.remove();
+  openResumePanel(widgetContent(root)!.querySelector('.tmo-job-widget-card')!,job,'resume','tech','Synthetic description');
+  const panel=widgetContent(root)!.querySelector('.tmo-resume-panel')!;const before=panel.textContent;root.remove();
   messages.find(m=>m.message.type==='GENERATE_RESUME').callback({ok:false,error:'no_base_resume'});
   assert.equal(panel.textContent,before);
 }));

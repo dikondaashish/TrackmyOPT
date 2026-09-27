@@ -1,3 +1,4 @@
+import { widgetContent } from '../src/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -22,7 +23,7 @@ test('LinkedIn Easy Apply gets one in-dialog prefill action and restores the wid
   const widget = document.getElementById('widget')!;
   let prefillClicks = 0;
   widget.querySelector('button')!.addEventListener('click', () => prefillClicks++);
-  const context: Record<string, unknown> = {
+  const context: Record<string, unknown> = { widgetContent,
     document,
     MutationObserver: dom.window.MutationObserver,
     WIDGET_ROOT_ID: 'widget',

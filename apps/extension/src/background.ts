@@ -1,3 +1,4 @@
+import { createExtensionLifecycle, EXTENSION_RELEASE_KEY, type ExtensionReleaseState } from './extension-lifecycle';
 import { handleJobContextSession } from './job-context-session';
 import { WEBSITE_URL } from './config';
 import { undoPrefillInTab } from './background-prefill-undo';
@@ -58,9 +59,21 @@ import {
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
 const onboarding = chromeOnboarding();
+const recordRelease = createExtensionLifecycle({
+  read: async () => (await chrome.storage.local.get(EXTENSION_RELEASE_KEY))[EXTENSION_RELEASE_KEY] as ExtensionReleaseState | undefined,
+  write: state => chrome.storage.local.set({ [EXTENSION_RELEASE_KEY]: state }),
+  purgeLegacyToken: purgeLegacySyncToken,
+  now: () => new Date().toISOString(),
+});
+// Repeated cleanup also handles legacy credentials synced in by an older device.
 chrome.runtime.onInstalled.addListener((details) => {
   purgeLegacySyncToken().catch(() => {});
+  recordRelease(chrome.runtime.getManifest().version, details.previousVersion).catch(() => {});
   onboarding.install(details.reason).catch(() => {});
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  recordRelease(chrome.runtime.getManifest().version).catch(() => {});
 });
 
 // Token refreshes cannot relaunch an active, skipped, or completed tour.

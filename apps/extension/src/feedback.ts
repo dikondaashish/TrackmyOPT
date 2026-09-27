@@ -1,3 +1,4 @@
+import { widgetActiveElement } from './widget-dom';
 /** Shared, on-page feedback form. Opening it never sends feedback. */
 import { applyWidgetThemeScope } from './job-portal-widget-theme';
 import { icon } from './icons';
@@ -107,7 +108,8 @@ export function buildFeedbackForm(onClose: () => void): HTMLElement {
 /** Shadow styles isolate the form from employer-page CSS. */
 export function openFeedbackModal(): void {
   if (document.getElementById(MODAL_ID)) return;
-  const returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const focused = widgetActiveElement();
+  const returnFocus = focused instanceof HTMLElement ? focused : null;
   const backdrop = document.createElement('div'); backdrop.id = MODAL_ID;
   applyWidgetThemeScope(backdrop); backdrop.setAttribute('popover', 'manual');
   backdrop.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;margin:0;border:0;padding:12px;box-sizing:border-box;z-index:2147483647;background:var(--tmo-widget-overlay);display:flex;align-items:center;justify-content:center;';

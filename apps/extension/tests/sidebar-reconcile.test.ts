@@ -1,3 +1,4 @@
+import { widgetContent } from '../src/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -12,7 +13,7 @@ const inject=source.slice(source.indexOf('async function injectOrRefreshButton()
 function harness(){
  const dom=new JSDOM('<body></body>',{url:'https://jobs.lever.co/example/one'});let job:any={company_name:'Example',role_title:'Engineer',job_url:dom.window.location.href};
  const waits:Array<(v:boolean)=>void>=[];const created:any[]=[];let now=0;
- const context:any={window:dom.window,document:dom.window.document,location:dom.window.location,CustomEvent:dom.window.CustomEvent,MutationObserver:dom.window.MutationObserver,
+ const context:any={widgetContent,window:dom.window,document:dom.window.document,location:dom.window.location,CustomEvent:dom.window.CustomEvent,MutationObserver:dom.window.MutationObserver,
   Date:{now:()=>now},wireJobTrackerWidgetHost:()=>{},extAlive:()=>true,teardownWidgetRuntime:()=>{},getJobInfo:()=>job,invalidatePrivateApprovalForJob:()=>{},generatedResumeArtifactForCurrentJob:null,
   isWidgetInteractionInFlight:()=>false,WIDGET_ROOT_ID:'widget',isLinkedInJobSurface:()=>true,isApplicationSuccessPage:()=>false,saveJobContext:()=>{},generatedResumeFor:()=>{},readWidgetDismissedUrl:()=>null,
   isWidgetSuppressed:()=>new Promise(r=>waits.push(r)),getDefaultViewPref:async()=>'expanded',shouldRefreshWidget,

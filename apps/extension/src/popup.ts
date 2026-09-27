@@ -1,3 +1,4 @@
+import { showReleaseNotice } from './release-notice';
 import { applyPopupTheme } from './design/popup-theme';
 import { API_ENDPOINTS } from './config.js';
 import { EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut.js';
@@ -232,6 +233,7 @@ async function render(): Promise<void> {
  */
 document.addEventListener('DOMContentLoaded', () => {
   render();
+  void showReleaseNotice().catch(() => {});
 });
 
 /**

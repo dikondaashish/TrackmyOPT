@@ -1,3 +1,4 @@
+import { widgetActiveElement } from './widget-dom';
 /**
  * Application status (Wishlist / Applied) dialog for Save-to-tracker.
  */
@@ -18,7 +19,8 @@ export function openApplicationStatusDialog(
   duplicate?: DuplicateApplicationNotice,
 ): void {
   document.getElementById('tmo-application-status-dialog')?.remove();
-  const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const focused = widgetActiveElement();
+  const returnFocusTo = focused instanceof HTMLElement ? focused : null;
 
   const overlay = document.createElement('div');
   overlay.id = 'tmo-application-status-dialog';

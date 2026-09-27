@@ -18,6 +18,9 @@ export interface PrefillCoverageResult {
   filled: number;
   skipped: number;
   total: number;
+  fieldSources?: Array<{ control: HTMLElement; source: import('./prefill-contact-source').PrefillValueSource }>;
+  paused?: boolean;
+  uploadVerification?: Partial<Record<'resume' | 'cover_letter', import('./upload-verification').UploadVerification>>;
   groups: Record<PrefillFieldGroup, PrefillCoverageGroupResult>;
   adapterId?: import('./ats-prefill-adapters').AtsPrefillAdapter['id'];
   remainingRecords?: { experience: number; education: number };
@@ -60,9 +63,9 @@ export function formatPrefillCoverageSummary(result: PrefillCoverageResult): str
       `${scan.requiredFilled}/${scan.requiredTotal} required fields complete`
     );
   }
-  if (result.groups.resume.filled > 0) parts.push('Resume attached');
+  if (result.groups.resume.filled > 0) parts.push(result.uploadVerification?.resume === 'unverified' ? 'Resume file selected — check upload' : 'Resume attached');
   if (result.groups.cover_letter.filled > 0)
-    parts.push('Cover letter attached');
+    parts.push(result.uploadVerification?.cover_letter === 'unverified' ? 'Cover letter file selected — check upload' : 'Cover letter attached');
   if (result.groups.contact.filled > 0) {
     const count = result.groups.contact.filled;
     parts.push(`${count} contact field${count === 1 ? '' : 's'}`);
@@ -85,7 +88,7 @@ export function formatPrefillCoverageSummary(result: PrefillCoverageResult): str
   if (educationRemaining > 0) parts.push(`${educationRemaining} more education ${educationRemaining === 1 ? 'entry is' : 'entries are'} ready. Add another row, then click Prefill again.`);
   const remaining = result.applicationScan?.unansweredRequired ?? result.skipped;
   if (remaining > 0) parts.push(`${remaining} need you`);
-  else if (parts.length > 0) parts.push('ready to review');
+  else if (parts.length > 0 && !result.paused && !Object.values(result.uploadVerification ?? {}).some(state => state !== 'verified')) parts.push('ready to review');
   return parts.join(' · ');
 }
 

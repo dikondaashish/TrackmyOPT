@@ -63,7 +63,7 @@ const buildOptions = {
     'src/popup.ts',
     'src/sidepanel.ts',
     'src/content.ts',
-    'src/content-job-portal.ts',
+    { in: 'src/content-job-portal-bootstrap.ts', out: 'content-job-portal' },
     'src/easy-apply-fill.ts',
     'src/job-portal-login-entry.ts',
     'src/job-tracker-review-entry.ts',
@@ -89,14 +89,15 @@ const buildOptions = {
   },
 };
 
+const portalOptions = {
+  ...buildOptions,
+  entryPoints: [{ in: 'src/content-job-portal.ts', out: 'content-job-portal-runtime' }],
+  format: 'esm',
+};
+const builds = [buildOptions, portalOptions];
 if (isWatch) {
-  esbuild
-    .context(buildOptions)
-    .then((ctx) => {
-      console.log('👀 Watching for changes...');
-      return ctx.watch();
-    })
+  Promise.all(builds.map(options => esbuild.context(options).then(ctx => ctx.watch())))
     .catch(() => process.exit(1));
 } else {
-  esbuild.build(buildOptions).catch(() => process.exit(1));
+  Promise.all(builds.map(options => esbuild.build(options))).catch(() => process.exit(1));
 }

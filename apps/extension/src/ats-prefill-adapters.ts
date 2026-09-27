@@ -1,3 +1,4 @@
+import { UPLOAD_CAPABILITIES, type UploadCapability } from './upload-verification';
 import {
   ORG_TRAP_RE,
   SENSITIVE_FIELD_RE,
@@ -37,6 +38,7 @@ export interface ClassifiedControl {
 /** Named adapters are scoped capabilities, not claims of universal portal support. */
 export interface AtsPrefillAdapter {
   id: 'generic' | 'workday' | 'greenhouse' | 'lever' | 'smartrecruiters' | 'ashby';
+  upload?: UploadCapability;
   matches(document: Document): boolean;
   findApplicationRoot(document: Document): HTMLElement | null;
   classifyRepeatableSections(root: HTMLElement): ClassifiedControl[];
@@ -95,7 +97,11 @@ function safeQueryAll<T extends Element>(
   selector: string
 ): T[] {
   try {
-    return Array.from(root.querySelectorAll<T>(selector));
+    const result = Array.from(root.querySelectorAll<T>(selector));
+    for (const host of Array.from(root.querySelectorAll<HTMLElement>('*'))) {
+      if (host.shadowRoot) result.push(...safeQueryAll<T>(host.shadowRoot, selector));
+    }
+    return result;
   } catch {
     return [];
   }
@@ -273,6 +279,7 @@ function createAdapter(
 ): AtsPrefillAdapter {
   return {
     id,
+    upload: UPLOAD_CAPABILITIES[id],
     matches,
     findApplicationRoot: (document) =>
       safeQueryAll<HTMLElement>(document, hints.applicationRoots).find(
@@ -351,14 +358,20 @@ export const ATS_PREFILL_ADAPTERS: readonly AtsPrefillAdapter[] = [
   genericPrefillAdapter,
 ];
 
+/** Packaged rollback: disable one adapter in a release without disabling others.
+ * No remote selectors, scripts, or action instructions are accepted.
+ */
+export const DISABLED_ATS_ADAPTERS: ReadonlySet<AtsPrefillAdapter['id']> = new Set();
+
 /** Specific adapters win; the conservative generic adapter is the fallback. */
 export function selectAtsPrefillAdapter(
   document: Document,
-  specificAdaptersEnabled = true
+  specificAdaptersEnabled = true,
+  disabled: ReadonlySet<AtsPrefillAdapter['id']> = DISABLED_ATS_ADAPTERS
 ): AtsPrefillAdapter {
   if (!specificAdaptersEnabled) return genericPrefillAdapter;
   return (
-    ATS_PREFILL_ADAPTERS.find((adapter) => adapter.matches(document)) ||
+    ATS_PREFILL_ADAPTERS.find((adapter) => !disabled.has(adapter.id) && adapter.matches(document)) ||
     genericPrefillAdapter
   );
 }

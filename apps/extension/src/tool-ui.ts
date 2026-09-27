@@ -1,3 +1,4 @@
+import { widgetActiveElement } from './widget-dom';
 import { icon } from './icons';
 
 function escape(value: string): string {
@@ -86,7 +87,7 @@ export function setupToolHelp(root: HTMLElement): void {
   const over = (event: Event) => { const help = targetHelp(event); if (help && (!pinned || help === current)) show(help); };
   const out = (event: Event) => {
     const next = (event as MouseEvent).relatedTarget as Node | null;
-    if (current && !pinned && !current.contains(next) && !current.contains(root.ownerDocument.activeElement)) close();
+    if (current && !pinned && !current.contains(next) && !current.contains(widgetActiveElement(root.ownerDocument))) close();
   };
   const focusOut = (event: Event) => { if (current && !current.contains((event as FocusEvent).relatedTarget as Node | null)) close(); };
   const click = (event: Event) => {

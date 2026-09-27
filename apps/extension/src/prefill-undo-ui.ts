@@ -1,3 +1,4 @@
+import { queryWidget } from './widget-dom';
 import {
   getPrefillUndoState,
   subscribePrefillUndo,
@@ -65,7 +66,7 @@ export function mountPrefillUndoFallback(
   request: (id: string) => Promise<PrefillUndoResult>
 ): void {
   if (
-    document.querySelector('.tmo-prefill-undo') ||
+    queryWidget('.tmo-prefill-undo') ||
     !getPrefillUndoState().available
   )
     return;

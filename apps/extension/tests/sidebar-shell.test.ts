@@ -1,3 +1,4 @@
+import { widgetContent, widgetActiveElement, queryWidget } from '../src/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
@@ -38,7 +39,7 @@ function withWidget(run: (root: HTMLElement, win: Window) => void, minimized = f
   }
 }
 
-const button = (root: HTMLElement, label: string) => root.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)!;
+const button = (root: HTMLElement, label: string) => widgetContent(root)!.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)!;
 
 test('sidebar shell keeps reference dimensions, a full frame, and reduced motion',()=>{
   assert.match(SIDEBAR_SHELL_CSS,/width:min\(360px,calc\(100vw - 32px\)\)/);
@@ -51,12 +52,12 @@ test('sidebar shell keeps reference dimensions, a full frame, and reduced motion
 
 test('expanded rail is inset and stays flex with separate scrolling body and footer',()=>withWidget(root=>{
   assert.equal(root.style.top,'16px');assert.equal(root.style.right,'16px');
-  assert.equal(root.querySelector<HTMLElement>('.tmo-job-widget-card')!.style.display,'flex');
-  const body=root.querySelector<HTMLElement>('.tmo-job-widget-scroll-body')!;
+  assert.equal(widgetContent(root)!.querySelector<HTMLElement>('.tmo-job-widget-card')!.style.display,'flex');
+  const body=widgetContent(root)!.querySelector<HTMLElement>('.tmo-job-widget-scroll-body')!;
   assert.equal(body.style.overflowY,'auto');assert.equal(parseFloat(body.style.minHeight),0);
-  assert.equal(root.querySelector('.tmo-job-widget-footer')!.parentElement,body.parentElement);
-  assert.equal(body.contains(root.querySelector('.tmo-job-widget-footer')),false);
-  assert.match(root.querySelector('img')!.src,/icons\/logo.gif$/);
+  assert.equal(widgetContent(root)!.querySelector('.tmo-job-widget-footer')!.parentElement,body.parentElement);
+  assert.equal(body.contains(widgetContent(root)!.querySelector('.tmo-job-widget-footer')),false);
+  assert.match(widgetContent(root)!.querySelector('img')!.src,/icons\/logo.gif$/);
 }));
 
 test('collapse and keyboard reopen preserve launcher position and inset geometry',()=>withWidget((root,win)=>{
@@ -64,11 +65,11 @@ test('collapse and keyboard reopen preserve launcher position and inset geometry
   button(root,'Minimize panel').click();
   const open=button(root,'Open or vertically move TrackMyOPT job assistant');
   assert.equal(root.style.right,'0px');assert.equal(root.style.top,'180px');
-  assert.equal(win.document.activeElement,open);assert.equal(open.getAttribute('aria-expanded'),'false');
+  assert.equal(widgetActiveElement(win.document),open);assert.equal(open.getAttribute('aria-expanded'),'false');
   open.click();
   assert.equal(root.style.right,'16px');assert.equal(root.style.top,'16px');
   assert.equal(open.getAttribute('aria-expanded'),'true');
-  assert.equal(win.document.activeElement,button(root,'Minimize panel'));
+  assert.equal(widgetActiveElement(win.document),button(root,'Minimize panel'));
   win.dispatchEvent(new (win as any).Event('resize'));
   assert.equal(root.style.right,'16px');
   assert.equal(JSON.parse(win.sessionStorage.getItem('tmo_job_widget_pos')!).top,180);
@@ -76,10 +77,10 @@ test('collapse and keyboard reopen preserve launcher position and inset geometry
 
 test('Settings retains minimize; Escape returns to tools then collapses with focus',()=>withWidget((root,win)=>{
   button(root,'Settings').click();
-  assert.equal(win.document.activeElement,button(root,'Back'));
+  assert.equal(widgetActiveElement(win.document),button(root,'Back'));
   assert.equal(button(root,'Minimize panel').style.display,'flex');
   root.dispatchEvent(new (win as any).KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-  assert.equal(win.document.activeElement,button(root,'Settings'));
+  assert.equal(widgetActiveElement(win.document),button(root,'Settings'));
   assert.equal(root.dataset.collapsed,'false');
   root.dispatchEvent(new (win as any).KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   assert.equal(root.dataset.collapsed,'true');
@@ -92,7 +93,7 @@ test('minimized default opens the same inset rail',()=>withWidget(root=>{
 },true));
 
 test('generated resume results mount inside scroll area, not below fixed footer',()=>withWidget(root=>{
-  const card=root.querySelector<HTMLElement>('.tmo-job-widget-card')!;
+  const card=widgetContent(root)!.querySelector<HTMLElement>('.tmo-job-widget-card')!;
   openResumePanel(card,{role_title:'Engineer',company_name:'Example',job_url:'https://example.com/jobs/test'},'resume','tech','Synthetic description');
   const panel=card.querySelector('.tmo-resume-panel');
   assert.ok(panel);
@@ -101,7 +102,7 @@ test('generated resume results mount inside scroll area, not below fixed footer'
 
 test('application help is keyboard reachable and Escape dismisses help without minimizing',()=>withWidget((root,win)=>{
   const help=button(root,'About application tools');
-  const detail=win.document.getElementById(help.getAttribute('aria-controls')!)!;
+  const detail=root.shadowRoot!.getElementById(help.getAttribute('aria-controls')!)!;
   assert.equal(detail.hidden,true);
   help.focus();
   assert.equal(detail.hidden,false);
@@ -115,7 +116,7 @@ test('application help is keyboard reachable and Escape dismisses help without m
 
 test('private answers explain inclusion in Prefill without a separate approval step',()=>withWidget(root=>{
   const toggle=button(root,'Private answers (included in Prefill)');
-  const body=root.querySelector<HTMLElement>('#tmo-private-answers-body')!;
+  const body=widgetContent(root)!.querySelector<HTMLElement>('#tmo-private-answers-body')!;
   assert.equal(toggle.getAttribute('aria-expanded'),'false');
   assert.equal(body.hidden,true);
   toggle.click();assert.equal(toggle.getAttribute('aria-expanded'),'true');assert.equal(body.hidden,false);
@@ -125,14 +126,14 @@ test('private answers explain inclusion in Prefill without a separate approval s
 test('tracker status distinguishes Wishlist and Applied, keeping the button label truthful',()=>withWidget((root,win)=>{
   for(const status of ['Wishlist','Applied']) {
     root.dispatchEvent(new (win as any).CustomEvent('tmo-tracker-saved',{detail:{jobUrl:'https://example.com/jobs/test',status,id:'mock'}}));
-    assert.match(root.querySelector('.tmo-sidebar-job')!.textContent!,new RegExp(status));
-    assert.match(root.querySelector('.tmo-sidebar-tracker')!.textContent!,/View in tracker/);
+    assert.match(widgetContent(root)!.querySelector('.tmo-sidebar-job')!.textContent!,new RegExp(status));
+    assert.match(widgetContent(root)!.querySelector('.tmo-sidebar-tracker')!.textContent!,/View in tracker/);
   }
 }));
 
 test('job title gets a full-width heading; decorative gradients do not compete with Prefill',()=>withWidget(root=>{
-  assert.equal(root.querySelector('[role="heading"]')?.textContent,'Engineer');
-  assert.doesNotMatch(root.querySelector('.tmo-sidebar-tracker')!.getAttribute('style')!,/gradient/);
-  assert.equal(root.querySelector<HTMLElement>('.tmo-prefill-button .tmo-action-sublabel')!.style.display,'none');
-  for(const action of root.querySelectorAll('.tmo-sidebar-action')) assert.doesNotMatch(action.innerHTML,/gradient/);
+  assert.equal(widgetContent(root)!.querySelector('[role="heading"]')?.textContent,'Engineer');
+  assert.doesNotMatch(widgetContent(root)!.querySelector('.tmo-sidebar-tracker')!.getAttribute('style')!,/gradient/);
+  assert.equal(widgetContent(root)!.querySelector<HTMLElement>('.tmo-prefill-button .tmo-action-sublabel')!.style.display,'none');
+  for(const action of widgetContent(root)!.querySelectorAll('.tmo-sidebar-action')) assert.doesNotMatch(action.innerHTML,/gradient/);
 }));

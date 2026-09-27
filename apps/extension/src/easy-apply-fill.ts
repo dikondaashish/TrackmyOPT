@@ -1,3 +1,4 @@
+import { queryWidget } from './widget-dom';
 /**
  * TrackMyOPT — job application prefill entry (popup-injected via activeTab).
  *
@@ -56,7 +57,7 @@ if (!isTopFrame) {
     if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME') return false;
     const prefill = (message.prefill ?? {}) as RelayedPrefill;
     void withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
-      await runPrefill({
+      const result = await runPrefill({
         resume: prefill.resume,
         coverLetter: prefill.coverLetter,
         generatedContentHash: prefill.generatedContentHash,
@@ -68,6 +69,7 @@ if (!isTopFrame) {
         animateFields: message.continuous !== true,
         shouldContinue,
       });
+      if (result.paused) return;
       const answers = normalizeSensitiveAnswerSession(prefill.sensitiveAnswers);
       if (answers && shouldContinue()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, answers, shouldContinue);
     }), message.undoRunId).catch(() => {});
@@ -84,7 +86,7 @@ async function prefillFromActiveArtifact(): Promise<void> {
   const privateLoad = await loadPrivateAnswersForPrefill(shouldContinue);
   if (!shouldContinue()) return;
   if (privateLoad.status === 'unavailable') {
-    document.querySelector('.tmo-sensitive-answer-panel')?.dispatchEvent(
+    queryWidget('.tmo-sensitive-answer-panel')?.dispatchEvent(
       new CustomEvent('tmo-private-prefill-status', { detail: 'unavailable' })
     );
   }
@@ -147,6 +149,7 @@ async function prefillFromActiveArtifact(): Promise<void> {
   try {
     const result = await runPrefill({ ...prefill, shouldContinue, visualFeedback: visual, quietResultToast: privateLoad.answers.confirmed });
     if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
+    if (result.paused) return;
     const sensitive = await fillConfirmedSensitiveAnswers(root ?? document, privateLoad.answers, shouldContinue, visual);
     if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
     const smartFilled = AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts ? await runSmartAnswers({

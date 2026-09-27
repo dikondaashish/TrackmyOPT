@@ -1,3 +1,4 @@
+import { queryWidget, queryWidgetAll, widgetContent } from './widget-dom';
 import { requestJobContextSession } from './job-context-session';
 /**
  * Content script for job / career pages (any company career site, LinkedIn, Indeed, etc.)
@@ -228,7 +229,7 @@ function invalidatePrivateApprovalForJob(job: JobInfo | null): void {
 
 function guidedStatus(message: string): void {
   for (const line of Array.from(
-    document.querySelectorAll<HTMLElement>('.tmo-guided-status-copy')
+    queryWidgetAll<HTMLElement>('.tmo-guided-status-copy')
   )) {
     line.textContent = message;
   }
@@ -270,7 +271,7 @@ function trackWidgetAnalyticsOnce(
 
 function syncArtifactStaleBannerVisibility(): void {
   for (const banner of Array.from(
-    document.querySelectorAll<HTMLElement>(`.${ARTIFACT_STALE_BANNER_CLASS}`)
+    queryWidgetAll<HTMLElement>(`.${ARTIFACT_STALE_BANNER_CLASS}`)
   )) {
     banner.style.display = artifactStaleReason ? 'block' : 'none';
   }
@@ -306,7 +307,7 @@ function setCurrentGeneratedArtifact(artifact: GeneratedResumeArtifactV1): void 
   const storage = currentSessionStorage();
   if (storage) rememberArtifactExpectedForSession(storage, artifact);
   for (const fallback of Array.from(
-    document.querySelectorAll<HTMLElement>(`.${ARTIFACT_INACTIVE_FALLBACK_CLASS}`),
+    queryWidgetAll<HTMLElement>(`.${ARTIFACT_INACTIVE_FALLBACK_CLASS}`),
   )) {
     fallback.textContent = '';
     fallback.style.display = 'none';
@@ -373,7 +374,7 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
   // reconcile — the file really is in the form.
   if (
     !isResumeStatusAttached(
-      document.querySelector<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
+      queryWidget<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
     )
   ) {
     syncResumeStatusRows(artifactAvailable ? 'ready' : 'none');
@@ -451,7 +452,7 @@ async function executeResolvedPrefillBody(
     }
     sensitiveAnswerSession = privateLoad.answers;
     privateApprovalBinding = privateLoad.answers.confirmed ? binding : null;
-    document.querySelector('.tmo-sensitive-answer-panel')?.dispatchEvent(
+    queryWidget('.tmo-sensitive-answer-panel')?.dispatchEvent(
       new CustomEvent('tmo-private-prefill-status', { detail: privateLoad.status })
     );
   }
@@ -562,6 +563,7 @@ async function executeResolvedPrefillBody(
       prefill.quietResultToast === true || answersForRun.confirmed,
   }).catch(error => { visual?.fail('Prefill paused'); throw error; });
   if (!shouldContinue()) { visual?.fail('Prefill stopped'); throw new Error('Prefill stopped'); }
+  if (result.paused) return { result, hasResume, hasCoverLetter, sourceType: resolved.source, artifactStateReason: resolved.source === 'generated_resume' ? 'none' : resolved.reason };
   const applicationRoot = findApplicationForm() ?? document;
   const sensitive = await fillConfirmedSensitiveAnswers(
     applicationRoot,
@@ -760,7 +762,7 @@ async function mountScreeningQuestionReviews(
 }
 
 function paintContinuousStopGuidance(reason: 'expired' | 'job_changed' | 'invalid'): void {
-  const line = document.querySelector<HTMLElement>('.tmo-prefill-result-line');
+  const line = queryWidget<HTMLElement>('.tmo-prefill-result-line');
   if (!line) return;
   line.textContent = reason === 'expired'
     ? 'This generated resume expired. Generate again or use Step-by-step profile prefill.'
@@ -936,7 +938,7 @@ function syncLinkedInEasyApplyAction(): void {
   const dialog = findLinkedInEasyApplyDialog();
   const footer = dialog?.querySelector('footer');
   const widget = document.getElementById(WIDGET_ROOT_ID);
-  const prefill = widget?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
+  const prefill = widgetContent(widget)?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
 
   if (hiddenForLinkedInDialog && (hiddenForLinkedInDialog !== widget || !footer || !prefill)) {
     hiddenForLinkedInDialog.style.visibility = '';
@@ -988,7 +990,7 @@ function syncLinkedInEasyApplyAction(): void {
     prefill.click();
   });
 
-  const resultLine = widget.querySelector<HTMLElement>('.tmo-prefill-result-line');
+  const resultLine = widgetContent(widget)!.querySelector<HTMLElement>('.tmo-prefill-result-line');
   linkedInPrefillObserver = new MutationObserver(() => {
     if (prefill.getAttribute('aria-busy') !== 'false' || !action.isConnected) return;
     action.disabled = false;
@@ -1096,10 +1098,10 @@ async function injectOrRefreshButton() {
   // The widget is built imperatively from styled divs, most of which carry a
   // click handler but no role or tabindex. Retrofit them so the whole surface
   // is keyboard-operable, and re-run on mutation because panels render lazily.
-  hardenInteractiveElements(widget);
-  announceWidgetStatus = ensureWidgetAnnouncer(widget);
-  widgetA11yObserver = new MutationObserver(() => hardenInteractiveElements(widget));
-  widgetA11yObserver.observe(widget, { childList: true, subtree: true });
+  hardenInteractiveElements(widgetContent(widget)!);
+  announceWidgetStatus = ensureWidgetAnnouncer(widgetContent(widget)!);
+  widgetA11yObserver = new MutationObserver(() => hardenInteractiveElements(widgetContent(widget)!));
+  widgetA11yObserver.observe(widgetContent(widget)!, { childList: true, subtree: true });
   // Screen readers get no signal that a panel appeared over the page.
   announceWidgetStatus(
     job.role_title
@@ -1184,7 +1186,7 @@ function paintGuidedStateUi(): void {
     currentPlanEntitlements.guidedAutopilot &&
     currentAutofillPreferences.guidedAutopilot;
   for (const host of Array.from(
-    document.querySelectorAll<HTMLElement>('.tmo-guided-status')
+    queryWidgetAll<HTMLElement>('.tmo-guided-status')
   )) {
     host.style.display = active ? 'flex' : 'none';
   }
@@ -1310,14 +1312,19 @@ async function runContinuousPrefill(): Promise<void> {
       guidedStatus('Paused: could not load your prefill data. Try Prefill again when ready.');
       return;
     }
+    if (execution.result.paused || Object.values(execution.result.uploadVerification ?? {}).some(state => state !== 'verified')) {
+      continuousNavigationBlocked = true;
+      guidedStatus('Paused: check the document upload on this application before continuing.');
+      const line = queryWidget<HTMLElement>('.tmo-prefill-result-line');
+      if (line) paintPrefillCoverage(line, execution.result);
+      return;
+    }
     continuousNavigationBlocked = false;
-    const resultLine = document.querySelector<HTMLElement>('.tmo-prefill-result-line');
+    const resultLine = queryWidget<HTMLElement>('.tmo-prefill-result-line');
     if (resultLine && execution.result.total > 0) {
       paintPrefillCoverage(resultLine, execution.result);
     }
-    const widgetCard = document.querySelector<HTMLElement>(
-      `#${WIDGET_ROOT_ID} .tmo-job-widget-card`
-    );
+    const widgetCard = queryWidget<HTMLElement>('.tmo-job-widget-card');
     if (widgetCard && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
       await mountScreeningQuestionReviews(
         widgetCard,
@@ -1625,11 +1632,11 @@ function initFullJobAssistMode() {
 
 // Cross-origin ATS frames receive prefill through the background relay. They
 // never render their own side panel; only the top-level document owns the UI.
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+export function handlePortalMessage(message: any, _sender: chrome.runtime.MessageSender, sendResponse: (response: any) => void): boolean {
   if (message?.type === 'TMO_PREFILL_SAVED_RESUME') {
     if (window.top !== window.self || _sender.url !== chrome.runtime.getURL('sidepanel.html')) return false;
     const sameJob = typeof message.jobUrl === 'string' && jobUrlsReferToSameJob(message.jobUrl,window.location.href);
-    const prefillButton = document.getElementById(WIDGET_ROOT_ID)?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
+    const prefillButton = widgetContent(document.getElementById(WIDGET_ROOT_ID))?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
     if (!sameJob || !prefillButton || prefillButton.disabled) { sendResponse({ok:false}); return false; }
     // Fail closed if the card is stale: don't fill with a different version than displayed.
     void chrome.runtime.sendMessage({type:'RESOLVE_V1_PREFILL_PAYLOAD',discardRejectedArtifact:false,
@@ -1669,8 +1676,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === 'GENERATED_RESUME_ARTIFACT_READY') {
     if (window.top !== window.self) return false;
     const root = document.getElementById(WIDGET_ROOT_ID);
-    const prefillButton = root?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
-    const fallbackHost = root?.querySelector<HTMLElement>(`.${ARTIFACT_INACTIVE_FALLBACK_CLASS}`);
+    const prefillButton = widgetContent(root)?.querySelector<HTMLButtonElement>('.tmo-prefill-button');
+    const fallbackHost = widgetContent(root)?.querySelector<HTMLElement>(`.${ARTIFACT_INACTIVE_FALLBACK_CLASS}`);
     const job = getJobInfo();
     const readyJob = message.job as
       | {
@@ -1760,7 +1767,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     prefill.sensitiveAnswers
   );
   void withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
-    await runPrefill({
+    const result = await runPrefill({
       resume: prefill.resume,
       coverLetter: prefill.coverLetter,
       generatedContentHash: prefill.generatedContentHash,
@@ -1772,7 +1779,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       animateFields: message.continuous !== true,
       shouldContinue,
     });
-    if (sensitiveAnswers && shouldContinue()) {
+    if (!result.paused && sensitiveAnswers && shouldContinue()) {
       await fillConfirmedSensitiveAnswers(
         findApplicationForm() ?? document,
         sensitiveAnswers,
@@ -1782,7 +1789,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }), message.undoRunId).then(() => sendResponse({ ok: true }))
     .catch(() => sendResponse({ ok: false }));
   return true;
-});
+}
 
 // Guard: only run on actual career / job pages.
 // isCareerPage() covers blocklist → known boards → ATS → career subdomains →

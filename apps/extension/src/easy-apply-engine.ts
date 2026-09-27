@@ -1,3 +1,5 @@
+import { verifyNativeCommit } from './prefill-commit';
+import { createUploadProbe, waitForUploadEvidence, UPLOAD_STATUS_COPY, type UploadVerification } from './upload-verification';
 /**
  * TrackMyOPT — job application prefill engine (FILL-ONLY).
  *
@@ -41,7 +43,7 @@ import {
   type PrefillControlOutcome,
   type PrefillCoverageResult,
 } from './prefill-coverage';
-import { buildContactAutofillProfile } from './prefill-contact-source';
+import { buildContactAutofillProfile, contactValueSource } from './prefill-contact-source';
 import { buildSkillsPrefillValue } from './skills-prefill';
 import type {
   BasicContactProfile,
@@ -156,12 +158,14 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const featureFlags = resolveAutofillFeatureFlags(options.featureFlags);
   const emptyCoverage = emptyPrefillCoverage();
   let visual: AutofillVisualFeedback | undefined;
+  const runUrl = document.location.href;
+  const current = () => document.location.href === runUrl && options.shouldContinue?.() !== false;
   const stopped = () => {
-    if (options.shouldContinue?.() !== false) return false;
+    if (current()) return false;
     visual?.fail('Prefill stopped');
     return true;
   };
-  if (stopped()) return emptyCoverage;
+  if (stopped()) return { ...emptyCoverage, paused: true };
   let latestNotice = '';
   const notify = (message: string) => {
     if (visual) {
@@ -186,10 +190,13 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   );
   visual = options.visualFeedback ?? createAutofillVisualFeedback(container.ownerDocument, { animateFields: options.animateFields });
 
+  const fieldSources: NonNullable<PrefillCoverageResult['fieldSources']> = [];
+  const pendingUploads: Array<{ input: HTMLInputElement; group: 'resume' | 'cover_letter' }> = [];
   const resumeResult = attachGeneratedResume(
     container,
     featureFlags.artifactPrefill ? options.resume : undefined,
-    (input) => visual.markFieldFilled(input, 'resume')
+    (input) => pendingUploads.push({ input, group: 'resume' }),
+    (input) => pendingUploads.push({ input, group: 'resume' })
   );
   const coverLetterResult =
     featureFlags.artifactPrefill && featureFlags.coverLetter
@@ -197,9 +204,40 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
           container,
           options.coverLetter,
           options.generatedContentHash,
-          (input) => visual.markFieldFilled(input, 'cover_letter')
+          (input) => pendingUploads.push({ input, group: 'cover_letter' }),
+          (input) => pendingUploads.push({ input, group: 'cover_letter' })
         )
       : 'not_requested';
+  const uploadVerification: Partial<Record<'resume' | 'cover_letter', UploadVerification>> = {};
+  for (const { input, group } of pendingUploads) {
+    visual.setStage?.('Waiting for the website to finish processing your document…');
+    const state = await waitForUploadEvidence({
+      probe: createUploadProbe(input, container, adapter.upload),
+      current: () => current() && container.isConnected,
+      now: () => Date.now(),
+      sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
+      // Unknown/native form controls can defer uploads until final submission.
+      // Report that honestly rather than assuming a network upload succeeded.
+      timeoutMs: adapter.upload ? 12_000 : 1_000,
+    });
+    uploadVerification[group] = state;
+    if (state === 'verified') visual.markFieldFilled(input, group);
+    else visual.markNeedsUser(input);
+    if (state === 'cancelled') {
+      visual.fail(UPLOAD_STATUS_COPY.cancelled);
+      return { ...emptyCoverage, paused: true, uploadVerification };
+    }
+  }
+  const blockedUpload = Object.values(uploadVerification).find(state => state === 'rejected' || state === 'timed_out');
+  if (blockedUpload) {
+    const result: PrefillCoverageResult = {
+      ...emptyCoverage, adapterId: adapter.id, resumeAttachmentResult: resumeResult,
+      uploadVerification, paused: true,
+    };
+    visual.fail(UPLOAD_STATUS_COPY[blockedUpload]);
+    return result;
+  }
+  if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
   const filledOutcomes: PrefillControlOutcome[] = resumeResult === 'attached'
     ? [{ filled: true, fieldGroup: 'resume' }]
     : [];
@@ -212,12 +250,26 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   if (snapshot && featureFlags.historyFields) {
     const historyControls = adapter.classifyRepeatableSections(container);
     for (const section of ['experience', 'education'] as const) {
-      const outcome = fillRepeatableRecords(
-        section,
-        historyControls,
-        snapshot,
-        (element) => visual.markFieldFilled(element, section)
-      );
+      const written: Array<{ element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement; value: string; checked?: boolean }> = [];
+      const outcome = fillRepeatableRecords(section, historyControls, snapshot, element => {
+        const control = element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        written.push({ element: control, value: control.value,
+          ...(control.tagName === 'INPUT' && (control as HTMLInputElement).type === 'checkbox' ? { checked: (control as HTMLInputElement).checked } : {}) });
+      });
+      const accepted = await Promise.all(written.map(async entry =>
+        await verifyNativeCommit(entry.element, entry.value, current) &&
+        (entry.checked === undefined || (entry.element as HTMLInputElement).checked === entry.checked)));
+      if (stopped()) return { ...emptyCoverage, paused: true };
+      for (const [index, entry] of written.entries()) {
+        if (accepted[index]) {
+          fieldSources.push({ control: entry.element, source: 'resume' });
+          visual.markFieldFilled(entry.element, section);
+        } else {
+          outcome.filledFields--;
+          outcome.skippedFields++;
+          visual.markNeedsUser(entry.element);
+        }
+      }
       historyRemaining[section] = outcome.remainingRecords;
       filledOutcomes.push(
         ...Array.from({ length: outcome.filledFields }, () => ({
@@ -241,6 +293,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       remainingRecords: historyRemaining,
       applicationScan: scanApplicationFields(container),
       resumeAttachmentResult: resumeResult,
+      uploadVerification,
+      fieldSources,
     };
     if (!options.visualFeedback) visual.finish(result, latestNotice);
     return result;
@@ -256,7 +310,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         profile?: AutofillProfile;
       } | null);
 
-  if (stopped()) return emptyCoverage;
+  if (stopped()) return { ...emptyCoverage, paused: true };
 
   if (!resp?.ok || !resp.profile) {
     if (
@@ -294,7 +348,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const dropdownContext: SmartDropdownContext = {
     countryName: profile.country,
     stateName: profile.state,
-    shouldContinue: options.shouldContinue,
+    shouldContinue: current,
   };
   const controls = queryAllDeep<HTMLElement>(
     container,
@@ -307,7 +361,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   ];
 
   for (const el of controls) {
-    if (stopped()) return emptyCoverage;
+    if (stopped()) return { ...emptyCoverage, paused: true };
     const kind = classifyField(getLabelText(el));
     if (!kind) continue; // no confident match, or a sensitive field -> leave it
     const value = kind === 'skills'
@@ -323,23 +377,23 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       continue; // tag editors/custom widgets require a tested ATS adapter
     } else if (isFillable(el)) {
       await visual.prepareField(el, kind === 'skills' ? 'skills' : 'contact');
-      if (stopped()) return emptyCoverage;
+      if (stopped()) return { ...emptyCoverage, paused: true };
       // The applicant may type, navigate, or disable a field during feedback.
       if (!el.isConnected || !isFillable(el)) { visual.clearActiveField(); continue; }
       setNativeValue(el, value);
-      changed = el.isConnected && el.value === value;
+      changed = await verifyNativeCommit(el, value, current);
     } else if (isFillableSelect(el)) {
       const selectValue = matchingSelectValue(el, kind, value, dropdownContext);
       if (!selectValue) continue; // never guess a dropdown option
       await visual.prepareField(el, 'contact');
-      if (stopped()) return emptyCoverage;
+      if (stopped()) return { ...emptyCoverage, paused: true };
       if (!el.isConnected || !isFillableSelect(el) || matchingSelectValue(el, kind, value, dropdownContext) !== selectValue) { visual.clearActiveField(); continue; }
       setNativeSelectValue(el, selectValue);
-      changed = el.isConnected && el.value === selectValue;
+      changed = await verifyNativeCommit(el, selectValue, current);
     } else if (isCustomDropdownControl(el)) {
       if (customDropdownHasValue(el)) continue;
       await visual.prepareField(el, 'contact');
-      if (stopped()) return emptyCoverage;
+      if (stopped()) return { ...emptyCoverage, paused: true };
       if (!el.isConnected) { visual.clearActiveField(); continue; }
       const selection = await selectSmartDropdown(
         el,
@@ -353,9 +407,10 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     } else {
       continue;
     }
-    if (stopped()) return emptyCoverage;
+    if (stopped()) return { ...emptyCoverage, paused: true };
     if (!changed) { visual.clearActiveField(); continue; }
     filled += 1;
+    fieldSources.push({ control: el, source: contactValueSource(snapshot, kind) });
     filledOutcomes.push({
       filled: true,
       fieldGroup: kind === 'skills' ? 'skills' : 'contact',

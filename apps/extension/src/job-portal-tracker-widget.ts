@@ -1,3 +1,4 @@
+import { isolateWidget, widgetActiveElement } from './widget-dom';
 /**
  * Job-portal floating tracker widget + in-widget AI/resume panels.
  * Module-level host bridges back into content-job-portal session state.
@@ -884,7 +885,7 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   const retractTabControlsWhenIdle = () => {
     window.setTimeout(() => {
       if (menu.style.display !== 'none') return;
-      const active = document.activeElement;
+      const active = widgetActiveElement();
       if (tab.matches(':hover')) return;
       if (active && (tab.contains(active) || menu.contains(active))) return;
       setTabControlsRevealed(false);
@@ -1056,19 +1057,20 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
         const execution = await host.executeResolvedPrefill(job, 'step_by_step');
         hasResume = execution.hasResume;
         const result = execution.result;
-        paintPrefillCoverage(prefillResultLine, result);
+        paintPrefillCoverage(prefillResultLine, result, () => { if (!prefillBtn.disabled) prefillBtn.click(); });
         // Report what actually happened to the file, not what was offered:
         // a resume can be resolved and still not attach when the upload field
         // is on a later step or already holds a file.
         const status = resumeStatusAfterPrefill({
           attachedCount: result.groups.resume.filled,
           attachmentResult: result.resumeAttachmentResult,
+          verification: result.uploadVerification?.resume,
           hasResume: execution.hasResume,
         });
         paintResumeStatusRow(resumeStatusRow, status.state, status.detail);
         // Smart answers run as part of this explicit Prefill action. Their
         // inline review markers replace the extra Generate/Insert clicks.
-        host.trackPrefillExecution(execution, 'step_by_step', 'success');
+        host.trackPrefillExecution(execution, 'step_by_step', result.paused ? 'error' : 'success');
       } catch {
         host.trackPrefillRuntimeFailure('step_by_step', hasResume);
         prefillResultLine.style.display = 'block';
@@ -1241,6 +1243,8 @@ export function createJobTrackerWidget(job: JobInfo, defaultView: DefaultView): 
   const sessionOverride = readSessionCollapsedOverride();
   setCollapsed(sessionOverride !== null ? sessionOverride : defaultView === 'minimized');
 
+  ensureSpinKeyframes();
+  isolateWidget(root);
   return root;
 }
 
@@ -1337,7 +1341,8 @@ export function openAiAnalysisWithDescription(
   jobDescription: string,
 ): void {
   const actionUrl = location.href;
-  const returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const focused = widgetActiveElement();
+  const returnFocusTo = focused instanceof HTMLElement ? focused : null;
 
   const overlay = document.createElement('div');
   overlay.id = 'tmo-ai-analysis';
@@ -1404,8 +1409,8 @@ export function openAiAnalysisWithDescription(
     if (event.key === 'Tab') {
       const items = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled])'));
       const first = items[0]; const last = items[items.length - 1];
-      if (first && event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (last && !event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (first && event.shiftKey && widgetActiveElement() === first) { event.preventDefault(); last.focus(); }
+      else if (last && !event.shiftKey && widgetActiveElement() === last) { event.preventDefault(); first.focus(); }
     }
   };
   document.addEventListener('keydown', onKeyDown, true);
@@ -1505,9 +1510,8 @@ export function openResumeChooserWithDescription(
   // Capture before mounting TrackMyOPT's modal so extension UI can never enter
   // the job-description payload or preview.
   const focusKeywords = [...new Set(analyzedMissingKeywords.map((keyword) => keyword.trim()).filter(Boolean))].slice(0, 12);
-  const returnFocusTo = document.activeElement instanceof HTMLElement
-    ? document.activeElement
-    : null;
+  const focused = widgetActiveElement();
+  const returnFocusTo = focused instanceof HTMLElement ? focused : null;
 
   const overlay = document.createElement('div');
   overlay.id = 'tmo-resume-chooser';
@@ -1588,10 +1592,10 @@ export function openResumeChooserWithDescription(
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
+    if (event.shiftKey && widgetActiveElement() === first) {
       event.preventDefault();
       last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
+    } else if (!event.shiftKey && widgetActiveElement() === last) {
       event.preventDefault();
       first.focus();
     }

@@ -1,3 +1,4 @@
+import { queryWidget } from './widget-dom';
 import type { PrefillFieldGroup } from './prefill-coverage';
 import { COLORS } from './design/tokens';
 
@@ -16,6 +17,7 @@ export interface AutofillVisualStatusInput {
 }
 
 export interface AutofillVisualFeedback {
+  setStage?(message: string): void;
   prepareField(element: HTMLElement, group: VisualGroup): Promise<void>;
   clearActiveField(): void;
   markFieldFilled(element: HTMLElement, group: VisualGroup): void;
@@ -178,13 +180,13 @@ export function createAutofillVisualFeedback(
   documentForVisual: Document = document,
   options: { animateFields?: boolean } = {},
 ): AutofillVisualFeedback {
-  documentForVisual.getElementById(VISUAL_HOST_ID)?.remove();
+  queryWidget(`#${VISUAL_HOST_ID}`, documentForVisual)?.remove();
   const host = documentForVisual.createElement('div');
   host.id = VISUAL_HOST_ID;
   host.setAttribute('role', 'status');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-atomic', 'true');
-  const slot = documentForVisual.querySelector<HTMLElement>('.tmo-prefill-progress-slot');
+  const slot = queryWidget<HTMLElement>('.tmo-prefill-progress-slot', documentForVisual);
   host.style.cssText = slot
     ? 'display:block;margin:8px 12px;pointer-events:none;'
     : 'position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;pointer-events:none;';
@@ -338,6 +340,7 @@ export function createAutofillVisualFeedback(
   render('filling');
 
   return {
+    setStage(message) { if (!finished) render('filling', undefined, message); },
     async prepareField(element, group) {
       clearActiveField();
       if (finished || !host.isConnected || !element.isConnected) return;

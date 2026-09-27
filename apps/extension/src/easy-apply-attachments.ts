@@ -146,7 +146,7 @@ export function pdfBase64ToFile(
     const bytes = Uint8Array.from(atob(pdfBase64), (char) =>
       char.charCodeAt(0)
     );
-    if (bytes.length < 5) return null;
+    if (bytes.length < 5 || String.fromCharCode(...bytes.slice(0, 5)) !== '%PDF-') return null;
     const safeFilename = filename.toLowerCase().endsWith('.pdf')
       ? filename
       : `${filename}.pdf`;
@@ -198,7 +198,8 @@ export function tryAttachPdfToInput(
 export function attachGeneratedResume(
   container: HTMLElement,
   attachment?: GeneratedResumeAttachment,
-  onAttached?: (input: HTMLInputElement) => void
+  onAttached?: (input: HTMLInputElement) => void,
+  onExisting?: (input: HTMLInputElement) => void
 ): ResumeAttachmentResult {
   if (!attachment) return 'not_requested';
   const file = pdfBase64ToFile(attachment.pdfBase64, attachment.filename);
@@ -219,6 +220,7 @@ export function attachGeneratedResume(
       continue;
     sawResumeInput = true;
     const result = tryAttachPdfToInput(input, file, onAttached);
+    if (result === 'already_present') onExisting?.(input);
     if (result === 'attached' || result === 'already_present') return result;
     lastSoftFailure = result;
   }
@@ -230,7 +232,8 @@ export function attachGeneratedCoverLetter(
   container: HTMLElement,
   attachment: GeneratedCoverLetterAttachment | undefined,
   generatedContentHash: string | undefined,
-  onAttached?: (input: HTMLInputElement) => void
+  onAttached?: (input: HTMLInputElement) => void,
+  onExisting?: (input: HTMLInputElement) => void
 ): ResumeAttachmentResult {
   if (!attachment) return 'not_requested';
   if (
@@ -254,6 +257,7 @@ export function attachGeneratedCoverLetter(
       continue;
     saw = true;
     const result = tryAttachPdfToInput(input, file, onAttached);
+    if (result === 'already_present') onExisting?.(input);
     if (result === 'attached' || result === 'already_present') return result;
   }
   return saw ? 'unsupported' : 'not_found';

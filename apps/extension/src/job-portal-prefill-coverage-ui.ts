@@ -1,3 +1,5 @@
+import { PREFILL_SOURCE_LABEL } from './prefill-contact-source';
+import { UPLOAD_STATUS_COPY } from './upload-verification';
 /**
  * Prefill coverage summary UI painted into the widget coverage line.
  */
@@ -8,13 +10,14 @@ import { formatPrefillCoverageSummary } from './prefill-coverage';
 export function paintPrefillCoverage(
   line: HTMLElement,
   result: PrefillCoverageResult,
+  retry?: () => void,
 ): void {
   const openGroups = new Map(Array.from(line.querySelectorAll('details')).map(details => [details.dataset.group, details.open]));
   line.textContent = '';
   const scan = result.applicationScan;
   const scannedFieldCount =
     (scan?.requiredTotal ?? 0) + (scan?.optionalTotal ?? 0);
-  if (result.total === 0 && scannedFieldCount === 0) {
+  if (result.total === 0 && scannedFieldCount === 0 && !result.uploadVerification) {
     line.style.display = 'none';
     return;
   }
@@ -29,6 +32,13 @@ export function paintPrefillCoverage(
   line.style.minWidth = '0';
   line.style.boxSizing = 'border-box';
 
+  for (const [kind, state] of Object.entries(result.uploadVerification ?? {})) {
+    const notice = document.createElement('p');
+    notice.setAttribute('role', 'status');
+    notice.textContent = `${kind === 'resume' ? 'Resume' : 'Cover letter'}: ${UPLOAD_STATUS_COPY[state]}`;
+    notice.style.cssText = 'margin:0 0 10px;font:500 12px/1.5 system-ui;';
+    line.appendChild(notice);
+  }
   if (scan && scannedFieldCount > 0) {
     const scanHeader = document.createElement('div');
     scanHeader.style.cssText =
@@ -97,7 +107,9 @@ export function paintPrefillCoverage(
         label.style.cssText =
           'display:block;min-width:0;white-space:normal;overflow-wrap:anywhere;font:400 12px/1.5 system-ui;color:var(--tmo-widget-ink, #17243b);';
         const state = document.createElement('span');
-        state.textContent = field.filled
+        const uploadState = field.control?.tagName === 'INPUT' && (field.control as HTMLInputElement).type === 'file'
+          ? result.uploadVerification?.[/cover/i.test(field.label) ? 'cover_letter' : 'resume'] : undefined;
+        state.textContent = uploadState && uploadState !== 'verified' ? 'Check upload' : field.filled
           ? '✓ Done'
           : field.required
             ? 'Missing'
@@ -106,6 +118,13 @@ export function paintPrefillCoverage(
           `display:block;white-space:nowrap;font:500 11px/1.65 system-ui;color:${
             field.filled ? 'var(--tmo-color-success-ink, #168465)' : field.required ? 'var(--tmo-color-warning-ink, #9b4b13)' : 'var(--tmo-widget-muted, #60718b)'
           };`;
+        const source = result.fieldSources?.find(entry => entry.control === field.control)?.source;
+        if (source) {
+          const detail = document.createElement('small');
+          detail.textContent = PREFILL_SOURCE_LABEL[source];
+          detail.style.cssText = 'display:block;font:400 11px/1.5 system-ui;color:var(--tmo-widget-muted);';
+          label.appendChild(detail);
+        }
         item.append(label, state);
         list.appendChild(item);
       }
@@ -124,6 +143,15 @@ export function paintPrefillCoverage(
   summary.style.cssText =
     'display:block;margin-top:12px;font-size:12px;line-height:1.5;color:var(--tmo-widget-muted, #60718b);';
   if (summary.textContent) line.appendChild(summary);
+  if (retry && (result.paused || result.skipped > 0 || scan?.unansweredRequired || Object.values(result.uploadVerification ?? {}).some(state => state !== 'verified'))) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = result.paused ? 'Recheck document and retry' : 'Retry unfinished fields';
+    button.title = 'Keeps existing values and files. Rechecks this application using your current saved data.';
+    button.style.cssText = 'display:block;width:100%;margin-top:12px;padding:10px;border:1px solid var(--tmo-widget-border);border-radius:8px;color:var(--tmo-widget-ink);background:var(--tmo-widget-surface);';
+    button.addEventListener('click', retry);
+    line.appendChild(button);
+  }
   const firstRemaining = scan?.required.find(field => !field.filled)?.control;
   if (firstRemaining || (!scan && result.skipped > 0 && result.firstSkippedSelector)) {
     const jump = document.createElement('button');

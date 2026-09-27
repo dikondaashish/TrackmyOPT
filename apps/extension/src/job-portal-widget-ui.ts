@@ -1,3 +1,4 @@
+import { queryWidgetAll } from './widget-dom';
 /**
  * Small DOM factories and paint helpers for the job-portal widget UI.
  * No module-level mutable state — callers pass hosts/values explicitly.
@@ -95,7 +96,7 @@ export function paintPrefillButton(
 /** Repaint every mounted status row — the widget may be rebuilt mid-flow. */
 export function syncResumeStatusRows(state: ResumeStatusState, detail?: string): void {
   for (const row of Array.from(
-    document.querySelectorAll<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
+    queryWidgetAll<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
   )) {
     paintResumeStatusRow(row, state, detail);
   }

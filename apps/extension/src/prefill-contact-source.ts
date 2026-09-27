@@ -52,3 +52,24 @@ export function buildContactAutofillProfile(
     ),
   };
 }
+
+export type PrefillValueSource = 'profile' | 'resume' | 'profile_and_resume' | 'default';
+export const PREFILL_SOURCE_LABEL: Record<PrefillValueSource, string> = {
+  profile: 'Saved profile', resume: 'This job’s resume',
+  profile_and_resume: 'Resume and saved profile', default: 'Default — review',
+};
+/** Explain the same precedence used by buildContactAutofillProfile; no values persist. */
+export function contactValueSource(snapshot: ResumeAutofillSnapshotV1 | undefined, kind: import('./easy-apply-matchers').FieldKind): PrefillValueSource {
+  if (kind === 'phoneDeviceType') return 'default';
+  if (!snapshot) return 'profile';
+  if (kind === 'skills' || kind === 'yearsExperience' && snapshot.totalYearsExperience !== undefined) return 'resume';
+  if (kind === 'fullName') {
+    if (snapshot.contact.fullName?.trim()) return 'resume';
+    if (snapshot.contact.firstName?.trim() && snapshot.contact.lastName?.trim()) return 'resume';
+    if (snapshot.contact.firstName?.trim() || snapshot.contact.lastName?.trim()) return 'profile_and_resume';
+    return 'profile';
+  }
+  const keys = kind === 'location' ? ['city','state'] : kind === 'phoneCountryCode' ? ['phone','country'] : [kind];
+  const fromResume = keys.filter(key => Boolean((snapshot.contact as unknown as Record<string, string>)[key]?.trim())).length;
+  return fromResume === keys.length ? 'resume' : fromResume ? 'profile_and_resume' : 'profile';
+}

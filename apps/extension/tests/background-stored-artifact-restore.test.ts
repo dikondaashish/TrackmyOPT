@@ -132,6 +132,7 @@ function createWorker(input: {
   const chrome = {
     runtime: {
       onInstalled: event,
+      onStartup: event,
       onMessage: {
         addListener(listener: MessageListener) {
           messageListener = listener;

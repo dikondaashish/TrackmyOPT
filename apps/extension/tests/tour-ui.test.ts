@@ -63,6 +63,13 @@ function fixture(packaged = false, stored?: unknown) {
     click: (selector: string) => w.document.querySelector(selector).click(),
   };
 }
+async function waitForDemo(doc: Document) {
+  const deadline = Date.now() + 5000;
+  while ((doc.querySelector('#demo-action') as HTMLButtonElement)?.disabled) {
+    assert.ok(Date.now() < deadline, 'Demo did not finish');
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+}
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
 test('tour uses real contact fill including country, preserves edits, and never fetches', async () => {
@@ -70,13 +77,13 @@ test('tour uses real contact fill including country, preserves edits, and never 
   try {
     f.click('[data-step="1"]');
     f.click('#demo-action');
-    await tick();
+    await waitForDemo(f.doc);
     assert.equal(f.doc.querySelector('[name="first_name"]').value, 'Alex');
     assert.equal(f.doc.querySelector('[name="country"]').value, 'US');
     assert.equal(f.doc.querySelector('[name="city"]').value, 'Boston');
     f.doc.querySelector('[name="first_name"]').value = 'My edit';
     f.click('#demo-action');
-    await tick();
+    await waitForDemo(f.doc);
     assert.equal(f.doc.querySelector('[name="first_name"]').value, 'My edit');
     assert.equal(f.requests, 0);
     assert.equal(f.messages.length, 0);
@@ -100,7 +107,7 @@ test('all seven sections have focusable headings and working sample actions', as
       );
       if (i < 6) {
         f.click('#demo-action');
-        await tick();
+        await waitForDemo(f.doc);
         assert.ok(f.doc.querySelector('#demo-status').textContent);
       }
     }
@@ -281,7 +288,7 @@ test('Escape cancels animated filling and allows another attempt', async () => {
     assert.equal(f.doc.querySelector('#demo-action').disabled, false);
     f.w.matchMedia = () => ({ matches: true });
     f.click('#demo-action');
-    await tick();
+    await waitForDemo(f.doc);
     assert.equal(f.doc.querySelector('[name="city"]').value, 'Boston');
   } finally {
     f.dom.window.close();

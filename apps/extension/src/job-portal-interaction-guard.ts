@@ -1,3 +1,4 @@
+import { widgetContent } from './widget-dom';
 /**
  * True while the user is mid-interaction: a resume is generating (or its result
  * is on screen), the AI-analysis or resume-template modal is open, or the
@@ -13,5 +14,5 @@ export function isWidgetInteractionInFlight(): boolean {
   if (document.getElementById('tmo-ai-analysis')) return true;
   if (document.getElementById('tmo-application-status-dialog')) return true;
   const widget = document.getElementById(WIDGET_ROOT_ID);
-  return !!widget?.querySelector('.' + RESUME_PANEL_CLASS + ', [aria-busy="true"]');
+  return !!widgetContent(widget)?.querySelector('.' + RESUME_PANEL_CLASS + ', [aria-busy="true"]');
 }
