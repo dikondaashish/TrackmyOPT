@@ -1,82 +1,60 @@
-Subject: TrackMyOPT: "Important notice from USC*S"
-Preheader: Just kidding—it's a TrackMyOPT update: smoother resumes, networking, and Pro for $0.99 for 7 days if eligible.
+Subject: We’ve been busy 👋 Try Pro for $0.99
+Preheader: A quick note from Ashish: what you can do with your account, plus 7 days of Pro for $0.99 if eligible.
 
-TrackMyOPT | Product update | September 29, 2026
+Hey {{firstName}},
 
-Less guesswork. More next steps.
+Ashish here from TrackMyOPT. Thanks for signing up.
 
-Hi there,
+Over the past couple of weeks, we’ve been improving your OPT tools and job-search workflow. The updated Chrome extension, smoother resume builder, networking tools, and clearer case view are ready to use.
 
-Just kidding—this is a TrackMyOPT product update, not a USCIS notice.
+If you haven’t had a chance to explore yet, here’s a quick tour of what’s waiting in your account.
 
-Here’s your Tuesday update: more useful tools for your OPT journey and job search are live on TrackMyOPT, and the Chrome extension has a new Store release.
+HERE’S WHAT YOU CAN DO TODAY
 
-01. The Chrome extension is now at 0.2.4.
+Chrome extension: Prefill supported job applications, draft screening answers and cover letters, and reuse job-specific resumes. You review and submit.
 
-We built a guided first-run tour, a steadier side panel with stoppable resume progress, saved job-specific resumes you can restore later, and Undo last Prefill. On an explicit Prefill click, supported forms can use your saved profile and private answers; supported login pages can fill saved credentials. The extension can also prepare screening-answer drafts for you to review. We improved job-tracker saving and prefill across several application portals.
+Resumes & ATS checks: Tailor your resume to a job, check its ATS compatibility, and keep your saved versions.
 
-Recent work also improves handling of LinkedIn Easy Apply and employer forms, including Workday, Greenhouse, and SmartRecruiters. You review your answers and submit applications yourself. Some features depend on your plan. The public Chrome Web Store lists version 0.2.4; check your installed version for the latest changes.
+Jobs & H-1B sponsors: Browse roles, research sponsoring employers, and track your applications in one place.
 
-View the Chrome extension:
+OPT & STEM planning: Calculate filing windows, count unemployment days, save employment history, and plan your STEM extension.
+
+Case updates & reminders: Check USCIS status, organize notices and tasks, and add deadlines to your calendar. Pro adds scheduled checks, opt-in alerts, and weekly digests.
+
+Networking: Find available work emails from LinkedIn profiles and draft personal outreach messages for you to review and send.
+
+Document Vault · Pro: Keep your I-20, EAD, passport, and other files together, with document expiry reminders.
+
+Everyday resources: Explore health insurance options, tax-filing resources, and partner offers.
+
+Features and usage limits depend on your plan. Contact lookups depend on available data.
+
+Get the Chrome extension:
 https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm
 
-02. OPT dates with more clarity.
+You don’t need to set up everything at once. Start with the one thing you need help with today.
 
-We refreshed the OPT Dates dashboard and the four OPT/STEM tools. Saved versus unsaved dates are clearer, unemployment-day calculations were tightened, and the STEM DSO recommendation date now has its own field. Employer suggestions and employment history gained company logos.
+TRY PRO FOR $0.99 FOR 7 DAYS
 
-Review your OPT dates:
-https://www.trackmyopt.com/dashboard/opt-dates?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
+Use your existing account to try automated case checks, deadline alerts, Document Vault, and more capacity for your career tools.
 
-03. See your case and next actions together.
-
-Case milestones, monitoring status, and four comparison views are now easier to scan together. You can record biometrics you attended, organize notices and confirmed deadlines, export dates to your calendar, and mark tasks complete. Official processing information is shown separately from historical community reports.
-
-For paid members: deadline emails and the weekly case digest are opt-in.
-
-Explore your case view:
-https://www.trackmyopt.com/dashboard/case-status?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
-
-04. Find people. Write a thoughtful note.
-
-The Networking workspace helps you check for an available work email from a LinkedIn profile and draft a personal email or LinkedIn note. Company search, logos, outreach-goal shortcuts, daily usage, and lookup results are now clearer. Optional outreach bundles remain a pilot. Results depend on available data; you review and send any message yourself.
-
-Try Networking:
-https://www.trackmyopt.com/dashboard/career/networking?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
-
-05. Build a resume with less waiting.
-
-Paste a job description or import its link, choose from faster-loading template previews, and see your resume preview and generation progress sooner. We improved recovery when AI generation times out. The job tracker summary is easier to scan, too.
-
-Explore Resume Builder:
-https://www.trackmyopt.com/dashboard/career/resume-generator?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
-
-06. A smoother Document Vault.
-
-A more compact layout puts your files first, especially on mobile. Uploads, downloads, preview retries, expiry-date edits, and reminder settings now give clearer feedback.
-
-Document Vault is a paid-plan feature.
-
-Open your Document Vault:
-https://www.trackmyopt.com/dashboard/documents?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
-
-Try Pro for $0.99 for 7 days.
-Get automated case checks, deadline alerts, and more room for your career tools.
-
-For eligible accounts: $0.99 is charged today for your first 7 days. After that, Pro automatically renews at $4.99/month or $49.99/year, depending on the plan you choose, unless you cancel before the introductory period ends. This is a paid introductory offer, not a free trial. It is available once per eligible account; checkout shows your exact terms.
-
-Try Pro for $0.99:
+Try Pro — $0.99 for 7 days:
 https://www.trackmyopt.com/pricing?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29&utm_content=pro_intro
 
-Want to stay on Free? Explore your free dashboard:
+$0.99 is charged today for 7 days. Then Pro automatically renews at $4.99/month or $49.99/year, depending on your chosen plan, unless you cancel before the introductory period ends. Once per eligible account; checkout shows your exact terms.
+
+Want to start with Free? Open my dashboard:
 https://www.trackmyopt.com/dashboard?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29&utm_content=free_dashboard
 
-Have feedback? Tell us what would help: support@trackmyopt.com
+What’s one thing you’re stuck on this week? Tell me at support@trackmyopt.com.
 
-The TrackMyOPT team
+Thanks for giving us a try,
+Ashish
+TrackMyOPT
 
-TrackMyOPT is independent software, not affiliated with USCIS or any government agency. Comparisons are historical context, not approval predictions. Always verify important dates and updates with your official notices and DSO.
+TrackMyOPT is independent of USCIS and government agencies. Verify important dates with your official notices and DSO.
 
-You’re receiving this product update because you have a TrackMyOPT account and receive product emails. Feature access depends on your plan. We measure email opens and link clicks to improve these updates; you can opt out below.
+You’re receiving this because you signed up for TrackMyOPT and receive product emails. We measure opens and link clicks to improve these updates. You can unsubscribe below.
 
 © 2026 Zyene, Inc. · TrackMyOPT
 {{POSTAL_ADDRESS}}

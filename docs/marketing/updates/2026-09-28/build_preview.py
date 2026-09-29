@@ -7,10 +7,14 @@ from pathlib import Path
 import html
 import os
 import shutil
+import argparse
 
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--preview-only', action='store_true', help='Reuse existing assets while rebuilding the email preview')
+args = parser.parse_args()
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(exist_ok=True)
 FONT_DIR = Path(os.environ.get("CAMPAIGN_FONT_DIR", "/System/Library/Fonts/Supplemental"))
@@ -128,27 +132,31 @@ def hero_background(progress):
 
 # Every frame includes all four concepts. A complete first frame also works
 # for clients with animation disabled. One brief pass, no infinite loop.
-still = illustration(1)
-still.save(ASSETS / "next-steps.png", optimize=True)
-frames = [still] + [illustration(i / 23) for i in range(24)] + [still]
-frames[0].save(ASSETS / "next-steps.gif", save_all=True, append_images=frames[1:],
-               duration=[700] + [80] * 24 + [1000], optimize=True, disposal=2)
-hero_still = hero_background(1)
-hero_still.save(ASSETS / "hero-route.png", optimize=True)
-hero_frames = [hero_still] + [hero_background(i / 23) for i in range(24)] + [hero_still]
-hero_frames[0].save(ASSETS / "hero-route.gif", save_all=True,
-                    append_images=hero_frames[1:],
-                    duration=[700] + [80] * 24 + [1000], optimize=True,
-                    disposal=2)
-shutil.copyfile(ROOT.parents[3] / "apps/web/public/TrackMyOPT Logo/Favicon.png", ASSETS / "logo.png")
+if not args.preview_only:
+    still = illustration(1)
+    still.save(ASSETS / "next-steps.png", optimize=True)
+    frames = [still] + [illustration(i / 23) for i in range(24)] + [still]
+    frames[0].save(ASSETS / "next-steps.gif", save_all=True, append_images=frames[1:],
+                   duration=[700] + [80] * 24 + [1000], optimize=True, disposal=2)
+    hero_still = hero_background(1)
+    hero_still.save(ASSETS / "hero-route.png", optimize=True)
+    hero_frames = [hero_still] + [hero_background(i / 23) for i in range(24)] + [hero_still]
+    hero_frames[0].save(ASSETS / "hero-route.gif", save_all=True,
+                        append_images=hero_frames[1:],
+                        duration=[700] + [80] * 24 + [1000], optimize=True,
+                        disposal=2)
+    shutil.copyfile(ROOT.parents[3] / "apps/web/public/TrackMyOPT Logo/Favicon.png", ASSETS / "logo.png")
 
 email = (ROOT / "email.html").read_text()
 email = email.replace("{{ASSET_BASE_URL}}", "assets")
+email = email.replace("{{firstName}}", "there")
 email = email.replace("{{POSTAL_ADDRESS}}", "[Verified sender postal address to be added]")
 email = email.replace('href="{{UNSUBSCRIBE_URL}}"', 'href="#unsubscribe-preview" aria-disabled="true" onclick="return false"')
 (ROOT / "preview-email.html").write_text(email)
 
-subject = 'TrackMyOPT: "Important notice from USC*S"'
+metadata = dict(line.split(': ', 1) for line in (ROOT / 'email.txt').read_text().splitlines()[:2])
+subject = metadata['Subject']
+preheader = metadata['Preheader']
 preview = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tuesday update · TrackMyOPT</title>
@@ -167,8 +175,8 @@ button[aria-pressed=true]{{background:#184fc4;color:#f7faff;border-color:#184fc4
 </style></head><body>
 <header class="toolbar"><div class="identity"><img src="assets/logo.png" alt=""><div><strong>TrackMyOPT / Product update</strong><small>Tuesday, September 29, 2026</small></div></div>
 <span class="badge">Draft · not sent</span><div class="controls" aria-label="Preview width"><button type="button" id="desktop" aria-pressed="true">Desktop</button><button type="button" id="mobile" aria-pressed="false">Mobile</button></div><a class="file" href="email.txt">Plain text ↗</a></header>
-<main><section class="envelope" aria-label="Email details"><p><strong>From</strong> TrackMyOPT &lt;support@trackmyopt.com&gt; &nbsp; / &nbsp; <strong>To</strong> Eligible product-update subscribers</p>
-<h1>{html.escape(subject)}</h1><p>Just kidding—it's a TrackMyOPT update: smoother resumes, networking, and Pro for $0.99 for 7 days if eligible.</p>
+<main><section class="envelope" aria-label="Email details"><p><strong>From</strong> Ashish from TrackMyOPT &lt;support@trackmyopt.com&gt; &nbsp; / &nbsp; <strong>To</strong> Registered users who haven’t started using their account (eligible Free accounts)</p>
+<h1>{html.escape(subject)}</h1><p>{html.escape(preheader)}</p>
 <p class="notice">Review preview. The animation plays once; its first frame works as a still. Before sending, host the images and insert your email provider’s unsubscribe URL and verified postal address. No send is scheduled.</p></section>
 <div class="stage" id="stage"><iframe id="email" title="TrackMyOPT product update email" src="preview-email.html?rev={(ROOT / 'preview-email.html').stat().st_mtime_ns}"></iframe></div></main>
 <script>

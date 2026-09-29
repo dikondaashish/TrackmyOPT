@@ -2,78 +2,63 @@
 
 **Status: review draft. No email sent or scheduled.**
 
-- Draft date: Tuesday, September 29, 2026, America/New_York. No send time is selected. The directory retains its original date so the existing preview URL keeps working.
-- Review window: September 15–29. GitHub `main` contains additional commits from September 25–27; the latest checked commit is [`ec5b310`](https://github.com/dikondaashish/TrackmyOPT/commit/ec5b310f451847cec01a1cbd1b0108783ae03a70). No September 28–29 commits were found in the checked `main` history.
-- Subject: **TrackMyOPT: "Important notice from USC*S"** (owner's manual edit retained; review the final inbox presentation before sending)
-- Alternate subject: **Important TrackMyOPT update: Chrome extension + more**
-- Preheader: Just kidding—it's a TrackMyOPT update: smoother resumes, networking, and Pro for $0.99 for 7 days if eligible.
-- Proposed sender: TrackMyOPT `<support@trackmyopt.com>`, subject to the sending provider's verified sender configuration.
-- Audience: product users eligible to receive product updates, honoring marketing opt-outs, suppressions, bounces, and duplicate addresses. “All users” is the intended breadth, not an instruction to override email preferences.
+## Personal re-engagement revision
+
+- Subject: **We’ve been busy 👋 Try Pro for $0.99**
+- Preheader: A quick note from Ashish: what you can do with your account, plus 7 days of Pro for $0.99 if eligible.
+- Proposed sender display name: **Ashish from TrackMyOPT**, using the verified `support@trackmyopt.com` mailbox. This is preview copy; the global SMTP sender configuration was not changed. Confirm the campaign's actual From/Reply-To presentation before sending.
+- Intended audience: registered Free users who have not started using their account, are eligible for the introductory offer, and receive product emails. Do not send an upgrade invitation to current paid subscribers.
+- This is a template revision, not an audience selection. No inactivity rule or recipient list has been calculated. The existing bulk-notification endpoint selects the full eligible audience, **not an inactive-user segment**; do not invoke it unchanged for this targeted campaign.
+- The draft uses a first-name greeting, with the existing sender's `there` fallback. It does not claim to know why someone has not used the product, invent personal history, or promise that Ashish personally reads every reply.
+- Recent improvements are introduced separately from the overview of existing tools. The overview covers Chrome prefill and writing drafts, resumes/ATS, jobs/sponsors/tracking, OPT/STEM, cases/reminders, networking, Document Vault, and insurance/tax/partner resources.
+- Pro is a paid $0.99 introduction for 7 days for eligible accounts. Automatic renewal, plan choice, cancellation timing, and once-per-account eligibility remain adjacent to the button. Dedicated-only services are not presented as Pro benefits.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| [preview.html](preview.html) | Local review page with desktop/mobile controls |
-| [preview-email.html](preview-email.html) | Rendered email with local assets and visibly unfinished footer values |
-| [email.html](email.html) | Email HTML for the sending provider, with three explicit merge placeholders |
-| [email.txt](email.txt) | Plain-text counterpart, with subject/preheader metadata at the top |
-| [assets/next-steps.gif](assets/next-steps.gif) | Original four-area illustration, one brief animation, about 320 KiB |
-| [assets/next-steps.png](assets/next-steps.png) | Static illustration, also used for reduced motion where supported |
-| [assets/hero-route.gif](assets/hero-route.gif) | One-pass animated hero background: calendar, case, and outreach checkpoints |
-| [assets/hero-route.png](assets/hero-route.png) | Static hero background for reduced motion where supported |
-| [assets/logo.png](assets/logo.png) | Unmodified existing TrackMyOPT favicon |
-| [github-review.md](github-review.md) | Feature evidence, release limits, and the complete first-parent commit inventory |
-| [build_preview.py](build_preview.py) | Rebuilds the illustration and review pages; no network or email operations |
-| [tracking.json](tracking.json) | Campaign ID and the separate Pro/Free CTA destinations for the SMTP sender |
+| [email.html](email.html) | Send-source HTML; main editable template |
+| [email.txt](email.txt) | Matching plain text; subject and preheader are the first two lines |
+| [preview.html](preview.html) | Review page with desktop/mobile controls |
+| [preview-email.html](preview-email.html) | Generated preview with local assets and the fallback greeting |
+| [build_preview.py](build_preview.py) | Rebuilds previews; never sends mail |
+| [assets/next-steps.gif](assets/next-steps.gif) | Existing brief, one-pass illustration, after the personal opening |
+| [assets/next-steps.png](assets/next-steps.png) | Static fallback for reduced motion |
+| [assets/logo.png](assets/logo.png) | Existing product logo |
+| [github-review.md](github-review.md) | Product evidence and historical commit inventory |
+| [tracking.json](tracking.json) | Separate Pro and Free CTA destinations for campaign tracking |
 
-## Preview locally
+The earlier hero background files are retained but are no longer used in this email. The draft uses one animation; it opens with the personal note rather than a large promotional hero.
+
+## Preview and editing
 
 From the repository root:
 
 ```sh
+python3 docs/marketing/updates/2026-09-28/build_preview.py --preview-only
 python3 -m http.server 4398 --bind 127.0.0.1 --directory docs/marketing/updates/2026-09-28
 ```
 
-Open [the review page](http://127.0.0.1:4398/preview.html). Use HTTP so the preview frame and automatic height adjustment have the same origin.
+Open [the review page](http://127.0.0.1:4398/preview.html). Edit `email.html` and `email.txt`, then rebuild. Subject and preheader are read from `email.txt`, so the preview stays in sync. Preview greeting uses “there”; the send-source versions retain `{{firstName}}`.
 
-To regenerate after editing `email.html`, use Python 3 with Pillow installed:
-
-```sh
-python3 docs/marketing/updates/2026-09-28/build_preview.py
-```
-
-The generator uses the existing macOS Trebuchet MS fonts. On other systems, set `CAMPAIGN_FONT_DIR` to a directory containing `Trebuchet MS.ttf` and `Trebuchet MS Bold.ttf`. Email recipients do not need these files: the HTML has Arial/Helvetica fallbacks.
+Python 3 and Pillow are required. `--preview-only` reuses existing images. Without it, the generator rebuilds the original illustrations using macOS Trebuchet MS fonts; `CAMPAIGN_FONT_DIR` can point to equivalent font files on another system. Recipients do not need these fonts.
 
 ## Before sending
 
-This package does not invoke or schedule a mailing job. The app's optional tracking sender and admin report are documented in [Email campaign tracking](../../EMAIL_CAMPAIGN_TRACKING.md).
+1. Define and verify the inactive-user segment, introductory-offer eligibility, opt-outs, bounces, and suppressions. This package does not select or send to that segment. Configure a scoped sender before any mailbox test or campaign send.
+2. Recheck featured releases and the [live pricing terms](https://www.trackmyopt.com/pricing). See [GitHub review](github-review.md) for the verified release snapshot. No approval, employment, or contact-lookup result is guaranteed.
+3. Host the existing logo and illustration at an approved public HTTPS location and replace `{{ASSET_BASE_URL}}`. Local image URLs will not work in recipients' inboxes.
+4. Replace `{{POSTAL_ADDRESS}}` with the verified sender address and `{{UNSUBSCRIBE_URL}}` with a working recipient-specific link. Keep privacy and unsubscribe links direct.
+5. Confirm the From/Reply-To mailbox. Remove `Subject:` and `Preheader:` metadata from the plain-text MIME body. The existing SMTP flow substitutes `{{firstName}}` (HTML-escaped) and falls back to “there”; another provider must have an equivalent merge field and fallback.
+6. Preserve the Pro and Free URLs in [tracking.json](tracking.json). The existing integration is described in [Email campaign tracking](../../EMAIL_CAMPAIGN_TRACKING.md). Pasting the template into a different provider does not enable this tracking automatically. If a campaign ID has already been registered with different content, use a new ID.
+7. Inspect an approved single-recipient test in Gmail, Outlook, and Apple Mail before scheduling. Browser preview checks do not certify every email client. No mailbox test or live send was performed for this revision.
 
-1. Confirm the final draft and recheck the featured releases before sending. Recheck the outreach pilot flag and provider availability. A fresh public Chrome Web Store fetch on September 29 showed version 0.2.4, updated September 28; confirm the Store still shows it before sending and avoid promising that every reader's installed extension has updated already.
-2. Upload `assets/` to the email provider or an approved public HTTPS asset location. Replace `{{ASSET_BASE_URL}}` with that directory's HTTPS URL, without a trailing slash. Do not send local image paths or GitHub HTML-page URLs as image sources.
-3. Replace `{{UNSUBSCRIBE_URL}}` in both versions with the provider's recipient-specific unsubscribe merge field. Replace `{{POSTAL_ADDRESS}}` with the verified sender postal address. Neither value was invented. The local preview's unsubscribe link is deliberately inactive.
-4. Set the provider's subject and preheader from the metadata above. Remove the `Subject:` and `Preheader:` metadata lines from `email.txt` when importing it as the MIME plain-text body. Configure the provider's subscription/suppression behavior and unsubscribe headers using its supported campaign flow.
-5. Check the live pricing offer and checkout before sending. The email describes the once-per-eligible-account $0.99 paid Pro introduction for 7 days, followed by automatic renewal at the selected limited-time $4.99 monthly or $49.99 yearly price unless canceled before the introduction ends. Do not call it free or offer it to ineligible accounts.
-6. Send a test only to an approved test recipient and inspect Gmail, Outlook, and Apple Mail rendering, including dark mode, before scheduling the eligible audience. No mailbox tests were performed for this draft.
+## Design and verification
 
-The existing `app/api/admin/bulk-notification/route.ts` replaces only `firstName`, `email`, and `userId`; it does not resolve these campaign placeholders. Its new optional `campaign` object activates signed open/click tracking after the draft is fully rendered. Do not POST this unrendered template to that endpoint. Use `tracking.json` to distinguish the $0.99 Pro button from the Free dashboard link; analytics records clicks, not purchases.
+A short note from Ashish precedes the illustration. Eight compact rows explain what an account can do. One primary Pro button and a secondary Free dashboard link provide the next step; the Chrome Store link remains available for installation. The government-notice joke and its subject have been removed.
 
-## Design and validation
+The template retains table layout, inline styles, readable HTML text, image alternatives, explicit dimensions, and mobile padding. There is no JavaScript in the send-source HTML. The existing GIF has a useful first frame and plays once; reduced-motion CSS switches it to the PNG where supported. The preview controls are separate from the send-source email.
 
-The reader is an international student checking a Tuesday inbox on a phone or laptop. The owner manually removed the joke from the subject; TrackMyOPT remains named first, and the preheader and opening paragraph identify this as a product update, not a government notice. Review this subject carefully before a bulk send. The light reading surface, existing brand blue, and illustrated Chrome tools/dates/case/career sequence support a quick scan. The illustration is conceptual, not a dashboard screenshot or applicant record. Existing Arial/Helvetica email typography is preserved, with Trebuchet headings and safe fallback fonts. There is no new `DESIGN.md`; the existing email brand and product context guided the design.
+The HTML and plain-text CTA destinations remain compatible with the existing tracking instrumentation tests. Verify preview rendering, both width controls, merge placeholders, local assets, and `git diff --check` after edits. Historical release and validation evidence remains in [GitHub review](github-review.md) and the [tracking documentation](../../EMAIL_CAMPAIGN_TRACKING.md).
 
-Email uses presentation tables, inline primary styles, real HTML text, descriptive link labels, alternative image text, explicit image dimensions, and no JavaScript. The separate review wrapper has small local-only preview controls. Hex colors preserve the existing brand and email compatibility.
-
-Both GIFs have useful complete first frames, play for approximately 3.62 seconds once, and do not depend on infinite motion to communicate. The new hero GIF animates a calendar → case record → outreach route behind the live HTML headline. Inline background styles and a `background` attribute use the animated asset in supporting clients; the hero keeps a solid blue fallback when email apps block or ignore background images. A mobile media query removes the background layer to keep narrow headlines clear, while the main journey illustration still animates. A reduced-motion media query selects static PNGs where supported. Clients can display only a still when animation is disabled; see [Microsoft's animation behavior documentation](https://support.microsoft.com/en-au/outlook/the-animated-graphic-in-my-e-mail-message-doesn-t-work). The email's responsive styling is an enhancement over its inline base; see [Gmail's supported CSS documentation](https://developers.google.com/workspace/gmail/design/css).
-
-Verified for this draft:
-
-- Chromium desktop preview and 320, 375, and 600px email widths: no horizontal overflow.
-- Desktop/mobile preview controls and automatic iframe height adjustment.
-- Visible images and hero background loaded; reduced-motion mode hides the illustration GIF and displays both static PNGs.
-- Image-blocked mode retains the heading and all feature descriptions. The draft now has eleven links including the separate Free dashboard CTA.
-- Seven product links, including the public pricing page, were checked for route availability. This is route verification, not authenticated feature testing.
-- HTML has no scripts, forms, embedded product data, or sending credentials. Template placeholders remain only in the send-source versions.
-- Asset size, GIF frame count/duration, HTML structure, local references, and `git diff --check` checked before commit.
-
-The original campaign-only revision used preview checks. Tracking code is validated separately with app tests, lint, type checks and a build. Browser preview checks do not certify every email client or inbox delivery. The reviewed web release's successful CI/deployment is recorded separately in the GitHub review.
+This revision was checked in the browser at 375px and the available 464px reading width with no horizontal overflow; images loaded, the mobile control switched correctly, and the offer and footer remained readable. All 10 existing campaign-instrumentation tests passed against the rewritten template. The plain-text draft dropped from 664 to 441 words, including metadata, links, terms, and footer. Preview merge fields are resolved while send-source merge fields remain intact.

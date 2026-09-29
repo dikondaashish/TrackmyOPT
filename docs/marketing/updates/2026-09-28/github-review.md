@@ -2,6 +2,12 @@
 
 Repository: [dikondaashish/TrackmyOPT](https://github.com/dikondaashish/TrackmyOPT).
 
+## Personal re-engagement copy revision
+
+The shorter revision introduces recent improvements, then explains the existing platform tools for registered users who have not started using their account. It does not describe every listed tool as newly released. Additional overview items were checked against the [live pricing/features page](https://www.trackmyopt.com/pricing) on September 29 and the repository at `f9437e9`: [plan configuration](../../../../apps/web/lib/pricing/plan-config.ts), [job board](../../../../apps/web/app/dashboard/career/jobs/page.tsx), and the existing dashboard pages for ATS scans, H-1B sponsors, job tracking, insurance, tax resources, and partner offers. Cover-letter and screening drafts remain review-first; Pro and plan-dependent access remain explicit. Dedicated-only services are not included in the Pro offer.
+
+The draft now uses a greeting from Ashish, eight short tool descriptions, one existing illustration, and separate Pro/Free links. The earlier subject, large hero, and long feature sections described below are historical. No audience was selected and no message was sent. The current bulk sender does not yet select inactive users; see the [campaign README](README.md) before sending this targeted draft.
+
 ## September 29 addendum
 
 The updated draft was checked against GitHub `main` through [`ec5b310`](https://github.com/dikondaashish/TrackmyOPT/commit/ec5b310f451847cec01a1cbd1b0108783ae03a70). Since the prior email commit `7ecbc7f`, **42 first-parent commits** reached `main`: 8 on September 25, 27 on September 26, and 7 on September 27. No September 28–29 commits appeared in the checked `main` history. The latest GitHub Production deployment for `ec5b310` reported `success` on September 27; its CI runs reported `failure`, so this record does not claim CI passed.
