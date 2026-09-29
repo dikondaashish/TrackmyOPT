@@ -25,6 +25,7 @@
 | [assets/logo.png](assets/logo.png) | Unmodified existing TrackMyOPT favicon |
 | [github-review.md](github-review.md) | Feature evidence, release limits, and the complete first-parent commit inventory |
 | [build_preview.py](build_preview.py) | Rebuilds the illustration and review pages; no network or email operations |
+| [tracking.json](tracking.json) | Campaign ID and the separate Pro/Free CTA destinations for the SMTP sender |
 
 ## Preview locally
 
@@ -46,7 +47,7 @@ The generator uses the existing macOS Trebuchet MS fonts. On other systems, set 
 
 ## Before sending
 
-This package deliberately does not implement or invoke a mailing job.
+This package does not invoke or schedule a mailing job. The app's optional tracking sender and admin report are documented in [Email campaign tracking](../../EMAIL_CAMPAIGN_TRACKING.md).
 
 1. Confirm the final draft and recheck the featured releases before sending. Recheck the outreach pilot flag and provider availability. A fresh public Chrome Web Store fetch on September 29 showed version 0.2.4, updated September 28; confirm the Store still shows it before sending and avoid promising that every reader's installed extension has updated already.
 2. Upload `assets/` to the email provider or an approved public HTTPS asset location. Replace `{{ASSET_BASE_URL}}` with that directory's HTTPS URL, without a trailing slash. Do not send local image paths or GitHub HTML-page URLs as image sources.
@@ -55,7 +56,7 @@ This package deliberately does not implement or invoke a mailing job.
 5. Check the live pricing offer and checkout before sending. The email describes the once-per-eligible-account $0.99 paid Pro introduction for 7 days, followed by automatic renewal at the selected limited-time $4.99 monthly or $49.99 yearly price unless canceled before the introduction ends. Do not call it free or offer it to ineligible accounts.
 6. Send a test only to an approved test recipient and inspect Gmail, Outlook, and Apple Mail rendering, including dark mode, before scheduling the eligible audience. No mailbox tests were performed for this draft.
 
-The existing `app/api/admin/bulk-notification/route.ts` replaces only `firstName`, `email`, and `userId`; it does not resolve these campaign placeholders. It is not a ready-to-use sender for this package. Do not POST this unrendered template to that endpoint.
+The existing `app/api/admin/bulk-notification/route.ts` replaces only `firstName`, `email`, and `userId`; it does not resolve these campaign placeholders. Its new optional `campaign` object activates signed open/click tracking after the draft is fully rendered. Do not POST this unrendered template to that endpoint. Use `tracking.json` to distinguish the $0.99 Pro button from the Free dashboard link; analytics records clicks, not purchases.
 
 ## Design and validation
 
@@ -70,9 +71,9 @@ Verified for this draft:
 - Chromium desktop preview and 320, 375, and 600px email widths: no horizontal overflow.
 - Desktop/mobile preview controls and automatic iframe height adjustment.
 - Visible images and hero background loaded; reduced-motion mode hides the illustration GIF and displays both static PNGs.
-- Image-blocked mode retains the heading, all feature descriptions, and all ten links.
+- Image-blocked mode retains the heading and all feature descriptions. The draft now has eleven links including the separate Free dashboard CTA.
 - Seven product links, including the public pricing page, were checked for route availability. This is route verification, not authenticated feature testing.
 - HTML has no scripts, forms, embedded product data, or sending credentials. Template placeholders remain only in the send-source versions.
 - Asset size, GIF frame count/duration, HTML structure, local references, and `git diff --check` checked before commit.
 
-App tests/build were not rerun for a campaign-only documentation and asset change. Browser preview checks do not certify every email client or inbox delivery. The reviewed web release's successful CI/deployment is recorded separately in the GitHub review.
+The original campaign-only revision used preview checks. Tracking code is validated separately with app tests, lint, type checks and a build. Browser preview checks do not certify every email client or inbox delivery. The reviewed web release's successful CI/deployment is recorded separately in the GitHub review.

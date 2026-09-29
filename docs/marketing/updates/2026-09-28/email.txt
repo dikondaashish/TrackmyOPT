@@ -64,8 +64,11 @@ Get automated case checks, deadline alerts, and more room for your career tools.
 
 For eligible accounts: $0.99 is charged today for your first 7 days. After that, Pro automatically renews at $4.99/month or $49.99/year, depending on the plan you choose, unless you cancel before the introductory period ends. This is a paid introductory offer, not a free trial. It is available once per eligible account; checkout shows your exact terms.
 
-See Pro plans:
-https://www.trackmyopt.com/pricing?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
+Try Pro for $0.99:
+https://www.trackmyopt.com/pricing?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29&utm_content=pro_intro
+
+Want to stay on Free? Explore your free dashboard:
+https://www.trackmyopt.com/dashboard?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29&utm_content=free_dashboard
 
 Have feedback? Tell us what would help: support@trackmyopt.com
 
@@ -73,7 +76,7 @@ The TrackMyOPT team
 
 TrackMyOPT is independent software, not affiliated with USCIS or any government agency. Comparisons are historical context, not approval predictions. Always verify important dates and updates with your official notices and DSO.
 
-You’re receiving this product update because you have a TrackMyOPT account and receive product emails. Feature access depends on your plan.
+You’re receiving this product update because you have a TrackMyOPT account and receive product emails. Feature access depends on your plan. We measure email opens and link clicks to improve these updates; you can opt out below.
 
 © 2026 Zyene, Inc. · TrackMyOPT
 {{POSTAL_ADDRESS}}
