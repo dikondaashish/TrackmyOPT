@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { SendMailOptions, SentMessageInfo } from 'nodemailer';
 import { instrumentCampaignEmail, type CampaignTracking } from './campaign-tracking';
+import { createUnsubscribeToken } from './campaign-unsubscribe';
 
 export async function registerEmailCampaign(supabase: SupabaseClient, campaign: CampaignTracking, content: {
   subject: string; html: string; text: string;
@@ -23,10 +24,17 @@ export async function registerEmailCampaign(supabase: SupabaseClient, campaign: 
 export async function sendTrackedCampaignEmail(args: {
   supabase: SupabaseClient; campaign: CampaignTracking; secret: string; baseUrl: string;
   userId: string; email: string; subject: string; html: string; text: string; from: string;
+  replyTo?: string;
   sendMail: (options: SendMailOptions) => Promise<SentMessageInfo>;
 }): Promise<'sent' | 'duplicate' | 'failed' | 'needs_review'> {
   const id = randomUUID();
-  const bodies = instrumentCampaignEmail({ ...args, messageId: id });
+  const unsubscribe = new URL('/api/notifications/campaign/unsubscribe', args.baseUrl);
+  unsubscribe.searchParams.set('token', createUnsubscribeToken(id, args.secret));
+  const bodies = instrumentCampaignEmail({ ...args, messageId: id,
+    html: args.html.replaceAll('{{UNSUBSCRIBE_URL}}', unsubscribe.toString()),
+    text: args.text.replaceAll('{{UNSUBSCRIBE_URL}}', unsubscribe.toString()),
+  });
+  if (/\{\{[^{}]+\}\}/.test(bodies.html + bodies.text)) throw new Error('Resolve all template fields before sending');
   const reserved = await args.supabase.from('email_queue').insert({
     id, user_id: args.userId, email_address: args.email.trim().toLowerCase(),
     email_type: 'service_announcement', email_subject: args.subject,
@@ -37,7 +45,8 @@ export async function sendTrackedCampaignEmail(args: {
 
   try {
     // A single SMTP attempt. Retrying an ambiguous result can deliver duplicates.
-    const info = await args.sendMail({ from: args.from, to: args.email, subject: args.subject, ...bodies });
+    const info = await args.sendMail({ from: args.from, to: args.email, subject: args.subject, replyTo: args.replyTo,
+      headers: { 'List-Unsubscribe': `<${unsubscribe}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, ...bodies });
     if (!info.accepted?.length) throw new Error('SMTP did not accept the recipient');
     const saved = await args.supabase.from('email_queue').update({
       status: 'sent', sent_at: new Date().toISOString(), provider_message_id: info.messageId,

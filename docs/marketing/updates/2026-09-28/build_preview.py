@@ -148,7 +148,7 @@ if not args.preview_only:
     shutil.copyfile(ROOT.parents[3] / "apps/web/public/TrackMyOPT Logo/Favicon.png", ASSETS / "logo.png")
 
 email = (ROOT / "email.html").read_text()
-email = email.replace("{{ASSET_BASE_URL}}", "assets")
+email = email.replace("https://www.trackmyopt.com/email/product-update-2026-09-29", "assets")
 email = email.replace("{{firstName}}", "there")
 email = email.replace("{{POSTAL_ADDRESS}}", "[Verified sender postal address to be added]")
 email = email.replace('href="{{UNSUBSCRIBE_URL}}"', 'href="#unsubscribe-preview" aria-disabled="true" onclick="return false"')
@@ -177,7 +177,7 @@ button[aria-pressed=true]{{background:#184fc4;color:#f7faff;border-color:#184fc4
 <span class="badge">Draft · not sent</span><div class="controls" aria-label="Preview width"><button type="button" id="desktop" aria-pressed="true">Desktop</button><button type="button" id="mobile" aria-pressed="false">Mobile</button></div><a class="file" href="email.txt">Plain text ↗</a></header>
 <main><section class="envelope" aria-label="Email details"><p><strong>From</strong> Karthik from TrackMyOPT &lt;support@trackmyopt.com&gt; &nbsp; / &nbsp; <strong>To</strong> Registered users who haven’t started using their account (eligible Free accounts)</p>
 <h1>{html.escape(subject)}</h1><p>{html.escape(preheader)}</p>
-<p class="notice">Review preview. The animation plays once; its first frame works as a still. Before sending, host the images and insert your email provider’s unsubscribe URL and verified postal address. No send is scheduled.</p></section>
+<p class="notice">Review preview. The animation plays once; its first frame works as a still. The mailing address is still needed. The tracked sender adds each recipient’s name, unsubscribe link, and analytics. No send is scheduled.</p></section>
 <div class="stage" id="stage"><iframe id="email" title="TrackMyOPT product update email" src="preview-email.html?rev={(ROOT / 'preview-email.html').stat().st_mtime_ns}"></iframe></div></main>
 <script>
 const stage=document.getElementById('stage'), frame=document.getElementById('email');

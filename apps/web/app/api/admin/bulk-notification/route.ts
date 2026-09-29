@@ -6,6 +6,8 @@ import { sanitizeError } from '@/lib/secure-logger';
 import { safeEqual } from '@/lib/api/secure-compare';
 import { campaignTrackingSchema, getCampaignSigningSecret, instrumentCampaignEmail, type CampaignTracking } from '@/lib/notifications/campaign-tracking';
 import { registerEmailCampaign, sendTrackedCampaignEmail } from '@/lib/notifications/campaign-send';
+import { getCampaignSmtpOptions } from '@/lib/notifications/campaign-smtp';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -31,6 +33,8 @@ interface BulkNotificationRequest {
   plainTextContent: string;
   requiresConsent?: boolean; // For policy changes requiring active consent
   campaign?: CampaignTracking; // Optional tracking for service announcements only.
+  recipientUserIds?: string[]; // Explicit reviewed audience, at most 100 per request.
+  dryRun?: boolean; // Tracked campaigns default to a read-only preflight.
 }
 
 // Create SMTP transporter
@@ -65,6 +69,8 @@ export async function POST(request: NextRequest) {
     }
 
     let campaign: CampaignTracking | undefined;
+    let recipientUserIds: string[] = [];
+    let dryRun = true;
     const signingSecret = getCampaignSigningSecret();
     if (body.campaign !== undefined) {
       const parsed = campaignTrackingSchema.safeParse(body.campaign);
@@ -72,9 +78,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'A tracked campaign requires service_announcement, plain text, and valid campaign links' }, { status: 400 });
       }
       campaign = parsed.data;
+      const recipients = z.array(z.string().uuid()).min(1).max(100).safeParse(body.recipientUserIds);
+      if (!recipients.success || (body.dryRun !== undefined && typeof body.dryRun !== 'boolean')) {
+        return NextResponse.json({ error: 'Tracked campaigns require 1–100 explicit recipientUserIds and an optional boolean dryRun' }, { status: 400 });
+      }
+      recipientUserIds = [...new Set(recipients.data)];
+      dryRun = body.dryRun !== false;
       if (!signingSecret) return NextResponse.json({ error: 'Campaign signing is not configured' }, { status: 503 });
-      if (/\{\{(?:ASSET_BASE_URL|UNSUBSCRIBE_URL|POSTAL_ADDRESS)\}\}/.test(`${htmlContent}\n${plainTextContent}`)) {
-        return NextResponse.json({ error: 'Resolve campaign image, unsubscribe, and postal-address placeholders before sending' }, { status: 400 });
+      const withoutSupportedFields = `${htmlContent}\n${plainTextContent}`.replace(/\{\{(?:firstName|email|userId|UNSUBSCRIBE_URL)\}\}/g, '');
+      if (/\{\{[^{}]+\}\}/.test(withoutSupportedFields) || !htmlContent.includes('{{UNSUBSCRIBE_URL}}') || !plainTextContent.includes('{{UNSUBSCRIBE_URL}}')) {
+        return NextResponse.json({ error: 'Resolve image and postal-address fields; retain {{UNSUBSCRIBE_URL}} in both bodies for recipient-specific links' }, { status: 400 });
       }
       try {
         instrumentCampaignEmail({ html: htmlContent, text: plainTextContent, messageId: '00000000-0000-4000-8000-000000000000',
@@ -90,19 +103,13 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    if (campaign) {
-      try {
-        await registerEmailCampaign(supabaseAdmin, campaign, { subject, html: htmlContent, text: plainTextContent });
-      } catch (error) {
-        return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign registration failed' }, { status: 409 });
-      }
-    }
-
     // Supabase's default page size is 1,000; page through the complete audience.
     const users: { user_id: string; email: string; first_name: string | null }[] = [];
     for (let offset = 0; ; offset += 1000) {
-      const page = await supabaseAdmin.from('profiles').select('user_id, email, first_name')
+      let query = supabaseAdmin.from('profiles').select('user_id, email, first_name')
         .not('email', 'is', null).order('user_id').range(offset, offset + 999);
+      if (campaign) query = query.in('user_id', recipientUserIds);
+      const page = await query;
       if (page.error) return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
       users.push(...(page.data || []));
       if (!page.data || page.data.length < 1000) break;
@@ -130,8 +137,34 @@ export async function POST(request: NextRequest) {
       ? users.filter(u => !optedOutUserIds.has(u.user_id))
       : users;
 
+    // Check the entire scoped audience before the first send (or any dry-run writes).
+    const blockedEmails = new Set<string>();
+    if (campaign && eligibleUsers.length) {
+      const blocked = await supabaseAdmin.from('blocked_emails').select('email')
+        .in('email', eligibleUsers.map(user => user.email.trim().toLowerCase()));
+      if (blocked.error) return NextResponse.json({ error: 'Unable to verify suppressions; no emails sent' }, { status: 503 });
+      for (const row of blocked.data || []) blockedEmails.add(row.email.toLowerCase());
+    }
+    if (campaign && dryRun) {
+      return NextResponse.json({ dryRun: true, campaignId: campaign.id, requested: recipientUserIds.length,
+        matched: users.length, skippedOptOut: users.length - eligibleUsers.length,
+        suppressed: eligibleUsers.filter(user => blockedEmails.has(user.email.trim().toLowerCase())).length,
+        eligible: eligibleUsers.filter(user => !blockedEmails.has(user.email.trim().toLowerCase())).length,
+        sent: 0, note: 'No SMTP attempt or campaign registration. Review inactive-user and intro-offer eligibility separately.' });
+    }
+    let campaignSmtp;
+    if (campaign) {
+      try { campaignSmtp = getCampaignSmtpOptions(); }
+      catch (error) { return NextResponse.json({ error: (error as Error).message }, { status: 503 }); }
+      try {
+        await registerEmailCampaign(supabaseAdmin, campaign, { subject, html: htmlContent, text: plainTextContent });
+      } catch (error) {
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign registration failed' }, { status: 409 });
+      }
+    }
+
     // Send emails in batches
-    const transporter = createTransporter();
+    const transporter = campaignSmtp ? nodemailer.createTransport(campaignSmtp) : createTransporter();
     const batchSize = 50;
     let sent = 0;
     let failed = 0;
@@ -142,15 +175,6 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < eligibleUsers.length; i += batchSize) {
       const batch = eligibleUsers.slice(i, i + batchSize);
-
-      // Campaign tracking must not bypass existing bounce/block suppressions.
-      const blocked = campaign ? await supabaseAdmin.from('blocked_emails').select('email')
-        .in('email', batch.map(user => user.email.trim().toLowerCase())) : { data: [], error: null };
-      if (blocked.error) {
-        transporter.close();
-        return NextResponse.json({ error: 'Unable to verify suppressions; stopped sending', sent, failed, needsReview }, { status: 503 });
-      }
-      const blockedEmails = new Set((blocked.data || []).map(row => row.email.toLowerCase()));
 
       // Simple HTML escape function to prevent XSS
       const escapeHtml = (unsafe: string) => {
@@ -170,20 +194,21 @@ export async function POST(request: NextRequest) {
           const userId = user.user_id; // UUIDs are generally safe, but could escape if wanted
 
           const personalizedHtml = htmlContent
-            .replaceAll('{{firstName}}', safeFirstName)
-            .replaceAll('{{email}}', safeEmail)
+            .replaceAll('{{firstName}}', () => safeFirstName)
+            .replaceAll('{{email}}', () => safeEmail)
             .replaceAll('{{userId}}', userId);
 
           const personalizedText = plainTextContent
-            .replaceAll('{{firstName}}', user.first_name || 'there') // Text email doesn't need HTML escaping
-            .replaceAll('{{email}}', user.email || '')
+            .replaceAll('{{firstName}}', () => user.first_name || 'there') // Text email doesn't need HTML escaping
+            .replaceAll('{{email}}', () => user.email || '')
             .replaceAll('{{userId}}', userId);
 
           if (campaign) {
             const outcome = await sendTrackedCampaignEmail({
               supabase: supabaseAdmin, campaign, secret: signingSecret!, baseUrl: 'https://www.trackmyopt.com',
               userId, email: user.email, subject, html: personalizedHtml, text: personalizedText,
-              from: getSmtpFromHeader(), sendMail: options => transporter.sendMail(options),
+              from: 'Karthik from TrackMyOPT <support@trackmyopt.com>', replyTo: 'support@trackmyopt.com',
+              sendMail: options => transporter.sendMail(options),
             });
             if (outcome === 'sent') sent++;
             else if (outcome === 'duplicate') duplicate++;

@@ -2,6 +2,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, expect, it, vi } from 'vitest';
 import { registerEmailCampaign, sendTrackedCampaignEmail } from './campaign-send';
+import { verifyUnsubscribeToken } from './campaign-unsubscribe';
 
 const destination = 'https://www.trackmyopt.com/pricing';
 const campaign = { id: 'test-campaign', links: { pro_intro: destination } };
@@ -17,6 +18,24 @@ function setup(reserveError: { code: string } | null = null, saveError: object |
 }
 
 describe('tracked campaign sender', () => {
+  it('resolves a direct unsubscribe link for this exact reservation and supplies one-click headers', async () => {
+    const m = setup();
+    await sendTrackedCampaignEmail({ ...m.args, replyTo: 'support@trackmyopt.com',
+      html: content.html + '<a href="{{UNSUBSCRIBE_URL}}">Unsubscribe</a>', text: content.text + '\n{{UNSUBSCRIBE_URL}}' });
+    const mail = m.sendMail.mock.calls[0][0];
+    const url = new URL(mail.headers['List-Unsubscribe'].slice(1, -1));
+    expect(verifyUnsubscribeToken(url.searchParams.get('token'), 'test-secret')).toBe(m.insert.mock.calls[0][0].id);
+    expect(mail.html).toContain(url.toString());
+    expect(mail.text).toContain(url.toString());
+    expect(mail.headers['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click');
+    expect(mail.replyTo).toBe('support@trackmyopt.com');
+  });
+  it('rejects unresolved template fields before reserving or sending', async () => {
+    const m = setup();
+    await expect(sendTrackedCampaignEmail({ ...m.args, html: content.html + '{{POSTAL_ADDRESS}}' })).rejects.toThrow('template fields');
+    expect(m.insert).not.toHaveBeenCalled();
+    expect(m.sendMail).not.toHaveBeenCalled();
+  });
   it('reserves a normalized recipient before exactly one SMTP attempt', async () => {
     const m = setup();
     expect(await sendTrackedCampaignEmail(m.args)).toBe('sent');

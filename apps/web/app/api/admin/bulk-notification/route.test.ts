@@ -7,9 +7,10 @@ const m = vi.hoisted(() => ({ create: vi.fn(), send: vi.fn(), close: vi.fn(), re
 vi.mock('@supabase/supabase-js', () => ({ createClient: m.create }));
 vi.mock('nodemailer', () => ({ default: { createTransport: () => ({ sendMail: m.send, close: m.close }) } }));
 vi.mock('@/lib/notifications/campaign-send', () => ({ registerEmailCampaign: m.register, sendTrackedCampaignEmail: m.trackedSend }));
+const ids = Array.from({ length: 3 }, (_, i) => `00000000-0000-4000-8000-00000000000${i}`);
 const url = 'https://www.trackmyopt.com/pricing';
-const body = { type: 'service_announcement', subject: 'Update', htmlContent: `<a href="${url}">Try Pro</a>`, plainTextContent: url, campaign: { id: 'campaign', links: { pro_intro: url } } };
-function request(value = body, authorized = true) {
+const body = { type: 'service_announcement', subject: 'Update', htmlContent: `<a href="${url}">Try Pro</a><a href="{{UNSUBSCRIBE_URL}}">Unsubscribe</a>`, plainTextContent: url + "\n{{UNSUBSCRIBE_URL}}", recipientUserIds: ids, dryRun: false, campaign: { id: 'campaign', links: { pro_intro: url } } };
+function request(value: unknown = body, authorized = true) {
   return new NextRequest('https://www.trackmyopt.com/api/admin/bulk-notification', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(authorized ? { authorization: 'Bearer test-secret' } : {}) }, body: JSON.stringify(value) });
 }
 function query(result: object) {
@@ -19,6 +20,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.stubEnv('ADMIN_SECRET', 'test-secret');
   vi.stubEnv('EMAIL_LINK_SIGNING_SECRET', 'test-secret');
+  vi.stubEnv('CAMPAIGN_SMTP_HOST', 'smtp.example.invalid');
+  vi.stubEnv('CAMPAIGN_SMTP_USER', 'test');
+  vi.stubEnv('CAMPAIGN_SMTP_PASS', 'test');
   m.register.mockResolvedValue(undefined);
   m.trackedSend.mockResolvedValue('sent');
 });
@@ -28,7 +32,7 @@ it('does not access recipients or send without authorization', async () => {
   expect(m.create).not.toHaveBeenCalled();
 });
 it('rejects an unfinished campaign and nonmarketing tracking before sending', async () => {
-  expect((await POST(request({ ...body, htmlContent: body.htmlContent + '{{UNSUBSCRIBE_URL}}' }))).status).toBe(400);
+  expect((await POST(request({ ...body, htmlContent: body.htmlContent + '{{POSTAL_ADDRESS}}' }))).status).toBe(400);
   expect((await POST(request({ ...body, type: 'policy_change' }))).status).toBe(400);
   expect(m.create).not.toHaveBeenCalled();
 });
@@ -63,9 +67,34 @@ it('checks every preference page beyond the default 1,000 rows', async () => {
   expect(m.send).not.toHaveBeenCalled();
 });
 it('resolves every supported recipient placeholder in both MIME bodies', async () => {
-  const from = vi.fn().mockReturnValueOnce(query({ data: [{ user_id: 'synthetic-user', email: 'test@example.invalid', first_name: 'A&B' }], error: null }))
+  const from = vi.fn().mockReturnValueOnce(query({ data: [{ user_id: 'synthetic-user', email: 'test@example.invalid', first_name: 'A&B$&' }], error: null }))
     .mockReturnValueOnce(query({ data: [], error: null })).mockReturnValueOnce(query({ data: [], error: null }));
   m.create.mockReturnValue({ from });
   await POST(request({ ...body, htmlContent: body.htmlContent + '<p>{{firstName}} {{firstName}} {{userId}}</p>', plainTextContent: body.plainTextContent + '\n{{firstName}} {{firstName}} {{userId}}' }));
-  expect(m.trackedSend).toHaveBeenCalledWith(expect.objectContaining({ html: body.htmlContent + '<p>A&amp;B A&amp;B synthetic-user</p>', text: body.plainTextContent + '\nA&B A&B synthetic-user' }));
+  expect(m.trackedSend).toHaveBeenCalledWith(expect.objectContaining({ html: body.htmlContent + '<p>A&amp;B$&amp; A&amp;B$&amp; synthetic-user</p>', text: body.plainTextContent + '\nA&B$& A&B$& synthetic-user' }));
+});
+
+it('requires an explicit limited recipient list before accessing the database', async () => {
+  for (const recipientUserIds of [undefined, [], ['not-a-uuid'], Array(101).fill(ids[0])]) {
+    expect((await POST(request({ ...body, recipientUserIds }))).status).toBe(400);
+  }
+  expect(m.create).not.toHaveBeenCalled();
+});
+it('defaults to a read-only preflight and restricts the profile query to selected IDs', async () => {
+  vi.stubEnv('CAMPAIGN_SMTP_HOST', '');
+  const profiles = query({ data: [{ user_id: ids[0], email: 'test@example.invalid', first_name: null }], error: null });
+  m.create.mockReturnValue({ from: vi.fn().mockReturnValueOnce(profiles)
+    .mockReturnValueOnce(query({ data: [], error: null })).mockReturnValueOnce(query({ data: [], error: null })) });
+  expect(await (await POST(request({ ...body, dryRun: undefined }))).json()).toMatchObject({ dryRun: true, sent: 0, eligible: 1 });
+  expect(profiles.in).toHaveBeenCalledWith('user_id', ids);
+  expect(m.register).not.toHaveBeenCalled();
+  expect(m.trackedSend).not.toHaveBeenCalled();
+  expect(m.send).not.toHaveBeenCalled();
+});
+it('fails before registration or SMTP if suppressions are unavailable', async () => {
+  m.create.mockReturnValue({ from: vi.fn().mockReturnValueOnce(query({ data: [{ user_id: ids[0], email: 'test@example.invalid' }], error: null }))
+    .mockReturnValueOnce(query({ data: [], error: null })).mockReturnValueOnce(query({ error: {} })) });
+  expect((await POST(request())).status).toBe(503);
+  expect(m.register).not.toHaveBeenCalled();
+  expect(m.trackedSend).not.toHaveBeenCalled();
 });
