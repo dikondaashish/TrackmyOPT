@@ -185,9 +185,9 @@ describe('cover-letter edit controller', () => {
     });
   });
 
-  it('lets an unedited draft leave needs-review only through Confirm reviewed', async () => {
+  it('confirms an unedited draft without saving it until the separate Save action', async () => {
     const field = document.createElement('textarea');
-    const reviewed = vi.fn();
+    const reviewed = vi.fn().mockResolvedValue(true);
     const reviewStateChanged = vi.fn();
     const root = createScreeningQuestionReviewUI({
       question: {
@@ -229,9 +229,13 @@ describe('cover-letter edit controller', () => {
     expect(reviewStateChanged).toHaveBeenCalledWith('needs_review');
     expect(root.querySelector('[data-review-state="needs-review"]')).not.toBeNull();
     findButton('Confirm reviewed').click();
-    expect(reviewed).toHaveBeenCalledWith('Confirmed draft');
+    expect(reviewed).not.toHaveBeenCalled();
     expect(reviewStateChanged).toHaveBeenLastCalledWith('confirmed');
     expect(root.querySelector('[data-review-state="reviewed"]')?.textContent)
       .toBe('Reviewed and confirmed');
+    findButton('Save this answer for future applications').click();
+    await vi.waitFor(() => expect(reviewed).toHaveBeenCalledWith('Confirmed draft'));
+    expect(root.querySelector('[data-review-state="reviewed"]')?.textContent)
+      .toBe('Saved for future applications');
   });
 });
