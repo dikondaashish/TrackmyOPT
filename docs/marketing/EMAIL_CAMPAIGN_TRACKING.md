@@ -4,9 +4,29 @@ The SMTP bulk sender can now record campaign opens and separate CTA clicks. It d
 
 ## Viewing results
 
-Sign in and open `/admin/email-campaigns` on TrackMyOPT. Enter the campaign ID and the existing `ADMIN_SECRET`. The secret stays in the page's memory and is sent in the Authorization header; it is never placed in a URL or local storage. The report API also requires that secret and returns aggregate counts, without email addresses or user IDs.
+Open `/admin/login` and sign in with an approved account's TrackMyOPT email and password. Access is granted only by the server-assigned `app_metadata.email_campaign_admin` permission on a verified, non-anonymous Supabase account. Both the dashboard and report API validate the current user on the server; ordinary signed-in users cannot read reports. Passwords are used only for sign-in and are not saved by the dashboard. Reporting no longer requires entering `ADMIN_SECRET`.
 
-For the September 29 draft, use **`product_update_2026_09_29`**. The report becomes available after the sender registers this campaign; before that it reports that no campaign exists.
+The dashboard lists registered campaigns, loads the newest campaign initially, and shows separate Pro and Free click counts. Use **Refresh results** to fetch the latest aggregate counts. Failed refreshes clear the previous report; an expired session returns to admin sign-in. Reports contain no recipient email addresses or user IDs. Sign out ends this browser's session.
+
+For the September 29 draft, the campaign ID is **`product_update_2026_09_29`**. It appears after the sender registers this campaign. Before any tracked campaign is registered, the dashboard shows an empty state rather than fabricated metrics.
+
+### Granting admin access
+
+Run the trusted operator script with server Supabase environment variables loaded. For an existing account:
+
+```sh
+pnpm --filter web exec tsx scripts/email-campaign-admin.ts --email owner@example.com
+```
+
+For an email that does not yet have an account, supply an absolute output path outside this Git repository:
+
+```sh
+pnpm --filter web exec tsx scripts/email-campaign-admin.ts --email owner@example.com --setup-file /private/operator/email-admin-setup.txt
+```
+
+The script checks account suppression, grants only the selected account, and verifies the grant. It preserves existing app metadata. The new-account option generates an invitation without sending email and saves one-time password setup instructions in a private file with mode `0600`; never commit, share publicly, or paste its token into logs. The setup route verifies the invitation, establishes a session, and opens the existing password creation form. The account must complete verification before it can read reports. If the link expires, use normal account recovery. For an existing account, use its current password or the existing password recovery flow.
+
+To revoke access, remove or set `email_campaign_admin` to `false` in the account's **app metadata** through a trusted server-side Supabase admin operation. Do not place this permission in editable user metadata. Subsequent dashboard and API requests recheck the current grant.
 
 | Metric | Meaning |
 | --- | --- |
@@ -44,6 +64,8 @@ If using a different campaign sender instead of the SMTP endpoint, use that prov
 
 ## Validation
 
-Unit tests cover signatures/expiry, destination checks, real-template instrumentation, authenticated reporting, scanner flags, duplicate reservations, preference/suppression failures and ambiguous SMTP outcomes. Run `supabase/tests/email_campaign_tracking.sql` against the migrated database for a verification with fictional recipients inside a rolled-back transaction. It checks unique counts, repeat events, separate CTA counts and private privileges; it does not send mail or write applicant records.
+Unit tests cover signatures/expiry, destination checks, real-template instrumentation, authenticated reporting, scanner flags, duplicate reservations, preference/suppression failures and ambiguous SMTP outcomes. Admin tests also check trusted grants versus editable metadata, ordinary-user denial, sign-in rate limits and request origins, password clearing, local sign-out, invitation verification, campaign pagination, expired sessions and refresh races. Run `supabase/tests/email_campaign_tracking.sql` against the migrated database for a verification with fictional recipients inside a rolled-back transaction. It checks unique counts, repeat events, separate CTA counts and private privileges; it does not send mail or write applicant records.
 
 September 29 implementation verification: the migration was applied to the TrackMyOPT database and the rolled-back test passed under `service_role`. All 31 targeted tests, TypeScript, lint and the production build passed; React Doctor reported 100/100. The broader suite passed 1,610 tests with one existing `screening-review-widget-ui.test.ts` failure that also reproduces on an isolated `origin/main` baseline. No campaign was registered or sent. The security advisor's informational “RLS enabled, no policy” findings on these two private tables are intentional: client privileges are revoked and only the server role accesses them, consistent with [Supabase's RLS documentation](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
+Password-based admin update verification: all 59 focused tests, TypeScript, scoped lint and the production build passed; React Doctor reported 100/100. Full web lint had no errors and 240 existing warnings. The broader suite passed 1,637 tests with the same existing review-widget failure and one sensitive-autofill timeout; all sensitive-autofill tests passed on an isolated rerun. The rolled-back database check passed again, leaving no synthetic campaign records. No campaign was registered or sent by this update.

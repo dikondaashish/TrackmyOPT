@@ -85,7 +85,9 @@ export async function proxy(request: NextRequest) {
   );
 
   // Check if current path needs protection (but not if it's a public exception)
-  const isProtectedRoute = !isPublicRoute && protectedRoutes.some(route =>
+  const isAdminLogin = pathname === '/admin/login' || pathname === '/admin/setup';
+  const isEmailAdminRoute = pathname === '/admin' || pathname === '/admin/email-campaigns' || pathname.startsWith('/admin/email-campaigns/');
+  const isProtectedRoute = !isPublicRoute && !isAdminLogin && protectedRoutes.some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
 
@@ -155,8 +157,8 @@ export async function proxy(request: NextRequest) {
   // Protected route + not authenticated = redirect to login page
   if (isProtectedRoute && !isAuthenticated) {
     // Redirect to login page with return URL so user can come back after login
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('returnTo', pathname + request.nextUrl.search);
+    const loginUrl = new URL(isEmailAdminRoute ? '/admin/login' : '/login', request.url);
+    if (!isEmailAdminRoute) loginUrl.searchParams.set('returnTo', pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 

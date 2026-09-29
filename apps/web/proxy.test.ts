@@ -39,6 +39,17 @@ describe('Supabase Auth Middleware', () => {
     expect(response?.status).toBe(200);
     expect(response?.headers.get('location')).toBeNull();
   });
+  it('keeps admin login and one-time setup reachable before authentication', async () => {
+    for (const path of ['/admin/login', '/admin/setup?token_hash=test']) {
+      const response = await proxy(new NextRequest(`http://localhost:3000${path}`));
+      expect(response.status).toBe(200);
+      expect(response.headers.get('location')).toBeNull();
+    }
+  });
+  it('directs signed-out analytics visitors to the admin password login', async () => {
+    const response = await proxy(new NextRequest('http://localhost:3000/admin/email-campaigns'));
+    expect(response.headers.get('location')).toBe('http://localhost:3000/admin/login');
+  });
 
   it('redirects authenticated users away from /login to /dashboard', async () => {
     const request = new NextRequest('http://localhost:3000/login');

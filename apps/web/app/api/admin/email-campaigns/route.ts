@@ -1,22 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { safeEqual } from '@/lib/api/secure-compare';
+import { getEmailCampaignAdmin } from '@/lib/auth/email-campaign-admin';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { campaignIdSchema } from '@/lib/notifications/campaign-tracking';
+import { listEmailCampaigns } from '@/lib/notifications/campaign-reports';
 
 export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret || !safeEqual(request.headers.get('authorization') || '', `Bearer ${secret}`)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: { 'Cache-Control': 'no-store' } });
+  const admin = await getEmailCampaignAdmin();
+  const headers = { 'Cache-Control': 'private, no-store' };
+  if (admin.status !== 'admin') {
+    const status =
+      admin.status === 'unavailable'
+        ? 503
+        : admin.status === 'forbidden'
+          ? 403
+          : 401;
+    return NextResponse.json(
+      {
+        error:
+          status === 503
+            ? 'Authentication unavailable'
+            : 'Admin sign-in required',
+      },
+      { status, headers }
+    );
+  }
+  if (!request.nextUrl.searchParams.has('id')) {
+    try {
+      const campaigns = await listEmailCampaigns(getSupabaseAdminClient());
+      return NextResponse.json({ campaigns }, { headers });
+    } catch {
+      return NextResponse.json(
+        { error: 'Campaign list unavailable' },
+        { status: 503, headers }
+      );
+    }
   }
   const id = campaignIdSchema.safeParse(request.nextUrl.searchParams.get('id'));
-  if (!id.success) return NextResponse.json({ error: 'Provide a valid campaign id' }, { status: 400 });
+  if (!id.success)
+    return NextResponse.json(
+      { error: 'Provide a valid campaign id' },
+      { status: 400, headers }
+    );
   try {
-    const { data, error } = await getSupabaseAdminClient().rpc('get_email_campaign_metrics', { p_campaign_id: id.data });
-    if (error) return NextResponse.json({ error: 'Campaign report unavailable; check the tracking migration' }, { status: 503 });
-    if (!data) return NextResponse.json({ error: 'No tracked campaign with this ID yet' }, { status: 404 });
-    return NextResponse.json(data, { headers: { 'Cache-Control': 'private, no-store' } });
+    const { data, error } = await getSupabaseAdminClient().rpc(
+      'get_email_campaign_metrics',
+      { p_campaign_id: id.data }
+    );
+    if (error)
+      return NextResponse.json(
+        { error: 'Campaign report unavailable' },
+        { status: 503, headers }
+      );
+    if (!data)
+      return NextResponse.json(
+        { error: 'No tracked campaign with this ID yet' },
+        { status: 404, headers }
+      );
+    return NextResponse.json(data, { headers });
   } catch {
-    return NextResponse.json({ error: 'Campaign report unavailable' }, { status: 503 });
+    return NextResponse.json(
+      { error: 'Campaign report unavailable' },
+      { status: 503, headers }
+    );
   }
 }

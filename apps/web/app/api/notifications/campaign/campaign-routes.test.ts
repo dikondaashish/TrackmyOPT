@@ -6,8 +6,9 @@ import { GET as open, HEAD as openHead } from './open/route';
 import { GET as click, HEAD as clickHead } from './click/route';
 import { GET as metrics } from '../../admin/email-campaigns/route';
 
-const m = vi.hoisted(() => ({ from: vi.fn(), rpc: vi.fn(), client: vi.fn() }));
+const m = vi.hoisted(() => ({ from: vi.fn(), rpc: vi.fn(), client: vi.fn(), admin: vi.fn() }));
 vi.mock('@/lib/supabase/admin', () => ({ getSupabaseAdminClient: m.client }));
+vi.mock('@/lib/auth/email-campaign-admin', () => ({ getEmailCampaignAdmin: m.admin }));
 const messageId = '12345678-1234-4123-8123-123456789012';
 function request(kind: 'open' | 'click', headers?: Record<string, string>) {
   const token = createCampaignToken({ messageId, kind, linkKey: kind === 'click' ? 'pro_intro' : '', expiresAt: Date.now() + 60000 }, 'test-secret');
@@ -22,6 +23,7 @@ beforeEach(() => {
   vi.stubEnv('ADMIN_SECRET', 'admin-secret');
   m.client.mockReturnValue(m);
   m.rpc.mockResolvedValue({ data: true, error: null });
+  m.admin.mockResolvedValue({ status: 'signed_out' });
 });
 afterEach(() => vi.unstubAllEnvs());
 
@@ -72,12 +74,27 @@ describe('private campaign report', () => {
   });
   it('returns an aggregate without caching and rejects invalid IDs', async () => {
     m.rpc.mockResolvedValue({ data: { sent: 10, observedOpens: 4, links: [] }, error: null });
-    const headers = { authorization: 'Bearer admin-secret' };
+    m.admin.mockResolvedValue({ status: 'admin', email: 'admin@example.invalid' });
+    const headers = {};
     const response = await metrics(new NextRequest('https://www.trackmyopt.com/api/admin/email-campaigns?id=campaign', { headers }));
     expect(await response.json()).toEqual({ sent: 10, observedOpens: 4, links: [] });
     expect(response.headers.get('cache-control')).toContain('no-store');
     m.rpc.mockClear();
     expect((await metrics(new NextRequest('https://www.trackmyopt.com/api/admin/email-campaigns?id=../invalid', { headers }))).status).toBe(400);
     expect(m.rpc).not.toHaveBeenCalled();
+  });
+  it('denies ordinary signed-in users and legacy shared-secret headers', async () => {
+    m.admin.mockResolvedValue({ status: 'forbidden' });
+    const response = await metrics(new NextRequest('https://www.trackmyopt.com/api/admin/email-campaigns', { headers: { authorization: 'Bearer admin-secret' } }));
+    expect(response.status).toBe(403);
+    expect(m.client).not.toHaveBeenCalled();
+  });
+  it('lists campaigns only for approved sessions and does not cache the result', async () => {
+    m.admin.mockResolvedValue({ status: 'admin', email: 'admin@example.invalid' });
+    const builder = { select: vi.fn().mockReturnThis(), order: vi.fn().mockReturnThis(), range: vi.fn().mockResolvedValue({ data: [{ id: 'campaign', subject: 'Update', created_at: '2026-09-29' }], error: null }) };
+    m.from.mockReturnValue(builder);
+    const result = await metrics(new NextRequest('https://www.trackmyopt.com/api/admin/email-campaigns'));
+    expect(await result.json()).toEqual({ campaigns: [{ id: 'campaign', subject: 'Update', created_at: '2026-09-29' }] });
+    expect(result.headers.get('cache-control')).toContain('no-store');
   });
 });

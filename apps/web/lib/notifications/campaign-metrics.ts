@@ -1,3 +1,9 @@
+export interface CampaignSummary {
+  id: string;
+  subject: string;
+  created_at: string;
+}
+
 export interface CampaignMetrics {
   campaignId: string;
   subject: string;
