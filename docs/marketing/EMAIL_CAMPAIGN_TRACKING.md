@@ -22,7 +22,7 @@ Counts identify the original recipient message, not necessarily the individual r
 
 ## Configuration and sending integration
 
-Apply `supabase/migrations/20260929170000_email_campaign_tracking.sql` before using tracking. The new tables have RLS enabled and deny anonymous/authenticated client access; only the server service-role client can write events or read the reporting functions.
+Apply `supabase/migrations/20260929155655_email_campaign_tracking.sql` before using tracking. Its version matches the migration already applied to the TrackMyOPT database. The new tables have RLS enabled and deny anonymous/authenticated client access; only the server service-role client can write events or read the reporting functions.
 
 Tracking uses `EMAIL_LINK_SIGNING_SECRET`, falling back to the existing `ADMIN_SECRET`. Set a dedicated long random signing secret through the hosting environment if desired. Do not rotate the active signing secret while campaign links should keep working. Tokens expire after 90 days; expired clicks fall back to the TrackMyOPT homepage.
 
