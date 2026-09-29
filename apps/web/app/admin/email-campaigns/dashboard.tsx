@@ -249,7 +249,7 @@ function CampaignResults({
     ['Emails accepted', report.sent, Mail],
     ['Observed opens', report.observedOpens, Eye],
     ['Unique link clickers', report.recordedClickers, MousePointerClick],
-    ['$0.99 offer clickers', proClicks, MousePointerClick],
+    ['Pro options clickers', proClicks, MousePointerClick],
     ['Free link clickers', freeClicks, MousePointerClick],
   ] as const;
   return (

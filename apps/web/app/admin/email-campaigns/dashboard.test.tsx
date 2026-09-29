@@ -59,7 +59,7 @@ afterEach(() => {
 it('shows separate accurate offer counts without a shared secret form', () => {
   show();
   expect(
-    screen.getByText('$0.99 offer clickers').parentElement
+    screen.getByText('Pro options clickers').parentElement
   ).toHaveTextContent('7');
   expect(
     screen.getByText('Free link clickers').parentElement

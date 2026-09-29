@@ -8,7 +8,7 @@ const html = readFileSync(resolve(path, 'email.html'), 'utf8');
 const source = readFileSync(resolve(path, 'email.txt'), 'utf8');
 it('prepares the real template, strips MIME metadata and escapes the postal address', () => {
   const result = renderCampaignSource(html, source, 'Fictional & Co\n123 <Test> Road, Test City, XX 00000');
-  expect(result.subject).toBe('We’ve been busy 👋 Try Pro for $0.99');
+  expect(result.subject).toBe('A note from Karthik: what’s new in TrackMyOPT 👋');
   expect(result.text.startsWith('Hey {{firstName}},')).toBe(true);
   expect(result.text).not.toContain('Preheader:');
   expect(result.html).toContain('Fictional &amp; Co<br>123 &lt;Test&gt; Road');

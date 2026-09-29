@@ -8,7 +8,7 @@ Open `/admin/login` and sign in with an approved account's TrackMyOPT email and 
 
 The dashboard lists registered campaigns, loads the newest campaign initially, and shows separate Pro and Free click counts. Use **Refresh results** to fetch the latest aggregate counts. Failed refreshes clear the previous report; an expired session returns to admin sign-in. Reports contain no recipient email addresses or user IDs. Sign out ends this browser's session.
 
-For the September 29 draft, the campaign ID is **`product_update_2026_09_29`**. It appears after the sender registers this campaign. Before any tracked campaign is registered, the dashboard shows an empty state rather than fabricated metrics.
+For the September 29 all-Free campaign, the campaign ID is **`product_update_2026_09_29`**. It appears after the sender registers this campaign. Before any tracked campaign is registered, the dashboard shows an empty state rather than fabricated metrics.
 
 ### Granting admin access
 
@@ -32,7 +32,7 @@ To revoke access, remove or set `email_campaign_admin` to `false` in the account
 | --- | --- |
 | SMTP accepted | The mail server accepted the recipient. This does not confirm delivery to the inbox. |
 | Observed opens | Unique recipient messages whose tracking image was requested, excluding detected automation. Privacy proxies can inflate this, and blocked images or plain-text reading can hide opens. |
-| $0.99 offer clickers | Unique recipient messages that requested the `pro_intro` link. This measures interest in the offer, not checkout completion. |
+| Pro options clickers | Unique recipient messages that requested the `pro_intro` link. This measures interest in Pro, not offer eligibility or checkout completion. |
 | Free link clickers | Unique recipient messages that requested `free_dashboard`. |
 | Any tracked link | Unique recipient messages clicking at least one configured link. A person clicking both offers appears once here and once in each offer count. |
 | Detected automated events | Distinct message/event/link combinations flagged by known scanner user agents or prefetch headers. Repeated requests are deduplicated. Unknown scanners can still affect the main counts. |
@@ -48,7 +48,7 @@ Tracking uses `EMAIL_LINK_SIGNING_SECRET`, falling back to the existing `ADMIN_S
 
 Use authenticated `POST /api/admin/bulk-notification` with `type: "service_announcement"`, `subject`, rendered `htmlContent`, `plainTextContent`, the **`campaign`** object, and explicit **`recipientUserIds`** (1–100 account UUIDs per request). The endpoint rejects missing or invalid recipient scope and requires selected accounts to remain Free with an unused intro before an actual send. The offline candidate exporter uses verified accounts with no sign-in in 14 days, after opt-out and blocked-address checks. `dryRun` defaults to **true**: it reads only the selected profiles, marketing opt-outs and suppressions, returns counts, and does not register or send anything. Only `dryRun: false` sends. Non-campaign legacy notifications keep their existing behavior.
 
-For the current draft, use [the preparation guide](updates/2026-09-28/README.md) and `scripts/prepare-product-update.ts`. It writes a private dry-run request from a reviewed recipient list and the supplied physical mailing address. The campaign uses **Karthik from TrackMyOPT** with the configured `SMTP_FROM_EMAIL` or explicit `CAMPAIGN_FROM_EMAIL` mailbox and Reply-To **support@trackmyopt.com**. The helper does not select recipients or establish permission to send; the operator must review the audience.
+For the current all-Free send, use [the preparation guide](updates/2026-09-28/README.md) and `scripts/send-product-update-all-free.ts`. A read-only production preflight selected 3,031 verified non-premium users after excluding two hard bounces, including 703 Auth accounts without a profile or payment history. The script reads confirmed addresses from Supabase Auth because most Free profiles have no copied email. It rechecks Free or profileless status, payment history, opt-outs, and blocks while sending, and uses **Karthik from TrackMyOPT** with the configured `SMTP_FROM_EMAIL` or explicit `CAMPAIGN_FROM_EMAIL` mailbox and Reply-To **support@trackmyopt.com**. The older `prepare-product-update.ts` helper remains for narrow, explicitly selected campaigns.
 
 Campaign SMTP uses the configured `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` unless a complete set of `CAMPAIGN_SMTP_*` overrides is provided. A partial override fails closed. TLS is required on port 465 or STARTTLS on 587. [ZeptoMail’s public policy](https://www.zoho.com/zeptomail/help/sending-bulk-emails.html) describes promotional announcements as unsupported; confirm this account’s permission and limits privately before mailing. No new SMTP credentials were configured during implementation.
 
@@ -56,7 +56,7 @@ The bodies must contain `{{UNSUBSCRIBE_URL}}` in both formats, with all asset an
 
 Migration `supabase/migrations/20260929172952_email_marketing_unsubscribe_preference.sql` adds the previously missing `email_preferences.marketing_emails` column. It was applied with owner approval and verified. NULL means unknown, not consent; the endpoint excludes explicit opt-outs while the operator must independently establish a valid audience. No preference values were backfilled.
 
-The source's CTA destinations must match [tracking.json](updates/2026-09-28/tracking.json) exactly in both bodies. Image files are deployed with the app under `/email/product-update-2026-09-29/`. Use a distinct `test_...` campaign ID and one explicitly approved account for mailbox testing. No mailbox test or live email was sent during this implementation.
+The source's CTA destinations must match [tracking.json](updates/2026-09-28/tracking.json) exactly in both bodies. Image files are deployed with the app under `/email/product-update-2026-09-29/`. Use a distinct `test_...` campaign ID and one explicitly approved account for mailbox testing. The all-Free copy makes the $0.99 offer conditional because 32 selected accounts have already used that introduction; the Pro click metric measures visits to the Pro page, not checkout completion or eligibility.
 
 The sender checks all scoped addresses against suppressions before the first SMTP attempt and pages through marketing opt-outs. It reserves each campaign/normalized-email pair durably before SMTP. Repeating unchanged content with the same ID skips existing reservations. Changed content requires a new ID. Ambiguous SMTP outcomes are held for manual review rather than automatically retried. Read `sent`, `failed`, `duplicate`, `suppressed`, `skippedOptOut`, and `needsReview`; SMTP acceptance still does not prove inbox delivery.
 
