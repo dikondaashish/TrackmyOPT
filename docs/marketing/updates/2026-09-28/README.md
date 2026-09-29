@@ -5,11 +5,11 @@
 ## Personal re-engagement revision
 
 - Subject: **We’ve been busy 👋 Try Pro for $0.99**
-- Preheader: A quick note from Ashish: what you can do with your account, plus 7 days of Pro for $0.99 if eligible.
-- Proposed sender display name: **Ashish from TrackMyOPT**, using the verified `support@trackmyopt.com` mailbox. This is preview copy; the global SMTP sender configuration was not changed. Confirm the campaign's actual From/Reply-To presentation before sending.
+- Preheader: A quick note from Karthik: what you can do with your account, plus 7 days of Pro for $0.99 if eligible.
+- Proposed sender display name: **Karthik from TrackMyOPT**, using the verified `support@trackmyopt.com` mailbox. This is preview copy; the global SMTP sender configuration was not changed. Confirm the campaign's actual From/Reply-To presentation before sending.
 - Intended audience: registered Free users who have not started using their account, are eligible for the introductory offer, and receive product emails. Do not send an upgrade invitation to current paid subscribers.
 - This is a template revision, not an audience selection. No inactivity rule or recipient list has been calculated. The existing bulk-notification endpoint selects the full eligible audience, **not an inactive-user segment**; do not invoke it unchanged for this targeted campaign.
-- The draft uses a first-name greeting, with the existing sender's `there` fallback. It does not claim to know why someone has not used the product, invent personal history, or promise that Ashish personally reads every reply.
+- The draft uses a first-name greeting, with the existing sender's `there` fallback. It does not claim to know why someone has not used the product, invent personal history, or promise that Karthik personally reads every reply.
 - Recent improvements are introduced separately from the overview of existing tools. The overview covers Chrome prefill and writing drafts, resumes/ATS, jobs/sponsors/tracking, OPT/STEM, cases/reminders, networking, Document Vault, and insurance/tax/partner resources.
 - Pro is a paid $0.99 introduction for 7 days for eligible accounts. Automatic renewal, plan choice, cancellation timing, and once-per-account eligibility remain adjacent to the button. Dedicated-only services are not presented as Pro benefits.
 
@@ -55,7 +55,7 @@ Python 3 and Pillow are required. `--preview-only` reuses existing images. Witho
 
 ## Design and verification
 
-A short note from Ashish precedes the illustration. Eight compact rows explain what an account can do. One primary Pro button and a secondary Free dashboard link provide the next step; the Chrome Store link remains available for installation. The government-notice joke and its subject have been removed.
+A short note from Karthik precedes the illustration. Eight compact rows explain what an account can do. One primary Pro button and a secondary Free dashboard link provide the next step; the Chrome Store link remains available for installation. The government-notice joke and its subject have been removed.
 
 The template retains table layout, inline styles, readable HTML text, image alternatives, explicit dimensions, and mobile padding. There is no JavaScript in the send-source HTML. The existing GIF has a useful first frame and plays once; reduced-motion CSS switches it to the PNG where supported. The preview controls are separate from the send-source email.
 

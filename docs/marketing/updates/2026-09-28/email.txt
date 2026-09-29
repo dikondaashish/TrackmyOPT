@@ -1,9 +1,9 @@
 Subject: We’ve been busy 👋 Try Pro for $0.99
-Preheader: A quick note from Ashish: what you can do with your account, plus 7 days of Pro for $0.99 if eligible.
+Preheader: A quick note from Karthik: what you can do with your account, plus 7 days of Pro for $0.99 if eligible.
 
 Hey {{firstName}},
 
-Ashish here from TrackMyOPT. Thanks for signing up.
+Karthik here from TrackMyOPT. Thanks for signing up.
 
 Over the past couple of weeks, we’ve been improving your OPT tools and job-search workflow. The updated Chrome extension, smoother resume builder, networking tools, and clearer case view are ready to use.
 
@@ -49,7 +49,7 @@ https://www.trackmyopt.com/dashboard?utm_source=product_update&utm_medium=email&
 What’s one thing you’re stuck on this week? Tell me at support@trackmyopt.com.
 
 Thanks for giving us a try,
-Ashish
+Karthik
 TrackMyOPT
 
 TrackMyOPT is independent of USCIS and government agencies. Verify important dates with your official notices and DSO.
