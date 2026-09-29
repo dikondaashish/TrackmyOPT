@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getEmailCampaignAdmin } from '@/lib/auth/email-campaign-admin';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import { listEmailCampaigns } from '@/lib/notifications/campaign-reports';
+import { getEmailCampaignReport, listEmailCampaigns } from '@/lib/notifications/campaign-reports';
 import type {
   CampaignMetrics,
   CampaignSummary,
@@ -34,11 +34,8 @@ export default async function EmailCampaignsPage() {
     const supabase = getSupabaseAdminClient();
     campaigns = await listEmailCampaigns(supabase);
     if (campaigns[0]) {
-      const result = await supabase.rpc('get_email_campaign_metrics', {
-        p_campaign_id: campaigns[0].id,
-      });
-      if (result.error || !result.data) throw new Error('Report unavailable');
-      report = result.data;
+      report = await getEmailCampaignReport(supabase, campaigns[0].id);
+      if (!report) throw new Error('Report unavailable');
     }
   } catch {
     error = 'Campaign results are temporarily unavailable. Please refresh.';

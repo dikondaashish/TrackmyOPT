@@ -174,12 +174,12 @@ export default function EmailCampaignDashboard({
       <aside className="rounded-xl bg-blue-50 p-5 text-sm leading-6 text-slate-700 dark:bg-blue-950/30 dark:text-muted-foreground">
         <h2 className="font-semibold">What these numbers mean</h2>
         <p className="mt-1">
-          Clicks count unique recipient messages, so repeat visits do not
-          increase the count. A recipient can click both offers. Opens measure
-          image loads; privacy proxies can inflate them and blocked images can
-          hide them. Known scanners are separated, but unknown automation and
-          forwarded messages can still affect the results. Clicks are not
-          purchases.
+          Clicks count unique recipient messages. The main cards exclude
+          messages that visited different campaign links within five seconds,
+          which often indicates a mail security scanner. Raw click counts stay
+          visible below. This filter is an estimate, not proof of a human
+          visit. Opens measure image loads; privacy proxies can inflate them
+          and blocked images can hide them. Clicks are not purchases.
         </p>
       </aside>
     </main>
@@ -241,14 +241,14 @@ function CampaignResults({
   report: CampaignMetrics;
   lastUpdated: string | null;
 }) {
-  const proClicks =
-    report.links.find((link) => link.key === 'pro_intro')?.clickers ?? 0;
-  const freeClicks =
-    report.links.find((link) => link.key === 'free_dashboard')?.clickers ?? 0;
+  const pro = report.links.find((link) => link.key === 'pro_intro');
+  const free = report.links.find((link) => link.key === 'free_dashboard');
+  const proClicks = pro?.clickersAfterRapidLinkFilter ?? pro?.clickers ?? 0;
+  const freeClicks = free?.clickersAfterRapidLinkFilter ?? free?.clickers ?? 0;
   const cards = [
     ['Emails accepted', report.sent, Mail],
     ['Observed opens', report.observedOpens, Eye],
-    ['Unique link clickers', report.recordedClickers, MousePointerClick],
+    ['Filtered link clickers', report.clickersAfterRapidLinkFilter ?? report.recordedClickers, MousePointerClick],
     ['Pro options clickers', proClicks, MousePointerClick],
     ['Free link clickers', freeClicks, MousePointerClick],
   ] as const;
@@ -294,8 +294,10 @@ function CampaignResults({
         ))}
       </dl>
       <p className="text-sm">
-        {report.knownAutomatedRequests} detected automated events are excluded
-        from the engagement cards. Mail server acceptance does not confirm inbox
+        {report.knownAutomatedRequests} known automated events and{' '}
+        {report.rapidMultiLinkClickers ?? 0} rapid multi-link clickers are
+        excluded from the filtered click cards. Raw unique link clickers:{' '}
+        {report.recordedClickers}. Mail server acceptance does not confirm inbox
         delivery.
       </p>
       <p className="text-sm">
@@ -314,7 +316,10 @@ function CampaignResults({
                 Link
               </th>
               <th scope="col" className="p-3">
-                Unique clickers
+                Clickers after rapid-link filter
+              </th>
+              <th scope="col" className="p-3">
+                Raw recorded clickers
               </th>
               <th scope="col" className="p-3">
                 Detected automated clickers
@@ -327,6 +332,7 @@ function CampaignResults({
                 <th scope="row" className="p-3 font-normal">
                   {link.key}
                 </th>
+                <td className="p-3">{link.clickersAfterRapidLinkFilter ?? link.clickers}</td>
                 <td className="p-3">{link.clickers}</td>
                 <td className="p-3">{link.knownAutomatedClickers}</td>
               </tr>

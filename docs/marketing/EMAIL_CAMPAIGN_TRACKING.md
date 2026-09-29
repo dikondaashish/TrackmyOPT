@@ -8,7 +8,7 @@ Open `/admin/login` and sign in with an approved account's TrackMyOPT email and 
 
 The dashboard lists registered campaigns, loads the newest campaign initially, and shows separate Pro and Free click counts. Use **Refresh results** to fetch the latest aggregate counts. Failed refreshes clear the previous report; an expired session returns to admin sign-in. Reports contain no recipient email addresses or user IDs. Sign out ends this browser's session.
 
-For the September 29 all-Free campaign, the campaign ID is **`product_update_2026_09_29`**. It appears after the sender registers this campaign. Before any tracked campaign is registered, the dashboard shows an empty state rather than fabricated metrics.
+For the September 29 all-Free campaign, the campaign ID is **`product_update_2026_09_29`**. It is registered and appears in the dashboard. Before any tracked campaign is registered, the dashboard shows an empty state rather than fabricated metrics.
 
 ### Granting admin access
 
@@ -32,13 +32,14 @@ To revoke access, remove or set `email_campaign_admin` to `false` in the account
 | --- | --- |
 | SMTP accepted | The mail server accepted the recipient. This does not confirm delivery to the inbox. |
 | Observed opens | Unique recipient messages whose tracking image was requested, excluding detected automation. Privacy proxies can inflate this, and blocked images or plain-text reading can hide opens. |
-| Pro options clickers | Unique recipient messages that requested the `pro_intro` link. This measures interest in Pro, not offer eligibility or checkout completion. |
-| Free link clickers | Unique recipient messages that requested `free_dashboard`. |
-| Any tracked link | Unique recipient messages clicking at least one configured link. A person clicking both offers appears once here and once in each offer count. |
+| Filtered Pro options clickers | Unique recipient messages requesting `pro_intro`, after excluding messages that requested different campaign links within five seconds. This is an estimate of interest in Pro, not verified human visits, offer eligibility, or checkout completion. |
+| Filtered Free link clickers | Unique recipient messages requesting `free_dashboard` after the same rapid multi-link filter. |
+| Raw recorded clickers | Unique recipient messages requesting at least one configured link before the rapid multi-link filter. A person clicking both links appears once here and once in each raw link count. |
+| Rapid multi-link clickers | Messages that requested different tracked links within five seconds. These often reflect email security scanning, but a fast real reader can also match this pattern. The dashboard separates them rather than silently calling every raw click human. |
 | Detected automated events | Distinct message/event/link combinations flagged by known scanner user agents or prefetch headers. Repeated requests are deduplicated. Unknown scanners can still affect the main counts. |
 | Send outcomes needing review | Reserved messages with incomplete or ambiguous SMTP outcomes. Do not blindly resend them. |
 
-Counts identify the original recipient message, not necessarily the individual reader. Forwarded messages retain the original links. An observed event can also come from an ambiguous SMTP send, so event counts and SMTP acceptance counts measure different things. This is approximate engagement measurement, not proof that a human read the email or bought a plan.
+Counts identify the original recipient message, not necessarily the individual reader. Forwarded messages retain the original links. An observed event can also come from an ambiguous SMTP send, so event counts and SMTP acceptance counts measure different things. The five-second filter reduces obvious rapid multi-link activity but cannot identify every scanner or prove a human visited. Opens and filtered clicks remain estimates, not proof that someone read the email or bought a plan.
 
 ## Configuration and sending integration
 
@@ -49,6 +50,10 @@ Tracking uses `EMAIL_LINK_SIGNING_SECRET`, falling back to the existing `ADMIN_S
 Use authenticated `POST /api/admin/bulk-notification` with `type: "service_announcement"`, `subject`, rendered `htmlContent`, `plainTextContent`, the **`campaign`** object, and explicit **`recipientUserIds`** (1–100 account UUIDs per request). The endpoint rejects missing or invalid recipient scope and requires selected accounts to remain Free with an unused intro before an actual send. The offline candidate exporter uses verified accounts with no sign-in in 14 days, after opt-out and blocked-address checks. `dryRun` defaults to **true**: it reads only the selected profiles, marketing opt-outs and suppressions, returns counts, and does not register or send anything. Only `dryRun: false` sends. Non-campaign legacy notifications keep their existing behavior.
 
 For the current all-Free send, use [the preparation guide](updates/2026-09-28/README.md) and `scripts/send-product-update-all-free.ts`. A read-only production preflight selected 3,031 verified non-premium users after excluding two hard bounces, including 703 Auth accounts without a profile or payment history. The script reads confirmed addresses from Supabase Auth because most Free profiles have no copied email. It rechecks Free or profileless status, payment history, opt-outs, and blocks while sending, and uses **Karthik from TrackMyOPT** with the configured `SMTP_FROM_EMAIL` or explicit `CAMPAIGN_FROM_EMAIL` mailbox and Reply-To **support@trackmyopt.com**. The older `prepare-product-update.ts` helper remains for narrow, explicitly selected campaigns.
+
+The owner-authorized September 29 run attempted all 3,031 selected accounts. The sender logged 3,028 SMTP acceptances, zero definitive failures, and three outcomes needing provider review. The current admin count may differ from the run total when an account and its `email_queue` record are deleted. At completion, every still-eligible account had a campaign reservation. Do not retry the three uncertain outcomes without first checking ZeptoMail delivery logs.
+
+Early campaign events showed many recipients requesting both tracked CTAs within five seconds, which can be caused by security scanners. The admin report therefore displays raw counts and separate click counts excluding this rapid multi-link pattern; neither should be presented as confirmed people or purchases.
 
 Campaign SMTP uses the configured `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` unless a complete set of `CAMPAIGN_SMTP_*` overrides is provided. A partial override fails closed. TLS is required on port 465 or STARTTLS on 587. [ZeptoMail’s public policy](https://www.zoho.com/zeptomail/help/sending-bulk-emails.html) describes promotional announcements as unsupported; confirm this account’s permission and limits privately before mailing. No new SMTP credentials were configured during implementation.
 

@@ -13,5 +13,8 @@ export interface CampaignMetrics {
   observedOpens: number;
   recordedClickers: number;
   knownAutomatedRequests: number;
-  links: { key: string; url: string; clickers: number; knownAutomatedClickers: number }[];
+  rapidMultiLinkClickers?: number;
+  clickersAfterRapidLinkFilter?: number;
+  links: { key: string; url: string; clickers: number; knownAutomatedClickers: number;
+    clickersAfterRapidLinkFilter?: number }[];
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmailCampaignAdmin } from '@/lib/auth/email-campaign-admin';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { campaignIdSchema } from '@/lib/notifications/campaign-tracking';
-import { listEmailCampaigns } from '@/lib/notifications/campaign-reports';
+import { getEmailCampaignReport, listEmailCampaigns } from '@/lib/notifications/campaign-reports';
 
 export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
@@ -43,15 +43,7 @@ export async function GET(request: NextRequest) {
       { status: 400, headers }
     );
   try {
-    const { data, error } = await getSupabaseAdminClient().rpc(
-      'get_email_campaign_metrics',
-      { p_campaign_id: id.data }
-    );
-    if (error)
-      return NextResponse.json(
-        { error: 'Campaign report unavailable' },
-        { status: 503, headers }
-      );
+    const data = await getEmailCampaignReport(getSupabaseAdminClient(), id.data);
     if (!data)
       return NextResponse.json(
         { error: 'No tracked campaign with this ID yet' },

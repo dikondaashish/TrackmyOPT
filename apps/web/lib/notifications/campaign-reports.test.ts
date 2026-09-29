@@ -1,7 +1,28 @@
 // @vitest-environment node
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { expect, it, vi } from 'vitest';
-import { listEmailCampaigns } from './campaign-reports';
+import { filterRapidMultiLinkClicks, listEmailCampaigns } from './campaign-reports';
+
+it('separates rapid dual-link scans from the raw click totals', () => {
+  const report = { campaignId: 'test', subject: 'Test', sent: 3, failed: 0,
+    needsReview: 0, observedOpens: 3, recordedClickers: 3, knownAutomatedRequests: 0,
+    links: [
+      { key: 'pro_intro', url: 'https://www.trackmyopt.com/pricing', clickers: 2, knownAutomatedClickers: 0 },
+      { key: 'free_dashboard', url: 'https://www.trackmyopt.com/dashboard', clickers: 3, knownAutomatedClickers: 0 },
+    ] };
+  const events = [
+    { message_id: 'scanner', link_key: 'pro_intro', first_seen_at: '2026-09-29T18:00:00Z' },
+    { message_id: 'scanner', link_key: 'free_dashboard', first_seen_at: '2026-09-29T18:00:01Z' },
+    { message_id: 'reader', link_key: 'pro_intro', first_seen_at: '2026-09-29T18:00:00Z' },
+    { message_id: 'reader', link_key: 'free_dashboard', first_seen_at: '2026-09-29T18:01:00Z' },
+    { message_id: 'free', link_key: 'free_dashboard', first_seen_at: '2026-09-29T18:00:00Z' },
+  ];
+  expect(filterRapidMultiLinkClicks(report, events)).toMatchObject({
+    recordedClickers: 3, rapidMultiLinkClickers: 1, clickersAfterRapidLinkFilter: 2,
+    links: [{ clickers: 2, clickersAfterRapidLinkFilter: 1 },
+      { clickers: 3, clickersAfterRapidLinkFilter: 2 }],
+  });
+});
 it('includes campaigns beyond the default database page size', async () => {
   const campaigns = Array.from({ length: 1001 }, (_, i) => ({
     id: `test-${i}`,

@@ -22,17 +22,21 @@ const report = {
   observedOpens: 20,
   recordedClickers: 10,
   knownAutomatedRequests: 2,
+  rapidMultiLinkClickers: 5,
+  clickersAfterRapidLinkFilter: 5,
   links: [
     {
       key: 'pro_intro',
       url: 'https://www.trackmyopt.com/pricing',
       clickers: 7,
+      clickersAfterRapidLinkFilter: 5,
       knownAutomatedClickers: 1,
     },
     {
       key: 'free_dashboard',
       url: 'https://www.trackmyopt.com/dashboard',
       clickers: 4,
+      clickersAfterRapidLinkFilter: 3,
       knownAutomatedClickers: 0,
     },
   ],
@@ -56,17 +60,18 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
-it('shows separate accurate offer counts without a shared secret form', () => {
+it('shows filtered and raw CTA counts without a shared secret form', () => {
   show();
   expect(
     screen.getByText('Pro options clickers').parentElement
-  ).toHaveTextContent('7');
+  ).toHaveTextContent('5');
   expect(
     screen.getByText('Free link clickers').parentElement
-  ).toHaveTextContent('4');
+  ).toHaveTextContent('3');
   expect(
-    screen.getByText('Unique link clickers').parentElement
-  ).toHaveTextContent('10');
+    screen.getByText('Filtered link clickers').parentElement
+  ).toHaveTextContent('5');
+  expect(screen.getByText(/Raw unique link clickers:/)).toHaveTextContent('10');
   expect(screen.getByText('Approximate')).toBeInTheDocument();
   expect(screen.queryByLabelText('Admin secret')).not.toBeInTheDocument();
 });
