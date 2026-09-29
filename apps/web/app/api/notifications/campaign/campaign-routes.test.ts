@@ -73,11 +73,14 @@ describe('private campaign report', () => {
     expect(m.client).not.toHaveBeenCalled();
   });
   it('returns an aggregate without caching and rejects invalid IDs', async () => {
-    m.rpc.mockResolvedValue({ data: { sent: 10, observedOpens: 4, links: [] }, error: null });
+    m.rpc.mockResolvedValue({ data: { sent: 10, observedOpens: 4, recordedClickers: 0, links: [] }, error: null });
+    m.from.mockReturnValue({ select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(), range: vi.fn().mockResolvedValue({ data: [], error: null }) });
     m.admin.mockResolvedValue({ status: 'admin', email: 'admin@example.invalid' });
     const headers = {};
     const response = await metrics(new NextRequest('https://www.trackmyopt.com/api/admin/email-campaigns?id=campaign', { headers }));
-    expect(await response.json()).toEqual({ sent: 10, observedOpens: 4, links: [] });
+    expect(await response.json()).toEqual({ sent: 10, observedOpens: 4, recordedClickers: 0,
+      rapidMultiLinkClickers: 0, clickersAfterRapidLinkFilter: 0, links: [] });
     expect(response.headers.get('cache-control')).toContain('no-store');
     m.rpc.mockClear();
     expect((await metrics(new NextRequest('https://www.trackmyopt.com/api/admin/email-campaigns?id=../invalid', { headers }))).status).toBe(400);
