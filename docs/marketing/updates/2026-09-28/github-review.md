@@ -1,6 +1,21 @@
-# GitHub review for the September 28 email
+# GitHub review for the September 29 email
 
 Repository: [dikondaashish/TrackmyOPT](https://github.com/dikondaashish/TrackmyOPT).
+
+## September 29 addendum
+
+The updated draft was checked against GitHub `main` through [`ec5b310`](https://github.com/dikondaashish/TrackmyOPT/commit/ec5b310f451847cec01a1cbd1b0108783ae03a70). Since the prior email commit `7ecbc7f`, **42 first-parent commits** reached `main`: 8 on September 25, 27 on September 26, and 7 on September 27. No September 28–29 commits appeared in the checked `main` history. The latest GitHub Production deployment for `ec5b310` reported `success` on September 27; its CI runs reported `failure`, so this record does not claim CI passed.
+
+The [public Chrome Web Store listing](https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm) was fetched fresh on September 29. It showed **version 0.2.4, updated September 28**. The repository [manifest](../../../../apps/extension/manifest.json) also declares 0.2.4. This supersedes the original snapshot's unverified Store-rollout note; individual installations may update later.
+
+| Customer-facing area | New evidence since the first snapshot | Draft treatment |
+| --- | --- | --- |
+| Extension 0.2.4 | [Store listing](https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm), [`89d8120`](https://github.com/dikondaashish/TrackmyOPT/commit/89d81205d458af0a000e0c0458fa0604ee4eec90), [`d587a95`](https://github.com/dikondaashish/TrackmyOPT/commit/d587a9588d165e10d94daa2994d2acb8cdf62b9e), [`ca6a878`](https://github.com/dikondaashish/TrackmyOPT/commit/ca6a878acd3593c1cb1d5b1b7c9b23f2cd4ad001), [`ec5b310`](https://github.com/dikondaashish/TrackmyOPT/commit/ec5b310f451847cec01a1cbd1b0108783ae03a70) | Say 0.2.4 is public; highlight form handling while preserving review-first and no auto-submit limits. |
+| Resume Builder | [`a2dfda8`](https://github.com/dikondaashish/TrackmyOPT/commit/a2dfda8), [`4638c8d`](https://github.com/dikondaashish/TrackmyOPT/commit/4638c8d), [`625c5c2`](https://github.com/dikondaashish/TrackmyOPT/commit/625c5c2), [`a2e74c8`](https://github.com/dikondaashish/TrackmyOPT/commit/a2e74c8), [`8c675a6`](https://github.com/dikondaashish/TrackmyOPT/commit/8c675a6) | Faster template and resume previews, paste or link job descriptions, clearer progress, better timeout recovery. No promise of instant or guaranteed AI output. |
+| Networking and job tracker | [`799c372`](https://github.com/dikondaashish/TrackmyOPT/commit/799c372), [`bc93779`](https://github.com/dikondaashish/TrackmyOPT/commit/bc93779), [`5843fc6`](https://github.com/dikondaashish/TrackmyOPT/commit/5843fc6), [`1191810`](https://github.com/dikondaashish/TrackmyOPT/commit/1191810), [`b4e4b02`](https://github.com/dikondaashish/TrackmyOPT/commit/b4e4b02), [`8a0b4a2`](https://github.com/dikondaashish/TrackmyOPT/commit/8a0b4a2) | Company search/logos, outreach shortcuts, usage and lookup clarity, and easier-to-scan job tracker. |
+| Pro introduction | [Live pricing page](https://www.trackmyopt.com/pricing), [plan configuration](../../../../apps/web/lib/pricing/plan-config.ts), [checkout](../../../../apps/web/app/api/premium/create-checkout/route.ts) | Eligible accounts pay $0.99 today for 7 days, then automatically renew at the selected $4.99 monthly or $49.99 yearly limited-time price unless canceled before the period ends. Once per eligible account; a paid introduction, not a free trial. Link to pricing for exact checkout terms. |
+
+The rest of this file records the **original September 24 review** and its complete first-parent inventory. Its release-state observations below are historical; the addendum above controls the September 29 draft.
 
 Snapshot: [`449ca9d`](https://github.com/dikondaashish/TrackmyOPT/commit/449ca9dc71988be248480703696e4244e5d66e00). Window: September 15 at 00:00 through September 25 at 00:00, America/New_York, exclusive at the end. This covers ten calendar dates and includes changes through the September 24 snapshot, not future work before Monday.
 
@@ -8,11 +23,11 @@ There are **51 first-parent commits** in the window, all dated September 23–24
 
 GitHub CI for `c2aa5a0` completed successfully, and GitHub's Production deployment `6650093470` for that SHA reported `success`. At the later `449ca9d` snapshot, CI was still in progress, while the preceding `40e2d0d` CI run had failed. GitHub's Production deployment `6650708046` for `449ca9d` reported `success`. These observations do not establish every authenticated flow or a Chrome Web Store release. No customer claim in the email depends on an unverified deployment outcome.
 
-## What customers will read
+## Original September 24 assessment
 
 | Theme | Verified work | Primary release evidence | Treatment in email |
 | --- | --- | --- | --- |
-| Chrome extension | First-install tour; stable side panel; job-specific resume restore; explicit profile/private-answer and supported login prefill; review-marked AI screening drafts; Undo last Prefill; portal handling, tracker review, and safer guided navigation | [`adc1ea2`](https://github.com/dikondaashish/TrackmyOPT/commit/adc1ea2), [extension README](../../../../apps/extension/README.md), [saved resumes](../../../EXTENSION_SAVED_JOB_RESUMES.md), [portal verification](../../../EXTENSION_PORTAL_COMPATIBILITY.md) | Lead section. State that code was merged and store rollout is unverified. Never imply automatic job submission or full portal compatibility. |
+| Chrome extension | First-install tour; stable side panel; job-specific resume restore; explicit profile/private-answer and supported login prefill; review-marked AI screening drafts; Undo last Prefill; portal handling, tracker review, and safer guided navigation | [`adc1ea2`](https://github.com/dikondaashish/TrackmyOPT/commit/adc1ea2), [extension README](../../../../apps/extension/README.md), [saved resumes](../../../EXTENSION_SAVED_JOB_RESUMES.md), [portal verification](../../../EXTENSION_PORTAL_COMPATIBILITY.md) | At this snapshot, code was merged but Store rollout was unverified. See addendum for current Store state. Never imply automatic job submission or full portal compatibility. |
 | OPT Dates and tools | Refreshed summary and compact layout; clearer saved/unsaved states; preserved date patches; STEM date synchronization; employer suggestions, websites, and logos; improved deadline/clock calculations | [`adc1ea2`](https://github.com/dikondaashish/TrackmyOPT/commit/adc1ea2), [`cfa819a`](https://github.com/dikondaashish/TrackmyOPT/commit/cfa819a), [`1ecf653`](https://github.com/dikondaashish/TrackmyOPT/commit/1ecf653), [`c2400a5`](https://github.com/dikondaashish/TrackmyOPT/commit/c2400a5) | Clearer dates and saved-state feedback. No new legal deadline or eligibility claims. |
 | Case view and comparisons | Monitoring health, visible milestones, user-confirmed biometrics, four comparison panels, historical/community versus official context, interactive charts and accessible data tables, source quality filtering, corrected premium clock behavior | [`79e3a85`](https://github.com/dikondaashish/TrackmyOPT/commit/79e3a85), [`d196274`](https://github.com/dikondaashish/TrackmyOPT/commit/d196274), [`f1aad73`](https://github.com/dikondaashish/TrackmyOPT/commit/f1aad73), [`a60db3c`](https://github.com/dikondaashish/TrackmyOPT/commit/a60db3c), [`933ec02`](https://github.com/dikondaashish/TrackmyOPT/commit/933ec02) | Understand the case and compare history, without approval predictions. |
 | Notices, journey tasks, and reminders | Private document references, confirmed deadlines, calendar exports, completion, saved DSO tasks, opt-in deadline emails and weekly digests, schedule/worker/delivery status | [`07aa119`](https://github.com/dikondaashish/TrackmyOPT/commit/07aa119), [`f0601bf`](https://github.com/dikondaashish/TrackmyOPT/commit/f0601bf), [`22a0702`](https://github.com/dikondaashish/TrackmyOPT/commit/22a0702) | Part of the case section. Email reminders/digests are labeled for paid members and opt-in. |
@@ -21,7 +36,7 @@ GitHub CI for `c2aa5a0` completed successfully, and GitHub's Production deployme
 
 ## Chrome extension work checked in detail
 
-The first draft reduced this to a note because store publication was unverified. The user asked for **work pushed to GitHub**. The revised customer email therefore leads with the extension while accurately describing its release state.
+The first draft reduced this to a note because Store publication was unverified at that time. The user asked for **work pushed to GitHub**. The current customer email leads with the extension and uses the Store state verified in the addendum.
 
 | Work area | Code and documentation checked | Safe customer meaning |
 | --- | --- | --- |

@@ -1,12 +1,12 @@
-# September 28 product update
+# September 29 product update
 
 **Status: review draft. No email sent or scheduled.**
 
-- Intended send date: Monday, September 28, 2026, America/New_York. Time is not selected.
-- Review window: September 15–24 inclusive, the last ten calendar dates as of the request. Changes after the September 24 snapshot are not included.
-- Subject: **TrackMyOPT: "Important notice from USC*S" — just kidding 👀**
+- Draft date: Tuesday, September 29, 2026, America/New_York. No send time is selected. The directory retains its original date so the existing preview URL keeps working.
+- Review window: September 15–29. GitHub `main` contains additional commits from September 25–27; the latest checked commit is [`ec5b310`](https://github.com/dikondaashish/TrackmyOPT/commit/ec5b310f451847cec01a1cbd1b0108783ae03a70). No September 28–29 commits were found in the checked `main` history.
+- Subject: **TrackMyOPT: "Important notice from USC*S"** (owner's manual edit retained; review the final inbox presentation before sending)
 - Alternate subject: **Important TrackMyOPT update: Chrome extension + more**
-- Preheader: Just kidding—it's a TrackMyOPT product update. Chrome extension, OPT dates, case tracking, and more.
+- Preheader: Just kidding—it's a TrackMyOPT update: smoother resumes, networking, and Pro for $0.99 for 7 days if eligible.
 - Proposed sender: TrackMyOPT `<support@trackmyopt.com>`, subject to the sending provider's verified sender configuration.
 - Audience: product users eligible to receive product updates, honoring marketing opt-outs, suppressions, bounces, and duplicate addresses. “All users” is the intended breadth, not an instruction to override email preferences.
 
@@ -48,17 +48,18 @@ The generator uses the existing macOS Trebuchet MS fonts. On other systems, set 
 
 This package deliberately does not implement or invoke a mailing job.
 
-1. Confirm the final draft and recheck the featured releases before Monday. Recheck the outreach pilot flag and provider availability. The Chrome extension section explicitly describes work merged to GitHub and notes that its Chrome Web Store rollout is unverified; update that sentence only after confirming the installed store version.
+1. Confirm the final draft and recheck the featured releases before sending. Recheck the outreach pilot flag and provider availability. A fresh public Chrome Web Store fetch on September 29 showed version 0.2.4, updated September 28; confirm the Store still shows it before sending and avoid promising that every reader's installed extension has updated already.
 2. Upload `assets/` to the email provider or an approved public HTTPS asset location. Replace `{{ASSET_BASE_URL}}` with that directory's HTTPS URL, without a trailing slash. Do not send local image paths or GitHub HTML-page URLs as image sources.
 3. Replace `{{UNSUBSCRIBE_URL}}` in both versions with the provider's recipient-specific unsubscribe merge field. Replace `{{POSTAL_ADDRESS}}` with the verified sender postal address. Neither value was invented. The local preview's unsubscribe link is deliberately inactive.
 4. Set the provider's subject and preheader from the metadata above. Remove the `Subject:` and `Preheader:` metadata lines from `email.txt` when importing it as the MIME plain-text body. Configure the provider's subscription/suppression behavior and unsubscribe headers using its supported campaign flow.
-5. Send a test only to an approved test recipient and inspect Gmail, Outlook, and Apple Mail rendering, including dark mode, before scheduling the eligible audience. No mailbox tests were performed for this draft.
+5. Check the live pricing offer and checkout before sending. The email describes the once-per-eligible-account $0.99 paid Pro introduction for 7 days, followed by automatic renewal at the selected limited-time $4.99 monthly or $49.99 yearly price unless canceled before the introduction ends. Do not call it free or offer it to ineligible accounts.
+6. Send a test only to an approved test recipient and inspect Gmail, Outlook, and Apple Mail rendering, including dark mode, before scheduling the eligible audience. No mailbox tests were performed for this draft.
 
 The existing `app/api/admin/bulk-notification/route.ts` replaces only `firstName`, `email`, and `userId`; it does not resolve these campaign placeholders. It is not a ready-to-use sender for this package. Do not POST this unrendered template to that endpoint.
 
 ## Design and validation
 
-The reader is an international student checking a Monday morning inbox on a phone or laptop. The subject quotes the requested USC*S joke but identifies TrackMyOPT first and reveals the joke in the subject, preheader, and opening paragraph, without suggesting a real application status. The light reading surface, existing brand blue, and illustrated Chrome tools/dates/case/career sequence support a quick scan. The illustration is conceptual, not a dashboard screenshot or applicant record. Existing Arial/Helvetica email typography is preserved, with Trebuchet headings and safe fallback fonts. There is no new `DESIGN.md`; the existing email brand and product context guided the design. The optional Impeccable `document` command can capture these choices for future campaigns.
+The reader is an international student checking a Tuesday inbox on a phone or laptop. The owner manually removed the joke from the subject; TrackMyOPT remains named first, and the preheader and opening paragraph identify this as a product update, not a government notice. Review this subject carefully before a bulk send. The light reading surface, existing brand blue, and illustrated Chrome tools/dates/case/career sequence support a quick scan. The illustration is conceptual, not a dashboard screenshot or applicant record. Existing Arial/Helvetica email typography is preserved, with Trebuchet headings and safe fallback fonts. There is no new `DESIGN.md`; the existing email brand and product context guided the design.
 
 Email uses presentation tables, inline primary styles, real HTML text, descriptive link labels, alternative image text, explicit image dimensions, and no JavaScript. The separate review wrapper has small local-only preview controls. Hex colors preserve the existing brand and email compatibility.
 
@@ -69,8 +70,8 @@ Verified for this draft:
 - Chromium desktop preview and 320, 375, and 600px email widths: no horizontal overflow.
 - Desktop/mobile preview controls and automatic iframe height adjustment.
 - Visible images and hero background loaded; reduced-motion mode hides the illustration GIF and displays both static PNGs.
-- Image-blocked mode retains the heading, all feature descriptions, and all nine links.
-- Six product links resolve to the expected sign-in redirect; privacy returns HTTP 200. This is route verification, not authenticated feature testing.
+- Image-blocked mode retains the heading, all feature descriptions, and all ten links.
+- Seven product links, including the public pricing page, were checked for route availability. This is route verification, not authenticated feature testing.
 - HTML has no scripts, forms, embedded product data, or sending credentials. Template placeholders remain only in the send-source versions.
 - Asset size, GIF frame count/duration, HTML structure, local references, and `git diff --check` checked before commit.
 

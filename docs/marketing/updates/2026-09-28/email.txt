@@ -1,7 +1,7 @@
-Subject: TrackMyOPT: "Important notice from USC*S" — just kidding 👀
-Preheader: Just kidding—it's a TrackMyOPT product update. Chrome extension, OPT dates, case tracking, and more.
+Subject: TrackMyOPT: "Important notice from USC*S"
+Preheader: Just kidding—it's a TrackMyOPT update: smoother resumes, networking, and Pro for $0.99 for 7 days if eligible.
 
-TrackMyOPT | Product update | September 28, 2026
+TrackMyOPT | Product update | September 29, 2026
 
 Less guesswork. More next steps.
 
@@ -9,23 +9,23 @@ Hi there,
 
 Just kidding—this is a TrackMyOPT product update, not a USCIS notice.
 
-Over September 15–24, we improved the tools that support your OPT journey and job search. Here’s what’s new on the website and what we’ve built for the next Chrome extension release.
+Here’s your Tuesday update: more useful tools for your OPT journey and job search are live on TrackMyOPT, and the Chrome extension has a new Store release.
 
-01. A bigger Chrome extension update.
+01. The Chrome extension is now at 0.2.4.
 
 We built a guided first-run tour, a steadier side panel with stoppable resume progress, saved job-specific resumes you can restore later, and Undo last Prefill. On an explicit Prefill click, supported forms can use your saved profile and private answers; supported login pages can fill saved credentials. The extension can also prepare screening-answer drafts for you to review. We improved job-tracker saving and prefill across several application portals.
 
-You stay in control of your answers and final submission. Some features depend on your plan. Rollout note: Chrome Web Store availability is being confirmed; your installed version may not include these improvements yet.
+Recent work also improves handling of LinkedIn Easy Apply and employer forms, including Workday, Greenhouse, and SmartRecruiters. You review your answers and submit applications yourself. Some features depend on your plan. The public Chrome Web Store lists version 0.2.4; check your installed version for the latest changes.
 
-Explore Chrome Job Prefill:
-https://www.trackmyopt.com/dashboard/extension?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+View the Chrome extension:
+https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm
 
 02. OPT dates with more clarity.
 
 We refreshed the OPT Dates dashboard and the four OPT/STEM tools. Saved versus unsaved dates are clearer, unemployment-day calculations were tightened, and the STEM DSO recommendation date now has its own field. Employer suggestions and employment history gained company logos.
 
 Review your OPT dates:
-https://www.trackmyopt.com/dashboard/opt-dates?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+https://www.trackmyopt.com/dashboard/opt-dates?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
 
 03. See your case and next actions together.
 
@@ -34,29 +34,38 @@ Case milestones, monitoring status, and four comparison views are now easier to 
 For paid members: deadline emails and the weekly case digest are opt-in.
 
 Explore your case view:
-https://www.trackmyopt.com/dashboard/case-status?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+https://www.trackmyopt.com/dashboard/case-status?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
 
 04. Find people. Write a thoughtful note.
 
-The new Networking workspace helps you check for an available work email from a LinkedIn profile and draft a personal email or LinkedIn note. Outreach bundles combine contact discovery and drafts in an optional pilot. Results depend on available data; you review and send any message yourself.
+The Networking workspace helps you check for an available work email from a LinkedIn profile and draft a personal email or LinkedIn note. Company search, logos, outreach-goal shortcuts, daily usage, and lookup results are now clearer. Optional outreach bundles remain a pilot. Results depend on available data; you review and send any message yourself.
 
 Try Networking:
-https://www.trackmyopt.com/dashboard/career/networking?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+https://www.trackmyopt.com/dashboard/career/networking?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
 
-05. A smoother Document Vault.
+05. Build a resume with less waiting.
+
+Paste a job description or import its link, choose from faster-loading template previews, and see your resume preview and generation progress sooner. We improved recovery when AI generation times out. The job tracker summary is easier to scan, too.
+
+Explore Resume Builder:
+https://www.trackmyopt.com/dashboard/career/resume-generator?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
+
+06. A smoother Document Vault.
 
 A more compact layout puts your files first, especially on mobile. Uploads, downloads, preview retries, expiry-date edits, and reminder settings now give clearer feedback.
 
 Document Vault is a paid-plan feature.
 
 Open your Document Vault:
-https://www.trackmyopt.com/dashboard/documents?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+https://www.trackmyopt.com/dashboard/documents?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
 
-Take a look at what’s new.
-We also worked behind the scenes on job-feed reliability, case-check scheduling, and browser tests. Start with the part of your journey that matters most today.
+Try Pro for $0.99 for 7 days.
+Get automated case checks, deadline alerts, and more room for your career tools.
 
-Open TrackMyOPT:
-https://www.trackmyopt.com/dashboard?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_28
+For eligible accounts: $0.99 is charged today for your first 7 days. After that, Pro automatically renews at $4.99/month or $49.99/year, depending on the plan you choose, unless you cancel before the introductory period ends. This is a paid introductory offer, not a free trial. It is available once per eligible account; checkout shows your exact terms.
+
+See Pro plans:
+https://www.trackmyopt.com/pricing?utm_source=product_update&utm_medium=email&utm_campaign=2026_09_29
 
 Have feedback? Tell us what would help: support@trackmyopt.com
 

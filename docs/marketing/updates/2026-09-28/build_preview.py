@@ -148,10 +148,10 @@ email = email.replace("{{POSTAL_ADDRESS}}", "[Verified sender postal address to 
 email = email.replace('href="{{UNSUBSCRIBE_URL}}"', 'href="#unsubscribe-preview" aria-disabled="true" onclick="return false"')
 (ROOT / "preview-email.html").write_text(email)
 
-subject = 'TrackMyOPT: "Important notice from USC*S" — just kidding 👀'
+subject = 'TrackMyOPT: "Important notice from USC*S"'
 preview = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Monday update · TrackMyOPT</title>
+<title>Tuesday update · TrackMyOPT</title>
 <style>
 *{{box-sizing:border-box}}body{{margin:0;background:#e7edf6;color:#172d4e;font-family:Arial,Helvetica,sans-serif}}
 .toolbar{{padding:22px 28px;background:#fdfefe;border-bottom:1px solid #d3dfed;display:flex;align-items:center;gap:24px;flex-wrap:wrap}}
@@ -165,12 +165,12 @@ button[aria-pressed=true]{{background:#184fc4;color:#f7faff;border-color:#184fc4
 .stage{{margin:0 auto 40px;max-width:100%;transition:width .25s ease-out;width:680px}}iframe{{display:block;width:100%;height:2400px;border:0;background:#edf2f8}}
 @media(prefers-reduced-motion:reduce){{.stage{{transition:none}}}}@media(max-width:600px){{.toolbar{{padding:16px;gap:14px}}.envelope{{padding:0 16px;margin-top:20px}}.envelope h1{{font-size:20px}}}}
 </style></head><body>
-<header class="toolbar"><div class="identity"><img src="assets/logo.png" alt=""><div><strong>TrackMyOPT / Product update</strong><small>Monday, September 28, 2026</small></div></div>
+<header class="toolbar"><div class="identity"><img src="assets/logo.png" alt=""><div><strong>TrackMyOPT / Product update</strong><small>Tuesday, September 29, 2026</small></div></div>
 <span class="badge">Draft · not sent</span><div class="controls" aria-label="Preview width"><button type="button" id="desktop" aria-pressed="true">Desktop</button><button type="button" id="mobile" aria-pressed="false">Mobile</button></div><a class="file" href="email.txt">Plain text ↗</a></header>
 <main><section class="envelope" aria-label="Email details"><p><strong>From</strong> TrackMyOPT &lt;support@trackmyopt.com&gt; &nbsp; / &nbsp; <strong>To</strong> Eligible product-update subscribers</p>
-<h1>{html.escape(subject)}</h1><p>Just kidding—it's a TrackMyOPT product update. Chrome extension, OPT dates, case tracking, and more.</p>
+<h1>{html.escape(subject)}</h1><p>Just kidding—it's a TrackMyOPT update: smoother resumes, networking, and Pro for $0.99 for 7 days if eligible.</p>
 <p class="notice">Review preview. The animation plays once; its first frame works as a still. Before sending, host the images and insert your email provider’s unsubscribe URL and verified postal address. No send is scheduled.</p></section>
-<div class="stage" id="stage"><iframe id="email" title="TrackMyOPT product update email" src="preview-email.html"></iframe></div></main>
+<div class="stage" id="stage"><iframe id="email" title="TrackMyOPT product update email" src="preview-email.html?rev={(ROOT / 'preview-email.html').stat().st_mtime_ns}"></iframe></div></main>
 <script>
 const stage=document.getElementById('stage'), frame=document.getElementById('email');
 function fit(){{frame.style.height=frame.contentDocument.documentElement.scrollHeight+'px'}}
