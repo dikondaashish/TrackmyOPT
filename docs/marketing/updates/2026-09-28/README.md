@@ -1,14 +1,14 @@
 # September 29 product update
 
-**Status: send preparation implemented; physical mailing address, reviewed recipients, marketing SMTP configuration, and mailbox test are still required. No email sent or scheduled.**
+**Status: five candidates and the owner-supplied mailing address are prepared. A live read-only dry run matched all five; audience review and a mailbox test remain before sending. No email sent or scheduled.**
 
 ## Personal re-engagement revision
 
 - Subject: **We’ve been busy 👋 Try Pro for $0.99**
 - Preheader: A quick note from Karthik: what you can do with your account, plus 7 days of Pro for $0.99 if eligible.
-- Proposed sender display name: **Karthik from TrackMyOPT**, using the verified `support@trackmyopt.com` mailbox. The tracked SMTP campaign uses this From display and `support@trackmyopt.com` as Reply-To. The global transactional SMTP configuration is unchanged. The campaign provider must verify this sender.
+- Sender display name: **Karthik from TrackMyOPT**. The tracked SMTP campaign uses the configured TrackMyOPT mailbox in `SMTP_FROM_EMAIL` (or `CAMPAIGN_FROM_EMAIL` when explicitly set) as From and `support@trackmyopt.com` as Reply-To. Confirm that the provider has verified the From mailbox. The global transactional SMTP configuration is unchanged.
 - Intended audience: registered Free users who have not started using their account, are eligible for the introductory offer, and receive product emails. Do not send an upgrade invitation to current paid subscribers.
-- No inactivity rule or recipient list has been selected. Tracked campaigns now require an explicit list of 1–100 account UUIDs per request and default to a read-only preflight. The endpoint enforces this scope, marketing opt-outs and blocked addresses; it does not decide inactivity, consent or offer eligibility for you.
+- A read-only export on September 29 found five potential recipients and saved their account IDs privately outside Git; this list still needs review before sending. The live read-only preflight reported requested 5, matched 5, eligible 5, skipped opt-outs 0, suppressed 0, sent 0. Tracked campaigns require an explicit list of 1–100 account UUIDs per request and default to a read-only preflight. The endpoint enforces the selected scope, Free status, unused introductory offer, marketing opt-outs, and blocked addresses. The private candidate exporter uses verified accounts with no sign-in for 14 days. Last sign-in does not prove product non-use, and profile data may lag the billing provider; the operator still reviews consent and checkout eligibility.
 - The draft uses a first-name greeting, with the existing sender's `there` fallback. It does not claim to know why someone has not used the product, invent personal history, or promise that Karthik personally reads every reply.
 - Recent improvements are introduced separately from the overview of existing tools. The overview covers Chrome prefill and writing drafts, resumes/ATS, jobs/sponsors/tracking, OPT/STEM, cases/reminders, networking, Document Vault, and insurance/tax/partner resources.
 - Pro is a paid $0.99 introduction for 7 days for eligible accounts. Automatic renewal, plan choice, cancellation timing, and once-per-account eligibility remain adjacent to the button. Dedicated-only services are not presented as Pro benefits.
@@ -47,11 +47,19 @@ Python 3 and Pillow are required. `--preview-only` reuses existing images. Witho
 
 The logo, GIF and reduced-motion PNG are included in `apps/web/public/email/product-update-2026-09-29/`. The send-source HTML uses `https://www.trackmyopt.com/email/product-update-2026-09-29/` directly. The local preview still uses its existing local image copies. Verify that all three production images return HTTP 200 after deployment.
 
-Use a marketing-capable provider. **ZeptoMail does not allow promotional campaigns or product announcements**, and Zoho Mail directs bulk marketing to Zoho Campaigns. See [ZeptoMail policy](https://www.zoho.com/zeptomail/help/sending-bulk-emails.html) and [Zoho Mail policy](https://www.zoho.com/mail/help/usage-policy.html). The campaign SMTP path uses dedicated `CAMPAIGN_SMTP_HOST`, `CAMPAIGN_SMTP_PORT` (465 or 587), `CAMPAIGN_SMTP_USER`, and `CAMPAIGN_SMTP_PASS`; it does not reuse the transactional credentials. Verify `support@trackmyopt.com` and domain authentication with the selected provider.
+The owner says Zoho confirmed their ZeptoMail account may send these updates. The campaign sender now uses the existing `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` unless a complete `CAMPAIGN_SMTP_*` override is configured. This exception is reported by the owner; [ZeptoMail’s public policy](https://www.zoho.com/zeptomail/help/sending-bulk-emails.html) still describes promotional announcements as unsupported, so verify the account-specific arrangement and sending limits with Zoho before mailing. The sender requires TLS on port 465 or STARTTLS on 587. Confirm the configured From mailbox and domain authentication.
 
-1. Prepare a reviewed list of registered Free accounts who have not started using the platform, are eligible for the introductory offer, and may receive product email. Exclude paid users and prior intro users. `first_dashboard_viewed_at` is one activation signal, not a complete inactivity measure. No audience is automatically selected. Store a JSON array of account UUIDs outside this repository; at most 100 per request.
-2. Put the exact physical business mailing address in a text file outside the repository. `support@trackmyopt.com` is the contact email, not a postal address. A valid business address or registered PO Box is required in the footer; see the [FTC guidance](https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business).
+1. Run the read-only candidate exporter below with the existing server Supabase environment loaded. It selects verified accounts whose last sign-in was over 14 days ago, with a matching profile email, Free status, unused intro, no recorded product-email opt-out, and no blocked address. It saves only account UUIDs outside Git. Review the list and your basis for contacting these accounts; last sign-in is an inactivity proxy, not proof of non-use. The sender separately rechecks Free and intro status before sending. At most 100 accounts fit in one request.
+2. The owner supplied **28 Geary St Ste 650 #1892, San Francisco, CA 94108** for the footer. This is already in the private address file used for the September 29 dry run; use the same exact physical mailing address for future preparation. `support@trackmyopt.com` remains the contact email. See the [FTC guidance](https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business).
 3. Run the offline preparation command below. It fills and escapes the address, strips Subject/Preheader metadata from the plain-text body, and writes a new private file with mode `0600`. It never sends mail, queries recipients or registers a campaign. It refuses to overwrite existing files or write recipient payloads inside the current repository.
+
+```sh
+pnpm --filter web exec tsx scripts/export-product-update-candidates.ts \
+  --env-file /absolute/path/to/server.env \
+  --output /private/operator/recipients.json
+```
+
+Run this from the repository root. The environment file remains private and is never committed. Omit `--env-file` if the server variables are already loaded in your shell. No candidate IDs are printed.
 
 ```sh
 pnpm --filter web exec tsx scripts/prepare-product-update.ts \
@@ -78,4 +86,4 @@ The HTML and plain-text CTA destinations remain compatible with the existing tra
 
 This revision was checked in the browser at 375px and the available 464px reading width with no horizontal overflow; images loaded, the mobile control switched correctly, and the offer and footer remained readable. All 10 existing campaign-instrumentation tests passed against the rewritten template. The plain-text draft dropped from 664 to 441 words, including metadata, links, terms, and footer. Preview merge fields are resolved while send-source merge fields remain intact.
 
-Send-preparation verification (September 29): 48 focused tests, TypeScript, scoped lint, production build and the offline CLI fixture passed. The approved unsubscribe preference migration is live with RLS retained; no email-preferences security findings were reported by the advisor. The refreshed local preview shows Karthik. No live recipient request, SMTP test, campaign registration or send was performed.
+Send-preparation verification (September 29): 48 focused tests, TypeScript, scoped lint, production build and the offline CLI fixture passed for the earlier revision. The approved unsubscribe preference migration is live with RLS retained. The refreshed local preview shows Karthik and the owner-supplied address. The five-account live dry run performed reads only and reported five eligible, zero sent. No SMTP test, campaign registration or send was performed.

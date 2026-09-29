@@ -6,7 +6,7 @@ import { sanitizeError } from '@/lib/secure-logger';
 import { safeEqual } from '@/lib/api/secure-compare';
 import { campaignTrackingSchema, getCampaignSigningSecret, instrumentCampaignEmail, type CampaignTracking } from '@/lib/notifications/campaign-tracking';
 import { registerEmailCampaign, sendTrackedCampaignEmail } from '@/lib/notifications/campaign-send';
-import { getCampaignSmtpOptions } from '@/lib/notifications/campaign-smtp';
+import { getCampaignFromHeader, getCampaignSmtpOptions } from '@/lib/notifications/campaign-smtp';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -108,7 +108,9 @@ export async function POST(request: NextRequest) {
     for (let offset = 0; ; offset += 1000) {
       let query = supabaseAdmin.from('profiles').select('user_id, email, first_name')
         .not('email', 'is', null).order('user_id').range(offset, offset + 999);
-      if (campaign) query = query.in('user_id', recipientUserIds);
+      if (campaign) query = query.in('user_id', recipientUserIds)
+        .eq('premium_status', false)
+        .eq('pro_free_trial_consumed', false);
       const page = await query;
       if (page.error) return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
       users.push(...(page.data || []));
@@ -117,6 +119,10 @@ export async function POST(request: NextRequest) {
 
     if (users.length === 0) {
       return NextResponse.json({ message: 'No users to notify', sent: 0 });
+    }
+    if (campaign && !dryRun && users.length !== recipientUserIds.length) {
+      return NextResponse.json({ error: 'The reviewed recipient list changed or includes paid or intro-used accounts; run a new dry run',
+        requested: recipientUserIds.length, matched: users.length, sent: 0 }, { status: 409 });
     }
 
     // Fetch opted-out user IDs from email_preferences.
@@ -150,11 +156,15 @@ export async function POST(request: NextRequest) {
         matched: users.length, skippedOptOut: users.length - eligibleUsers.length,
         suppressed: eligibleUsers.filter(user => blockedEmails.has(user.email.trim().toLowerCase())).length,
         eligible: eligibleUsers.filter(user => !blockedEmails.has(user.email.trim().toLowerCase())).length,
-        sent: 0, note: 'No SMTP attempt or campaign registration. Review inactive-user and intro-offer eligibility separately.' });
+        sent: 0, note: 'No SMTP attempt or campaign registration. Review the private inactivity selection and checkout eligibility before sending.' });
     }
     let campaignSmtp;
+    let campaignFrom = '';
     if (campaign) {
-      try { campaignSmtp = getCampaignSmtpOptions(); }
+      try {
+        campaignSmtp = getCampaignSmtpOptions();
+        campaignFrom = getCampaignFromHeader();
+      }
       catch (error) { return NextResponse.json({ error: (error as Error).message }, { status: 503 }); }
       try {
         await registerEmailCampaign(supabaseAdmin, campaign, { subject, html: htmlContent, text: plainTextContent });
@@ -207,7 +217,7 @@ export async function POST(request: NextRequest) {
             const outcome = await sendTrackedCampaignEmail({
               supabase: supabaseAdmin, campaign, secret: signingSecret!, baseUrl: 'https://www.trackmyopt.com',
               userId, email: user.email, subject, html: personalizedHtml, text: personalizedText,
-              from: 'Karthik from TrackMyOPT <support@trackmyopt.com>', replyTo: 'support@trackmyopt.com',
+              from: campaignFrom, replyTo: 'support@trackmyopt.com',
               sendMail: options => transporter.sendMail(options),
             });
             if (outcome === 'sent') sent++;

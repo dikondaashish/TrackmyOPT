@@ -150,7 +150,7 @@ if not args.preview_only:
 email = (ROOT / "email.html").read_text()
 email = email.replace("https://www.trackmyopt.com/email/product-update-2026-09-29", "assets")
 email = email.replace("{{firstName}}", "there")
-email = email.replace("{{POSTAL_ADDRESS}}", "[Verified sender postal address to be added]")
+email = email.replace("{{POSTAL_ADDRESS}}", "28 Geary St Ste 650 #1892, San Francisco, CA 94108")
 email = email.replace('href="{{UNSUBSCRIBE_URL}}"', 'href="#unsubscribe-preview" aria-disabled="true" onclick="return false"')
 (ROOT / "preview-email.html").write_text(email)
 
@@ -175,9 +175,9 @@ button[aria-pressed=true]{{background:#184fc4;color:#f7faff;border-color:#184fc4
 </style></head><body>
 <header class="toolbar"><div class="identity"><img src="assets/logo.png" alt=""><div><strong>TrackMyOPT / Product update</strong><small>Tuesday, September 29, 2026</small></div></div>
 <span class="badge">Draft · not sent</span><div class="controls" aria-label="Preview width"><button type="button" id="desktop" aria-pressed="true">Desktop</button><button type="button" id="mobile" aria-pressed="false">Mobile</button></div><a class="file" href="email.txt">Plain text ↗</a></header>
-<main><section class="envelope" aria-label="Email details"><p><strong>From</strong> Karthik from TrackMyOPT &lt;support@trackmyopt.com&gt; &nbsp; / &nbsp; <strong>To</strong> Registered users who haven’t started using their account (eligible Free accounts)</p>
+<main><section class="envelope" aria-label="Email details"><p><strong>From</strong> Karthik from TrackMyOPT &lt;configured TrackMyOPT sender&gt; &nbsp; / &nbsp; <strong>Reply-To</strong> support@trackmyopt.com &nbsp; / &nbsp; <strong>To</strong> Registered inactive Free accounts</p>
 <h1>{html.escape(subject)}</h1><p>{html.escape(preheader)}</p>
-<p class="notice">Review preview. The animation plays once; its first frame works as a still. The mailing address is still needed. The tracked sender adds each recipient’s name, unsubscribe link, and analytics. No send is scheduled.</p></section>
+<p class="notice">Review preview. The animation plays once; its first frame works as a still. The footer shows the supplied mailing address. The tracked sender adds each recipient’s name, unsubscribe link, and analytics. No send is scheduled.</p></section>
 <div class="stage" id="stage"><iframe id="email" title="TrackMyOPT product update email" src="preview-email.html?rev={(ROOT / 'preview-email.html').stat().st_mtime_ns}"></iframe></div></main>
 <script>
 const stage=document.getElementById('stage'), frame=document.getElementById('email');

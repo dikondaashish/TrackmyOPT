@@ -14,7 +14,7 @@ function request(value: unknown = body, authorized = true) {
   return new NextRequest('https://www.trackmyopt.com/api/admin/bulk-notification', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(authorized ? { authorization: 'Bearer test-secret' } : {}) }, body: JSON.stringify(value) });
 }
 function query(result: object) {
-  return { select: vi.fn().mockReturnThis(), not: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), order: vi.fn().mockReturnThis(), range: vi.fn().mockReturnThis(), in: vi.fn().mockReturnThis(), then: (resolve: (result: object) => unknown) => Promise.resolve(result).then(resolve) };
+  return { select: vi.fn().mockReturnThis(), not: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), is: vi.fn().mockReturnThis(), order: vi.fn().mockReturnThis(), range: vi.fn().mockReturnThis(), in: vi.fn().mockReturnThis(), then: (resolve: (result: object) => unknown) => Promise.resolve(result).then(resolve) };
 }
 beforeEach(() => {
   vi.clearAllMocks();
@@ -23,6 +23,7 @@ beforeEach(() => {
   vi.stubEnv('CAMPAIGN_SMTP_HOST', 'smtp.example.invalid');
   vi.stubEnv('CAMPAIGN_SMTP_USER', 'test');
   vi.stubEnv('CAMPAIGN_SMTP_PASS', 'test');
+  vi.stubEnv('SMTP_FROM_EMAIL', 'updates@trackmyopt.com');
   m.register.mockResolvedValue(undefined);
   m.trackedSend.mockResolvedValue('sent');
 });
@@ -32,14 +33,14 @@ it('does not access recipients or send without authorization', async () => {
   expect(m.create).not.toHaveBeenCalled();
 });
 it('rejects an unfinished campaign and nonmarketing tracking before sending', async () => {
-  expect((await POST(request({ ...body, htmlContent: body.htmlContent + '{{POSTAL_ADDRESS}}' }))).status).toBe(400);
+  expect((await POST(request({ ...body, recipientUserIds: [ids[0]], htmlContent: body.htmlContent + '{{POSTAL_ADDRESS}}' }))).status).toBe(400);
   expect((await POST(request({ ...body, type: 'policy_change' }))).status).toBe(400);
   expect(m.create).not.toHaveBeenCalled();
 });
 it('fails closed when marketing preferences cannot be checked', async () => {
   const from = vi.fn().mockReturnValueOnce(query({ data: [{ user_id: 'user', email: 'test@example.invalid', first_name: null }], error: null })).mockReturnValueOnce(query({ error: { message: 'unavailable' } }));
   m.create.mockReturnValue({ from });
-  expect((await POST(request())).status).toBe(503);
+  expect((await POST(request({ ...body, recipientUserIds: [ids[0]] }))).status).toBe(503);
   expect(m.trackedSend).not.toHaveBeenCalled();
   expect(m.send).not.toHaveBeenCalled();
 });
@@ -51,6 +52,7 @@ it('honors marketing opt-outs and blocked addresses, and reports duplicates sepa
   expect(await (await POST(request())).json()).toMatchObject({ sent: 0, eligible: 2, skippedOptOut: 1, suppressed: 1, duplicate: 1 });
   expect(m.trackedSend).toHaveBeenCalledTimes(1);
   expect(m.trackedSend).toHaveBeenCalledWith(expect.objectContaining({ email: 'eligible@example.invalid' }));
+  expect(m.trackedSend).toHaveBeenCalledWith(expect.objectContaining({ from: 'Karthik from TrackMyOPT <updates@trackmyopt.com>', replyTo: 'support@trackmyopt.com' }));
   expect(m.send).not.toHaveBeenCalled();
   expect(m.close).toHaveBeenCalledTimes(1);
 });
@@ -62,7 +64,7 @@ it('checks every preference page beyond the default 1,000 rows', async () => {
     .mockReturnValueOnce(query({ data: users.slice(0, 1000).map(u => ({ user_id: u.user_id })), error: null }))
     .mockReturnValueOnce(query({ data: users.slice(1000).map(u => ({ user_id: u.user_id })), error: null }));
   m.create.mockReturnValue({ from });
-  expect(await (await POST(request())).json()).toMatchObject({ totalUsers: 1001, eligible: 0, skippedOptOut: 1001, sent: 0 });
+  expect(await (await POST(request({ ...body, campaign: undefined }))).json()).toMatchObject({ totalUsers: 1001, eligible: 0, skippedOptOut: 1001, sent: 0 });
   expect(m.trackedSend).not.toHaveBeenCalled();
   expect(m.send).not.toHaveBeenCalled();
 });
@@ -70,7 +72,7 @@ it('resolves every supported recipient placeholder in both MIME bodies', async (
   const from = vi.fn().mockReturnValueOnce(query({ data: [{ user_id: 'synthetic-user', email: 'test@example.invalid', first_name: 'A&B$&' }], error: null }))
     .mockReturnValueOnce(query({ data: [], error: null })).mockReturnValueOnce(query({ data: [], error: null }));
   m.create.mockReturnValue({ from });
-  await POST(request({ ...body, htmlContent: body.htmlContent + '<p>{{firstName}} {{firstName}} {{userId}}</p>', plainTextContent: body.plainTextContent + '\n{{firstName}} {{firstName}} {{userId}}' }));
+  await POST(request({ ...body, recipientUserIds: [ids[0]], htmlContent: body.htmlContent + '<p>{{firstName}} {{firstName}} {{userId}}</p>', plainTextContent: body.plainTextContent + '\n{{firstName}} {{firstName}} {{userId}}' }));
   expect(m.trackedSend).toHaveBeenCalledWith(expect.objectContaining({ html: body.htmlContent + '<p>A&amp;B$&amp; A&amp;B$&amp; synthetic-user</p>', text: body.plainTextContent + '\nA&B$& A&B$& synthetic-user' }));
 });
 
@@ -87,14 +89,25 @@ it('defaults to a read-only preflight and restricts the profile query to selecte
     .mockReturnValueOnce(query({ data: [], error: null })).mockReturnValueOnce(query({ data: [], error: null })) });
   expect(await (await POST(request({ ...body, dryRun: undefined }))).json()).toMatchObject({ dryRun: true, sent: 0, eligible: 1 });
   expect(profiles.in).toHaveBeenCalledWith('user_id', ids);
+  expect(profiles.eq).toHaveBeenCalledWith('premium_status', false);
+  expect(profiles.eq).toHaveBeenCalledWith('pro_free_trial_consumed', false);
+  expect(profiles.is).not.toHaveBeenCalledWith('first_dashboard_viewed_at', null);
   expect(m.register).not.toHaveBeenCalled();
   expect(m.trackedSend).not.toHaveBeenCalled();
   expect(m.send).not.toHaveBeenCalled();
 });
+it('does not send if any selected account no longer matches the Free intro segment', async () => {
+  m.create.mockReturnValue({ from: vi.fn().mockReturnValueOnce(query({ data: [{ user_id: ids[0], email: 'test@example.invalid' }], error: null })) });
+  const response = await POST(request());
+  expect(response.status).toBe(409);
+  expect(await response.json()).toMatchObject({ requested: 3, matched: 1, sent: 0 });
+  expect(m.register).not.toHaveBeenCalled();
+  expect(m.trackedSend).not.toHaveBeenCalled();
+});
 it('fails before registration or SMTP if suppressions are unavailable', async () => {
   m.create.mockReturnValue({ from: vi.fn().mockReturnValueOnce(query({ data: [{ user_id: ids[0], email: 'test@example.invalid' }], error: null }))
     .mockReturnValueOnce(query({ data: [], error: null })).mockReturnValueOnce(query({ error: {} })) });
-  expect((await POST(request())).status).toBe(503);
+  expect((await POST(request({ ...body, recipientUserIds: [ids[0]] }))).status).toBe(503);
   expect(m.register).not.toHaveBeenCalled();
   expect(m.trackedSend).not.toHaveBeenCalled();
 });
