@@ -38,13 +38,13 @@
   </text>
 
   <text x="80" y="424" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="20" fill="#cbd5e1">
-    July 17, 2026 USCIS notice · 5-step backup plan · cap-gap, cap-exempt, FY 2028 wage-weighted prep
+    July 17, 2026 USCIS notice |  5-step backup plan |  cap-gap, cap-exempt, FY 2028 wage-weighted prep
   </text>
 
   <g transform="translate(80,474)">
     <rect width="700" height="80" rx="12" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.12"/>
-    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#fde68a">9 min read · October 5, 2026 · Vinay Kumar</text>
-    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#94a3b8">cap-gap ends Sept 30 · re-register in March</text>
+    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#fde68a">9 min read |  October 5, 2026 |  Vinay Kumar</text>
+    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#94a3b8">cap-gap ends Sept 30 |  re-register in March</text>
   </g>
 
   <g transform="translate(1040,540)">

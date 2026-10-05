@@ -46,8 +46,8 @@
   <!-- Bottom info card -->
   <g transform="translate(80,480)">
     <rect width="700" height="80" rx="12" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.14"/>
-    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#e0e7ff">8 min read · October 5, 2026 · Vinay Kumar</text>
-    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#94a3b8">timeline · I-94 · OPT plan · travel · what to watch</text>
+    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#e0e7ff">8 min read |  October 5, 2026 |  Vinay Kumar</text>
+    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#94a3b8">timeline |  I-94 |  OPT plan |  travel |  what to watch</text>
   </g>
 
   <!-- Logo -->

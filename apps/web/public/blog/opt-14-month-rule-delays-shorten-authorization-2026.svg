@@ -21,7 +21,7 @@
     <rect x="880" y="120" width="240" height="14" rx="7" fill="#ffffff"/>
     <rect x="880" y="120" width="150" height="14" rx="7" fill="#fbbf24"/>
     <rect x="1030" y="120" width="90" height="14" rx="7" fill="#ef4444"/>
-    <text x="880" y="175" font-family="monospace" font-size="18" fill="#ffffff" opacity="0.9">12 mo OPT ’ 9 mo (delay)</text>
+    <text x="880" y="175" font-family="monospace" font-size="18" fill="#ffffff" opacity="0.9">12 mo OPT - 9 mo (delay)</text>
   </g>
 
   <g transform="translate(80,90)">
@@ -40,13 +40,13 @@
   </text>
 
   <text x="80" y="428" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="20" fill="#fecaca">
-    Filing on time doesn't guarantee 12 months. Late I-765 decisions compress authorization under 8 CFR § 214.2(f)(10)(ii).
+    Filing on time doesn't guarantee 12 months. Late I-765 decisions compress authorization under 8 CFR S. 214.2(f)(10)(ii).
   </text>
 
   <g transform="translate(80,478)">
     <rect width="700" height="80" rx="12" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.14"/>
-    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#fde68a">10 min read · October 5, 2026 · Vinay Kumar</text>
-    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#fca5a5">math examples · I-907 upgrade · STEM caveats</text>
+    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#fde68a">10 min read |  October 5, 2026 |  Vinay Kumar</text>
+    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#fca5a5">math examples |  I-907 upgrade |  STEM caveats</text>
   </g>
 
   <g transform="translate(1040,540)">

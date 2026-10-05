@@ -38,13 +38,13 @@
   </text>
 
   <text x="80" y="426" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="20" fill="#d1fae5">
-    File Form I-765 on time ’ USCIS extends your work auth up to 180 days if your case is still pending.
+    File Form I-765 on time - USCIS extends your work auth up to 180 days if your case is still pending.
   </text>
 
   <g transform="translate(80,478)">
     <rect width="700" height="80" rx="12" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.14"/>
-    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#a7f3d0">8 min read · October 5, 2026 · Vinay Kumar</text>
-    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#6ee7b7">8 CFR 214.2(f)(11)(i)(C) · employer checklist · sharp edges</text>
+    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#a7f3d0">8 min read |  October 5, 2026 |  Vinay Kumar</text>
+    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#6ee7b7">8 CFR 214.2(f)(11)(i)(C) |  employer checklist |  sharp edges</text>
   </g>
 
   <g transform="translate(1040,540)">
