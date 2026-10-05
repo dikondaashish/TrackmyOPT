@@ -105,14 +105,16 @@ export function isBenignResizeObserverLoopError(message: string): boolean {
   return lower.includes("resizeobserver loop");
 }
 
-/** AdSense layout/push failures when the slot is too narrow or blocked. */
+/** AdSense layout/push failures when the slot is too narrow, empty, or duplicate. */
 export function isBenignAdSenseTagError(message: string): boolean {
   const lower = message.toLowerCase();
   if (!lower.includes("adsbygoogle")) return false;
   return (
     lower.includes("tagerror") ||
     lower.includes("fluid responsive") ||
-    lower.includes("availablewidth")
+    lower.includes("availablewidth") ||
+    lower.includes("no slot size") ||
+    lower.includes("already have ads in them")
   );
 }
 

@@ -263,6 +263,23 @@ describe("shouldDropExceptionEvent", () => {
     ).toBe(true);
   });
 
+  it("drops AdSense empty-slot and duplicate-ins TagErrors", () => {
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [
+          "TagError: adsbygoogle.push() error: No slot size for availableWidth=0",
+        ],
+      })
+    ).toBe(true);
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [
+          "TagError: adsbygoogle.push() error: All 'ins' elements in the DOM with class=adsbygoogle already have ads in them.",
+        ],
+      })
+    ).toBe(true);
+  });
+
   it("keeps genuine aborts and unrelated rejections observable", () => {
     expect(
       isBenignNavigationAbortError("AbortError: The user aborted a request.")

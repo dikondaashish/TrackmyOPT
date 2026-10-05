@@ -111,7 +111,7 @@ Set via `PostHogIdentify` / server identify:
 | North Star | [1802474](https://us.posthog.com/project/369087/dashboard/1802474) |
 | Blog → signup | [1802603](https://us.posthog.com/project/369087/dashboard/1802603) |
 | LTV / partners | [1802593](https://us.posthog.com/project/369087/dashboard/1802593) |
-| Resume AI unit economics | Run `pnpm posthog:ai-cost-dashboard` (creates dashboard) |
+| Resume AI unit economics | [2173646](https://us.posthog.com/project/369087/dashboard/2173646) |
 | UX / Bug | [1707550](https://us.posthog.com/project/369087/dashboard/1707550) |
 
 ---
@@ -124,6 +124,17 @@ Set via `PostHogIdentify` / server identify:
 | Pro users | [396174](https://us.posthog.com/project/369087/cohorts/396174) | `premium_status = true` |
 | At-risk | [396175](https://us.posthog.com/project/369087/cohorts/396175) | Signed up 90d, no pageview 14d |
 | Extension users | [396240](https://us.posthog.com/project/369087/cohorts/396240) | `extension_detected` ≥1 (90d) |
+
+---
+
+## Experiments (closed 2026-10-05)
+
+| Experiment | Flag | Conclusion | Decision |
+|------------|------|------------|----------|
+| Pricing CTA | `pricing-cta-experiment` | **won** (control) | Keep “Get Pro”; urgency underperformed on checkout proxy |
+| Onboarding receipt | `onboarding-receipt-variant` | **inconclusive** | Keep control (optional receipt); required underpowered |
+
+Both flags now roll out **100% control**. Re-open only with a primary metric configured.
 
 ---
 

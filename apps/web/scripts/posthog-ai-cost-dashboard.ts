@@ -120,23 +120,18 @@ async function main() {
 
   console.log(`Created dashboard: ${dashboard.url ?? dashboard.id}`);
 
+  const tiles: Array<{ insight: number }> = [];
   for (const insight of INSIGHTS) {
     const created = await posthogApi<{ id: number; short_id: string }>(
       'POST',
       '/insights/',
       hogInsightBody(insight),
     );
-
-    await posthogApi('PATCH', `/dashboards/${dashboard.id}/`, {
-      tiles: [
-        {
-          insight: created.id,
-        },
-      ],
-    });
-
+    tiles.push({ insight: created.id });
     console.log(`  + insight "${insight.name}" (${created.short_id})`);
   }
+
+  await posthogApi('PATCH', `/dashboards/${dashboard.id}/`, { tiles });
 
   console.log(`\nDone. Open: ${host}/project/${POSTHOG_PROJECT_ID}/dashboard/${dashboard.id}`);
   console.log(

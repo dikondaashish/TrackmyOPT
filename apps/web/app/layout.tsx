@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
+import { PostHogProvider } from '@/components/analytics/PostHogProvider';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Toaster } from '@/components/ui/toaster';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
@@ -105,11 +106,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Analytics />
-          <SpeedInsights />
-          <CookieConsent />
-          <Toaster />
+          <PostHogProvider>
+            {children}
+            <Analytics />
+            <SpeedInsights />
+            <CookieConsent />
+            <Toaster />
+          </PostHogProvider>
         </ThemeProvider>
         <div id={PORTAL_ROOT_ID} />
         {/*
