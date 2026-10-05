@@ -16,9 +16,9 @@ export function WelcomeStep({ onNext, onSkipForNow, skipForNowClassName }: Welco
       <h2 id="onboarding-wizard-title" className="text-3xl font-bold tracking-tight text-foreground">
         Welcome to TrackMyOPT
       </h2>
-      <p className="text-lg text-muted-foreground max-w-sm mx-auto">
-        Let&apos;s set up your profile so we can track your legal deadlines, countdowns, and
-        unemployment days accurately.
+      <p className="text-lg text-muted-foreground max-w-md mx-auto">
+        Your OPT career companion — deadlines and unemployment days, USCIS case
+        status, AI resumes, Document Vault, and H-1B sponsors in one place.
       </p>
       <div className="pt-8 flex flex-col items-center gap-3">
         <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-lg rounded-full" onClick={onNext}>

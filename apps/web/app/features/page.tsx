@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock, Briefcase, Search, FileText, Shield, Users, Activity, Heart, Chrome } from "lucide-react";
+import { ArrowRight, Clock, Briefcase, Search, FileText, Shield, Users, Activity, Heart, Chrome, FolderLock } from "lucide-react";
 
 const features = [
   {
@@ -11,7 +11,7 @@ const features = [
   },
   {
     title: "USCIS Case Status",
-    description: "Real-time case tracking with instant alerts when your EAD or petition status changes.",
+    description: "Decision window from similar cases, live status tracking, and Pro alerts when your EAD moves.",
     href: "/features/case-status",
     icon: Activity,
     color: "green",
@@ -22,6 +22,13 @@ const features = [
     href: "/features/resume-ai",
     icon: FileText,
     color: "purple",
+  },
+  {
+    title: "Document Vault",
+    description: "Store I-20s, EAD copies, and USCIS notices with passcode lock and expiry reminders (Pro).",
+    href: "/login?next=/dashboard/documents",
+    icon: FolderLock,
+    color: "slate",
   },
   {
     title: "H-1B Sponsor Database",
@@ -77,6 +84,7 @@ const colorMap: Record<string, string> = {
   rose: "bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400",
   red: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
   teal: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400",
+  slate: "bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-300",
 };
 
 export default function FeaturesPage() {
@@ -84,11 +92,11 @@ export default function FeaturesPage() {
     <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center mb-16">
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-          Everything F-1 Students Need to Stay Compliant
+          Your OPT career companion
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          From OPT timeline tracking to H-1B sponsor search — TrackMyOPT gives you
-          every tool to protect your status and advance your career.
+          Deadlines and case status, AI resumes and Document Vault, H-1B sponsors
+          and job tracking — every tool to protect your status and land the next role.
         </p>
       </div>
 

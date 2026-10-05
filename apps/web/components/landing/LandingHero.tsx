@@ -223,10 +223,11 @@ export function LandingHero() {
                         </motion.div>
 
                         <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
-                            Stop refreshing.{" "}
+                            Never miss an{" "}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                                Know where you stand.
+                                OPT deadline
                             </span>
+                            {" "}— or a career move
                         </motion.h1>
 
                         <motion.div
@@ -234,7 +235,7 @@ export function LandingHero() {
                             className="prose-longform mx-auto mb-10 max-w-xl lg:mx-0"
                         >
                             <p className="text-base leading-relaxed text-muted-foreground sm:text-lg lg:text-xl">
-                                See your <strong>OPT decision window</strong>, live USCIS status, and unemployment days — then get alerts when your case moves. Free to start.
+                                Track filing windows and unemployment days, see your <strong>USCIS decision window</strong>, build <strong>AI resumes</strong>, keep a <strong>Document Vault</strong>, and find <strong>H-1B sponsors</strong> — one companion for OPT.
                             </p>
                         </motion.div>
 
@@ -242,17 +243,23 @@ export function LandingHero() {
                             <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:items-center">
                                 <MagneticButton>
                                     <Link
-                                        href="/tools/opt-decision-window"
+                                        href="/login"
                                         className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-blue-700 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-700/25 transition-all hover:bg-blue-800 hover:shadow-blue-800/30 sm:w-auto lg:hover:-translate-y-0.5"
                                     >
-                                        See my decision window
+                                        Start free
                                         <ArrowRight className="ml-2 h-5 w-5" />
                                     </Link>
                                 </MagneticButton>
+                                <Link
+                                    href="/tools/opt-decision-window"
+                                    className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-border bg-background px-6 py-4 text-base font-semibold text-foreground transition-colors hover:bg-muted/60 sm:w-auto"
+                                >
+                                    See decision window
+                                </Link>
                                 <GuestPreviewModal />
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                No account needed for the first look · then track live status free
+                                Free account for the full toolkit · decision window needs no signup
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 10,000+ people regularly use our free tools.

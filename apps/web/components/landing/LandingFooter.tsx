@@ -47,6 +47,11 @@ export function LandingFooter() {
     product: [
       { label: "Features", href: "/features" },
       { label: "Pricing", href: "/pricing" },
+      { label: "OPT Decision Window", href: "/tools/opt-decision-window" },
+      { label: "AI Resume Doctor", href: "/features/resume-ai" },
+      { label: "USCIS Case Status", href: "/features/case-status" },
+      { label: "Document Vault", href: "/login?next=/dashboard/documents" },
+      { label: "H-1B Sponsors", href: "/features/sponsors" },
       { label: "Free Tools", href: "/tools" },
       { label: "How It Works", href: "/how-it-works" },
       { label: "About Us", href: "/about" },
@@ -99,7 +104,7 @@ export function LandingFooter() {
               <span className="text-xl font-bold text-gray-900 dark:text-white">TrackMyOPT</span>
             </Link>
             <p className="max-w-xs text-base text-gray-600 dark:text-gray-400 md:text-sm">
-              3,000+ users have signed up for TrackMyOPT. 10,000+ people regularly use our free tools.
+              OPT deadlines, USCIS case status, AI resumes, Document Vault, and H-1B sponsors — built for F-1 students. 3,000+ signed up · 10,000+ use free tools.
             </p>
           </div>
 

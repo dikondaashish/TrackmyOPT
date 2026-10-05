@@ -50,9 +50,9 @@ const LandingGlobalReach = dynamic(() =>
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'OPT Case Status & Decision Window | TrackMyOPT',
+  title: 'OPT Deadline Tracker, Resume AI & H-1B Tools | TrackMyOPT',
   description:
-    'Stop refreshing USCIS. See your OPT decision window from similar cases, track live status, and get alerts when it moves. Free forever. 3,000+ users have signed up, and 10,000+ people regularly use our free tools.',
+    'Track OPT deadlines and USCIS case status, build AI resumes, store documents, and find H-1B sponsors. Free forever. 3,000+ users have signed up, and 10,000+ people regularly use our free tools.',
 };
 
 export default function LandingPage() {

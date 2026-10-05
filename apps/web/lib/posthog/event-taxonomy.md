@@ -1,7 +1,7 @@
 # PostHog event taxonomy — TrackMyOPT
 
 **Project:** [369087](https://us.posthog.com/project/369087)  
-**Last updated:** 2026-07-23 (Phase 5 closure)
+**Last updated:** 2026-10-05 (decision-window acquisition events)
 
 Canonical list of product events. Prefer these names in new dashboards and funnels. See [legacy-events.md](./legacy-events.md) for deprecated billing and case-status events.
 
@@ -12,7 +12,10 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | Event | Source | Properties | Notes |
 |-------|--------|------------|-------|
 | `$pageview` | SDK | `$current_url`, UTM props | Marketing pages |
-| `blog_product_cta_clicked` | Client | `cta_label`, `blog_slug`, `destination` | Blog → product path |
+| `blog_product_cta_clicked` | Client | `variant`, `source_page` | Blog → product path |
+| `opt_decision_window_viewed` | Client | `case_kind`, `has_estimate`, `days_since_filed`, `cohort_size` | Guest decision-window result shown |
+| `opt_decision_window_failed` | Client | `case_kind`, `status` | Guest lookup error / rate limit |
+| `opt_decision_window_cta` | Client | `cta`, `case_kind` | Post-result CTA (e.g. track live status) |
 | `user_signed_up` | Server | `provider`, `capture_source` | Auth signup |
 
 ## Activation

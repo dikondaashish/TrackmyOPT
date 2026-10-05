@@ -20,10 +20,10 @@ export function LandingFeatures() {
                         Power Features
                     </span>
                     <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                        Decision Window, USCIS Alerts &amp; H-1B Sponsors
+                        Deadlines, Case Status, Resumes &amp; Sponsors
                     </h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Stop refreshing. Know where your OPT case stands — then job-search with tools built for F-1 students.
+                        One OPT companion: compliance clocks, USCIS alerts, AI resumes, Document Vault, and H-1B research.
                     </p>
                 </div>
 
@@ -71,6 +71,12 @@ export function LandingFeatures() {
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                 See your decision window from similar cases. Free refresh anytime — Pro checks USCIS daily and emails you when status changes.
                             </p>
+                            <Link
+                                href="/tools/opt-decision-window"
+                                className="mt-3 inline-flex text-sm font-semibold text-blue-700 underline-offset-2 hover:underline dark:text-blue-400"
+                            >
+                                Open decision window →
+                            </Link>
                         </div>
                         {/* Decorative Gradient - Blue/Cyan */}
                         <div className="absolute top-0 right-0 h-full w-full pointer-events-none overflow-hidden rounded-3xl">

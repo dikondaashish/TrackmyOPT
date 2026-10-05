@@ -478,18 +478,18 @@ function LoginPageContent() {
   const images = [
     {
       title: 'Track Your OPT Timeline',
-      description: 'Track filing windows, unemployment days, and STEM deadlines with daily reminders',
+      description: 'Filing windows, unemployment days, and STEM deadlines with reminders',
       gradient: 'from-blue-500 to-cyan-500'
     },
     {
-      title: 'Calculate Filing Windows',
-      description: 'Know exactly when to apply for OPT and STEM extension',
-      gradient: 'from-purple-500 to-pink-500'
+      title: 'Know Your Case Status',
+      description: 'Decision window from similar cases + live USCIS tracking and alerts',
+      gradient: 'from-emerald-500 to-teal-500'
     },
     {
-      title: 'Stay Compliant',
-      description: 'Automatic reminders for unemployment days and deadlines',
-      gradient: 'from-orange-500 to-red-500'
+      title: 'Land the Next Role',
+      description: 'AI resumes, Document Vault, H-1B sponsors, and job tracking in one place',
+      gradient: 'from-purple-500 to-pink-500'
     }
   ];
 
@@ -560,10 +560,10 @@ function LoginPageContent() {
               TrackMyOPT
             </h1>
             <p className="text-sm font-semibold text-[#226BE7] dark:text-blue-300">
-              Your OPT Timeline Companion
+              Your OPT career companion
             </p>
             <p className="text-sm leading-relaxed text-gray-600 dark:text-zinc-400">
-              Calculate filing windows, track unemployment days, and get reminders.
+              Deadlines, case status, AI resumes, Document Vault, and H-1B sponsors.
             </p>
           </div>
 
@@ -573,7 +573,7 @@ function LoginPageContent() {
               TrackMyOPT
             </h2>
             <p className="text-gray-600 dark:text-muted-foreground">
-              Calculate filing windows, track unemployment days, and get reminders.
+              Deadlines, case status, AI resumes, Document Vault, and H-1B sponsors — in one place.
             </p>
           </div>
 

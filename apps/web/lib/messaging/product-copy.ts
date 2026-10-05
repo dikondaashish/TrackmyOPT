@@ -12,10 +12,10 @@ export const PRODUCT_CTAS = {
 } as const;
 
 export const PRODUCT_VALUE_PROP = {
-  main: "Stop refreshing USCIS. Know where your OPT case stands.",
-  headline: "Stop refreshing. Know where you stand.",
+  main: "Your OPT career companion — deadlines, case status, resumes, and sponsors.",
+  headline: "Never miss an OPT deadline — or a career move",
   subhead:
-    "See your decision window, unemployment days, and filing windows — then get alerts when status changes.",
+    "Track filing windows and unemployment days, see your USCIS decision window, build AI resumes, store documents, and find H-1B sponsors — in one place.",
 } as const;
 
 export const PLAN_DISPLAY_NAMES = {

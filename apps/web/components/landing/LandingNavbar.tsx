@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, Users, Star, BookOpen } from "lucide-react";
+import { Menu, X, ArrowRight, LayoutDashboard, Settings, HelpCircle, LogOut, ChevronDown, Shield, Building2, Chrome, Briefcase, Users, Star, BookOpen, Activity, FolderLock, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signOutWithAnalytics } from "@/lib/auth/sign-out-with-analytics";
 import { supabase } from "@/lib/supabase/client";
@@ -46,12 +46,16 @@ export function LandingNavbar() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // 2x2 grid features for dropdown
+    // Feature grid for dropdown — full OPT companion, not case-status only
     const featureLinks = [
-        { name: "OPT Compliance Hub", href: "/features/compliance", icon: Shield, description: "Track deadlines & stay legal" },
+        { name: "OPT Compliance Hub", href: "/features/compliance", icon: Shield, description: "Deadlines & unemployment clock" },
+        { name: "USCIS Case Status", href: "/features/case-status", icon: Activity, description: "Decision window & alerts" },
+        { name: "AI Resume Doctor", href: "/features/resume-ai", icon: FileText, description: "ATS-ready resumes in minutes" },
         { name: "H-1B Sponsor Intelligence", href: "/features/sponsors", icon: Building2, description: "Research 25,000+ sponsors" },
+        { name: "Job Application Tracker", href: "/features/job-tracker", icon: Briefcase, description: "Pipeline your job search" },
+        { name: "Document Vault", href: "/login?next=/dashboard/documents", icon: FolderLock, description: "I-20s, EAD & notices (Pro)" },
         { name: "Chrome Extension", href: "/features/extension", icon: Chrome, description: "Sponsor intel on LinkedIn" },
-        { name: "Job Application Tracker", href: "/features/job-tracker", icon: Briefcase, description: "Track apps & unemployment" },
+        { name: "Free OPT Tools", href: "/tools", icon: BookOpen, description: "Clocks, filing window & more" },
     ];
 
     const navLinks = [
@@ -136,9 +140,9 @@ export function LandingNavbar() {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[420px] bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
+                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[520px] bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-800 overflow-hidden z-50"
                                     >
-                                        {/* 2x2 Grid */}
+                                        {/* Feature grid */}
                                         <div className="p-3 grid grid-cols-2 gap-2">
                                             {featureLinks.map((feature) => (
                                                 <Link
