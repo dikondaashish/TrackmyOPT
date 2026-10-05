@@ -245,7 +245,7 @@ export function OptDecisionWindowTool() {
                 </div>
               </dl>
 
-              <p className="mt-4 text-sm text-muted-foreground">
+              <p className="mt-4 text-[9px] leading-snug text-muted-foreground/80">
                 Based on {estimate.cohortSize.toLocaleString()} completed community
                 reports for similar cases. Planning estimate only — not a USCIS
                 decision date.

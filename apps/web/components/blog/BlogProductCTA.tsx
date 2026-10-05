@@ -100,22 +100,8 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
             {config.description}
           </p>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {variant === "case-status" ? (
-              <>
-                Decision windows are community planning estimates — not legal
-                advice or a USCIS-guaranteed decision date.{" "}
-                <Link
-                  href="/disclaimer"
-                  className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
-                >
-                  Read disclaimer
-                </Link>
-                . Also see{" "}
-              </>
-            ) : (
-              <>Also see </>
-            )}
+          <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">
+            Also see{" "}
             <Link
               href={
                 variant === "sponsors"
@@ -143,6 +129,18 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
                     : "USCIS case status tracker features"}
             </Link>
           </p>
+          {variant === "case-status" && (
+            <p className="mt-1.5 text-[9px] leading-snug text-gray-400 dark:text-gray-500">
+              Decision windows are community planning estimates — not legal
+              advice or a USCIS-guaranteed decision date.{" "}
+              <Link
+                href="/disclaimer"
+                className="underline underline-offset-2 hover:text-gray-500 dark:hover:text-gray-400"
+              >
+                Terms
+              </Link>
+            </p>
+          )}
         </div>
         <Link
           href={config.href}

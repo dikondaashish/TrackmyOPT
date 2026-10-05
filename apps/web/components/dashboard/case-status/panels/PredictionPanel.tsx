@@ -188,7 +188,7 @@ export function PredictionPanel({
         p75={high}
       />
 
-      <p className="text-xs font-medium text-muted-foreground">
+      <p className="text-[9px] leading-snug text-muted-foreground/80">
         Planning estimate from community cases — not a USCIS decision date.
       </p>
       <details className="border-t border-border pt-3 text-xs text-muted-foreground">
