@@ -99,6 +99,23 @@ function extractExceptionFrameSources(
   return sources;
 }
 
+/** Browser ResizeObserver noise — not a product defect. */
+export function isBenignResizeObserverLoopError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return lower.includes("resizeobserver loop");
+}
+
+/** AdSense layout/push failures when the slot is too narrow or blocked. */
+export function isBenignAdSenseTagError(message: string): boolean {
+  const lower = message.toLowerCase();
+  if (!lower.includes("adsbygoogle")) return false;
+  return (
+    lower.includes("tagerror") ||
+    lower.includes("fluid responsive") ||
+    lower.includes("availablewidth")
+  );
+}
+
 /** Network failures thrown inside AdSense are external and not app-fixable. */
 export function isBenignAdSenseNetworkError(
   properties: Record<string, unknown> | undefined
@@ -193,20 +210,29 @@ export function isBenignNavigationAbortError(message: string): boolean {
   );
 }
 
+/** Shared text heuristics for $exception and error-boundary reporting. */
+export function isBenignExceptionMessage(message: string): boolean {
+  return (
+    isBenignReactDomTeardownError(message) ||
+    isBenignWebSocketError(message) ||
+    isBenignResizeObserverLoopError(message) ||
+    isBenignAdSenseTagError(message) ||
+    isBenignWebkitMessageHandlersError(message) ||
+    isBenignInjectedOpenGraphProbeError(message) ||
+    isBenignInjectedBridgeRejection(message) ||
+    isBenignExtensionContentScriptError(message) ||
+    isBenignNavigationAbortError(message)
+  );
+}
+
 export function shouldDropExceptionEvent(
   properties: Record<string, unknown> | undefined
 ): boolean {
   const text = extractExceptionMessages(properties);
   return (
-    isBenignReactDomTeardownError(text) ||
-    isBenignWebSocketError(text) ||
+    isBenignExceptionMessage(text) ||
     isBenignAdSenseNetworkError(properties) ||
-    isOpaqueCrossOriginScriptError(properties) ||
-    isBenignWebkitMessageHandlersError(text) ||
-    isBenignInjectedOpenGraphProbeError(text) ||
-    isBenignInjectedBridgeRejection(text) ||
-    isBenignExtensionContentScriptError(text) ||
-    isBenignNavigationAbortError(text)
+    isOpaqueCrossOriginScriptError(properties)
   );
 }
 

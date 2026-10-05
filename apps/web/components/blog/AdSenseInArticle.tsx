@@ -19,12 +19,17 @@ declare global {
   }
 }
 
+/** Google fluid in-article units require at least this width (TagError otherwise). */
+const MIN_FLUID_AD_WIDTH_PX = 250;
+
 /**
  * A single responsive in-article unit for public, long-form content.
  * It renders only after optional advertising consent is present.
  */
 export function AdSenseInArticle() {
   const [consent, setConsent] = useState<CookieConsentStatus>(null);
+  const [slotWideEnough, setSlotWideEnough] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
   const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
@@ -39,6 +44,22 @@ export function AdSenseInArticle() {
 
   useEffect(() => {
     if (consent !== 'accepted') return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const syncWidth = () => {
+      setSlotWideEnough(container.offsetWidth >= MIN_FLUID_AD_WIDTH_PX);
+    };
+
+    syncWidth();
+    const observer = new ResizeObserver(syncWidth);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [consent]);
+
+  useEffect(() => {
+    if (consent !== 'accepted' || !slotWideEnough) return;
 
     const renderAd = () => {
       const ad = adRef.current;
@@ -57,13 +78,14 @@ export function AdSenseInArticle() {
     loadAdSense();
 
     return () => window.removeEventListener(ADSENSE_READY_EVENT, renderAd);
-  }, [consent]);
+  }, [consent, slotWideEnough]);
 
   if (consent !== 'accepted') return null;
 
   return (
     <aside
-      className="not-prose my-10 min-h-[120px] overflow-hidden"
+      ref={containerRef}
+      className="not-prose my-10 min-h-[120px] w-full min-w-[250px] overflow-hidden"
       aria-label="Advertisement"
     >
       <ins

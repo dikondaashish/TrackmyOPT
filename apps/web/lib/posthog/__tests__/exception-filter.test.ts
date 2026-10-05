@@ -243,6 +243,26 @@ describe("shouldDropExceptionEvent", () => {
     expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
   });
 
+  it("drops ResizeObserver loop noise", () => {
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [
+          "ResizeObserver loop completed with undelivered notifications.",
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it("drops AdSense fluid width TagErrors", () => {
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [
+          "TagError: adsbygoogle.push() error: Fluid responsive ads must be at least 250px wide: availableWidth=139",
+        ],
+      })
+    ).toBe(true);
+  });
+
   it("keeps genuine aborts and unrelated rejections observable", () => {
     expect(
       isBenignNavigationAbortError("AbortError: The user aborted a request.")

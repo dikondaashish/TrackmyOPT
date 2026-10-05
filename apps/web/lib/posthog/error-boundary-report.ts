@@ -1,8 +1,8 @@
-import { isBenignWebSocketError } from "@/lib/posthog/posthog-browser";
+import { isBenignExceptionMessage } from "@/lib/posthog/posthog-browser";
 
 /** Non-fatal errors that should not trigger UX alerts or error_boundary events. */
 export function isNonFatalBoundaryError(message: string): boolean {
-  return isBenignWebSocketError(message);
+  return isBenignExceptionMessage(message);
 }
 
 export function formatBoundaryErrorMessage(
