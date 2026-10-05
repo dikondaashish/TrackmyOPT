@@ -5,6 +5,7 @@ import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, Shie
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 export const metadata: Metadata = {
     title: "Form I-765 Complete Guide: How to Apply for Your EAD Card (OPT & STEM OPT 2026)",
@@ -377,16 +378,10 @@ export default function FormI765GuidePage() {
 
             <AuthorBio />
 
-            {/* CTA */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white text-center">
-                <h2 className="text-2xl font-bold mb-3">Never Miss Your I-765 Filing Deadline</h2>
-                <p className="text-indigo-100 mb-6 max-w-2xl mx-auto">
-                    TrackMyOPT calculates your OPT application deadline automatically — telling you exactly when to apply for your I-765 based on your program end date, sends you EAD expiration reminders, and tracks your STEM OPT 540-day extension countdown.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 bg-white text-indigo-700 font-semibold px-6 py-3 rounded-xl hover:bg-indigo-50 transition-colors">
-                    Track My OPT Deadlines Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA
+                variant="case-status"
+                sourcePage="/blog/form-i765-ead-application-guide"
+            />
 
             {/* Sources */}
             <div className="mt-12 p-6 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl">

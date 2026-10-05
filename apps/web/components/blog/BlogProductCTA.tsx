@@ -24,11 +24,11 @@ const VARIANTS: Record<
 > = {
   "case-status": {
     icon: Bell,
-    title: "Track your USCIS case automatically",
+    title: "Know your USCIS status — and when a decision may come",
     description:
-      "Add your receipt number once — free manual refresh anytime. Pro adds daily auto-checks and email alerts when your I-765 or EAD status changes.",
+      "Add your receipt number once. See plain-English status updates, get alerts when USCIS changes, and view a community-based decision-date estimate for OPT cases like yours.",
     href: "/dashboard/case-status",
-    cta: "Start tracking free",
+    cta: "Check my status free",
   },
   "opt-timeline": {
     icon: Clock,
@@ -103,7 +103,8 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
           <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             {variant === "case-status" ? (
               <>
-                Case status information is for convenience only — not legal advice.{" "}
+                Status and decision-date estimates are planning tools only — not
+                legal advice or a USCIS guarantee.{" "}
                 <Link
                   href="/disclaimer"
                   className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"

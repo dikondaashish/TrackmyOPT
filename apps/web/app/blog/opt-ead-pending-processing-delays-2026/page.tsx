@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export const metadata: Metadata = {
@@ -525,15 +526,10 @@ export default function OptEadPendingDelaysBlogPage() {
 
             <AuthorBio />
 
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
-                <h2 className="text-2xl font-bold mb-3">Track Your USCIS Case Status Automatically</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">
-                    TrackMyOPT Free includes manual case refresh and OPT deadline tools. Pro adds daily USCIS auto-checks and alerts when status changes — so you can focus on your job search, not the USCIS website.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
-                    Track Your Case Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA
+                variant="case-status"
+                sourcePage="/blog/opt-ead-pending-processing-delays-2026"
+            />
         </article>
     );
 }

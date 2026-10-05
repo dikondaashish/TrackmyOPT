@@ -15,6 +15,7 @@ import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { AuthorBio } from '@/components/blog/AuthorBio';
+import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 
 const CANONICAL =
@@ -824,6 +825,10 @@ export default function USCISDenyWithoutRFEPolicyPage() {
 
         
             <RelatedPosts posts={getRelatedPostsForSlug("uscis-deny-without-rfe-policy-2026")} />
+            <BlogProductCTA
+              variant="case-status"
+              sourcePage="/blog/uscis-deny-without-rfe-policy-2026"
+            />
             <AuthorBio />
       </div>
     </article>

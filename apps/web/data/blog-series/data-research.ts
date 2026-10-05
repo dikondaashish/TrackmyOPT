@@ -20,7 +20,7 @@ export const dataResearchArticles = [
     category: 'TrackMyOPT Data',
     tags: ['OPT Processing Time', 'EAD', 'Receipt Date', 'Community Data'],
     readTime: '11 min read',
-    cta: 'community',
+    cta: 'case-status',
     directAnswer:
       'In the permissioned partner snapshot analyzed on August 11, 2026, the feed contained 2,834 anonymized records and 1,607 records with both application and approval dates. Among completed, non-premium Initial OPT cases, the median application-to-approval time was 72 calendar days for January receipts (n=6), 74 days for February (n=123), and 96 days for March (n=248). April had only five completed non-premium cases, so its 130-day median is too thin to treat as a reliable benchmark.',
     keyTakeaways: [
@@ -118,7 +118,7 @@ export const dataResearchArticles = [
       'Community Timelines',
     ],
     readTime: '11 min read',
-    cta: 'community',
+    cta: 'case-status',
     directAnswer:
       'In an August 11, 2026 snapshot of up to 1,000 completed 2026 premium-tagged partner cases, 992 usable rows with a reported premium-request date had a median of 42 calendar days from premium request to approval and an 80th percentile of 59 days. Among usable downstream rows, approval to card production had a 6-day median (n=287), and card production to delivery had a 3-day median (n=206). Self-reported dates can be wrong, and USCIS measures its premium target in business days and can pause the clock after certain notices.',
     keyTakeaways: [

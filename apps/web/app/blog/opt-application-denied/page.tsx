@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, XCircle, Shield, FileText, Scale } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
@@ -380,13 +381,10 @@ export default function OPTDeniedArticle() {
 
             <AuthorBio />
 
-            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-8 text-center text-white mt-12">
-                <h2 className="text-2xl font-bold mb-3">Track Your OPT Application Status</h2>
-                <p className="text-blue-100 mb-6 max-w-lg mx-auto">Get real-time case status alerts, deadline reminders, and compliance tracking — so you never miss a critical date.</p>
-                <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
-                    Start Tracking Free <ArrowRight className="w-4 h-4" />
-                </Link>
-            </div>
+            <BlogProductCTA
+                variant="case-status"
+                sourcePage="/blog/opt-application-denied"
+            />
 
         </article>
     );

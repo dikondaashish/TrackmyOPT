@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/can-you-start-work-before-opt-ead-arrives";
 
@@ -357,6 +358,10 @@ export default function StartWorkBeforeEadPage() {
         </div>
       </div>
 
+      <BlogProductCTA
+        variant="case-status"
+        sourcePage="/blog/can-you-start-work-before-opt-ead-arrives"
+      />
       <AuthorBio />
     </article>
   );
