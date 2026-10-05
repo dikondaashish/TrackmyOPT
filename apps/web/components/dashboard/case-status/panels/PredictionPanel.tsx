@@ -155,7 +155,7 @@ export function PredictionPanel({
       <dl className="grid gap-3 sm:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <div className="rounded-xl border border-border bg-[var(--chart-seq-1)] p-4 sm:p-5">
           <dt className="text-xs font-medium text-muted-foreground">
-            Typical completed report
+            Typical decision wait
           </dt>
           <dd className="mt-1 text-4xl font-semibold tracking-tight tabular-nums text-foreground">
             {medianDays}
@@ -167,7 +167,7 @@ export function PredictionPanel({
         </div>
         <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
           <dt className="text-xs font-medium text-muted-foreground">
-            Historical approval range · middle 50%
+            Decision window · middle 50%
           </dt>
           <dd className="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
             {low}–{high}
@@ -189,7 +189,7 @@ export function PredictionPanel({
       />
 
       <p className="text-xs font-medium text-muted-foreground">
-        Not a decision-date forecast.
+        Planning estimate from community cases — not a USCIS decision date.
       </p>
       <details className="border-t border-border pt-3 text-xs text-muted-foreground">
         <summary className="w-fit cursor-pointer rounded font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">

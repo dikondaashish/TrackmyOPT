@@ -38,7 +38,7 @@ export function CommunitySummaryCard({
       <div className="flex items-center gap-2">
         <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
         <p className="text-sm font-semibold text-foreground">
-          Typical community wait
+          Typical decision wait
         </p>
       </div>
 

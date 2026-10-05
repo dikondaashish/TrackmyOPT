@@ -75,7 +75,7 @@ interface AnalyticsPanel {
 const ANALYTICS_PANELS: AnalyticsPanel[] = [
   {
     id: 'prediction',
-    label: 'Similar cases',
+    label: 'Decision window',
     icon: <BarChart3 className="w-3.5 h-3.5" />,
   },
   { id: 'trend', label: 'Trend', icon: <TrendingUp className="w-3.5 h-3.5" /> },

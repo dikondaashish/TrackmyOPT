@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Clock, ExternalLink, ShieldChe
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 const CANONICAL = "https://www.trackmyopt.com/blog/ead-card-lost-stolen-incorrect-never-delivered";
 
@@ -63,6 +64,11 @@ export default function EadCardLostStolenPage() {
           <span>Updated July 27, 2026</span>
         </div>
       </header>
+
+      <BlogProductCTA
+        variant="case-status"
+        sourcePage="/blog/ead-card-lost-stolen-incorrect-never-delivered"
+      />
 
       <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
         <BlogPostImage src="/blog/ead-card-lost-stolen-incorrect-never-delivered.png" alt="Open empty wallet, USCIS case status showing Card Was Mailed, USPS tracking printout and Form I-765" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />

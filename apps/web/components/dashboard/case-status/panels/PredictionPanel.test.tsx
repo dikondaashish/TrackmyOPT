@@ -21,14 +21,17 @@ it('describes historical approvals without promising an imminent decision or a l
     sourceNote: 'Community reports',
   };
   render(<PredictionPanel prediction={prediction} daysSinceFiled={100} />);
-  expect(screen.getByText('Typical completed report').tagName).toBe('DT');
+  expect(screen.getByText('Typical decision wait').tagName).toBe('DT');
   expect(screen.getByText('60').closest('dd')).toHaveTextContent('60days');
   expect(screen.queryByText('Any time now')).not.toBeInTheDocument();
   expect(screen.queryByText('Still waiting')).not.toBeInTheDocument();
   expect(
     screen.getByText(/Historical approvals taking longer than day 100/)
   ).toBeInTheDocument();
-  expect(screen.getByText('Not a decision-date forecast.')).toBeVisible();
+  expect(
+    screen.getByText(/Planning estimate from community cases/)
+  ).toBeVisible();
   expect(screen.getByText('About these reports')).toBeVisible();
   expect(screen.getByText('Beyond the historical range')).toBeInTheDocument();
+  expect(screen.getByText('Decision window · middle 50%')).toBeInTheDocument();
 });

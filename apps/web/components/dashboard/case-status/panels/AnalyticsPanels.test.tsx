@@ -22,7 +22,7 @@ it.each(['approved', 'card_produced', 'delivered'] as const)(
     expect(
       screen.queryByText('Historical approval range · middle 50%')
     ).not.toBeInTheDocument();
-    for (const name of ['Similar cases', 'Trend', 'Spread', 'Heatmap'])
+    for (const name of ['Decision window', 'Trend', 'Spread', 'Heatmap'])
       expect(screen.getByRole('heading', { name })).toBeVisible();
   }
 );
@@ -42,12 +42,12 @@ it('shows all four detailed comparisons open together on initial render', () => 
   expect(
     screen.getByRole('heading', { name: 'Explore detailed comparisons' })
   ).toBeVisible();
-  const panels = ['Similar cases', 'Trend', 'Spread', 'Heatmap'];
+  const panels = ['Decision window', 'Trend', 'Spread', 'Heatmap'];
   for (const panel of panels) {
     expect(screen.getByRole('heading', { name: panel })).toBeVisible();
   }
   const comparisonsGrid = screen
-    .getByRole('heading', { name: 'Similar cases' })
+    .getByRole('heading', { name: 'Decision window' })
     .closest('section')?.parentElement;
   expect(comparisonsGrid).toHaveClass('grid-cols-1', 'md:grid-cols-2');
   expect(screen.queryByRole('tablist')).not.toBeInTheDocument();

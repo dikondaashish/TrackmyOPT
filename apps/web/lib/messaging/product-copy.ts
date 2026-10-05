@@ -12,10 +12,10 @@ export const PRODUCT_CTAS = {
 } as const;
 
 export const PRODUCT_VALUE_PROP = {
-  main: "Track every OPT deadline before it becomes a problem.",
-  headline: "Never miss an OPT deadline",
+  main: "Stop refreshing USCIS. Know where your OPT case stands.",
+  headline: "Stop refreshing. Know where you stand.",
   subhead:
-    "Know your filing window, unemployment days, and STEM deadlines in one place.",
+    "See your decision window, unemployment days, and filing windows — then get alerts when status changes.",
 } as const;
 
 export const PLAN_DISPLAY_NAMES = {
@@ -40,9 +40,9 @@ export const REMINDER_MESSAGING = {
 } as const;
 
 export const CASE_STATUS_MESSAGING = {
-  headline: "Track your USCIS case status in one place",
+  headline: "Know where your USCIS case stands",
   subhead:
-    "Add your receipt number — Free includes manual refresh; Pro adds daily auto-checks and email alerts.",
+    "Stop refreshing. Add your receipt once — see status, wait day, and your decision window. Pro alerts you when it moves.",
   /** Canonical Free → Pro one-liner for paywalls */
   freeProCanonical:
     "Free: track 1 case and refresh anytime. Pro: we check USCIS every day and email you when anything changes.",
@@ -69,7 +69,7 @@ export const CASE_STATUS_MESSAGING = {
   caseInsightInlineTitle: 'The typical wait is only the headline',
   caseInsightInlineBody:
     'Unlock your likely decision window, see cases filed near yours, and let Pro watch USCIS every day.',
-  caseInsightCta: 'Unlock my case insights',
+  caseInsightCta: 'See my decision window',
   disclaimer:
     "Status data comes from USCIS. Processing times vary — check with your DSO or attorney for official guidance.",
 } as const;

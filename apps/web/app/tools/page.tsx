@@ -54,6 +54,14 @@ const TOOLS = {
     gradient: 'from-emerald-500 to-teal-600',
     tools: [
       {
+        name: 'OPT Decision Window',
+        description:
+          'Stop refreshing — see where your OPT case stands against similar filings (no account needed)',
+        href: '/tools/opt-decision-window',
+        icon: Search,
+        badge: 'Free',
+      },
+      {
         name: 'E-Verify Employer Search',
         description:
           'Search the official USCIS employer database and understand STEM OPT requirements',
@@ -63,7 +71,7 @@ const TOOLS = {
       },
       {
         name: 'Case Status Checker',
-        description: 'Check your USCIS case status with your receipt number',
+        description: 'Track live USCIS status with your receipt number',
         href: '/dashboard/case-status',
         icon: Search,
         badge: 'Free',

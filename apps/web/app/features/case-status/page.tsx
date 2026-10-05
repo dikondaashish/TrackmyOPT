@@ -11,7 +11,6 @@ import {
     FileSearch,
     Globe,
     Languages,
-    Mail,
     RefreshCw,
     Search,
     Shield,
@@ -42,16 +41,15 @@ function CaseStatusCard() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Receipt Number</p>
                 <p className="text-gray-900 dark:text-white font-mono font-semibold tracking-wide">IOE-0912-3456-7890</p>
             </div>
-            <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-5 text-white mb-4"
-            >
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-5 text-white mb-4">
                 <p className="text-sm opacity-80 mb-1">Current Status</p>
                 <p className="text-xl font-bold">Card Was Produced</p>
                 <p className="text-sm opacity-80 mt-1">Your EAD card is on its way!</p>
-            </motion.div>
+            </div>
+            <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl px-4 py-3 border border-emerald-200 dark:border-emerald-800 mb-4">
+                <p className="text-xs text-emerald-700 dark:text-emerald-300 mb-1 font-medium">Decision window · similar cases</p>
+                <p className="text-gray-900 dark:text-white font-semibold">Day 94 of wait · typical 78–112 days</p>
+            </div>
             <div className="flex items-center gap-3">
                 {["Received", "Review", "Approved", "Card Produced"].map((step, i) => (
                     <div key={step} className="flex-1 text-center">
@@ -72,22 +70,22 @@ const howItWorks = [
     {
         step: "01",
         icon: <Search className="w-6 h-6" />,
-        title: "Enter Your Receipt Number",
-        description: "Add your I-765 receipt number (starts with IOE, EAC, WAC, etc.) — it takes 10 seconds.",
+        title: "See your decision window",
+        description: "Enter your receipt date — instantly compare against similar OPT cases. No account needed for the first look.",
         color: "emerald",
     },
     {
         step: "02",
         icon: <RefreshCw className="w-6 h-6" />,
-        title: "Refresh Manually or Upgrade to Pro",
-        description: "Free includes on-demand refresh. Pro runs daily auto-checks via USCIS Case Status API access and compares results to your previous check.",
+        title: "Add your receipt for live status",
+        description: "Free: refresh USCIS anytime. Pro: daily auto-checks via USCIS Case Status API access so you stop refreshing manually.",
         color: "teal",
     },
     {
         step: "03",
         icon: <Bell className="w-6 h-6" />,
-        title: "Get Email & Browser Alerts (Pro)",
-        description: "When we detect a status change, Pro users can get email plus browser push with a plain-English explanation (timing may vary).",
+        title: "Get alerts when it moves (Pro)",
+        description: "When we detect a status change, Pro users get email plus browser push with plain-English next steps (timing may vary).",
         color: "cyan",
     },
 ];
@@ -148,18 +146,18 @@ export default function CaseStatusPage() {
             <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
             <FeatureServiceSchema
                 name="USCIS Case Status Tracker"
-                description="Free manual case status checks. Pro adds daily auto-checks and email alerts when we detect status changes. Tracks I-765 (EAD), I-140, I-485, and other USCIS applications."
+                description="Stop refreshing USCIS. See your OPT decision window from similar cases, track live status, and get Pro alerts when it changes. Free first look — no account required."
                 featurePath="/features/case-status"
                 faqItems={faqItems}
             />
             <FeatureHero
-                badge="Case Status Tracking"
-                headline="Track Your USCIS Case Status"
-                subheadline="Free: refresh anytime. Pro: daily auto-checks and email alerts when status changes—using USCIS Case Status API access. Always verify important updates with official USCIS notices."
-                ctaText="Start Tracking Free"
-                ctaHref="/login"
+                badge="Stop refreshing USCIS"
+                headline="Know where your case stands — and your decision window"
+                subheadline="Free: see your decision window and refresh status anytime. Pro: daily auto-checks and email alerts when USCIS moves — using Case Status API access. Always verify with official notices."
+                ctaText="See my decision window"
+                ctaHref="/tools/opt-decision-window"
                 secondaryCta={{
-                    text: "Check Case Status",
+                    text: "Track live status",
                     href: "/dashboard/case-status",
                 }}
                 gradient="from-emerald-600 to-teal-600"
@@ -175,7 +173,7 @@ export default function CaseStatusPage() {
                             How It Works
                         </div>
                         <H2>Three Steps to Peace of Mind</H2>
-                        <Lead>Set it up once, stay informed forever.</Lead>
+                        <Lead>Decision window first. Live status next. Alerts when you want them.</Lead>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
@@ -255,13 +253,13 @@ export default function CaseStatusPage() {
             </section>
 
             <FeatureWhyMatters
-                headline="Waiting Is Stressful — We Make It Easier"
-                description="Over 400,000 OPT applications are filed every year. Average processing takes 3-5 months, and students check USCIS dozens of times. Let us handle the checking so you can focus on your career."
+                headline="Stop Refreshing. Know Where You Stand."
+                description="Over 400,000 OPT applications are filed every year. Average processing takes 3-5 months, and students refresh USCIS dozens of times a week. See your decision window once — then let us watch for changes."
                 accentColor="emerald"
                 stats={[
                     { value: "3-5 Mo", label: "Average I-765 processing time", icon: <Clock className="w-5 h-5" /> },
+                    { value: "Free", label: "Decision window + manual refresh", icon: <Search className="w-5 h-5" /> },
                     { value: "Pro", label: "Daily auto-checks + alerts", icon: <RefreshCw className="w-5 h-5" /> },
-                    { value: "Free", label: "Manual refresh anytime", icon: <Mail className="w-5 h-5" /> },
                     { value: "$0", label: "Core OPT tools forever free", icon: <Shield className="w-5 h-5" /> },
                 ]}
             />
@@ -318,14 +316,14 @@ export default function CaseStatusPage() {
 
             <FeatureCTA
                 headline="Stop Refreshing USCIS Manually"
-                subheadline="Add your receipt number once and get instant alerts whenever your case status changes."
+                subheadline="See your decision window in seconds — then add your receipt for live status and Pro alerts when it changes."
                 primaryCTA={{
-                    text: "Start Tracking Free",
-                    href: "/login",
+                    text: "See my decision window",
+                    href: "/tools/opt-decision-window",
                 }}
                 secondaryCTA={{
-                    text: "Learn About Case Status",
-                    href: "/blog/opt-processing-time-2026",
+                    text: "Track live status free",
+                    href: "/dashboard/case-status",
                 }}
                 gradient="emerald"
                 icon={<FileSearch className="w-12 h-12 text-white" />}

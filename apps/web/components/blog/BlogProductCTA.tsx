@@ -24,11 +24,11 @@ const VARIANTS: Record<
 > = {
   "case-status": {
     icon: Bell,
-    title: "Know your USCIS status — and when a decision may come",
+    title: "Stop refreshing. See your decision window.",
     description:
-      "Add your receipt number once. See plain-English status updates, get alerts when USCIS changes, and view a community-based decision-date estimate for OPT cases like yours.",
-    href: "/dashboard/case-status",
-    cta: "Check my status free",
+      "Enter your OPT receipt date — see where you stand against similar cases, then add your receipt for live USCIS status and alerts when it moves.",
+    href: "/tools/opt-decision-window",
+    cta: "See my decision window",
   },
   "opt-timeline": {
     icon: Clock,
@@ -103,8 +103,8 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
           <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             {variant === "case-status" ? (
               <>
-                Status and decision-date estimates are planning tools only — not
-                legal advice or a USCIS guarantee.{" "}
+                Decision windows are community planning estimates — not legal
+                advice or a USCIS-guaranteed decision date.{" "}
                 <Link
                   href="/disclaimer"
                   className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"

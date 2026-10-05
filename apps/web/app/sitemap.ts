@@ -79,6 +79,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/help',
         '/tools/opt-apply',
         '/tools/opt-clock',
+        '/tools/opt-decision-window',
         '/tools/stem-apply',
         '/tools/stem-clock',
     ];

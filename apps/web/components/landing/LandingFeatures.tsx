@@ -20,10 +20,10 @@ export function LandingFeatures() {
                         Power Features
                     </span>
                     <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                        OPT Timeline, USCIS Alerts & H-1B Sponsor Finder
+                        Decision Window, USCIS Alerts &amp; H-1B Sponsors
                     </h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Professional tools built specifically for the unique challenges of F-1 students.
+                        Stop refreshing. Know where your OPT case stands — then job-search with tools built for F-1 students.
                     </p>
                 </div>
 
@@ -67,9 +67,9 @@ export function LandingFeatures() {
                             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mb-4">
                                 <LayoutDashboard className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pro Case Monitoring</h3>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Know where you stand</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Free includes manual refresh. Pro checks USCIS daily and emails you when status changes.
+                                See your decision window from similar cases. Free refresh anytime — Pro checks USCIS daily and emails you when status changes.
                             </p>
                         </div>
                         {/* Decorative Gradient - Blue/Cyan */}

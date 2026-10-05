@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, CheckCircle2, CreditCard, BookOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 export const metadata: Metadata = {
@@ -58,6 +59,11 @@ export default function OPTEADArticle() {
                 <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">The EAD card (Form I-766) is your <strong>Employment Authorization Document</strong> — the card that proves you can work in the US on OPT. You apply using <strong>Form I-765</strong>, the filing fee is <strong>$410</strong>, and current processing takes <strong>2-5 months</strong>. You cannot work until you have the physical card.</p>
             </div>
+
+            <BlogProductCTA
+                variant="case-status"
+                sourcePage="/blog/opt-ead-card-guide"
+            />
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section className="mb-12">

@@ -223,9 +223,9 @@ export function LandingHero() {
                         </motion.div>
 
                         <motion.h1 variants={fadeInUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 text-balance leading-tight">
-                            Never miss an{" "}
+                            Stop refreshing.{" "}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                                OPT deadline
+                                Know where you stand.
                             </span>
                         </motion.h1>
 
@@ -234,7 +234,7 @@ export function LandingHero() {
                             className="prose-longform mx-auto mb-10 max-w-xl lg:mx-0"
                         >
                             <p className="text-base leading-relaxed text-muted-foreground sm:text-lg lg:text-xl">
-                                Stop using spreadsheets. Track your <strong>OPT timeline</strong>, unemployment days, and filing windows in one place — then find <strong>H-1B sponsors</strong> when you&apos;re ready.
+                                See your <strong>OPT decision window</strong>, live USCIS status, and unemployment days — then get alerts when your case moves. Free to start.
                             </p>
                         </motion.div>
 
@@ -242,17 +242,17 @@ export function LandingHero() {
                             <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:items-center">
                                 <MagneticButton>
                                     <Link
-                                        href="/login"
+                                        href="/tools/opt-decision-window"
                                         className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-blue-700 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-blue-700/25 transition-all hover:bg-blue-800 hover:shadow-blue-800/30 sm:w-auto lg:hover:-translate-y-0.5"
                                     >
-                                        Start free
+                                        See my decision window
                                         <ArrowRight className="ml-2 h-5 w-5" />
                                     </Link>
                                 </MagneticButton>
                                 <GuestPreviewModal />
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                Free account → enter your dates → see your OPT window
+                                No account needed for the first look · then track live status free
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 10,000+ people regularly use our free tools.

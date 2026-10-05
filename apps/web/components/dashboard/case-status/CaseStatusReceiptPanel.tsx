@@ -90,7 +90,7 @@ export function CaseStatusReceiptPanel({
       <div className="flex items-start justify-between gap-[12px] mb-[24px]">
         <div>
           <h2 className="text-[16.5px] font-bold tracking-[-0.3px] m-0 text-[#1D1D1F] dark:text-white">
-            {isOnboarding ? "Add your receipt number" : "Update receipt number"}
+            {isOnboarding ? "Know where your case stands" : "Update receipt number"}
           </h2>
           {isOnboarding && (
             <p className="text-[12px] text-[#86868B] mt-[3px]">
