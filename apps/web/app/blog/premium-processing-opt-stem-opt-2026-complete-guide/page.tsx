@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.trackmyopt.com/og-image.jpg",
+        url: "https://www.trackmyopt.com/blog/premium-processing-opt-stem-opt-2026-complete-guide.svg",
         width: 1200,
         height: 630,
         alt: "OPT & STEM OPT Premium Processing Complete Guide",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: "OPT Premium Processing — Complete 2026 Guide",
     description:
       "$1,780 fee, 30 business days, and the real math on whether to upgrade.",
-    images: ["https://www.trackmyopt.com/og-image.jpg"],
+    images: ["https://www.trackmyopt.com/blog/premium-processing-opt-stem-opt-2026-complete-guide.svg"],
   },
 };
 
@@ -122,6 +122,7 @@ export default function OPTPremiumProcessingGuide() {
         ]}
       />
       <BlogPostSchema
+        imageUrl="https://www.trackmyopt.com/blog/premium-processing-opt-stem-opt-2026-complete-guide.svg"
         title={metadata.title as string}
         description={metadata.description as string}
         publishedDate="2026-10-05"

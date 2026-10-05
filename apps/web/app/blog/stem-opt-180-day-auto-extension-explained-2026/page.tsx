@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.trackmyopt.com/og-image.jpg",
+        url: "https://www.trackmyopt.com/blog/stem-opt-180-day-auto-extension-explained-2026.svg",
         width: 1200,
         height: 630,
         alt: "STEM OPT 180-Day Auto-Extension Explained",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: "STEM OPT 180-Day Auto-Extension Explained",
     description:
       "When the 180-day bridge applies, when it stops, and what employers miss.",
-    images: ["https://www.trackmyopt.com/og-image.jpg"],
+    images: ["https://www.trackmyopt.com/blog/stem-opt-180-day-auto-extension-explained-2026.svg"],
   },
 };
 
@@ -127,6 +127,7 @@ export default function STEMOPTAutoExtensionPage() {
         ]}
       />
       <BlogPostSchema
+        imageUrl="https://www.trackmyopt.com/blog/stem-opt-180-day-auto-extension-explained-2026.svg"
         title={metadata.title as string}
         description={metadata.description as string}
         publishedDate="2026-10-05"

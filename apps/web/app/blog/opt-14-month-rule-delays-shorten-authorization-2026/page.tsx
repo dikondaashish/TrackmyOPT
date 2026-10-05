@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.trackmyopt.com/og-image.jpg",
+        url: "https://www.trackmyopt.com/blog/opt-14-month-rule-delays-shorten-authorization-2026.svg",
         width: 1200,
         height: 630,
         alt: "OPT 14-Month Rule 2026",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     title: "OPT 14-Month Rule: Why Delays Steal Work Authorization",
     description:
       "How USCIS adjudication timing can permanently shorten post-completion OPT under the 14-month completion rule.",
-    images: ["https://www.trackmyopt.com/og-image.jpg"],
+    images: ["https://www.trackmyopt.com/blog/opt-14-month-rule-delays-shorten-authorization-2026.svg"],
   },
 };
 
@@ -94,6 +94,7 @@ export default function Opt14MonthRuleDelaysPage() {
         ]}
       />
       <BlogPostSchema
+        imageUrl="https://www.trackmyopt.com/blog/opt-14-month-rule-delays-shorten-authorization-2026.svg"
         title={metadata.title as string}
         description={metadata.description as string}
         publishedDate="2026-10-05"

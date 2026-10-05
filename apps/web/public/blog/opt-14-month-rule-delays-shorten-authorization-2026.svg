@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c1d1d"/>
+      <stop offset="1" stop-color="#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.06"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.2" r="0.9">
+      <stop offset="0" stop-color="#fca5a5" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#fca5a5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Compressed timeline motif -->
+  <g opacity="0.25">
+    <rect x="880" y="120" width="240" height="14" rx="7" fill="#ffffff"/>
+    <rect x="880" y="120" width="150" height="14" rx="7" fill="#fbbf24"/>
+    <rect x="1030" y="120" width="90" height="14" rx="7" fill="#ef4444"/>
+    <text x="880" y="175" font-family="monospace" font-size="18" fill="#ffffff" opacity="0.9">12 mo OPT ’ 9 mo (delay)</text>
+  </g>
+
+  <g transform="translate(80,90)">
+    <rect width="220" height="46" rx="23" fill="#fbbf24" fill-opacity="0.95"/>
+    <text x="110" y="30" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#7c2d12" text-anchor="middle" letter-spacing="1.5">TIMING RULE</text>
+  </g>
+
+  <text x="80" y="210" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="60" font-weight="800" fill="#ffffff" letter-spacing="-1.5">
+    The 14-Month Rule:
+  </text>
+  <text x="80" y="286" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="60" font-weight="800" fill="#ffffff" letter-spacing="-1.5">
+    How USCIS Delays Can
+  </text>
+  <text x="80" y="362" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="60" font-weight="800" letter-spacing="-1.5">
+    <tspan fill="#fde047">Shorten Your OPT</tspan>
+  </text>
+
+  <text x="80" y="428" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="20" fill="#fecaca">
+    Filing on time doesn't guarantee 12 months. Late I-765 decisions compress authorization under 8 CFR § 214.2(f)(10)(ii).
+  </text>
+
+  <g transform="translate(80,478)">
+    <rect width="700" height="80" rx="12" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.14"/>
+    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#fde68a">10 min read · October 5, 2026 · Vinay Kumar</text>
+    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#fca5a5">math examples · I-907 upgrade · STEM caveats</text>
+  </g>
+
+  <g transform="translate(1040,540)">
+    <text x="80" y="30" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#ffffff" text-anchor="end">track<tspan fill="#fde047">my</tspan>opt</text>
+  </g>
+</svg>

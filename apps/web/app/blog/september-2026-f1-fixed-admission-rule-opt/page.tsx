@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.trackmyopt.com/og-image.jpg",
+        url: "https://www.trackmyopt.com/blog/september-2026-f1-fixed-admission-rule-opt.svg",
         width: 1200,
         height: 630,
         alt: "F-1 Duration of Status Rule October 2026 Update",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: "F-1 Duration of Status Still in Effect — Oct 2026 Update",
     description:
       "Court blocked the fixed-admission rule. D/S remains. DHS appealed. What OPT students should do now.",
-    images: ["https://www.trackmyopt.com/og-image.jpg"],
+    images: ["https://www.trackmyopt.com/blog/september-2026-f1-fixed-admission-rule-opt.svg"],
   },
 };
 
@@ -98,6 +98,7 @@ export default function September2026FixedAdmissionRulePage() {
         ]}
       />
       <BlogPostSchema
+        imageUrl="https://www.trackmyopt.com/blog/september-2026-f1-fixed-admission-rule-opt.svg"
         title={metadata.title as string}
         description={metadata.description as string}
         publishedDate="2026-09-15"

@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.trackmyopt.com/og-image.jpg",
+        url: "https://www.trackmyopt.com/blog/fy2027-h1b-no-second-lottery-opt-backup-plan.svg",
         width: 1200,
         height: 630,
         alt: "FY 2027 H-1B No Second Lottery OPT Backup Plan",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: "FY 2027 H-1B No Second Lottery — OPT Backup Plan",
     description:
       "USCIS reached the FY 2027 cap. No second round. What to do now on OPT.",
-    images: ["https://www.trackmyopt.com/og-image.jpg"],
+    images: ["https://www.trackmyopt.com/blog/fy2027-h1b-no-second-lottery-opt-backup-plan.svg"],
   },
 };
 
@@ -123,6 +123,7 @@ export default function FY2027H1BNoSecondLotteryPage() {
         ]}
       />
       <BlogPostSchema
+        imageUrl="https://www.trackmyopt.com/blog/fy2027-h1b-no-second-lottery-opt-backup-plan.svg"
         title={metadata.title as string}
         description={metadata.description as string}
         publishedDate="2026-10-05"

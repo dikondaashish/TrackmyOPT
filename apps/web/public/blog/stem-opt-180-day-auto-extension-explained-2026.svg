@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#064e3b"/>
+      <stop offset="1" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.06"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.2" r="0.9">
+      <stop offset="0" stop-color="#6ee7b7" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#6ee7b7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- 180-day counter motif -->
+  <g opacity="0.22" font-family="Inter, system-ui, sans-serif">
+    <text x="920" y="200" font-size="120" font-weight="900" fill="#ffffff">180</text>
+    <text x="940" y="240" font-size="22" font-weight="600" fill="#6ee7b7" letter-spacing="2">DAYS</text>
+  </g>
+
+  <g transform="translate(80,90)">
+    <rect width="220" height="46" rx="23" fill="#10b981" fill-opacity="0.95"/>
+    <text x="110" y="30" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#022c22" text-anchor="middle" letter-spacing="1.5">WORK AUTH RULE</text>
+  </g>
+
+  <text x="80" y="208" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" fill="#ffffff" letter-spacing="-1.5">
+    STEM OPT 180-Day
+  </text>
+  <text x="80" y="284" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" letter-spacing="-1.5">
+    <tspan fill="#6ee7b7">Auto-Extension:</tspan>
+  </text>
+  <text x="80" y="360" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" fill="#ffffff" letter-spacing="-1.5">
+    When It Starts &amp; Stops
+  </text>
+
+  <text x="80" y="426" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="20" fill="#d1fae5">
+    File Form I-765 on time ’ USCIS extends your work auth up to 180 days if your case is still pending.
+  </text>
+
+  <g transform="translate(80,478)">
+    <rect width="700" height="80" rx="12" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.14"/>
+    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#a7f3d0">8 min read · October 5, 2026 · Vinay Kumar</text>
+    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#6ee7b7">8 CFR 214.2(f)(11)(i)(C) · employer checklist · sharp edges</text>
+  </g>
+
+  <g transform="translate(1040,540)">
+    <text x="80" y="30" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#ffffff" text-anchor="end">track<tspan fill="#6ee7b7">my</tspan>opt</text>
+  </g>
+</svg>

@@ -46,6 +46,7 @@ const blogPosts = [
         date: "October 5, 2026",
         tags: ["H-1B", "Cap-Gap", "OPT Backup Plan", "FY 2027"],
         featured: true,
+        image: "/blog/fy2027-h1b-no-second-lottery-opt-backup-plan.svg",
     },
     {
         slug: "stem-opt-180-day-auto-extension-explained-2026",
@@ -56,6 +57,7 @@ const blogPosts = [
         date: "October 5, 2026",
         tags: ["STEM OPT", "I-765", "Auto-Extension", "Work Authorization"],
         featured: true,
+        image: "/blog/stem-opt-180-day-auto-extension-explained-2026.svg",
     },
     {
         slug: "premium-processing-opt-stem-opt-2026-complete-guide",
@@ -66,6 +68,7 @@ const blogPosts = [
         date: "October 5, 2026",
         tags: ["OPT", "Premium Processing", "I-907", "Processing Delays"],
         featured: true,
+        image: "/blog/premium-processing-opt-stem-opt-2026-complete-guide.svg",
     },
     {
         slug: "opt-14-month-rule-delays-shorten-authorization-2026",
@@ -76,6 +79,7 @@ const blogPosts = [
         date: "October 5, 2026",
         tags: ["OPT", "14-Month Rule", "I-765", "Processing Delays"],
         featured: true,
+        image: "/blog/opt-14-month-rule-delays-shorten-authorization-2026.svg",
     },
     {
         slug: "september-2026-f1-fixed-admission-rule-opt",
@@ -86,6 +90,7 @@ const blogPosts = [
         date: "October 5, 2026",
         tags: ["F-1", "Duration of Status", "DHS", "Court Update"],
         featured: true,
+        image: "/blog/september-2026-f1-fixed-admission-rule-opt.svg",
     },
     {
         slug: "trackmyopt-student-deals-guide",
