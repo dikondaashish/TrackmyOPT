@@ -38,6 +38,26 @@ export const metadata: Metadata = {
 const blogPosts = [
     ...researchBlogCards,
     {
+        slug: "opt-14-month-rule-delays-shorten-authorization-2026",
+        title: "OPT 14-Month Rule Explained (2026): How USCIS Delays Can Shorten Your EAD",
+        description: "Filing I-765 on time does not guarantee 12 months of OPT. Late decisions can permanently cut your authorization under the 14-month completion rule — with premium options and STEM caveats.",
+        category: "USCIS Timing",
+        readTime: "10 min read",
+        date: "October 5, 2026",
+        tags: ["OPT", "14-Month Rule", "I-765", "Processing Delays"],
+        featured: true,
+    },
+    {
+        slug: "september-2026-f1-fixed-admission-rule-opt",
+        title: "F-1 Duration of Status Rule Blocked (Oct 2026 Update): Court Order & DHS Appeal",
+        description: "A federal court blocked DHS’s fixed-admission rule nationwide. Duration of Status remains in effect while DHS appeals. What OPT students should do now.",
+        category: "Visa Policy Update",
+        readTime: "8 min read",
+        date: "October 5, 2026",
+        tags: ["F-1", "Duration of Status", "DHS", "Court Update"],
+        featured: true,
+    },
+    {
         slug: "trackmyopt-student-deals-guide",
         title: `TrackMyOPT Student Deals: Save on AI, Health & Banking (Login Required)`,
         description: `Unlock ${formatUsd(OFFERS_CATALOG_TOTAL_SAVINGS_USD)}+ in verified student perks for F-1 and OPT workers — GitHub, Google AI, Wise, LinkedIn, and more. Available inside your dashboard after sign-in.`,
