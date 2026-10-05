@@ -1,54 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3b0764"/>
-      <stop offset="1" stop-color="#6b21a8"/>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#3b82f6"/>
     </linearGradient>
-    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0.06"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.85" cy="0.2" r="0.9">
-      <stop offset="0" stop-color="#d8b4fe" stop-opacity="0.5"/>
-      <stop offset="1" stop-color="#d8b4fe" stop-opacity="0"/>
-    </radialGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="#eae7db"/>
+  <circle cx="1100" cy="80" r="180" fill="#3b82f6" fill-opacity="0.10"/>
+  <circle cx="120" cy="560" r="220" fill="#3b82f6" fill-opacity="0.07"/>
 
-  <!-- Lightning + fee motif -->
-  <g opacity="0.28">
-    <path d="M1040,110 L1000,200 L1030,200 L990,290" fill="none" stroke="#fbbf24" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="1015" cy="200" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="2"/>
-    <text x="1015" y="350" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#fbbf24" letter-spacing="2" text-anchor="middle">$1,780 |  30 BD</text>
+  <g transform="translate(80,80)">
+    <rect width="56" height="56" rx="14" fill="#1e3a8a"/>
+    <path d="M18 28 L28 34 L40 20" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="158" y="118" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="800" fill="#0f172a">track<tspan fill="#3b82f6">my</tspan>opt</text>
+
+  <g transform="translate(80,170)">
+    <rect width="200" height="40" rx="20" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="100" y="26" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle" letter-spacing="1.5">FEE &amp; PROCESS</text>
   </g>
 
-  <g transform="translate(80,90)">
-    <rect width="220" height="46" rx="23" fill="#a855f7" fill-opacity="0.95"/>
-    <text x="110" y="30" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="1.5">FEE &amp; PROCESS GUIDE</text>
+  <text x="80" y="270" font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" fill="#0f172a" letter-spacing="-1.5">Premium Processing</text>
+  <text x="80" y="338" font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" fill="#0f172a" letter-spacing="-1.5">for OPT &amp; STEM OPT:</text>
+  <text x="80" y="406" font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" fill="#1e3a8a" letter-spacing="-1.5">$1,780 &amp; 30 Business Days</text>
+
+  <text x="80" y="462" font-family="Inter, system-ui, sans-serif" font-size="19" fill="#475569">When the I-907 upgrade saves your OPT year —</text>
+  <text x="80" y="490" font-family="Inter, system-ui, sans-serif" font-size="19" fill="#475569">and when it doesn't. Effective March 1, 2026.</text>
+
+  <!-- Price badge -->
+  <g transform="translate(880,440)">
+    <rect width="240" height="120" rx="16" fill="url(#cardGrad)"/>
+    <text x="120" y="56" font-family="Inter, system-ui, sans-serif" font-size="36" font-weight="900" fill="#ffffff" text-anchor="middle">$1,780</text>
+    <text x="120" y="92" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="700" fill="#fde68a" text-anchor="middle" letter-spacing="2">30 BUSINESS DAYS · I-907</text>
   </g>
 
-  <text x="80" y="210" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" fill="#ffffff" letter-spacing="-1.5">
-    Premium Processing
-  </text>
-  <text x="80" y="286" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" fill="#ffffff" letter-spacing="-1.5">
-    for OPT &amp; STEM OPT:
-  </text>
-  <text x="80" y="362" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" letter-spacing="-1.5">
-    <tspan fill="#fbbf24">$1,780</tspan> |  30 Business Days
-  </text>
-
-  <text x="80" y="428" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="20" fill="#e9d5ff">
-    When the I-907 upgrade saves your OPT year  and when it doesn't. Effective Mar 1, 2026.
-  </text>
-
-  <g transform="translate(80,478)">
-    <rect width="700" height="80" rx="12" fill="url(#card)" stroke="#ffffff" stroke-opacity="0.14"/>
-    <text x="24" y="32" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#fbbf24">9 min read |  October 5, 2026 |  Vinay Kumar</text>
-    <text x="24" y="58" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="13" fill="#c4b5fd">Form I-907 |  clock start |  RFE pauses |  when to skip it</text>
-  </g>
-
-  <g transform="translate(1040,540)">
-    <text x="80" y="30" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#ffffff" text-anchor="end">track<tspan fill="#fbbf24">my</tspan>opt</text>
-  </g>
+  <text x="80" y="594" font-family="Inter, system-ui, sans-serif" font-size="14" fill="#64748b">9 min read  |  October 5, 2026  |  Vinay Kumar</text>
 </svg>
