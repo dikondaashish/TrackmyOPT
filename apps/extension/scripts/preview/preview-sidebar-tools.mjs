@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
-const {outputFiles}=await build({stdin:{loader:'ts',resolveDir:fileURLToPath(new URL('../src',import.meta.url)),contents:`
+const {outputFiles}=await build({stdin:{loader:'ts',resolveDir:fileURLToPath(new URL('../../src',import.meta.url)),contents:`
 import {createJobTrackerWidget,setJobTrackerWidgetHost} from './job-portal-tracker-widget';
 import {paintResumeStatusRow} from './resume-status-row';
 import {hardenInteractiveElements} from './design/a11y';
@@ -44,7 +44,7 @@ document.querySelector('#churn').onclick=()=>{
 document.querySelector('#next-job').onclick=()=>{history.pushState({},'','/next-job');document.dispatchEvent(new Event('tmo-page-context-changed'));};
 document.querySelector('#dark').onclick=()=>{root.dataset.tmoTheme=root.dataset.tmoTheme==='dark'?'light':'dark';};
 `},bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env':'{}'}});
-const logo=await readFile(new URL('../public/icons/logo.gif',import.meta.url));
+const logo=await readFile(new URL('../../public/icons/logo.gif',import.meta.url));
 const server=createServer((req,res)=>{
  res.setHeader('Content-Security-Policy',"default-src 'self';script-src 'self';style-src 'unsafe-inline';img-src 'self';connect-src 'none'");
  if(req.url==='/bundle.js'){res.setHeader('Content-Type','text/javascript');res.end(outputFiles[0].text);return;}

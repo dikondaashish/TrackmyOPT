@@ -26,7 +26,7 @@ export async function GET(_req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Job tracker stores rows in job_applications (see migrations/20260115_create_job_tracker.sql)
+        // Job tracker stores rows in job_applications (see migrations/20260115000001_create_job_tracker.sql)
         const { count: jobCount, error: jobError } = await supabase
             .from('job_applications')
             .select('*', { count: 'exact', head: true })

@@ -1213,7 +1213,7 @@ const blogPosts = [
         date: "April 18, 2026",
         tags: ["MBA", "STEM", "H-1B"],
         featured: false,
-        image: "/blog/opt-mba-students-career-paths.jpg"
+        image: "/blog/opt-non-stem-majors-guide.jpg"
     },
     {
         slug: "salary-negotiation-international-workers-opt",

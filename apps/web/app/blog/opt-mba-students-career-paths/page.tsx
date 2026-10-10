@@ -13,14 +13,14 @@ export const metadata: Metadata = {
         description: "You paid a premium for your MBA. Here is how international students can maximize their OPT to secure high-paying US roles and H-1B sponsorship.",
         type: "article",
         url: "https://www.trackmyopt.com/blog/opt-mba-students-career-paths",
-        images: [{ url: "/blog/opt-mba-students-career-paths.jpg", width: 1200, height: 630, alt: "Laptop showing a business presentation, next to a sketchbook and an EAD card" }],
+        images: [{ url: "/blog/opt-non-stem-majors-guide.jpg", width: 1200, height: 630, alt: "Laptop showing a business presentation, next to a sketchbook and an EAD card" }],
     },
     alternates: { canonical: "https://www.trackmyopt.com/blog/opt-mba-students-career-paths" },
     twitter: {
         card: "summary_large_image",
         title: "The International MBA's Guide to OPT",
         description: "You paid a premium for your MBA. Here is how international students can maximize their OPT to secure high-paying US roles and H-1B sponsorship.",
-        images: ["/blog/opt-mba-students-career-paths.jpg"],
+        images: ["/blog/opt-non-stem-majors-guide.jpg"],
     },
 };
 
@@ -41,7 +41,7 @@ export default function MBAOPTPage() {
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
-                <BlogPostImage src="/blog/opt-mba-students-career-paths.jpg" alt="Laptop showing a business presentation, next to a sketchbook and an EAD card" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <BlogPostImage src="/blog/opt-non-stem-majors-guide.jpg" alt="Laptop showing a business presentation, next to a sketchbook and an EAD card" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <div className="prose prose-lg dark:prose-invert max-w-none">
                 <p className="lead text-xl text-gray-600 dark:text-gray-300 mb-8">Pursuing an MBA in the US as an international student is a massive financial and emotional investment. But graduating with that prestigious degree doesn't make you immune to the harsh realities of the US immigration system. Navigating OPT as an MBA requires a highly strategic approach to recruitment.</p>

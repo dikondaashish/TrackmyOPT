@@ -5,7 +5,7 @@ import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
 
 const { outputFiles } = await build({
-  stdin: { loader:'ts', resolveDir:fileURLToPath(new URL('../src', import.meta.url)), contents:`
+  stdin: { loader:'ts', resolveDir:fileURLToPath(new URL('../../src', import.meta.url)), contents:`
     import { createJobTrackerWidget, setJobTrackerWidgetHost } from './job-portal-tracker-widget';
     import { paintResumeStatusRow } from './resume-status-row';
     const params = new URLSearchParams(location.search);
@@ -45,7 +45,7 @@ const { outputFiles } = await build({
     };
   `}, bundle:true,write:false,platform:'browser',format:'iife',define:{'process.env':'{}'},
 });
-const logo=await readFile(new URL('../public/icons/logo.gif',import.meta.url));
+const logo=await readFile(new URL('../../public/icons/logo.gif',import.meta.url));
 const server=createServer((req,res)=>{
   if(req.url==='/bundle.js'){res.setHeader('Content-Type','text/javascript');res.end(outputFiles[0].text);return;}
   if(req.url==='/icons/logo.gif'){res.setHeader('Content-Type','image/gif');res.end(logo);return;}

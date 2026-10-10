@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = fileURLToPath(new URL('../dist/', import.meta.url));
+const root = fileURLToPath(new URL('../../dist/', import.meta.url));
 const mime = {
   '.html': 'text/html',
   '.js': 'text/javascript',

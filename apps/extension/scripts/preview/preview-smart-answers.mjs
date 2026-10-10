@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const { outputFiles } = await build({
   stdin: {
     loader: 'ts',
-    resolveDir: fileURLToPath(new URL('../src', import.meta.url)),
+    resolveDir: fileURLToPath(new URL('../../src', import.meta.url)),
     contents: `
 import {runSmartAnswers} from './smart-answers';
 const form=document.querySelector('form')!;const initial=form.innerHTML;

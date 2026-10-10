@@ -42,7 +42,7 @@ describe('extension privacy and help consistency', () => {
 
   it.each([
     '../extension/README.md',
-    '../extension/store-assets/LISTING-0.2.0.md',
+    '../extension/store-assets/LISTING-0.2.1.md',
     '../extension/store-assets/source/store-assets.html',
     '../../docs/pending-implementation-plan.md',
     'app/dashboard/extension/page.tsx',

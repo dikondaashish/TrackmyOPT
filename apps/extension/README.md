@@ -349,7 +349,7 @@ included only through the explicit Prefill workflow. No action submits a form.
 timeouts, focus semantics, retained DOM/scroll state and posting-to-apply URL
 pairs for Lever, Greenhouse, Workday, Ashby, Workable, iCIMS and SmartRecruiters.
 These are synthetic compatibility checks, not certification of every live ATS.
-Run `node scripts/preview-sidebar-tools.mjs` for Chrome QA with the real sidebar
+Run `node scripts/preview/preview-sidebar-tools.mjs` for Chrome QA with the real sidebar
 and fill engine, synthetic profile/private answers and simulated service replies.
 Live AI/PDF service availability and employer-specific custom controls still
 require release testing; this fixture does not spend credits or submit data.
@@ -384,7 +384,7 @@ Without a resume, saved answers still work; new drafts show manual-input guidanc
 - The stronger server prompt/grounding changes require a web deployment. Local
   fixture QA uses synthetic responses and does not verify a live provider.
 
-QA: `node scripts/preview-smart-answers.mjs` runs the actual controller with fake
+QA: `node scripts/preview/preview-smart-answers.mjs` runs the actual controller with fake
 responses and in-memory sample answer storage; no personal data or AI credits.
 
 Privacy/support source copy now explains one-click private answers and AI drafts
@@ -530,7 +530,7 @@ Demo controls never fetch private answers, create a resume, spend AI credits,
 write a tracker entry, or submit an application. Only bounded chapter/status
 progress is saved; setup links leave the demo and open the real dashboard.
 
-Local preview: run `npm run build` then `node scripts/preview-tour.mjs` from
+Local preview: run `npm run build` then `node scripts/preview/preview-tour.mjs` from
 `apps/extension`. Open `http://127.0.0.1:59765/tour.html`; `/responsive` contains
 a 390px dark-theme iframe. Preview mode does not persist progress. Automated
 tests exercise packaged progress, the worker's install/token trigger, and
