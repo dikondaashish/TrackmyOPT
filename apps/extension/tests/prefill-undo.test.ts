@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const local = createRequire(resolve('package.json'));
 const { JSDOM } = local('jsdom');
 const code = local('esbuild').buildSync({
-  entryPoints: ['src/prefill-undo.ts'],
+  entryPoints: ['src/prefill/prefill-undo.ts'],
   bundle: true,
   write: false,
   format: 'cjs',

@@ -60,7 +60,7 @@ function harness(page: string, extra = '', options: { failSave?: boolean; holdSa
 async function settle() { for (let i = 0; i < 5; i++) await new Promise(setImmediate); }
 
 test('sign-out removes saved calculator dates including the browser-only STEM recommendation', async () => {
-  const h = harness('../signOut');
+  const h = harness('../popup/signOut');
   h.storage['stem-countdown_data'] = { results: { dsoRecommendationDate: '2026-06-25' } };
   h.storage['opt-countdown_data'] = { results: {} };
   h.storage['clock-tracker_data'] = { startDate: '2026-06-25' };

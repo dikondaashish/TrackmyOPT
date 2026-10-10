@@ -8,7 +8,7 @@ const local = createRequire(resolve('package.json'));
 const { JSDOM } = local('jsdom');
 const code = local('esbuild').buildSync({
   stdin: {
-    contents: "export { runPrefill } from './easy-apply-engine'; export { retryPrefillOperation } from './prefill-coverage';",
+    contents: "export { runPrefill } from './easy-apply/easy-apply-engine'; export { retryPrefillOperation } from './prefill/prefill-coverage';",
     resolveDir: resolve('src'),
   },
   bundle: true, write: false, format: 'cjs', platform: 'node',

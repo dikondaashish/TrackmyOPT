@@ -46,7 +46,7 @@ The first draft reduced this to a note because Store publication was unverified 
 
 | Work area | Code and documentation checked | Safe customer meaning |
 | --- | --- | --- |
-| Onboarding | `apps/extension/src/onboarding.ts`, `tour.ts`, `tour-content.ts`, and [README tour section](../../../../apps/extension/README.md#first-install-product-tour) | A guided first-run tour has been built and packaged for the next extension version. |
+| Onboarding | `apps/extension/src/popup/onboarding.ts`, `tour.ts`, `tour-content.ts`, and [README tour section](../../../../apps/extension/README.md#first-install-product-tour) | A guided first-run tour has been built and packaged for the next extension version. |
 | Prefill and review | `content-job-portal.ts`, `private-prefill-request.ts`, `portal-login-prefill.ts`, `smart-answers.ts`, and [privacy release record](../../../compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md) | Explicit Prefill can use supported saved fields and prepare review-marked screening drafts. It does not submit an application. |
 | Undo | `prefill-undo.ts`, `prefill-undo-ui.ts`, `background-prefill-undo.ts`, and [README Undo section](../../../../apps/extension/README.md#undo-last-prefill) | The last Prefill can be rolled back where supported; later user edits are protected, and unsupported uploads/custom controls need review. |
 | Job-specific resume | `background-resume-artifact.ts`, `saved-job-resume.ts`, and saved resume record | A tailored resume can be restored for the matching job. Account storage is bounded to 30 days and 50 recent jobs. |

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { savedAnswerAnalyticsProperties } from '../src/saved-screening-answers';
+import { savedAnswerAnalyticsProperties } from '../src/screening/saved-screening-answers';
 
 const migration = readFileSync('../../supabase/migrations/20260716120000_create_screening_answers.sql', 'utf8');
 assert.match(migration, /ENABLE ROW LEVEL SECURITY/i);

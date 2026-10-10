@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { buildResumePdfFilename as extensionFilename } from '../src/resume-filename';
+import { buildResumePdfFilename as extensionFilename } from '../src/resume/resume-filename';
 import { buildResumePdfFilename } from '../../web/lib/resume/build-resume-filename';
 
 test('web and extension use the identical filename function', () => {

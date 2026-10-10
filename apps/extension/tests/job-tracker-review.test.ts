@@ -3,8 +3,8 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 const { JSDOM } = createRequire(resolve('package.json'))('jsdom');
-import { getJobInfo } from '../src/job-posting-scrape';
-import { requestJobReview } from '../src/job-tracker-review-request';
+import { getJobInfo } from '../src/job/job-posting-scrape';
+import { requestJobReview } from '../src/job/job-tracker-review-request';
 
 test('Greenhouse uses the actual role and visible job location', () => {
   const dom = new JSDOM('<title>Job Application for Client Billing Specialist at Example Corp</title><h1>Client Billing Specialist</h1><div class="job__location">New York, NY, United States</div>', { url: 'https://job-boards.greenhouse.io/embed/job_app?for=example&token=123' });

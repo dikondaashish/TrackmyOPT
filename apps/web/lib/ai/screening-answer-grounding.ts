@@ -1,5 +1,5 @@
 import type { ScreeningQuestionDraftRequest } from './screening-answer-contract';
-import { hasQuestionEvidence, hasUnsupportedTools } from '../../../extension/src/screening-answer-evidence';
+import { hasQuestionEvidence, hasUnsupportedTools } from '../../../extension/src/screening/screening-answer-evidence';
 
 type ScreeningDraftGroundingValidation =
   | { valid: true }

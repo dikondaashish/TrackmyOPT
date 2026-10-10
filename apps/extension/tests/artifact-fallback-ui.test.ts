@@ -5,7 +5,7 @@ import test from 'node:test';
 import {
   INACTIVE_ARTIFACT_FALLBACK_MESSAGE,
   renderInactiveArtifactFallback,
-} from '../src/artifact-fallback-ui';
+} from '../src/resume/artifact-fallback-ui';
 
 function host() {
   const attributes = new Map<string, string>();

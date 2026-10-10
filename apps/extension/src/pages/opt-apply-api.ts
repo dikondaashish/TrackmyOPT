@@ -2,8 +2,8 @@
  * OPT calculator API load/save for the OPT Apply page.
  */
 
-import { getIdToken } from '../token-store';
-import { WEBSITE_URL } from '../config.js';
+import { getIdToken } from '../shared/token-store';
+import { WEBSITE_URL } from '../shared/config.js';
 
 /**
  * Load saved OPT data from API

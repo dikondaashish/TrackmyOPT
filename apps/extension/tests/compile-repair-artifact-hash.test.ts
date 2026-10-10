@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { compileLatexWithSingleRepair } from '../src/compile-latex-with-repair';
-import { buildGeneratedResumeArtifactV1 } from '../src/resume-artifact-lifecycle';
+import { compileLatexWithSingleRepair } from '../src/resume/compile-latex-with-repair';
+import { buildGeneratedResumeArtifactV1 } from '../src/resume/resume-artifact-lifecycle';
 
 test('the repaired source drives snapshot acceptance and the artifact hash', async () => {
   const initialLatex = String.raw`\begin{document}Broken`;

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   JOB_DESCRIPTION_MAX_LENGTH,
   buildJobSaveSnapshot,
-} from '../src/job-save-snapshot';
+} from '../src/job/job-save-snapshot';
 
 const currentDescription = 'Current page description with TypeScript and React.'.repeat(20);
 

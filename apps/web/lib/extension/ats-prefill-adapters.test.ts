@@ -3,7 +3,7 @@ import {
   genericPrefillAdapter,
   greenhousePrefillAdapter,
   workdayPrefillAdapter,
-} from '../../../extension/src/ats-prefill-adapters';
+} from '../../../extension/src/job-portal/ats-prefill-adapters';
 
 describe('generic adapter record boundaries', () => {
   beforeEach(() => { document.body.textContent = ''; });

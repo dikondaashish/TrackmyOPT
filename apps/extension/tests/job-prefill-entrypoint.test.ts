@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { API_ENDPOINTS } from "../src/config";
-import { SIDEBAR_SHELL_CSS } from "../src/job-portal-sidebar-shell";
+import { API_ENDPOINTS } from "../src/shared/config";
+import { SIDEBAR_SHELL_CSS } from "../src/job-portal/job-portal-sidebar-shell";
 
 assert.equal(
   API_ENDPOINTS.DASHBOARD_JOB_PREFILL,
   "https://www.trackmyopt.com/dashboard/extension"
 );
 
-const popupHome = readFileSync("src/home.ts", "utf8");
+const popupHome = readFileSync("src/popup/home.ts", "utf8");
 assert.match(
   popupHome,
   /id="manage-job-prefill-link"[\s\S]+API_ENDPOINTS\.DASHBOARD_JOB_PREFILL/,
@@ -17,8 +17,8 @@ assert.match(
 );
 
 const jobPortal = readFileSync("src/content-job-portal.ts", "utf8");
-const trackerWidget = readFileSync("src/job-portal-tracker-widget.ts", "utf8");
-const sensitivePanel = readFileSync("src/job-portal-sensitive-answer-panel.ts", "utf8");
+const trackerWidget = readFileSync("src/job-portal/job-portal-tracker-widget.ts", "utf8");
+const sensitivePanel = readFileSync("src/job-portal/job-portal-sensitive-answer-panel.ts", "utf8");
 assert.match(
   sensitivePanel,
   /Manage saved prefill data[\s\S]+API_ENDPOINTS\.DASHBOARD_JOB_PREFILL/,
@@ -44,7 +44,7 @@ assert.match(
   /new ResizeObserver[\s\S]+clampWidgetToViewport/,
   "the widget must remain onscreen when expandable content changes its height"
 );
-const prefillCoverageUi = readFileSync("src/job-portal-prefill-coverage-ui.ts", "utf8");
+const prefillCoverageUi = readFileSync("src/job-portal/job-portal-prefill-coverage-ui.ts", "utf8");
 assert.match(
   prefillCoverageUi,
   /Application progress[\s\S]+role', 'progressbar'[\s\S]+Required[\s\S]+Optional/,

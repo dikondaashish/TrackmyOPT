@@ -6,6 +6,6 @@
  * never inside the small toolbar popup.
  */
 
-import { openFeedbackModal } from './feedback';
+import { openFeedbackModal } from './shared/feedback';
 
 openFeedbackModal();

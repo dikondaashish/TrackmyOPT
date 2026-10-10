@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { COLORS, FONT_SIZE, SPACE, RADIUS } from '../src/design/tokens';
 import { buildThemeCss } from '../src/design/theme-css';
-import { WIDGET_TOKENS } from '../src/widget-platform';
+import { WIDGET_TOKENS } from '../src/widget/widget-platform';
 
 // The unit-test runner executes from apps/extension.
 const ROOT = process.cwd();

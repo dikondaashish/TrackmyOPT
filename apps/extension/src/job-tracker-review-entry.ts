@@ -1,4 +1,4 @@
-import { reviewJobForTracker } from './job-tracker-review';
+import { reviewJobForTracker } from './job/job-tracker-review';
 
 declare global { interface Window { __tmoTrackerReviewReady?: boolean } }
 

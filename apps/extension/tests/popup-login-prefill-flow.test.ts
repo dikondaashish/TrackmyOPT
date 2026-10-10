@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const home = readFileSync(resolve('src/home.ts'), 'utf8');
+const home = readFileSync(resolve('src/popup/home.ts'), 'utf8');
 const background = readFileSync(resolve('src/background.ts'), 'utf8');
 const build = readFileSync(resolve('esbuild.config.js'), 'utf8');
 

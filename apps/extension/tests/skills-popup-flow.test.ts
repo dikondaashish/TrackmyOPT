@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { normalizeAutofillPreferences, AUTOFILL_PREFERENCES_KEY } from '../src/autofill-preferences';
+import { normalizeAutofillPreferences, AUTOFILL_PREFERENCES_KEY } from '../src/prefill/autofill-preferences';
 const requireLocal = createRequire(resolve('package.json'));
 const source = readFileSync('src/easy-apply-fill.ts', 'utf8');
 const code = requireLocal('esbuild').transformSync(source.slice(source.indexOf('const isTopFrame')), { loader: 'ts' }).code;

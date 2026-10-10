@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { savedAnswerAnalyticsProperties } from '../src/saved-screening-answers';
+import { savedAnswerAnalyticsProperties } from '../src/screening/saved-screening-answers';
 
 const properties = savedAnswerAnalyticsProperties('saved') as Record<string, unknown>;
 assert.deepEqual(Object.keys(properties).sort(), ['action', 'matchType']);
@@ -9,16 +9,16 @@ assert.equal('answerText' in properties, false);
 assert.equal('resumeContent' in properties, false);
 
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
-const trackerWidget = readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
+const trackerWidget = readFileSync('src/job-portal/job-portal-tracker-widget.ts', 'utf8');
 const popup = readFileSync('src/popup.ts', 'utf8');
-const sensitiveAutofill = readFileSync('src/sensitive-autofill.ts', 'utf8');
-const jobPortalLogin = readFileSync('src/job-portal-login.ts', 'utf8');
+const sensitiveAutofill = readFileSync('src/prefill/sensitive-autofill.ts', 'utf8');
+const jobPortalLogin = readFileSync('src/job-portal/job-portal-login.ts', 'utf8');
 const standaloneLogin = readFileSync(
-  'src/standalone-job-portal-prefill.ts',
+  'src/job-portal/standalone-job-portal-prefill.ts',
   'utf8',
 );
 const privateDelivery = readFileSync(
-  'src/private-application-delivery.ts',
+  'src/private/private-application-delivery.ts',
   'utf8',
 );
 const analyticsCalls = [
@@ -67,8 +67,8 @@ assert.doesNotMatch(
   /guidedAutopilot|jobPortalLogin|approvedJobPortalLogin/,
   'confirmed answers work with ordinary Prefill while portal passwords never enter the frame relay',
 );
-const sensitivePanelSource = readFileSync('src/job-portal-sensitive-answer-panel.ts', 'utf8');
-const savedPrivateAnswerLoad = readFileSync('src/private-prefill-request.ts', 'utf8');
+const sensitivePanelSource = readFileSync('src/job-portal/job-portal-sensitive-answer-panel.ts', 'utf8');
+const savedPrivateAnswerLoad = readFileSync('src/private/private-prefill-request.ts', 'utf8');
 assert.doesNotMatch(
   savedPrivateAnswerLoad,
   /chrome\.storage|trackWidgetAnalytics|console\.(?:log|info|debug)/,
@@ -99,9 +99,9 @@ assert.doesNotMatch(
 );
 
 for (const file of [
-  'src/screening-question-review-ui.ts',
-  'src/saved-screening-answers.ts',
-  'src/cover-letter-review.ts',
+  'src/screening/screening-question-review-ui.ts',
+  'src/screening/saved-screening-answers.ts',
+  'src/resume/cover-letter-review.ts',
 ]) {
   assert.doesNotMatch(readFileSync(file, 'utf8'), /console\.(?:log|info|debug)\s*\(/);
 }

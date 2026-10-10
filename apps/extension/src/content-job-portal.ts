@@ -1,5 +1,5 @@
-import { queryWidget, queryWidgetAll, widgetContent } from './widget-dom';
-import { requestJobContextSession } from './job-context-session';
+import { queryWidget, queryWidgetAll, widgetContent } from './widget/widget-dom';
+import { requestJobContextSession } from './job/job-context-session';
 /**
  * Content script for job / career pages (any company career site, LinkedIn, Indeed, etc.)
  * Parses job listing using JSON-LD, meta tags, and DOM. Shows a sticky, collapsible
@@ -10,11 +10,11 @@ import { requestJobContextSession } from './job-context-session';
 
 import { hardenInteractiveElements, ensureWidgetAnnouncer } from './design/a11y';
 import { el } from './design/primitives';
-import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, getPrefillUndoState, isPrefillUndoAllowed, undoLastPrefill } from './prefill-undo';
-import { requestPrefillUndo } from './prefill-undo-request';
+import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, getPrefillUndoState, isPrefillUndoAllowed, undoLastPrefill } from './prefill/prefill-undo';
+import { requestPrefillUndo } from './prefill/prefill-undo-request';
 import {
   isCareerPage,
-} from './career-sites';
+} from './job-portal/career-sites';
 import {
   runPrefill,
   findApplicationForm,
@@ -22,131 +22,131 @@ import {
   type GeneratedResumeAttachment,
   type PrefillOptions,
   getLabelText,
-} from './easy-apply-engine';
+} from './easy-apply/easy-apply-engine';
 import {
   RESUME_STATUS_ROW_CLASS,
   isResumeStatusAttached,
-} from './resume-status-row';
-import { API_ENDPOINTS } from './config';
-import { buildJobSaveSnapshot } from './job-save-snapshot';
+} from './resume/resume-status-row';
+import { API_ENDPOINTS } from './shared/config';
+import { buildJobSaveSnapshot } from './job/job-save-snapshot';
 import {
   jobMemoryKey,
   recordSeenJob,
-} from './smart-flow';
+} from './prefill/smart-flow';
 import {
   normalizeWidgetAnalyticsProperties,
   widgetSiteFamily,
   type WidgetAnalyticsEvent,
   type WidgetAnalyticsProperties,
-} from './widget-platform';
+} from './widget/widget-platform';
 import {
   jobUrlsReferToSameJob,
   type BasicContactProfile,
   type GeneratedResumeArtifactV1,
   type ResumeAutofillSnapshotV1,
   type V1PrefillPayloadResponse,
-} from './resume-autofill-contract';
+} from './resume/resume-autofill-contract';
 import {
   clearArtifactExpectedForSession,
   rememberArtifactExpectedForSession,
   rememberArtifactExpectationFromJob,
   renderInactiveArtifactFallback,
   artifactExpectedForSession,
-} from './artifact-fallback-ui';
+} from './resume/artifact-fallback-ui';
 import {
   resolveArtifactLifecycle,
   type ArtifactInvalidReason,
-} from './resume-artifact-lifecycle';
+} from './resume/resume-artifact-lifecycle';
 import {
   emptyPrefillCoverage,
-} from './prefill-coverage';
+} from './prefill/prefill-coverage';
 import {
   AUTOFILL_PREFERENCES_KEY,
   DEFAULT_AUTOFILL_PREFERENCES,
   normalizeAutofillPreferences,
   type AutofillPreferences,
-} from './autofill-preferences';
-import { shouldRunContinuousPrefill } from './continuous-prefill';
-import { withPrefillModeGuard } from './prefill-mode-guard';
-import { acceptPrefillRelay, waitForPrefillRelayTurn } from './prefill-relay-guard';
-import { detectScreeningQuestion } from './screening-question-drafts';
-import { createScreeningQuestionReviewUI } from './screening-question-review-ui';
-import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+} from './prefill/autofill-preferences';
+import { shouldRunContinuousPrefill } from './prefill/continuous-prefill';
+import { withPrefillModeGuard } from './prefill/prefill-mode-guard';
+import { acceptPrefillRelay, waitForPrefillRelayTurn } from './prefill/prefill-relay-guard';
+import { detectScreeningQuestion } from './screening/screening-question-drafts';
+import { createScreeningQuestionReviewUI } from './screening/screening-question-review-ui';
+import { AUTOFILL_FEATURE_FLAGS } from './prefill/autofill-feature-flags';
 import {
   FREE_AUTOFILL_PLAN_ENTITLEMENTS,
   resolveAutofillPlanEntitlements,
   type AutofillPlanEntitlements,
   type AutofillPlanTier,
-} from './autofill-plan-entitlements';
+} from './prefill/autofill-plan-entitlements';
 import {
   buildPrefillTelemetryProperties,
-} from './prefill-telemetry';
+} from './prefill/prefill-telemetry';
 import {
   runGuidedNavigation,
   type GuidedNavigationResult,
-} from './guided-autopilot';
+} from './job-portal/guided-autopilot';
 import {
   fillConfirmedSensitiveAnswers,
   normalizeSensitiveAnswerSession,
   type SensitiveAnswerSession,
-} from './sensitive-autofill';
-import { scanApplicationFields } from './application-field-scan';
-import { loadPrivateAnswersForPrefill } from './private-prefill-request';
-import { prefillSavedPortalLogin } from './portal-login-prefill';
-import { runSmartAnswers } from './smart-answers';
-import { createAutofillVisualFeedback } from './autofill-visual-feedback';
+} from './prefill/sensitive-autofill';
+import { scanApplicationFields } from './prefill/application-field-scan';
+import { loadPrivateAnswersForPrefill } from './private/private-prefill-request';
+import { prefillSavedPortalLogin } from './job-portal/portal-login-prefill';
+import { runSmartAnswers } from './prefill/smart-answers';
+import { createAutofillVisualFeedback } from './prefill/autofill-visual-feedback';
 import {
   approvalMatchesJob,
   approvalMatchesUrl,
   createPrivateApprovalBinding,
   type PrivateApprovalBinding,
-} from './private-approval-session';
+} from './private/private-approval-session';
 import {
   JobInfo,
   getJobInfo,
   isHttpDocument,
   isLinkedInJobSurface,
   shouldUseFullJobAssistMode,
-} from './job-posting-scrape';
+} from './job/job-posting-scrape';
 import {
   clearWidgetDismissedUrl,
   currentSessionStorage,
   getDefaultViewPref,
   isWidgetSuppressed,
   readWidgetDismissedUrl,
-} from './widget-preferences';
+} from './widget/widget-preferences';
 import {
   ARTIFACT_INACTIVE_FALLBACK_CLASS,
   ARTIFACT_STALE_BANNER_CLASS,
   WIDGET_ROOT_ID,
-} from './widget-dom-ids';
+} from './widget/widget-dom-ids';
 import {
   captureJobDescription,
   resolveJobDescriptionDetails,
   resolveJobDescription,
   scrapeJobDescription,
-} from './job-description-scrape';
-import { isApplicationSuccessPage } from './job-portal-application-success';
-import { isWidgetInteractionInFlight } from './job-portal-interaction-guard';
-import { findLinkedInEasyApplyDialog } from './linkedin-easy-apply-dialog';
+} from './job/job-description-scrape';
+import { isApplicationSuccessPage } from './job-portal/job-portal-application-success';
+import { isWidgetInteractionInFlight } from './job-portal/job-portal-interaction-guard';
+import { findLinkedInEasyApplyDialog } from './easy-apply/linkedin-easy-apply-dialog';
 import {
   jobContextFor,
   shouldRefreshWidget,
   hasPortalPageMutation,
-} from './job-portal-job-helpers';
-import { paintPrefillCoverage } from './job-portal-prefill-coverage-ui';
+} from './job-portal/job-portal-job-helpers';
+import { paintPrefillCoverage } from './job-portal/job-portal-prefill-coverage-ui';
 import {
   paintPrefillButton,
   showMessage,
   syncResumeStatusRows,
-} from './job-portal-widget-ui';
+} from './job-portal/job-portal-widget-ui';
 import {
   createJobTrackerWidget,
   disconnectWidgetViewportObserver,
   getLastResumeJobDescription,
   setJobTrackerWidgetHost,
   type PrefillExecutionSnapshot,
-} from './job-portal-tracker-widget';
+} from './job-portal/job-portal-tracker-widget';
 
 /** Set once the widget mounts; announces status to screen readers. */
 let announceWidgetStatus: (message: string) => void = () => {};
@@ -685,7 +685,7 @@ async function mountScreeningQuestionReviews(
     if (!eligible) continue;
     const savedResponse = await chrome.runtime.sendMessage({
       type: 'LOAD_SCREENING_ANSWER', questionHash: eligible.questionHash,
-    }).catch(() => null) as { answer?: import('./screening-question-drafts').SavedScreeningAnswer } | null;
+    }).catch(() => null) as { answer?: import('./screening/screening-question-drafts').SavedScreeningAnswer } | null;
     host.appendChild(createScreeningQuestionReviewUI({
       question: eligible,
       limits: {

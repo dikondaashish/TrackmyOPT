@@ -10,12 +10,12 @@ import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 import { ResumeAutofillSnapshotV1Schema } from '@/lib/resume/autofill-schema';
-import { AUTOFILL_FEATURE_FLAGS } from '../../../../../extension/src/autofill-feature-flags';
+import { AUTOFILL_FEATURE_FLAGS } from '../../../../../extension/src/prefill/autofill-feature-flags';
 import {
   isSensitiveApplicationQuestion,
   normalizeApplicationQuestion,
   SCREENING_QUESTION_TEXT_MAX_CHARS,
-} from '../../../../../extension/src/sensitive-question-policy';
+} from '../../../../../extension/src/prefill/sensitive-question-policy';
 
 const DAILY_LIMIT = 25;
 const ITEM_LIMIT = 3;

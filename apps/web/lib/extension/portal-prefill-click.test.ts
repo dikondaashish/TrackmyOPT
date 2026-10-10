@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import { describe, expect, it, vi } from 'vitest';
-import { prefillSavedPortalLogin } from '../../../extension/src/portal-login-prefill';
-import { fillJobPortalLogin } from '../../../extension/src/job-portal-login';
+import { prefillSavedPortalLogin } from '../../../extension/src/job-portal/portal-login-prefill';
+import { fillJobPortalLogin } from '../../../extension/src/job-portal/job-portal-login';
 
 const { JSDOM } = createRequire(import.meta.url)('jsdom');
 const credential = {

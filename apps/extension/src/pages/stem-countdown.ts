@@ -1,10 +1,10 @@
-import { countdownView, TOOL_HELP } from '../tool-ui';
+import { countdownView, TOOL_HELP } from '../shared/tool-ui';
 import { calculateTimeRemaining, filingWindowMessage } from './opt-apply-date-helpers';
 import { stemApiRequest } from './stem-apply-api';
-import { WEBSITE_URL } from '../config.js';
-import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
-import { icon } from '../icons.js';
-import type { ToolSurfaceTone } from '../tool-page-theme.js';
+import { WEBSITE_URL } from '../shared/config.js';
+import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../popup/navigation.js';
+import { icon } from '../shared/icons.js';
+import type { ToolSurfaceTone } from '../shared/tool-page-theme.js';
 
 /**
  * Check if user has premium access

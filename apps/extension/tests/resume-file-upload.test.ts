@@ -6,7 +6,7 @@ import {
     describeUnsupportedResumeFile,
     isResumeFileSizeAllowed,
     isSupportedResumeFileName,
-} from '../src/resume-file-upload';
+} from '../src/resume/resume-file-upload';
 
 /* -------------------------------------------------------------- file type */
 

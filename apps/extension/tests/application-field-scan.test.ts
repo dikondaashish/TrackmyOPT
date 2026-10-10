@@ -3,7 +3,7 @@ import {
   scanApplicationFields,
   summarizeApplicationFields,
   type ScannedApplicationField,
-} from '../src/application-field-scan';
+} from '../src/prefill/application-field-scan';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 

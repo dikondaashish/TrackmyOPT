@@ -6,7 +6,7 @@ import {
   extractICimsJobIdentity,
   extractWorkdayJobIdentity,
   type GeneratedResumeArtifactV1,
-} from '../src/resume-autofill-contract';
+} from '../src/resume/resume-autofill-contract';
 
 const REAL_WORKDAY_LISTING_URL =
   'https://interpublic.wd5.myworkdayjobs.com/OMC/job/New-York-New-York-United-States-of-America/Analyst--Business-Analytics_12235-SL?jr_id=6a58623b68d16a30e2412e0f';

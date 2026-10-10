@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { shouldRunContinuousPrefill } from '../src/continuous-prefill';
+import { shouldRunContinuousPrefill } from '../src/prefill/continuous-prefill';
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
@@ -143,7 +143,7 @@ test('attribute-only step reveals trigger Continuous without starving the timer'
   } finally { h.api.stopContinuousPrefill(); h.dom.window.close(); }
 });
 
-const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
+const engine = readFileSync('src/easy-apply/easy-apply-engine.ts', 'utf8');
 const engineCode = requireLocal('esbuild').transformSync(engine.slice(engine.indexOf('export async function runPrefill')).replace('export ', '') + '\nglobalThis.run = runPrefill;', { loader: 'ts' }).code;
 function engineHarness() {
   const writes: string[] = []; let allowed = true; let resolveProfile: (v: any) => void = () => {};
@@ -167,7 +167,7 @@ test('engine checks cancellation again after loading the profile', async () => {
   assert.deepEqual(h.writes, []);
 });
 
-const dropdownCode = requireLocal('esbuild').buildSync({ entryPoints: ['src/smart-dropdown.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
+const dropdownCode = requireLocal('esbuild').buildSync({ entryPoints: ['src/prefill/smart-dropdown.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
 test('a delayed dropdown never selects an option after its mode is stopped', async () => {
   const dom = new JSDOM('<button role="combobox" aria-controls="options">Select</button><div id="options"></div>');
   try {
@@ -181,7 +181,7 @@ test('a delayed dropdown never selects an option after its mode is stopped', asy
   } finally { dom.window.close(); }
 });
 
-const home = readFileSync('src/home.ts', 'utf8');
+const home = readFileSync('src/popup/home.ts', 'utf8');
 const saveCode = requireLocal('esbuild').transformSync(home.slice(home.indexOf('  const saveAutofillPreferences ='), home.indexOf("  stepModeBtn?.addEventListener('click'")) + '\nglobalThis.save = saveAutofillPreferences;', { loader: 'ts' }).code;
 test('failed preference storage restores the prior mode and reports the failure', async () => {
   const context: any = {

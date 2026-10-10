@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import vm from 'node:vm';
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
-const code = requireLocal('esbuild').buildSync({entryPoints:['src/sensitive-autofill.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
+const code = requireLocal('esbuild').buildSync({entryPoints:['src/prefill/sensitive-autofill.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
 
 function harness(html: string) {
   const dom = new JSDOM(html, {url:'https://example.test/apply'});

@@ -4,7 +4,7 @@ import test from 'node:test';
 import {
   buildGeneratedResumeResult,
   type GeneratedResumeSuccessBase,
-} from '../src/resume-generation-result';
+} from '../src/resume/resume-generation-result';
 
 const baseResult: GeneratedResumeSuccessBase = {
   pdfBase64: 'JVBERi0xLjQK',

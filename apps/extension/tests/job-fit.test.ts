@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { isJobFitLimitResponse, normalizeJobFitAnalysis } from '../src/job-fit';
+import { isJobFitLimitResponse, normalizeJobFitAnalysis } from '../src/job/job-fit';
 
 assert.deepEqual(
   normalizeJobFitAnalysis({

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { createScreeningQuestionReviewUI } from '../src/screening-question-review-ui';
+import { createScreeningQuestionReviewUI } from '../src/screening/screening-question-review-ui';
 
 const { JSDOM } = createRequire(resolve('package.json'))('jsdom');
 

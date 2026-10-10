@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const localRequire = createRequire(resolve('package.json'));
 const { JSDOM } = localRequire('jsdom');
 const { buildSync } = localRequire('esbuild');
-const code = buildSync({ entryPoints: ['src/job-tracker-review.ts'], bundle: true, write: false, platform: 'node', format: 'cjs' }).outputFiles[0].text;
+const code = buildSync({ entryPoints: ['src/job/job-tracker-review.ts'], bundle: true, write: false, platform: 'node', format: 'cjs' }).outputFiles[0].text;
 function harness(lookup: any = { ok: true, saved: false }, save: any = { ok: true, id: 'test', status: 'Wishlist' }, html?: string) {
   const dom = new JSDOM(html ?? '<title>Job Application for Engineer at Acme</title><h1>Engineer</h1><div class="job__location">Remote</div>', { url: 'https://job-boards.greenhouse.io/acme/jobs/123' });
   Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', { configurable: true, get() { return this.textContent; } });

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { isCareerPage } from '../src/career-sites';
+import { isCareerPage } from '../src/job-portal/career-sites';
 
 const manifest = JSON.parse(readFileSync('manifest.json', 'utf8')) as {
   content_scripts: Array<{ js: string[]; matches: string[] }>;

@@ -3,7 +3,7 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { buildResumePdfFilename } from '../src/resume-filename';
+import { buildResumePdfFilename } from '../src/resume/resume-filename';
 
 const local = createRequire(resolve('package.json'));
 const { JSDOM } = local('jsdom');
@@ -13,7 +13,7 @@ const { implForWrapper } = jsdomLocal('./generated/idl/utils.js');
 const code = local('esbuild').buildSync({
   stdin: {
     contents:
-      "export * from './easy-apply-attachments'; export * from './prefill-undo';",
+      "export * from './easy-apply/easy-apply-attachments'; export * from './prefill/prefill-undo';",
     resolveDir: resolve('src'),
   },
   bundle: true,

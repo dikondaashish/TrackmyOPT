@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   formatPrefillCoverageSummary,
   summarizePrefillOutcomes,
-} from '../src/prefill-coverage';
+} from '../src/prefill/prefill-coverage';
 
 const result = summarizePrefillOutcomes([
   { filled: true, fieldGroup: 'resume' },

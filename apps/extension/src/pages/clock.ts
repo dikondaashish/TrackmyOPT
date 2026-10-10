@@ -1,9 +1,9 @@
 import { createDatePicker } from './opt-apply-date-picker';
-import { dateField, toolIntro, helpTip, TOOL_HELP } from '../tool-ui';
+import { dateField, toolIntro, helpTip, TOOL_HELP } from '../shared/tool-ui';
 import { addDateInputValidation } from './opt-apply-date-helpers';
-import { getIdToken } from '../token-store';
-import { WEBSITE_URL } from '../config.js';
-import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../navigation.js';
+import { getIdToken } from '../shared/token-store';
+import { WEBSITE_URL } from '../shared/config.js';
+import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../popup/navigation.js';
 
 /**
  * Format date to mm/dd/yyyy

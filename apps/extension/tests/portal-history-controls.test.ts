@@ -3,15 +3,15 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import type { ClassifiedControl } from '../src/ats-prefill-adapters';
-import type { ResumeDateValue } from '../src/resume-autofill-contract';
+import type { ClassifiedControl } from '../src/job-portal/ats-prefill-adapters';
+import type { ResumeDateValue } from '../src/resume/resume-autofill-contract';
 
 const local = createRequire(resolve('package.json'));
 const { JSDOM } = local('jsdom');
 const code = local('esbuild').buildSync({
   stdin: {
     contents:
-      "export * from './src/repeatable-record-engine'; export * from './src/prefill-undo';",
+      "export * from './src/prefill/repeatable-record-engine'; export * from './src/prefill/prefill-undo';",
     resolveDir: process.cwd(),
   },
   bundle: true,

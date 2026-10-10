@@ -1,13 +1,13 @@
 # Internal architecture overview
 
-This is the current, code-backed system shape as of 2026-07-25.
+This is the current, code-backed system shape as of 2026-10-10.
 
 ## Applications
 
 | Application | Runtime | Responsibility |
 |-------------|---------|----------------|
 | `apps/web` | Next.js on Vercel | Public site, authenticated dashboard, lightweight APIs, Stripe webhooks, email orchestration, and extension-facing APIs |
-| `apps/api` | NestJS container on Render | Long-running OCR and USCIS queue workers plus resume/OCR APIs |
+| `apps/api` | NestJS container on Render | Long-running OCR, USCIS, and job-board ingestion queue workers; resume/OCR APIs; document-security (LaTeX compile and file scan) endpoints |
 | `apps/extension` | Manifest V3 Chrome extension | Job capture, job-scoped resume generation handoff, safe form filling, and Guided Autopilot |
 
 ## Data and infrastructure
@@ -18,7 +18,12 @@ This is the current, code-backed system shape as of 2026-07-25.
 - **AWS S3:** document and generated-resume object storage. The app does not use
   Supabase Storage for the document vault.
 - **AWS Textract:** OCR for uploaded resumes/documents.
-- **Redis + Bull:** durable OCR and USCIS background jobs in `apps/api`.
+- **Redis + Bull:** durable OCR, USCIS, and job-board ingestion background jobs in
+  `apps/api`.
+- **Oracle Database (optional job store):** an alternative backing store for
+  job-board records, selected only when `JOB_DATA_STORE=oracle`; the default is
+  Supabase. See [Oracle shadow sync](oracle-shadow-sync.md) and the
+  [cutover runbook](oracle-cutover-runbook.md).
 - **Upstash Redis:** selected web rate limits and short-lived resume handoff
   state.
 - **Google Gemini:** resume, screening-answer, and cover-letter generation.
@@ -56,6 +61,49 @@ future migration is measurement-driven, not an assumed rewrite.
 The Vercel cron calls the authenticated web route, which dispatches to the Nest
 USCIS worker. Only enrolled premium cases are queued for automatic checks; free
 cases retain manual refresh. Sequential/neighbor scanning is disabled.
+
+### Job board ingestion
+
+`apps/api/src/job-board/` ingests jobs from authorized ATS sources.
+
+1. `.github/workflows/job-board-ingestion.yml` is a manual
+   (`workflow_dispatch`) workflow that runs
+   `scripts/operations/trigger-job-board-ingestion.mjs`. It wakes the Render API
+   and supervises a run identified by `job-board-manual-*` or `job-board-hour-*`.
+   With `monitor_only` set, it only watches an existing run and never
+   dispatches.
+2. `JobBoardController` (`/job-board/...`) queues enabled sources on the Bull
+   queues `job-board` and `job-board-slow`; `JobBoardProcessor` and
+   `SlowJobBoardProcessor` process them.
+3. A scheduler run ledger (`scheduler-run-ledger.ts`, persisted by
+   `supabase-scheduler-run-store.ts`) claims each run ID so a repeated trigger is
+   suppressed rather than queued twice. `ingestion-run-status.ts` proves
+   completion against the selected sources' latest audits, not queue depth.
+4. `ats-platform.registry.ts` identifies the supported ATS platforms, and
+   `ats-scrapers.runner.ts` runs the Python adapter
+   `scripts/job-board/fetch_ats_jobs.py` with bounded time and output.
+5. Employer matching, visa-signal, and company-discovery services enrich the
+   results.
+6. Records are persisted through the `JobDataStore` contract.
+   `job-data-store.provider.ts` selects `SupabaseJobDataStore` (default) or
+   `OracleJobDataStore` from `JOB_DATA_STORE`, with no fallback from an
+   explicitly selected store. Oracle backfill, shadow-sync, parity, and
+   ingestion-repair code lives alongside it; the shadow probe is a separate
+   `OracleShadowProbeModule`.
+
+The web side of the job board (filters, resume matching, server job store) is in
+`apps/web/lib/job-board/`.
+
+### Document security
+
+`apps/api/src/document-security/` exposes two bearer-token-protected endpoints:
+
+- `POST /builds/sync` compiles LaTeX to PDF (`pdflatex` or `xelatex`); it
+  requires `LATEX_COMPILER_TOKEN` and returns 503 when unconfigured or the
+  compiler is unavailable.
+- `POST /scan` checks an upload (10 MB limit): a magic-byte/type check that
+  rejects executables and archives, then `clamscan` when it is on `PATH`. It
+  requires `MALWARE_SCAN_TOKEN`.
 
 ### Billing and email
 

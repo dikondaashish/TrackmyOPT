@@ -7,7 +7,7 @@ const localRequire = createRequire(resolve('package.json'));
 const { buildSync } = localRequire('esbuild');
 // Replacing only the credential provider keeps every request/response branch real.
 const code = buildSync({
-  stdin: { contents: localRequire('node:fs').readFileSync('src/background-job-tracker.ts', 'utf8').replace("import { getExtensionBearerToken } from './background-auth';", "async function getExtensionBearerToken() { return 'mock-token'; }"), resolveDir: resolve('src'), loader: 'ts' },
+  stdin: { contents: localRequire('node:fs').readFileSync('src/background/background-job-tracker.ts', 'utf8').replace("import { getExtensionBearerToken } from './background-auth';", "async function getExtensionBearerToken() { return 'mock-token'; }"), resolveDir: resolve('src/background'), loader: 'ts' },
   bundle: true, write: false, platform: 'node', format: 'cjs',
 }).outputFiles[0].text;
 function harness(responses: unknown[]) {

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { fillRepeatableRecords, remainingRecordsMessage } from '../src/repeatable-record-engine';
-import type { ClassifiedControl } from '../src/ats-prefill-adapters';
-import type { ResumeAutofillSnapshotV1 } from '../src/resume-autofill-contract';
+import { fillRepeatableRecords, remainingRecordsMessage } from '../src/prefill/repeatable-record-engine';
+import type { ClassifiedControl } from '../src/job-portal/ats-prefill-adapters';
+import type { ResumeAutofillSnapshotV1 } from '../src/resume/resume-autofill-contract';
 
-const source = readFileSync('src/repeatable-record-engine.ts', 'utf8');
+const source = readFileSync('src/prefill/repeatable-record-engine.ts', 'utf8');
 
 assert.match(source, /\.sort\(domOrder\)/, 'record containers use visible DOM order');
 assert.match(source, /date\.precision !== 'month'/, 'month fill requires month precision');

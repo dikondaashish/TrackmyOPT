@@ -1,10 +1,10 @@
-import { widgetContent, widgetActiveElement, queryWidget } from '../src/widget-dom';
+import { widgetContent, widgetActiveElement, queryWidget } from '../src/widget/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { createJobTrackerWidget, setJobTrackerWidgetHost, openResumePanel, disconnectWidgetViewportObserver, type JobTrackerWidgetHost } from '../src/job-portal-tracker-widget';
-import { SIDEBAR_SHELL_CSS } from '../src/job-portal-sidebar-shell';
+import { createJobTrackerWidget, setJobTrackerWidgetHost, openResumePanel, disconnectWidgetViewportObserver, type JobTrackerWidgetHost } from '../src/job-portal/job-portal-tracker-widget';
+import { SIDEBAR_SHELL_CSS } from '../src/job-portal/job-portal-sidebar-shell';
 const { JSDOM } = createRequire(resolve('package.json'))('jsdom');
 
 function withWidget(run: (root: HTMLElement, win: Window) => void, minimized = false) {

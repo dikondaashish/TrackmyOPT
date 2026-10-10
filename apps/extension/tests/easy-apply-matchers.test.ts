@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { classifyField } from '../src/easy-apply-matchers';
+import { classifyField } from '../src/easy-apply/easy-apply-matchers';
 
 const cases: Array<[string, ReturnType<typeof classifyField>]> = [
   ['candidate[first_name]', 'firstName'],

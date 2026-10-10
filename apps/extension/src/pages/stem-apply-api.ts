@@ -1,5 +1,5 @@
-import { getIdToken } from '../token-store';
-import { WEBSITE_URL } from '../config.js';
+import { getIdToken } from '../shared/token-store';
+import { WEBSITE_URL } from '../shared/config.js';
 import { parseDate } from './opt-apply-date-helpers';
 
 export interface StemApplyDates {

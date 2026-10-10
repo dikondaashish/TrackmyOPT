@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   MAX_SKILLS_PREFILL_ITEMS,
   buildSkillsPrefillValue,
-} from '../src/skills-prefill';
+} from '../src/prefill/skills-prefill';
 
 assert.equal(buildSkillsPrefillValue(['TypeScript', 'React'], false), '');
 assert.equal(

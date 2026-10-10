@@ -25,9 +25,9 @@ import {
   supersededArtifactIds,
   type StoredArtifactCandidate,
 } from '@/lib/extension/resume-artifact-store';
-import { validateGeneratedResumeArtifactV1 } from '../../../../../extension/src/resume-artifact-validator';
-import { RESUME_ARTIFACT_TTL_MS } from '../../../../../extension/src/resume-artifact-lifecycle';
-import type { GeneratedResumeArtifactV1 } from '../../../../../extension/src/resume-autofill-contract';
+import { validateGeneratedResumeArtifactV1 } from '../../../../../extension/src/resume/resume-artifact-validator';
+import { RESUME_ARTIFACT_TTL_MS } from '../../../../../extension/src/resume/resume-artifact-lifecycle';
+import type { GeneratedResumeArtifactV1 } from '../../../../../extension/src/resume/resume-autofill-contract';
 
 export const dynamic = 'force-dynamic';
 

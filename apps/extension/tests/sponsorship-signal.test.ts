@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { classifySponsorship, type SponsorshipSignal } from '../src/sponsorship-signal';
+import { classifySponsorship, type SponsorshipSignal } from '../src/job/sponsorship-signal';
 
 // Filler that is itself sponsorship-neutral, used to push snippets past the
 // 200-char minimum so the classifier engages (short text stays `unclear`).

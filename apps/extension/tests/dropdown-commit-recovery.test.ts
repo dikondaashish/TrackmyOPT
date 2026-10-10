@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { selectSmartDropdown } from '../src/smart-dropdown';
+import { selectSmartDropdown } from '../src/prefill/smart-dropdown';
 
 const { JSDOM } = createRequire(resolve('package.json'))('jsdom');
 

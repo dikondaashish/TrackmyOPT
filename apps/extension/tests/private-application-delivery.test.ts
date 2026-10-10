@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import {
   defaultPortalCredentialForSenderUrl,
   filterPrivateAnswersForSenderUrl,
-} from '../src/private-application-delivery';
+} from '../src/private/private-application-delivery';
 import {
   normalizeSavedPrivateApplicationAnswers,
   type SavedPrivateApplicationAnswers,
-} from '../src/sensitive-autofill';
+} from '../src/prefill/sensitive-autofill';
 
 const saved: SavedPrivateApplicationAnswers = {
   workAuthorization: 'yes',

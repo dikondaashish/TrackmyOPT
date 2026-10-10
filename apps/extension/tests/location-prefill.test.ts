@@ -3,12 +3,12 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { classifyField } from '../src/easy-apply-matchers';
-import { chooseSmartDropdownOption, selectSmartDropdown, customDropdownHasValue } from '../src/smart-dropdown';
+import { classifyField } from '../src/easy-apply/easy-apply-matchers';
+import { chooseSmartDropdownOption, selectSmartDropdown, customDropdownHasValue } from '../src/prefill/smart-dropdown';
 
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
-const engineCode = requireLocal('esbuild').buildSync({ entryPoints: ['src/easy-apply-engine.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
+const engineCode = requireLocal('esbuild').buildSync({ entryPoints: ['src/easy-apply/easy-apply-engine.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
 const context = { countryName: 'United States', stateName: 'MA' };
 const cityOptions = ['Worcester, Massachusetts, United States', 'Worcester, England, United Kingdom'];
 

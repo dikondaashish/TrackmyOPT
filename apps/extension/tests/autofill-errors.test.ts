@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   AUTOFILL_ERROR_CODES,
   autofillErrorCopy,
-} from '../src/autofill-errors';
+} from '../src/prefill/autofill-errors';
 
 assert.deepEqual(AUTOFILL_ERROR_CODES, [
   'extraction_failed',

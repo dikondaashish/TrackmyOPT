@@ -4,7 +4,7 @@ import test from 'node:test';
 import {
   getAlignJobTitlesPreference,
   setAlignJobTitlesPreference,
-} from '../src/resume-generation-preferences';
+} from '../src/resume/resume-generation-preferences';
 
 test('align job titles preference defaults to false', async () => {
   const storage = new Map<string, unknown>();

@@ -11,12 +11,12 @@ const bundle = await build({
     resolveDir: process.cwd(),
     loader: 'ts',
     contents: `
-  import {runPrefill} from './src/easy-apply-engine';
-  import {fillConfirmedSensitiveAnswers} from './src/sensitive-autofill';
-  import * as undo from './src/prefill-undo';
-  import {createPrefillUndoControl} from './src/prefill-undo-ui';
-  import {SIDEBAR_SHELL_CSS} from './src/job-portal-sidebar-shell';
-  import {WIDGET_ROOT_ID} from './src/widget-dom-ids';
+  import {runPrefill} from './src/easy-apply/easy-apply-engine';
+  import {fillConfirmedSensitiveAnswers} from './src/prefill/sensitive-autofill';
+  import * as undo from './src/prefill/prefill-undo';
+  import {createPrefillUndoControl} from './src/prefill/prefill-undo-ui';
+  import {SIDEBAR_SHELL_CSS} from './src/job-portal/job-portal-sidebar-shell';
+  import {WIDGET_ROOT_ID} from './src/widget/widget-dom-ids';
   const sidebar=document.querySelector('aside');sidebar.id=WIDGET_ROOT_ID;
   const style=document.createElement('style');style.textContent=SIDEBAR_SHELL_CSS;document.head.append(style);
   const control=createPrefillUndoControl(async()=>undo.undoLastPrefill());sidebar.append(control);

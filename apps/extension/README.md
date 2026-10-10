@@ -37,7 +37,7 @@ abcdefghijklmnopqrstuvwxyz123456
 ```
 
 **Copy this ID!** You'll need to:
-1. Update `extension/src/config.ts` with your production website URL
+1. Update `extension/src/shared/config.ts` with your production website URL
 2. Ensure your website allows the redirect URL: `https://<EXTENSION_ID>.chromiumapp.org/*`
 
 ## 📁 Project Structure
@@ -111,7 +111,7 @@ Job capture works on common job boards and many company career pages. Avoid list
 
 ### Update Website URL
 
-Edit `src/config.ts`:
+Edit `src/shared/config.ts`:
 
 ```typescript
 export const WEBSITE_URL = 'https://your-production-site.com';
@@ -207,7 +207,7 @@ Review-required AI screening drafts are limited to non-sensitive questions.
 ### Which resume belongs to which page
 
 A tailored resume is bound to the posting it was generated for. Identity is
-resolved by `src/ats-job-identity.ts`, which reduces both the posting URL and
+resolved by `src/job-portal/ats-job-identity.ts`, which reduces both the posting URL and
 the apply URL to `{platform, tenant, jobId}` so clicking Apply does not look
 like a different job. Dedicated rules cover Workday, iCIMS, Greenhouse (both
 board hosts plus `gh_jid` embeds), Lever, Ashby, Workable, SmartRecruiters,
@@ -262,7 +262,7 @@ pages that previously mounted a widget.
 ### Dropdown selection
 
 Native `<select>` and custom comboboxes share one matcher
-(`chooseSmartDropdownOption` in `src/smart-dropdown.ts`). They used to have
+(`chooseSmartDropdownOption` in `src/prefill/smart-dropdown.ts`). They used to have
 separate rules and the `<select>` path was weaker, so a country list offering
 "United States of America" never matched a profile holding "United States".
 
@@ -275,7 +275,7 @@ rendered many ways:
 | `United States of America`, `USA`, `US` | country canonicalization |
 | `United States (US)`, `🇺🇸 United States` | parenthetical strip, punctuation normalize |
 | `US-CA — California` | separator segments |
-| `+1`, `US +1`, `United States (+1)` | `phoneCountryCode` + `src/phone-country-codes.ts` |
+| `+1`, `US +1`, `United States (+1)` | `phoneCountryCode` + `src/shared/phone-country-codes.ts` |
 | `New York, NY, United States` | ordered leading-segment run (places only) |
 
 Guards, all covered by `tests/dropdown-option-shapes.test.ts`:
@@ -356,7 +356,7 @@ require release testing; this fixture does not spend credits or submit data.
 
 #### Smart answers on explicit Prefill
 
-Both the sidebar and popup Prefill actions now run `src/smart-answers.ts` after
+Both the sidebar and popup Prefill actions now run `src/prefill/smart-answers.ts` after
 profile/private fields. Eligible empty, visible text questions first look for
 an exact saved user answer. Company/role-specific answers are not automatically
 reused across employers. New questions use the existing screening AI endpoint,
@@ -392,7 +392,7 @@ on explicit Prefill. Owner/legal publication review remains pending; this local
 change does not publish a policy update. Follow the release gate in
 `../../docs/compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md`.
 
-`src/resume-status-row.ts` owns both the status row above the Prefill button and
+`src/resume/resume-status-row.ts` owns both the status row above the Prefill button and
 the copy for every Prefill control. There are three ways to start a prefill —
 the in-page widget, the toolbar popup, and Continuous mode — and they must not
 describe the same action differently.
@@ -429,7 +429,7 @@ All AI allowances are enforced atomically on the server. Extension controls
 also fail closed to Free access when plan status cannot be verified.
 Allowance source: `apps/web/lib/pricing/plan-config.ts` (repository root).
 
-Safe-default feature flags live in `src/autofill-feature-flags.ts`:
+Safe-default feature flags live in `src/prefill/autofill-feature-flags.ts`:
 
 | Flag | Default | Release behavior |
 | --- | --- | --- |
@@ -540,7 +540,7 @@ real sign-in, browser restart, Skip, and replay on the packaged extension.
 ### Code and packaging
 
 - [x] Package and manifest versions match at `0.2.0`.
-- [x] Production is the default target in `src/config.ts`; localhost requires
+- [x] Production is the default target in `src/shared/config.ts`; localhost requires
   the explicit `EXT_TARGET=local` build.
 - [x] Run the complete web, extension, and API test suites.
 - [x] Run web, extension, and API `tsc --noEmit`.
@@ -714,7 +714,7 @@ If popup shows "-" for dates:
 4. Save this for production deployment:
    - Redirect URI: `https://<EXTENSION_ID>.chromiumapp.org/*`
    - Add to Supabase → Authentication → Authorized Redirect URLs
-   - Update `extension/src/config.ts` for production URL
+   - Update `extension/src/shared/config.ts` for production URL
 
 ### Expected Results
 

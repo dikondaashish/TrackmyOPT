@@ -6,7 +6,7 @@ import {
   CAREER_PATH_RE,
   hasJobPostingEvidence,
   jobPostingEvidence,
-} from '../src/career-sites';
+} from '../src/job-portal/career-sites';
 
 /**
  * CAREER_PATH_RE has to stay broad — employer career pages really do live at
@@ -118,7 +118,7 @@ test('empty and huge inputs are handled without throwing', () => {
 });
 
 test('structured data and known boards bypass the evidence check', () => {
-  const source = readFileSync('src/job-posting-scrape.ts', 'utf8');
+  const source = readFileSync('src/job/job-posting-scrape.ts', 'utf8');
   assert.match(
     source,
     /isKnownJobBoardOrAts\(\)\s*\|\|\s*hasJobPostingEvidence/,

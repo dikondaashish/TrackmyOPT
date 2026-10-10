@@ -12,7 +12,7 @@ import {
 import {
   parseVerifiedUnemploymentClockResponse,
   summarizeUnemploymentClock,
-} from '../src/unemployment-clock-contract';
+} from '../src/shared/unemployment-clock-contract';
 
 function date(value: string): Date {
   const parsed = parseDate(value);

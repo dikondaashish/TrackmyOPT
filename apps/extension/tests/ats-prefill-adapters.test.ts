@@ -8,7 +8,7 @@ import {
   greenhousePrefillAdapter,
   selectAtsPrefillAdapter,
   workdayPrefillAdapter,
-} from '../src/ats-prefill-adapters';
+} from '../src/job-portal/ats-prefill-adapters';
 
 function documentFixture(
   host: string,
@@ -27,7 +27,7 @@ function documentFixture(
   assert.deepEqual(ids, ['workday', 'greenhouse', 'lever', 'smartrecruiters', 'ashby', 'linkedin', 'generic']);
   assert.equal(new Set(ids).size, 7);
 
-  const source = readFileSync('src/ats-prefill-adapters.ts', 'utf8');
+  const source = readFileSync('src/job-portal/ats-prefill-adapters.ts', 'utf8');
   assert.doesNotMatch(source, /id:\s*['"]icims['"]/i);
 }
 

@@ -4,7 +4,7 @@ import {
   createOnboarding,
   TOUR_KEY,
   normalizeTourState,
-} from '../src/onboarding';
+} from '../src/popup/onboarding';
 
 function fixture(initial: unknown = undefined) {
   let state = initial;

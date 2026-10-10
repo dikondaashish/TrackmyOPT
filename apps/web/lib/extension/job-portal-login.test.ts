@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fillJobPortalLogin,
   type JobPortalLoginCredential,
-} from "../../../extension/src/job-portal-login";
-import { runStandaloneJobPortalLoginPrefill } from "../../../extension/src/standalone-job-portal-prefill";
+} from "../../../extension/src/job-portal/job-portal-login";
+import { runStandaloneJobPortalLoginPrefill } from "../../../extension/src/job-portal/standalone-job-portal-prefill";
 
 const CREDENTIAL: JobPortalLoginCredential = {
   email: "Candidate@example.com",

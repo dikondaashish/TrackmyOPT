@@ -6,7 +6,7 @@ import {
   fillConfirmedSensitiveAnswers,
   normalizeSensitiveAnswerSession,
   type SensitiveAnswerSession,
-} from '../../../extension/src/sensitive-autofill';
+} from '../../../extension/src/prefill/sensitive-autofill';
 
 describe('review-confirmed private answer filling', () => {
   beforeEach(() => {

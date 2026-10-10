@@ -9,7 +9,7 @@ const { JSDOM } = local('jsdom');
 const code = local('esbuild').buildSync({
   stdin: {
     contents:
-      "export * from './ats-prefill-adapters'; export * from './easy-apply-form'; export * from './easy-apply-dom'; export * from './smart-dropdown';",
+      "export * from './job-portal/ats-prefill-adapters'; export * from './easy-apply/easy-apply-form'; export * from './easy-apply/easy-apply-dom'; export * from './prefill/smart-dropdown';",
     resolveDir: resolve('src'),
   },
   bundle: true,

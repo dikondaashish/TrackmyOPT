@@ -28,7 +28,7 @@ changed by this documentation update.
 
 | Feature | Current local behavior | Evidence |
 | --- | --- | --- |
-| Private answers | Explicit Prefill fetches saved answers; matching empty fields fill without a second approval. No fetch merely from opening the sidebar. | `apps/extension/src/private-prefill-request.ts`, `content-job-portal.ts` |
+| Private answers | Explicit Prefill fetches saved answers; matching empty fields fill without a second approval. No fetch merely from opening the sidebar. | `apps/extension/src/private/private-prefill-request.ts`, `content-job-portal.ts` |
 | Continuous | May reuse loaded private answers within the same application. Changed job identity or a page reload requires a new explicit click. Supported application frames may receive eligible answers, never the portal password. | `private-approval-session.ts`, `content-job-portal.ts`, `background.ts` |
 | Portal login | The same explicit Prefill click fills saved email/password/confirmation on supported HTTPS top-level login/create-account forms, with no extra confirmation. No Continuous or frame credential delivery; no navigation/submission clicks. | `portal-login-prefill.ts`, `job-portal-login.ts`, `background.ts` |
 | AI screening | Explicit Prefill can reuse a saved match or generate and insert a draft using the active job resume. Review markers remain; Remember my answer is optional account storage, separate from the encrypted private-data record. | `smart-answers.ts`, `apps/web/app/api/extension/screening-answer/route.ts`, `screening-answers/route.ts` |

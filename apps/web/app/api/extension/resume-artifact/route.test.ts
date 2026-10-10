@@ -3,7 +3,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import {
   buildGeneratedResumeArtifactV1,
   RESUME_ARTIFACT_TTL_MS,
-} from '../../../../../extension/src/resume-artifact-lifecycle';
+} from '../../../../../extension/src/resume/resume-artifact-lifecycle';
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),

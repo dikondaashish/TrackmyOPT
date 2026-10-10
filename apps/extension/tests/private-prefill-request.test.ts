@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
 const req=createRequire(resolve('package.json'));
-const code=req('esbuild').buildSync({entryPoints:['src/private-prefill-request.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
+const code=req('esbuild').buildSync({entryPoints:['src/private/private-prefill-request.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
 function harness(response: unknown) {
   let calls=0;let active=true;
   const module={exports:{} as any};

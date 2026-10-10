@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   runGuidedNavigation,
-} from '../../../extension/src/guided-autopilot';
+} from '../../../extension/src/job-portal/guided-autopilot';
 
 describe('Guided Autopilot navigation boundary', () => {
   beforeEach(() => {

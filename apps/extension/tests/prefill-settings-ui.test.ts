@@ -4,12 +4,12 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { AUTOFILL_FEATURE_FLAGS } from '../src/autofill-feature-flags';
-import { normalizeAutofillPreferences, DEFAULT_AUTOFILL_PREFERENCES, AUTOFILL_PREFERENCES_KEY } from '../src/autofill-preferences';
-import { resolveAutofillPlanEntitlements } from '../src/autofill-plan-entitlements';
+import { AUTOFILL_FEATURE_FLAGS } from '../src/prefill/autofill-feature-flags';
+import { normalizeAutofillPreferences, DEFAULT_AUTOFILL_PREFERENCES, AUTOFILL_PREFERENCES_KEY } from '../src/prefill/autofill-preferences';
+import { resolveAutofillPlanEntitlements } from '../src/prefill/autofill-plan-entitlements';
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
-const source = readFileSync('src/home.ts','utf8');
+const source = readFileSync('src/popup/home.ts','utf8');
 const code = requireLocal('esbuild').transformSync(source.slice(source.indexOf('  const stepModeBtn ='),source.indexOf('  // Theme button')), {loader:'ts'}).code;
 const tick = () => new Promise(resolve=>setImmediate(resolve));
 for (const tier of ['free','pro'] as const) test(`settings UI: ${tier} guided toggle, mode switching and explanatory text`, async () => {

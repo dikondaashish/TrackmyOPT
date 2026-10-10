@@ -8,7 +8,7 @@ const { JSDOM } = local('jsdom');
 const code = local('esbuild').buildSync({
   stdin: {
     contents:
-      "export * from './easy-apply-engine'; export * from './easy-apply-dom'; export * from './ats-prefill-adapters'; export * from './easy-apply-matchers'; export * from './application-field-scan'; export * from './job-portal-prefill-coverage-ui';",
+      "export * from './easy-apply/easy-apply-engine'; export * from './easy-apply/easy-apply-dom'; export * from './job-portal/ats-prefill-adapters'; export * from './easy-apply/easy-apply-matchers'; export * from './prefill/application-field-scan'; export * from './job-portal/job-portal-prefill-coverage-ui';",
     resolveDir: resolve('src'),
   },
   bundle: true,

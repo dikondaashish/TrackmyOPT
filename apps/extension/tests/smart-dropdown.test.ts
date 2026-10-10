@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   chooseSmartDropdownOption,
   type SmartDropdownOption,
-} from '../src/smart-dropdown';
+} from '../src/prefill/smart-dropdown';
 
 const options = (
   values: Array<[string, string]>,

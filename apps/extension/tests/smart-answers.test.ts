@@ -7,7 +7,7 @@ import vm from 'node:vm';
 const req = createRequire(resolve('package.json'));
 const { JSDOM } = req('jsdom');
 const code = req('esbuild').buildSync({
-  entryPoints: ['src/smart-answers.ts'],
+  entryPoints: ['src/prefill/smart-answers.ts'],
   bundle: true,
   write: false,
   format: 'cjs',

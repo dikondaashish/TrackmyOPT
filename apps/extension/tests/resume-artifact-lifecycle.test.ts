@@ -5,8 +5,8 @@ import {
   buildGeneratedResumeArtifactV1,
   resolveArtifactLifecycle,
   validateArtifactForPrefill,
-} from '../src/resume-artifact-lifecycle';
-import type { GeneratedResumeArtifactV1 } from '../src/resume-autofill-contract';
+} from '../src/resume/resume-artifact-lifecycle';
+import type { GeneratedResumeArtifactV1 } from '../src/resume/resume-autofill-contract';
 
 const generatedAt = '2026-07-16T12:00:00.000Z';
 const jobContext = {

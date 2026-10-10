@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { resolveScreeningDraftJobContext } from '../src/screening-draft-context';
+import { resolveScreeningDraftJobContext } from '../src/screening/screening-draft-context';
 
 test('screening drafts prefer the description bound to the active resume artifact', () => {
   assert.deepEqual(

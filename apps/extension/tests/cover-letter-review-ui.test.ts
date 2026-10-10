@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import {
   CoverLetterReviewController,
   type CoverLetterGenerationResult,
-} from '../src/cover-letter-review';
-import type { GeneratedCoverLetterAttachment } from '../src/resume-autofill-contract';
+} from '../src/resume/cover-letter-review';
+import type { GeneratedCoverLetterAttachment } from '../src/resume/resume-autofill-contract';
 
 function attachment(sourceContentHash: string): GeneratedCoverLetterAttachment {
   return {

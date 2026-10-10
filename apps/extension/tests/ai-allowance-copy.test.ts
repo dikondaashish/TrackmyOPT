@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   formatAiAllowanceCopy,
   remainingAiAllowance,
-} from '../src/ai-allowance-copy';
+} from '../src/shared/ai-allowance-copy';
 
 assert.equal(
   formatAiAllowanceCopy({

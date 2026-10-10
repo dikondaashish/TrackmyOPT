@@ -1,36 +1,36 @@
-import { createExtensionLifecycle, EXTENSION_RELEASE_KEY, type ExtensionReleaseState } from './extension-lifecycle';
-import { handleJobContextSession } from './job-context-session';
-import { WEBSITE_URL } from './config';
-import { undoPrefillInTab } from './background-prefill-undo';
-import { PrefillRelaySequencer, currentPrefillRelayContext } from './prefill-relay-sequence';
-import { chromeOnboarding } from './onboarding';
-import { performExtensionSignOut } from './signOut';
-import { purgeLegacySyncToken } from './token-store';
+import { createExtensionLifecycle, EXTENSION_RELEASE_KEY, type ExtensionReleaseState } from './shared/extension-lifecycle';
+import { handleJobContextSession } from './job/job-context-session';
+import { WEBSITE_URL } from './shared/config';
+import { undoPrefillInTab } from './background/background-prefill-undo';
+import { PrefillRelaySequencer, currentPrefillRelayContext } from './prefill/prefill-relay-sequence';
+import { chromeOnboarding } from './popup/onboarding';
+import { performExtensionSignOut } from './popup/signOut';
+import { purgeLegacySyncToken } from './shared/token-store';
 import {
   FREE_AUTOFILL_PLAN_ENTITLEMENTS,
-} from './autofill-plan-entitlements';
-import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
+} from './prefill/autofill-plan-entitlements';
+import { AUTOFILL_FEATURE_FLAGS } from './prefill/autofill-feature-flags';
 import { RunRegistry, RunCancelledError } from './agent/run-session';
 import { RUN_PORT_NAME, type RunCommand } from './agent/run-protocol';
 import type {
   GeneratedCoverLetterAttachment,
   V1PrefillPayloadRequest,
-} from './resume-autofill-contract';
+} from './resume/resume-autofill-contract';
 import {
   validateGeneratedCoverLetterAttachment,
   validateResumeAutofillSnapshotV1,
-} from './resume-artifact-validator';
-import { normalizeSensitiveAnswerSession } from './sensitive-autofill';
+} from './resume/resume-artifact-validator';
+import { normalizeSensitiveAnswerSession } from './prefill/sensitive-autofill';
 import {
   beginAuth,
   getAutofillPlanEntitlements,
   getExtensionBearerToken,
-} from './background-auth';
+} from './background/background-auth';
 import {
   clearCurrentGeneratedResumeArtifact,
   lookupSavedJobResume,
   retryActiveResumeSave,
-} from './background-resume-artifact';
+} from './background/background-resume-artifact';
 import {
   analyzeJobFit,
   getAutofillProfile,
@@ -41,21 +41,21 @@ import {
   sanitizeBasicContactProfile,
   trackWidgetEvent,
   uploadResumeFile,
-} from './background-profile';
+} from './background/background-profile';
 import {
   requestSavedScreeningAnswer,
   requestScreeningDraft,
   saveScreeningAnswerForCurrentUser,
-} from './background-screening';
+} from './background/background-screening';
 import {
   generateCoverLetterForCurrentArtifact,
   recompileCoverLetterForCurrentArtifact,
-} from './background-cover-letter';
-import { generateTailoredResume } from './background-tailored-resume';
+} from './background/background-cover-letter';
+import { generateTailoredResume } from './background/background-tailored-resume';
 import {
   checkJobSaved,
   handleAddJobToTracker,
-} from './background-job-tracker';
+} from './background/background-job-tracker';
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.

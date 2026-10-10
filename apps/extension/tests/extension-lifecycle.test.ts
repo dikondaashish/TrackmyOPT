@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createExtensionLifecycle, type ExtensionReleaseState } from '../src/extension-lifecycle';
-import { selectAtsPrefillAdapter } from '../src/ats-prefill-adapters';
+import { createExtensionLifecycle, type ExtensionReleaseState } from '../src/shared/extension-lifecycle';
+import { selectAtsPrefillAdapter } from '../src/job-portal/ats-prefill-adapters';
 
 test('updates migrate once, preserve previous version and serialize concurrent events', async () => {
   let state: ExtensionReleaseState | undefined;

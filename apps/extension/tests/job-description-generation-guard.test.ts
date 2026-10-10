@@ -4,10 +4,10 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { looksLikeRealJobPostingText } from '../src/job-description';
+import { looksLikeRealJobPostingText } from '../src/job/job-description';
 const req=createRequire(resolve('package.json'));
 test('invalid JD is rejected in the worker before resume reads, scoring or generation requests', async()=>{
-  const source=readFileSync('src/background-tailored-resume.ts','utf8');
+  const source=readFileSync('src/background/background-tailored-resume.ts','utf8');
   const start=source.indexOf('export async function generateTailoredResume');
   const code=req('esbuild').transformSync(source.slice(start).replace('export async','async')+'\nglobalThis.run=generateTailoredResume;', {loader:'ts'}).code;
   let requests=0;

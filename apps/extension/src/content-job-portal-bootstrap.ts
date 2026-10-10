@@ -1,5 +1,5 @@
-import { shouldActivatePortal } from './portal-activation';
-import { isCareerPage } from './career-sites';
+import { shouldActivatePortal } from './job-portal/portal-activation';
+import { isCareerPage } from './job-portal/career-sites';
 
 type PortalRuntime = typeof import('./content-job-portal');
 const state = globalThis as typeof globalThis & { __tmoPortalBootstrap?: boolean };

@@ -5,8 +5,8 @@ import {
   atsJobIdentitiesMatch,
   extractAtsJobIdentity,
   sameHostApplyRouteMatch,
-} from '../src/ats-job-identity';
-import { jobUrlsReferToSameJob } from '../src/resume-autofill-contract';
+} from '../src/job-portal/ats-job-identity';
+import { jobUrlsReferToSameJob } from '../src/resume/resume-autofill-contract';
 
 /**
  * Each pair is a real-shaped posting URL and the URL the user lands on after

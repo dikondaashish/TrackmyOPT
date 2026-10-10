@@ -1,4 +1,4 @@
-import { widgetContent } from '../src/widget-dom';
+import { widgetContent } from '../src/widget/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';

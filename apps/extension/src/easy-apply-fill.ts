@@ -1,4 +1,4 @@
-import { queryWidget } from './widget-dom';
+import { queryWidget } from './widget/widget-dom';
 /**
  * TrackMyOPT — job application prefill entry (popup-injected via activeTab).
  *
@@ -17,26 +17,26 @@ import { queryWidget } from './widget-dom';
  * child frames through the background worker.
  */
 
-import { runPrefill, findApplicationForm, type PrefillOptions } from './easy-apply-engine';
-import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, isPrefillUndoAllowed, getPrefillUndoState } from './prefill-undo';
-import { mountPrefillUndoFallback } from './prefill-undo-ui';
-import { requestPrefillUndo } from './prefill-undo-request';
-import { loadPrivateAnswersForPrefill } from './private-prefill-request';
-import { prefillSavedPortalLogin } from './portal-login-prefill';
-import { createAutofillVisualFeedback } from './autofill-visual-feedback';
-import { scanApplicationFields } from './application-field-scan';
-import { runSmartAnswers } from './smart-answers';
-import { AUTOFILL_FEATURE_FLAGS } from './autofill-feature-flags';
-import { fillConfirmedSensitiveAnswers, normalizeSensitiveAnswerSession } from './sensitive-autofill';
-import { withPrefillModeGuard } from './prefill-mode-guard';
-import { acceptPrefillRelay, waitForPrefillRelayTurn } from './prefill-relay-guard';
-import { AUTOFILL_PREFERENCES_KEY, normalizeAutofillPreferences } from './autofill-preferences';
+import { runPrefill, findApplicationForm, type PrefillOptions } from './easy-apply/easy-apply-engine';
+import { withPrefillUndo, currentPrefillUndoRunId, markPrefillUndoDelegated, isPrefillUndoAllowed, getPrefillUndoState } from './prefill/prefill-undo';
+import { mountPrefillUndoFallback } from './prefill/prefill-undo-ui';
+import { requestPrefillUndo } from './prefill/prefill-undo-request';
+import { loadPrivateAnswersForPrefill } from './private/private-prefill-request';
+import { prefillSavedPortalLogin } from './job-portal/portal-login-prefill';
+import { createAutofillVisualFeedback } from './prefill/autofill-visual-feedback';
+import { scanApplicationFields } from './prefill/application-field-scan';
+import { runSmartAnswers } from './prefill/smart-answers';
+import { AUTOFILL_FEATURE_FLAGS } from './prefill/autofill-feature-flags';
+import { fillConfirmedSensitiveAnswers, normalizeSensitiveAnswerSession } from './prefill/sensitive-autofill';
+import { withPrefillModeGuard } from './prefill/prefill-mode-guard';
+import { acceptPrefillRelay, waitForPrefillRelayTurn } from './prefill/prefill-relay-guard';
+import { AUTOFILL_PREFERENCES_KEY, normalizeAutofillPreferences } from './prefill/autofill-preferences';
 import type {
   BasicContactProfile,
   GeneratedResumeAttachment,
   ResumeAutofillSnapshotV1,
   V1PrefillPayloadResponse,
-} from './resume-autofill-contract';
+} from './resume/resume-autofill-contract';
 
 type RelayedPrefill = {
   resume?: GeneratedResumeAttachment;

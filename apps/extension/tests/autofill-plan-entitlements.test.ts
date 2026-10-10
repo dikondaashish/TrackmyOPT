@@ -5,7 +5,7 @@ import {
   FREE_SCREENING_DRAFTS_MONTHLY_LIMIT,
   resolveAutofillPlanEntitlements,
   resolveAutofillPlanTier,
-} from '../src/autofill-plan-entitlements';
+} from '../src/prefill/autofill-plan-entitlements';
 
 const free = resolveAutofillPlanEntitlements('free');
 assert.equal(free.manualPrefill, true);

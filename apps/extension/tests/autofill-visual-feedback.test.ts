@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   autofillStaggerDelay,
   autofillVisualStatus,
-} from '../src/autofill-visual-feedback';
+} from '../src/prefill/autofill-visual-feedback';
 
 assert.equal(autofillStaggerDelay(0, false), 0);
 assert.equal(autofillStaggerDelay(5, false), 300);
@@ -53,7 +53,7 @@ assert.equal(
   'No empty supported fields found'
 );
 
-const source = readFileSync('src/autofill-visual-feedback.ts', 'utf8');
+const source = readFileSync('src/prefill/autofill-visual-feedback.ts', 'utf8');
 assert.match(source, /prefers-reduced-motion:\s*reduce/);
 assert.match(source, /role',\s*'status'/);
 assert.match(source, /aria-live',\s*'polite'/);
@@ -61,19 +61,19 @@ assert.match(source, /data-tmo-autofill-visual/);
 assert.match(source, /attachShadow/);
 assert.doesNotMatch(source, /innerHTML|textContent\s*=\s*.*value/);
 
-const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
-const engineForm = readFileSync('src/easy-apply-form.ts', 'utf8');
+const engine = readFileSync('src/easy-apply/easy-apply-engine.ts', 'utf8');
+const engineForm = readFileSync('src/easy-apply/easy-apply-form.ts', 'utf8');
 assert.match(engine, /createAutofillVisualFeedback/);
 assert.match(engine, /visual\.markFieldFilled/);
 assert.match(engineForm, /visual\?\.markNeedsUser/);
 
-const sensitive = readFileSync('src/sensitive-autofill.ts', 'utf8');
+const sensitive = readFileSync('src/prefill/sensitive-autofill.ts', 'utf8');
 assert.match(sensitive, /flashAutofillField/);
 
-const screening = readFileSync('src/screening-question-drafts.ts', 'utf8');
+const screening = readFileSync('src/screening/screening-question-drafts.ts', 'utf8');
 assert.match(screening, /flashAutofillField/);
 
-const trackerWidget = readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
+const trackerWidget = readFileSync('src/job-portal/job-portal-tracker-widget.ts', 'utf8');
 assert.match(trackerWidget, /tmo-prefill-chip-pulse/);
 assert.match(trackerWidget, /prefillBtn\.setAttribute\('aria-busy', 'true'\)/);
 assert.match(trackerWidget, /prefillBtn\.classList\.add\('tmo-is-filling'\)/);

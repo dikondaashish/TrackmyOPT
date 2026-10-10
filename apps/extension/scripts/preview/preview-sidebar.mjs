@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 const { outputFiles } = await build({
   stdin: { loader:'ts', resolveDir:fileURLToPath(new URL('../../src', import.meta.url)), contents:`
-    import { createJobTrackerWidget, setJobTrackerWidgetHost } from './job-portal-tracker-widget';
-    import { paintResumeStatusRow } from './resume-status-row';
+    import { createJobTrackerWidget, setJobTrackerWidgetHost } from './job-portal/job-portal-tracker-widget';
+    import { paintResumeStatusRow } from './resume/resume-status-row';
     const params = new URLSearchParams(location.search);
     window.chrome = {
       runtime: {getURL: path => '/'+path, sendMessage:(message, callback) => {

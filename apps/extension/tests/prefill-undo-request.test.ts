@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import vm from 'node:vm';
 const local = createRequire(resolve('package.json'));
 const code = local('esbuild').buildSync({
-  entryPoints: ['src/prefill-undo-request.ts'],
+  entryPoints: ['src/prefill/prefill-undo-request.ts'],
   bundle: true,
   write: false,
   format: 'cjs',

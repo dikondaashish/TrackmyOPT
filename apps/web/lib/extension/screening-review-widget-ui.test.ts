@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createScreeningQuestionReviewUI } from '../../../extension/src/screening-question-review-ui';
-import { CoverLetterReviewController } from '../../../extension/src/cover-letter-review';
-import { attachGeneratedCoverLetter } from '../../../extension/src/easy-apply-engine';
+import { createScreeningQuestionReviewUI } from '../../../extension/src/screening/screening-question-review-ui';
+import { CoverLetterReviewController } from '../../../extension/src/resume/cover-letter-review';
+import { attachGeneratedCoverLetter } from '../../../extension/src/easy-apply/easy-apply-engine';
 
 describe('screening-question review DOM', () => {
   it('never inserts generated text before the explicit Insert draft action', async () => {

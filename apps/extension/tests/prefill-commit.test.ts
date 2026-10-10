@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { verifyNativeCommit } from '../src/prefill-commit';
-import { contactValueSource } from '../src/prefill-contact-source';
-import type { ResumeAutofillSnapshotV1 } from '../src/resume-autofill-contract';
+import { verifyNativeCommit } from '../src/prefill/prefill-commit';
+import { contactValueSource } from '../src/prefill/prefill-contact-source';
+import type { ResumeAutofillSnapshotV1 } from '../src/resume/resume-autofill-contract';
 
 for (const condition of ['stable','rejected','remounted','cancelled'] as const) {
   test(`native commit verification handles ${condition} without rewriting`, async () => {

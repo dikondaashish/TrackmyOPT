@@ -3,4 +3,4 @@ export {
     buildResumePdfFilename,
     extractNameFromLatex,
     extractRoleFromLatex,
-} from '../../../extension/src/resume-filename';
+} from '../../../extension/src/resume/resume-filename';

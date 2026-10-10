@@ -1,11 +1,11 @@
-import { widgetContent } from '../src/widget-dom';
+import { widgetContent } from '../src/widget/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { shouldRefreshWidget, widgetJobSnapshot } from '../src/job-portal-job-helpers';
+import { shouldRefreshWidget, widgetJobSnapshot } from '../src/job-portal/job-portal-job-helpers';
 const requireLocal=createRequire(resolve('package.json'));
 const {JSDOM}=requireLocal('jsdom');
 const source=readFileSync('src/content-job-portal.ts','utf8');

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   normalizeDefaultJobPortalLogin,
   type JobPortalLoginCredential,
-} from '../src/job-portal-login';
+} from '../src/job-portal/job-portal-login';
 
 const saved: JobPortalLoginCredential = {
   email: 'Candidate@example.com',

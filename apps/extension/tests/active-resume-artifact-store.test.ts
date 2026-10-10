@@ -5,8 +5,8 @@ import {
   ACTIVE_GENERATED_RESUME_ARTIFACT_SESSION_KEY,
   MAX_SESSION_ARTIFACT_BYTES,
   replaceActiveGeneratedResumeArtifact,
-} from '../src/active-resume-artifact-store';
-import type { GeneratedResumeArtifactV1 } from '../src/resume-autofill-contract';
+} from '../src/resume/active-resume-artifact-store';
+import type { GeneratedResumeArtifactV1 } from '../src/resume/resume-autofill-contract';
 
 function artifact(id: string, pdfBase64 = 'JVBERi0xLjQK'): GeneratedResumeArtifactV1 {
   return {

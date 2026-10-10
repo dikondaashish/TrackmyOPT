@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import vm from 'node:vm';
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
-const code = requireLocal('esbuild').buildSync({ entryPoints: ['src/feedback.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
+const code = requireLocal('esbuild').buildSync({ entryPoints: ['src/shared/feedback.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
 function harness(response: any = { ok: true }) {
   const dom = new JSDOM('<button id="trigger">Feedback</button>', { url: 'https://example.test' });
   const messages: any[] = [];

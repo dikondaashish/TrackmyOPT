@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import vm from 'node:vm';
 const req=createRequire(resolve('package.json'));
 const {JSDOM}=req('jsdom');
-const code=req('esbuild').buildSync({entryPoints:['src/job-description-field.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
+const code=req('esbuild').buildSync({entryPoints:['src/job/job-description-field.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
 const posting='Responsibilities: Build SQL dashboards and analyze data with the team. Qualifications: Three years of experience with data analysis. Benefits include health insurance and paid time off. '.repeat(3);
 function setup(t:any,initial:any,onRetry:any=async()=>initial){
   const dom=new JSDOM('');t.after(()=>dom.window.close()); const module={exports:{} as any};let changes=0;

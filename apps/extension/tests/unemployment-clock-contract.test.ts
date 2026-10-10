@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { summarizeUnemploymentClock } from '../src/unemployment-clock-contract';
+import { summarizeUnemploymentClock } from '../src/shared/unemployment-clock-contract';
 
 assert.deepEqual(
   summarizeUnemploymentClock({

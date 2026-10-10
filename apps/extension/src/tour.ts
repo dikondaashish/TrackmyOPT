@@ -1,10 +1,10 @@
-import { API_ENDPOINTS, WEBSITE_URL } from './config';
-import { TOUR_KEY, normalizeTourState } from './onboarding';
-import { TOUR_CHAPTERS, chapterMarkup } from './tour-content';
-import { runPrefill } from './easy-apply-engine';
-import { createAutofillVisualFeedback } from './autofill-visual-feedback';
-import { mountTourGuide } from './tour-guide';
-import type { BasicContactProfile } from './resume-autofill-contract';
+import { API_ENDPOINTS, WEBSITE_URL } from './shared/config';
+import { TOUR_KEY, normalizeTourState } from './popup/onboarding';
+import { TOUR_CHAPTERS, chapterMarkup } from './tour/tour-content';
+import { runPrefill } from './easy-apply/easy-apply-engine';
+import { createAutofillVisualFeedback } from './prefill/autofill-visual-feedback';
+import { mountTourGuide } from './tour/tour-guide';
+import type { BasicContactProfile } from './resume/resume-autofill-contract';
 
 const DEMO_PROFILE: BasicContactProfile = {
   firstName: 'Alex',

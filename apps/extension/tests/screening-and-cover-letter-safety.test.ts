@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { classifyField, SENSITIVE_FIELD_RE } from '../src/easy-apply-matchers';
-import { detectScreeningQuestion, findExactSavedAnswer } from '../src/screening-question-drafts';
+import { classifyField, SENSITIVE_FIELD_RE } from '../src/easy-apply/easy-apply-matchers';
+import { detectScreeningQuestion, findExactSavedAnswer } from '../src/screening/screening-question-drafts';
 import {
   normalizeApplicationQuestion,
   SCREENING_QUESTION_TEXT_MAX_CHARS,
-} from '../src/sensitive-question-policy';
+} from '../src/prefill/sensitive-question-policy';
 
 test('sensitive questions are rejected before any AI request', async () => {
   let aiCalls = 0;
@@ -16,7 +16,7 @@ test('sensitive questions are rejected before any AI request', async () => {
   assert.equal(aiCalls, 0);
 });
 
-const matcherSource = readFileSync('src/easy-apply-matchers.ts', 'utf8');
+const matcherSource = readFileSync('src/easy-apply/easy-apply-matchers.ts', 'utf8');
 test('ESSAY_RE and SENSITIVE_FIELD_RE remain present and function in classifyField', () => {
   assert.equal(SENSITIVE_FIELD_RE.test('What is your citizenship status?'), true);
   assert.equal(classifyField('Why do you want to work here?'), null);
@@ -37,7 +37,7 @@ test('exact reuse matches normalized identical text only', () => {
 test('screening question text is normalized and capped before the background POST', () => {
   const value = normalizeApplicationQuestion(`  ${'question '.repeat(400)}  `);
   assert.equal(value.length, SCREENING_QUESTION_TEXT_MAX_CHARS);
-  const background = readFileSync('src/background-screening.ts', 'utf8');
+  const background = readFileSync('src/background/background-screening.ts', 'utf8');
   const request = background.slice(
     background.indexOf('async function requestScreeningDraft'),
     background.indexOf('async function requestSavedScreeningAnswer'),
@@ -48,7 +48,7 @@ test('screening question text is normalized and capped before the background POS
   );
 });
 
-const attachments = readFileSync('src/easy-apply-attachments.ts', 'utf8');
+const attachments = readFileSync('src/easy-apply/easy-apply-attachments.ts', 'utf8');
 const coverFunction = attachments.slice(
   attachments.indexOf('export function attachGeneratedCoverLetter'),
 );

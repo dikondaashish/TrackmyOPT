@@ -1,12 +1,12 @@
-import { compactDate, toolIntro, reminderContent, TOOL_HELP } from '../tool-ui';
-import { getIdToken } from '../token-store';
-import { WEBSITE_URL } from '../config.js';
-import { renderPageHeader, setupPageHandlers } from '../navigation.js';
-import { icon } from '../icons.js';
+import { compactDate, toolIntro, reminderContent, TOOL_HELP } from '../shared/tool-ui';
+import { getIdToken } from '../shared/token-store';
+import { WEBSITE_URL } from '../shared/config.js';
+import { renderPageHeader, setupPageHandlers } from '../popup/navigation.js';
+import { icon } from '../shared/icons.js';
 import {
   loadVerifiedUnemploymentClock,
   summarizeUnemploymentClock,
-} from '../unemployment-clock-contract.js';
+} from '../shared/unemployment-clock-contract.js';
 
 /**
  * Format date for card display (e.g., "13 OCTOBER 2025")
@@ -148,7 +148,7 @@ export function renderStemClockTracker(
   root.innerHTML = '';
 
   // Save page state for persistence
-  import('../navigation.js').then(({ setCurrentPage, savePageData }) => {
+  import('../popup/navigation.js').then(({ setCurrentPage, savePageData }) => {
     setCurrentPage('stem-clock-tracker');
     savePageData('stem-clock-tracker', { startDate: startDate.toISOString() });
   });

@@ -7,7 +7,7 @@ const local = createRequire(resolve('package.json'));
 const { JSDOM } = local('jsdom');
 const code = local('esbuild').buildSync({
   stdin: {
-    contents: `export * from './src/prefill-undo';export * from './src/prefill-undo-ui';`,
+    contents: `export * from './src/prefill/prefill-undo';export * from './src/prefill/prefill-undo-ui';`,
     resolveDir: process.cwd(),
     loader: 'ts',
   },

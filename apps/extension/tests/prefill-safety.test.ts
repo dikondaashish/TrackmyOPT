@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const matcherSource = readFileSync('src/easy-apply-matchers.ts', 'utf8');
-const engineSource = readFileSync('src/easy-apply-engine.ts', 'utf8');
-const engineDomSource = readFileSync('src/easy-apply-dom.ts', 'utf8');
-const engineAttachSource = readFileSync('src/easy-apply-attachments.ts', 'utf8');
-const engineFormSource = readFileSync('src/easy-apply-form.ts', 'utf8');
+const matcherSource = readFileSync('src/easy-apply/easy-apply-matchers.ts', 'utf8');
+const engineSource = readFileSync('src/easy-apply/easy-apply-engine.ts', 'utf8');
+const engineDomSource = readFileSync('src/easy-apply/easy-apply-dom.ts', 'utf8');
+const engineAttachSource = readFileSync('src/easy-apply/easy-apply-attachments.ts', 'utf8');
+const engineFormSource = readFileSync('src/easy-apply/easy-apply-form.ts', 'utf8');
 const portalSource = readFileSync('src/content-job-portal.ts', 'utf8');
 const backgroundSource = readFileSync('src/background.ts', 'utf8');
-const dropdownSource = readFileSync('src/smart-dropdown.ts', 'utf8');
-const guidedSource = readFileSync('src/guided-autopilot.ts', 'utf8');
+const dropdownSource = readFileSync('src/prefill/smart-dropdown.ts', 'utf8');
+const guidedSource = readFileSync('src/job-portal/guided-autopilot.ts', 'utf8');
 const withoutComments = (source: string) => source
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/\/\/.*$/gm, '');

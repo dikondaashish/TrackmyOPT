@@ -9,10 +9,13 @@ content, trademarks, or hosted services.
 ### node-oracledb
 
 - Project: <https://github.com/oracle/node-oracledb>
-- Package: `oracledb` 7.0.1
+- Package: `oracledb` (declared `^7.0.1` in `apps/api/package.json`; resolved
+  to 7.0.1 in `pnpm-lock.yaml`)
 - License: Apache-2.0 OR UPL-1.0
-- Use: server-only Oracle 26ai shadow job-store adapter; loaded lazily and not
-  wired into the production job-board module yet.
+- Use: server-only Oracle job-store adapter (`oracle-job-data-store.ts`),
+  loaded lazily. It is wired into the job-board module through
+  `job-data-store.provider.ts`, but only constructed when `JOB_DATA_STORE=oracle`
+  is explicitly set; the default store is Supabase.
 - Notice obligation: retain the upstream Apache/UPL notices when distributing
   the adapter and driver.
 
@@ -22,16 +25,23 @@ content, trademarks, or hosted services.
 - Pinned revision: `f654221f5236f24360719008764b23c5939fbce8`
 - License: MIT
 - Copyright: Copyright (c) 2026 Kalil Bouzigues
-- Use: installed as a Python dependency for public ATS fetch adapters.
+- Use: installed as a Python dependency (pinned in
+  `apps/api/requirements.job-board.txt`, installed by `apps/api/Dockerfile`) for
+  public ATS fetch adapters, invoked via `ats-scrapers.runner.ts`. The
+  `beautifulsoup4>=4.12` dependency listed in the same file is not covered by
+  this document; its license is not recorded here.
 - Notice obligation: retain the upstream copyright and MIT permission notice in
   distributions containing substantial portions of the software.
 - Data caveat: the repository's company inventories and hosted job datasets are
   not imported by this project. Dataset use requires a separate data-license and
   source-policy review.
 
-## Code references permitted by license
+## Reference only, not dependencies (code references permitted by license)
 
-### CareerScout
+Neither entry below is in `package.json`, `pnpm-lock.yaml`, or
+`requirements.job-board.txt`.
+
+### CareerScout (reference only, not a dependency)
 
 - Project: <https://github.com/Ramcharan747/careerscout>
 - Reviewed revision: `eee84faf02f8e46dc3c5764c09d1880816577539`
@@ -41,7 +51,7 @@ content, trademarks, or hosted services.
   patterns. If substantial code is incorporated later, its MIT notice must be
   preserved with the distribution.
 
-### ATS Job Scraper
+### ATS Job Scraper (reference only, not a dependency)
 
 - Project: <https://github.com/YvetteZheng0812/ats-job-scraper>
 - Reviewed revision: `0dbc9f1de6190500f9667a9d9b0fc640d38204eb`
@@ -50,7 +60,7 @@ content, trademarks, or hosted services.
 - Planned use: architecture reference only at present. SerpAPI and apply-assistant
   functionality are not dependencies of TrackMyOPT.
 
-## Reference only — no copying
+## Reference only — no copying (not dependencies)
 
 ### Builder Jobs Scraper
 

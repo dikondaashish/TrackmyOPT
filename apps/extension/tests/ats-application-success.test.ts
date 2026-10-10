@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { isApplicationSuccessPage } from '../src/job-portal-application-success';
+import { isApplicationSuccessPage } from '../src/job-portal/job-portal-application-success';
 
 const { JSDOM } = createRequire(resolve('package.json'))('jsdom');
 const hosts = [

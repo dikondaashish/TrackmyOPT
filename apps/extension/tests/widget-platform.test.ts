@@ -5,8 +5,8 @@ import {
   isDarkCssColor,
   normalizeWidgetAnalyticsProperties,
   type WidgetAnalyticsEvent,
-} from '../src/widget-platform';
-import { toolSurfaceCard } from '../src/tool-page-theme';
+} from '../src/widget/widget-platform';
+import { toolSurfaceCard } from '../src/shared/tool-page-theme';
 
 assert.equal(WIDGET_TOKENS.light.surface, '#ffffff');
 assert.equal(WIDGET_TOKENS.light.ink, '#0f172a');

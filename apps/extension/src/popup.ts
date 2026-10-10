@@ -1,15 +1,15 @@
-import { showReleaseNotice } from './release-notice';
+import { showReleaseNotice } from './shared/release-notice';
 import { applyPopupTheme } from './design/popup-theme';
-import { API_ENDPOINTS } from './config.js';
-import { EXTENSION_LOCAL_SIGNOUT_KEY } from './signOut.js';
-import { getIdToken, setIdToken } from './token-store.js';
-import { renderHome } from './home.js';
-import { renderLocked } from './locked.js';
+import { API_ENDPOINTS } from './shared/config.js';
+import { EXTENSION_LOCAL_SIGNOUT_KEY } from './popup/signOut.js';
+import { getIdToken, setIdToken } from './shared/token-store.js';
+import { renderHome } from './popup/home.js';
+import { renderLocked } from './popup/locked.js';
 import { renderOptApply } from './pages/opt-apply.js';
 import { renderStemApply } from './pages/stem-apply.js';
 import { renderClock } from './pages/clock.js';
 import { renderStemClock } from './pages/stem-clock.js';
-import { setCurrentPage, getLastPage, getPageData } from './navigation.js';
+import { setCurrentPage, getLastPage, getPageData } from './popup/navigation.js';
 
 /**
  * Returns true if a JWT string has more than 60 seconds of validity remaining.

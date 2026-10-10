@@ -1,0 +1,216 @@
+import {
+  confirmDraftReview,
+  createDraftReviewState,
+  insertScreeningDraft,
+  type DraftReviewState,
+  type EligibleScreeningQuestion,
+  type SavedScreeningAnswer,
+} from './screening-question-drafts';
+import { autofillErrorCopy } from '../prefill/autofill-errors';
+import {
+  formatAiAllowanceCopy,
+  remainingAiAllowance,
+} from '../shared/ai-allowance-copy';
+
+export interface ScreeningDraftLimits {
+  quotaPeriod?: 'day' | 'month';
+  quotaLimit?: number;
+  quotaRemaining?: number;
+  dailyRemaining: number;
+  itemRegenerationsRemaining: number;
+  itemRegenerationLimit: number;
+}
+
+export interface ScreeningDraftResult {
+  draft: string;
+  limits: ScreeningDraftLimits;
+}
+
+export interface ScreeningQuestionReviewOptions {
+  question: EligibleScreeningQuestion;
+  limits: ScreeningDraftLimits;
+  savedAnswer?: SavedScreeningAnswer;
+  generateDraft(regenerate: boolean): Promise<ScreeningDraftResult>;
+  /** Persist only after the applicant explicitly chooses to reuse this answer. */
+  onReviewed(answer: string): Promise<boolean> | boolean;
+  onReviewStateChange?(
+    state: 'needs_review' | 'confirmed' | 'edited',
+  ): void;
+  onDeleteSavedAnswer?: (questionHash: string) => Promise<void>;
+  onUpgrade?: () => void;
+}
+
+function button(label: string): HTMLButtonElement {
+  const element = document.createElement('button');
+  element.type = 'button';
+  element.textContent = label;
+  return element;
+}
+
+/**
+ * Builds the review surface only. Detection remains separate from classifyField(),
+ * and neither generation nor insertion happens until its explicit button is used.
+ */
+export function createScreeningQuestionReviewUI(
+  options: ScreeningQuestionReviewOptions,
+): HTMLElement {
+  const root = document.createElement('section');
+  root.className = 'tmo-screening-question-review';
+  root.dataset.questionHash = options.question.questionHash;
+
+  const heading = document.createElement('strong');
+  heading.textContent = options.question.normalizedQuestionText;
+  const usage = document.createElement('p');
+  const preview = document.createElement('textarea');
+  preview.readOnly = false;
+  preview.hidden = true;
+  preview.setAttribute('aria-label', 'AI draft preview');
+  const status = document.createElement('p');
+  status.setAttribute('role', 'status');
+  const upgrade = button('Upgrade to Pro');
+  upgrade.hidden = true;
+  upgrade.addEventListener('click', () => options.onUpgrade?.());
+
+  let limits = options.limits;
+  let selectedDraft = '';
+  let insertedValue = '';
+  let reviewedValue = '';
+  let reviewState: DraftReviewState | null = null;
+  const renderUsage = () => {
+    usage.textContent = `${formatAiAllowanceCopy(limits)} ${limits.itemRegenerationsRemaining} of ${limits.itemRegenerationLimit} regenerations remaining.`;
+  };
+  renderUsage();
+
+  const insert = button('Insert draft');
+  insert.hidden = true;
+  const confirm = button('Confirm reviewed');
+  confirm.hidden = true;
+  const save = button('Save this answer for future applications');
+  save.hidden = true;
+  insert.addEventListener('click', () => {
+    if (!selectedDraft || !insertScreeningDraft(options.question, selectedDraft)) {
+      status.textContent = 'The answer field must be empty before inserting.';
+      return;
+    }
+    insertedValue = selectedDraft;
+    reviewState = createDraftReviewState(selectedDraft);
+    status.textContent = autofillErrorCopy('draft_review_pending').message;
+    status.dataset.reviewState = 'needs-review';
+    options.onReviewStateChange?.('needs_review');
+    confirm.hidden = false;
+    save.hidden = true;
+  });
+  confirm.addEventListener('click', () => {
+    if (!reviewState?.needsReview) return;
+    const current = options.question.element?.value ?? insertedValue;
+    if (!current.trim()) return;
+    reviewState = confirmDraftReview(reviewState, current);
+    reviewedValue = current;
+    status.textContent = 'Reviewed and confirmed';
+    status.dataset.reviewState = 'reviewed';
+    confirm.hidden = true;
+    save.hidden = false;
+    options.onReviewStateChange?.('confirmed');
+  });
+  save.addEventListener('click', async () => {
+    const current = options.question.element?.value ?? '';
+    if (!reviewedValue || current !== reviewedValue || !reviewState?.confirmed) {
+      status.textContent = 'Review the current answer before saving it.';
+      save.hidden = true;
+      confirm.hidden = false;
+      return;
+    }
+    save.disabled = true;
+    try {
+      const saved = await options.onReviewed(current);
+      if (options.question.element?.value !== current) {
+        status.textContent = 'Answer changed. Review it again before saving.';
+        save.hidden = true;
+        confirm.hidden = false;
+      } else if (saved) {
+        status.textContent = 'Saved for future applications';
+        save.hidden = true;
+      } else status.textContent = 'Could not save. Your application answer is unchanged.';
+    } catch {
+      status.textContent = 'Could not save. Your application answer is unchanged.';
+    } finally { save.disabled = false; }
+  });
+
+  const showDraft = (draft: string) => {
+    selectedDraft = draft;
+    preview.value = draft;
+    preview.hidden = false;
+    insert.hidden = false;
+    status.textContent = 'Review this draft before inserting it.';
+  };
+
+  const requestDraft = async (regenerate: boolean) => {
+    if (
+      remainingAiAllowance(limits) <= 0 ||
+      (regenerate && limits.itemRegenerationsRemaining <= 0)
+    ) {
+      status.textContent = 'AI generation limit reached.';
+      return;
+    }
+    try {
+      const result = await options.generateDraft(regenerate);
+      limits = result.limits;
+      renderUsage();
+      showDraft(result.draft);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : '';
+      if (code === 'ai_monthly_limit_reached') {
+        status.textContent =
+          'Your Free AI allowance is used for this month. Upgrade to Pro for higher daily access.';
+        upgrade.hidden = false;
+      } else {
+        status.textContent = code === 'insufficient_context'
+          ? 'TrackMyOPT could not create a reliable answer from this resume and job description. Please answer this question yourself.'
+          : 'TrackMyOPT could not generate this draft. Please try again or answer this question yourself.';
+      }
+    }
+  };
+
+  const generate = button('Generate draft');
+  generate.addEventListener('click', () => void requestDraft(false));
+  root.append(heading, usage, generate);
+
+  if (options.savedAnswer) {
+    const reuse = button('Use your previously edited answer');
+    reuse.addEventListener('click', () => showDraft(options.savedAnswer!.editedAnswer));
+    const regenerate = button(
+      `Regenerate fresh (${limits.itemRegenerationsRemaining} remaining)`,
+    );
+    regenerate.addEventListener('click', () => void requestDraft(true));
+    root.append(reuse, regenerate);
+    if (options.onDeleteSavedAnswer) {
+      const remove = button('Delete saved answer');
+      remove.addEventListener('click', async () => {
+        await options.onDeleteSavedAnswer!(options.question.questionHash);
+        reuse.remove();
+        remove.remove();
+      });
+      root.append(remove);
+    }
+  }
+
+  root.append(preview, insert, confirm, save, status, upgrade);
+
+  options.question.element?.addEventListener('input', (event) => {
+    if (!event.isTrusted || status.dataset.reviewState !== 'needs-review') return;
+    const current = options.question.element?.value ?? '';
+    if (!current || current === insertedValue) return;
+    reviewState = confirmDraftReview(
+      reviewState ?? createDraftReviewState(insertedValue),
+      current
+    );
+    reviewedValue = current;
+    status.textContent = 'Reviewed and edited';
+    status.dataset.reviewState = 'reviewed';
+    confirm.hidden = true;
+    save.hidden = false;
+    options.onReviewStateChange?.('edited');
+  });
+
+  return root;
+}

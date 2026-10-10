@@ -12,7 +12,7 @@ import {
   type GeneratedCoverLetterAttachment,
 } from '@/lib/resume/autofill-schema';
 import { compileCoverLetterPdf } from '@/lib/resume/cover-letter-pdf';
-import { AUTOFILL_FEATURE_FLAGS } from '../../../../../extension/src/autofill-feature-flags';
+import { AUTOFILL_FEATURE_FLAGS } from '../../../../../extension/src/prefill/autofill-feature-flags';
 
 function json(req: NextRequest, body: unknown, status = 200) {
   return NextResponse.json(body, {

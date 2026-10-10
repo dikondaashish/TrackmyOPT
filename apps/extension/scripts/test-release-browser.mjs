@@ -109,7 +109,7 @@ try {
   console.log('PASS widget and relay');
   await page.reload(); await host.waitFor();
   // Exercise the production fill engine with fictional data on the fixture only.
-  const bundle=await build({stdin:{resolveDir:process.cwd(),loader:'ts',contents:`import {runPrefill} from './src/easy-apply-engine'; window.fixtureRun=runPrefill;`},bundle:true,write:false,format:'iife',platform:'browser'});
+  const bundle=await build({stdin:{resolveDir:process.cwd(),loader:'ts',contents:`import {runPrefill} from './src/easy-apply/easy-apply-engine'; window.fixtureRun=runPrefill;`},bundle:true,write:false,format:'iife',platform:'browser'});
   await page.addScriptTag({content:bundle.outputFiles[0].text});
   const result=await page.evaluate(async()=>{
     const form=document.querySelector('form');const input=form.querySelector('input[type=file]');

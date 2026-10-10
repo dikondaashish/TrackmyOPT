@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildGeneratedResumeArtifactV1 } from '../src/resume-artifact-lifecycle';
-import { resolveV1PrefillPayload } from '../src/prefill-payload-resolver';
-import { jobMemoryKey } from '../src/smart-flow';
-import { resolveAutofillFeatureFlags } from '../src/autofill-feature-flags';
+import { buildGeneratedResumeArtifactV1 } from '../src/resume/resume-artifact-lifecycle';
+import { resolveV1PrefillPayload } from '../src/prefill/prefill-payload-resolver';
+import { jobMemoryKey } from '../src/prefill/smart-flow';
+import { resolveAutofillFeatureFlags } from '../src/prefill/autofill-feature-flags';
 import type {
   BasicContactProfile,
   GeneratedResumeArtifactV1,
   V1PrefillPayloadRequest,
-} from '../src/resume-autofill-contract';
+} from '../src/resume/resume-autofill-contract';
 
 const fallback: BasicContactProfile = {
   firstName: 'Profile',

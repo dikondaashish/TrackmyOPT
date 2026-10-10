@@ -14,8 +14,8 @@
 import {
   jobUrlsReferToSameJob,
   type GeneratedResumeArtifactV1,
-} from '../../../extension/src/resume-autofill-contract';
-import { extractAtsJobIdentity } from '../../../extension/src/ats-job-identity';
+} from '../../../extension/src/resume/resume-autofill-contract';
+import { extractAtsJobIdentity } from '../../../extension/src/job-portal/ats-job-identity';
 
 /** How long a stored tailored resume stays offerable. */
 export const STORED_ARTIFACT_TTL_MS = 30 * 24 * 60 * 60 * 1000;

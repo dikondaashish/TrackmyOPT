@@ -3,11 +3,11 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { chooseJobDescriptionCandidate, looksLikeRealJobPostingText, jobDescriptionCacheKey } from '../src/job-description';
+import { chooseJobDescriptionCandidate, looksLikeRealJobPostingText, jobDescriptionCacheKey } from '../src/job/job-description';
 
 const local = createRequire(resolve('package.json'));
 const { JSDOM } = local('jsdom');
-const code = local('esbuild').buildSync({entryPoints:['src/job-description-scrape.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
+const code = local('esbuild').buildSync({entryPoints:['src/job/job-description-scrape.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
 const posting = 'Senior Data Analyst. Responsibilities: Build SQL dashboards and analyze product performance with the team. Qualifications: Three years of analytics experience and strong communication skills. Benefits include health insurance and paid time off. '.repeat(3).trim();
 const css = 'body { overflow: hidden; } .center { align-items: center; display: flex; height: 100vh; } @keyframes spin { from { opacity: 0; } to { opacity: 1; } } '.repeat(12);
 const url = 'https://jobs.ashbyhq.com/acme/11111111-1111-1111-1111-111111111111/application?jr_id=tracking';

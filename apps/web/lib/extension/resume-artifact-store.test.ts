@@ -10,7 +10,7 @@ import {
   supersededArtifactIds,
   type StoredArtifactCandidate,
 } from './resume-artifact-store';
-import type { GeneratedResumeArtifactV1 } from '../../../extension/src/resume-autofill-contract';
+import type { GeneratedResumeArtifactV1 } from '../../../extension/src/resume/resume-autofill-contract';
 
 const NOW = Date.parse('2026-08-02T12:00:00.000Z');
 

@@ -7,7 +7,7 @@ const { outputFiles } = await build({
     loader: 'ts',
     resolveDir: fileURLToPath(new URL('../../src', import.meta.url)),
     contents: `
-import {runSmartAnswers} from './smart-answers';
+import {runSmartAnswers} from './prefill/smart-answers';
 const form=document.querySelector('form')!;const initial=form.innerHTML;
 const saved=new Map();let aiCalls=0;let active=false;let stopped=false;
 window.chrome={runtime:{sendMessage:async message=>{

@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import vm from 'node:vm';
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
-const code = requireLocal('esbuild').buildSync({ entryPoints: ['src/guided-autopilot.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
+const code = requireLocal('esbuild').buildSync({ entryPoints: ['src/job-portal/guided-autopilot.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
 function check(html: string, inFrame = false) {
   const dom = new JSDOM(`<form>${html}</form>`); let clicks = 0;
   const module = { exports: {} as any };

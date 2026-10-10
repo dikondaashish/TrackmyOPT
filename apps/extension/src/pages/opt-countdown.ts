@@ -1,10 +1,10 @@
-import { countdownView, TOOL_HELP } from '../tool-ui';
+import { countdownView, TOOL_HELP } from '../shared/tool-ui';
 import { calculateTimeRemaining, filingWindowMessage } from './opt-apply-date-helpers';
-import { getIdToken } from '../token-store';
-import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../navigation.js';
-import { WEBSITE_URL } from '../config.js';
-import { icon } from '../icons.js';
-import type { ToolSurfaceTone } from '../tool-page-theme.js';
+import { getIdToken } from '../shared/token-store';
+import { renderPageHeader, setupPageHandlers, setCurrentPage, savePageData } from '../popup/navigation.js';
+import { WEBSITE_URL } from '../shared/config.js';
+import { icon } from '../shared/icons.js';
+import type { ToolSurfaceTone } from '../shared/tool-page-theme.js';
 import type { FilingWindowResults } from './opt-apply-date-helpers';
 
 /**

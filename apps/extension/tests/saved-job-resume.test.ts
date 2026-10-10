@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { savedResumeChangeHint } from '../src/saved-job-resume';
-import type { GeneratedResumeArtifactV1 } from '../src/resume-autofill-contract';
+import { savedResumeChangeHint } from '../src/resume/saved-job-resume';
+import type { GeneratedResumeArtifactV1 } from '../src/resume/resume-autofill-contract';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
@@ -45,7 +45,7 @@ test('saved resume actions require a click; failed save is not labeled saved', a
   const dom = new JSDOM('');
   t.after(() => dom.window.close());
   const code = req('esbuild').buildSync({
-    entryPoints: ['src/saved-job-resume-card.ts'],
+    entryPoints: ['src/resume/saved-job-resume-card.ts'],
     bundle: true,
     write: false,
     format: 'cjs',

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { shouldRunContinuousPrefill } from '../src/continuous-prefill';
+import { shouldRunContinuousPrefill } from '../src/prefill/continuous-prefill';
 
 assert.equal(shouldRunContinuousPrefill({
   mode: 'step_by_step',

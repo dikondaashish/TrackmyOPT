@@ -1,8 +1,8 @@
 import { createDatePicker } from './opt-apply-date-picker';
-import { dateField, toolIntro, TOOL_HELP } from '../tool-ui';
+import { dateField, toolIntro, TOOL_HELP } from '../shared/tool-ui';
 import { addDateInputValidation } from './opt-apply-date-helpers';
 import { loadStemDates, saveStemDates } from './stem-apply-api';
-import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../navigation.js';
+import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../popup/navigation.js';
 import { calculateStemFilingWindow as calculateSharedStemFilingWindow } from './opt-apply-date-helpers';
 
 /**

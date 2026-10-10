@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_AUTOFILL_PREFERENCES,
   normalizeAutofillPreferences,
-} from '../src/autofill-preferences';
-import { resolveAutofillFeatureFlags } from '../src/autofill-feature-flags';
-import { resolveAutofillPlanEntitlements } from '../src/autofill-plan-entitlements';
+} from '../src/prefill/autofill-preferences';
+import { resolveAutofillFeatureFlags } from '../src/prefill/autofill-feature-flags';
+import { resolveAutofillPlanEntitlements } from '../src/prefill/autofill-plan-entitlements';
 
 assert.deepEqual(DEFAULT_AUTOFILL_PREFERENCES, {
   mode: 'step_by_step',

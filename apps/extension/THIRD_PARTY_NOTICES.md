@@ -25,7 +25,7 @@ delay" logic. TrackMyOPT's implementation is fill-only and never submits.
 
 Derived files carry a provenance header:
 
-- `src/easy-apply-matchers.ts`
+- `src/easy-apply/easy-apply-matchers.ts`
 
 ### License grant
 

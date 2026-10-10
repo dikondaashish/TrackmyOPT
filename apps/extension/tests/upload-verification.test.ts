@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { createUploadProbe, waitForUploadEvidence, type UploadEvidence } from '../src/upload-verification';
-import { resumeStatusAfterPrefill } from '../src/resume-status-row';
+import { createUploadProbe, waitForUploadEvidence, type UploadEvidence } from '../src/prefill/upload-verification';
+import { resumeStatusAfterPrefill } from '../src/resume/resume-status-row';
 
 async function simulate(probe: (time: number) => Partial<UploadEvidence>, cancelAt = Infinity, timeoutMs = 3000) {
   let time = 0;

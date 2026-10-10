@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 
-import { AUTOFILL_FEATURE_FLAGS } from '../src/autofill-feature-flags';
-import { emptyPrefillCoverage } from '../src/prefill-coverage';
-import { buildPrefillTelemetryProperties } from '../src/prefill-telemetry';
-import { normalizeWidgetAnalyticsProperties } from '../src/widget-platform';
+import { AUTOFILL_FEATURE_FLAGS } from '../src/prefill/autofill-feature-flags';
+import { emptyPrefillCoverage } from '../src/prefill/prefill-coverage';
+import { buildPrefillTelemetryProperties } from '../src/prefill/prefill-telemetry';
+import { normalizeWidgetAnalyticsProperties } from '../src/widget/widget-platform';
 
 const coverage = emptyPrefillCoverage();
 coverage.adapterId = 'greenhouse';

@@ -1,18 +1,18 @@
-import { runPrefill } from '../../src/easy-apply-engine';
-import { fillConfirmedSensitiveAnswers } from '../../src/sensitive-autofill';
-import { scanApplicationFields } from '../../src/application-field-scan';
-import { paintPrefillCoverage } from '../../src/job-portal-prefill-coverage-ui';
-import { emptyPrefillCoverage } from '../../src/prefill-coverage';
-import { resumeStatusAfterPrefill } from '../../src/resume-status-row';
-import { selectSmartDropdown } from '../../src/smart-dropdown';
-import { workdayPrefillAdapter } from '../../src/ats-prefill-adapters';
-import { fillRepeatableRecords } from '../../src/repeatable-record-engine';
+import { runPrefill } from '../../src/easy-apply/easy-apply-engine';
+import { fillConfirmedSensitiveAnswers } from '../../src/prefill/sensitive-autofill';
+import { scanApplicationFields } from '../../src/prefill/application-field-scan';
+import { paintPrefillCoverage } from '../../src/job-portal/job-portal-prefill-coverage-ui';
+import { emptyPrefillCoverage } from '../../src/prefill/prefill-coverage';
+import { resumeStatusAfterPrefill } from '../../src/resume/resume-status-row';
+import { selectSmartDropdown } from '../../src/prefill/smart-dropdown';
+import { workdayPrefillAdapter } from '../../src/job-portal/ats-prefill-adapters';
+import { fillRepeatableRecords } from '../../src/prefill/repeatable-record-engine';
 import {
   attachGeneratedResume,
   attachGeneratedCoverLetter,
-} from '../../src/easy-apply-attachments';
-import { findApplicationForm } from '../../src/easy-apply-form';
-import { withPrefillUndo, undoLastPrefill } from '../../src/prefill-undo';
+} from '../../src/easy-apply/easy-apply-attachments';
+import { findApplicationForm } from '../../src/easy-apply/easy-apply-form';
+import { withPrefillUndo, undoLastPrefill } from '../../src/prefill/prefill-undo';
 
 const fixture = document.querySelector<HTMLElement>('#fixture')!;
 const checks = document.querySelector('#checks')!;

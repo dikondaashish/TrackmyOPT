@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildContactAutofillProfile } from '../src/prefill-contact-source';
+import { buildContactAutofillProfile } from '../src/prefill/prefill-contact-source';
 import type {
   BasicContactProfile,
   ResumeAutofillSnapshotV1,
-} from '../src/resume-autofill-contract';
+} from '../src/resume/resume-autofill-contract';
 
 const fallback: BasicContactProfile = {
   firstName: 'Profile',

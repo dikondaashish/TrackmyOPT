@@ -1,5 +1,5 @@
-import { dateField, toolIntro, TOOL_HELP } from '../tool-ui';
-import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../navigation.js';
+import { dateField, toolIntro, TOOL_HELP } from '../shared/tool-ui';
+import { renderPageHeader, setupPageHandlers, setCurrentPage } from '../popup/navigation.js';
 import {
   addDateInputValidation,
   calculateFilingWindow,

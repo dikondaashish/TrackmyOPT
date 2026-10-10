@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { emptyPrefillCoverage } from '../src/prefill-coverage';
-import { applyPrefillProgressPatch, snapshotPrefillProgress } from '../src/prefill-progress-protocol';
+import { emptyPrefillCoverage } from '../src/prefill/prefill-coverage';
+import { applyPrefillProgressPatch, snapshotPrefillProgress } from '../src/prefill/prefill-progress-protocol';
 
 const identity = { runId: 'run-one', navigationGeneration: 4, frameId: 2, adapterId: 'greenhouse' as const };
 

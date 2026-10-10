@@ -1,13 +1,13 @@
-import { queryWidget } from '../src/widget-dom';
+import { queryWidget } from '../src/widget/widget-dom';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
 import vm from 'node:vm';
-import {createPrivateApprovalBinding,approvalMatchesJob} from '../src/private-approval-session';
-import {emptyPrefillCoverage} from '../src/prefill-coverage';
-import {normalizeAutofillPreferences,AUTOFILL_PREFERENCES_KEY} from '../src/autofill-preferences';
+import {createPrivateApprovalBinding,approvalMatchesJob} from '../src/private/private-approval-session';
+import {emptyPrefillCoverage} from '../src/prefill/prefill-coverage';
+import {normalizeAutofillPreferences,AUTOFILL_PREFERENCES_KEY} from '../src/prefill/autofill-preferences';
 const req=createRequire(resolve('package.json'));
 const {JSDOM}=req('jsdom');
 const source=readFileSync('src/content-job-portal.ts','utf8');

@@ -3,7 +3,7 @@ import test from 'node:test';
 import {
   hasQuestionEvidence,
   hasUnsupportedTools,
-} from '../src/screening-answer-evidence';
+} from '../src/screening/screening-answer-evidence';
 test('dbt experience is not inferred from a job description or missing resume facts', () => {
   assert.equal(
     hasQuestionEvidence('What do you use dbt with?', { skills: ['SQL'] }),

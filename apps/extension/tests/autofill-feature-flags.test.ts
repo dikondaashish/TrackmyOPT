@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import {
   AUTOFILL_FEATURE_FLAGS,
   resolveAutofillFeatureFlags,
-} from '../src/autofill-feature-flags';
+} from '../src/prefill/autofill-feature-flags';
 
 assert.deepEqual(AUTOFILL_FEATURE_FLAGS, {
   artifactPrefill: true,
@@ -24,8 +24,8 @@ assert.deepEqual(resolveAutofillFeatureFlags({ skills: true }), {
 
 const background = readFileSync('src/background.ts', 'utf8');
 const portal = readFileSync('src/content-job-portal.ts', 'utf8');
-const trackerWidget = readFileSync('src/job-portal-tracker-widget.ts', 'utf8');
-const engine = readFileSync('src/easy-apply-engine.ts', 'utf8');
+const trackerWidget = readFileSync('src/job-portal/job-portal-tracker-widget.ts', 'utf8');
+const engine = readFileSync('src/easy-apply/easy-apply-engine.ts', 'utf8');
 
 for (const flag of [
   'artifactPrefill',

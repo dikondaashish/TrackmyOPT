@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { currentPrefillRelayContext, PrefillRelaySequencer } from '../src/prefill-relay-sequence';
+import { currentPrefillRelayContext, PrefillRelaySequencer } from '../src/prefill/prefill-relay-sequence';
 
 test('relay sequences increase per tab even when the clock does not', () => {
   const order = new PrefillRelaySequencer();

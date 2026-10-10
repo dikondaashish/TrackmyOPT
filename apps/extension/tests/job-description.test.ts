@@ -8,7 +8,7 @@ import {
   looksLikeApplicationFormText,
   looksLikeRealJobPostingText,
   shouldFetchListingJobDescription,
-} from '../src/job-description';
+} from '../src/job/job-description';
 
 const outerPage = `
   Skip Branding Footer Accessibility Statement TrackMyOPT

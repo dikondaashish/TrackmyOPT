@@ -4,13 +4,13 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
-import { validateArtifactForPrefill } from '../src/resume-artifact-lifecycle';
-import { resolveScreeningDraftJobContext } from '../src/screening-draft-context';
-import { isSensitiveApplicationQuestion } from '../src/sensitive-question-policy';
-import { hasQuestionEvidence } from '../src/screening-answer-evidence';
-import { looksLikeRealJobPostingText } from '../src/job-description';
+import { validateArtifactForPrefill } from '../src/resume/resume-artifact-lifecycle';
+import { resolveScreeningDraftJobContext } from '../src/screening/screening-draft-context';
+import { isSensitiveApplicationQuestion } from '../src/prefill/sensitive-question-policy';
+import { hasQuestionEvidence } from '../src/screening/screening-answer-evidence';
+import { looksLikeRealJobPostingText } from '../src/job/job-description';
 const req = createRequire(resolve('package.json'));
-const source = readFileSync('src/background-screening.ts', 'utf8');
+const source = readFileSync('src/background/background-screening.ts', 'utf8');
 const code = req('esbuild').transformSync(
   source
     .slice(

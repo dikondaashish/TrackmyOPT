@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import vm from 'node:vm';
 const requireLocal=createRequire(resolve('package.json'));
 const {JSDOM}=requireLocal('jsdom');
-const code=requireLocal('esbuild').buildSync({entryPoints:['src/job-portal-sensitive-answer-panel.ts'],bundle:true,write:false,format:'cjs',platform:'node',define:{'process.env':'{}'}}).outputFiles[0].text;
+const code=requireLocal('esbuild').buildSync({entryPoints:['src/job-portal/job-portal-sensitive-answer-panel.ts'],bundle:true,write:false,format:'cjs',platform:'node',define:{'process.env':'{}'}}).outputFiles[0].text;
 test('private answer panel explains one-click prefill without an approval gate or decrypted values',()=>{
   const dom=new JSDOM('<body></body>',{url:'https://example.test/jobs/1'});
   let requests=0;

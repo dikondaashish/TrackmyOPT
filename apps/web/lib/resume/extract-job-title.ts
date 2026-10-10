@@ -3,4 +3,4 @@ export {
     isLikelyFilename,
     normalizeRoleTitle,
     resolveJobTitle,
-} from '../../../extension/src/resume-job-title';
+} from '../../../extension/src/resume/resume-job-title';

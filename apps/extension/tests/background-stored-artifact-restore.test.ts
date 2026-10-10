@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import test from 'node:test';
 import vm from 'node:vm';
-import {validateGeneratedResumeArtifactV1} from '../src/resume-artifact-validator';
+import {validateGeneratedResumeArtifactV1} from '../src/resume/resume-artifact-validator';
 
 /**
  * A tailored resume must outlive the browser session that produced it.

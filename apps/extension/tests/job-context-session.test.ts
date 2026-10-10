@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { handleJobContextSession } from '../src/job-context-session';
+import { handleJobContextSession } from '../src/job/job-context-session';
 
 test('job session relay isolates tabs, minimizes data, and refuses child frames', async () => {
   const values: Record<string, any> = { secret: 'never-return' };

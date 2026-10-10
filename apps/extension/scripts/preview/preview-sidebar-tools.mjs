@@ -5,11 +5,11 @@ import { readFile } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
 const {outputFiles}=await build({stdin:{loader:'ts',resolveDir:fileURLToPath(new URL('../../src',import.meta.url)),contents:`
-import {createJobTrackerWidget,setJobTrackerWidgetHost} from './job-portal-tracker-widget';
-import {paintResumeStatusRow} from './resume-status-row';
+import {createJobTrackerWidget,setJobTrackerWidgetHost} from './job-portal/job-portal-tracker-widget';
+import {paintResumeStatusRow} from './resume/resume-status-row';
 import {hardenInteractiveElements} from './design/a11y';
-import {runPrefill} from './easy-apply-engine';
-import {fillConfirmedSensitiveAnswers} from './sensitive-autofill';
+import {runPrefill} from './easy-apply/easy-apply-engine';
+import {fillConfirmedSensitiveAnswers} from './prefill/sensitive-autofill';
 const noop=()=>{};let calls=0;
 window.chrome={runtime:{getURL:p=>'/'+p,sendMessage:(m,callback)=>{
  let value={ok:false};

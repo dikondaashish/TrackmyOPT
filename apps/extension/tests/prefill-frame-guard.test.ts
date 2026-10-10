@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
 const requireLocal = createRequire(resolve('package.json'));
-const code = requireLocal('esbuild').buildSync({ entryPoints: ['src/prefill-mode-guard.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
+const code = requireLocal('esbuild').buildSync({ entryPoints: ['src/prefill/prefill-mode-guard.ts'], bundle: true, write: false, format: 'cjs', platform: 'node' }).outputFiles[0].text;
 function harness(mode: string) {
   const listeners = new Set<(changes: any, area: string) => void>();
   const window = { location: { href: 'https://ats.example.test/apply' }, addEventListener() {}, removeEventListener() {} };

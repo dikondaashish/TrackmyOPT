@@ -1,6 +1,6 @@
 # TrackMyOPT pending implementation plan
 
-**Last reviewed:** 2026-10-10 (items verified against code; item 1 still describes the 0.2.0 candidate — the extension is now 0.2.4)  
+**Last reviewed:** 2026-10-10 (items verified against code; item 1 is written against extension 0.2.4)  
 **Code reviewed:** web app, Nest API, Chrome extension, Supabase migrations,
 configuration, tests, and repository README files.
 
@@ -13,25 +13,43 @@ remain because they are needed even when their supporting code exists.
 
 ### 1. Release the Chrome extension safely
 
-This is the highest-priority remaining product task. The candidate is built as
-version `0.2.0`, but it has not completed the manual release gate.
+This is the highest-priority remaining product task. The extension is at
+version `0.2.4` (`apps/extension/manifest.json` and `package.json` match). The
+local production ZIP and synthetic browser fixtures are recorded in
+[the 0.2.4 status report](../apps/extension/docs/competitor-architecture-roadmap-0.2.4.md);
+that report states the ZIP has not been uploaded and that synthetic checks alone
+are not enough to publish. The Store copy and assets were prepared for 0.2.1
+(`apps/extension/store-assets/LISTING-0.2.1.md`) and have not been re-issued for
+0.2.4. **Web Store publication unverified:** the repository records the item as
+last published at 0.1.18, and the privacy review notes that Store access and the
+actually published version were never confirmed.
 
+- [ ] Confirm the current published Web Store version and whether the 0.2.1
+  listing draft was ever submitted; update the listing/privacy declarations for
+  0.2.4 if they differ.
 - [ ] Test in a fresh Chrome profile: sign in, token refresh, sign out, service
-  worker restart, and full browser restart.
-- [ ] Run the sanitized Workday matrix: multi-step contact, resume, work
-  history, education, skills, screening drafts, sensitive answers, cover
-  letter, Guided navigation, Review stop, and final-submit stop.
-- [ ] Run the equivalent Greenhouse single-page matrix.
+  worker restart, and full browser restart. The 0.2.4 report validated only an
+  isolated Chromium fixture and did not install the build in a signed-in
+  profile against the production API.
+- [ ] Run the sanitized Workday matrix with a controlled test account:
+  multi-step contact, resume, work history, education, skills, screening drafts,
+  sensitive answers, cover letter, Guided navigation, Review stop, and
+  final-submit stop. The report notes Workday was only inspected up to an
+  account-creation/terms step.
+- [ ] Run the equivalent Greenhouse single-page matrix, and the remaining
+  live checks the report lists for Lever, Ashby, SmartRecruiters (custom history
+  rows), and LinkedIn Easy Apply, using controlled data and never submitting.
 - [ ] Confirm existing values and existing files are never overwritten.
 - [ ] Review the user-facing autofill/privacy disclosure with the owner or
   counsel. Source copy is updated; publication and sign-off remain pending in
-  [the privacy release review](compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md).
+  [the privacy release review](compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md),
+  including the publication-time policy version/date update.
 - [x] Record the Chrome Web Store justification for `all_frames` and
   `match_about_blank`; confirm no new permission is unnecessary.
-- [ ] Build the final package, upload it to the Chrome Web Store, review the
-  listing, and use a staged rollout.
+- [ ] Rebuild the final package, confirm it matches the reviewed source, upload
+  it to the Chrome Web Store, review the listing, and use a staged rollout.
 
-**Done when:** the two browser matrices pass with sanitized data, the package
+**Done when:** the live browser matrices pass with sanitized data, the package
 matches the reviewed source, and the owner submits the staged release.
 
 ### 2. Close the USCIS agreement and evidence actions

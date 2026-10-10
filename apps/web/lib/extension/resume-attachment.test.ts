@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { attachGeneratedResume } from '../../../extension/src/easy-apply-engine';
+import { attachGeneratedResume } from '../../../extension/src/easy-apply/easy-apply-engine';
 
 const originalDataTransfer = globalThis.DataTransfer;
 

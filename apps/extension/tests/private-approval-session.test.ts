@@ -5,7 +5,7 @@ import {
   approvalMatchesJob,
   approvalMatchesUrl,
   createPrivateApprovalBinding,
-} from '../src/private-approval-session';
+} from '../src/private/private-approval-session';
 
 const jobA = {
   jobUrl:
@@ -62,7 +62,7 @@ assert.match(
   'the manual Prefill click loads answers and binds them to this application',
 );
 const sensitivePanel = readFileSync(
-  resolve('src/job-portal-sensitive-answer-panel.ts'),
+  resolve('src/job-portal/job-portal-sensitive-answer-panel.ts'),
   'utf8',
 );
 assert.doesNotMatch(

@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { selectAtsPrefillAdapter } from '../src/ats-prefill-adapters';
-import { expandRepeatableRows } from '../src/repeatable-row-expansion';
-import { fillRepeatableRecords } from '../src/repeatable-record-engine';
-import { recoverPrefillControl } from '../src/prefill-control-recovery';
-import { beginPrefillOperationSession } from '../src/prefill-operation-session';
-import { acceptPrefillRelay, waitForPrefillRelayTurn } from '../src/prefill-relay-guard';
+import { selectAtsPrefillAdapter } from '../src/job-portal/ats-prefill-adapters';
+import { expandRepeatableRows } from '../src/prefill/repeatable-row-expansion';
+import { fillRepeatableRecords } from '../src/prefill/repeatable-record-engine';
+import { recoverPrefillControl } from '../src/prefill/prefill-control-recovery';
+import { beginPrefillOperationSession } from '../src/prefill/prefill-operation-session';
+import { acceptPrefillRelay, waitForPrefillRelayTurn } from '../src/prefill/prefill-relay-guard';
 
 const { JSDOM } = createRequire(resolve('package.json'))('jsdom');
 

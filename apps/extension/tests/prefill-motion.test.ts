@@ -3,11 +3,11 @@ import test from 'node:test';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
 import vm from 'node:vm';
-import {emptyPrefillCoverage,formatPrefillCoverageSummary} from '../src/prefill-coverage';
+import {emptyPrefillCoverage,formatPrefillCoverageSummary} from '../src/prefill/prefill-coverage';
 const req=createRequire(resolve('package.json'));
 const {JSDOM}=req('jsdom');
-const bundle=req('esbuild').buildSync({entryPoints:['src/autofill-visual-feedback.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
-const engineBundle=req('esbuild').buildSync({entryPoints:['src/easy-apply-engine.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
+const bundle=req('esbuild').buildSync({entryPoints:['src/prefill/autofill-visual-feedback.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
+const engineBundle=req('esbuild').buildSync({entryPoints:['src/easy-apply/easy-apply-engine.ts'],bundle:true,write:false,format:'cjs',platform:'node'}).outputFiles[0].text;
 test('review summary reflects the final scan after private answers fill',()=>{
   const result=emptyPrefillCoverage();result.skipped=3;
   result.applicationScan={requiredFilled:7,requiredTotal:8,requiredPercent:88,unansweredRequired:1,required:[],optional:[],optionalTotal:0};

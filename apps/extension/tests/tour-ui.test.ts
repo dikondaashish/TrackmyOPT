@@ -3,7 +3,7 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
-import { TOUR_CHAPTERS } from '../src/tour-content';
+import { TOUR_CHAPTERS } from '../src/tour/tour-content';
 
 const req = createRequire(resolve('package.json'));
 const { JSDOM } = req('jsdom');

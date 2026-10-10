@@ -5,13 +5,13 @@ import {
   chooseSmartDropdownOption,
   type SmartDropdownContext,
   type SmartDropdownMatchKind,
-} from '../src/smart-dropdown';
-import { classifyField } from '../src/easy-apply-matchers';
+} from '../src/prefill/smart-dropdown';
+import { classifyField } from '../src/easy-apply/easy-apply-matchers';
 import {
   dialCodeForCountry,
   dialCodeFromPhoneNumber,
   resolveDialCode,
-} from '../src/phone-country-codes';
+} from '../src/shared/phone-country-codes';
 
 /**
  * Real ATS dropdowns render the same answer many ways. Matching only the whole

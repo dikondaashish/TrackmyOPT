@@ -5,7 +5,7 @@ import {
   jobMemoryKey,
   normalizeOptClockNudge,
   recordSeenJob,
-} from '../src/smart-flow';
+} from '../src/prefill/smart-flow';
 
 assert.equal(
   jobMemoryKey({

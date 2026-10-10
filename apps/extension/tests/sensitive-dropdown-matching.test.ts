@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { candidateMatches } from '../src/sensitive-autofill';
+import { candidateMatches } from '../src/prefill/sensitive-autofill';
 
 assert.equal(candidateMatches('Yes, I am authorized to work', 'yes'), true);
 assert.equal(candidateMatches('No, I require sponsorship', 'yes'), false);

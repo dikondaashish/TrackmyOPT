@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   INACTIVE_ARTIFACT_FALLBACK_MESSAGE,
   renderInactiveArtifactFallback,
-} from '../../../extension/src/artifact-fallback-ui';
+} from '../../../extension/src/resume/artifact-fallback-ui';
 
 describe('artifact fallback after content-script recreation', () => {
   beforeEach(() => {

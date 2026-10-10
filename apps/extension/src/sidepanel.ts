@@ -22,25 +22,25 @@ import { ensureThemeStyle } from './design/theme-css';
 import { runConsole, type RunConsoleHandle } from './agent/run-console';
 import { AgentRunClient } from './agent/run-client';
 import { RESUME_TEMPLATES_FOR_PANEL } from './agent/panel-templates';
-import { WEBSITE_URL } from './config';
-import { looksLikeRealJobPostingText, jobDescriptionCacheKey, htmlToPlainText } from './job-description';
-import { jobDescriptionField } from './job-description-field';
-import type { JobDescriptionResolution } from './job-description-scrape';
-import { downloadGeneratedPdf } from './job-portal-widget-ui';
-import { savedJobResumeCard } from './saved-job-resume-card';
-import { savedResumeChangeHint, type SavedJobResumeResponse } from './saved-job-resume';
-import type { GeneratedResumeArtifactV1 } from './resume-autofill-contract';
+import { WEBSITE_URL } from './shared/config';
+import { looksLikeRealJobPostingText, jobDescriptionCacheKey, htmlToPlainText } from './job/job-description';
+import { jobDescriptionField } from './job/job-description-field';
+import type { JobDescriptionResolution } from './job/job-description-scrape';
+import { downloadGeneratedPdf } from './job-portal/job-portal-widget-ui';
+import { savedJobResumeCard } from './resume/saved-job-resume-card';
+import { savedResumeChangeHint, type SavedJobResumeResponse } from './resume/saved-job-resume';
+import type { GeneratedResumeArtifactV1 } from './resume/resume-autofill-contract';
 import {
     getAlignJobTitlesPreference,
     setAlignJobTitlesPreference,
-} from './resume-generation-preferences';
+} from './resume/resume-generation-preferences';
 import {
     arrayBufferToBase64,
     describeOversizedResumeFile,
     describeUnsupportedResumeFile,
     isResumeFileSizeAllowed,
     isSupportedResumeFileName,
-} from './resume-file-upload';
+} from './resume/resume-file-upload';
 
 interface JobContext {
     tabId?: number;

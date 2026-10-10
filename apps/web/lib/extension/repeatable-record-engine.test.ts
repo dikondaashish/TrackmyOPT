@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { fillRepeatableRecords } from '../../../extension/src/repeatable-record-engine';
-import type { ClassifiedControl } from '../../../extension/src/ats-prefill-adapters';
-import type { ResumeAutofillSnapshotV1 } from '../../../extension/src/resume-autofill-contract';
-import { getLabelText, runPrefill } from '../../../extension/src/easy-apply-engine';
-import { classifyField } from '../../../extension/src/easy-apply-matchers';
+import { fillRepeatableRecords } from '../../../extension/src/prefill/repeatable-record-engine';
+import type { ClassifiedControl } from '../../../extension/src/job-portal/ats-prefill-adapters';
+import type { ResumeAutofillSnapshotV1 } from '../../../extension/src/resume/resume-autofill-contract';
+import { getLabelText, runPrefill } from '../../../extension/src/easy-apply/easy-apply-engine';
+import { classifyField } from '../../../extension/src/easy-apply/easy-apply-matchers';
 
 const snapshot: ResumeAutofillSnapshotV1 = {
   contact: {}, skills: [], certifications: [], education: [],
