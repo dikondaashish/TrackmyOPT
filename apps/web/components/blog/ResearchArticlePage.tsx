@@ -64,6 +64,12 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           </span>
           <span aria-hidden>•</span>
           <span>Published {formatDate(article.publishedDate)}</span>
+          {article.modifiedDate !== article.publishedDate && (
+            <>
+              <span aria-hidden>•</span>
+              <span>Updated {formatDate(article.modifiedDate)}</span>
+            </>
+          )}
           <span aria-hidden>•</span>
           <span>Reviewed against primary government sources</span>
         </div>

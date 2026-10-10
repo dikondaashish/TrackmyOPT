@@ -24,11 +24,11 @@ const VARIANTS: Record<
 > = {
   "case-status": {
     icon: Bell,
-    title: "Stop refreshing. See your decision window.",
+    title: "Check your OPT or STEM OPT wait",
     description:
-      "Enter your OPT receipt date — see where you stand against similar cases, then add your receipt for live USCIS status and alerts when it moves.",
+      "Enter your receipt date for a free community-based estimate — no account needed. If enough comparable cases are available, see the sample size and range; then save your case for ongoing tracking.",
     href: "/tools/opt-decision-window",
-    cta: "See my decision window",
+    cta: "Check my wait",
   },
   "opt-timeline": {
     icon: Clock,
