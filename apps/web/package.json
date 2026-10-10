@@ -23,6 +23,7 @@
     "submit:indexnow:url": "node ../../scripts/submit-urls-indexnow.js",
     "policy-notice:dry-run": "npx tsx scripts/send-policy-update-notice.ts --dry-run",
     "policy-notice:send-test": "npx tsx scripts/send-policy-update-notice.ts --test-email support@trackmyopt.com --send",
+    "email-qa:render": "tsx scripts/render-email-qa.ts",
     "email-previews:dry-run": "npx tsx scripts/send-all-email-previews.ts --dry-run",
     "email-previews:send": "npx tsx scripts/send-all-email-previews.ts --to support@trackmyopt.com",
     "posthog:ops-closure": "npx tsx scripts/posthog-ops-closure.ts",

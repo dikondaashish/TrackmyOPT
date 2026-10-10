@@ -7,17 +7,23 @@ import {
   emailPrimaryButton,
   emailTextLead,
 } from '../email-brand';
+import { escapeHtml } from '../transactional/formatting';
 import type { EmailReminderData } from '../email-service';
 import { generateToolSection } from './partials/tool-section';
 
-export function getDailyReminderSubject(tools: EmailReminderData['tools']): string {
-  if (tools.some(t => t.stemFiling?.deadlinePassed)) {
+export function getDailyReminderSubject(
+  tools: EmailReminderData['tools']
+): string {
+  if (tools.some((t) => t.stemFiling?.deadlinePassed)) {
     return 'TrackMyOPT: STEM filing deadline has passed — contact your DSO';
   }
-  if (tools.some(t => t.stemFiling?.deadlineIsEstimate)) {
+  if (tools.some((t) => t.stemFiling?.deadlineIsEstimate)) {
     return 'TrackMyOPT: STEM filing estimate — confirm your DSO date';
   }
-  const minDays = Math.min(...tools.map(t => t.daysLeft));
+  if (!tools.length) return 'Your TrackMyOPT daily summary';
+  const minDays = Math.min(...tools.map((t) => t.daysLeft));
+  if (minDays < 0)
+    return 'TrackMyOPT: review your saved timeline — deadline passed';
 
   if (minDays <= 7) {
     return `TrackMyOPT: ${minDays} ${minDays === 1 ? 'day' : 'days'} left — action needed`;
@@ -32,33 +38,36 @@ export function getDailyReminderSubject(tools: EmailReminderData['tools']): stri
 
 export function renderDailyReminderEmailHtml(data: EmailReminderData): string {
   const currentDate = new Date().toLocaleDateString('en-US', {
+    timeZone: 'America/New_York',
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
-  const toolSectionsHTML = data.tools.map(tool => generateToolSection(tool)).join('');
+  const toolSectionsHTML = data.tools
+    .map((tool) => generateToolSection(tool))
+    .join('');
 
   return `
     ${emailOuterOpen()}
       <div class="tmo-force-card" style="background:${EMAIL.bgCard};border-radius:12px;overflow:hidden;border:1px solid ${EMAIL.border};box-shadow:0 1px 3px rgba(15,23,42,0.08);">
-        ${emailBrandHeaderWithLogo({ title: "Daily OPT summary" })}
+        ${emailBrandHeaderWithLogo({ title: 'Daily OPT summary' })}
         <div class="tmo-force-card" style="padding:20px 24px 8px 24px;border-bottom:1px solid ${EMAIL.border};background:${EMAIL.bgCard};">
           <p class="tmo-force-muted" style="margin:0 0 4px 0;color:${EMAIL.textMuted} !important;font-size:13px;">${currentDate}</p>
-          <h2 class="tmo-force-text" style="margin:0;color:${EMAIL.text} !important;font-size:20px;font-weight:700;">Hi ${data.firstName}</h2>
-          ${emailTextLead("Your timeline and tool reminders")}
+          <h2 class="tmo-force-text" style="margin:0;color:${EMAIL.text} !important;font-size:20px;font-weight:700;">Hi ${escapeHtml(data.firstName.trim() || 'there')}</h2>
+          ${emailTextLead('Your timeline and tool reminders')}
         </div>
         <div class="tmo-force-card" style="background:${EMAIL.bgCard};padding:0;">
           ${toolSectionsHTML}
           <div class="tmo-force-info-box" style="padding:16px 24px;background:${EMAIL.infoBg};border-top:1px solid ${EMAIL.infoBorder};">
             <p class="tmo-force-info-text" style="margin:0 0 4px 0;color:${EMAIL.infoText} !important;font-size:13px;font-weight:600;">Daily reminders</p>
             <p class="tmo-force-light-text" style="margin:0;color:${EMAIL.textSecondary} !important;font-size:13px;line-height:1.5;">
-              We send these updates at 9:00 AM ET when your tools are active. Adjust alerts in Settings if needed.
+              Daily updates are scheduled for 9:00 AM ET when your tools are active. Adjust alerts in Settings if needed.
             </p>
           </div>
           <div style="padding:20px 24px;text-align:center;border-top:1px solid ${EMAIL.border};">
-            ${emailPrimaryButton('https://www.trackmyopt.com/tools/opt-apply', 'Open dashboard')}
+            ${emailPrimaryButton('https://www.trackmyopt.com/dashboard', 'Open dashboard')}
           </div>
         </div>
         ${emailFooter()}

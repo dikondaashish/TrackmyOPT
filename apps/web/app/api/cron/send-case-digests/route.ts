@@ -1,3 +1,4 @@
+import { buildCaseSummaryEmailHtml } from '@/lib/notifications/case-summary-email';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
@@ -166,11 +167,13 @@ async function run(req: NextRequest) {
       } else if (latest.error || global.error) failed++;
       else
         try {
+          const text = buildCaseDigest(cases.data ?? [], notices.data ?? [], week);
           const info = await transport.sendMail({
             from: getSmtpFromHeader(),
             to: address,
             subject: 'Your TrackMyOPT weekly case summary',
-            text: buildCaseDigest(cases.data ?? [], notices.data ?? [], week),
+            text,
+            html: buildCaseSummaryEmailHtml('Your weekly case summary', text),
           });
           if (!info.accepted?.length) throw new Error('Not accepted');
           state = 'sent';

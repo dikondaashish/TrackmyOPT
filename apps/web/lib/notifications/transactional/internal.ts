@@ -3,9 +3,9 @@
  * TrackMyOPT team rather than to a user.
  */
 
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { sendMailWithRetry } from "../email-smtp";
-import { EMAIL } from "../email-brand";
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { sendMailWithRetry } from '../email-smtp';
+import { EMAIL } from '../email-brand';
 import {
   buildTransactionalEmail,
   emailBodySectionClose,
@@ -15,39 +15,36 @@ import {
   emailTextP,
   emailTextStrong,
   buildInternalAlertEmail,
-} from "../email-layout";
-import { COMPANY } from "@/lib/legal/legal-config";
-import { escapeHtml } from "./formatting";
+} from '../email-layout';
+import { COMPANY } from '@/lib/legal/legal-config';
+import { escapeHtml } from './formatting';
 import {
   getAppBaseUrl,
   getFromHeader,
   queueTransactionalEmailSend,
   type QueueTransactionalResult,
-} from "./queue";
+} from './queue';
 
 /**
  * Material change to subscription/refund/billing terms (active subscribers).
  */
-export async function sendMaterialPolicyChangeEmail(args: {
-  supabase: SupabaseClient;
-  userId: string;
-  toEmail: string;
-  firstName: string | null;
-  effectiveDate: string;
-  changeSummary: string;
-  policyVersion: string;
-}): Promise<QueueTransactionalResult> {
-  const { supabase, userId, toEmail, firstName, effectiveDate, changeSummary, policyVersion } = args;
+export function buildMaterialPolicyChangeEmailBodies(
+  args: Omit<
+    Parameters<typeof sendMaterialPolicyChangeEmail>[0],
+    'supabase' | 'userId' | 'toEmail'
+  >
+) {
+  const { firstName, effectiveDate, changeSummary, policyVersion } = args;
   const base = getAppBaseUrl();
   const termsUrl = `${base}/terms`;
   const refundUrl = `${base}/refund-policy`;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : 'Hi,';
 
   const html = buildTransactionalEmail({
-    headerTitle: "Billing policy update",
+    headerTitle: 'Billing policy update',
     bodyHtml: `
 ${emailBodySectionOpen()}
-${emailTextLead("Important update for subscribers")}
+${emailTextLead('Important update for subscribers')}
 ${emailTextP(greeting)}
 ${emailTextP(
   `We are updating subscription billing terms effective ${emailTextStrong(escapeHtml(effectiveDate))} (version ${escapeHtml(policyVersion)}).`
@@ -57,23 +54,42 @@ ${emailTextP(
   `<a href="${termsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Terms</a> &middot; <a href="${refundUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Refund Policy</a>`
 )}
 ${emailTextMuted(
-  "If you do not agree, cancel before the effective date in Settings &rarr; Billing to avoid future renewals."
+  'If you do not agree, cancel before the effective date in Settings &rarr; Billing to avoid future renewals.'
 )}
 ${emailBodySectionClose()}`,
   });
 
   const text = `Billing policy update effective ${effectiveDate}. ${changeSummary} ${termsUrl}`;
 
+  return {
+    subject: 'TrackMyOPT: Important update to subscription terms',
+    html,
+    text,
+  };
+}
+
+export async function sendMaterialPolicyChangeEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  effectiveDate: string;
+  changeSummary: string;
+  policyVersion: string;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, effectiveDate, policyVersion } = args;
+  const { html, text } = buildMaterialPolicyChangeEmailBodies(args);
+
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "material_policy_change",
-    subject: "TrackMyOPT: Important update to subscription terms",
+    emailType: 'material_policy_change',
+    subject: 'TrackMyOPT: Important update to subscription terms',
     html,
     text,
     emailData: { effective_date: effectiveDate, policy_version: policyVersion },
-    dedupe: { kind: "material_policy", policyVersion },
+    dedupe: { kind: 'material_policy', policyVersion },
   });
 }
 
@@ -81,26 +97,26 @@ ${emailBodySectionClose()}`,
  * Auto-reply to the user after contact form submit (email_queue + blocked check).
  * `userId` may be null for anonymous visitors.
  */
-export async function sendContactReceivedEmail(args: {
-  supabase: SupabaseClient;
-  userId: string | null;
-  name: string;
-  toEmail: string;
-}): Promise<QueueTransactionalResult> {
-  const { supabase, userId, name, toEmail } = args;
-  const first = name.trim().split(/\s+/)[0] || "there";
+export function buildContactReceivedEmailBodies(
+  args: Omit<
+    Parameters<typeof sendContactReceivedEmail>[0],
+    'supabase' | 'userId' | 'toEmail'
+  >
+) {
+  const { name } = args;
+  const first = name.trim().split(/\s+/)[0] || 'there';
   const greeting = `Hi ${escapeHtml(first)},`;
   const base = getAppBaseUrl();
   const dashUrl = `${base}/dashboard`;
 
   const html = buildTransactionalEmail({
-    headerTitle: "We received your message",
+    headerTitle: 'We received your message',
     bodyHtml: `
 ${emailBodySectionOpen()}
-${emailTextLead("TrackMyOPT Support")}
+${emailTextLead('TrackMyOPT Support')}
 ${emailTextP(greeting)}
 ${emailTextP(
-  `Thanks for reaching out. We&rsquo;ve received your message and will get back to you within ${emailTextStrong("24&ndash;48 hours")}.`
+  `Thanks for reaching out. We&rsquo;ve received your message and will get back to you within ${emailTextStrong('24&ndash;48 hours')}.`
 )}
 ${emailTextP(
   `In the meantime, check your <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:600;">dashboard</a> for updates.`
@@ -120,34 +136,89 @@ ${dashUrl}
 
 © ${new Date().getFullYear()} Zyene, Inc.`;
 
+  return {
+    subject: 'We received your message — TrackMyOPT Support',
+    html,
+    text,
+  };
+}
+
+export async function sendContactReceivedEmail(args: {
+  supabase: SupabaseClient;
+  userId: string | null;
+  name: string;
+  toEmail: string;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, name, toEmail } = args;
+  const { html, text } = buildContactReceivedEmailBodies(args);
+
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "contact_received",
-    subject: "We received your message — TrackMyOPT Support",
+    emailType: 'contact_received',
+    subject: 'We received your message — TrackMyOPT Support',
     html,
     text,
     emailData: { contact_name: name.trim() },
-    dedupe: { kind: "none" },
+    dedupe: { kind: 'none' },
   });
 }
 
 function buildSupabaseContactSubmissionEditorUrl(submissionId: string): string {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  let projectRef = "";
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  let projectRef = '';
   try {
-    projectRef = new URL(supabaseUrl).hostname.split(".")[0] || "";
+    projectRef = new URL(supabaseUrl).hostname.split('.')[0] || '';
   } catch {
-    return "";
+    return '';
   }
-  if (!projectRef) return "";
+  if (!projectRef) return '';
   return `https://supabase.com/dashboard/project/${projectRef}/editor/public.contact_submissions?filter=id%3Deq.${encodeURIComponent(submissionId)}`;
 }
 
 /**
  * Internal alert to support — direct SMTP (no email_queue), best-effort.
  */
+export function buildInternalContactFormEmailBodies(
+  args: Parameters<typeof sendInternalContactFormNotification>[0]
+) {
+  const rowLink = buildSupabaseContactSubmissionEditorUrl(args.submissionId);
+  const subj = `New contact form submission from ${args.name.slice(0, 80)}`;
+  const safeMsg = escapeHtml(args.message);
+  const html = buildInternalAlertEmail(
+    'New contact form',
+    `
+${emailTextP(`<strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}`)}
+${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
+${emailTextP(`<strong>User ID:</strong> ${args.userId ? escapeHtml(args.userId) : '(anonymous)'}`)}
+<hr style="border:none;border-top:1px solid ${EMAIL.border};margin:16px 0"/>
+${emailTextP(`<strong>Name:</strong> ${escapeHtml(args.name)}`)}
+${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
+${emailTextP(`<strong>Subject:</strong> ${escapeHtml(args.subject)}`)}
+${emailTextLead('Message')}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${safeMsg}</div>
+${rowLink ? emailTextP(`<a href="${escapeHtml(rowLink)}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Open row in Supabase Table Editor</a>`) : ''}
+`
+  );
+  const text = [
+    `New contact form submission`,
+    `Submission ID: ${args.submissionId}`,
+    `Time (UTC): ${args.createdAtIso}`,
+    `User ID: ${args.userId ?? '(anonymous)'}`,
+    ``,
+    `Name: ${args.name}`,
+    `Email: ${args.email}`,
+    `Subject: ${args.subject}`,
+    ``,
+    `Message:`,
+    args.message,
+    rowLink ? `\n\nSupabase: ${rowLink}` : '',
+  ].join('\n');
+
+  return { subject: subj, html, text };
+}
+
 export async function sendInternalContactFormNotification(args: {
   submissionId: string;
   name: string;
@@ -158,39 +229,12 @@ export async function sendInternalContactFormNotification(args: {
   userId: string | null;
 }): Promise<void> {
   try {
-    const rowLink = buildSupabaseContactSubmissionEditorUrl(args.submissionId);
-    const to = "support@trackmyopt.com";
-    const subj = `New contact form submission from ${args.name.slice(0, 80)}`;
-    const safeMsg = escapeHtml(args.message);
-    const html = buildInternalAlertEmail(
-      "New contact form",
-      `
-${emailTextP(`<strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}`)}
-${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
-${emailTextP(`<strong>User ID:</strong> ${args.userId ? escapeHtml(args.userId) : "(anonymous)"}`)}
-<hr style="border:none;border-top:1px solid ${EMAIL.border};margin:16px 0"/>
-${emailTextP(`<strong>Name:</strong> ${escapeHtml(args.name)}`)}
-${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
-${emailTextP(`<strong>Subject:</strong> ${escapeHtml(args.subject)}`)}
-${emailTextLead("Message")}
-<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${safeMsg}</div>
-${rowLink ? emailTextP(`<a href="${escapeHtml(rowLink)}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Open row in Supabase Table Editor</a>`) : ""}
-`
-    );
-    const text = [
-      `New contact form submission`,
-      `Submission ID: ${args.submissionId}`,
-      `Time (UTC): ${args.createdAtIso}`,
-      `User ID: ${args.userId ?? "(anonymous)"}`,
-      ``,
-      `Name: ${args.name}`,
-      `Email: ${args.email}`,
-      `Subject: ${args.subject}`,
-      ``,
-      `Message:`,
-      args.message,
-      rowLink ? `\n\nSupabase: ${rowLink}` : "",
-    ].join("\n");
+    const to = 'support@trackmyopt.com';
+    const {
+      subject: subj,
+      html,
+      text,
+    } = buildInternalContactFormEmailBodies(args);
 
     await sendMailWithRetry({
       from: getFromHeader(),
@@ -200,13 +244,49 @@ ${rowLink ? emailTextP(`<a href="${escapeHtml(rowLink)}" class="tmo-force-link" 
       html,
     });
   } catch (e) {
-    console.error("sendInternalContactFormNotification:", e);
+    console.error('sendInternalContactFormNotification:', e);
   }
 }
 
 /**
  * Internal alert to support for B2B Partnership Inquiries.
  */
+export function buildInternalPartnershipEmailBodies(
+  args: Parameters<typeof sendInternalPartnershipNotification>[0]
+) {
+  const subj = `New Partnership Inquiry from ${args.university.slice(0, 80)}`;
+  const safeMsg = escapeHtml(args.message);
+  const html = buildInternalAlertEmail(
+    'Partnership inquiry',
+    `
+${emailTextP(`<strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}`)}
+${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
+<hr style="border:none;border-top:1px solid ${EMAIL.border};margin:16px 0"/>
+${emailTextP(`<strong>Name:</strong> ${escapeHtml(args.name)}`)}
+${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
+${emailTextP(`<strong>University/Institution:</strong> ${escapeHtml(args.university)}`)}
+${emailTextP(`<strong>Role:</strong> ${escapeHtml(args.role)}`)}
+${emailTextLead('Message')}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${safeMsg}</div>
+`
+  );
+  const text = [
+    'New Partnership Inquiry',
+    `Submission ID: ${args.submissionId}`,
+    `Time (UTC): ${args.createdAtIso}`,
+    '',
+    `Name: ${args.name}`,
+    `Email: ${args.email}`,
+    `University: ${args.university}`,
+    `Role: ${args.role}`,
+    '',
+    'Message:',
+    args.message,
+  ].join('\n');
+
+  return { subject: subj, html, text };
+}
+
 export async function sendInternalPartnershipNotification(args: {
   submissionId: string;
   name: string;
@@ -217,36 +297,12 @@ export async function sendInternalPartnershipNotification(args: {
   createdAtIso: string;
 }): Promise<void> {
   try {
-    const to = "support@trackmyopt.com";
-    const subj = `New Partnership Inquiry from ${args.university.slice(0, 80)}`;
-    const safeMsg = escapeHtml(args.message);
-    const html = buildInternalAlertEmail(
-      "Partnership inquiry",
-      `
-${emailTextP(`<strong>Submission ID:</strong> ${escapeHtml(args.submissionId)}`)}
-${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
-<hr style="border:none;border-top:1px solid ${EMAIL.border};margin:16px 0"/>
-${emailTextP(`<strong>Name:</strong> ${escapeHtml(args.name)}`)}
-${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
-${emailTextP(`<strong>University/Institution:</strong> ${escapeHtml(args.university)}`)}
-${emailTextP(`<strong>Role:</strong> ${escapeHtml(args.role)}`)}
-${emailTextLead("Message")}
-<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${safeMsg}</div>
-`
-    );
-    const text = [
-      "New Partnership Inquiry",
-      `Submission ID: ${args.submissionId}`,
-      `Time (UTC): ${args.createdAtIso}`,
-      "",
-      `Name: ${args.name}`,
-      `Email: ${args.email}`,
-      `University: ${args.university}`,
-      `Role: ${args.role}`,
-      "",
-      "Message:",
-      args.message,
-    ].join("\n");
+    const to = 'support@trackmyopt.com';
+    const {
+      subject: subj,
+      html,
+      text,
+    } = buildInternalPartnershipEmailBodies(args);
 
     await sendMailWithRetry({
       from: getFromHeader(),
@@ -256,8 +312,45 @@ ${emailTextLead("Message")}
       html,
     });
   } catch (e) {
-    console.error("sendInternalPartnershipNotification:", e);
+    console.error('sendInternalPartnershipNotification:', e);
   }
+}
+
+export function buildInternalDedicatedConsultationEmailBodies(
+  args: Parameters<typeof sendInternalDedicatedConsultationNotification>[0]
+) {
+  const subject = `Dedicated attorney consultation request: ${args.topic}`;
+  const html = buildInternalAlertEmail(
+    'Dedicated attorney consultation request',
+    `
+${emailTextP(`<strong>Request ID:</strong> ${escapeHtml(args.requestId)}`)}
+${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
+${emailTextP(`<strong>User ID:</strong> ${escapeHtml(args.userId)}`)}
+${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
+${emailTextP(`<strong>Topic:</strong> ${escapeHtml(args.topic)}`)}
+${emailTextP(`<strong>Case ID:</strong> ${escapeHtml(args.caseId ?? 'Not selected')}`)}
+${emailTextP(`<strong>Case category:</strong> ${escapeHtml(args.caseCategory ?? 'Unknown')}`)}
+${emailTextLead('Member summary')}
+<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${escapeHtml(args.summary)}</div>
+${args.availability ? `${emailTextLead('Availability')}<div style="white-space:pre-wrap;">${escapeHtml(args.availability)}</div>` : ''}
+`
+  );
+  const text = [
+    'Dedicated attorney consultation request',
+    `Request ID: ${args.requestId}`,
+    `Time (UTC): ${args.createdAtIso}`,
+    `User ID: ${args.userId}`,
+    `Email: ${args.email}`,
+    `Topic: ${args.topic}`,
+    `Case ID: ${args.caseId ?? 'Not selected'}`,
+    `Case category: ${args.caseCategory ?? 'Unknown'}`,
+    '',
+    'Summary:',
+    args.summary,
+    args.availability ? `\nAvailability:\n${args.availability}` : '',
+  ].join('\n');
+
+  return { subject: subject, html, text };
 }
 
 export async function sendInternalDedicatedConsultationNotification(args: {
@@ -272,37 +365,12 @@ export async function sendInternalDedicatedConsultationNotification(args: {
   createdAtIso: string;
 }): Promise<void> {
   try {
-    const to = "support@trackmyopt.com";
-    const subject = `Dedicated attorney consultation request: ${args.topic}`;
-    const html = buildInternalAlertEmail(
-      "Dedicated attorney consultation request",
-      `
-${emailTextP(`<strong>Request ID:</strong> ${escapeHtml(args.requestId)}`)}
-${emailTextP(`<strong>Time (UTC):</strong> ${escapeHtml(args.createdAtIso)}`)}
-${emailTextP(`<strong>User ID:</strong> ${escapeHtml(args.userId)}`)}
-${emailTextP(`<strong>Email:</strong> ${escapeHtml(args.email)}`)}
-${emailTextP(`<strong>Topic:</strong> ${escapeHtml(args.topic)}`)}
-${emailTextP(`<strong>Case ID:</strong> ${escapeHtml(args.caseId ?? "Not selected")}`)}
-${emailTextP(`<strong>Case category:</strong> ${escapeHtml(args.caseCategory ?? "Unknown")}`)}
-${emailTextLead("Member summary")}
-<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border-radius:8px;padding:16px;white-space:pre-wrap;word-break:break-word;color:${EMAIL.textSecondary} !important;font-size:15px;line-height:1.6;">${escapeHtml(args.summary)}</div>
-${args.availability ? `${emailTextLead("Availability")}<div style="white-space:pre-wrap;">${escapeHtml(args.availability)}</div>` : ""}
-`
-    );
-    const text = [
-      "Dedicated attorney consultation request",
-      `Request ID: ${args.requestId}`,
-      `Time (UTC): ${args.createdAtIso}`,
-      `User ID: ${args.userId}`,
-      `Email: ${args.email}`,
-      `Topic: ${args.topic}`,
-      `Case ID: ${args.caseId ?? "Not selected"}`,
-      `Case category: ${args.caseCategory ?? "Unknown"}`,
-      "",
-      "Summary:",
-      args.summary,
-      args.availability ? `\nAvailability:\n${args.availability}` : "",
-    ].join("\n");
+    const to = 'support@trackmyopt.com';
+    const {
+      subject: subject,
+      html,
+      text,
+    } = buildInternalDedicatedConsultationEmailBodies(args);
 
     await sendMailWithRetry({
       from: getFromHeader(),
@@ -312,8 +380,43 @@ ${args.availability ? `${emailTextLead("Availability")}<div style="white-space:p
       html,
     });
   } catch (error) {
-    console.error("sendInternalDedicatedConsultationNotification:", error);
+    console.error('sendInternalDedicatedConsultationNotification:', error);
   }
+}
+
+export function buildDedicatedConsultationReceivedEmailBodies(
+  args: Omit<
+    Parameters<typeof sendDedicatedConsultationReceivedEmail>[0],
+    'supabase' | 'userId' | 'toEmail'
+  >
+) {
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const html = buildTransactionalEmail({
+    headerTitle: 'Consultation request received',
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextLead('Your Dedicated request is in review')}
+${emailTextP('We received your request for the complimentary initial attorney consultation included with Dedicated.')}
+${emailTextP(`Topic: ${emailTextStrong(escapeHtml(args.topic))}`)}
+${emailTextP('Our team will review eligibility, attorney availability, potential conflicts, and attorney acceptance before confirming an appointment.')}
+${emailTextP(`<a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View your subscription settings</a>`)}
+${emailTextMuted('This confirmation is not legal advice and does not create an attorney-client relationship. That relationship begins only if and when the attorney accepts the matter under the applicable terms.')}
+${emailBodySectionClose()}`,
+  });
+  const text = [
+    'Your Dedicated consultation request is in review.',
+    `Topic: ${args.topic}`,
+    'We will review eligibility, availability, conflicts, and attorney acceptance before confirming an appointment.',
+    'This confirmation is not legal advice and does not create an attorney-client relationship.',
+    settingsUrl,
+  ].join('\n\n');
+
+  return {
+    subject: 'We received your attorney consultation request',
+    html,
+    text,
+  };
 }
 
 export async function sendDedicatedConsultationReceivedEmail(args: {
@@ -322,37 +425,17 @@ export async function sendDedicatedConsultationReceivedEmail(args: {
   toEmail: string;
   topic: string;
 }): Promise<QueueTransactionalResult> {
-  const base = getAppBaseUrl();
-  const settingsUrl = `${base}/dashboard/settings`;
-  const html = buildTransactionalEmail({
-    headerTitle: "Consultation request received",
-    bodyHtml: `
-${emailBodySectionOpen()}
-${emailTextLead("Your Dedicated request is in review")}
-${emailTextP("We received your request for the complimentary initial attorney consultation included with Dedicated.")}
-${emailTextP(`Topic: ${emailTextStrong(escapeHtml(args.topic))}`)}
-${emailTextP("Our team will review eligibility, attorney availability, potential conflicts, and attorney acceptance before confirming an appointment.")}
-${emailTextP(`<a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">View your subscription settings</a>`)}
-${emailTextMuted("This confirmation is not legal advice and does not create an attorney-client relationship. That relationship begins only if and when the attorney accepts the matter under the applicable terms.")}
-${emailBodySectionClose()}`,
-  });
-  const text = [
-    "Your Dedicated consultation request is in review.",
-    `Topic: ${args.topic}`,
-    "We will review eligibility, availability, conflicts, and attorney acceptance before confirming an appointment.",
-    "This confirmation is not legal advice and does not create an attorney-client relationship.",
-    settingsUrl,
-  ].join("\n\n");
+  const { html, text } = buildDedicatedConsultationReceivedEmailBodies(args);
 
   return queueTransactionalEmailSend({
     supabase: args.supabase,
     userId: args.userId,
     emailAddress: args.toEmail,
-    emailType: "dedicated_consultation_received",
-    subject: "We received your attorney consultation request",
+    emailType: 'dedicated_consultation_received',
+    subject: 'We received your attorney consultation request',
     html,
     text,
     emailData: { topic: args.topic },
-    dedupe: { kind: "none" },
+    dedupe: { kind: 'none' },
   });
 }
