@@ -170,7 +170,7 @@ For date-logic changes, run the [immigration tests](./apps/web/lib/immigration/_
 | ------------------------------ | ----------------------------------------------------------------------------------------- |
 | System architecture            | [Architectural overview](./docs/architecture/ARCHITECTURAL_OVERVIEW.md)                   |
 | Codebase navigation            | [Directory deep dive](./docs/architecture/DIRECTORY_DEEP_DIVE.md)                         |
-| Database structure             | [Database inventory](./docs/architecture/DATABASE_INVENTORY.md)                           |
+| Database structure             | [Supabase database guide](./supabase/README.md) (migrations are the source of truth) |
 | OPT calculation implementation | [Immigration module](./apps/web/lib/immigration/README.md)                                |
 | Email delivery & schedules     | [Email templates](./docs/ops/EMAIL_TEMPLATES.md) · [Cron setup](./docs/ops/CRON_SETUP.md) |
 | Compliance review              | [Legal & billing QA](./docs/compliance/LEGAL_BILLING_COMPLIANCE_QA.md)                    |

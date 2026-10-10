@@ -98,8 +98,3 @@ Check Bing Webmaster Tools to see:
 - Indexing status  
 - Any indexing errors
 - Coverage reports
-
----
-
-**Setup Date**: March 12, 2026
-**Status**: ✅ Ready to use

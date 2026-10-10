@@ -7,8 +7,7 @@ credentials, addresses, resumes, or employer submissions.
 Version 0.2.1 lives in `output/0.2.1/`. Its five screenshots frame real tour
 components from the extension with clearly labeled fictional sample data.
 The two promotional tiles use the same branding. See `LISTING-0.2.1.md` for
-the exact listing copy and `../../../docs/releases/chrome-extension-0.2.1.md`
-for release verification.
+the exact listing copy.
 
 ## Render
 

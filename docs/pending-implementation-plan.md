@@ -1,6 +1,6 @@
 # TrackMyOPT pending implementation plan
 
-**Audit date:** 2026-07-25  
+**Last reviewed:** 2026-10-10 (items verified against code; item 1 still describes the 0.2.0 candidate — the extension is now 0.2.4)  
 **Code reviewed:** web app, Nest API, Chrome extension, Supabase migrations,
 configuration, tests, and repository README files.
 
@@ -8,38 +8,6 @@ This is the single ordered backlog for work that is not yet complete. Completed
 implementation plans and duplicate completion reports were removed from
 `docs/`. Operational references, legal evidence, and reusable campaign copy
 remain because they are needed even when their supporting code exists.
-
-## What is already implemented
-
-The following large workstreams are present in code and have automated coverage.
-They are not backlog items:
-
-- Job-scoped resume generation and safe empty-field autofill.
-- Resume, contact, employment, education, and opt-in skills autofill.
-- Job/resume-grounded screening-answer drafts with mandatory review.
-- Generated, compiled, hash-locked cover-letter PDF attachment.
-- Step-by-step, Continuous, and opt-in Guided Autopilot modes.
-- Guided clicks for allowlisted non-final Next, Continue, and Done controls.
-- Permanent stop before Review, Submit, Apply, Finish, or another final action.
-- Dedicated Chrome-extension job-portal profile for contact, full address,
-  social URLs, visa type, annual/hourly compensation, work preferences, date
-  of birth, and optional DEI answers.
-- Sensitive/private answers are stored separately with authenticated
-  encryption. Clicking Prefill loads matching answers without a separate
-  approval step; users review the filled application before submitting.
-  Saved portal passwords fill supported top-level HTTPS login/create-account
-  forms on the same explicit Prefill click, without automatic navigation.
-- Visual filling progress, field highlights, success/error states, and Stop UI.
-- Durable Supabase AI quotas and user-owned screening-answer storage.
-- Workday/Greenhouse adapter fixtures and extension unit tests.
-- Freemium purchase gate, pricing changes, checkout recovery, activation
-  nudges, and measurement instrumentation.
-- PostHog phases 0–5 instrumentation, dashboards, funnels, and server event
-  allowlists.
-- Billing consent/version evidence, Stripe webhook handling, legal pages, and
-  transactional billing emails.
-- NestJS API, Redis/Bull workers, S3/Textract OCR, and USCIS premium-only batch
-  filtering.
 
 ## Execution order
 
@@ -98,26 +66,7 @@ gate in the agreement checklist has an owner decision.
 **Done when:** the manual checklist is dated, evidence is retained, and counsel
 comments are either resolved or explicitly accepted.
 
-### 4. Finish the freemium measurement checkpoints
-
-Use `marketing/freemium-conversion-metrics.md`; do not infer missing values.
-
-- [ ] **Day 1, after 2026-07-26 14:00 UTC:** verify free cases did not move
-  overnight, premium cases refreshed, `skippedFree > 0`, and USCIS exceptions
-  did not rise from the 0/0 baseline.
-- [ ] **Daily through 2026-08-01:** confirm recovery, trial conversion, PWA,
-  cancellation feedback, and server-only checkout events arrive only when
-  their triggers occur.
-- [ ] **Day 7, 2026-08-01:** record unique-person funnel metrics, Stripe
-  active/trialing count, cancellation reasons, and DAU versus 55.9/day.
-- [ ] **Day 30, 2026-08-24:** rerun the checkpoint and record keep versus
-  soften-gate. If DAU falls sharply and checkout does not improve, recommend
-  free auto-check every three days; do not fully revert.
-
-**Done when:** every dated row contains source-backed values and the Day 30
-decision is recorded.
-
-### 5. Complete analytics operations
+### 4. Complete analytics operations
 
 - [ ] Verify PostHog error-tracking symbol sets against the next production
   deployment.
@@ -132,7 +81,7 @@ decision is recorded.
 **Done when:** the symbol set is visible, the warehouse sync is healthy, event
 dedupe is proved, and the monitoring owner is recorded.
 
-### 6. Pay down verified code-maintenance debt
+### 5. Pay down verified code-maintenance debt
 
 Do these as separate small changes; none is required to submit the extension.
 
@@ -166,7 +115,7 @@ Do these as separate small changes; none is required to submit the extension.
 **Done when:** each change has focused tests, no public API change is hidden,
 and the repository documentation matches the resulting boundary.
 
-### 7. Finish measured autofill hardening
+### 6. Finish measured autofill hardening
 
 These are data-driven follow-ups, not release blockers:
 
@@ -181,7 +130,7 @@ These are data-driven follow-ups, not release blockers:
 **Done when:** telemetry justifies a specific change and that change passes a
 sanitized browser fixture plus the no-overwrite/no-submit invariants.
 
-### 8. Clean up remaining SEO implementation debt
+### 7. Clean up remaining SEO implementation debt
 
 - [ ] After the redirects have been stable for at least 30 days, delete the
   redirect-source page directories for
@@ -199,7 +148,7 @@ sanitized browser fixture plus the no-overwrite/no-submit invariants.
 **Done when:** no internal links or sitemap URLs target redirect sources and
 the production validators report no actionable structured-data errors.
 
-### 9. Execute growth work after measurement and compliance
+### 8. Execute growth work after measurement and compliance
 
 The reusable campaign documents remain in `marketing/` and `seo/`.
 
@@ -227,65 +176,3 @@ needed, tracked conversion event, and a stop/continue decision based on data.
 - Never attach a cover letter that does not match the active resume hash.
 - Never re-enable sequential/neighbor USCIS receipt scanning.
 - Never use live Stripe charges for routine validation.
-
-## Documentation audit disposition
-
-| Area | Result |
-|------|--------|
-| Architecture | Current reference docs retained and corrected; completed proposal/roadmap docs removed. |
-| Autofill | Completed 1,700+ line specs and rollout report removed; genuine release and telemetry follow-ups are above. |
-| Archive | Completed phase reports removed; the still-pending USCIS agreement checklist moved to `compliance/`. |
-| Compliance | Evidence and safe test runbooks retained; duplicate resolved audits removed; manual QA condensed. |
-| Marketing | Campaign assets retained; implemented content/freemium phases reduced to pending work only. |
-| Operations | Living CORS, cron, and email catalogs retained; email roadmap reduced to unresolved gaps. |
-| PostHog | Completed phase reports removed; outstanding operational actions are above. |
-| SEO | Living setup guides retained; completed OG instructions removed; entity plan reduced to real pending work. |
-
-### Removed because complete or superseded
-
-The following 26 documents were fully implemented, were duplicate historical
-reports, or had their small remaining actions transferred into this plan:
-
-- `architecture/ARCHITECTURE.md`
-- `architecture/BACKEND_IMPLEMENTATION.md`
-- `architecture/EXTENSION_WIDGET_ROADMAP.md`
-- `architecture/job-scoped-resume-autofill/AUDIT-AND-ROLLOUT-MASTER-PLAN.md`
-- `architecture/job-scoped-resume-autofill/README.md`
-- `archive/EXCEPTION-SPIKE-REMEDIATION-PHASES.md`
-- `archive/FULL-AUDIT-REMEDIATION-PHASES.md`
-- `archive/PHASE-0-COMPLETION.md`
-- `archive/PHASE-0-FOUNDATION-TECHNICAL-SEO.md`
-- `archive/PHASE-1-COMPLETION-REPORT.md`
-- `archive/PHASE-1-IMPLEMENTATION-SUMMARY.md`
-- `archive/PHASE2-COMPLETE-SUMMARY.md`
-- `archive/PHASE2-FIXES-SUMMARY.md`
-- `archive/RESUME-GENERATOR-REMEDIATION-PHASES.md`
-- `compliance/BILLING_COMPLIANCE_QA.md`
-- `compliance/PAYMENT_FLOW_AUDIT.md`
-- `compliance/USCIS-TORCH-EMERGENCY-REMEDIATION.md`
-- `marketing/100-DAY-GROWTH-PLAN.md`
-- `marketing/PHASE-1-CONTENT-ENGINE-LAUNCH.md`
-- all six completed `posthog/POSTHOG-*.md` phase/audit reports
-- `seo/OG_IMAGE_METADATA_UPDATES.md`
-
-### Retained or rewritten because still useful
-
-- `README.md` — rewritten index.
-- `architecture/ARCHITECTURAL_OVERVIEW.md` — corrected to the current system.
-- `architecture/DATABASE_INVENTORY.md` — corrected to migration-backed counts.
-- `architecture/DIRECTORY_DEEP_DIVE.md` — corrected to the real folder layout.
-- `archive/USCIS_API_AGREEMENT_REVIEW_CHECKLIST.md` — moved to
-  `compliance/` because it is still pending.
-- `compliance/LEGAL_BILLING_COMPLIANCE_QA.md` — reduced to manual/counsel work.
-- `compliance/evidence-log.md` — retained as immutable evidence.
-- `compliance/stripe-test-billing-validation.md` — retained as a safe runbook.
-- `marketing/freemium-conversion-metrics.md` — reduced to Day 1/7/30 metrics.
-- `marketing/community-engagement-playbook.md` — pending campaign asset.
-- `marketing/email-sequences-playbook.md` — pending copy; provider/opt-out gate.
-- `marketing/paid-ads-playbook.md` — pending campaign asset.
-- `ops/CORS_POLICY.md`, `ops/CRON_SETUP.md`, and
-  `ops/EMAIL_TEMPLATES.md` — living operational references.
-- `ops/EMAIL_ROADMAP.md` — reduced to unresolved email work.
-- `seo/ENTITY-OPTIMIZATION-SETUP.md` — reduced to real entity/profile work.
-- `seo/GOOGLE-SEARCH-CONSOLE-SETUP.md` — reduced to recurring operations.
-- `seo/INDEXNOW-SETUP.md` — retained and corrected as an operating reference.

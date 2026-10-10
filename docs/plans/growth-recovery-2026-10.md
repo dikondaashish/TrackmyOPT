@@ -34,16 +34,6 @@ Query evidence from the same export:
 
 The generic STEM processing query moved from position 4.14 to 4.86 and CTR 19.21% to 8.82%. This is a real query-level deterioration even though the page-wide average position improved. Do not attribute everything to AI answers or to a sitewide penalty.
 
-## Changes delivered in this revision
-
-- Replaced the October bulletin prediction text with published India EB-1/EB-2/EB-3 final-action and filing dates, examples, official sources, and updated FAQs.
-- Refreshed the November outlook using October’s published baseline; removed unsourced traffic and analyst claims. The official index still says the upcoming bulletin is coming soon as of October 10.
-- Corrected OPT and STEM premium-processing eligibility, fee, business-day clock, and the distinction between adjudicative action and EAD delivery.
-- Removed unsupported fixed approval ranges, biometrics countdowns, online-filing speed claims, and an unsubstantiated student-data median.
-- Added official-estimate instructions, practical delay steps, section navigation, relevant internal links, synchronized visible/structured FAQs, and honest review dates.
-- Made updated dates visible on research articles while preserving original publication dates.
-- Clarified the existing case-status CTA: free estimate, no account required, and sufficient comparable cases needed. Kept its existing consent-aware event and destination.
-
 ## First four weeks after deployment
 
 | Timing | Priority | Action | Success measure |
@@ -95,54 +85,11 @@ Editorial checks: direct answers match intent; claims map to sources; visible FA
 
 Google explicitly permits an empty news sitemap when no articles fall within the two-day window ([official guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap)). Keep original publication dates; no sitemap workaround is required. A daily heartbeat now checks the November release and performs weekly growth reviews through November 7, notifying only on meaningful changes or blockers.
 
-## Validation of this revision
-
-Validated from a clean checkout with the same dependency lockfile and exact copies of the changed files because reads from the original dependency directory stalled. No production secrets were copied.
-
-- Targeted ESLint passed.
-- TypeScript check passed.
-- Four SEO/schema/indexing test files passed: 17 tests.
-- Production build and template-preview checks passed with the repository CI’s non-secret placeholder environment.
-- React Doctor reported no issues in the six changed source files (89/100, improved from 88 before fixing the navigation labels).
-- Generated HTML for all four refreshed articles has one H1, the existing self-canonical, a real October 10 modification date, and matching visible/structured FAQs. Search titles are 51–58 characters.
-- Internal links and section anchors in the processing guides resolve to existing routes/sections.
-- Browser preview confirmed the STEM guide renders and its “Check my wait” CTA opens the guest tool with both OPT and STEM options. This checks navigation, not a live database estimate.
-
-Passing local checks does not establish completed GitHub CI, production deployment, Google recrawling, or traffic recovery.
-
-
-## October 10 operational follow-through
-
-- Verified the previous content commit deployed successfully through Vercel. All four refreshed URLs return HTTP 200, include the October 10 modification date and one H1. All four plus the guest tool appear in the 247-URL production sitemap.
-- Google Search Console confirmed both processing guides are indexed; requested recrawling successfully for OPT and STEM. The STEM crawl before the request was October 10 at 3:05 AM, using smartphone Googlebot, with successful fetch, indexing allowed, and matching canonical. Browser access became unavailable during the October bulletin inspection; October, November and guest-tool inspections/requests remain pending for the follow-up.
-- Created the [growth recovery dashboard](https://us.posthog.com/project/369087/dashboard/2195103) with eight validated insights. Its reviewable configuration is [stored here](analytics/growth-recovery-dashboard.json). Guest-route funnels start October 5, when the route launched, avoiding a misleading denominator from earlier CTA destinations. Other reports use 28 complete days. SQL guardrails include all actors; funnel queries exclude configured test accounts.
-- October 5–9 guest funnel: 26 case-status CTA clickers → 20 result viewers → 9 tracking clicks → 2 signups. These are ordered unique-person counts, not the independent event totals. The seven-day window is immature and the sample is small.
-- September 12–October 9 signup funnel: 397 → 267 receipt additions → 77 activations. The missing first-receipt property must not be interpreted as zero receipts. This counts any receipt addition after signup and client-observed activation, with recent cohorts still immature.
-- Signup audit: 397 events, 397 people, zero repeated signup people. Google supplied 390 server captures and email supplied seven client captures. This is not proof that all real signups are recorded.
-- Added network/response failure capture to the guest lookup guardrail without sending dates, receipt prefixes, error messages or request URLs. API errors retain HTTP status. Insufficient-cohort results remain successful responses.
-- Prepared the [campus resource pack](../features/university-resource-pack.md), tagged links, draft introduction and a five-contact pilot outline. No outreach has been sent; recipients still need to be identified.
-- Repaired three stale CI test fixtures: real NextRequest in the guest route test, ResizeObserver/width simulation for consent-gated ads, and the current case-insight button label. Added narrow-container and guest outcome checks.
-
-The next product decision should follow matured cohorts: the initial guest path loses more people between result and signup than between CTA and result. Inspect result-to-account usability before adding more articles. The sample is too small to select a winning variant yet.
-
-Follow-through validation: all 278 test files passed (1,672 tests); targeted ESLint passed; React Doctor found no issues (89/100). The original five CI failures are covered by the repaired fixtures. Dashboard API readback confirmed eight saved tiles; each query executed successfully before saving. Local documentation links and dashboard JSON were validated.
-TypeScript and the production build also passed in the clean validation checkout with non-secret CI placeholder environment values.
-
-
 ## Paid Pro conversion improvements — October 10
 
 The owner's primary business target is **two successful USD $0.99 seven-day Pro starts each day** (14 per complete week). Free registrations remain a leading indicator. The owner's report of approximately one paid start weekly is not a reconciled Stripe baseline; earlier PostHog billing events missed some paid introductions. New events begin after this deployment, with no historical backfill.
 
 The September 12–October 9 audit found 397 signups, 77 ordered seven-day activations and five subsequent checkout starters. Separately, 11 unique people started checkout; eight chose annual and three monthly. The six client `premium_checkout_completed` events are return-page signals, not independently verified payment counts. These denominators differ, and recent cohorts are immature.
-
-Delivered changes:
-
-1. The case-status Pro offer opens directly after a useful resolved status, keeping the existing prompt cooldown. It focuses on daily automatic checks and status-change emails, defaults to $4.99 monthly renewal, and makes $49.99 annual renewal an explicit choice. A sample alert is labeled as an illustration. Manual checks remain available.
-2. Login now preserves the guest tool's safe `next` destination across email and Google flows. The receipt screen explains receipt → status → optional monitoring, without requiring unrelated onboarding before that action.
-3. Introductory eligibility is checked before showing the price. Checkout compares the displayed eligibility with the server's current eligibility and returns a reviewable error if it changed. Consent starts unchecked and resets when the renewal interval changes. Existing prices and seven-day refund/renewal terms are retained.
-4. Stripe-confirmed, live, exactly $0.99 USD introductions are captured from both the signed webhook and authenticated checkout confirmation after successful entitlement application. Pending transaction rows no longer suppress this metric. Invoice paid time and a stable UUID anchor retries to the same payment day; `$insert_id` alone is insufficient for PostHog deduplication. Both current invoice parent subscription references and historical references work.
-5. The success page directs Pro customers to their case tracker. A tracker checklist reports whether a receipt exists and emails are enabled, with a button that opens the actual notification-address editor. It does not claim inbox delivery or email verification. Existing monitoring-health and delivery-history panels show the actual check/delivery state.
-6. Seven paid-conversion insights extend the [growth dashboard](https://us.posthog.com/project/369087/dashboard/2195103); the [reviewable configuration](analytics/pro-conversion-dashboard.json) defines daily starts, seven-day pacing, the offer funnel, product and source-article breakdowns, first renewal, and failure/cancellation/refund guardrails.
 
 Measurement rules:
 
@@ -156,14 +103,3 @@ Measurement rules:
 Review after seven complete days: compare eligible offer exposure, consent-observed click-through, checkout success, paid starts and cancellation requests by product source and billing interval. Review renewal after cohorts mature. Choose the next change from the largest observed loss and actual monitoring failures. This implementation cannot guarantee two paid starts daily.
 
 Authoritative implementation references: [PostHog event deduplication](https://posthog.com/docs/data/events), [Stripe Checkout fulfillment](https://docs.stripe.com/checkout/fulfillment), and [Stripe invoice fields](https://docs.stripe.com/api/invoices/object).
-
-
-Paid-conversion release validation:
-
-- All 282 test files passed: 1,714 tests, using two workers. A higher-concurrency run hit five unrelated five-second timeouts; those tests passed unchanged in the complete rerun. The final eligibility-error/offer-reset changes also passed all six targeted offer tests.
-- TypeScript, targeted ESLint and the production build/template-preview checks passed with non-secret CI placeholder environment values. The exact 28 changed application/documentation files were compared against the validation checkout before delivery.
-- React Doctor's changed-file scan found no new issues (29 files, 79/100). A matched comparison of the 20 existing changed source files with the same CLI improved from 50 to 80; the earlier 89 score covered a different scope and is not a direct comparison. Existing unrelated diagnostics remain.
-- Browser preview checked the focused offer on mobile and desktop, unchecked consent, monthly default, consent reset on annual selection and scroll access to the terms/actions. No real checkout or synthetic production analytics were created.
-- Seven new insight queries executed successfully; dashboard API readback confirmed 15 total tiles. The existing weekly heartbeat now reviews the paid target, Stripe reconciliation and matured renewals alongside acquisition/search recovery.
-
-The first real post-deployment $0.99 purchase and subsequent renewal still need reconciliation with Stripe and PostHog. Local checks do not establish paid growth or completed production CI/deployment.

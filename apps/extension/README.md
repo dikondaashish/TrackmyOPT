@@ -503,7 +503,7 @@ Rule reference: [USCIS I-765 instructions](https://www.uscis.gov/sites/default/f
 
 This section records the earlier 0.2.0 draft checklist. The current 0.2.1
 release package, Store copy, assets, and verification are recorded in
-`store-assets/LISTING-0.2.1.md` and `docs/releases/chrome-extension-0.2.1.md`.
+`store-assets/LISTING-0.2.1.md`.
 
 ### First-install product tour
 

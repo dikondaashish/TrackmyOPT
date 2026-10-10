@@ -14,9 +14,7 @@ ordered backlog and the audit disposition.
 |----------|---------|
 | [ARCHITECTURAL_OVERVIEW.md](./architecture/ARCHITECTURAL_OVERVIEW.md) | Current system and data flows |
 | [DIRECTORY_DEEP_DIVE.md](./architecture/DIRECTORY_DEEP_DIVE.md) | Current monorepo map |
-| [DATABASE_INVENTORY.md](./architecture/DATABASE_INVENTORY.md) | Migration-backed public schema inventory (28 tables + 6 views; read before dropping anything) |
-| [job-board-run-supervision.md](./architecture/job-board-run-supervision.md) | Ingestion run supervision |
-| [oracle-job-data-plan.md](./architecture/oracle-job-data-plan.md), [oracle-shadow-sync.md](./architecture/oracle-shadow-sync.md), [oracle-cutover-runbook.md](./architecture/oracle-cutover-runbook.md) | Oracle job-data migration |
+| [oracle-shadow-sync.md](./architecture/oracle-shadow-sync.md), [oracle-cutover-runbook.md](./architecture/oracle-cutover-runbook.md) | Oracle job-data shadow sync and cutover |
 
 ## Features
 
@@ -37,6 +35,7 @@ Active plans live in [`plans/`](./plans/) (`growth-recovery-2026-10.md`). The ma
 | [CORS_POLICY.md](./ops/CORS_POLICY.md) | Web/extension CORS policy |
 | [EMAIL_TEMPLATES.md](./ops/EMAIL_TEMPLATES.md) | Current email catalog |
 | [EMAIL_ROADMAP.md](./ops/EMAIL_ROADMAP.md) | Remaining email work only |
+| [GITHUB_CHECKS.md](./ops/GITHUB_CHECKS.md) | Required CI checks and branch protection |
 
 ## Compliance and billing
 
@@ -46,12 +45,13 @@ Active plans live in [`plans/`](./plans/) (`growth-recovery-2026-10.md`). The ma
 | [USCIS_API_AGREEMENT_REVIEW_CHECKLIST.md](./compliance/USCIS_API_AGREEMENT_REVIEW_CHECKLIST.md) | Pending USCIS agreement review |
 | [evidence-log.md](./compliance/evidence-log.md) | Immutable USCIS remediation evidence |
 | [stripe-test-billing-validation.md](./compliance/stripe-test-billing-validation.md) | No-live-charge Stripe validation |
+| [ats-ingestion-platform-review.md](./compliance/ats-ingestion-platform-review.md) | Legal gate for enabling job-board sources |
+| [EXTENSION_PRIVACY_RELEASE_REVIEW.md](./compliance/EXTENSION_PRIVACY_RELEASE_REVIEW.md) | Extension privacy release checklist |
+| [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md) | Third-party licence decisions |
 
 ## Product measurement
 
-| Document | Purpose |
-|----------|---------|
-| [freemium-conversion-metrics.md](./marketing/freemium-conversion-metrics.md) | Day 1/7/30 measurement only |
+Dashboard configurations live in [`analytics/`](./analytics/). Public-claim evidence is in [marketing-claims-evidence.md](./marketing/marketing-claims-evidence.md).
 
 PostHog event definitions live with code in
 [`apps/web/lib/posthog/event-taxonomy.md`](../apps/web/lib/posthog/event-taxonomy.md).
