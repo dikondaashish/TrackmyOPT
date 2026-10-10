@@ -31,12 +31,15 @@ describe('case monitoring purchase path', () => {
   it('defaults to monthly, requires explicit consent and sends the displayed terms', async () => {
     const fetchMock = show();
     const button = await screen.findByRole('button', {
-      name: 'Start Pro — $0.99 for 7 days',
+      name: 'Start 7 days for $0.99',
     });
     expect(
       screen.getByRole('radio', { name: 'Monthly · $4.99/month' })
     ).toBeChecked();
     expect(button).toBeDisabled();
+    expect(
+      screen.getByRole('heading', { name: 'Special one-time offer' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('checkbox')).toHaveAccessibleName(
       /I agree to pay \$0.99 today for 7 days, then \$4.99\/month unless canceled before renewal.*refundable within 7 days; recurring charges are non-refundable except where required by law/
     );
@@ -65,14 +68,14 @@ describe('case monitoring purchase path', () => {
   });
   it('requires renewed consent after switching to annual', async () => {
     show();
-    await screen.findByRole('button', { name: 'Start Pro — $0.99 for 7 days' });
+    await screen.findByRole('button', { name: 'Start 7 days for $0.99' });
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(
       screen.getByRole('radio', { name: 'Annual · $49.99 billed yearly' })
     );
     await waitFor(() => expect(screen.getByRole('checkbox')).not.toBeChecked());
     expect(screen.getByRole('status')).toHaveTextContent(
-      '$0.99 for 7 days Then $49.99/year · auto-renews until canceled'
+      'Just $0.99 for 7 days Then $49.99/year · auto-renews until canceled'
     );
     expect(screen.getByRole('checkbox')).toHaveAccessibleName(
       /then \$49.99\/year unless canceled before renewal/
@@ -82,7 +85,10 @@ describe('case monitoring purchase path', () => {
     show(false);
     await screen.findByText('Pro for $4.99/month');
     expect(
-      screen.queryByRole('button', { name: 'Start Pro — $0.99 for 7 days' })
+      screen.queryByRole('heading', { name: 'Special one-time offer' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Start 7 days for $0.99' })
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Continue to Pro checkout' })
@@ -137,7 +143,7 @@ describe('case monitoring purchase path', () => {
 
   it('lets users explicitly compare plans', async () => {
     show();
-    await screen.findByRole('button', { name: 'Start Pro — $0.99 for 7 days' });
+    await screen.findByRole('button', { name: 'Start 7 days for $0.99' });
     fireEvent.click(screen.getByRole('button', { name: 'Compare all plans' }));
     expect(screen.getByRole('heading', { name: 'Free' })).toBeInTheDocument();
   });

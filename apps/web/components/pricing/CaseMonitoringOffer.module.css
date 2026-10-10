@@ -1,44 +1,43 @@
+.offer {
+  color: #0f172a;
+  background: linear-gradient(155deg, #ffdc57 0%, #ffc531 55%, #ffad16 100%);
+}
 .title:focus-visible {
   outline: none;
   box-shadow: none;
 }
-
-.check {
-  animation: check-in 240ms cubic-bezier(0.23, 1, 0.32, 1) both;
+.ticket {
+  mask-image:
+    radial-gradient(circle at 0 64%, transparent 9px, #000 9.5px),
+    radial-gradient(circle at 100% 64%, transparent 9px, #000 9.5px);
+  mask-composite: intersect;
+  animation: ticket-in 280ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
-
-.alert {
-  animation: alert-in 280ms cubic-bezier(0.23, 1, 0.32, 1) 120ms both;
+.spark {
+  animation: spark-in 500ms cubic-bezier(0.77, 0, 0.175, 1) 180ms;
 }
-
+.check,
+.bell,
+.reminder {
+  animation: benefit-in 240ms cubic-bezier(0.23, 1, 0.32, 1) 120ms both;
+}
 .bell {
-  animation: bell-ring 560ms cubic-bezier(0.77, 0, 0.175, 1) 300ms;
+  animation-delay: 170ms;
 }
-
+.reminder {
+  animation-delay: 220ms;
+}
 .button {
   transition:
     background-color 160ms ease,
     transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-
 @media (hover: hover) and (pointer: fine) {
   .button:active:not(:disabled):not(:focus-visible) {
     transform: scale(0.98);
   }
 }
-
-@keyframes check-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes alert-in {
+@keyframes ticket-in {
   from {
     opacity: 0;
     transform: translateY(6px);
@@ -48,24 +47,34 @@
     transform: translateY(0);
   }
 }
-
-@keyframes bell-ring {
+@keyframes benefit-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes spark-in {
   0%,
   100% {
     transform: rotate(0);
   }
-  25% {
-    transform: rotate(8deg);
+  35% {
+    transform: rotate(-10deg);
   }
-  60% {
-    transform: rotate(-6deg);
+  70% {
+    transform: rotate(6deg);
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
+  .ticket,
+  .spark,
   .check,
-  .alert,
-  .bell {
+  .bell,
+  .reminder {
     animation: none;
   }
   .button {

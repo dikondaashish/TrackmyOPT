@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Bell, Check } from 'lucide-react';
+import { ArrowRight, Bell, CalendarCheck, Clock3, Zap } from 'lucide-react';
 import { PLAN_PRICES } from '@/lib/pricing/plan-config';
 import {
   PRO_PAID_INTRO_PRICE,
@@ -31,103 +31,123 @@ export function CaseMonitoringOffer(props: Props) {
     : `$${PLAN_PRICES.pro.month.toFixed(2)}/month`;
   const intro = `$${PRO_PAID_INTRO_PRICE.toFixed(2)}`;
   return (
-    <div className="max-h-[85dvh] overflow-y-auto p-5">
+    <div
+      className={`max-h-[92dvh] overflow-y-auto px-4 pb-3 pt-10 sm:px-6 sm:pb-2 sm:pt-8 ${styles.offer}`}
+    >
       <h2
         id="case-monitoring-offer-title"
         tabIndex={0}
-        className={`pr-5 text-2xl font-semibold tracking-tight sm:text-3xl ${styles.title}`}
+        className={`px-5 text-center text-2xl font-bold tracking-tight sm:text-3xl ${styles.title}`}
       >
-        Your case. Checked daily.
+        {eligible ? 'Special one-time offer' : 'Upgrade to Pro'}
       </h2>
-      <p className="mt-2 text-sm leading-5 text-muted-foreground">
-        Email when your USCIS status changes. Saved OPT reminders, too.
+      <p className="mt-1 text-center text-sm text-slate-800">
+        Let Pro handle your daily USCIS checks.
       </p>
-      <div className="my-3 rounded-2xl border border-emerald-600/15 bg-emerald-50/60 p-2 dark:bg-emerald-950/20">
-        <div className="mb-2 flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
-          <Check aria-hidden="true" className={`h-3.5 w-3.5 ${styles.check}`} />
-          <span>Daily check</span>
-          <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 opacity-50" />
-          <span>Email alert</span>
-        </div>
-        <div
-          className={`flex items-center gap-3 rounded-xl border bg-background p-2.5 shadow-sm ${styles.alert}`}
-        >
-          <div
+      <div
+        className={`my-3 rounded-3xl bg-white px-5 py-3 text-slate-900 shadow-lg sm:px-6 ${styles.ticket}`}
+      >
+        <div className="flex items-center justify-center gap-2 text-sm font-semibold">
+          <Zap
             aria-hidden="true"
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 ${styles.bell}`}
-          >
-            <Bell className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="block text-xs leading-4 text-muted-foreground">
-              Sample alert
-            </span>
-            <p className="mt-0.5 text-sm font-medium">
-              Your case status changed
-            </p>
-          </div>
+            className={`h-5 w-5 fill-amber-400 text-amber-500 ${styles.spark}`}
+          />
+          <span>TrackMyOPT Pro</span>
+          <span className="rounded-lg bg-amber-300 px-2 py-1 text-xs font-bold">
+            {eligible ? `${PRO_TRIAL_DAYS} DAYS` : yearly ? 'ANNUAL' : 'MONTHLY'}
+          </span>
         </div>
+        <div className="mt-3 text-center" role="status">
+          {eligibilityError ? (
+            <span className="block py-4 text-sm">
+              We could not verify your offer. Close and reopen to retry.
+            </span>
+          ) : eligible === null ? (
+            <span className="block py-4 text-sm">Checking your offer…</span>
+          ) : eligible ? (
+            <>
+              <span className="block text-xs text-slate-500">Just</span>{' '}
+              <span className="block text-6xl font-bold tracking-tighter">
+                {intro}
+              </span>{' '}
+              <span className="mt-1 block text-xs text-slate-600">
+                for {PRO_TRIAL_DAYS} days
+              </span>{' '}
+              <span className="mt-1 block text-xs text-slate-600">
+                Then {renewal} · auto-renews until canceled
+              </span>
+            </>
+          ) : (
+            <span className="block py-4 text-2xl font-bold">
+              Pro for {renewal}
+            </span>
+          )}
+        </div>
+        <ul className="mt-4 grid grid-cols-3 gap-2 border-t-2 border-dashed border-slate-200 pt-3 text-center text-xs text-slate-700">
+          <li>
+            <CalendarCheck
+              aria-hidden="true"
+              className={`mx-auto mb-1 h-5 w-5 text-violet-700 ${styles.check}`}
+            />
+            Daily checks
+          </li>
+          <li>
+            <Bell
+              aria-hidden="true"
+              className={`mx-auto mb-1 h-5 w-5 text-violet-700 ${styles.bell}`}
+            />
+            Email alerts
+          </li>
+          <li>
+            <Clock3
+              aria-hidden="true"
+              className={`mx-auto mb-1 h-5 w-5 text-violet-700 ${styles.reminder}`}
+            />
+            OPT reminders
+          </li>
+        </ul>
+        <fieldset disabled={loading} className="mt-3 grid grid-cols-2 gap-2">
+          <legend className="sr-only">Renewal schedule</legend>
+          <label
+            className={`flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-xs transition-colors ${
+              !yearly
+                ? 'border-violet-600 bg-violet-50 text-violet-900'
+                : 'border-slate-200 text-slate-600'
+            }`}
+          >
+            <input
+              className="peer sr-only"
+              type="radio"
+              name="case-pro-interval"
+              checked={!yearly}
+              onChange={() => props.onYearlyChange(false)}
+            />
+            <span className="rounded-sm peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-violet-600">
+              Monthly · ${PLAN_PRICES.pro.month.toFixed(2)}/month
+            </span>
+          </label>
+          <label
+            className={`flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-xs transition-colors ${
+              yearly
+                ? 'border-violet-600 bg-violet-50 text-violet-900'
+                : 'border-slate-200 text-slate-600'
+            }`}
+          >
+            <input
+              className="peer sr-only"
+              type="radio"
+              name="case-pro-interval"
+              checked={yearly}
+              onChange={() => props.onYearlyChange(true)}
+            />
+            <span className="rounded-sm peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-violet-600">
+              Annual · ${PLAN_PRICES.pro.year.toFixed(2)} billed yearly
+            </span>
+          </label>
+        </fieldset>
       </div>
-      <fieldset disabled={loading} className="grid grid-cols-2 gap-2">
-        <legend className="sr-only">Renewal schedule</legend>
-        <label
-          className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-xs transition-colors sm:text-sm ${
-            !yearly
-              ? 'border-emerald-700 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200'
-              : 'text-muted-foreground'
-          }`}
-        >
-          <input
-            className="peer sr-only"
-            type="radio"
-            name="case-pro-interval"
-            checked={!yearly}
-            onChange={() => props.onYearlyChange(false)}
-          />
-          <span className="rounded-sm peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-ring">
-            Monthly · ${PLAN_PRICES.pro.month.toFixed(2)}/month
-          </span>
-        </label>
-        <label
-          className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-xs transition-colors sm:text-sm ${
-            yearly
-              ? 'border-emerald-700 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200'
-              : 'text-muted-foreground'
-          }`}
-        >
-          <input
-            className="peer sr-only"
-            type="radio"
-            name="case-pro-interval"
-            checked={yearly}
-            onChange={() => props.onYearlyChange(true)}
-          />
-          <span className="rounded-sm peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-ring">
-            Annual · ${PLAN_PRICES.pro.year.toFixed(2)} billed yearly
-          </span>
-        </label>
-      </fieldset>
-      <p className="mt-3 text-center font-semibold" role="status">
-        {eligibilityError
-          ? 'We could not verify your offer. Close and reopen to retry.'
-          : eligible === null
-            ? 'Checking your offer…'
-            : eligible
-              ? (
-                <>
-                  <span className="text-3xl tracking-tight">{intro}</span>{' '}
-                  <span className="text-sm font-normal text-muted-foreground">
-                    for {PRO_TRIAL_DAYS} days
-                  </span>{' '}
-                  <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                    Then {renewal} · auto-renews until canceled
-                  </span>
-                </>
-              )
-              : `Pro for ${renewal}`}
-      </p>
       {eligible !== null && !eligibilityError && (
-        <label className="mt-2 flex min-h-11 cursor-pointer items-start gap-3 text-xs leading-[18px] text-muted-foreground">
+        <label className="flex min-h-11 cursor-pointer items-start gap-3 text-xs leading-[18px] text-slate-700">
           <input
             className="mt-1 h-4 w-4 shrink-0"
             type="checkbox"
@@ -143,7 +163,7 @@ export function CaseMonitoringOffer(props: Props) {
         </label>
       )}
       {props.error && (
-        <p role="alert" className="mt-3 text-sm text-destructive">
+        <p role="alert" className="mt-3 text-sm text-red-900">
           {props.error}
         </p>
       )}
@@ -151,16 +171,16 @@ export function CaseMonitoringOffer(props: Props) {
         type="button"
         disabled={loading || !consent || eligible === null || eligibilityError}
         onClick={props.onContinue}
-        className={`mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 ${styles.button}`}
+        className={`mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#5846d9] px-4 text-base font-semibold text-white transition-colors hover:bg-[#4935c4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-800 disabled:cursor-not-allowed disabled:bg-[#7565c7] ${styles.button}`}
       >
         {loading
           ? 'Opening secure checkout…'
           : eligible
-            ? `Start Pro — ${intro} for ${PRO_TRIAL_DAYS} days`
+            ? `Start ${PRO_TRIAL_DAYS} days for ${intro}`
             : 'Continue to Pro checkout'}
         {!loading && <ArrowRight aria-hidden="true" className="h-4 w-4" />}
       </button>
-      <div className="mt-2 text-center text-xs leading-5 text-muted-foreground">
+      <div className="mt-2 text-center text-xs leading-5 text-slate-700">
         Cancel in Settings → Subscription. By continuing, you agree to{' '}
         <Link href="/terms" className="underline">
           Terms
@@ -178,12 +198,12 @@ export function CaseMonitoringOffer(props: Props) {
           Scheduled checks, not real-time. No effect on USCIS processing.
         </span>
       </div>
-      <div className="mt-2 flex flex-wrap justify-between gap-3 text-xs">
+      <div className="flex flex-wrap justify-between gap-2 text-xs">
         <button
           type="button"
           disabled={loading}
           onClick={props.onClose}
-          className="min-h-11 text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground"
+          className="min-h-11 text-slate-700 underline decoration-slate-700/30 underline-offset-4 hover:text-slate-950"
         >
           Keep manual checks free
         </button>
@@ -191,7 +211,7 @@ export function CaseMonitoringOffer(props: Props) {
           type="button"
           disabled={loading}
           onClick={props.onCompare}
-          className="min-h-11 text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground"
+          className="min-h-11 text-slate-700 underline decoration-slate-700/30 underline-offset-4 hover:text-slate-950"
         >
           Compare all plans
         </button>

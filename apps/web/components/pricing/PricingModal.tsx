@@ -362,7 +362,7 @@ function PricingModalContent({
         <DialogContent
           onClose={onClose}
           aria-labelledby="case-monitoring-offer-title"
-          className="w-[95vw] max-w-xl overflow-hidden p-0"
+          className="w-[95vw] max-w-xl overflow-hidden rounded-3xl border-0 bg-amber-300 p-0 text-slate-950 [&>button]:text-slate-900"
         >
           <CaseMonitoringOffer
             eligible={proIntroEligible}
