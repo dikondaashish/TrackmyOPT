@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import Stripe from "stripe";
+import { captureVerifiedProIntro } from "@/lib/posthog/verified-pro-billing";
 import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/get-user-id";
 import { applyStripeCheckoutSession } from "@/lib/premium/apply-stripe-checkout-session";
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["subscription", "payment_intent"],
+      expand: ["subscription", "payment_intent", "invoice"],
     });
 
     if (session.metadata?.supabase_user_id !== userId) {
@@ -67,6 +68,8 @@ export async function POST(req: NextRequest) {
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.reason }, { status: 500 });
     }
+
+    await captureVerifiedProIntro(userId, session, stripe);
 
     if (!result.alreadyRecorded) {
       after(() => {

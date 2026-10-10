@@ -154,6 +154,24 @@ export function CaseStatusSection() {
         USCIS Case Status
       </h1>
 
+      {isPremium === true && (
+        <Card className="p-5">
+          <h2 className="font-semibold">Set up your Pro case monitoring</h2>
+          <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
+            <li>{caseStatus ? 'Receipt added. Confirm this is the case you want monitored.' : 'Add your receipt below to begin scheduled checks.'}</li>
+            <li>{caseStatus?.notifications_enabled ? 'Status-change emails are enabled for this case.' : 'Enable status-change emails in Notification Settings.'}</li>
+            <li>Review your notification address so alerts reach the right inbox.</li>
+          </ol>
+          {caseStatus && (
+            <button type="button" className="mt-3 min-h-11 text-sm font-medium text-blue-600 underline dark:text-blue-400" onClick={() => {
+              setIsEditingEmail(true);
+              document.getElementById('case-notification-settings')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }}>Review notification settings</button>
+          )}
+          <p className="mt-2 text-xs text-muted-foreground">Checks run daily. See the monitoring panel below for the last successful check and scheduled queue time.</p>
+        </Card>
+      )}
+
       {/* ── Delete success banner ── */}
       {deleteNotice && <DeleteNoticeBanner message={deleteNotice} />}
 
@@ -532,7 +550,8 @@ export function CaseStatusSection() {
         onClose={() => setShowPricingModal(false)}
         isPremium={isPremium ?? false}
         initialPlan={pricingModalPlan}
-        initialInterval="year"
+        initialInterval={pricingModalPlan === 'pro' ? 'month' : 'year'}
+        caseMonitoring={pricingModalPlan === 'pro'}
       />
     </div>
   );

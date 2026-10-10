@@ -50,6 +50,14 @@ describe("captureServerEvent", () => {
     );
   });
 
+  it("forwards stable event identity and occurrence time to the SDK", async () => {
+    const { captureServerEvent } = await import("./posthog-server");
+    const identity = { uuid: "6ba7b810-9dad-51d1-80b4-00c04fd430c8", timestamp: new Date("2026-10-10T12:00:00Z") };
+    await captureServerEvent("user-42", "pro_paid_intro_started", {}, identity);
+    expect(captureMock).toHaveBeenCalledWith(expect.objectContaining(identity));
+    expect(shutdownMock).toHaveBeenCalled();
+  });
+
   it("skips empty distinctId", async () => {
     const { captureServerEvent } = await import("./posthog-server");
     await captureServerEvent("", "checkout_started");

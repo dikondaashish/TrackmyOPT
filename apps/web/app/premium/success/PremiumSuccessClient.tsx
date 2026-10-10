@@ -303,16 +303,16 @@ export function PremiumSuccessClient() {
       ]
     : [
         {
-          title: "Open your dashboard",
-          detail: "Enter program and EAD dates when you have them.",
+          title: "Add or review your tracked receipt",
+          detail: "Open Case Status to confirm the case you want monitored.",
         },
         {
           title: "Add a notification email",
-          detail: "Settings → email used for reminders.",
+          detail: "Confirm your notification email in the case tracker.",
         },
         {
-          title: "Verify that email",
-          detail: "So reminders and case alerts can reach you.",
+          title: "Review monitoring and alerts",
+          detail: "Enable status-change emails and review the last successful check in your tracker.",
         },
       ];
 
@@ -396,13 +396,13 @@ export function PremiumSuccessClient() {
               <Button
                 size="lg"
                 className="h-12 w-full max-w-md font-semibold sm:w-auto sm:min-w-[240px]"
-                onClick={() => router.push("/dashboard")}
+                onClick={() => router.push(isDedicated ? "/dashboard" : "/dashboard/case-status")}
               >
                 <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden />
                 {countdown > 0 ? (
-                  <>Go to Dashboard ({countdown}s)</>
+                  <>{isDedicated ? "Go to Dashboard" : "Set up case monitoring"} ({countdown}s)</>
                 ) : (
-                  <>Go to Dashboard</>
+                  <>{isDedicated ? "Go to Dashboard" : "Set up case monitoring"}</>
                 )}
               </Button>
             </div>

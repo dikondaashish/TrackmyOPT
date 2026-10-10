@@ -11,7 +11,7 @@ import {
   captureUserSignedUp,
   identifyLoginSessionUser,
 } from '@/lib/posthog-client';
-import { safeInternalRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
+import { loginRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
 import {
   safeStorageGet,
   safeStorageRemove,
@@ -31,10 +31,8 @@ function LoginPageContent() {
 
   // Middleware sets returnTo; some links use redirect. Never send a completed
   // login to an untrusted origin supplied in the query string.
-  const requestedRedirect =
-    searchParams.get('redirect') || searchParams.get('returnTo');
-  const safeRedirect = safeInternalRedirectTarget(
-    requestedRedirect,
+  const safeRedirect = loginRedirectTarget(
+    searchParams,
     typeof window === 'undefined'
       ? 'https://www.trackmyopt.com'
       : window.location.origin

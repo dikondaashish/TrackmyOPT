@@ -12,8 +12,8 @@ import {
   Loader2,
   Pencil,
 } from "lucide-react";
-import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
 import Link from "next/link";
+import { CASE_STATUS_MESSAGING } from "@/lib/messaging/product-copy";
 import { type FilingCategory, normalizeFilingCategory } from "@/lib/case-status/filing-category";
 import { FilingCategorySelect } from "@/components/dashboard/case-status/FilingCategorySelect";
 
@@ -94,7 +94,7 @@ export function CaseStatusReceiptPanel({
           </h2>
           {isOnboarding && (
             <p className="text-[12px] text-[#86868B] mt-[3px]">
-              {CASE_STATUS_MESSAGING.subhead}
+              Add your receipt to see your current USCIS status. No payment is needed for manual tracking.
             </p>
           )}
         </div>
@@ -106,6 +106,9 @@ export function CaseStatusReceiptPanel({
         )}
       </div>
 
+      {isOnboarding && <ol aria-label="Get started with case tracking" className="mb-5 flex flex-wrap gap-3 text-xs text-muted-foreground">
+        <li>1. Add your receipt</li><li>2. See your status</li><li>3. Choose daily monitoring if useful</li>
+      </ol>}
       {isOnboarding && (
         <div className="mb-[24px] rounded-[14px] border border-black/5 dark:border-white/5 bg-[#FAFAFB] dark:bg-zinc-900 px-[16px] py-[15px]">
           <div className="flex gap-[14px]">

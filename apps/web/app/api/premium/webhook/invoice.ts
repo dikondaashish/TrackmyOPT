@@ -1,3 +1,4 @@
+import { invoiceSubscriptionId, captureVerifiedProRenewal, stableBillingCaptureIdentity } from '@/lib/posthog/verified-pro-billing';
 import Stripe from 'stripe';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import {
@@ -245,7 +246,7 @@ export async function handleInvoicePaymentFailed(
  * Mark transaction refunded and revoke premium. Subscription checkouts often store
  * synthetic stripe_payment_intent_id values, so we also match subscription id and checkout session id.
  */
-export async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, eventId: string) {
+export async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge, eventId: string, eventCreated?: number) {
   const nowIso = new Date().toISOString();
   const piId =
     typeof charge.payment_intent === 'string'
@@ -350,6 +351,11 @@ export async function handleChargeRefunded(stripe: Stripe, charge: Stripe.Charge
     charge.amount_refunded >= charge.amount;
 
   for (const userId of userIds) {
+    if (charge.livemode) await captureServerEvent(userId, 'payment_refunded', {
+      $insert_id: billingInsertId('payment_refunded', `${charge.id}:${amountCents}`),
+      amount_refunded_cents: amountCents, currency, is_full_refund: isFullRefund,
+      verified_by: 'stripe',
+    }, eventCreated ? stableBillingCaptureIdentity(`payment_refunded:${eventId}`, eventCreated) : undefined);
     if (!isFullRefund) {
       secureLog.info(`charge.refunded: partial refund for user ${logIdPrefix(userId)} — not revoking premium`);
       // Still send refund acknowledgment email for partial refunds (fall through).
@@ -422,8 +428,7 @@ export async function handleInvoicePaid(
     const customerId = typeof inv.customer === 'string' ? inv.customer : (inv.customer as { id?: string })?.id;
     if (!customerId) return;
 
-    const subRef = inv.subscription;
-    const subId = typeof subRef === 'string' ? subRef : (subRef as { id?: string })?.id ?? null;
+    const subId = invoiceSubscriptionId(inv);
     if (!subId) return;
 
     const subscription = await stripe.subscriptions.retrieve(subId);
@@ -455,16 +460,18 @@ export async function handleInvoicePaid(
 
     try {
       if (amountCents <= 0) return;
+      await captureVerifiedProRenewal(user.userId, inv, subscription);
       await captureServerEvent(
         user.userId,
         'payment_succeeded',
         buildPaymentSucceededCapture({
-          stripeEventId,
+          stripeEventId: inv.id,
           planTier,
           interval,
           amountCents,
           currency: inv.currency || 'usd',
-        })
+        }),
+        inv.status_transitions?.paid_at ? stableBillingCaptureIdentity(`payment_succeeded:${inv.id}`, inv.status_transitions.paid_at) : undefined
       );
       await refreshPostHogLtv(user.userId);
 
@@ -539,8 +546,7 @@ export async function handleInvoicePaymentActionRequired(stripe: Stripe, invoice
     const inv = invoice as Stripe.Invoice & {
       subscription?: string | Stripe.Subscription | null;
     };
-    const subRef = inv.subscription;
-    const subId = typeof subRef === 'string' ? subRef : (subRef as { id?: string })?.id ?? null;
+    const subId = invoiceSubscriptionId(inv);
     if (!subId) return;
 
     const subscription = await stripe.subscriptions.retrieve(subId);

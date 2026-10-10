@@ -127,3 +127,43 @@ The next product decision should follow matured cohorts: the initial guest path 
 
 Follow-through validation: all 278 test files passed (1,672 tests); targeted ESLint passed; React Doctor found no issues (89/100). The original five CI failures are covered by the repaired fixtures. Dashboard API readback confirmed eight saved tiles; each query executed successfully before saving. Local documentation links and dashboard JSON were validated.
 TypeScript and the production build also passed in the clean validation checkout with non-secret CI placeholder environment values.
+
+
+## Paid Pro conversion improvements — October 10
+
+The owner's primary business target is **two successful USD $0.99 seven-day Pro starts each day** (14 per complete week). Free registrations remain a leading indicator. The owner's report of approximately one paid start weekly is not a reconciled Stripe baseline; earlier PostHog billing events missed some paid introductions. New events begin after this deployment, with no historical backfill.
+
+The September 12–October 9 audit found 397 signups, 77 ordered seven-day activations and five subsequent checkout starters. Separately, 11 unique people started checkout; eight chose annual and three monthly. The six client `premium_checkout_completed` events are return-page signals, not independently verified payment counts. These denominators differ, and recent cohorts are immature.
+
+Delivered changes:
+
+1. The case-status Pro offer opens directly after a useful resolved status, keeping the existing prompt cooldown. It focuses on daily automatic checks and status-change emails, defaults to $4.99 monthly renewal, and makes $49.99 annual renewal an explicit choice. A sample alert is labeled as an illustration. Manual checks remain available.
+2. Login now preserves the guest tool's safe `next` destination across email and Google flows. The receipt screen explains receipt → status → optional monitoring, without requiring unrelated onboarding before that action.
+3. Introductory eligibility is checked before showing the price. Checkout compares the displayed eligibility with the server's current eligibility and returns a reviewable error if it changed. Consent starts unchecked and resets when the renewal interval changes. Existing prices and seven-day refund/renewal terms are retained.
+4. Stripe-confirmed, live, exactly $0.99 USD introductions are captured from both the signed webhook and authenticated checkout confirmation after successful entitlement application. Pending transaction rows no longer suppress this metric. Invoice paid time and a stable UUID anchor retries to the same payment day; `$insert_id` alone is insufficient for PostHog deduplication. Both current invoice parent subscription references and historical references work.
+5. The success page directs Pro customers to their case tracker. A tracker checklist reports whether a receipt exists and emails are enabled, with a button that opens the actual notification-address editor. It does not claim inbox delivery or email verification. Existing monitoring-health and delivery-history panels show the actual check/delivery state.
+6. Seven paid-conversion insights extend the [growth dashboard](https://us.posthog.com/project/369087/dashboard/2195103); the [reviewable configuration](analytics/pro-conversion-dashboard.json) defines daily starts, seven-day pacing, the offer funnel, product and source-article breakdowns, first renewal, and failure/cancellation/refund guardrails.
+
+Measurement rules:
+
+- Use complete **UTC days**, matching the PostHog project timezone. Daily unique people with `pro_paid_intro_started` are the target measure. A weekly total of 14 does not prove every individual day reached two.
+- Offer → click → checkout → verified start uses a seven-day ordered window. The offer events cover modal flows; standalone pricing-page visits are not the same denominator. Client steps require analytics consent. `source` is the allowlisted product surface, not a marketing channel or arbitrary URL.
+- Intro → first paid renewal uses a 21-day window to allow payment retries. Review fully matured cohorts separately; do not divide all renewals by this week's starts. The first renewal is identified by its billing period beginning at Stripe's introductory `trial_end`, not webhook arrival time.
+- Cancellation requests are captured when introductory Pro customers disable renewal; `during_intro` distinguishes requests during the seven-day period. Terminal `subscription_canceled` remains a separate event. Refund guardrails include subscription refunds across plans and partial/full refunds; amounts are cumulative per charge and must not be summed across partial-refund events.
+- Analytics delivery remains best effort and must not block access. A temporary invoice/API or capture failure may leave measurement incomplete. Reconcile the paid-start count with Stripe in each weekly review before making a commercial decision. No analytics event is an entitlement authority.
+- The new dashboard is expected to be empty until deployment and real purchases. Historical zeros indicate absent instrumentation, not zero business revenue. Do not create synthetic production purchases to populate it.
+
+Review after seven complete days: compare eligible offer exposure, consent-observed click-through, checkout success, paid starts and cancellation requests by product source and billing interval. Review renewal after cohorts mature. Choose the next change from the largest observed loss and actual monitoring failures. This implementation cannot guarantee two paid starts daily.
+
+Authoritative implementation references: [PostHog event deduplication](https://posthog.com/docs/data/events), [Stripe Checkout fulfillment](https://docs.stripe.com/checkout/fulfillment), and [Stripe invoice fields](https://docs.stripe.com/api/invoices/object).
+
+
+Paid-conversion release validation:
+
+- All 282 test files passed: 1,714 tests, using two workers. A higher-concurrency run hit five unrelated five-second timeouts; those tests passed unchanged in the complete rerun. The final eligibility-error/offer-reset changes also passed all six targeted offer tests.
+- TypeScript, targeted ESLint and the production build/template-preview checks passed with non-secret CI placeholder environment values. The exact 28 changed application/documentation files were compared against the validation checkout before delivery.
+- React Doctor's changed-file scan found no new issues (29 files, 79/100). A matched comparison of the 20 existing changed source files with the same CLI improved from 50 to 80; the earlier 89 score covered a different scope and is not a direct comparison. Existing unrelated diagnostics remain.
+- Browser preview checked the focused offer on mobile and desktop, unchecked consent, monthly default, consent reset on annual selection and scroll access to the terms/actions. No real checkout or synthetic production analytics were created.
+- Seven new insight queries executed successfully; dashboard API readback confirmed 15 total tiles. The existing weekly heartbeat now reviews the paid target, Stripe reconciliation and matured renewals alongside acquisition/search recovery.
+
+The first real post-deployment $0.99 purchase and subsequent renewal still need reconciliation with Stripe and PostHog. Local checks do not establish paid growth or completed production CI/deployment.

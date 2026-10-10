@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { safeInternalRedirectTarget } from './safe-oauth-redirect';
+import { loginRedirectTarget, safeInternalRedirectTarget } from './safe-oauth-redirect';
 
 const baseUrl = 'https://www.trackmyopt.com';
 
@@ -27,5 +27,14 @@ describe('safeInternalRedirectTarget', () => {
     expect(result.href).toBe(
       'https://www.trackmyopt.com/dashboard'
     );
+  });
+});
+
+describe('login destination continuity', () => {
+  it.each(['next', 'redirect', 'returnTo'])('preserves the %s destination', key => {
+    expect(loginRedirectTarget(new URLSearchParams({ [key]: '/dashboard/case-status' }), baseUrl).pathname).toBe('/dashboard/case-status');
+  });
+  it('rejects an external next destination even when another alias is present', () => {
+    expect(loginRedirectTarget(new URLSearchParams({ next: '//evil.example', returnTo: '/dashboard/case-status' }), baseUrl).pathname).toBe('/dashboard');
   });
 });

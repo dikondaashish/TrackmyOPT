@@ -1,3 +1,5 @@
+import { captureProIntroCancellation } from '@/lib/posthog/verified-pro-billing';
+import { normalizeProCheckoutSource } from '@/lib/posthog/pro-conversion';
 import Stripe from 'stripe';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import {
@@ -130,6 +132,7 @@ export async function handleSubscriptionUpdated(
       try {
         const user = await resolveUserForStripeCustomer(supabase, customerId);
         if (user) {
+          await captureProIntroCancellation(user.userId, subscription);
           const periodEnd = (
             subscription as unknown as { current_period_end?: number }
           ).current_period_end;
@@ -265,6 +268,8 @@ export async function handleSubscriptionDeleted(
     await captureServerEvent(user.userId, 'subscription_canceled', {
       $insert_id: billingInsertId('subscription_canceled', eventId),
       plan_tier: normalizePlanTier(getPlanFromSubscription(subscription) ?? undefined),
+      had_paid_intro: subscription.metadata?.include_pro_intro === 'true',
+      source: normalizeProCheckoutSource(subscription.metadata?.checkout_source),
       ...(cancelFeedback ? { cancel_feedback: cancelFeedback } : {}),
       ...(cancelComment ? { cancel_comment: cancelComment.slice(0, 200) } : {}),
     });

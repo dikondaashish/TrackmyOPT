@@ -75,3 +75,8 @@ export function safeInternalRedirectTarget(
     return fallback;
   }
 }
+
+/** Preserve guest-tool destinations through every login method. */
+export function loginRedirectTarget(params: Pick<URLSearchParams, 'get'>, baseUrl: string): URL {
+  return safeInternalRedirectTarget(params.get('next') || params.get('redirect') || params.get('returnTo'), baseUrl);
+}

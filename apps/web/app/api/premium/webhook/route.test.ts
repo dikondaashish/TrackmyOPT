@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   constructEvent: vi.fn(),
+  retrieveSubscription: vi.fn(),
   applyStripeCheckoutSession: vi.fn(),
   reconcileCustomerBilling: vi.fn(),
   resolveUserForStripeCustomer: vi.fn(),
@@ -18,7 +19,7 @@ vi.mock('stripe', () => ({
   default: class StripeMock {
     webhooks = { constructEvent: mocks.constructEvent };
     subscriptions = {
-      retrieve: vi.fn(),
+      retrieve: mocks.retrieveSubscription,
       list: vi.fn(),
       cancel: vi.fn(),
     };
@@ -80,7 +81,7 @@ vi.mock('@/lib/posthog/ltv-sync', () => ({
 vi.mock('@/lib/resume-credits/fulfillment', () => ({
   isResumeCreditCheckout: vi.fn(
     (session: { metadata?: { purchase_type?: string } }) =>
-      session.metadata?.purchase_type === 'resume_credit_pack',
+      session.metadata?.purchase_type === 'resume_credit_pack'
   ),
   fulfillResumeCreditCheckout: mocks.fulfillResumeCreditCheckout,
   applyResumeCreditRefund: mocks.applyResumeCreditRefund,
@@ -89,13 +90,10 @@ vi.mock('@/lib/resume-credits/fulfillment', () => ({
 import { POST } from './route';
 
 function webhookRequest() {
-  return new NextRequest(
-    'https://www.trackmyopt.com/api/premium/webhook',
-    {
-      method: 'POST',
-      body: '{}',
-    },
-  );
+  return new NextRequest('https://www.trackmyopt.com/api/premium/webhook', {
+    method: 'POST',
+    body: '{}',
+  });
 }
 
 describe('Stripe webhook retry contract', () => {
@@ -127,6 +125,99 @@ describe('Stripe webhook retry contract', () => {
     expect(response.status).toBe(500);
   });
 
+  it('records a verified paid intro even when a pending row or confirm path already recorded checkout', async () => {
+    mocks.captureServerEvent.mockResolvedValue(undefined);
+    mocks.constructEvent.mockReturnValue({
+      id: 'evt_intro',
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          id: 'cs_intro',
+          livemode: true,
+          mode: 'subscription',
+          invoice: {
+            status: 'paid',
+            amount_paid: 99,
+            currency: 'usd',
+            status_transitions: { paid_at: 900 },
+          },
+          status: 'complete',
+          payment_status: 'paid',
+          amount_total: 99,
+          currency: 'usd',
+          metadata: {
+            supabase_user_id: 'user-1',
+            planId: 'pro',
+            include_pro_intro: 'true',
+            checkout_source: 'case_status',
+          },
+        },
+      },
+    });
+    mocks.applyStripeCheckoutSession.mockResolvedValue({
+      ok: true,
+      alreadyRecorded: true,
+    });
+    expect((await POST(webhookRequest())).status).toBe(200);
+    expect(mocks.captureServerEvent).toHaveBeenCalledWith(
+      'user-1',
+      'pro_paid_intro_started',
+      expect.objectContaining({ amount_cents: 99, source: 'case_status' }),
+      expect.anything()
+    );
+  });
+
+  it('does not capture conversion after a bad signature', async () => {
+    mocks.constructEvent.mockImplementationOnce(() => {
+      throw new Error('invalid signature');
+    });
+    expect((await POST(webhookRequest())).status).toBe(400);
+    expect(mocks.applyStripeCheckoutSession).not.toHaveBeenCalled();
+    expect(mocks.captureServerEvent).not.toHaveBeenCalled();
+  });
+
+  it('handles current invoice parent schema and measures first renewal', async () => {
+    mocks.captureServerEvent.mockResolvedValue(undefined);
+    mocks.constructEvent.mockReturnValue({
+      id: 'evt_renew',
+      type: 'invoice.paid',
+      data: {
+        object: {
+          id: 'in_renew',
+          status_transitions: { paid_at: 1010 },
+          customer: 'cus_1',
+          status: 'paid',
+          livemode: true,
+          amount_paid: 499,
+          currency: 'usd',
+          billing_reason: 'subscription_cycle',
+          parent: { subscription_details: { subscription: 'sub_1' } },
+          lines: { data: [{ period: { start: 1000 } }] },
+        },
+      },
+    });
+    mocks.retrieveSubscription.mockResolvedValue({
+      id: 'sub_1',
+      trial_end: 1000,
+      metadata: { planId: 'pro', include_pro_intro: 'true', interval: 'month' },
+    });
+    mocks.resolveUserForStripeCustomer.mockResolvedValue({
+      userId: 'user-1',
+      email: 'example@example.com',
+    });
+    mocks.reconcileCustomerBilling.mockResolvedValue({
+      action: 'synced',
+      planTier: 'pro',
+    });
+    expect((await POST(webhookRequest())).status).toBe(200);
+    expect(mocks.captureServerEvent).toHaveBeenCalledWith(
+      'user-1',
+      'pro_paid_intro_renewed',
+      expect.objectContaining({ amount_cents: 499 }),
+      expect.anything()
+    );
+  });
+
   it('returns 500 when subscription revocation reconciliation throws', async () => {
     mocks.constructEvent.mockReturnValue({
       id: 'evt_deleted',
@@ -146,7 +237,7 @@ describe('Stripe webhook retry contract', () => {
       firstName: 'Person',
     });
     mocks.reconcileCustomerBilling.mockRejectedValue(
-      new Error('database unavailable'),
+      new Error('database unavailable')
     );
 
     const response = await POST(webhookRequest());
@@ -231,7 +322,7 @@ describe('Stripe webhook retry contract', () => {
     });
     mocks.reconcileCustomerBilling.mockResolvedValue({ action: 'revoked' });
     mocks.captureServerEvent.mockRejectedValue(
-      new Error('analytics unavailable'),
+      new Error('analytics unavailable')
     );
 
     const response = await POST(webhookRequest());

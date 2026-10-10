@@ -154,3 +154,21 @@ The prompt has a 90-day device cooldown and requires analytics consent because
 optional free-text feedback is stored in PostHog. Analyze NPS only after at
 least 50 valid submissions; use `nps_shown` as the denominator for response
 rate, not submissions plus dismissals.
+
+
+## Verified Pro paid-conversion events (October 10, 2026)
+
+Business target: two unique people starting the USD $0.99 seven-day Pro offer per complete UTC day. New events have no historical backfill. See [the growth plan](../../../../docs/growth-recovery-2026-10.md) and [dashboard configuration](../../../../docs/analytics/pro-conversion-dashboard.json).
+
+| Event | Meaning | Key properties / boundary |
+| --- | --- | --- |
+| `pro_offer_viewed` | Modal offer after eligibility resolves | `source`, `had_paid_intro` (offer includes intro), `offer_version`; client consent |
+| `pro_offer_clicked` | Consented modal upgrade click | `source`, `interval`, `plan_tier`, `had_paid_intro`; client consent |
+| `pro_checkout_failed` | Modal checkout HTTP/network/unexpected response failure | `source`, `plan_tier`, status or bounded failure category; no URLs/error text |
+| `pro_paid_intro_started` | Live completed paid Pro session and paid invoice for exactly 99 USD cents | Server after verified ownership/signature and successful entitlement apply; stable session UUID and invoice paid timestamp |
+| `pro_subscription_renewed` | Live paid Pro subscription-cycle invoice | Stable invoice UUID and paid timestamp; excludes free invoices, test mode and prorated upgrades |
+| `pro_paid_intro_renewed` | First paid cycle beginning at introductory `trial_end` | Stable subscription UUID and invoice paid timestamp; use matured 21-day cohorts |
+| `pro_intro_cancellation_requested` | Introductory Pro customer disables renewal | Stable subscription/request-time UUID; `during_intro`, `source`; no feedback text |
+| `payment_refunded` | Live subscription charge refund | Stable Stripe-event UUID/time; cumulative `amount_refunded_cents`, `is_full_refund`; all subscription plans |
+
+`source` accepts `case_status`, `pricing_modal`, `checkout_page` or `unknown`. Arbitrary client strings are discarded before Stripe metadata or analytics. Server billing events do not depend on client analytics consent, so their totals must not be divided by all client-observed visitors and presented as overall conversion. PostHog deduplication uses UUID, event, distinct ID and timestamp; stable `$insert_id` is also retained for audit. Delivery is best effort, so reconcile with Stripe.

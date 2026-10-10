@@ -19,7 +19,7 @@ describe('CaseInsightUpgradeDialog', () => {
     );
 
     expect(
-      screen.getByText('Stop wondering where your case stands.')
+      screen.getByText('Let TrackMyOPT check your case daily.')
     ).toBeInTheDocument();
     expect(screen.getByText(/you are 42 days in/i)).toHaveTextContent(
       '318 comparable community cases'
@@ -59,7 +59,7 @@ describe('CaseInsightUpgradeDialog', () => {
     );
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'See my decision window' })
+      screen.getByRole('button', { name: 'See daily monitoring options' })
     );
     expect(onUpgrade).toHaveBeenCalledOnce();
 

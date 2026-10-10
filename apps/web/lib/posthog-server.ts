@@ -67,7 +67,8 @@ async function withPostHogClient(
 export async function captureServerEvent(
   distinctId: string,
   event: string,
-  properties?: PostHogEventProperties
+  properties?: PostHogEventProperties,
+  identity?: { uuid: string; timestamp: Date }
 ): Promise<void> {
   if (!distinctId?.trim()) {
     console.error("[PostHog] captureServerEvent called without distinctId:", event);
@@ -86,6 +87,7 @@ export async function captureServerEvent(
     posthog.capture({
       distinctId,
       event,
+      ...identity,
       properties: withServerDefaults({
         ...properties,
         // Explicit mirror for HogQL / debugging when person merges lag.

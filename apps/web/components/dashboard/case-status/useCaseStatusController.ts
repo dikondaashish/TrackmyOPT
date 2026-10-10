@@ -219,7 +219,8 @@ export function useCaseStatusController() {
       } catch {
         /* non-blocking */
       }
-      setShowCaseInsightUpgrade(true);
+      setPricingModalPlan('pro');
+      setShowPricingModal(true);
       captureUpgradePromptShown({
         trigger,
         source: 'case_status_page',

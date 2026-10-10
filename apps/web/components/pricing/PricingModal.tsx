@@ -21,7 +21,11 @@ import {
   shouldShowDedicatedPlanForSale,
 } from '@/lib/pricing/sales-copy';
 import { PlanPickerGuide } from '@/components/pricing/PlanPickerGuide';
-import { capturePricingCtaViewed } from '@/lib/posthog-client';
+import { CaseMonitoringOffer } from './CaseMonitoringOffer';
+import {
+  captureClientEvent,
+  capturePricingCtaViewed,
+} from '@/lib/posthog-client';
 import { PLAN_LIST_PRICES, PLAN_PRICES } from '@/lib/pricing/plan-config';
 
 interface PricingModalProps {
@@ -33,25 +37,44 @@ interface PricingModalProps {
   initialInterval?: string;
   /** Slightly larger desktop typography on /premium/checkout (full-page flow). */
   checkoutPage?: boolean;
+  caseMonitoring?: boolean;
 }
 
 function isYearlyBillingDefault(interval: string | undefined): boolean {
   return interval !== 'month';
 }
 
-export function PricingModal({
+export function PricingModal(props: PricingModalProps) {
+  if (!props.open) return null;
+  // A new opening/initial offer starts with fresh, unchecked billing consent.
+  const offerKey = `${props.initialPlan}:${props.initialInterval}:${props.caseMonitoring}:${props.checkoutPage}:${props.isPremium}`;
+  return <PricingModalContent key={offerKey} {...props} />;
+}
+
+function PricingModalContent({
   open,
   onClose,
-  userEmail,
+  userEmail: _userEmail,
   isPremium = false,
   initialPlan,
   initialInterval,
   checkoutPage = false,
+  caseMonitoring = false,
 }: PricingModalProps) {
+  const [comparePlans, setComparePlans] = useState(false);
+  const focused = caseMonitoring && !comparePlans && !isPremium;
+  const [eligibilityError, setEligibilityError] = useState(false);
+  const checkoutSource = caseMonitoring
+    ? 'case_status'
+    : checkoutPage
+      ? 'checkout_page'
+      : 'pricing_modal';
   const [isLoading, setIsLoading] = useState(false);
-  /** Annual on by default; only `initialInterval === "month"` forces monthly (user can toggle anytime). */
+  /** Case monitoring defaults to monthly; comparison offers retain their initial interval. */
   const [isYearly, setIsYearly] = useState(() =>
-    isYearlyBillingDefault(initialInterval)
+    isYearlyBillingDefault(
+      initialInterval ?? (caseMonitoring ? 'month' : undefined)
+    )
   );
   const [promoMode, setPromoMode] = useState<PromoCheckoutMode>('default');
   const [customPromoInput, setCustomPromoInput] = useState('');
@@ -59,7 +82,7 @@ export function PricingModal({
   const [proConsent, setProConsent] = useState(false);
   const [dedicatedConsent, setDedicatedConsent] = useState(false);
   const [proIntroEligible, setProIntroEligible] = useState<boolean | null>(
-    null
+    isPremium ? false : null
   );
 
   useEffect(() => {
@@ -74,28 +97,9 @@ export function PricingModal({
 
   useEffect(() => {
     if (!open) return;
-    setIsYearly(isYearlyBillingDefault(initialInterval));
-  }, [open, initialInterval]);
-
-  useEffect(() => {
-    if (open) {
-      setPromoMode('default');
-      setCustomPromoInput('');
-      setPromoError(null);
-      setProConsent(false);
-      setDedicatedConsent(false);
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (isPremium) {
-      setProIntroEligible(false);
-      return;
-    }
+    if (isPremium) return;
 
     const controller = new AbortController();
-    setProIntroEligible(null);
     void fetch('/api/premium/status', {
       credentials: 'include',
       signal: controller.signal,
@@ -106,28 +110,35 @@ export function PricingModal({
         return response.json();
       })
       .then((status) => {
+        if (controller.signal.aborted) return;
         const eligible =
           status?.proPaidIntroEligible ?? status?.proFreeTrialEligible;
         setProIntroEligible(eligible === true);
+        captureClientEvent('pro_offer_viewed', {
+          source: checkoutSource,
+          had_paid_intro: eligible === true,
+          offer_version: caseMonitoring ? 'case_monitoring_v1' : 'comparison',
+        });
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError')
           return;
         // Fail closed: never advertise an introductory offer we cannot verify.
-        setProIntroEligible(false);
+        setProIntroEligible(null);
+        setEligibilityError(true);
+        setPromoError(
+          'Pro checkout is unavailable until eligibility can be checked. Close and reopen this offer to retry.'
+        );
       });
 
     return () => controller.abort();
-  }, [open, isPremium]);
+  }, [open, isPremium, checkoutSource, caseMonitoring]);
 
-  useEffect(() => {
+  const changeBillingInterval = (yearly: boolean) => {
+    setIsYearly(yearly);
     setProConsent(false);
     setDedicatedConsent(false);
-  }, [isYearly]);
-
-  useEffect(() => {
-    setProConsent(false);
-  }, [proIntroEligible]);
+  };
 
   useEffect(() => {
     if (!open || !initialPlan) return;
@@ -142,6 +153,18 @@ export function PricingModal({
   }, [open, initialPlan]);
 
   const handleUpgrade = async (selectedPlan: string) => {
+    if (
+      (selectedPlan === 'pro' &&
+        (!proConsent || proIntroEligible === null || eligibilityError)) ||
+      (selectedPlan === 'dedicated' && !dedicatedConsent)
+    )
+      return;
+    captureClientEvent('pro_offer_clicked', {
+      source: checkoutSource,
+      interval: isYearly ? 'year' : 'month',
+      plan_tier: selectedPlan,
+      had_paid_intro: selectedPlan === 'pro' && proIntroEligible === true,
+    });
     setIsLoading(true);
     setPromoError(null);
 
@@ -159,6 +182,10 @@ export function PricingModal({
           planId: selectedPlan,
           interval: currentInterval,
           recurringBillingAccepted: true,
+          source: checkoutSource,
+          ...(selectedPlan === 'pro'
+            ? { expectedProIntro: proIntroEligible }
+            : {}),
           ...promoFields,
         }),
       });
@@ -191,8 +218,12 @@ export function PricingModal({
           return;
         }
 
+        captureClientEvent('pro_checkout_failed', {
+          source: checkoutSource,
+          status: response.status,
+          plan_tier: selectedPlan,
+        });
         setPromoError(msg);
-        setIsLoading(false);
         return;
       }
 
@@ -216,7 +247,6 @@ export function PricingModal({
             ? payload.message
             : 'You already have an active subscription.'
         );
-        setIsLoading(false);
         return;
       }
 
@@ -237,7 +267,6 @@ export function PricingModal({
             ? payload.message
             : 'Payment is required to complete this upgrade.'
         );
-        setIsLoading(false);
         return;
       }
 
@@ -246,16 +275,26 @@ export function PricingModal({
         return;
       }
 
+      captureClientEvent('pro_checkout_failed', {
+        source: checkoutSource,
+        failure_kind: 'unexpected_response',
+        plan_tier: selectedPlan,
+      });
       setPromoError(
         'Unexpected checkout response. Please try again or contact support.'
       );
-      setIsLoading(false);
     } catch (error) {
+      captureClientEvent('pro_checkout_failed', {
+        source: checkoutSource,
+        failure_kind: 'network_or_response',
+        plan_tier: selectedPlan,
+      });
       const message =
         error instanceof Error
           ? error.message
           : 'Failed to start upgrade process.';
       setPromoError(message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -316,6 +355,31 @@ export function PricingModal({
       ? allPlans
       : allPlans.filter((p) => p.id !== 'dedicated');
   }, [isPremium]);
+
+  if (focused)
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent
+          onClose={onClose}
+          aria-labelledby="case-monitoring-offer-title"
+          className="w-[95vw] max-w-xl overflow-hidden p-0"
+        >
+          <CaseMonitoringOffer
+            eligible={proIntroEligible}
+            eligibilityError={eligibilityError}
+            yearly={isYearly}
+            consent={proConsent}
+            loading={isLoading}
+            error={promoError}
+            onYearlyChange={changeBillingInterval}
+            onConsentChange={setProConsent}
+            onContinue={() => void handleUpgrade('pro')}
+            onCompare={() => setComparePlans(true)}
+            onClose={onClose}
+          />
+        </DialogContent>
+      </Dialog>
+    );
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -386,7 +450,7 @@ export function PricingModal({
 
             <PricingModalBillingToggle
               isYearly={isYearly}
-              onToggle={() => setIsYearly(!isYearly)}
+              onToggle={() => changeBillingInterval(!isYearly)}
             />
           </div>
         </div>

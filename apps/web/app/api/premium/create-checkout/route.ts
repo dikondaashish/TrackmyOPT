@@ -35,6 +35,7 @@ import {
   normalizeBillingInterval,
   normalizePlanTier,
 } from '@/lib/posthog-server';
+import { normalizeProCheckoutSource } from '@/lib/posthog/pro-conversion';
 import { billingInsertId } from '@/lib/posthog/billing-analytics';
 import {
   PLAN_LIST_PRICES,
@@ -103,6 +104,7 @@ export async function POST(req: NextRequest) {
 
     const requestBody = await req.json();
     const { planId = 'pro', interval = 'year' } = requestBody;
+    const checkoutSource = normalizeProCheckoutSource(requestBody.source);
     /** undefined/null/blank = limited-time offer; non-blank string = custom code */
     const promoCode = requestBody.promoCode as string | null | undefined;
     const recurringBillingAccepted =
@@ -450,6 +452,9 @@ export async function POST(req: NextRequest) {
     }
 
     const includeProIntro = planId === 'pro' && !proIntroConsumed;
+    if (typeof requestBody.expectedProIntro === 'boolean' && planId === 'pro' && requestBody.expectedProIntro !== includeProIntro) {
+      return NextResponse.json({ error: 'Your offer eligibility changed. Close and reopen the offer to review the current price.' }, { status: 409 });
+    }
     let proIntroPriceId: string | undefined;
     if (includeProIntro) {
       proIntroPriceId = getProIntroPriceId();
@@ -549,6 +554,7 @@ export async function POST(req: NextRequest) {
             is_upgrade: false,
             had_trial: includeProIntro,
             had_paid_intro: includeProIntro,
+            source: normalizeProCheckoutSource(existingSession.metadata?.checkout_source),
             session_reused: true,
           });
           const body: CreateCheckoutResponse = {
@@ -588,12 +594,14 @@ export async function POST(req: NextRequest) {
           planId,
           interval,
           include_pro_intro: includeProIntro ? 'true' : 'false',
+          checkout_source: checkoutSource,
         },
       },
       success_url: `${origin}/premium/success?session_id={CHECKOUT_SESSION_ID}&planId=${planId}`,
       cancel_url: `${origin}/premium/cancelled`,
       metadata: {
         supabase_user_id: userId,
+        checkout_source: checkoutSource,
         planId,
         interval,
         checkout_promo: effectiveCheckoutPromoKey,
@@ -657,6 +665,7 @@ export async function POST(req: NextRequest) {
       is_upgrade: false,
       had_trial: includeProIntro,
       had_paid_intro: includeProIntro,
+      source: checkoutSource,
       session_reused: false,
     });
     const body: CreateCheckoutResponse = {

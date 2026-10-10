@@ -214,15 +214,24 @@ function NotificationsPanel({ n }: { n: NotificationSettingsProps }) {
 export function ToolsAccordion({ notifications }: ToolsAccordionProps) {
   const [open, setOpen] = useState<ToolKey | null>(null);
 
-  const toggle = (key: ToolKey) => setOpen((p) => (p === key ? null : key));
+  const toggle = (key: ToolKey) => {
+    if (key === "notifications" && notifications.isEditingEmail) {
+      notifications.onCancelEditEmail();
+      setOpen(null);
+      return;
+    }
+    setOpen((p) => (p === key ? null : key));
+  };
 
   return (
-    <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
+    <div id="case-notification-settings" className="divide-y divide-border border border-border rounded-xl overflow-hidden">
       {TOOLS.map((tool) => {
-        const isOpen = open === tool.key;
+        const isOpen = open === tool.key || (tool.key === "notifications" && notifications.isEditingEmail);
         return (
           <div key={tool.key}>
             <button
+              type="button"
+              aria-expanded={isOpen}
               onClick={() => toggle(tool.key)}
               className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 transition-colors cursor-pointer text-left"
             >

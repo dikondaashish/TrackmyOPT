@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
             }
           }
         } else {
-          await handleChargeRefunded(stripe, charge, event.id);
+          await handleChargeRefunded(stripe, charge, event.id, event.created);
         }
         break;
       }

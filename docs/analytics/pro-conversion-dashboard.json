@@ -1,0 +1,408 @@
+{
+  "dashboard_id": 2195103,
+  "name": "Paid Pro conversion improvements",
+  "description": "Target two verified USD 0.99 starts daily. New events begin after deployment; zero before then is missing instrumentation, not zero business revenue.",
+  "insights": [
+    {
+      "name": "Paid Pro starts per day \u2014 target 2",
+      "description": "Unique people with a live, completed, paid USD 0.99 Pro introductory checkout. Target >=2 each complete day. New instrumentation; no historical backfill. Excludes configured test accounts.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "pro_paid_intro_started",
+              "properties": [],
+              "math": "dau"
+            }
+          ],
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d"
+          },
+          "interval": "day",
+          "filterTestAccounts": true,
+          "properties": [],
+          "trendsFilter": {
+            "display": "ActionsLineGraph"
+          }
+        }
+      },
+      "insight_id": 12731141,
+      "short_id": "cQAyhLTx"
+    },
+    {
+      "name": "Paid Pro starts \u2014 last 7 complete days vs target 14",
+      "description": "All project actors; server verified live payments only. 14 per week is a pacing target, not proof every day reached 2. No historical backfill.",
+      "query": {
+        "kind": "DataVisualizationNode",
+        "source": {
+          "kind": "HogQLQuery",
+          "query": "SELECT uniq(person_id) AS paid_people, 14 AS weekly_target, 14-uniq(person_id) AS gap_to_target FROM events WHERE event='pro_paid_intro_started' AND timestamp >= toStartOfDay(now()) - INTERVAL 7 DAY AND timestamp < toStartOfDay(now())"
+        }
+      },
+      "insight_id": 12731142,
+      "short_id": "RJWGJwdu"
+    },
+    {
+      "name": "Paid Pro: eligible offer \u2192 click \u2192 checkout \u2192 verified start",
+      "description": "Ordered seven-day unique-person funnel. Client steps require analytics consent; server purchases do not. Modal offers only; not all pricing-page traffic. Recent cohorts are immature.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "pro_offer_viewed",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "had_paid_intro",
+                  "value": [
+                    true
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "pro_offer_clicked",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "had_paid_intro",
+                  "value": [
+                    true
+                  ],
+                  "operator": "exact"
+                },
+                {
+                  "type": "event",
+                  "key": "plan_tier",
+                  "value": [
+                    "pro"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "checkout_started",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "had_paid_intro",
+                  "value": [
+                    true
+                  ],
+                  "operator": "exact"
+                },
+                {
+                  "type": "event",
+                  "key": "plan_tier",
+                  "value": [
+                    "pro"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "pro_paid_intro_started",
+              "properties": []
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d"
+          },
+          "filterTestAccounts": true,
+          "properties": [],
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          }
+        }
+      },
+      "insight_id": 12731143,
+      "short_id": "RgPRB53h"
+    },
+    {
+      "name": "Paid Pro funnel by offer source",
+      "description": "First-touch offer source, not marketing acquisition source. case_status, pricing_modal, checkout_page; unknown retained. Seven-day cohorts; consent-observed top steps.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "pro_offer_viewed",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "had_paid_intro",
+                  "value": [
+                    true
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "pro_offer_clicked",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "had_paid_intro",
+                  "value": [
+                    true
+                  ],
+                  "operator": "exact"
+                },
+                {
+                  "type": "event",
+                  "key": "plan_tier",
+                  "value": [
+                    "pro"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "checkout_started",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "had_paid_intro",
+                  "value": [
+                    true
+                  ],
+                  "operator": "exact"
+                },
+                {
+                  "type": "event",
+                  "key": "plan_tier",
+                  "value": [
+                    "pro"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "pro_paid_intro_started",
+              "properties": []
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d"
+          },
+          "filterTestAccounts": true,
+          "properties": [],
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          },
+          "breakdownFilter": {
+            "breakdown": "source",
+            "breakdown_type": "event"
+          }
+        }
+      },
+      "insight_id": 12731144,
+      "short_id": "KGdlx422"
+    },
+    {
+      "name": "Paid Pro intro \u2192 first renewal (21-day window)",
+      "description": "Unique people; first paid subscription-cycle invoice whose period starts at the introductory trial_end. Window allows payment retries. Cohorts younger than 21 days are immature; start cohort has no backfill.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "pro_paid_intro_started",
+              "properties": []
+            },
+            {
+              "kind": "EventsNode",
+              "event": "pro_paid_intro_renewed",
+              "properties": []
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d"
+          },
+          "filterTestAccounts": true,
+          "properties": [],
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 21,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          }
+        }
+      },
+      "insight_id": 12731145,
+      "short_id": "WpGG0amU"
+    },
+    {
+      "name": "Paid Pro guardrails: checkout failures, intro cancellation requests, refunds",
+      "description": "Daily unique people. Pro checkout failures, cancellation requests from introductory Pro customers. Refunds cover all plans and partial/full refunds, not only Pro. Cancellation requests are captured when renewal is disabled for introductory customers, including after their first renewal. Refund amounts are cumulative per charge; never sum partial-refund events.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "pro_checkout_failed",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "plan_tier",
+                  "value": [
+                    "pro"
+                  ],
+                  "operator": "exact"
+                }
+              ],
+              "math": "dau"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "pro_intro_cancellation_requested",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "had_paid_intro",
+                  "value": [
+                    true
+                  ],
+                  "operator": "exact"
+                },
+                {
+                  "type": "event",
+                  "key": "plan_tier",
+                  "value": [
+                    "pro"
+                  ],
+                  "operator": "exact"
+                }
+              ],
+              "math": "dau"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "payment_refunded",
+              "properties": [],
+              "math": "dau"
+            }
+          ],
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d"
+          },
+          "interval": "day",
+          "filterTestAccounts": true,
+          "properties": [],
+          "trendsFilter": {
+            "display": "ActionsLineGraph"
+          }
+        }
+      },
+      "insight_id": 12731146,
+      "short_id": "5zAA02iO"
+    },
+    {
+      "name": "Guest source article \u2192 signup \u2192 verified paid Pro intro",
+      "description": "Existing case-status guest funnel extended to verified USD 0.99 paid start, attributed to first CTA source_page. Seven-day window, consent-observed top steps. New paid events have no historical backfill; pre-deployment entrants are not a paid-conversion baseline. Recent cohorts are immature.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "blog_product_cta_clicked",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "variant",
+                  "value": [
+                    "case-status"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_viewed"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_cta"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "user_signed_up"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "pro_paid_intro_started"
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d"
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          },
+          "breakdownFilter": {
+            "breakdown": "source_page",
+            "breakdown_type": "event"
+          }
+        }
+      },
+      "insight_id": 12731192,
+      "short_id": "lBjfMZp3"
+    }
+  ]
+}

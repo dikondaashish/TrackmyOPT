@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { captureVerifiedProIntro } from '@/lib/posthog/verified-pro-billing';
 import { sanitizeError, secureLog, logIdPrefix } from '@/lib/secure-logger';
 import { applyStripeCheckoutSession } from '@/lib/premium/apply-stripe-checkout-session';
 import { cancelOtherCustomerSubscriptions } from '@/lib/premium/stripe-subscription-sync';
@@ -84,10 +85,6 @@ export async function handleCheckoutCompleted(
       });
     }
 
-    if (result.alreadyRecorded) {
-      return;
-    }
-
     const userId = await resolveCheckoutAnalyticsUserId(session);
     if (!userId) {
       secureLog.warn('checkout analytics skipped: no user for session', {
@@ -95,6 +92,9 @@ export async function handleCheckoutCompleted(
       });
       return;
     }
+
+    await captureVerifiedProIntro(userId, session, stripe);
+    if (result.alreadyRecorded) return;
 
     const planId = session.metadata?.planId || 'pro';
     const billingIntervalLabel =

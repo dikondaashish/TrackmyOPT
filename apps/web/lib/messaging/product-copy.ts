@@ -63,13 +63,13 @@ export const CASE_STATUS_MESSAGING = {
     "Status may be outdated. Auto-check daily with Pro.",
   trialCtaStrip:
     'Stop refreshing. Get Pro for daily USCIS checks and email alerts when your status changes.',
-  caseInsightHeadline: 'Stop wondering where your case stands.',
+  caseInsightHeadline: 'Let TrackMyOPT check your case daily.',
   caseInsightBody:
-    'Unlock a likely decision window from comparable community cases, plus daily USCIS checks and status-change emails.',
-  caseInsightInlineTitle: 'The typical wait is only the headline',
+    'Get daily USCIS checks and email when a scheduled check detects a status change. Manual checks stay free.',
+  caseInsightInlineTitle: 'Let Pro watch for changes',
   caseInsightInlineBody:
-    'Unlock your likely decision window, see cases filed near yours, and let Pro watch USCIS every day.',
-  caseInsightCta: 'See my decision window',
+    'Pro checks USCIS daily and emails you when your status changes. Community estimates remain planning guidance, not promised dates.',
+  caseInsightCta: 'See daily monitoring options',
   disclaimer:
     "Status data comes from USCIS. Processing times vary — check with your DSO or attorney for official guidance.",
 } as const;
