@@ -6,6 +6,7 @@ import {
   approvalMatchesUrl,
   createPrivateApprovalBinding,
 } from '../src/private/private-approval-session';
+import { readContentPortalSource } from './fixtures/split-source';
 
 const jobA = {
   jobUrl:
@@ -45,7 +46,7 @@ assert.equal(
   'the exact reviewed application retains approval',
 );
 
-const contentScript = readFileSync(resolve('src/content-job-portal.ts'), 'utf8');
+const contentScript = readContentPortalSource();
 assert.match(
   contentScript,
   /function invalidateArtifactForUrlChange\(nextUrl: string\): void \{\s*invalidatePrivateApprovalForUrl\(nextUrl\);/,

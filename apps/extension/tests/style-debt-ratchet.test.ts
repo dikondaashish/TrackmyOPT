@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readContentPortalSource } from './fixtures/split-source';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -16,7 +17,7 @@ import path from 'node:path';
  * When you migrate a batch, lower the matching budget in the same commit.
  */
 const WIDGET = path.join(process.cwd(), 'src', 'content-job-portal.ts');
-const source = fs.readFileSync(WIDGET, 'utf-8');
+const source = readContentPortalSource();
 
 const count = (pattern: RegExp): number => (source.match(pattern) ?? []).length;
 

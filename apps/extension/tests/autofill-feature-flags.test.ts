@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { readTrackerWidgetSource, readContentPortalSource } from './fixtures/split-source';
 
 import {
   AUTOFILL_FEATURE_FLAGS,
@@ -23,8 +24,8 @@ assert.deepEqual(resolveAutofillFeatureFlags({ skills: true }), {
 });
 
 const background = readFileSync('src/background.ts', 'utf8');
-const portal = readFileSync('src/content-job-portal.ts', 'utf8');
-const trackerWidget = readFileSync('src/job-portal/job-portal-tracker-widget.ts', 'utf8');
+const portal = readContentPortalSource();
+const trackerWidget = readTrackerWidgetSource();
 const engine = readFileSync('src/easy-apply/easy-apply-engine.ts', 'utf8');
 
 for (const flag of [

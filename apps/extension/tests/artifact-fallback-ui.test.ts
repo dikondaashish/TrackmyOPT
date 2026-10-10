@@ -6,6 +6,7 @@ import {
   INACTIVE_ARTIFACT_FALLBACK_MESSAGE,
   renderInactiveArtifactFallback,
 } from '../src/resume/artifact-fallback-ui';
+import { readContentPortalSource } from './fixtures/split-source';
 
 function host() {
   const attributes = new Map<string, string>();
@@ -67,7 +68,7 @@ test('mount fallback is suppressed when the background resolver has an artifact'
 });
 
 test('widget mount peeks the resolver without discarding a rejected artifact', () => {
-  const source = readFileSync('src/content-job-portal.ts', 'utf8');
+  const source = readContentPortalSource();
   const block = source.slice(
     source.indexOf('async function reconcileArtifactAvailabilityOnWidgetMount'),
     source.indexOf('function generatedResumeFor'),
@@ -79,7 +80,7 @@ test('widget mount peeks the resolver without discarding a rejected artifact', (
 });
 
 test('Prefill resolve also keeps soft-mismatched artifacts instead of wiping them', () => {
-  const source = readFileSync('src/content-job-portal.ts', 'utf8');
+  const source = readContentPortalSource();
   const start = source.indexOf('async function executeResolvedPrefill');
   const end = source.indexOf('// Frames receive only the already-resolved', start);
   const block = source.slice(start, end);

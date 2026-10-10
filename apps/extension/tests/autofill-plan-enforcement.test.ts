@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { readContentPortalSource } from './fixtures/split-source';
 
 const background = readFileSync('src/background.ts', 'utf8');
 const backgroundAuth = readFileSync('src/background/background-auth.ts', 'utf8');
 const home = readFileSync('src/popup/home.ts', 'utf8');
-const portal = readFileSync('src/content-job-portal.ts', 'utf8');
+const portal = readContentPortalSource();
 
 assert.match(background, /GET_AUTOFILL_ENTITLEMENTS/);
 assert.match(backgroundAuth, /resolveAutofillPlanEntitlements/);

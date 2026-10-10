@@ -6,9 +6,10 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
 import { shouldRefreshWidget, widgetJobSnapshot } from '../src/job-portal/job-portal-job-helpers';
+import { readContentPortalSource } from './fixtures/split-source';
 const requireLocal=createRequire(resolve('package.json'));
 const {JSDOM}=requireLocal('jsdom');
-const source=readFileSync('src/content-job-portal.ts','utf8');
+const source=readContentPortalSource();
 const inject=source.slice(source.indexOf('async function injectOrRefreshButton()'),source.indexOf('\nfunction scheduleInject()'));
 function harness(){
  const dom=new JSDOM('<body></body>',{url:'https://jobs.lever.co/example/one'});let job:any={company_name:'Example',role_title:'Engineer',job_url:dom.window.location.href};

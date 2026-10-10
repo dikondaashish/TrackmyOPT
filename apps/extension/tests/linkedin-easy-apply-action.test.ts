@@ -5,10 +5,11 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
+import { readContentPortalSource } from './fixtures/split-source';
 
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
-const source = readFileSync('src/content-job-portal.ts', 'utf8');
+const source = readContentPortalSource();
 const syncSource = source.slice(
   source.indexOf('function syncLinkedInEasyApplyAction()'),
   source.indexOf('\nasync function injectOrRefreshButton()'),

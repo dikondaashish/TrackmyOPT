@@ -7,7 +7,6 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'node:crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as Bull from 'bull';
 import {
@@ -28,13 +27,7 @@ import {
   planSourceIngestionJobs,
   selectSlowSourceIds,
 } from './source-job-planning';
-import {
-  classifySourceError,
-  planSourceFailure,
-  planSourceSuccess,
-  shouldAttemptSource,
-  toSourceHealthDatabaseUpdate,
-} from './source-health';
+import { shouldAttemptSource } from './source-health';
 import {
   ingestionReservationParams,
   normalizeSchedulerRunId,
@@ -54,54 +47,27 @@ import type {
   JobStoreSearch,
 } from './job-data-store.contract';
 import { JOB_DATA_STORE } from './job-data-store.provider';
-import { summarizeIngestionRun } from './ingestion-run-status';
-
-type AtsSource = {
-  id: string;
-  ats_type: string;
-  board_token: string;
-  base_url: string;
-  company_id: string | null;
-  employer_board_name: string | null;
-  enabled: boolean;
-};
-
-type Reservation = { audit_log_id: string; accepted: boolean; reason: string };
-type IngestionResult =
-  | { sourceId: string; skipped: string }
-  | {
-      sourceId: string;
-      jobsFound: number;
-      jobsNew: number;
-      jobsDuplicate: number;
-      jobsStale: number;
-      jobsRemoved: number;
-      jobsReopened: number;
-    };
-
-type PersistenceResult = {
-  jobsNew: number;
-  jobsDuplicate: number;
-  jobsStale: number;
-  jobsRemoved: number;
-  jobsReopened: number;
-};
-
-type SourceBoardHealth = {
-  id: string;
-  consecutive_failures: number;
-  circuit_state: 'closed' | 'open';
-  next_retry_at: string | null;
-};
-
-const sleep = (durationMs: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, durationMs));
+import { SourceBoardHealthStore } from './job-board-source-health.store';
+import { buildJobStoreRecords } from './job-board-records';
+import {
+  queueJobsForRun,
+  readIngestionQueueState,
+  readIngestionRunStatus,
+} from './job-board-queue-inspection';
+import {
+  sleep,
+  type AtsSource,
+  type IngestionResult,
+  type PersistenceResult,
+  type Reservation,
+} from './job-board.types';
 
 @Injectable()
 export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(JobBoardService.name);
   private readonly supabase: SupabaseClient;
   private readonly schedulerRuns: SupabaseSchedulerRunStore;
+  private readonly sourceHealth: SourceBoardHealthStore;
   private shuttingDown = false;
   private readonly inFlightAuditIds = new Set<string>();
   private readonly activeSourceWork = new Set<Promise<unknown>>();
@@ -140,6 +106,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
     ) as unknown as SupabaseClient;
     this.schedulerRuns = new SupabaseSchedulerRunStore(this.supabase);
+    this.sourceHealth = new SourceBoardHealthStore(this.supabase);
   }
 
   /** Emergency-only control for the two job-board Bull queues. */
@@ -159,39 +126,11 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
 
   async getIngestionQueueState() {
     this.assertQueueControlEnabled();
-    const [normal, slow, normalPaused, slowPaused] = await Promise.all([
-      this.queue.getJobCounts(),
-      this.slowQueue.getJobCounts(),
-      this.queue.isPaused(),
-      this.slowQueue.isPaused(),
-    ]);
-    const queued = await Promise.all([
-      this.queue.getJobs(['waiting', 'active', 'delayed', 'paused']),
-      this.slowQueue.getJobs(['waiting', 'active', 'delayed', 'paused']),
-    ]);
-    const queuedRunCounts = new Map<string, number>();
-    for (const job of queued.flat()) {
-      const schedulerRunId = (
-        job.data as { schedulerRunId?: unknown } | undefined
-      )?.schedulerRunId;
-      if (typeof schedulerRunId === 'string')
-        queuedRunCounts.set(
-          schedulerRunId,
-          (queuedRunCounts.get(schedulerRunId) || 0) + 1,
-        );
-    }
-    return {
-      queues: {
-        'job-board': normal,
-        'job-board-slow': slow,
-      },
-      queuesPaused: { normal: normalPaused, slow: slowPaused },
-      queuedRunCounts: Object.fromEntries(
-        [...queuedRunCounts.entries()].sort(([a], [b]) => a.localeCompare(b)),
-      ),
-      jobStore: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
-      note: 'Bull does not retain stalled jobs as a persistent queue state; inspect worker logs for stall events.',
-    };
+    return readIngestionQueueState(
+      this.queue,
+      this.slowQueue,
+      resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
+    );
   }
 
   async pauseIngestionQueues() {
@@ -210,17 +149,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     schedulerRunId: string,
     states: Bull.JobStatus[],
   ) {
-    const jobs = await Promise.all([
-      this.queue.getJobs(states),
-      this.slowQueue.getJobs(states),
-    ]);
-    const matching = jobs.flat().filter((job) => {
-      const data = job.data as Partial<SchedulerContext> | undefined;
-      return data?.schedulerRunId === schedulerRunId;
-    });
-    return Promise.all(
-      matching.map(async (job) => ({ job, state: await job.getState() })),
-    );
+    return queueJobsForRun(this.queue, this.slowQueue, schedulerRunId, states);
   }
 
   private async addSourceJobsInChunks(
@@ -544,46 +473,13 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   async getIngestionRunStatus(schedulerRunId: string) {
     if (!normalizeSchedulerRunId(schedulerRunId))
       throw new Error('Invalid scheduler run ID');
-    const job = await this.queue.getJob(schedulerRunId);
-    const audits = await fetchAllPages(async (from, to) => {
-      const result = await this.supabase
-        .from('ingestion_audit_log')
-        .select('source_id,status,run_at')
-        .eq('scheduler_run_id', schedulerRunId)
-        .order('run_at', { ascending: false })
-        .order('id')
-        .range(from, to);
-      return { data: result.data || [], error: result.error };
-    });
-    const runnableStates: Bull.JobStatus[] = [
-      'waiting',
-      'active',
-      'delayed',
-      'paused',
-    ];
-    const [normal, slow, normalPaused, slowPaused] = await Promise.all([
-      this.queue.getJobs(runnableStates),
-      this.slowQueue.getJobs(runnableStates),
-      this.queue.isPaused(),
-      this.slowQueue.isPaused(),
-    ]);
-    const runnable = [...normal, ...slow].filter(
-      (candidate) =>
-        (candidate.data as SchedulerContext).schedulerRunId === schedulerRunId,
-    ).length;
-    const manifest = (job?.data as { sourceIds?: string[] } | undefined)
-      ?.sourceIds;
-    return {
+    return readIngestionRunStatus(
+      this.supabase,
+      this.queue,
+      this.slowQueue,
       schedulerRunId,
-      ...summarizeIngestionRun(
-        manifest,
-        audits,
-        runnable,
-        job ? await job.getState() : 'missing',
-      ),
-      queuesPaused: { normal: normalPaused, slow: slowPaused },
-      jobStore: resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
-    };
+      resolveJobDataStore(this.config.get('JOB_DATA_STORE')),
+    );
   }
 
   private async ingestSourceByIdInternal(
@@ -620,7 +516,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         `Source ${source.id} requires employer_board_name before ingestion`,
       );
     }
-    const sourceBoard = await this.getSourceBoardHealth(source.id);
+    const sourceBoard = await this.sourceHealth.get(source.id);
     if (
       sourceBoard &&
       !shouldAttemptSource({
@@ -673,7 +569,8 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         fetched.metadata.requests_made,
       );
       try {
-        if (!this.shuttingDown) await this.recordSourceSuccess(sourceBoard?.id);
+        if (!this.shuttingDown)
+          await this.sourceHealth.recordSuccess(sourceBoard?.id);
       } catch (healthError) {
         const message =
           healthError instanceof Error
@@ -705,7 +602,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         message,
       );
       if (!this.shuttingDown)
-        await this.recordSourceFailure(sourceBoard, message);
+        await this.sourceHealth.recordFailure(sourceBoard, message);
       this.logger.error(`Job-board source ${source.id} failed: ${message}`);
       throw error;
     } finally {
@@ -838,41 +735,12 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       runStartedAt,
     });
     const now = new Date().toISOString();
-    const records: JobStoreRecord[] = scraped.map((job) => {
-      const existing = existingByExternalId.get(job.external_job_id);
-      return {
-        id: existing?.id || randomUUID(),
-        sourceId: source.id,
-        sourceAts: source.ats_type,
-        boardToken: source.board_token,
-        externalJobId: job.external_job_id,
-        title: job.title,
-        companyName:
-          job.company_name ||
-          source.employer_board_name ||
-          existing?.companyName ||
-          '',
-        location: job.location,
-        department: job.department,
-        description: job.description,
-        jobUrl: job.job_url,
-        postedAt: job.posted_at,
-        updatedAt: now,
-        optEligible: existing?.optEligible ?? null,
-        stemOptEligible: existing?.stemOptEligible ?? null,
-        cptEligible: existing?.cptEligible ?? null,
-        h1bSponsorStatus: existing?.h1bSponsorStatus ?? null,
-        createdAt: existing?.createdAt || now,
-        firstSeenAt: existing?.firstSeenAt || now,
-        lastConfirmedAt: now,
-        listingStatus: 'open',
-        employerBoardName: source.employer_board_name,
-        sourceTrustTier: 'verified_ats',
-        employerMatchId: existing?.employerMatchId ?? null,
-        missingSinceAt: null,
-        removedAt: null,
-      };
-    });
+    const records = buildJobStoreRecords(
+      source,
+      scraped,
+      existingByExternalId,
+      now,
+    );
     const fresh = records.filter(
       (job) => !existingByExternalId.has(job.externalJobId),
     );
@@ -922,65 +790,6 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       failure_message: failure || null,
     });
     if (error) throw new Error(`Could not complete ingestion audit ${id}`);
-  }
-
-  private async getSourceBoardHealth(sourceId: string) {
-    const { data, error } = await this.supabase
-      .from('ats_boards')
-      .select('id, consecutive_failures, circuit_state, next_retry_at')
-      .eq('legacy_source_id', sourceId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    return data as SourceBoardHealth | null;
-  }
-
-  private async recordSourceSuccess(boardId?: string) {
-    if (!boardId) return;
-    const now = new Date().toISOString();
-    const health = planSourceSuccess();
-    const { error } = await this.supabase
-      .from('ats_boards')
-      .update({
-        ...toSourceHealthDatabaseUpdate(health),
-        last_fetch_at: now,
-        last_success_at: now,
-      })
-      .eq('id', boardId);
-    if (error) throw new Error(error.message);
-  }
-
-  private async recordSourceFailure(
-    board: SourceBoardHealth | null,
-    message: string,
-  ) {
-    if (!board) return;
-    const now = new Date();
-    const plan = planSourceFailure({
-      consecutiveFailures: board.consecutive_failures,
-      now,
-    });
-    const classification = classifySourceError(message);
-    const nowIso = now.toISOString();
-    const update = await this.supabase
-      .from('ats_boards')
-      .update({
-        ...toSourceHealthDatabaseUpdate(plan),
-        last_fetch_at: nowIso,
-        last_failure_at: nowIso,
-      })
-      .eq('id', board.id);
-    if (update.error) throw new Error(update.error.message);
-    const errorLog = await this.supabase.from('source_errors').insert({
-      ats_board_id: board.id,
-      error_type: classification.errorType,
-      message,
-      retryable: classification.retryable,
-      metadata: {
-        consecutive_failures: plan.consecutiveFailures,
-        circuit_state: plan.circuitState,
-      },
-    });
-    if (errorLog.error) throw new Error(errorLog.error.message);
   }
 
   async markSchedulerRunDeferred(schedulerRunId: string, reason: string) {

@@ -1,24 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { supabase } from '@/lib/supabase/client';
-import { isSupabaseRealtimeSupported } from '@/lib/supabase/realtime-supported';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   caseLimitMessage,
   getCaseTrackingLimit,
 } from '@/lib/case-status/case-limits';
 import {
-  findRfeDate,
   PACKAGING_NOTICE_DISMISS_KEY,
   selectActiveCase,
   type CaseStatus,
 } from '@/components/dashboard/case-status/case-status-section-helpers';
-import { daysSinceEpochMs } from '@/lib/case-status/safe-dates';
-import { getServiceCenterLocation } from '@/lib/case-status/case-status-display';
 import {
   DEFAULT_FILING_CATEGORY,
-  getFilingCategoryFormMismatch,
-  isOptFilingCategory,
   normalizeFilingCategory,
   type FilingCategory,
 } from '@/lib/case-status/filing-category';
@@ -32,13 +25,6 @@ import {
   type CheckoutUpsellTrigger,
 } from '@/lib/case-status/free-change-wedge';
 import {
-  CASE_INSIGHT_PROMPT_DELAY_MS,
-  CASE_INSIGHT_PROMPT_SESSION_KEY,
-  CASE_INSIGHT_PROMPT_STORAGE_KEY,
-  parsePromptTimestamp,
-  shouldShowCaseInsightPrompt,
-} from '@/lib/case-status/free-case-insight-prompt';
-import {
   captureCaseStatusCheckCompletedClient,
   captureFilingCategoryUpdated,
   captureUpgradePromptShown,
@@ -50,22 +36,12 @@ import {
   normalizeStatusHistory,
   withNormalizedStatusHistory,
 } from '@/lib/case-status/normalize-status-history';
-import { deriveCaseState } from '@/components/dashboard/case-status/panels/StickyCaseSwitcher';
 import { useClientDate } from '@/hooks/useClientDate';
 import { PRODUCT_CTAS } from '@/lib/messaging/product-copy';
-import type { WeeklyTrendPoint } from '@/lib/community-opt/weekly-trend';
-import type { ProcessingHistogram } from '@/lib/community-opt/estimate';
-import type {
-  CommunityEstimate,
-  CommunitySummary,
-} from '@/lib/community-opt/types';
-import type { SimilarFilingPeers } from '@/lib/community-opt/similar-filing';
-import type { JourneyStages } from '@/lib/community-opt/stages';
-import type {
-  CommunityEvidence,
-  PremiumUpgradeStats,
-} from '@/lib/community-opt/evidence';
-import { resolvePpClockState } from '@/lib/case-status/premium-processing';
+import { deriveCaseStatusViewState } from './case-status-derived';
+import { useCaseInsightPrompt } from './useCaseInsightPrompt';
+import { useCaseStatusRealtime } from './useCaseStatusRealtime';
+import { useCommunityEstimate } from './useCommunityEstimate';
 
 export function useCaseStatusController() {
   const [receiptNumber, setReceiptNumber] = useState('');
@@ -73,29 +49,6 @@ export function useCaseStatusController() {
     DEFAULT_FILING_CATEGORY
   );
   const [caseStatus, setCaseStatus] = useState<CaseStatus | null>(null);
-  const [communityPrediction, setCommunityPrediction] =
-    useState<CommunityEstimate | null>(null);
-  const [communityHeatmap, setCommunityHeatmap] = useState<
-    Array<{ month: string; buckets: number[] }>
-  >([]);
-  const [communityWeeklyTrend, setCommunityWeeklyTrend] = useState<
-    WeeklyTrendPoint[]
-  >([]);
-  const [communityHistogram, setCommunityHistogram] =
-    useState<ProcessingHistogram | null>(null);
-  const [communitySimilarFiling, setCommunitySimilarFiling] =
-    useState<SimilarFilingPeers | null>(null);
-  const [communitySummary, setCommunitySummary] =
-    useState<CommunitySummary | null>(null);
-  const [communityStages, setCommunityStages] = useState<JourneyStages | null>(
-    null
-  );
-  const [communityEstimateLoading, setCommunityEstimateLoading] =
-    useState(false);
-  const [communityEvidence, setCommunityEvidence] = useState<{
-    evidence: CommunityEvidence | null;
-    premiumUpgrade: PremiumUpgradeStats | null;
-  } | null>(null);
   const [trackedCases, setTrackedCases] = useState<CaseStatus[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [isAddingCase, setIsAddingCase] = useState(false);
@@ -131,8 +84,6 @@ export function useCaseStatusController() {
   const [showManualRefreshUpsell, setShowManualRefreshUpsell] = useState(false);
   const [showStaleStatusUpsell, setShowStaleStatusUpsell] = useState(false);
   const [showCaseInsightUpgrade, setShowCaseInsightUpgrade] = useState(false);
-  const caseInsightPromptHandledRef = useRef(false);
-  const pendingReceiptInsightRef = useRef(false);
   const [isEditingReceipt, setIsEditingReceipt] = useState(false);
   const [filingDateInput, setFilingDateInput] = useState('');
   const [filingDateSaving, setFilingDateSaving] = useState(false);
@@ -167,144 +118,17 @@ export function useCaseStatusController() {
     });
   }, []);
 
-  const revealCaseInsightUpgrade = useCallback(
-    (trigger: CheckoutUpsellTrigger) => {
-      if (
-        typeof window === 'undefined' ||
-        caseInsightPromptHandledRef.current
-      ) {
-        return false;
-      }
-
-      const nowMs = Date.now();
-      let shownThisSession = false;
-      let lastShownAtMs: number | null = null;
-      try {
-        shownThisSession =
-          window.sessionStorage.getItem(CASE_INSIGHT_PROMPT_SESSION_KEY) ===
-          '1';
-        lastShownAtMs = parsePromptTimestamp(
-          window.localStorage.getItem(CASE_INSIGHT_PROMPT_STORAGE_KEY)
-        );
-      } catch {
-        // Storage may be unavailable in hardened browsers. The in-memory guard
-        // still prevents repeats during this mount.
-      }
-
-      if (
-        !shouldShowCaseInsightPrompt({
-          isPremium,
-          hasCase: Boolean(caseStatus),
-          hasResolvedStatus: Boolean(
-            caseStatus?.current_status &&
-              caseStatus.current_status !== 'Status will be fetched shortly...'
-          ),
-          competingPromptOpen:
-            showPricingModal || showStatusChangeWedge || showCaseInsightUpgrade,
-          shownThisSession,
-          lastShownAtMs,
-          nowMs,
-        })
-      ) {
-        return false;
-      }
-
-      caseInsightPromptHandledRef.current = true;
-      try {
-        window.sessionStorage.setItem(CASE_INSIGHT_PROMPT_SESSION_KEY, '1');
-        window.localStorage.setItem(
-          CASE_INSIGHT_PROMPT_STORAGE_KEY,
-          String(nowMs)
-        );
-      } catch {
-        /* non-blocking */
-      }
-      setPricingModalPlan('pro');
-      setShowPricingModal(true);
-      captureUpgradePromptShown({
-        trigger,
-        source: 'case_status_page',
-        plan_suggested: 'pro',
-      });
-      return true;
-    },
-    [
-      caseStatus,
-      isPremium,
-      showCaseInsightUpgrade,
-      showPricingModal,
-      showStatusChangeWedge,
-    ]
-  );
-
-  useEffect(() => {
-    if (caseInsightPromptHandledRef.current) return;
-
-    let shownThisSession = false;
-    let lastShownAtMs: number | null = null;
-    try {
-      shownThisSession =
-        window.sessionStorage.getItem(CASE_INSIGHT_PROMPT_SESSION_KEY) === '1';
-      lastShownAtMs = parsePromptTimestamp(
-        window.localStorage.getItem(CASE_INSIGHT_PROMPT_STORAGE_KEY)
-      );
-    } catch {
-      /* storage may be unavailable */
-    }
-
-    const eligible = shouldShowCaseInsightPrompt({
-      isPremium,
-      hasCase: Boolean(caseStatus),
-      hasResolvedStatus: Boolean(
-        caseStatus?.current_status &&
-          caseStatus.current_status !== 'Status will be fetched shortly...'
-      ),
-      competingPromptOpen:
-        showPricingModal ||
-        showStatusChangeWedge ||
-        showManualRefreshUpsell ||
-        showStaleStatusUpsell ||
-        showCaseInsightUpgrade,
-      shownThisSession,
-      lastShownAtMs,
-    });
-
-    if (!eligible) return;
-
-    const timer = window.setTimeout(() => {
-      if (document.visibilityState === 'visible') {
-        revealCaseInsightUpgrade(CHECKOUT_UPSELL_TRIGGER.CASE_INSIGHT);
-      }
-    }, CASE_INSIGHT_PROMPT_DELAY_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [
+  const { pendingReceiptInsightRef } = useCaseInsightPrompt({
     caseStatus,
     isPremium,
-    revealCaseInsightUpgrade,
-    showCaseInsightUpgrade,
-    showManualRefreshUpsell,
     showPricingModal,
-    showStaleStatusUpsell,
     showStatusChangeWedge,
-  ]);
-
-  useEffect(() => {
-    if (!pendingReceiptInsightRef.current) return;
-    if (
-      isPremium !== false ||
-      !caseStatus?.current_status ||
-      caseStatus.current_status === 'Status will be fetched shortly...'
-    ) {
-      return;
-    }
-
-    pendingReceiptInsightRef.current = false;
-    const timer = window.setTimeout(() => {
-      revealCaseInsightUpgrade(CHECKOUT_UPSELL_TRIGGER.RECEIPT_ADDED);
-    }, 700);
-    return () => window.clearTimeout(timer);
-  }, [caseStatus, isPremium, revealCaseInsightUpgrade]);
+    showManualRefreshUpsell,
+    showStaleStatusUpsell,
+    showCaseInsightUpgrade,
+    setPricingModalPlan,
+    setShowPricingModal,
+  });
 
   useEffect(() => {
     try {
@@ -407,167 +231,20 @@ export function useCaseStatusController() {
   }, [deleteNotice]);
 
   // ── Supabase Realtime: Instant UI updates when cron updates DB ──
-  useEffect(() => {
-    if (!caseStatus?.receipt_number || !isSupabaseRealtimeSupported()) return;
-
-    let channel: ReturnType<typeof supabase.channel> | null = null;
-
-    try {
-      channel = supabase
-        .channel(`case-status-realtime-${caseStatus.receipt_number}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'case_status',
-            filter: `receipt_number=eq.${caseStatus.receipt_number}`,
-          },
-          (payload) => {
-            setCaseStatus((prev) => {
-              if (!prev) return prev;
-              return withNormalizedStatusHistory({
-                ...prev,
-                ...(payload.new as Partial<CaseStatus>),
-              });
-            });
-          }
-        )
-        .subscribe((status) => {
-          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-            console.warn('Case status realtime unavailable:', status);
-          }
-        });
-    } catch (error) {
-      console.warn('Case status realtime subscription skipped:', error);
-    }
-
-    return () => {
-      if (channel) {
-        try {
-          supabase.removeChannel(channel);
-        } catch {
-          /* non-blocking */
-        }
-      }
-    };
-  }, [caseStatus?.receipt_number]);
+  useCaseStatusRealtime(caseStatus, setCaseStatus);
 
   // Community processing-time estimate (partner timelines — not USCIS API).
-  useEffect(() => {
-    if (!caseStatus?.receipt_number) {
-      setCommunityPrediction(null);
-      setCommunitySummary(null);
-      setCommunityStages(null);
-      setCommunityHeatmap([]);
-      setCommunityWeeklyTrend([]);
-      setCommunityHistogram(null);
-      setCommunitySimilarFiling(null);
-      return;
-    }
-
-    if (!isOptFilingCategory(caseStatus.filing_category)) {
-      setCommunityEvidence(null);
-      setCommunityPrediction(null);
-      setCommunitySummary(null);
-      setCommunityStages(null);
-      setCommunityHeatmap([]);
-      setCommunityWeeklyTrend([]);
-      setCommunityHistogram(null);
-      setCommunitySimilarFiling(null);
-      setCommunityEstimateLoading(false);
-      return;
-    }
-
-    const controller = new AbortController();
-    const days =
-      clientNowMs !== null
-        ? daysSinceEpochMs(caseStatus.received_date, clientNowMs)
-        : 0;
-
-    // Prefix only — it is all the service-center lookup needs, and it keeps
-    // full receipt numbers out of request logs.
-    const params = new URLSearchParams({
-      receipt_prefix: caseStatus.receipt_number.slice(0, 3),
-      days: String(days),
-    });
-    if (caseStatus.case_type) params.set('case_type', caseStatus.case_type);
-    if (caseStatus.label) params.set('label', caseStatus.label);
-    if (caseStatus.filing_category) {
-      params.set('filing_category', caseStatus.filing_category);
-    }
-    if (caseStatus.pp_start_date)
-      params.set('pp_start', caseStatus.pp_start_date);
-    if (caseStatus.received_date)
-      params.set('received', caseStatus.received_date);
-
-    setCommunityEstimateLoading(true);
-    setCommunityEvidence(null);
-    setCommunityPrediction(null);
-    setCommunitySummary(null);
-    setCommunityStages(null);
-    setCommunityHeatmap([]);
-    setCommunityWeeklyTrend([]);
-    setCommunityHistogram(null);
-    setCommunitySimilarFiling(null);
-    void fetch(`/api/case-status/community-estimate?${params}`, {
-      signal: controller.signal,
-      credentials: 'include',
-    })
-      .then(async (res) => {
-        if (!res.ok) return null;
-        return res.json() as Promise<{
-          ok?: boolean;
-          evidence?: CommunityEvidence | null;
-          premiumUpgrade?: PremiumUpgradeStats | null;
-          prediction?: CommunityEstimate | null;
-          summary?: CommunitySummary | null;
-          stages?: JourneyStages | null;
-          heatmap?: Array<{ month: string; buckets: number[] }>;
-          weeklyTrend?: WeeklyTrendPoint[];
-          histogram?: ProcessingHistogram | null;
-          similarFiling?: SimilarFilingPeers | null;
-        }>;
-      })
-      .then((body) => {
-        if (!body || controller.signal.aborted) return;
-        setCommunityEvidence({
-          evidence: body.evidence ?? null,
-          premiumUpgrade: body.premiumUpgrade ?? null,
-        });
-        setCommunityPrediction(body.prediction ?? null);
-        setCommunitySummary(body.summary ?? null);
-        setCommunityStages(body.stages ?? null);
-        setCommunityHeatmap(body.heatmap ?? []);
-        setCommunityWeeklyTrend(body.weeklyTrend ?? []);
-        setCommunityHistogram(body.histogram ?? null);
-        setCommunitySimilarFiling(body.similarFiling ?? null);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) {
-          setCommunityPrediction(null);
-          setCommunitySummary(null);
-          setCommunityStages(null);
-          setCommunityHeatmap([]);
-          setCommunityWeeklyTrend([]);
-          setCommunityHistogram(null);
-          setCommunitySimilarFiling(null);
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setCommunityEstimateLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [
-    caseStatus?.receipt_number,
-    caseStatus?.case_type,
-    caseStatus?.label,
-    caseStatus?.filing_category,
-    caseStatus?.pp_start_date,
-    caseStatus?.received_date,
-    clientNowMs,
-  ]);
+  const {
+    communityPrediction,
+    communityHeatmap,
+    communityWeeklyTrend,
+    communityHistogram,
+    communitySimilarFiling,
+    communitySummary,
+    communityStages,
+    communityEstimateLoading,
+    communityEvidence,
+  } = useCommunityEstimate(caseStatus, clientNowMs);
 
   const filingCategoryPromptKey = caseStatus?.id
     ? `tmo_filing_prompt_dismissed_${caseStatus.id}`
@@ -1063,50 +740,23 @@ export function useCaseStatusController() {
   };
 
   // ── Derived state for new layout ──────────────────────────────────────────
-  const caseState = deriveCaseState(caseStatus?.current_status);
-
-  // PP overdue calculation — 0 until clientNow is available (post-hydration).
-  const ppStartDate = caseStatus?.pp_start_date ?? null;
-  const ppClock =
-    clientNowMs !== null &&
-    isOptFilingCategory(caseStatus?.filing_category) &&
-    !getFilingCategoryFormMismatch(
-      caseStatus?.filing_category,
-      caseStatus?.case_type
-    )
-      ? resolvePpClockState({
-          manualPpStart: ppStartDate,
-          statusHistory: safeStatusHistory,
-          currentStatus: caseStatus?.current_status,
-          now: new Date(clientNowMs),
-        }).clock
-      : null;
-  const ppOverdueDays = ppClock?.daysOverdue ?? 0;
-  const ppDeadlineDate = ppClock?.deadline ?? null;
-  const daysSinceFiled =
-    clientNowMs !== null
-      ? daysSinceEpochMs(caseStatus?.received_date, clientNowMs)
-      : null;
-  const serviceCenterLocation = getServiceCenterLocation(
-    caseStatus?.receipt_number
+  const {
+    caseState,
+    ppOverdueDays,
+    ppDeadlineDate,
+    daysSinceFiled,
+    serviceCenterLocation,
+    isOptCase,
+    isStemExtension,
+    formTypeMismatch,
+    showFilingCategoryPrompt,
+    rfeDate,
+  } = deriveCaseStatusViewState(
+    caseStatus,
+    clientNowMs,
+    safeStatusHistory,
+    filingCategoryPromptDismissed
   );
-
-  const isOptCase = isOptFilingCategory(caseStatus?.filing_category);
-  const isStemExtension =
-    normalizeFilingCategory(caseStatus?.filing_category) === 'stem_extension';
-
-  const formTypeMismatch = getFilingCategoryFormMismatch(
-    caseStatus?.filing_category,
-    caseStatus?.case_type
-  );
-
-  const showFilingCategoryPrompt =
-    Boolean(caseStatus) &&
-    isOptFilingCategory(caseStatus?.filing_category) &&
-    !caseStatus?.filing_category_confirmed_at &&
-    !filingCategoryPromptDismissed;
-
-  const rfeDate = findRfeDate(safeStatusHistory);
 
   return {
     isInitialLoad,

@@ -5,9 +5,10 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import vm from 'node:vm';
 import { shouldRunContinuousPrefill } from '../src/prefill/continuous-prefill';
+import { readContentPortalSource } from './fixtures/split-source';
 const requireLocal = createRequire(resolve('package.json'));
 const { JSDOM } = requireLocal('jsdom');
-const portal = readFileSync('src/content-job-portal.ts', 'utf8');
+const portal = readContentPortalSource();
 // Execute the actual scheduler with controlled async work, DOM mutations and time.
 const scheduler = portal.slice(portal.indexOf('let _spaObserver:'), portal.indexOf('async function initializeAutofillPreferences'));
 const code = requireLocal('esbuild').transformSync(scheduler + `
@@ -197,7 +198,7 @@ test('failed preference storage restores the prior mode and reports the failure'
   assert.match(context.modeNote.textContent, /could not save/i);
 });
 
-const resolveCode = requireLocal('esbuild').transformSync(portal.slice(portal.indexOf('async function executeResolvedPrefill'), portal.indexOf('function trackPrefillExecution')) + '\nglobalThis.execute = executeResolvedPrefill;', { loader: 'ts' }).code;
+const resolveCode = requireLocal('esbuild').transformSync(portal.slice(portal.indexOf('async function executeResolvedPrefill'), portal.indexOf('async function mountScreeningQuestionReviews(')) + '\nglobalThis.execute = executeResolvedPrefill;', { loader: 'ts' }).code;
 for (const change of ['navigation', 'mode'] as const) {
   test(`artifact-ready prefill also cancels after ${change} changes during resolution`, async () => {
     let finish: (v: any) => void = () => {}; let writes = 0;

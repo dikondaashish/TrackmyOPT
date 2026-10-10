@@ -8,10 +8,11 @@ import vm from 'node:vm';
 import {createPrivateApprovalBinding,approvalMatchesJob} from '../src/private/private-approval-session';
 import {emptyPrefillCoverage} from '../src/prefill/prefill-coverage';
 import {normalizeAutofillPreferences,AUTOFILL_PREFERENCES_KEY} from '../src/prefill/autofill-preferences';
+import { readContentPortalSource } from './fixtures/split-source';
 const req=createRequire(resolve('package.json'));
 const {JSDOM}=req('jsdom');
-const source=readFileSync('src/content-job-portal.ts','utf8');
-const widgetCode=req('esbuild').transformSync(source.slice(source.indexOf('async function executeResolvedPrefill('),source.indexOf('function trackPrefillExecution('))+'\nglobalThis.run=executeResolvedPrefill;',{loader:'ts'}).code;
+const source=readContentPortalSource();
+const widgetCode=req('esbuild').transformSync(source.slice(source.indexOf('async function executeResolvedPrefill('),source.indexOf('async function mountScreeningQuestionReviews('))+'\nglobalThis.run=executeResolvedPrefill;',{loader:'ts'}).code;
 function harness(){
   const dom=new JSDOM('<form><input aria-label="Email"></form><section class="tmo-sensitive-answer-panel"></section>',{url:'https://jobs.example.test/1'});
   let job={job_url:dom.window.location.href,company_name:'Example',role_title:'Engineer'};

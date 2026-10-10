@@ -13,16 +13,11 @@ import {
   type JobStoreVisaSignal,
 } from './job-data-store.contract';
 import {
-  ORACLE_DESCRIPTION_FLAG_MASKS,
-  ORACLE_DESCRIPTION_FLAGS,
   ORACLE_ISO_TZ_FORMAT,
-  ORACLE_JOB_SEARCH_TABLE,
   JOB_COLUMNS,
   jobBindDefinitions,
   mapJobRow,
   mapVisaSignalRow,
-  needsOracleExactCheck,
-  oracleTextWildcard,
   outputOptions,
   searchBindDefinitions,
   toJobSearchUpsertBinds,
@@ -37,6 +32,17 @@ import {
   type OracleJobRow,
   type OraclePool,
 } from './oracle-job-data-helpers';
+import { buildOracleJobSearchFilter } from './oracle-job-search-query';
+import {
+  runOracleCanonicalIdentityRepair,
+  type OracleCanonicalIdentityRepair,
+  type OracleCanonicalIdentityRepairResult,
+} from './oracle-canonical-identity-repair';
+import {
+  ORACLE_JOB_MERGE_SQL,
+  ORACLE_JOB_SEARCH_MERGE_SQL,
+  ORACLE_VISA_SIGNAL_MERGE_SQL,
+} from './oracle-job-upsert-sql';
 
 export type { OracleConnection, OracleDriver } from './oracle-job-data-helpers';
 
@@ -51,19 +57,10 @@ export {
   validateVisaSignals,
 } from './oracle-job-data-helpers';
 
-export type OracleCanonicalIdentityRepair = {
-  sourceAts: string;
-  boardToken: string;
-  externalJobId: string;
-  canonicalId: string;
-};
-
-export type OracleCanonicalIdentityRepairResult = {
-  externalJobId: string;
-  previousId: string | null;
-  canonicalId: string;
-  dependentVisaSignals: number;
-};
+export type {
+  OracleCanonicalIdentityRepair,
+  OracleCanonicalIdentityRepairResult,
+} from './oracle-canonical-identity-repair';
 
 const nodeRequire = createRequire(__filename);
 
@@ -141,325 +138,7 @@ export class OracleJobDataStore implements JobDataStore {
   async listJobs(query: JobStoreSearch): Promise<JobStorePage> {
     const page = Math.max(1, Math.floor(query.page));
     const pageSize = Math.min(100, Math.max(1, Math.floor(query.pageSize)));
-    const conditions = ["source_trust_tier = 'verified_ats'"];
-    const filterBinds: Record<string, unknown> = {};
-    if (query.listingStatus && query.listingStatus !== 'all') {
-      conditions.push('listing_status = :listingStatus');
-      filterBinds.listingStatus = query.listingStatus;
-    } else if (!query.listingStatus) {
-      conditions.push("listing_status = 'open'");
-    }
-    if (query.sourceId) {
-      conditions.push('source_id = :sourceId');
-      filterBinds.sourceId = query.sourceId;
-    }
-    const textContains = (column: string, bindName: string) =>
-      `LOWER(${column}) LIKE :${bindName}`;
-    const descriptionHas = (bindName: string, value: string) => {
-      const original = value.toLowerCase();
-      const wildcard = oracleTextWildcard(value);
-      if (!wildcard) {
-        const exactBindName = `${bindName}Exact`;
-        filterBinds[exactBindName] = original;
-        return `EXISTS (SELECT 1 FROM ${ORACLE_JOB_SEARCH_TABLE} s WHERE s.job_id = jobs.id AND DBMS_LOB.INSTR(s.search_text, :${exactBindName}) > 0)`;
-      }
-      filterBinds[bindName] = wildcard;
-      let exactPredicate = '';
-      if (needsOracleExactCheck(value)) {
-        const exactBindName = `${bindName}Exact`;
-        filterBinds[exactBindName] = original;
-        exactPredicate = ` AND DBMS_LOB.INSTR(s.search_text, :${exactBindName}) > 0`;
-      }
-      return `EXISTS (SELECT 1 FROM ${ORACLE_JOB_SEARCH_TABLE} s WHERE s.job_id = jobs.id AND CONTAINS(s.search_text_index, :${bindName}, 1) > 0${exactPredicate})`;
-    };
-    const descriptionNotHas = (bindName: string, value: string) =>
-      `NOT ${descriptionHas(bindName, value)}`;
-    const descriptionFlagHas = (bindName: string, mask: number) => {
-      filterBinds[bindName] = mask;
-      return `EXISTS (SELECT 1 FROM ${ORACLE_JOB_SEARCH_TABLE} s WHERE s.job_id = jobs.id AND BITAND(NVL(s.description_filter_flags, 0), :${bindName}) != 0)`;
-    };
-    const descriptionFlagNotHas = (bindName: string, mask: number) =>
-      `NOT ${descriptionFlagHas(bindName, mask)}`;
-    if (query.query?.trim()) {
-      const queryPattern = `%${query.query.trim().toLowerCase()}%`;
-      filterBinds.query = queryPattern;
-      if (query.searchScope === 'title') {
-        conditions.push(textContains('title', 'query'));
-      } else if (query.searchScope === 'company') {
-        conditions.push(
-          `(${textContains('company_name', 'query')} OR ${textContains('employer_board_name', 'query')})`,
-        );
-      } else {
-        conditions.push(
-          `(${textContains('title', 'query')} OR ${textContains('company_name', 'query')} OR ${textContains('employer_board_name', 'query')} OR ${descriptionHas('queryToken', query.query.trim())})`,
-        );
-      }
-    }
-    if (query.exclude?.trim()) {
-      filterBinds.exclude = `%${query.exclude.trim().toLowerCase()}%`;
-      conditions.push(
-        [
-          'title',
-          'company_name',
-          'employer_board_name',
-          'location',
-          'department',
-        ]
-          .map((column) => `LOWER(${column}) NOT LIKE :exclude`)
-          .concat(descriptionNotHas('excludeToken', query.exclude.trim()))
-          .join(' AND '),
-      );
-    }
-    if (query.sourceAts) {
-      conditions.push('source_ats = :sourceAts');
-      filterBinds.sourceAts = query.sourceAts;
-    }
-    if (query.companyName) {
-      conditions.push(
-        '(company_name = :companyName OR employer_board_name = :companyName)',
-      );
-      filterBinds.companyName = query.companyName;
-    }
-    if (query.location) {
-      conditions.push('location = :location');
-      filterBinds.location = query.location;
-    }
-    if (query.postedAfter) {
-      conditions.push(
-        `posted_at >= TO_TIMESTAMP_TZ(:postedAfter, '${ORACLE_ISO_TZ_FORMAT}')`,
-      );
-      filterBinds.postedAfter = toOracleTimestamp(query.postedAfter);
-    }
-
-    if (query.workplace && query.workplace !== 'all') {
-      if (query.workplace === 'remote') {
-        conditions.push(
-          `(LOWER(location) LIKE '%remote%' OR ${descriptionFlagHas('workplaceRemoteFlag', ORACLE_DESCRIPTION_FLAGS.remote)})`,
-        );
-      } else if (query.workplace === 'hybrid') {
-        conditions.push(
-          `(LOWER(location) LIKE '%hybrid%' OR ${descriptionFlagHas('workplaceHybridFlag', ORACLE_DESCRIPTION_FLAGS.hybrid)})`,
-        );
-      } else if (query.workplace === 'on_site') {
-        conditions.push(
-          `(LOWER(location) LIKE '%on-site%' OR LOWER(location) LIKE '%onsite%' OR LOWER(location) LIKE '%in-office%' OR ${descriptionFlagHas('workplaceOnSiteFlag', ORACLE_DESCRIPTION_FLAGS.onSite)})`,
-        );
-      } else {
-        conditions.push(
-          `LOWER(location) NOT LIKE '%remote%' AND LOWER(location) NOT LIKE '%hybrid%' AND ${descriptionFlagNotHas('workplaceExcludedFlags', ORACLE_DESCRIPTION_FLAGS.remote | ORACLE_DESCRIPTION_FLAGS.hybrid)}`,
-        );
-      }
-    }
-    const degreePatterns: Record<string, string[]> = {
-      bachelor: ['bachelor', 'b.s.', 'b.a.'],
-      master: ['master', 'm.s.', 'mba'],
-      doctorate: ['ph.d.', 'doctorate', 'doctoral'],
-    };
-    if (query.degree && query.degree !== 'all') {
-      const patterns = degreePatterns[query.degree];
-      if (patterns) {
-        const flag =
-          query.degree === 'bachelor'
-            ? ORACLE_DESCRIPTION_FLAGS.degreeBachelor
-            : query.degree === 'master'
-              ? ORACLE_DESCRIPTION_FLAGS.degreeMaster
-              : ORACLE_DESCRIPTION_FLAGS.degreeDoctorate;
-        conditions.push(descriptionFlagHas('degreeFlag', flag));
-      } else {
-        // Keep this aligned with Supabase's established semantics: the
-        // unspecified bucket excludes the three plain-language degree terms,
-        // not the abbreviated variants used by the positive filters.
-        conditions.push(
-          descriptionFlagNotHas(
-            'degreeUnspecifiedFlags',
-            ORACLE_DESCRIPTION_FLAGS.plainBachelor |
-              ORACLE_DESCRIPTION_FLAGS.plainMaster |
-              ORACLE_DESCRIPTION_FLAGS.plainDoctorate,
-          ),
-        );
-      }
-    }
-    const experiencePatterns = {
-      entry: ['0 year', '1 year', '2 year'],
-      mid: ['3 year', '4 year', '5 year'],
-      senior: ['6 year', '7 year', '8 year', '9 year', '10 year'],
-    } as const;
-    if (query.experience && query.experience !== 'all') {
-      const patterns =
-        experiencePatterns[query.experience as keyof typeof experiencePatterns];
-      if (patterns) {
-        const flag =
-          query.experience === 'entry'
-            ? ORACLE_DESCRIPTION_FLAGS.experienceEntry
-            : query.experience === 'mid'
-              ? ORACLE_DESCRIPTION_FLAGS.experienceMid
-              : ORACLE_DESCRIPTION_FLAGS.experienceSenior;
-        conditions.push(descriptionFlagHas('experienceFlag', flag));
-      } else if (query.experience === 'unspecified') {
-        conditions.push(
-          descriptionFlagNotHas(
-            'experienceUnspecifiedFlags',
-            ORACLE_DESCRIPTION_FLAG_MASKS.experiences,
-          ),
-        );
-      }
-    }
-    const rolePatterns: Record<string, string[]> = {
-      engineering: [
-        'engineer',
-        'engineering',
-        'developer',
-        'software',
-        'platform',
-        'security',
-        'devops',
-        'site reliability',
-        'sre',
-        'firmware',
-      ],
-      data: [
-        'data',
-        'analyst',
-        'analytics',
-        'scientist',
-        'machine learning',
-        'ml',
-        'artificial intelligence',
-        'ai',
-      ],
-      product: ['product', 'product manager', 'product owner'],
-      design: [
-        'design',
-        'designer',
-        'ux',
-        'ui',
-        'user experience',
-        'user interface',
-      ],
-      operations: [
-        'operations',
-        'strategy',
-        'customer success',
-        'support',
-        'deployment',
-        'program manager',
-        'project manager',
-      ],
-      sales: [
-        'sales',
-        'account executive',
-        'business development',
-        'revenue',
-        'solutions consultant',
-      ],
-    };
-    if (query.role && query.role !== 'all') {
-      const patterns = rolePatterns[query.role];
-      if (patterns) {
-        conditions.push(
-          `(${patterns
-            .map((value, index) => {
-              filterBinds[`role${index}`] = `%${value}%`;
-              return 'LOWER(title) LIKE :role' + index;
-            })
-            .join(' OR ')})`,
-        );
-      } else if (query.role === 'other') {
-        const allRoles = Object.values(rolePatterns).flat();
-        conditions.push(
-          `NOT (${allRoles
-            .map((value, index) => {
-              filterBinds[`roleAny${index}`] = `%${value}%`;
-              return 'LOWER(title) LIKE :roleAny' + index;
-            })
-            .join(' OR ')})`,
-        );
-      }
-    }
-    const descriptionTypePatterns: Record<string, string[]> = {
-      internship: ['internship'],
-      contract: ['contractor'],
-      temporary: ['temporary', 'fixed-term'],
-      permanent: ['permanent', 'regular employee'],
-      full_time: ['full-time', 'full time', 'fte'],
-      part_time: ['part-time', 'part time'],
-    };
-    if (query.jobType && query.jobType !== 'all') {
-      const titlePattern =
-        query.jobType === 'internship'
-          ? '%intern%'
-          : query.jobType === 'contract'
-            ? '%contract%'
-            : query.jobType === 'temporary'
-              ? '%temporary%'
-              : null;
-      const patterns = descriptionTypePatterns[query.jobType];
-      if (patterns) {
-        const flag =
-          query.jobType === 'internship'
-            ? ORACLE_DESCRIPTION_FLAGS.typeInternship
-            : query.jobType === 'contract'
-              ? ORACLE_DESCRIPTION_FLAGS.typeContract
-              : query.jobType === 'temporary'
-                ? ORACLE_DESCRIPTION_FLAGS.typeTemporary
-                : ORACLE_DESCRIPTION_FLAGS.typePermanent;
-        const descriptionCondition = descriptionFlagHas('jobTypeFlag', flag);
-        conditions.push(
-          titlePattern
-            ? `(LOWER(title) LIKE '${titlePattern}' OR ${descriptionCondition})`
-            : `(${descriptionCondition})`,
-        );
-      } else if (query.jobType === 'unspecified') {
-        // The Supabase store's unspecified branch only excludes description
-        // evidence (and intentionally does not infer type from the title).
-        conditions.push(
-          descriptionFlagNotHas(
-            'jobTypeUnspecifiedFlags',
-            ORACLE_DESCRIPTION_FLAG_MASKS.jobTypes,
-          ),
-        );
-      }
-    }
-    if (query.employmentType && query.employmentType !== 'all') {
-      const patterns = descriptionTypePatterns[query.employmentType];
-      if (patterns) {
-        const flag =
-          query.employmentType === 'full_time'
-            ? ORACLE_DESCRIPTION_FLAGS.employmentFullTime
-            : ORACLE_DESCRIPTION_FLAGS.employmentPartTime;
-        conditions.push(descriptionFlagHas('employmentTypeFlag', flag));
-      } else if (query.employmentType === 'unspecified') {
-        conditions.push(
-          descriptionFlagNotHas(
-            'employmentTypeUnspecifiedFlags',
-            ORACLE_DESCRIPTION_FLAG_MASKS.employmentTypes,
-          ),
-        );
-      }
-    }
-    if (query.employerEvidence === 'source_backed') {
-      conditions.push('employer_match_id IS NOT NULL');
-    }
-    if (query.includeJobUrls?.length) {
-      const names = query.includeJobUrls.map(
-        (_, index) => `:includeUrl${index}`,
-      );
-      conditions.push(`job_url IN (${names.join(', ')})`);
-      query.includeJobUrls.forEach((url, index) => {
-        filterBinds[`includeUrl${index}`] = url;
-      });
-    }
-    if (query.excludeJobUrls?.length) {
-      const names = query.excludeJobUrls.map(
-        (_, index) => `:excludeUrl${index}`,
-      );
-      conditions.push(`job_url NOT IN (${names.join(', ')})`);
-      query.excludeJobUrls.forEach((url, index) => {
-        filterBinds[`excludeUrl${index}`] = url;
-      });
-    }
-
-    const where = conditions.join(' AND ');
+    const { where, filterBinds } = buildOracleJobSearchFilter(query);
     const pageBinds = {
       ...filterBinds,
       offset: (page - 1) * pageSize,
@@ -840,133 +519,11 @@ export class OracleJobDataStore implements JobDataStore {
     if (!entries.length) return [];
     const connection = await this.connection();
     try {
-      const dependentConstraints = await connection.execute<{
-        TABLE_NAME: string;
-        COLUMN_NAME: string;
-      }>(
-        `SELECT child.table_name AS "TABLE_NAME", child_cols.column_name AS "COLUMN_NAME"
-         FROM user_constraints child
-         JOIN user_cons_columns child_cols
-           ON child.owner = child_cols.owner
-          AND child.constraint_name = child_cols.constraint_name
-         JOIN user_constraints parent
-           ON child.r_owner = parent.owner
-          AND child.r_constraint_name = parent.constraint_name
-         JOIN user_cons_columns parent_cols
-           ON parent.owner = parent_cols.owner
-          AND parent.constraint_name = parent_cols.constraint_name
-         WHERE child.constraint_type = 'R'
-           AND parent.table_name = 'JOBS'
-           AND parent_cols.column_name = 'ID'`,
-        {},
-        outputOptions(this.driver),
+      const results = await runOracleCanonicalIdentityRepair(
+        connection,
+        this.driver,
+        entries,
       );
-      for (const row of dependentConstraints.rows || []) {
-        if (
-          String(row.TABLE_NAME).toUpperCase() !== 'JOB_VISA_SIGNALS' ||
-          String(row.COLUMN_NAME).toUpperCase() !== 'JOB_ID'
-        ) {
-          throw new Error('Unexpected Oracle JOBS foreign-key dependency');
-        }
-      }
-
-      const results: OracleCanonicalIdentityRepairResult[] = [];
-      for (const entry of entries) {
-        const target = await connection.execute<{
-          ID: string;
-        }>(
-          `SELECT id AS "ID" FROM jobs
-           WHERE source_ats = :sourceAts
-             AND board_token = :boardToken
-             AND external_job_id = :externalJobId
-           FOR UPDATE`,
-          {
-            sourceAts: entry.sourceAts,
-            boardToken: entry.boardToken,
-            externalJobId: entry.externalJobId,
-          },
-          outputOptions(this.driver),
-        );
-        const previousId = target.rows?.[0]?.ID
-          ? String(target.rows[0].ID)
-          : null;
-        if (!previousId || previousId === entry.canonicalId) {
-          results.push({
-            externalJobId: entry.externalJobId,
-            previousId,
-            canonicalId: entry.canonicalId,
-            dependentVisaSignals: 0,
-          });
-          continue;
-        }
-
-        const conflicting = await connection.execute<{ ID: string }>(
-          `SELECT id AS "ID" FROM jobs WHERE id = :canonicalId FOR UPDATE`,
-          { canonicalId: entry.canonicalId },
-          outputOptions(this.driver),
-        );
-        if (conflicting.rows?.length) {
-          throw new Error(
-            `Canonical job ID conflict for external identity ${entry.externalJobId}`,
-          );
-        }
-
-        const signals = await connection.execute<{
-          ID: string;
-          SIGNAL_TYPE: string;
-          EVIDENCE_SNIPPET: string;
-          SOURCE_URL: string;
-          OBSERVED_DATE: Date | string;
-          CONFIDENCE: number;
-          SOURCE: string;
-        }>(
-          `SELECT id AS "ID", signal_type AS "SIGNAL_TYPE",
-                  evidence_snippet AS "EVIDENCE_SNIPPET", source_url AS "SOURCE_URL",
-                  observed_date AS "OBSERVED_DATE", confidence AS "CONFIDENCE",
-                  source AS "SOURCE"
-           FROM job_visa_signals WHERE job_id = :oldId`,
-          { oldId: previousId },
-          outputOptions(this.driver),
-        );
-        const dependentVisaSignals = signals.rows?.length || 0;
-
-        if (dependentVisaSignals) {
-          await connection.execute(
-            'DELETE FROM job_visa_signals WHERE job_id = :oldId',
-            { oldId: previousId },
-          );
-        }
-        await connection.execute(
-          'UPDATE jobs SET id = :canonicalId WHERE id = :oldId',
-          { canonicalId: entry.canonicalId, oldId: previousId },
-        );
-        if (dependentVisaSignals) {
-          await connection.executeMany(
-            `INSERT INTO job_visa_signals
-              (id, job_id, signal_type, evidence_snippet, source_url,
-               observed_date, confidence, source)
-             VALUES (:id, :jobId, :signalType, :evidenceSnippet, :sourceUrl,
-                     :observedDate, :confidence, :source)`,
-            (signals.rows || []).map((signal) => ({
-              id: String(signal.ID),
-              jobId: entry.canonicalId,
-              signalType: String(signal.SIGNAL_TYPE),
-              evidenceSnippet: String(signal.EVIDENCE_SNIPPET),
-              sourceUrl: String(signal.SOURCE_URL),
-              observedDate: signal.OBSERVED_DATE,
-              confidence: Number(signal.CONFIDENCE),
-              source: String(signal.SOURCE),
-            })),
-            { autoCommit: false },
-          );
-        }
-        results.push({
-          externalJobId: entry.externalJobId,
-          previousId,
-          canonicalId: entry.canonicalId,
-          dependentVisaSignals,
-        });
-      }
       await connection.commit();
       return results;
     } catch (error) {
@@ -1017,58 +574,7 @@ export class OracleJobDataStore implements JobDataStore {
     try {
       const bindDefs = jobBindDefinitions(this.driver);
       await connection.executeMany(
-        `MERGE INTO jobs target
-         USING (SELECT :id id, :source_id source_id, :source_ats source_ats,
-                       :board_token board_token, :external_job_id external_job_id,
-                       :title title, :company_name company_name, :location location,
-                       :department department, :description description, :job_url job_url,
-                       TO_TIMESTAMP_TZ(:posted_at, '${ORACLE_ISO_TZ_FORMAT}') posted_at,
-                       TO_TIMESTAMP_TZ(:updated_at, '${ORACLE_ISO_TZ_FORMAT}') updated_at,
-                       :opt_eligible opt_eligible, :stem_opt_eligible stem_opt_eligible,
-                       :cpt_eligible cpt_eligible, :h1b_sponsor_status h1b_sponsor_status,
-                       TO_TIMESTAMP_TZ(:created_at, '${ORACLE_ISO_TZ_FORMAT}') created_at,
-                       TO_TIMESTAMP_TZ(:first_seen_at, '${ORACLE_ISO_TZ_FORMAT}') first_seen_at,
-                       TO_TIMESTAMP_TZ(:last_confirmed_at, '${ORACLE_ISO_TZ_FORMAT}') last_confirmed_at,
-                       :listing_status listing_status, :employer_board_name employer_board_name,
-                       :source_trust_tier source_trust_tier, :employer_match_id employer_match_id,
-                       TO_TIMESTAMP_TZ(:missing_since_at, '${ORACLE_ISO_TZ_FORMAT}') missing_since_at,
-                       TO_TIMESTAMP_TZ(:removed_at, '${ORACLE_ISO_TZ_FORMAT}') removed_at
-                FROM dual) incoming
-         ON (target.source_ats = incoming.source_ats
-             AND target.board_token = incoming.board_token
-             AND target.external_job_id = incoming.external_job_id)
-         WHEN MATCHED THEN UPDATE SET
-           target.title = incoming.title,
-           target.company_name = incoming.company_name,
-           target.location = incoming.location,
-           target.department = incoming.department,
-           target.description = incoming.description,
-           target.job_url = incoming.job_url,
-           target.posted_at = incoming.posted_at,
-           target.updated_at = incoming.updated_at,
-           target.opt_eligible = incoming.opt_eligible,
-           target.stem_opt_eligible = incoming.stem_opt_eligible,
-           target.cpt_eligible = incoming.cpt_eligible,
-           target.h1b_sponsor_status = incoming.h1b_sponsor_status,
-           target.created_at = incoming.created_at,
-           target.first_seen_at = incoming.first_seen_at,
-           target.last_confirmed_at = incoming.last_confirmed_at,
-           target.listing_status = incoming.listing_status,
-           target.employer_board_name = incoming.employer_board_name,
-           target.source_trust_tier = incoming.source_trust_tier,
-           target.employer_match_id = incoming.employer_match_id,
-           target.missing_since_at = incoming.missing_since_at,
-           target.removed_at = incoming.removed_at
-         WHEN NOT MATCHED THEN INSERT (${JOB_COLUMNS}) VALUES (
-           incoming.id, incoming.source_id, incoming.source_ats, incoming.board_token,
-           incoming.external_job_id, incoming.title, incoming.company_name,
-           incoming.location, incoming.department, incoming.description, incoming.job_url,
-           incoming.posted_at, incoming.updated_at, incoming.opt_eligible,
-           incoming.stem_opt_eligible, incoming.cpt_eligible, incoming.h1b_sponsor_status,
-           incoming.created_at, incoming.first_seen_at, incoming.last_confirmed_at,
-           incoming.listing_status, incoming.employer_board_name, incoming.source_trust_tier,
-           incoming.employer_match_id, incoming.missing_since_at, incoming.removed_at
-         )`,
+        ORACLE_JOB_MERGE_SQL,
         rows.map(toJobUpsertBinds),
         {
           autoCommit: false,
@@ -1077,17 +583,7 @@ export class OracleJobDataStore implements JobDataStore {
       );
       const searchBindDefs = searchBindDefinitions(this.driver);
       await connection.executeMany(
-        `MERGE INTO ${ORACLE_JOB_SEARCH_TABLE} target
-         USING (SELECT :job_id job_id, :search_text search_text,
-                       :search_text_index search_text_index,
-                       :description_filter_flags description_filter_flags FROM dual) incoming
-         ON (target.job_id = incoming.job_id)
-         WHEN MATCHED THEN UPDATE SET
-           target.search_text = incoming.search_text,
-           target.search_text_index = incoming.search_text_index,
-           target.description_filter_flags = incoming.description_filter_flags
-         WHEN NOT MATCHED THEN INSERT (job_id, search_text, search_text_index, description_filter_flags)
-           VALUES (incoming.job_id, incoming.search_text, incoming.search_text_index, incoming.description_filter_flags)`,
+        ORACLE_JOB_SEARCH_MERGE_SQL,
         rows.map(toJobSearchUpsertBinds),
         {
           autoCommit: false,
@@ -1179,26 +675,7 @@ export class OracleJobDataStore implements JobDataStore {
     const bindDefs = visaSignalBindDefinitions(this.driver);
     for (let offset = 0; offset < signals.length; offset += 250) {
       await connection.executeMany(
-        `MERGE INTO job_visa_signals target
-         USING (SELECT :id id, :job_id job_id, :signal_type signal_type,
-                       :evidence_snippet evidence_snippet, :source_url source_url,
-                       TO_DATE(:observed_date, 'YYYY-MM-DD') observed_date,
-                       :confidence confidence, :source source FROM dual) incoming
-         ON (target.job_id = incoming.job_id
-             AND target.signal_type = incoming.signal_type
-             AND target.source = incoming.source
-             AND target.source_url = incoming.source_url)
-         WHEN MATCHED THEN UPDATE SET
-           target.evidence_snippet = incoming.evidence_snippet,
-           target.observed_date = incoming.observed_date,
-           target.confidence = incoming.confidence
-         WHEN NOT MATCHED THEN INSERT
-           (id, job_id, signal_type, evidence_snippet, source_url,
-            observed_date, confidence, source)
-         VALUES
-           (incoming.id, incoming.job_id, incoming.signal_type,
-            incoming.evidence_snippet, incoming.source_url,
-            incoming.observed_date, incoming.confidence, incoming.source)`,
+        ORACLE_VISA_SIGNAL_MERGE_SQL,
         signals
           .slice(offset, offset + 250)
           .map((signal) =>

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { readTrackerWidgetSource } from './fixtures/split-source';
 
 import {
   autofillStaggerDelay,
@@ -73,7 +74,7 @@ assert.match(sensitive, /flashAutofillField/);
 const screening = readFileSync('src/screening/screening-question-drafts.ts', 'utf8');
 assert.match(screening, /flashAutofillField/);
 
-const trackerWidget = readFileSync('src/job-portal/job-portal-tracker-widget.ts', 'utf8');
+const trackerWidget = readTrackerWidgetSource();
 assert.match(trackerWidget, /tmo-prefill-chip-pulse/);
 assert.match(trackerWidget, /prefillBtn\.setAttribute\('aria-busy', 'true'\)/);
 assert.match(trackerWidget, /prefillBtn\.classList\.add\('tmo-is-filling'\)/);

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { readTrackerWidgetSource, readContentPortalSource } from './fixtures/split-source';
 
 import { API_ENDPOINTS } from "../src/shared/config";
 import { SIDEBAR_SHELL_CSS } from "../src/job-portal/job-portal-sidebar-shell";
@@ -16,8 +17,8 @@ assert.match(
   "the signed-in extension popup must link to the job-prefill setup page"
 );
 
-const jobPortal = readFileSync("src/content-job-portal.ts", "utf8");
-const trackerWidget = readFileSync("src/job-portal/job-portal-tracker-widget.ts", "utf8");
+const jobPortal = readContentPortalSource();
+const trackerWidget = readTrackerWidgetSource();
 const sensitivePanel = readFileSync("src/job-portal/job-portal-sensitive-answer-panel.ts", "utf8");
 assert.match(
   sensitivePanel,

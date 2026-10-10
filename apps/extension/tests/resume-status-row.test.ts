@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readTrackerWidgetSource } from './fixtures/split-source';
 import test from 'node:test';
 
 import {
@@ -83,7 +84,9 @@ test('every Prefill entry point describes the same action the same way', () => {
 test('the popup and the widget read from the same copy source', () => {
   const fs = require('node:fs') as typeof import('node:fs');
   for (const file of ['src/popup/home.ts', 'src/job-portal/job-portal-tracker-widget.ts']) {
-    const source = fs.readFileSync(file, 'utf8');
+    const source = file.endsWith('job-portal-tracker-widget.ts')
+      ? readTrackerWidgetSource()
+      : fs.readFileSync(file, 'utf8');
     assert.match(
       source,
       /prefillEntryCopy/,
@@ -98,7 +101,7 @@ test('the popup and the widget read from the same copy source', () => {
 });
 
 test('the widget mounts the row by its shared class name', () => {
-  const source = require('node:fs').readFileSync('src/job-portal/job-portal-tracker-widget.ts', 'utf8');
+  const source = readTrackerWidgetSource();
   assert.match(
     source,
     /const resumeStatusRow = createResumeStatusRow\(\);[\s\S]{0,200}toolsPanel\.appendChild\(resumeStatusRow\)/,

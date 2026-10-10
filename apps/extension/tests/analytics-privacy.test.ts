@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { readTrackerWidgetSource, readContentPortalSource } from './fixtures/split-source';
 import { savedAnswerAnalyticsProperties } from '../src/screening/saved-screening-answers';
 
 const properties = savedAnswerAnalyticsProperties('saved') as Record<string, unknown>;
@@ -8,8 +9,8 @@ assert.equal('questionText' in properties, false);
 assert.equal('answerText' in properties, false);
 assert.equal('resumeContent' in properties, false);
 
-const portal = readFileSync('src/content-job-portal.ts', 'utf8');
-const trackerWidget = readFileSync('src/job-portal/job-portal-tracker-widget.ts', 'utf8');
+const portal = readContentPortalSource();
+const trackerWidget = readTrackerWidgetSource();
 const popup = readFileSync('src/popup.ts', 'utf8');
 const sensitiveAutofill = readFileSync('src/prefill/sensitive-autofill.ts', 'utf8');
 const jobPortalLogin = readFileSync('src/job-portal/job-portal-login.ts', 'utf8');

@@ -1,5 +1,5 @@
 import { queryWidget, queryWidgetAll, widgetContent } from './widget/widget-dom';
-import { requestJobContextSession } from './job/job-context-session';
+
 /**
  * Content script for job / career pages (any company career site, LinkedIn, Indeed, etc.)
  * Parses job listing using JSON-LD, meta tags, and DOM. Shows a sticky, collapsible
@@ -15,37 +15,16 @@ import { requestPrefillUndo } from './prefill/prefill-undo-request';
 import {
   isCareerPage,
 } from './job-portal/career-sites';
-import {
-  runPrefill,
-  findApplicationForm,
-  getPrefillCandidateSignature,
-  type GeneratedResumeAttachment,
-  type PrefillOptions,
-  getLabelText,
-} from './easy-apply/easy-apply-engine';
+import { runPrefill, findApplicationForm, getPrefillCandidateSignature, type GeneratedResumeAttachment, type PrefillOptions } from './easy-apply/easy-apply-engine';
 import {
   RESUME_STATUS_ROW_CLASS,
   isResumeStatusAttached,
 } from './resume/resume-status-row';
-import { API_ENDPOINTS } from './shared/config';
-import { buildJobSaveSnapshot } from './job/job-save-snapshot';
-import {
-  jobMemoryKey,
-  recordSeenJob,
-} from './prefill/smart-flow';
-import {
-  normalizeWidgetAnalyticsProperties,
-  widgetSiteFamily,
-  type WidgetAnalyticsEvent,
-  type WidgetAnalyticsProperties,
-} from './widget/widget-platform';
-import {
-  jobUrlsReferToSameJob,
-  type BasicContactProfile,
-  type GeneratedResumeArtifactV1,
-  type ResumeAutofillSnapshotV1,
-  type V1PrefillPayloadResponse,
-} from './resume/resume-autofill-contract';
+
+
+
+
+import { jobUrlsReferToSameJob, type GeneratedResumeArtifactV1, type V1PrefillPayloadResponse } from './resume/resume-autofill-contract';
 import {
   clearArtifactExpectedForSession,
   rememberArtifactExpectedForSession,
@@ -67,10 +46,10 @@ import {
   type AutofillPreferences,
 } from './prefill/autofill-preferences';
 import { shouldRunContinuousPrefill } from './prefill/continuous-prefill';
-import { withPrefillModeGuard } from './prefill/prefill-mode-guard';
-import { acceptPrefillRelay, waitForPrefillRelayTurn } from './prefill/prefill-relay-guard';
-import { detectScreeningQuestion } from './screening/screening-question-drafts';
-import { createScreeningQuestionReviewUI } from './screening/screening-question-review-ui';
+
+
+
+
 import { AUTOFILL_FEATURE_FLAGS } from './prefill/autofill-feature-flags';
 import {
   FREE_AUTOFILL_PLAN_ENTITLEMENTS,
@@ -78,18 +57,12 @@ import {
   type AutofillPlanEntitlements,
   type AutofillPlanTier,
 } from './prefill/autofill-plan-entitlements';
-import {
-  buildPrefillTelemetryProperties,
-} from './prefill/prefill-telemetry';
+
 import {
   runGuidedNavigation,
   type GuidedNavigationResult,
 } from './job-portal/guided-autopilot';
-import {
-  fillConfirmedSensitiveAnswers,
-  normalizeSensitiveAnswerSession,
-  type SensitiveAnswerSession,
-} from './prefill/sensitive-autofill';
+import { fillConfirmedSensitiveAnswers, type SensitiveAnswerSession } from './prefill/sensitive-autofill';
 import { scanApplicationFields } from './prefill/application-field-scan';
 import { loadPrivateAnswersForPrefill } from './private/private-prefill-request';
 import { prefillSavedPortalLogin } from './job-portal/portal-login-prefill';
@@ -120,12 +93,7 @@ import {
   ARTIFACT_STALE_BANNER_CLASS,
   WIDGET_ROOT_ID,
 } from './widget/widget-dom-ids';
-import {
-  captureJobDescription,
-  resolveJobDescriptionDetails,
-  resolveJobDescription,
-  scrapeJobDescription,
-} from './job/job-description-scrape';
+import { captureJobDescription, resolveJobDescriptionDetails } from './job/job-description-scrape';
 import { isApplicationSuccessPage } from './job-portal/job-portal-application-success';
 import { isWidgetInteractionInFlight } from './job-portal/job-portal-interaction-guard';
 import { findLinkedInEasyApplyDialog } from './easy-apply/linkedin-easy-apply-dialog';
@@ -135,18 +103,23 @@ import {
   hasPortalPageMutation,
 } from './job-portal/job-portal-job-helpers';
 import { paintPrefillCoverage } from './job-portal/job-portal-prefill-coverage-ui';
+import { paintPrefillButton, syncResumeStatusRows } from './job-portal/job-portal-widget-ui';
+import { createJobTrackerWidget, disconnectWidgetViewportObserver, setJobTrackerWidgetHost, type PrefillExecutionSnapshot } from './job-portal/job-portal-tracker-widget';
 import {
-  paintPrefillButton,
-  showMessage,
-  syncResumeStatusRows,
-} from './job-portal/job-portal-widget-ui';
+  trackWidgetAnalytics,
+  trackWidgetAnalyticsOnce,
+  trackPrefillExecution,
+  trackPrefillRuntimeFailure,
+} from './job-portal/content-runtime/widget-analytics';
 import {
-  createJobTrackerWidget,
-  disconnectWidgetViewportObserver,
-  getLastResumeJobDescription,
-  setJobTrackerWidgetHost,
-  type PrefillExecutionSnapshot,
-} from './job-portal/job-portal-tracker-widget';
+  rememberTrackerApplicationId,
+  trackerApplicationIdFor,
+  markPostSaveSuggestionSeen,
+  saveJobContext,
+  tryAutoAddOnSuccess,
+} from './job-portal/content-runtime/tracker-session';
+import { mountScreeningQuestionReviewsWith } from './job-portal/content-runtime/screening-reviews';
+import { runChildFramePrefillRelay } from './job-portal/content-runtime/child-frame-relay';
 
 /** Set once the widget mounts; announces status to screen readers. */
 let announceWidgetStatus: (message: string) => void = () => {};
@@ -158,7 +131,6 @@ let announceWidgetStatus: (message: string) => void = () => {};
 // chrome.storage.local: { all?: boolean; domains?: string[] } — persists across visits.
 
 
-const POST_SAVE_SUGGESTION_SEEN_KEY = 'tmo_post_save_suggestions_seen_v1';
 
 
 
@@ -167,31 +139,6 @@ const POST_SAVE_SUGGESTION_SEEN_KEY = 'tmo_post_save_suggestions_seen_v1';
 let generatedResumeArtifactForCurrentJob: GeneratedResumeArtifactV1 | null = null;
 let artifactBackedFieldsFilled = false;
 let artifactStaleReason: ArtifactInvalidReason | null = null;
-/** Tracker application ids for jobs saved (or already saved) this session. */
-const trackerApplicationIdByJobKey = new Map<string, string>();
-
-function rememberTrackerApplicationId(job: JobInfo, applicationId?: string): void {
-  const id = applicationId?.trim();
-  if (!id) return;
-  trackerApplicationIdByJobKey.set(
-    jobMemoryKey({
-      jobUrl: job.job_url || window.location.href,
-      companyName: job.company_name || '',
-      roleTitle: job.role_title || '',
-    }),
-    id,
-  );
-}
-
-function trackerApplicationIdFor(job: JobInfo): string | undefined {
-  return trackerApplicationIdByJobKey.get(
-    jobMemoryKey({
-      jobUrl: job.job_url || window.location.href,
-      companyName: job.company_name || '',
-      roleTitle: job.role_title || '',
-    }),
-  );
-}
 let artifactExpiryTimer: number | null = null;
 let currentAutofillPreferences: AutofillPreferences = { ...DEFAULT_AUTOFILL_PREFERENCES };
 let currentPlanEntitlements: Readonly<AutofillPlanEntitlements> =
@@ -200,7 +147,6 @@ let currentPlanEntitlements: Readonly<AutofillPlanEntitlements> =
 // Continuous may reuse them on its steps, never on an unrelated job or page load.
 let sensitiveAnswerSession: SensitiveAnswerSession = { confirmed: false };
 let privateApprovalBinding: PrivateApprovalBinding | null = null;
-const trackedWidgetAnalytics = new Set<string>();
 const guidedClickedControls = new WeakSet<HTMLElement>();
 
 function clearPrivateApplicationApproval(): void {
@@ -236,39 +182,6 @@ function guidedStatus(message: string): void {
   }
 }
 
-function trackWidgetAnalytics(
-  event: WidgetAnalyticsEvent,
-  properties: WidgetAnalyticsProperties = {},
-): void {
-  const safeProperties = normalizeWidgetAnalyticsProperties(event, {
-    site_family: widgetSiteFamily(window.location.hostname),
-    ...properties,
-  });
-  try {
-    chrome.runtime.sendMessage(
-      { type: 'TRACK_WIDGET_EVENT', event, properties: safeProperties },
-      () => void chrome.runtime.lastError,
-    );
-  } catch {
-    // Analytics is best-effort and must never interrupt a user action.
-  }
-}
-
-function trackWidgetAnalyticsOnce(
-  event: WidgetAnalyticsEvent,
-  job: JobInfo,
-  properties: WidgetAnalyticsProperties = {},
-  variant = '',
-): void {
-  const key = `${event}|${jobMemoryKey({
-    jobUrl: job.job_url,
-    companyName: job.company_name,
-    roleTitle: job.role_title,
-  })}|${variant}`;
-  if (trackedWidgetAnalytics.has(key)) return;
-  trackedWidgetAnalytics.add(key);
-  trackWidgetAnalytics(event, properties);
-}
 
 function syncArtifactStaleBannerVisibility(): void {
   for (const banner of Array.from(
@@ -617,45 +530,7 @@ async function executeResolvedPrefillBody(
   };
 }
 
-function trackPrefillExecution(
-  execution: PrefillExecutionResult,
-  mode: AutofillPreferences['mode'],
-  outcome: 'success' | 'error',
-): void {
-  trackWidgetAnalytics(
-    'extension_widget_prefill_completed',
-    buildPrefillTelemetryProperties({
-      outcome,
-      result: execution.result,
-      mode,
-      sourceType: execution.sourceType,
-      artifactStateReason: execution.artifactStateReason,
-      hasResume: execution.hasResume,
-      hasCoverLetter: execution.hasCoverLetter,
-      featureFlags: AUTOFILL_FEATURE_FLAGS,
-    }),
-  );
-}
 
-function trackPrefillRuntimeFailure(
-  mode: AutofillPreferences['mode'],
-  hasResume = false,
-): void {
-  trackWidgetAnalytics(
-    'extension_widget_prefill_completed',
-    buildPrefillTelemetryProperties({
-      outcome: 'error',
-      result: emptyPrefillCoverage(),
-      mode,
-      sourceType: 'unavailable',
-      artifactStateReason: 'unavailable',
-      hasResume,
-      hasCoverLetter: false,
-      featureFlags: AUTOFILL_FEATURE_FLAGS,
-      errorCode: 'runtime',
-    }),
-  );
-}
 
 async function mountScreeningQuestionReviews(
   card: HTMLElement,
@@ -663,107 +538,16 @@ async function mountScreeningQuestionReviews(
   hasResolvedArtifact = false,
   resolvedJobDescription = '',
 ): Promise<void> {
-  if (!AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) return;
-  // A valid artifact can be owned by the background/session store without
-  // existing in this content script's short-lived module cache. The resolved
-  // prefill result is the authority for that common handoff path.
-  if (!generatedResumeArtifactForCurrentJob && !hasResolvedArtifact) return;
-  card.querySelector('.tmo-screening-review-list')?.remove();
-  const host = document.createElement('div');
-  host.className = 'tmo-screening-review-list';
-  const form = findApplicationForm();
-  if (!form) return;
-  for (const element of Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('textarea,input[type="text"]'))) {
-    const eligible = await detectScreeningQuestion({
-      label: getLabelText(element),
-      value: element.value,
-      hidden: element.hidden || element.getClientRects().length === 0,
-      disabled: element.disabled,
-      element,
-      characterLimit: element.maxLength > 0 ? element.maxLength : undefined,
-    });
-    if (!eligible) continue;
-    const savedResponse = await chrome.runtime.sendMessage({
-      type: 'LOAD_SCREENING_ANSWER', questionHash: eligible.questionHash,
-    }).catch(() => null) as { answer?: import('./screening/screening-question-drafts').SavedScreeningAnswer } | null;
-    host.appendChild(createScreeningQuestionReviewUI({
-      question: eligible,
-      limits: {
-        quotaPeriod: currentPlanEntitlements.planTier === 'free'
-          ? 'month'
-          : 'day',
-        quotaLimit:
-          currentPlanEntitlements.screeningDraftsMonthlyLimit ?? 25,
-        quotaRemaining:
-          currentPlanEntitlements.screeningDraftsMonthlyLimit ?? 25,
-        dailyRemaining: 25,
-        itemRegenerationsRemaining: 3,
-        itemRegenerationLimit: 3,
-      },
-      savedAnswer: savedResponse?.answer,
-      generateDraft: async (regenerate) => {
-        const response = await chrome.runtime.sendMessage({
-          type: 'GENERATE_SCREENING_DRAFT',
-          questionText: eligible.normalizedQuestionText,
-          characterLimit: eligible.characterLimit,
-          jobDescription:
-            resolvedJobDescription ||
-            getLastResumeJobDescription() ||
-            scrapeJobDescription(),
-          companyName: job.company_name || '',
-          roleTitle: job.role_title || '',
-          regenerate,
-        }) as {
-          draft?: string;
-          quotaPeriod?: 'day' | 'month';
-          quotaLimit?: number;
-          quotaRemaining?: number;
-          dailyRemaining?: number;
-          itemRegenerationsRemaining?: number;
-          itemRegenerationLimit?: number;
-          error?: string;
-        };
-        if (!response?.draft) throw new Error(response?.error || 'Draft generation failed');
-        return {
-          draft: response.draft,
-          limits: {
-            quotaPeriod: response.quotaPeriod,
-            quotaLimit: response.quotaLimit,
-            quotaRemaining: response.quotaRemaining,
-            dailyRemaining: response.dailyRemaining ?? 0,
-            itemRegenerationsRemaining: response.itemRegenerationsRemaining ?? 0,
-            itemRegenerationLimit: response.itemRegenerationLimit ?? 3,
-          },
-        };
-      },
-      onReviewed: async (answer) => {
-        const saved = await chrome.runtime.sendMessage({
-          type: 'SAVE_SCREENING_ANSWER',
-          answer: {
-            questionHash: eligible.questionHash,
-            normalizedQuestionText: eligible.normalizedQuestionText,
-            editedAnswer: answer,
-            source: 'user_edited_ai_draft',
-          },
-        }).catch(() => null) as { ok?: boolean } | null;
-        return saved?.ok === true;
-      },
-      onReviewStateChange: (reviewState) => {
-        trackWidgetAnalytics('extension_widget_screening_review_state', {
-          review_state: reviewState,
-        });
-      },
-      onDeleteSavedAnswer: async (questionHash) => {
-        await chrome.runtime.sendMessage({ type: 'DELETE_SCREENING_ANSWER', questionHash });
-      },
-      onUpgrade: () => {
-        window.open(API_ENDPOINTS.PRICING, '_blank', 'noopener,noreferrer');
-      },
-    }));
-  }
-  if (host.childElementCount > 0) {
-    (card.querySelector('.tmo-job-widget-scroll-body') || card).appendChild(host);
-  }
+  return mountScreeningQuestionReviewsWith(
+    {
+      hasCurrentArtifact: () => Boolean(generatedResumeArtifactForCurrentJob),
+      getPlanEntitlements: () => currentPlanEntitlements,
+    },
+    card,
+    job,
+    hasResolvedArtifact,
+    resolvedJobDescription,
+  );
 }
 
 function paintContinuousStopGuidance(reason: 'expired' | 'job_changed' | 'invalid'): void {
@@ -775,23 +559,6 @@ function paintContinuousStopGuidance(reason: 'expired' | 'job_changed' | 'invali
   line.style.display = 'flex';
 }
 
-async function markPostSaveSuggestionSeen(job: JobInfo): Promise<boolean> {
-  try {
-    const key = jobMemoryKey({
-      jobUrl: job.job_url,
-      companyName: job.company_name,
-      roleTitle: job.role_title,
-    });
-    const stored = await chrome.storage.local.get(POST_SAVE_SUGGESTION_SEEN_KEY);
-    const next = recordSeenJob(stored[POST_SAVE_SUGGESTION_SEEN_KEY], key, 100);
-    if (next.alreadySeen) return false;
-    await chrome.storage.local.set({ [POST_SAVE_SUGGESTION_SEEN_KEY]: next.keys });
-    return true;
-  } catch {
-    // Storage failure should not repeatedly nag the user in the same page.
-    return false;
-  }
-}
 
 
 
@@ -809,8 +576,6 @@ async function markPostSaveSuggestionSeen(job: JobInfo): Promise<boolean> {
 // set from the widget's Settings panel.
 
 
-const AUTO_ADD_DEBOUNCE_MS = 15000; // don't auto-add same job twice within 15 min
-const JOB_CONTEXT_MAX_AGE_MS = 30 * 60 * 1000; // use stored context up to 30 min old
 
 
 /**
@@ -820,46 +585,6 @@ const JOB_CONTEXT_MAX_AGE_MS = 30 * 60 * 1000; // use stored context up to 30 mi
  */
 
 
-function saveJobContext(job: JobInfo) {
-  void requestJobContextSession('save', buildJobSaveSnapshot(job, scrapeJobDescription()));
-}
-
-function tryAutoAddOnSuccess() {
-  if (!document.body || !isApplicationSuccessPage()) return;
-  const fromPage = getJobInfo();
-  void requestJobContextSession('read').then((result) => {
-    const ctx = result.context as { job: JobInfo; storedAt: number } | undefined;
-    const storedJob = ctx?.job && Date.now() - (ctx.storedAt || 0) <= JOB_CONTEXT_MAX_AGE_MS
-      ? ctx.job
-      : null;
-    const jobToAdd = storedJob || fromPage;
-    if (!jobToAdd?.role_title || !jobToAdd.company_name) return;
-    tryAutoAddWithJob(jobToAdd);
-  });
-}
-
-function tryAutoAddWithJob(job: JobInfo) {
-  void requestJobContextSession('read').then((result) => {
-    const last = result.lastAdded as { job_url: string; at: number } | undefined;
-    if (last && last.job_url === job.job_url && Date.now() - last.at < AUTO_ADD_DEBOUNCE_MS) return;
-
-    chrome.runtime.sendMessage(
-      {
-        type: 'ADD_JOB_TO_TRACKER',
-        job: buildJobSaveSnapshot(job, scrapeJobDescription()),
-        autoAdd: true,
-      },
-      (response: { ok?: boolean; error?: string; id?: string; status?: string } | undefined) => {
-        if (chrome.runtime.lastError) return;
-        if (response?.ok) {
-          rememberTrackerApplicationId(job, response.id);
-          void requestJobContextSession('added');
-          showMessage(response.status === 'Applied' ? 'Application saved as Applied in TrackMyOPT!' : 'Job already saved. Check its status in your tracker.', false);
-        }
-      }
-    );
-  });
-}
 
 // --- Generic parser: works on any career page ---
 
@@ -1758,46 +1483,7 @@ export function handlePortalMessage(message: any, _sender: chrome.runtime.Messag
     return false;
   }
   if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME' || window.top === window.self) return false;
-  const relayCurrent = acceptPrefillRelay(message);
-  if (!relayCurrent) return false;
-  const prefill = (message.prefill ?? {}) as {
-    resume?: GeneratedResumeAttachment;
-    coverLetter?: PrefillOptions['coverLetter'];
-    generatedContentHash?: string;
-    snapshot?: ResumeAutofillSnapshotV1;
-    profileFallback?: BasicContactProfile;
-    autofillSkills?: boolean;
-    allowRowCreation?: boolean;
-    quietResultToast?: boolean;
-    sensitiveAnswers?: unknown;
-  };
-  const sensitiveAnswers = normalizeSensitiveAnswerSession(
-    prefill.sensitiveAnswers
-  );
-  void waitForPrefillRelayTurn(relayCurrent, () => getPrefillUndoState().busy).then(ready => ready ? withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
-    const result = await runPrefill({
-      resume: prefill.resume,
-      coverLetter: prefill.coverLetter,
-      generatedContentHash: prefill.generatedContentHash,
-      snapshot: prefill.snapshot,
-      profileFallback: prefill.profileFallback,
-      autofillSkills: prefill.autofillSkills === true,
-      allowRowCreation: prefill.allowRowCreation === true && message.continuous !== true,
-      quietResultToast: prefill.quietResultToast === true,
-      quietIfNoForm: true,
-      animateFields: message.continuous !== true,
-      shouldContinue: () => shouldContinue() && relayCurrent(),
-    });
-    if (!result.paused && sensitiveAnswers && shouldContinue() && relayCurrent()) {
-      await fillConfirmedSensitiveAnswers(
-        findApplicationForm() ?? document,
-        sensitiveAnswers,
-        () => shouldContinue() && relayCurrent(),
-      );
-    }
-  }), message.undoRunId).then(() => true) : false).then(completed => sendResponse({ ok: completed && relayCurrent() }))
-    .catch(() => sendResponse({ ok: false }));
-  return true;
+  return runChildFramePrefillRelay(message, sendResponse);
 }
 
 // Guard: only run on actual career / job pages.
