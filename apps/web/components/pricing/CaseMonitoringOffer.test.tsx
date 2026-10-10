@@ -37,6 +37,9 @@ describe('case monitoring purchase path', () => {
       screen.getByRole('radio', { name: 'Monthly · $4.99/month' })
     ).toBeChecked();
     expect(button).toBeDisabled();
+    expect(screen.getByRole('checkbox')).toHaveAccessibleName(
+      /I agree to pay \$0.99 today for 7 days, then \$4.99\/month unless canceled before renewal.*refundable within 7 days; recurring charges are non-refundable except where required by law/
+    );
     expect(screen.queryByText('Dedicated')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('checkbox'));
     fetchMock.mockResolvedValueOnce({
@@ -68,9 +71,12 @@ describe('case monitoring purchase path', () => {
       screen.getByRole('radio', { name: 'Annual · $49.99 billed yearly' })
     );
     await waitFor(() => expect(screen.getByRole('checkbox')).not.toBeChecked());
-    expect(
-      screen.getByText('$0.99 for 7 days, then $49.99/year')
-    ).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '$0.99 for 7 days Then $49.99/year · auto-renews until canceled'
+    );
+    expect(screen.getByRole('checkbox')).toHaveAccessibleName(
+      /then \$49.99\/year unless canceled before renewal/
+    );
   });
   it('shows the standard price for an ineligible account', async () => {
     show(false);
