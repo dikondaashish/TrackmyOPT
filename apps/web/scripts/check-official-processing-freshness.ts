@@ -10,7 +10,7 @@ const age = latest
   : Infinity;
 if (!usable || age >= 21) {
   console.error(
-    'Official processing-time snapshot needs human reverification. Follow docs/OFFICIAL_PROCESSING_DATA.md. The UI hides unverified data after 30 days.'
+    'Official processing-time snapshot needs human reverification. Follow docs/features/OFFICIAL_PROCESSING_DATA.md. The UI hides unverified data after 30 days.'
   );
   process.exitCode = 1;
 } else

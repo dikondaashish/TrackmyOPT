@@ -435,7 +435,7 @@ Safe-default feature flags live in `src/autofill-feature-flags.ts`:
 | --- | --- | --- |
 | `artifactPrefill` | on | Active artifact and profile prefill |
 | `historyFields` | on | Experience and education fields |
-| `atsAdapters` | on | Scoped Workday, Greenhouse, Lever, SmartRecruiters, and Ashby adapters; see the [verification record](../../docs/EXTENSION_PORTAL_COMPATIBILITY.md) for tested limits |
+| `atsAdapters` | on | Scoped Workday, Greenhouse, Lever, SmartRecruiters, and Ashby adapters; see `tests/` for tested limits |
 | `skills` | on | User may opt in to dedicated skills fields |
 | `continuousMode` | on | User may opt in to fill newly loaded steps |
 | `aiScreeningDrafts` | on | Explicit, review-required grounded drafts |

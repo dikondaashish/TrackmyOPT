@@ -43,6 +43,7 @@ pnpm-debug.log*
 # OS files
 .DS_Store
 *.pem
+* 2
 * 2.*
 
 # IDE
@@ -102,3 +103,15 @@ AutoResumeDev/
 
 # Local scratch / generated assets
 tmp/
+
+# Supabase CLI scratch output
+supabase/.temp/
+
+# LaTeX build logs
+apps/web/templates/latex/*.log
+
+# Superseded brag video renders (kept locally; final run is brag-output-2026-09-26-narrated)
+/brag-output/
+/brag-output-2026-09-26-131520/
+/brag-output-2026-09-26-140204/
+/brag-output-2026-09-26-144203/

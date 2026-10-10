@@ -158,7 +158,7 @@ rate, not submissions plus dismissals.
 
 ## Verified Pro paid-conversion events (October 10, 2026)
 
-Business target: two unique people starting the USD $0.99 seven-day Pro offer per complete UTC day. New events have no historical backfill. See [the growth plan](../../../../docs/growth-recovery-2026-10.md) and [dashboard configuration](../../../../docs/analytics/pro-conversion-dashboard.json).
+Business target: two unique people starting the USD $0.99 seven-day Pro offer per complete UTC day. New events have no historical backfill. See [the growth plan](../../../../docs/plans/growth-recovery-2026-10.md) and [dashboard configuration](../../../../docs/analytics/pro-conversion-dashboard.json).
 
 | Event | Meaning | Key properties / boundary |
 | --- | --- | --- |

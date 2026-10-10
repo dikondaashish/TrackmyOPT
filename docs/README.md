@@ -14,7 +14,20 @@ ordered backlog and the audit disposition.
 |----------|---------|
 | [ARCHITECTURAL_OVERVIEW.md](./architecture/ARCHITECTURAL_OVERVIEW.md) | Current system and data flows |
 | [DIRECTORY_DEEP_DIVE.md](./architecture/DIRECTORY_DEEP_DIVE.md) | Current monorepo map |
-| [DATABASE_INVENTORY.md](./architecture/DATABASE_INVENTORY.md) | Migration-backed public schema inventory |
+| [DATABASE_INVENTORY.md](./architecture/DATABASE_INVENTORY.md) | Migration-backed public schema inventory (28 tables + 6 views; read before dropping anything) |
+| [job-board-run-supervision.md](./architecture/job-board-run-supervision.md) | Ingestion run supervision |
+| [oracle-job-data-plan.md](./architecture/oracle-job-data-plan.md), [oracle-shadow-sync.md](./architecture/oracle-shadow-sync.md), [oracle-cutover-runbook.md](./architecture/oracle-cutover-runbook.md) | Oracle job-data migration |
+
+## Features
+
+Operating references for shipped features, in [`features/`](./features/):
+official processing data maintenance, the H-1B filings secondary project, and
+the university resource pack.
+
+## Plans
+
+Active plans live in [`plans/`](./plans/) (`growth-recovery-2026-10.md`). The master backlog stays at the docs root in
+[pending-implementation-plan.md](./pending-implementation-plan.md).
 
 ## Operations
 
@@ -58,6 +71,7 @@ Outstanding PostHog operations are in the pending implementation plan.
 ## Documentation rules
 
 - Do not create a new phase report for completed work; use git history.
+- File layout: runbooks in `ops/`, operating references in `features/`, plans in `plans/`. Delete reports once the work ships.
 - Add real pending work to `pending-implementation-plan.md`.
 - Keep evidence logs and operational runbooks even after supporting code ships.
 - Remove a temporary plan once every remaining action has been completed or

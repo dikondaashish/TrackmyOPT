@@ -46,7 +46,7 @@ const result = calculateUnemploymentDays(
 - **September 2026 transition:** the dashboard displays “DSO review needed” for potentially affected windows. Current regulation changes post-completion filing timing; admission/I-94 and filing facts are not collected here. Other calculator/extension/email consumers still need coordinated transition-aware updates and owner/legal review before claiming current-rule coverage.
 - **STEM end:** when no actual end is supplied, the 24-calendar-month end is an estimate only. Verify the EAD.
 
-See [2026-09-22 audit](../../../../docs/OPT_DATES_AUDIT_2026-09-22.md) for official sources, browser checks, remaining release gates, and exact test results.
+The 2026-09-22 audit (official sources, browser checks, release gates, test results) was removed from the tree; see git history for `docs/OPT_DATES_AUDIT_2026-09-22.md`.
 
 > ⚠️ **Do not** modify `calculateUnemploymentDays` without re-running `pnpm test`. Tests assert the exact day-by-day behavior across phase boundaries.
 

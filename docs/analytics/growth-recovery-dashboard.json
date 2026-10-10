@@ -1,6 +1,6 @@
 {
   "name": "October 2026 growth recovery",
-  "description": "Track processing-guide acquisition and case activation. Seven-day ordered funnels; 28-day lookback excluding today. Recent cohorts are immature. Client consent affects coverage. SQL guardrails include all project actors; funnels exclude configured test accounts. See docs/growth-recovery-2026-10.md.",
+  "description": "Track processing-guide acquisition and case activation. Seven-day ordered funnels; 28-day lookback excluding today. Recent cohorts are immature. Client consent affects coverage. SQL guardrails include all project actors; funnels exclude configured test accounts. See docs/plans/growth-recovery-2026-10.md.",
   "insights": [
     {
       "name": "Guest acquisition: blog CTA \u2192 estimate \u2192 tracking \u2192 signup",
