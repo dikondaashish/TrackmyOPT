@@ -1,7 +1,7 @@
 # PostHog event taxonomy — TrackMyOPT
 
 **Project:** [369087](https://us.posthog.com/project/369087)  
-**Last updated:** 2026-10-05 (decision-window acquisition events)
+**Last updated:** 2026-10-10 (growth reporting audit)
 
 Canonical list of product events. Prefer these names in new dashboards and funnels. See [legacy-events.md](./legacy-events.md) for deprecated billing and case-status events.
 
@@ -14,9 +14,9 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | `$pageview` | SDK | `$current_url`, UTM props | Marketing pages |
 | `blog_product_cta_clicked` | Client | `variant`, `source_page` | Blog → product path |
 | `opt_decision_window_viewed` | Client | `case_kind`, `has_estimate`, `days_since_filed`, `cohort_size` | Guest decision-window result shown |
-| `opt_decision_window_failed` | Client | `case_kind`, `status` | Guest lookup error / rate limit |
+| `opt_decision_window_failed` | Client | `case_kind`, `status`, `failure_kind` | API errors include HTTP status; network/response failures omit status |
 | `opt_decision_window_cta` | Client | `cta`, `case_kind` | Post-result CTA (e.g. track live status) |
-| `user_signed_up` | Server | `provider`, `capture_source` | Auth signup |
+| `user_signed_up` | Server (Google), client (email) | `provider`, `capture_source` | Auth signup |
 
 ## Activation
 
@@ -25,7 +25,7 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | `onboarding_started` | Client | — | Wizard opened |
 | `onboarding_completed` | Client + server | `variant` | Dates + profile saved |
 | `onboarding_receipt_variant_exposed` | Client | `variant` | Experiment 381118 |
-| `receipt_added` | Server | `is_first_receipt` | **Preferred** over legacy `case_status_enrolled` |
+| `receipt_added` | Server | `receipt_prefix`, `notifications_enabled`, `plan_tier`, `is_new_enrollment` | New or changed receipt; `is_first_receipt` is not emitted. **Preferred** over legacy `case_status_enrolled` |
 | `receipt_updated` | Server | — | Subsequent receipt changes |
 | `case_status_check_completed` | Client + server | `source` | Case-refresh observability |
 | `activation_completed` | Client | `days_since_signup`, `within_24h`, `source` | Receipt + successful case check (Phase 4; onboarding not required) |

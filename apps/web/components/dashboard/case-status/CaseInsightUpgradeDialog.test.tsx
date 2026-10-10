@@ -59,7 +59,7 @@ describe('CaseInsightUpgradeDialog', () => {
     );
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Unlock my case insights' })
+      screen.getByRole('button', { name: 'See my decision window' })
     );
     expect(onUpgrade).toHaveBeenCalledOnce();
 

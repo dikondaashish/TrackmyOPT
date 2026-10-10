@@ -1,0 +1,332 @@
+{
+  "name": "October 2026 growth recovery",
+  "description": "Track processing-guide acquisition and case activation. Seven-day ordered funnels; 28-day lookback excluding today. Recent cohorts are immature. Client consent affects coverage. SQL guardrails include all project actors; funnels exclude configured test accounts. See docs/growth-recovery-2026-10.md.",
+  "insights": [
+    {
+      "name": "Guest acquisition: blog CTA \u2192 estimate \u2192 tracking \u2192 signup",
+      "description": "Unique people; case-status CTA only. Ordered seven-day conversion window. Since tool launch October 5, excluding today; recent entrants are immature. Consent-observed, not all visitors.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "blog_product_cta_clicked",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "variant",
+                  "value": [
+                    "case-status"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_viewed"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_cta"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "user_signed_up"
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "2026-10-05",
+            "date_to": "-1d",
+            "explicitDate": true
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          }
+        }
+      }
+    },
+    {
+      "name": "Guest acquisition by source article",
+      "description": "Same ordered funnel attributed to the first CTA source_page. Unknown means instrumentation unavailable.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "blog_product_cta_clicked",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "variant",
+                  "value": [
+                    "case-status"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_viewed"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_cta"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "user_signed_up"
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "2026-10-05",
+            "date_to": "-1d",
+            "explicitDate": true
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          },
+          "breakdownFilter": {
+            "breakdown": "source_page",
+            "breakdown_type": "event"
+          }
+        }
+      }
+    },
+    {
+      "name": "Guest acquisition by device",
+      "description": "Same ordered funnel attributed to device at first step. Server signup device does not need to match.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "blog_product_cta_clicked",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "variant",
+                  "value": [
+                    "case-status"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_viewed"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "opt_decision_window_cta"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "user_signed_up"
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "2026-10-05",
+            "date_to": "-1d",
+            "explicitDate": true
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          },
+          "breakdownFilter": {
+            "breakdown": "$device_type",
+            "breakdown_type": "event"
+          }
+        }
+      }
+    },
+    {
+      "name": "New signup \u2192 receipt added \u2192 activation (7 days)",
+      "description": "Unique people, ordered within seven days after signup. Receipt event lacks is_first_receipt; this measures any receipt addition after signup. A client activation event requires consent; recent cohorts have not matured.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "user_signed_up"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "receipt_added"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "activation_completed"
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d",
+            "explicitDate": false
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          }
+        }
+      }
+    },
+    {
+      "name": "Search-referred blog visit \u2192 CTA \u2192 activation",
+      "description": "Search-referrer proxy, not verified organic sessions: Google/Bing/DuckDuckGo referral, no paid utm_medium. Unique people within seven days of blog pageview; repeat visits may enter. Compare this denominator only with its own funnel conversions.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "$pageview",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "$host",
+                  "value": [
+                    "www.trackmyopt.com"
+                  ],
+                  "operator": "exact"
+                },
+                {
+                  "type": "event",
+                  "key": "$pathname",
+                  "value": "^/blog/",
+                  "operator": "regex"
+                },
+                {
+                  "type": "event",
+                  "key": "$referring_domain",
+                  "value": "(^|\\.)(google\\.[a-z.]+|bing\\.com|duckduckgo\\.com)$",
+                  "operator": "regex"
+                },
+                {
+                  "type": "event",
+                  "key": "utm_medium",
+                  "value": [
+                    "cpc",
+                    "ppc",
+                    "paid",
+                    "paidsearch"
+                  ],
+                  "operator": "is_not"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "blog_product_cta_clicked",
+              "properties": [
+                {
+                  "type": "event",
+                  "key": "variant",
+                  "value": [
+                    "case-status"
+                  ],
+                  "operator": "exact"
+                }
+              ]
+            },
+            {
+              "kind": "EventsNode",
+              "event": "activation_completed"
+            }
+          ],
+          "version": 2,
+          "dateRange": {
+            "date_from": "-28d",
+            "date_to": "-1d",
+            "explicitDate": false
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          }
+        }
+      }
+    },
+    {
+      "name": "Tool outcomes by OPT/STEM and device",
+      "description": "Result and failure event counts, not an ordered funnel. No-estimate results are valid responses. Network failures are tracked after the October 10 instrumentation update. Includes all project actors.",
+      "query": {
+        "kind": "DataVisualizationNode",
+        "source": {
+          "kind": "HogQLQuery",
+          "query": "SELECT properties.case_kind AS case_kind, properties.$device_type AS device, countIf(event='opt_decision_window_viewed' AND properties.has_estimate=true) AS estimated, countIf(event='opt_decision_window_viewed' AND properties.has_estimate=false) AS insufficient_cohort, countIf(event='opt_decision_window_failed') AS failed FROM events WHERE timestamp >= toStartOfDay(now()) - INTERVAL 28 DAY AND timestamp < toStartOfDay(now()) AND event IN ('opt_decision_window_viewed','opt_decision_window_failed') GROUP BY case_kind,device ORDER BY estimated DESC"
+        }
+      }
+    },
+    {
+      "name": "Weekly unique activation outcomes",
+      "description": "Unique people with activation_completed by UTC week, across acquisition sources. Current week is partial. Client consent required; not restricted to newly signed-up people.",
+      "query": {
+        "kind": "DataVisualizationNode",
+        "source": {
+          "kind": "HogQLQuery",
+          "query": "SELECT toStartOfWeek(timestamp) AS week, uniq(person_id) AS activated_people FROM events WHERE timestamp >= toStartOfDay(now()) - INTERVAL 28 DAY AND timestamp < toStartOfDay(now()) AND event='activation_completed' GROUP BY week ORDER BY week"
+        }
+      }
+    },
+    {
+      "name": "Signup event quality",
+      "description": "Raw capture audit across all actors: compare event count with unique people and repeated people. Email signups can be client-observed; Google signups server-observed. Do not treat raw signups / client visitors as conversion.",
+      "query": {
+        "kind": "DataVisualizationNode",
+        "source": {
+          "kind": "HogQLQuery",
+          "query": "SELECT sum(n) AS signup_events, count() AS signup_people, countIf(n>1) AS people_with_repeated_signup FROM (SELECT person_id,count() AS n FROM events WHERE timestamp >= toStartOfDay(now()) - INTERVAL 28 DAY AND timestamp < toStartOfDay(now()) AND event='user_signed_up' GROUP BY person_id)"
+        }
+      }
+    }
+  ]
+}

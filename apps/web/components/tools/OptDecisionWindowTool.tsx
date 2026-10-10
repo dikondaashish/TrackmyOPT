@@ -66,6 +66,7 @@ export function OptDecisionWindowTool() {
         captureClientEvent('opt_decision_window_failed', {
           case_kind: caseKind,
           status: res.status,
+          failure_kind: 'api',
         });
         return;
       }
@@ -79,6 +80,10 @@ export function OptDecisionWindowTool() {
       });
     } catch {
       setError('Network error. Please try again.');
+      captureClientEvent('opt_decision_window_failed', {
+        case_kind: caseKind,
+        failure_kind: 'network_or_response',
+      });
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest } from 'next/server';
 
 const mocks = vi.hoisted(() => ({
   checkRateLimitByIP: vi.fn(),
@@ -20,13 +21,17 @@ vi.mock('@/lib/community-opt/get-estimate', () => ({
 
 import { GET } from './route';
 
+afterEach(() => vi.useRealTimers());
+
 function req(query: string) {
-  return new Request(
+  return new NextRequest(
     `http://localhost/api/public/opt-decision-window?${query}`
-  ) as unknown as import('next/server').NextRequest;
+  );
 }
 
 beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-10-10T12:00:00Z'));
   vi.clearAllMocks();
   mocks.checkRateLimitByIP.mockResolvedValue({
     success: true,

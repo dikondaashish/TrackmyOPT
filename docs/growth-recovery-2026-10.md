@@ -67,7 +67,7 @@ Use the existing [event taxonomy](../apps/web/lib/posthog/event-taxonomy.md):
 3. `opt_decision_window_viewed`: successful result; split `has_estimate = true/false` and `case_kind`. A result with insufficient cohort data is not a technical error.
 4. `opt_decision_window_cta`: click to continue into account-based tracking.
 5. `user_signed_up`: new account, with identity stitching and duplicate capture checked before calculating the rate.
-6. `receipt_added` with `is_first_receipt = true`, then `activation_completed`: useful case-tracking outcome. Use a fixed seven-day signup-to-activation window.
+6. `receipt_added`, then `activation_completed` (the October 10 audit found that `is_first_receipt` is not emitted; do not filter on it): useful case-tracking outcome. Use a fixed seven-day signup-to-activation window.
 
 Primary growth measure: unique new users who reach an activation outcome each week. For the case-status acquisition route, also measure activated users per 100 consent-observed organic entrants. Keep total server-side signups separate from the consent-limited client funnel. Do not divide all server signups by the smaller PostHog visitor count and label it overall conversion.
 
@@ -93,7 +93,7 @@ The weakest content dimensions in the original pages were trust and referenceabi
 
 Editorial checks: direct answers match intent; claims map to sources; visible FAQs and JSON-LD use the same arrays; original URLs and publication dates remain; review dates reflect substantive edits; internal links point to existing routes. No invented approval average, guaranteed ranking increase, or attorney-review claim is added.
 
-The empty news sitemap and broader old-content backlog remain separate maintenance work. They were not established as the cause of the observed decline. This plan is not an automation; its review dates are proposed operating checkpoints.
+Google explicitly permits an empty news sitemap when no articles fall within the two-day window ([official guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap)). Keep original publication dates; no sitemap workaround is required. A daily heartbeat now checks the November release and performs weekly growth reviews through November 7, notifying only on meaningful changes or blockers.
 
 ## Validation of this revision
 
@@ -109,3 +109,21 @@ Validated from a clean checkout with the same dependency lockfile and exact copi
 - Browser preview confirmed the STEM guide renders and its “Check my wait” CTA opens the guest tool with both OPT and STEM options. This checks navigation, not a live database estimate.
 
 Passing local checks does not establish completed GitHub CI, production deployment, Google recrawling, or traffic recovery.
+
+
+## October 10 operational follow-through
+
+- Verified the previous content commit deployed successfully through Vercel. All four refreshed URLs return HTTP 200, include the October 10 modification date and one H1. All four plus the guest tool appear in the 247-URL production sitemap.
+- Google Search Console confirmed both processing guides are indexed; requested recrawling successfully for OPT and STEM. The STEM crawl before the request was October 10 at 3:05 AM, using smartphone Googlebot, with successful fetch, indexing allowed, and matching canonical. Browser access became unavailable during the October bulletin inspection; October, November and guest-tool inspections/requests remain pending for the follow-up.
+- Created the [growth recovery dashboard](https://us.posthog.com/project/369087/dashboard/2195103) with eight validated insights. Its reviewable configuration is [stored here](analytics/growth-recovery-dashboard.json). Guest-route funnels start October 5, when the route launched, avoiding a misleading denominator from earlier CTA destinations. Other reports use 28 complete days. SQL guardrails include all actors; funnel queries exclude configured test accounts.
+- October 5–9 guest funnel: 26 case-status CTA clickers → 20 result viewers → 9 tracking clicks → 2 signups. These are ordered unique-person counts, not the independent event totals. The seven-day window is immature and the sample is small.
+- September 12–October 9 signup funnel: 397 → 267 receipt additions → 77 activations. The missing first-receipt property must not be interpreted as zero receipts. This counts any receipt addition after signup and client-observed activation, with recent cohorts still immature.
+- Signup audit: 397 events, 397 people, zero repeated signup people. Google supplied 390 server captures and email supplied seven client captures. This is not proof that all real signups are recorded.
+- Added network/response failure capture to the guest lookup guardrail without sending dates, receipt prefixes, error messages or request URLs. API errors retain HTTP status. Insufficient-cohort results remain successful responses.
+- Prepared the [campus resource pack](university-resource-pack.md), tagged links, draft introduction and a five-contact pilot outline. No outreach has been sent; recipients still need to be identified.
+- Repaired three stale CI test fixtures: real NextRequest in the guest route test, ResizeObserver/width simulation for consent-gated ads, and the current case-insight button label. Added narrow-container and guest outcome checks.
+
+The next product decision should follow matured cohorts: the initial guest path loses more people between result and signup than between CTA and result. Inspect result-to-account usability before adding more articles. The sample is too small to select a winning variant yet.
+
+Follow-through validation: all 278 test files passed (1,672 tests); targeted ESLint passed; React Doctor found no issues (89/100). The original five CI failures are covered by the repaired fixtures. Dashboard API readback confirmed eight saved tiles; each query executed successfully before saving. Local documentation links and dashboard JSON were validated.
+TypeScript and the production build also passed in the clean validation checkout with non-secret CI placeholder environment values.
