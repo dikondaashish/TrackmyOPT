@@ -117,6 +117,13 @@ export default function PrivacyPage() {
           advertising targeting.
         </li>
         <li>
+          <strong>Sentry error monitoring</strong> — filtered technical error
+          reports help us diagnose failures in the browser and on our servers.
+          We disable Sentry session replay and automatic collection of user
+          identity, cookies, request bodies, headers, and URL query values.
+          These reliability reports do not use optional analytics cookies.
+        </li>
+        <li>
           <strong>Server-side service events</strong> — limited events generated
           by account and API activity may be processed for security, billing,
           reliability, error diagnosis, and operation of core features. These

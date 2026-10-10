@@ -33,7 +33,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https: http:",
       "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' https://api.applybolt.app https://api.brandfetch.io https://*.supabase.co https://*.supabase.in https://api.stripe.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://api.indexnow.org https://us.i.posthog.com https://us-assets.i.posthog.com https://us.posthog.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://pagead2.googlesyndication.com https://*.google.com https://*.googlesyndication.com https://*.doubleclick.net https://*.adtrafficquality.google",
+      "connect-src 'self' https://api.applybolt.app https://api.brandfetch.io https://*.supabase.co https://*.supabase.in https://api.stripe.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://api.indexnow.org https://o4510977314390016.ingest.us.sentry.io https://us.i.posthog.com https://us-assets.i.posthog.com https://us.posthog.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://pagead2.googlesyndication.com https://*.google.com https://*.googlesyndication.com https://*.doubleclick.net https://*.adtrafficquality.google",
       "worker-src 'self' blob:",
       "frame-src 'self' blob: data: https://*.s3.amazonaws.com https://all-in-one-career-ashish.s3.us-east-1.amazonaws.com https://js.stripe.com https://hooks.stripe.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://bigdataanalyticspub-sb.uscis.dhs.gov",
       "object-src 'none'",
@@ -363,6 +363,8 @@ const nextConfig = {
 // Wrap with @next/bundle-analyzer when ANALYZE=true so `pnpm build` can produce
 // an interactive client.html / server.html report under .next/analyze/.
 let wrappedConfig = nextConfig;
+const { withSentryConfig } = require('@sentry/nextjs/config');
+const uploadSentrySourcemaps = process.env.VERCEL_ENV === 'production' && Boolean(process.env.SENTRY_AUTH_TOKEN);
 
 const { shouldUploadPostHogSourcemaps } = require('./lib/config/posthog-sourcemaps');
 
@@ -375,7 +377,8 @@ if (shouldUploadPostHogSourcemaps()) {
       host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.posthog.com",
       sourcemaps: {
         enabled: true,
-        deleteAfterUpload: true,
+        // Sentry owns cleanup when both providers upload this release.
+        deleteAfterUpload: !uploadSentrySourcemaps,
         // Default CLI batch is 50; smaller batches avoid S3 503 SlowDown on large builds.
         batchSize: Number(process.env.POSTHOG_SOURCEMAPS_BATCH_SIZE) || 15,
       },
@@ -392,11 +395,20 @@ if (process.env.ANALYZE === "true") {
   try {
      
     const withBundleAnalyzer = require('@next/bundle-analyzer')({ enabled: true });
-    wrappedConfig = withBundleAnalyzer(nextConfig);
+    wrappedConfig = withBundleAnalyzer(wrappedConfig);
   } catch {
     // @next/bundle-analyzer not installed — ignore so non-analyze builds aren't blocked.
     console.warn('[next.config] ANALYZE=true but @next/bundle-analyzer is not installed.');
   }
 }
 
-module.exports = wrappedConfig;
+module.exports = withSentryConfig(wrappedConfig, {
+  org: 'zyene-inc',
+  project: 'javascript-nextjs-0u',
+  authToken: uploadSentrySourcemaps ? process.env.SENTRY_AUTH_TOKEN : undefined,
+  silent: !process.env.CI,
+  sourcemaps: {
+    disable: !uploadSentrySourcemaps,
+    deleteSourcemapsAfterUpload: true,
+  },
+});

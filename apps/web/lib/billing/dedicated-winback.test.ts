@@ -27,7 +27,7 @@ describe("Dedicated plan and win-back", () => {
     const { subject, html } = buildUnusedCancelWinbackEmailBodies({ firstName: "Ada" });
     expect(subject).toMatch(/auto-checks your case daily/i);
     expect(html).toContain("/premium/checkout?planId=pro&interval=year");
-    expect(html).toMatch(/getting used/i);
+    expect(html).toMatch(/not using Pro regularly/i);
   });
 
   it("checkout recovery resumes Dedicated while it is open for sale", () => {
