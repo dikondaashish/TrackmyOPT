@@ -12,7 +12,7 @@ const secret = 'synthetic-secret';
 const token = createUnsubscribeToken(id, secret);
 const request = (value = token) => new NextRequest(`https://www.trackmyopt.com/api/notifications/campaign/unsubscribe?token=${encodeURIComponent(value)}`);
 function setup(results: object[]) {
-  const q = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), maybeSingle: vi.fn().mockReturnThis(),
+  const q = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), in: vi.fn().mockReturnThis(), maybeSingle: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(), insert: vi.fn().mockReturnThis(),
     then: (resolve: (result: object) => unknown) => Promise.resolve(results.shift()!).then(resolve) };
   const client = { from: vi.fn().mockReturnValue(q) };
@@ -75,4 +75,24 @@ it('does not mutate preferences for missing or non-campaign records', async () =
     expect((await POST(request())).status).toBe(404);
     expect(q.update).not.toHaveBeenCalled();
   }
+});
+
+it('supports the pending-case experiment without changing reminder preferences', async () => {
+  const q = setup([
+    {
+      ...message,
+      data: { ...message.data, email_data: { experiment: 'pending_case_v1' } },
+    },
+    { data: [{ user_id: id }], error: null },
+  ]);
+  expect((await POST(request())).status).toBe(200);
+  expect(q.in).toHaveBeenCalledWith(
+    'email_type',
+    expect.arrayContaining([
+      'pending_case_first',
+      'pending_case_followup',
+      'checkout_recovery',
+    ])
+  );
+  expect(q.update).toHaveBeenCalledExactlyOnceWith({ marketing_emails: false });
 });

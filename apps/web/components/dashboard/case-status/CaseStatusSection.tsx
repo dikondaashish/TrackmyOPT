@@ -1,5 +1,7 @@
 'use client';
 
+import { ProductEmailPreference } from '@/components/dashboard/settings/ProductEmailPreference';
+import { isVerifiedPendingCase } from '@/lib/case-status/pending-case-promotion';
 import { Card } from '@/components/ui/card';
 import { PricingModal } from '@/components/pricing/PricingModal';
 import { CaseStatusPanelErrorBoundary } from '@/components/dashboard/case-status/CaseTimelineErrorBoundary';
@@ -277,6 +279,10 @@ export function CaseStatusSection() {
             }}
             formTypeMismatch={formTypeMismatch}
           />
+
+          {isPremium === false && clientNowMs !== null && isVerifiedPendingCase(caseStatus, clientNowMs) && (
+            <ProductEmailPreference compact />
+          )}
 
           {/* ── 3. MAIN CASE HERO CARD ── */}
           {isEditingReceipt ? (

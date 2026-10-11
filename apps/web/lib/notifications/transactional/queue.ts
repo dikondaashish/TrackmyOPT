@@ -330,7 +330,8 @@ export async function queueTransactionalEmailSend(args: {
       insErr && typeof insErr === "object" && "code" in insErr
         ? String((insErr as { code?: string }).code)
         : "";
-    if (pgCode === "23505" && dedupe.kind === "d1_activation_nudge") {
+    if ((pgCode === "23505" && dedupe.kind === "d1_activation_nudge") ||
+        (pgCode === "PGRST116" && dedupe.kind === "checkout_recovery")) {
       return { ok: true, skipped: "deduped" };
     }
     console.error("queueTransactionalEmailSend insert:", insErr);

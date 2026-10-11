@@ -12,7 +12,7 @@ import {
 import { OPT_TOOL_ICONS, type OptToolIconKey } from "@/lib/opt-tool-icons";
 import type { Dispatch, SetStateAction } from "react";
 import type { PremiumStatus, UserProfile } from "../settings-types";
-import { Toggle } from "../SettingsToggle";
+import { ProductEmailPreference } from "../ProductEmailPreference";
 
 interface NotificationsTabProps {
   editingSharedEmail: "case" | "document" | null;
@@ -38,7 +38,6 @@ interface NotificationsTabProps {
 
 export function NotificationsTab({
   editingSharedEmail,
-  emailNotifications,
   handleDeleteSharedEmail,
   handleDeleteToolEmail,
   handleSaveNotificationEmail,
@@ -48,7 +47,6 @@ export function NotificationsTab({
   premium,
   profile,
   setEditingSharedEmail,
-  setEmailNotifications,
   setProfile,
   setTempEmail,
   setToolEmails,
@@ -75,14 +73,7 @@ export function NotificationsTab({
                   </div>
                 </div>
 
-                {/* Email Notifications Toggle */}
-                <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Receive important updates, tips, and promotional offers via email</p>
-                  </div>
-                  <Toggle enabled={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />
-                </div>
+                <div className="mb-4"><ProductEmailPreference /></div>
 
                 {/* Notification Email */}
                 <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">

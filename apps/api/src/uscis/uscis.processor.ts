@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { UscisService } from './uscis.service';
 import { isTerminalCase, checkFailureCode } from './check-schedule';
+import { reportPendingCaseEnrollmentFailure } from './pending-case-enrollment-observability';
 
 type StatusHistoryEntry = { status: string; date: string; description: string };
 
@@ -299,6 +300,28 @@ export class UscisProcessor {
       }
 
       if (!updatedCase) return { skipped: true, reason: 'Tracking removed' };
+      if (process.env.PENDING_CASE_EMAILS_ENABLED === 'true') {
+        try {
+          const enrollment = await this.supabase.rpc(
+            'record_pending_case_email_sequence',
+            {
+              p_user_id: userId,
+              p_case_id: String(existingCase.id),
+            },
+          );
+          if (enrollment.error)
+            throw new Error('Pending case email enrollment failed');
+        } catch {
+          this.logger.error('Pending case email enrollment failed');
+          const reported = await reportPendingCaseEnrollmentFailure(
+            this.configService.get<string>('CRON_SECRET'),
+          );
+          if (!reported)
+            this.logger.error(
+              'Pending case enrollment error report unavailable',
+            );
+        }
+      }
 
       this.logger.log('USCIS case persistence completed');
 

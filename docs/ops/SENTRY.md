@@ -11,7 +11,12 @@ including failures that occur before a server handler can run. Case workers
 report partial failures and audit-recording failures, even when an error was
 caught internally. Expected validation/authentication/not-found/rate-limit
 responses (4xx) do not create API-response issues. The separate ingestion API
-process and Chrome extension's own runtime do not run the Next.js SDK.
+process and Chrome extension's own runtime do not run the Next.js SDK. The Render
+pending-case email enrollment catch sends a fixed, authenticated, body-free error
+signal to `/api/internal/pending-case-enrollment-failure`, where the web SDK
+captures and flushes it. This narrow bridge does not cover all ingestion API
+errors; its transport failures remain visible in Render logs. It accepts no
+caller-supplied diagnostics or applicant data and limits repeated reports.
 
 When adding API handlers, export them through `withSentryApiErrors` with their
 static route pattern and HTTP method, as existing routes do. The wrapper never

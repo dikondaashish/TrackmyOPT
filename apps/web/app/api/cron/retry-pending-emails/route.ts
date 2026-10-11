@@ -1,4 +1,5 @@
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import { pendingCaseEmailsEnabled } from '@/lib/notifications/pending-case-email';
 /**
  * Retries transactional emails stuck in email_queue (status=pending) after SMTP
  * never completed — e.g. serverless returned before send finished.
@@ -204,6 +205,17 @@ async function handleGET(req: NextRequest) {
   const results: Array<{ id: string; outcome: string }> = [];
 
   for (const row of list) {
+    // Legacy recovery reservations may already have reached SMTP. Hold them
+    // rather than replaying a stale promotion through transactional retries.
+    if (pendingCaseEmailsEnabled() && row.email_type === "checkout_recovery") {
+      const held = await supabase.from("email_queue").update({
+        status: "campaign_unknown",
+        error_message: "Legacy promotion requires eligibility and SMTP review; no automatic resend",
+      }).eq("id", row.id);
+      if (held.error) console.error("Legacy checkout recovery hold failed");
+      results.push({ id: row.id, outcome: "needs_review" });
+      continue;
+    }
     const retryCount = row.retry_count ?? 0;
 
     if (retryCount >= MAX_RETRIES) {

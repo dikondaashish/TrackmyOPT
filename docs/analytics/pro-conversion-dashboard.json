@@ -140,7 +140,7 @@
     },
     {
       "name": "Paid Pro funnel by offer source",
-      "description": "First-touch offer source, not marketing acquisition source. case_status, pricing_modal, checkout_page; unknown retained. Seven-day cohorts; consent-observed top steps.",
+      "description": "First-touch offer source, not marketing acquisition source. case_status, pricing_modal, checkout_page, pending_case_email; unknown retained. Seven-day cohorts; consent-observed top steps. Pending-case email events begin after the October 11 release without historical backfill.",
       "query": {
         "kind": "InsightVizNode",
         "source": {

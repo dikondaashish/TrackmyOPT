@@ -4,6 +4,8 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import nodemailer from "nodemailer";
+import { pendingCaseEmailsEnabled, requireCasePromotionProvider, sendCasePromotion } from "../pending-case-email";
 import { EMAIL } from "../email-brand";
 import {
   buildTransactionalEmail,
@@ -104,6 +106,27 @@ export async function sendCheckoutRecoveryEmail(args: {
     checkoutUrl,
     resumeKind,
   });
+
+  if (pendingCaseEmailsEnabled()) {
+    const transport = nodemailer.createTransport(
+      requireCasePromotionProvider()
+    );
+    try {
+      const outcome = await sendCasePromotion({
+        supabase,
+        userId,
+        kind: 'checkout_recovery',
+        recoveryBodies: { subject, html, text },
+        sendMail: (options) => transport.sendMail(options),
+      });
+      if (outcome.status === 'skipped') return { ok: true, skipped: 'deduped' };
+      if (outcome.status === 'sent' && outcome.queueId)
+        return { ok: true, skipped: false, queueId: outcome.queueId };
+      return { ok: false, error: 'Recovery SMTP outcome requires review' };
+    } finally {
+      transport.close();
+    }
+  }
 
   return queueTransactionalEmailSend({
     supabase,

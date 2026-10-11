@@ -3,6 +3,7 @@ export const PRO_CHECKOUT_SOURCES = [
   'case_status',
   'pricing_modal',
   'checkout_page',
+  'pending_case_email',
 ] as const;
 export type ProCheckoutSource = (typeof PRO_CHECKOUT_SOURCES)[number];
 export function normalizeProCheckoutSource(

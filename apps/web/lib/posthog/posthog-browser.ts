@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { isMonitoringCapabilityPage, redactMonitoringAnalytics } from "./monitoring-link-privacy";
 import { getStoredCookieConsent } from "@/lib/cookie-consent";
 import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
 import { POSTHOG_SESSION_RECORDING } from "@/lib/posthog/session-replay-privacy";
@@ -318,6 +319,10 @@ export function initPostHogBrowser(): void {
       opt_out_capturing_by_default: true,
       session_recording: POSTHOG_SESSION_RECORDING,
       before_send: (event) => {
+        // Suppress automatic events with signed-link page payloads. Explicit
+        // low-cardinality offer events still respect the user's analytics consent.
+        if (typeof window !== 'undefined' && isMonitoringCapabilityPage(window.location.href) && event?.event?.startsWith('$')) return null;
+        if (event?.properties) event.properties = redactMonitoringAnalytics(event.properties) as typeof event.properties;
         if (
           typeof window !== "undefined" &&
           event?.event &&
