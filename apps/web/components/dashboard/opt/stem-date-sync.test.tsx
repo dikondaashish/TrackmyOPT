@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import {
   act,
   cleanup,
+  configure,
   fireEvent,
   render,
   screen,
@@ -59,6 +60,10 @@ vi.mock('@/lib/immigration/opt-calculations', async (importOriginal) => {
   };
 });
 
+// These tests wait on async loads and saves; the 1s default is too tight on a slow CI runner.
+// This only raises the ceiling, passing tests still finish as soon as the UI is ready.
+configure({ asyncUtilTimeout: 5000 });
+
 const saved = {
   program_end_date: '05/15/2026',
   dso_recommendation_date: '04/20/2026',
@@ -98,6 +103,21 @@ const posted = () =>
   JSON.parse(
     fetchMock.mock.calls.find(([, options]) => options?.method === 'POST')![1]
       .body
+  );
+
+// The inputs mount (disabled, aria-busy) before the saved dates arrive, and hydration then overwrites
+// anything typed in the meantime. Wait for hydration, not just for the input's presence, or the test
+// races the load (it passes only when the fetch happens to resolve first).
+const findHydratedField = async (label: RegExp, value: string) => {
+  await waitFor(() => expect(screen.getByLabelText(label)).toHaveValue(value), {
+    timeout: 5000,
+  });
+  return screen.getByLabelText(label);
+};
+const findHydratedStemField = () =>
+  findHydratedField(
+    /STEM DSO Recommendation Date/,
+    saved.stem_dso_recommendation_date
   );
 
 describe('dashboard STEM recommendation', () => {
@@ -266,7 +286,7 @@ describe('STEM apply tool', () => {
   });
   it('warns when the preview differs from saved reminder dates until saving succeeds', async () => {
     render(<StemApplyTool />);
-    const field = await screen.findByLabelText(/STEM DSO Recommendation Date/);
+    const field = await findHydratedStemField();
     expect(screen.queryByText(/Unsaved preview/)).not.toBeInTheDocument();
     fireEvent.change(field, { target: { value: '03/05/2027' } });
     expect(screen.getByText(/Unsaved preview/)).toHaveTextContent(
@@ -301,10 +321,9 @@ describe('STEM apply tool', () => {
   });
   it('clears the STEM date using null and omits unrelated dates', async () => {
     render(<StemApplyTool />);
-    fireEvent.change(
-      await screen.findByLabelText(/STEM DSO Recommendation Date/),
-      { target: { value: '' } }
-    );
+    fireEvent.change(await findHydratedStemField(), {
+      target: { value: '' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('button', { name: 'Saved!' });
     expect(posted()).toEqual({ stem_dso_recommendation_date: null });
@@ -315,10 +334,9 @@ describe('STEM apply tool', () => {
   });
   it('does not show success for an application-level failed save', async () => {
     render(<StemApplyTool />);
-    fireEvent.change(
-      await screen.findByLabelText(/STEM DSO Recommendation Date/),
-      { target: { value: '03/05/2027' } }
-    );
+    fireEvent.change(await findHydratedStemField(), {
+      target: { value: '03/05/2027' },
+    });
     fetchMock.mockResolvedValueOnce(response({ ok: false }));
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(await screen.findByRole('alert')).toHaveTextContent(
@@ -360,10 +378,7 @@ describe('STEM apply tool', () => {
     'does not calculate or save an invalid recommendation %s',
     async (value) => {
       render(<StemApplyTool />);
-      fireEvent.change(
-        await screen.findByLabelText(/STEM DSO Recommendation Date/),
-        { target: { value } }
-      );
+      fireEvent.change(await findHydratedStemField(), { target: { value } });
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       expect(
         screen.queryByRole('region', { name: 'Filing estimate' })
@@ -372,9 +387,13 @@ describe('STEM apply tool', () => {
   );
   it('removes the stale countdown when the EAD date is cleared', async () => {
     render(<StemApplyTool />);
-    fireEvent.change(await screen.findByLabelText(/Current OPT EAD End Date/), {
-      target: { value: '' },
-    });
+    fireEvent.change(
+      await findHydratedField(
+        /Current OPT EAD End Date/,
+        saved.opt_ead_end_date
+      ),
+      { target: { value: '' } }
+    );
     expect(
       screen.queryByRole('region', { name: 'Filing estimate' })
     ).not.toBeInTheDocument();
@@ -410,9 +429,9 @@ it.each([
     );
     expect(screen.getByRole('button', { name: button })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(
-      await screen.findByLabelText(/STEM DSO Recommendation Date/)
-    ).toHaveValue(saved.stem_dso_recommendation_date);
+    expect(await findHydratedStemField()).toHaveValue(
+      saved.stem_dso_recommendation_date
+    );
     expect(screen.getByRole('button', { name: button })).toBeEnabled();
   }
 );
