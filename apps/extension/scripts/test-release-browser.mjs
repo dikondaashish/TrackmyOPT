@@ -19,7 +19,11 @@ if(testReplacement) execFileSync('unzip',['-q',previousZip,'-d',extension]);
 else await cp(resolve('dist'),extension,{recursive:true});
 const options = { channel:'chromium',headless:true,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`] };
 let context;
-const deadline=setTimeout(()=>{ console.error('Release browser test exceeded 90 seconds'); void context?.close(); },90000);
+// A normal run takes ~15-30s. The deadline only guards against a hung browser. On a loaded machine headless Chrome
+// can fail to start the extension service worker, and closing the context mid-step then shows up as
+// "browser has been closed". The message below names the real cause; raise the limit via the env var if needed.
+const deadlineMs=Number(process.env.RELEASE_BROWSER_TEST_TIMEOUT_MS)||90000;
+const deadline=setTimeout(()=>{ console.error(`Release browser test exceeded ${deadlineMs/1000} seconds (machine overloaded or Chrome failed to start the extension; re-run on an idle machine)`); void context?.close(); },deadlineMs);
 deadline.unref();
 const html = `<!doctype html><html><head><title>Engineer at Example | Careers</title><style>body{font:16px system-ui;margin:40px}button{font-size:80px!important;background:red!important}input{display:block;padding:10px;margin:12px}</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"JobPosting","title":"Engineer","hiringOrganization":{"@type":"Organization","name":"Example"},"description":"Build useful software. Review requirements and work with engineering teams."}</script></head><body><main><h1>Engineer</h1><h2>Example</h2><p>Build useful software. Review requirements and work with engineering teams.</p><form id="application-form"><label>First name<input name="first_name"></label><label>Last name<input name="last_name"></label><label>Email<input name="email" type="email"></label><div class="application-field"><label>Resume<input name="resume" type="file" accept=".pdf"></label><span class="resume-upload-success"></span><span class="resume-upload-failure"></span></div></form></main></body></html>`;
 const launch = async () => {
