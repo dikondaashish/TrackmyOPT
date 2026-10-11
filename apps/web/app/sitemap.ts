@@ -3,6 +3,7 @@ import path from 'node:path';
 import { MetadataRoute } from 'next';
 import { getAllAnswers } from '@/lib/answers';
 import { ANSWER_CANONICAL_OVERRIDES } from '@/lib/answers/canonical-overrides';
+import { researchArticleBySlug } from '@/data/blog-series';
 import { getPublicBlogRoutes } from '@/lib/blog-routes';
 
 export const revalidate = 3600;
@@ -17,6 +18,8 @@ function blogLastModified(route: string): Date {
     }
   }
   const slug = route.replace(/^\/blog\//, '');
+  const article = researchArticleBySlug.get(slug);
+  if (article) return new Date(article.modifiedDate + 'T00:00:00Z');
   const page = path.join(process.cwd(), 'app/blog', slug, 'page.tsx');
   try {
     return fs.statSync(page).mtime;

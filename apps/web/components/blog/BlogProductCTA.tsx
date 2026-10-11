@@ -1,16 +1,25 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { ArrowRight, Bell, BriefcaseBusiness, Clock, FileText, Shield, Users } from "lucide-react";
-import { captureClientEvent } from "@/lib/posthog-client";
+import Link from 'next/link';
+import {
+  ArrowRight,
+  Bell,
+  BriefcaseBusiness,
+  Clock,
+  FileText,
+  Shield,
+  Users,
+} from 'lucide-react';
+import { captureClientEvent } from '@/lib/posthog-client';
 
 export type BlogProductCtaVariant =
-  | "case-status"
-  | "opt-timeline"
-  | "unemployment"
-  | "sponsors"
-  | "resume"
-  | "community";
+  | 'case-status'
+  | 'uscis-tracking'
+  | 'opt-timeline'
+  | 'unemployment'
+  | 'sponsors'
+  | 'resume'
+  | 'community';
 
 const VARIANTS: Record<
   BlogProductCtaVariant,
@@ -22,53 +31,61 @@ const VARIANTS: Record<
     cta: string;
   }
 > = {
-  "case-status": {
+  'uscis-tracking': {
     icon: Bell,
-    title: "Check your OPT or STEM OPT wait",
+    title: 'Keep your USCIS case in one place',
     description:
-      "Enter your receipt date for a free community-based estimate — no account needed. If enough comparable cases are available, see the sample size and range; then save your case for ongoing tracking.",
-    href: "/tools/opt-decision-window",
-    cta: "Check my wait",
+      'Save your receipt for free manual checks. Pro adds daily USCIS checks and email alerts when we detect a status change.',
+    href: '/dashboard/case-status',
+    cta: 'Save my case',
   },
-  "opt-timeline": {
-    icon: Clock,
-    title: "See your OPT timeline in one dashboard",
+  'case-status': {
+    icon: Bell,
+    title: 'Check your OPT or STEM OPT wait',
     description:
-      "Track processing milestones, unemployment days, and deadlines alongside your case status.",
-    href: "/tools/opt-clock",
-    cta: "Open OPT timeline",
+      'Enter your receipt date for a free community-based estimate — no account needed. If enough comparable cases are available, see the sample size and range; then save your case for ongoing tracking.',
+    href: '/tools/opt-decision-window',
+    cta: 'Check my wait',
+  },
+  'opt-timeline': {
+    icon: Clock,
+    title: 'See your OPT timeline in one dashboard',
+    description:
+      'Track processing milestones, unemployment days, and deadlines alongside your case status.',
+    href: '/tools/opt-clock',
+    cta: 'Open OPT timeline',
   },
   unemployment: {
     icon: Shield,
-    title: "Count your OPT unemployment days",
+    title: 'Count your OPT unemployment days',
     description:
-      "Avoid the 90-day limit — live counter synced to your OPT dates with compliance reminders.",
-    href: "/tools/opt-clock",
-    cta: "Check unemployment days",
+      'Avoid the 90-day limit — live counter synced to your OPT dates with compliance reminders.',
+    href: '/tools/opt-clock',
+    cta: 'Check unemployment days',
   },
   sponsors: {
     icon: BriefcaseBusiness,
-    title: "Research employers with real filing history",
+    title: 'Research employers with real filing history',
     description:
-      "Compare H-1B filing history, entry-level signals, common roles, and verified career links before spending hours on an application.",
-    href: "/dashboard/h1b-sponsors",
-    cta: "Search H-1B sponsors",
+      'Compare H-1B filing history, entry-level signals, common roles, and verified career links before spending hours on an application.',
+    href: '/dashboard/h1b-sponsors',
+    cta: 'Search H-1B sponsors',
   },
   resume: {
     icon: FileText,
-    title: "Turn this guidance into a stronger application",
+    title: 'Turn this guidance into a stronger application',
     description:
-      "Build an ATS-friendly U.S. resume, tailor it to a job description, and keep your search organized alongside your OPT timeline.",
-    href: "/dashboard/resume-builder",
-    cta: "Build my resume",
+      'Build an ATS-friendly U.S. resume, tailor it to a job description, and keep your search organized alongside your OPT timeline.',
+    href: '/dashboard/resume-builder',
+    cta: 'Build my resume',
   },
   community: {
     icon: Users,
-    title: "Plan with community timelines—not rumors",
+    title: 'Plan with community timelines—not rumors',
     description:
-      "Compare anonymized OPT milestones, record your own case, and keep official USCIS status separate from community planning estimates.",
-    href: "/dashboard/community",
-    cta: "Explore community data",
+      'Compare anonymized OPT milestones, record your own case, and keep official USCIS status separate from community planning estimates.',
+    href: '/dashboard/community',
+    cta: 'Explore community data',
   },
 };
 
@@ -83,7 +100,7 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
   const Icon = config.icon;
 
   const handleClick = () => {
-    captureClientEvent("blog_product_cta_clicked", {
+    captureClientEvent('blog_product_cta_clicked', {
       variant,
       source_page: sourcePage,
     });
@@ -96,43 +113,45 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
           <Icon className="h-6 w-6" aria-hidden />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-lg font-bold text-gray-900 dark:text-white">{config.title}</p>
+          <p className="text-lg font-bold text-gray-900 dark:text-white">
+            {config.title}
+          </p>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
             {config.description}
           </p>
           <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">
-            Also see{" "}
+            Also see{' '}
             <Link
               href={
-                variant === "sponsors"
-                  ? "/features/sponsors"
-                  : variant === "resume"
-                    ? "/features/resume-ai"
-                    : variant === "community"
-                      ? "/features/community"
-                      : "/features/case-status"
+                variant === 'sponsors'
+                  ? '/features/sponsors'
+                  : variant === 'resume'
+                    ? '/features/resume-ai'
+                    : variant === 'community'
+                      ? '/features/community'
+                      : '/features/case-status'
               }
               className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
               onClick={() =>
-                captureClientEvent("blog_product_cta_clicked", {
-                  variant: "features-link",
+                captureClientEvent('blog_product_cta_clicked', {
+                  variant: 'features-link',
                   source_page: sourcePage,
                 })
               }
             >
-              {variant === "sponsors"
-                ? "H-1B sponsor research features"
-                : variant === "resume"
-                  ? "resume and job-search features"
-                  : variant === "community"
-                    ? "community timeline methodology"
-                    : "USCIS case status tracker features"}
+              {variant === 'sponsors'
+                ? 'H-1B sponsor research features'
+                : variant === 'resume'
+                  ? 'resume and job-search features'
+                  : variant === 'community'
+                    ? 'community timeline methodology'
+                    : 'USCIS case status tracker features'}
             </Link>
           </p>
-          {variant === "case-status" && (
+          {variant === 'case-status' && (
             <p className="mt-1.5 text-[9px] leading-snug text-gray-400 dark:text-gray-500">
               Decision windows are community planning estimates — not legal
-              advice or a USCIS-guaranteed decision date.{" "}
+              advice or a USCIS-guaranteed decision date.{' '}
               <Link
                 href="/disclaimer"
                 className="underline underline-offset-2 hover:text-gray-500 dark:hover:text-gray-400"

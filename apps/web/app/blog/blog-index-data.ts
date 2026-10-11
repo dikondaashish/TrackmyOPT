@@ -2,10 +2,12 @@ import { researchBlogCards } from '@/data/blog-series';
 import { blogPostsPartOne } from './blog-index-posts-a';
 import { blogPostsPartTwo } from './blog-index-posts-b';
 
+const structuredSlugs = new Set(researchBlogCards.map((post) => post.slug));
+
 export const blogPosts = [
   ...researchBlogCards,
-  ...blogPostsPartOne,
-  ...blogPostsPartTwo,
+  ...blogPostsPartOne.filter((post) => !structuredSlugs.has(post.slug)),
+  ...blogPostsPartTwo.filter((post) => !structuredSlugs.has(post.slug)),
 ];
 
 export const CATEGORY_COLORS: Record<string, string> = {

@@ -12,6 +12,17 @@ export type ArticleSection = {
   bullets?: string[];
   numbered?: string[];
   note?: string;
+  /** Preserve useful inbound fragment links when refreshing an existing guide. */
+  anchors?: string[];
+  sources?: ArticleSource[];
+  links?: Array<{ label: string; href: string }>;
+  visual?: {
+    src: string;
+    poster: string;
+    alt: string;
+    caption: string;
+    steps: string[];
+  };
 };
 
 export type ResearchArticle = {
@@ -42,4 +53,5 @@ export type ResearchArticle = {
   image?: string;
   imageAlt?: string;
   imageCaption?: string;
+  showContents?: boolean;
 };

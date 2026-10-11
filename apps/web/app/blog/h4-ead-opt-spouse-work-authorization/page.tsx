@@ -40,7 +40,7 @@ export default function H4EADPage() {
                 title={metadata.title as string}
                 description={metadata.description as string}
                 publishedDate="2026-03-10"
-                modifiedDate="2026-03-10"
+                modifiedDate="2026-10-11"
                 author="Vinay Kumar"
                 canonicalUrl={metadata.alternates?.canonical as string}
             />
@@ -59,7 +59,7 @@ export default function H4EADPage() {
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 8 min read</span>
                     <span>•</span>
-                    <span>Updated July 12, 2026</span>
+                    <span>Updated October 11, 2026</span>
                 </div>
             </header>
 
@@ -74,7 +74,7 @@ export default function H4EADPage() {
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">F-2 Spouses: No Work Authorization</h2>
                 <p>
-                    If you are currently on an F-1 visa (including OPT and STEM OPT), your spouse is on an <strong>F-2 dependent visa.</strong> Under current immigration law, F-2 visa holders are <strong>strictly prohibited from working</strong> in the United States. They cannot be employed, freelance, or even do volunteer work that would normally be paid. They can study part-time but cannot pursue a full degree program.
+                    If you are currently on an F-1 visa (including OPT and STEM OPT), your spouse is on an <strong>F-2 dependent visa.</strong> Under current immigration law, F-2 visa holders are <strong>strictly prohibited from working</strong> in the United States. They cannot be employed, freelance, or even do volunteer work that would normally be paid. Study permissions depend on the level and course load. Ask the school about F-2 study rules and any change of status needed for full-time postsecondary study.
                 </p>
 
                 <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
@@ -83,13 +83,13 @@ export default function H4EADPage() {
                         F-2 Work Is Illegal
                     </h4>
                     <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">
-                        If your F-2 spouse works—even remotely for a foreign company that pays them in their home country—it is considered unauthorized employment. This can result in deportation, a 3-year or 10-year bar from re-entering the US, and permanent denial of any future US visa applications.
+                        If your F-2 spouse works—even remotely for a foreign company that pays them in their home country—it is considered unauthorized employment. Unauthorized employment can have serious immigration consequences. The specific consequences depend on the facts; consult a qualified immigration attorney rather than assuming an automatic bar applies.
                     </p>
                 </div>
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">H-4 Spouses: Conditional Work Authorization</h2>
                 <p>
-                    Once you transition from OPT to an <strong>H-1B work visa</strong>, your spouse's status automatically changes from F-2 to <strong>H-4.</strong> H-4 visa holders have a pathway to work authorization, but only if specific conditions are met.
+                    Once you transition from OPT to an <strong>H-1B work visa</strong>, your spouse must separately obtain <strong>H-4 status</strong> through the applicable change-of-status or admission process. Your H-1B approval does not automatically change an F-2 spouse’s status. H-4 visa holders have a pathway to work authorization, but only if specific conditions are met.
                 </p>
 
                 <h3 className="text-xl font-bold mt-8 mb-4">Who Is Eligible for the H-4 EAD?</h3>
@@ -221,6 +221,7 @@ export default function H4EADPage() {
                     </Link>
                 </div>
             </div>
+            <p className="mt-8 text-sm text-gray-600 dark:text-gray-300"><Link href="/blog/h4-ead-case-status-tracking" className="text-blue-600 underline">Already applied? Follow the H-4 EAD tracking and delivery guide.</Link></p>
         </article>
     );
 }
