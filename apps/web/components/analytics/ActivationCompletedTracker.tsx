@@ -2,7 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { captureActivationCompleted } from "@/lib/posthog-client";
+import {
+  ANALYTICS_CONSENT_CHANGE_EVENT,
+  captureActivationCompleted,
+  isBrowserPostHogReady,
+} from "@/lib/posthog-client";
+import { hasAnalyticsConsent } from "@/lib/cookie-consent";
 import {
   daysSinceSignupDate,
   hasSuccessfulCaseCheck,
@@ -19,16 +24,18 @@ const POLL_MS = 15_000;
  * Re-checks on focus/visibility and polls so same-session activation is captured.
  */
 export function ActivationCompletedTracker() {
-  const trackedRef = useRef(false);
+  const trackedUserRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     let requestInFlight = false;
     let activeController: AbortController | null = null;
 
-    const alreadyCaptured = () => {
+    const alreadyCaptured = (userId: string) => {
       try {
-        return localStorage.getItem(ACTIVATION_CAPTURED_KEY) === "1";
+        return (
+          localStorage.getItem(`${ACTIVATION_CAPTURED_KEY}:${userId}`) === "1"
+        );
       } catch {
         return false;
       }
@@ -38,8 +45,8 @@ export function ActivationCompletedTracker() {
       if (
         cancelled ||
         requestInFlight ||
-        trackedRef.current ||
-        alreadyCaptured()
+        !hasAnalyticsConsent() ||
+        !isBrowserPostHogReady()
       ) {
         return;
       }
@@ -52,7 +59,13 @@ export function ActivationCompletedTracker() {
         const {
           data: { user },
         } = await supabase.auth.getUser();
-        if (!user || cancelled) return;
+        if (
+          !user ||
+          cancelled ||
+          trackedUserRef.current === user.id ||
+          alreadyCaptured(user.id)
+        )
+          return;
 
         const caseRes = await fetch("/api/case-status", {
           credentials: "include",
@@ -73,30 +86,33 @@ export function ActivationCompletedTracker() {
             : caseJson?.data
               ? [caseJson.data]
               : [];
-          const primary = cases.find((c) => c.receipt_number) ?? cases[0] ?? null;
+          const primary =
+            cases.find((c) => c.receipt_number) ?? cases[0] ?? null;
           hasReceipt = Boolean(primary?.receipt_number);
           hasSuccessfulCheck = hasSuccessfulCaseCheck(primary);
         }
 
         if (
           cancelled ||
-          trackedRef.current ||
-          alreadyCaptured() ||
+          !hasAnalyticsConsent() ||
+          !isBrowserPostHogReady() ||
+          trackedUserRef.current === user.id ||
+          alreadyCaptured(user.id) ||
           !isActivatedUser({ hasReceipt, hasSuccessfulCheck })
         ) {
           return;
         }
 
-        trackedRef.current = true;
-        try {
-          localStorage.setItem(ACTIVATION_CAPTURED_KEY, "1");
-        } catch {
-          /* ignore */
-        }
         captureActivationCompleted({
           days_since_signup: daysSinceSignupDate(user.created_at?.slice(0, 10)),
           within_24h: isWithinActivationWindow(user.created_at),
         });
+        trackedUserRef.current = user.id;
+        try {
+          localStorage.setItem(`${ACTIVATION_CAPTURED_KEY}:${user.id}`, "1");
+        } catch {
+          /* ignore */
+        }
       } catch {
         // This is a best-effort analytics probe. Offline transitions, aborted
         // navigations, and privacy tools must not surface as product errors.
@@ -113,6 +129,7 @@ export function ActivationCompletedTracker() {
     };
     window.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
+    window.addEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onVisible);
     const pollId = window.setInterval(() => void tryCapture(), POLL_MS);
 
     return () => {
@@ -121,6 +138,7 @@ export function ActivationCompletedTracker() {
       window.clearInterval(pollId);
       window.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onVisible);
+      window.removeEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onVisible);
     };
   }, []);
 

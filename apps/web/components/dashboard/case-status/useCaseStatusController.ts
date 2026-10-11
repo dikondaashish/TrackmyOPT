@@ -32,6 +32,11 @@ import {
 import { getReceiptPrefix } from '@/lib/posthog/uscis-status-category';
 import { requestNpsSurvey } from '@/lib/posthog/nps-survey';
 import { validateReceiptNumber } from '@/lib/uscis/receipt-number-validation';
+import { saveReceiptAndPoll } from '@/lib/case-status/save-receipt-and-poll';
+import {
+  reportReceiptEntryFailure,
+  trackReceiptEntry,
+} from '@/lib/case-status/receipt-entry-observability';
 import {
   normalizeStatusHistory,
   withNormalizedStatusHistory,
@@ -312,6 +317,7 @@ export function useCaseStatusController() {
       if (response.ok) {
         const result = await response.json();
         if (!result.ok) {
+          reportReceiptEntryFailure('case_status', 'load', 'response');
           setLoadError('Could not load your case status.');
           return null;
         }
@@ -338,11 +344,10 @@ export function useCaseStatusController() {
       // ISS-030: differentiate "no case" from "couldn't load"
       setLoadError('Could not load your case status.');
       return null;
-    } catch (e) {
+    } catch {
+      reportReceiptEntryFailure('case_status', 'load', 'network');
       setLoadError(
-        e instanceof Error
-          ? e.message
-          : 'Network error while loading case status.'
+        'Could not load your case status. Check your connection and try again.'
       );
       return null;
     } finally {
@@ -353,15 +358,26 @@ export function useCaseStatusController() {
   const handleSave = async () => {
     setError(null);
     setSuccess(false);
+    trackReceiptEntry('receipt_entry_submitted', 'case_status');
 
     const trimmed = receiptNumber.trim().toUpperCase();
     if (!trimmed) {
+      trackReceiptEntry(
+        'receipt_entry_validation_failed',
+        'case_status',
+        'empty'
+      );
       setError('Please enter a receipt number.');
       return;
     }
 
     const validation = validateReceiptNumber(trimmed);
     if (!validation.valid) {
+      trackReceiptEntry(
+        'receipt_entry_validation_failed',
+        'case_status',
+        'format'
+      );
       setError(validation.error);
       return;
     }
@@ -371,6 +387,7 @@ export function useCaseStatusController() {
       !trackedCases.some((c) => c.receipt_number === validation.normalized);
 
     if (isNewCase && !canAddMoreCases) {
+      trackReceiptEntry('receipt_entry_save_failed', 'case_status', 'limit');
       setError(caseLimitMessage(isPremium === true));
       if (isPremium === false) openProTrialModal();
       return;
@@ -382,48 +399,24 @@ export function useCaseStatusController() {
       setIsSaving(true);
       setIsPolling(true);
 
-      const response = await fetch('/api/case-status', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          receipt_number: validation.normalized,
-          notifications_enabled: caseStatus?.notifications_enabled ?? true,
-          set_primary: trackedCases.length === 0,
-          filing_category: filingCategory,
-        }),
+      const saveResult = await saveReceiptAndPoll(validation.normalized, {
+        source: 'case_status',
+        notificationsEnabled: caseStatus?.notifications_enabled ?? true,
+        setPrimary: trackedCases.length === 0,
+        filingCategory,
       });
-
-      const postResult = await response.json().catch(() => ({}));
-      if (!response.ok || !postResult.ok) {
-        setError(
-          (typeof postResult.error === 'string' && postResult.error) ||
-            'Failed to save receipt number.'
-        );
-        if (postResult.code === 'case_limit_reached' && isPremium === false) {
+      if (!saveResult.ok) {
+        setError(saveResult.error);
+        if (saveResult.code === 'case_limit_reached' && isPremium === false) {
           openProTrialModal();
         }
         return;
       }
 
-      for (let i = 0; i < 10; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        const data = await loadCaseStatus();
-        if (
-          data?.current_status &&
-          data.last_checked_at &&
-          data.current_status !== 'Status will be fetched shortly...'
-        ) {
-          break;
-        }
-      }
-
-      const data = await loadCaseStatus();
-      const statusResolved = Boolean(
-        data?.current_status &&
-          data.last_checked_at &&
-          data.current_status !== 'Status will be fetched shortly...'
-      );
+      const savedId =
+        typeof saveResult.data.id === 'string' ? saveResult.data.id : undefined;
+      const data = await loadCaseStatus(false, savedId);
+      const statusResolved = saveResult.statusResolved;
       if (data) {
         setIsEditingReceipt(false);
         setIsAddingCase(false);
@@ -453,6 +446,7 @@ export function useCaseStatusController() {
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch {
+      reportReceiptEntryFailure('case_status', 'save', 'network');
       setError('An error occurred. Please try again.');
     } finally {
       setIsSaving(false);

@@ -31,18 +31,15 @@ type CaseInsightUpgradeDialogProps = {
 const BENEFITS = [
   {
     icon: BarChart3,
-    title: 'See your likely decision window',
-    body: 'Compare your filing date with completed community timelines similar to yours.',
+    title: 'Community decision window',
   },
   {
     icon: RefreshCw,
-    title: 'Stop checking USCIS manually',
-    body: 'Pro checks your saved case every day, even when you do not open TrackMyOPT.',
+    title: 'Daily USCIS checks',
   },
   {
     icon: BellRing,
-    title: 'Know when your status changes',
-    body: 'Get an email after our daily check detects a new USCIS status.',
+    title: 'Status-change email alerts',
   },
 ] as const;
 
@@ -82,24 +79,21 @@ export function CaseInsightUpgradeDialog({
               className="mt-2 text-sm leading-relaxed text-violet-50 sm:text-base"
             >
               {hasCommunityHeadline
-                ? `You are ${daysSinceFiled} days in. The typical reported wait across ${cohortSize.toLocaleString()} comparable community cases is ${typicalWaitDays} days. Pro shows the deeper range and watches USCIS for changes.`
-                : CASE_STATUS_MESSAGING.caseInsightBody}
+                ? `You are ${daysSinceFiled} days in. Typical reported wait: ${typicalWaitDays} days across ${cohortSize.toLocaleString()} comparable community cases.`
+                : 'Daily checks and status-change emails. Manual tracking stays free.'}
             </DialogDescription>
           </DialogHeader>
         </div>
 
         <div className="space-y-5 px-5 py-6 sm:px-7">
           <div className="space-y-4">
-            {BENEFITS.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="flex items-start gap-3">
+            {BENEFITS.map(({ icon: Icon, title }) => (
+              <div key={title} className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-foreground">{title}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                    {body}
-                  </p>
                 </div>
               </div>
             ))}
@@ -113,8 +107,8 @@ export function CaseInsightUpgradeDialog({
             </p>
             <p className="mt-1 text-xs leading-relaxed text-violet-800 dark:text-violet-200">
               {introEligible
-                ? 'Then your selected monthly or annual Pro price renews automatically unless you cancel before the introductory period ends.'
-                : 'Choose monthly or annual billing at checkout. Subscriptions renew automatically until canceled.'}
+                ? `Then $${PLAN_PRICES.pro.month.toFixed(2)}/month or $${PLAN_PRICES.pro.year.toFixed(2)}/year, as selected. Auto-renews; cancel before day ${PRO_PAID_INTRO.durationDays} to avoid renewal.`
+                : 'Choose monthly or annual billing. Auto-renews until canceled.'}
             </p>
           </div>
 
@@ -122,7 +116,7 @@ export function CaseInsightUpgradeDialog({
             <Button
               type="button"
               onClick={onUpgrade}
-              className="h-11 cursor-pointer bg-violet-600 px-5 text-white hover:bg-violet-700 sm:flex-1"
+              className="h-11 cursor-pointer bg-violet-600 px-5 text-white hover:bg-violet-700 sm:flex-1 transition-transform duration-200 motion-safe:active:scale-[0.98] motion-reduce:transition-none"
             >
               {CASE_STATUS_MESSAGING.caseInsightCta}
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />

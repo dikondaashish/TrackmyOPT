@@ -1,5 +1,6 @@
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
-import { NextRequest, NextResponse } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
+import { triggerInitialCaseCheck } from '@/lib/case-status/trigger-initial-check';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
@@ -288,17 +289,7 @@ async function handlePOST(req: NextRequest) {
       }
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/check`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Internal-Secret': process.env.CRON_SECRET || '',
-        'X-Check-Trigger': 'initial',
-      },
-      body: JSON.stringify({ receipt_number: normalizedReceipt, user_id: userId }),
-    }).catch((err) => {
-      console.error('Failed to trigger initial status check:', err);
-    });
+    after(() => triggerInitialCaseCheck(normalizedReceipt, userId));
 
     return NextResponse.json(
       { ok: true, data: caseStatus, enrollmentEmailSent: isNewEnrollment },
