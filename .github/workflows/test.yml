@@ -55,6 +55,11 @@ jobs:
       - name: Job-board scheduler tests
         run: node --test scripts/operations/trigger-job-board-ingestion.test.mjs
 
+      - name: Supabase migration safety check
+        run: |
+          node scripts/operations/check-migrations.mjs
+          node --test scripts/operations/check-migrations.test.mjs
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

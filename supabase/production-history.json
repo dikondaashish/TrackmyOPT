@@ -1,0 +1,472 @@
+{
+  "_comment": "Snapshot of production (Supabase project deknauqkqqzwuvopqott) migration history vs the local files in supabase/migrations. Production records each migration under the timestamp assigned when it was applied, which differs from most local filenames. Read-only snapshot; see docs/ops/SUPABASE_MIGRATIONS.md before changing it. localFiles maps every migration file that existed when this snapshot was taken to its production version (null = not tracked in production history).",
+  "project": "deknauqkqqzwuvopqott",
+  "checkedAt": "2026-10-10",
+  "latestVersion": "20260929172952",
+  "applied": [
+    {
+      "version": "20260114204002",
+      "name": "create_h1b_sponsors_table"
+    },
+    {
+      "version": "20260114204155",
+      "name": "create_h1b_sponsors_table"
+    },
+    {
+      "version": "20260114230334",
+      "name": "add_approvals_2025_column"
+    },
+    {
+      "version": "20260114231330",
+      "name": "recreate_total_approvals_column"
+    },
+    {
+      "version": "20260128192151",
+      "name": "add_careers_url_to_h1b_sponsors"
+    },
+    {
+      "version": "20260128214823",
+      "name": "enrich_sponsors_table"
+    },
+    {
+      "version": "20260128214905",
+      "name": "create_intelligence_view"
+    },
+    {
+      "version": "20260128215030",
+      "name": "drop_intelligence_view_1"
+    },
+    {
+      "version": "20260128215038",
+      "name": "create_intelligence_view_v2"
+    },
+    {
+      "version": "20260203213033",
+      "name": "add_plan_tier_to_profiles"
+    },
+    {
+      "version": "20260203213212",
+      "name": "security_audit_fixes_v2_final"
+    },
+    {
+      "version": "20260205042607",
+      "name": "sync_reminder_intervals_v2"
+    },
+    {
+      "version": "20260205234316",
+      "name": "create_job_stages_table"
+    },
+    {
+      "version": "20260228222850",
+      "name": "add_change_log_column"
+    },
+    {
+      "version": "20260228223132",
+      "name": "enable_realtime_case_status"
+    },
+    {
+      "version": "20260228224030",
+      "name": "make_opt_dates_nullable"
+    },
+    {
+      "version": "20260301222021",
+      "name": "fix_mutable_search_path_all_functions"
+    },
+    {
+      "version": "20260301222056",
+      "name": "fix_h1b_sponsors_insert_policy"
+    },
+    {
+      "version": "20260301222106",
+      "name": "add_extension_feedback_rls_insert_policy"
+    },
+    {
+      "version": "20260302170303",
+      "name": "create_referrals_table"
+    },
+    {
+      "version": "20260302170401",
+      "name": "create_referral_rpc_functions"
+    },
+    {
+      "version": "20260321141704",
+      "name": "payment_transactions_stripe_subscription_id"
+    },
+    {
+      "version": "20260321160701",
+      "name": "stripe_supabase_reconciliation"
+    },
+    {
+      "version": "20260321222139",
+      "name": "create_contact_submissions_table"
+    },
+    {
+      "version": "20260321223958",
+      "name": "add_stem_opt_alert_tracking"
+    },
+    {
+      "version": "20260322162730",
+      "name": "email_queue_retry_and_body"
+    },
+    {
+      "version": "20260322225910",
+      "name": "20260322120000_create_partnership_inquiries"
+    },
+    {
+      "version": "20260323174154",
+      "name": "add_course_columns"
+    },
+    {
+      "version": "20260323205718",
+      "name": "add_credit_cost_to_resume_generations"
+    },
+    {
+      "version": "20260514161830",
+      "name": "audit_remediation_sprint_1_to_3"
+    },
+    {
+      "version": "20260514194210",
+      "name": "profiles_pro_free_trial_consumed"
+    },
+    {
+      "version": "20260531170051",
+      "name": "billing_compliance"
+    },
+    {
+      "version": "20260531205732",
+      "name": "policy_notice_email_events"
+    },
+    {
+      "version": "20260613184007",
+      "name": "case_status_free_change_wedge"
+    },
+    {
+      "version": "20260614203632",
+      "name": "case_status_multi_case"
+    },
+    {
+      "version": "20260614203635",
+      "name": "push_subscriptions"
+    },
+    {
+      "version": "20260614205659",
+      "name": "fix_missing_primary_cases"
+    },
+    {
+      "version": "20260614211001",
+      "name": "uscis_case_cache"
+    },
+    {
+      "version": "20260614213526",
+      "name": "case_status_nearby_scan_cursor"
+    },
+    {
+      "version": "20260614222322",
+      "name": "case_status_pp_start"
+    },
+    {
+      "version": "20260706222314",
+      "name": "activation_d1_ats_scan"
+    },
+    {
+      "version": "20260706223529",
+      "name": "legacy_onboarding_activation_timestamps_backfill"
+    },
+    {
+      "version": "20260708234214",
+      "name": "h1b_rls_lockdown_d1_index"
+    },
+    {
+      "version": "20260709162102",
+      "name": "uscis_api_audit"
+    },
+    {
+      "version": "20260709162745",
+      "name": "uscis_api_audit"
+    },
+    {
+      "version": "20260709162753",
+      "name": "uscis_case_cache_quarantine"
+    },
+    {
+      "version": "20260709190440",
+      "name": "20260709140000_create_saved_resumes_table"
+    },
+    {
+      "version": "20260709190459",
+      "name": "20260709140100_enable_rls_saved_resumes"
+    },
+    {
+      "version": "20260709191302",
+      "name": "20260709150000_create_h1b_sponsors_and_filings"
+    },
+    {
+      "version": "20260709222627",
+      "name": "insurance_eligibility_insert_check"
+    },
+    {
+      "version": "20260709222927",
+      "name": "insurance_eligibility_drop_drift_insert_policy"
+    },
+    {
+      "version": "20260709223228",
+      "name": "insurance_eligibility_scope_down_grants"
+    },
+    {
+      "version": "20260710044241",
+      "name": "create_application_profile"
+    },
+    {
+      "version": "20260710044330",
+      "name": "scope_application_profile_grants"
+    },
+    {
+      "version": "20260711215518",
+      "name": "create_extension_feedback"
+    },
+    {
+      "version": "20260725205207",
+      "name": "create_screening_answers"
+    },
+    {
+      "version": "20260725205213",
+      "name": "lock_down_legacy_security_definer_functions"
+    },
+    {
+      "version": "20260725205225",
+      "name": "add_referral_and_sponsor_rpcs"
+    },
+    {
+      "version": "20260725205239",
+      "name": "route_public_leads_through_server"
+    },
+    {
+      "version": "20260725205248",
+      "name": "job_application_url_dedup"
+    },
+    {
+      "version": "20260725205257",
+      "name": "d1_nudge_signup_index"
+    },
+    {
+      "version": "20260725205304",
+      "name": "job_application_snapshots"
+    },
+    {
+      "version": "20260725205328",
+      "name": "ai_generation_quotas"
+    },
+    {
+      "version": "20260725222032",
+      "name": "create_private_application_answers"
+    },
+    {
+      "version": "20260725224332",
+      "name": "expand_application_profile_for_job_portals"
+    },
+    {
+      "version": "20260726152352",
+      "name": "add_plan_aware_ai_quotas"
+    },
+    {
+      "version": "20260806022348",
+      "name": "community_opt_timelines"
+    },
+    {
+      "version": "20260826203717",
+      "name": "resume_credit_topups"
+    },
+    {
+      "version": "20260826204251",
+      "name": "resume_credit_ledger_fk_indexes"
+    },
+    {
+      "version": "20260826234159",
+      "name": "harden_touch_updated_at"
+    },
+    {
+      "version": "20260830014730",
+      "name": "job_board_reconciliation_audit"
+    },
+    {
+      "version": "20260830220629",
+      "name": "job_aggregation_discovery_foundation"
+    },
+    {
+      "version": "20260830221518",
+      "name": "company_discovery_priority"
+    },
+    {
+      "version": "20260830221811",
+      "name": "company_supported_ats_hint"
+    },
+    {
+      "version": "20260830222125",
+      "name": "priority_ats_source_types"
+    },
+    {
+      "version": "20260830223323",
+      "name": "ats_source_health_and_request_accounting"
+    },
+    {
+      "version": "20260901032320",
+      "name": "job_board_scheduler_ledger"
+    },
+    {
+      "version": "20260901150014",
+      "name": "scheduler_dispatch_outcome"
+    },
+    {
+      "version": "20260901202249",
+      "name": "job_board_audit_dedup_and_watchdog"
+    },
+    {
+      "version": "20260902152548",
+      "name": "resume_generation_charge_on_success"
+    },
+    {
+      "version": "20260922140251",
+      "name": "add_stem_dso_recommendation_date"
+    },
+    {
+      "version": "20260923023837",
+      "name": "restore_job_source_integrity_triggers"
+    },
+    {
+      "version": "20260923163000",
+      "name": "employment_company_domain"
+    },
+    {
+      "version": "20260924010000",
+      "name": "case_notices"
+    },
+    {
+      "version": "20260924010100",
+      "name": "case_completion_delivery"
+    },
+    {
+      "version": "20260924141018",
+      "name": "case_biometrics_attendance"
+    },
+    {
+      "version": "20260924221959",
+      "name": "networking_outreach_bundles"
+    },
+    {
+      "version": "20260924222132",
+      "name": "networking_bundle_invariants"
+    },
+    {
+      "version": "20260929155655",
+      "name": "email_campaign_tracking"
+    },
+    {
+      "version": "20260929172952",
+      "name": "email_marketing_unsubscribe_preference"
+    }
+  ],
+  "localFiles": {
+    "20241207000001_add_lockout_duration.sql": null,
+    "20241207000002_add_tool_email_preferences.sql": null,
+    "20241207000003_create_export_otps.sql": null,
+    "20241207000004_create_passcode_otps.sql": null,
+    "20241207000005_create_user_sessions.sql": null,
+    "20241207000006_update_document_reminder_intervals.sql": null,
+    "20241208_insurance_eligibility_table.sql": null,
+    "20241209_create_policy_consents.sql": null,
+    "20260111_add_gender_pregnancy_columns.sql": null,
+    "20260115000001_create_job_tracker.sql": null,
+    "20260115000002_add_offer_archive_fields.sql": null,
+    "20260212_create_resume_usage.sql": null,
+    "20260219120000_add_stem_opt_alert_tracking.sql": "20260321223958",
+    "20260219_payment_transactions_subscription_id.sql": null,
+    "20260220120000_create_contact_submissions_table.sql": "20260321222139",
+    "20260220120001_email_queue_retry_and_body.sql": "20260322162730",
+    "20260221_create_extension_uninstall_feedback.sql": null,
+    "20260222_add_profile_subscription_columns.sql": null,
+    "20260321120000_stripe_supabase_reconciliation.sql": "20260321160701",
+    "20260322120000_create_partnership_inquiries.sql": "20260322225910",
+    "20260322_enforce_core_rls.sql": null,
+    "20260323134154_add_course_columns.sql": "20260323174154",
+    "20260514120000_profiles_pro_free_trial_consumed.sql": "20260514194210",
+    "20260531130000_billing_compliance.sql": "20260531170051",
+    "20260531160000_policy_notice_email_events.sql": "20260531205732",
+    "20260601140000_case_status_free_change_wedge.sql": "20260613184007",
+    "20260613120000_backfill_status_last_changed_at.sql": null,
+    "20260614120000_case_status_multi_case.sql": "20260614203632",
+    "20260614120001_push_subscriptions.sql": "20260614203635",
+    "20260614130000_uscis_case_cache.sql": "20260614211001",
+    "20260614140000_case_status_nearby_scan_cursor.sql": "20260614213526",
+    "20260614180000_case_status_pp_start.sql": "20260614222322",
+    "20260706180000_email_queue_daily_reminder_dedup.sql": null,
+    "20260706190000_activation_d1_ats_scan.sql": "20260706222314",
+    "20260706223529_legacy_onboarding_activation_timestamps_backfill.sql": "20260706223529",
+    "20260708190000_h1b_rls_lockdown_d1_index.sql": "20260708234214",
+    "20260709120000_uscis_api_audit.sql": "20260709162102",
+    "20260709130000_uscis_case_cache_quarantine.sql": "20260709162753",
+    "20260709140000_create_saved_resumes_table.sql": "20260709190440",
+    "20260709150000_create_h1b_sponsors_and_filings.sql": "20260709191302",
+    "20260709160000_insurance_eligibility_insert_check.sql": "20260709222627",
+    "20260709170000_insurance_eligibility_drop_drift_insert_policy.sql": "20260709222927",
+    "20260709180000_insurance_eligibility_scope_down_grants.sql": "20260709223228",
+    "20260709190000_backfill_undocumented_tables.sql": null,
+    "20260710120000_create_application_profile.sql": "20260710044241",
+    "20260710120100_scope_application_profile_grants.sql": "20260710044330",
+    "20260710130000_create_extension_feedback.sql": "20260711215518",
+    "20260715190000_job_application_url_dedup.sql": "20260725205248",
+    "20260715200000_job_application_snapshots.sql": "20260725205304",
+    "20260716120000_create_screening_answers.sql": "20260725205207",
+    "20260724010000_d1_nudge_signup_index.sql": "20260725205257",
+    "20260725170000_ai_generation_quotas.sql": "20260725205328",
+    "20260725180000_lock_down_legacy_security_definer_functions.sql": "20260725205213",
+    "20260725200000_add_referral_and_sponsor_rpcs.sql": "20260725205225",
+    "20260725201000_route_public_leads_through_server.sql": "20260725205239",
+    "20260725230000_create_private_application_answers.sql": "20260725222032",
+    "20260725231500_expand_application_profile_for_job_portals.sql": "20260725224332",
+    "20260725234500_add_plan_aware_ai_quotas.sql": "20260726152352",
+    "20260802120000_create_generated_resume_artifacts.sql": null,
+    "20260805210000_community_opt_timelines.sql": "20260806022348",
+    "20260824000000_repackage_ai_writing_quotas.sql": null,
+    "20260824010000_track_dedicated_continuous_membership.sql": null,
+    "20260824230000_dedicated_consultation_requests.sql": null,
+    "20260826203717_resume_credit_topups.sql": "20260826203717",
+    "20260826204251_resume_credit_ledger_fk_indexes.sql": "20260826204251",
+    "20260826213000_reject_blocked_auth_email.sql": null,
+    "20260826220000_reserve_ats_scan.sql": null,
+    "20260826230000_harden_touch_updated_at.sql": "20260826234159",
+    "20260829171231_job_board_step_0.sql": null,
+    "20260829174205_job_board_step_1_verified_feed.sql": null,
+    "20260829183739_job_board_step_0_function_repair.sql": null,
+    "20260829184225_job_board_step_2_employer_matches.sql": null,
+    "20260829201254_job_board_step_2_collision_lookup_repair.sql": null,
+    "20260829213224_job_board_step_3_visa_evidence.sql": null,
+    "20260829214425_job_board_step_4_employer_evidence_read.sql": null,
+    "20260829234113_harden_job_applications_update_policy.sql": null,
+    "20260830015000_job_board_reconciliation_audit.sql": "20260830014730",
+    "20260830233000_job_aggregation_discovery_foundation.sql": "20260830220629",
+    "20260830235500_company_discovery_priority.sql": "20260830221518",
+    "20260830235900_company_supported_ats_hint.sql": "20260830221811",
+    "20260831001000_priority_ats_source_types.sql": "20260830222125",
+    "20260831003000_ats_source_health_and_request_accounting.sql": "20260830223323",
+    "20260831223000_resume_credit_spend_and_refund_lock.sql": null,
+    "20260901030810_job_board_scheduler_ledger.sql": "20260901032320",
+    "20260901150000_scheduler_dispatch_outcome.sql": "20260901150014",
+    "20260901201800_job_board_audit_dedup_and_watchdog.sql": "20260901202249",
+    "20260902150000_ats_source_activation_audit.sql": null,
+    "20260902163000_resume_generation_charge_on_success.sql": "20260902152548",
+    "20260902193000_scheduler_deferred_dispatch.sql": null,
+    "20260902194500_case_status_filing_category.sql": null,
+    "20260902200000_case_status_filing_category_expand.sql": null,
+    "20260902210000_case_status_filing_category_confirmed.sql": null,
+    "20260922140251_add_stem_dso_recommendation_date.sql": "20260922140251",
+    "20260923023837_restore_job_source_integrity_triggers.sql": "20260923023837",
+    "20260923163000_employment_company_domain.sql": "20260923163000",
+    "20260924010000_case_notices.sql": "20260924010000",
+    "20260924010100_case_completion_delivery.sql": "20260924010100",
+    "20260924141018_case_biometrics_attendance.sql": "20260924141018",
+    "20260924221959_networking_outreach_bundles.sql": "20260924221959",
+    "20260924222132_networking_bundle_invariants.sql": "20260924222132",
+    "20260929155655_email_campaign_tracking.sql": "20260929155655",
+    "20260929172952_email_marketing_unsubscribe_preference.sql": "20260929172952"
+  }
+}

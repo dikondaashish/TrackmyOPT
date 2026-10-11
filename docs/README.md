@@ -32,6 +32,7 @@ Active plans live in [`plans/`](./plans/) (`growth-recovery-2026-10.md`). The ma
 | Document | Purpose |
 |----------|---------|
 | [CRON_SETUP.md](./ops/CRON_SETUP.md) | Scheduler registration and safe invocation |
+| [SUPABASE_MIGRATIONS.md](./ops/SUPABASE_MIGRATIONS.md) | Safe migration workflow (local and production histories differ) |
 | [CORS_POLICY.md](./ops/CORS_POLICY.md) | Web/extension CORS policy |
 | [EMAIL_TEMPLATES.md](./ops/EMAIL_TEMPLATES.md) | Current email catalog |
 | [EMAIL_ROADMAP.md](./ops/EMAIL_ROADMAP.md) | Remaining email work only |
