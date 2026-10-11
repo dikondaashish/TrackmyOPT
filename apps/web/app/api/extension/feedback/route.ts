@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * POST /api/extension/feedback
  * In-popup "Feedback" form from the Chrome extension. Stores an NPS-style
@@ -21,14 +22,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
 const getAdminClient = () =>
   createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -107,3 +108,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/feedback', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/feedback', 'POST');

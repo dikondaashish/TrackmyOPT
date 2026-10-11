@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic';
 const widgetEventLimiter = rateLimit({ interval: 60_000, name: 'extension-widget-event' });
 const MAX_BODY_LENGTH = 4_000;
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
@@ -20,7 +21,7 @@ export async function OPTIONS(req: NextRequest) {
  * strict allowlist prevents job URLs, descriptions, or company data entering
  * analytics accidentally.
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const headers = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
@@ -87,3 +88,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/widget-event', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/widget-event', 'POST');

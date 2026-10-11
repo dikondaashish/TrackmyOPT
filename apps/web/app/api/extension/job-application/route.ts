@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -17,7 +18,7 @@ export const dynamic = 'force-dynamic';
 const jobAddLimiter = rateLimit({ interval: 60_000, name: 'extension-job-application' });
 const MAX_REQUEST_BODY_CHARACTERS = 50_000;
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
@@ -92,7 +93,7 @@ async function attachMatchingResume(input: {
  * the extension widget can paint its saved state instead of always "Not saved".
  * Accepts either a web cookie session or the extension Bearer token.
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const corsHeaders = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
@@ -183,7 +184,7 @@ export async function GET(req: NextRequest) {
  * Accepts either a web cookie session or the extension Bearer token and creates
  * a job application in the user's tracker.
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const corsHeaders = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
@@ -356,3 +357,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/job-application', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/extension/job-application', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/job-application', 'POST');

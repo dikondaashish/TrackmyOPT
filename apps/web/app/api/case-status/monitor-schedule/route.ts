@@ -1,9 +1,10 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { getUserId } from '@/lib/auth/get-user-id';
 export const dynamic = 'force-dynamic';
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const userId = await getUserId(req);
   const reply = (body: unknown, status = 200) =>
     NextResponse.json(body, {
@@ -50,3 +51,5 @@ export async function GET(req: NextRequest) {
     return reply({ error: 'Schedule unavailable' }, 503);
   return reply({ next: next.data, attempt: attempt.data });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status/monitor-schedule', 'GET');

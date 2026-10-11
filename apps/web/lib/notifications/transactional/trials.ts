@@ -78,7 +78,7 @@ ${emailTextLead("If you want to cancel")}
 ${emailTextList([
   `Open <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Settings &rarr; Subscription</a>`,
   "Select <strong>Manage billing</strong> to open the Stripe Customer Portal",
-  `Cancel before ${safeEndDate} to avoid the first paid charge`,
+  `Cancel before ${safeEndDate} to avoid the regular renewal charge`,
 ], { ordered: true })}
 ${emailWarningNote(
   `If you do nothing, your subscription will renew automatically after the paid introduction at the recurring price shown at checkout. You can cancel before ${safeEndDate} to stop that renewal.`
@@ -202,7 +202,7 @@ ${emailInfoCallout(`
 ${emailTextLead("What&rsquo;s included during your introduction")}
 ${emailTextList([
   "Daily 9&nbsp;AM OPT/STEM email reminders and smart timeline tracking",
-  "Daily USCIS auto-checks and instant case status alerts",
+  "Daily USCIS auto-checks and case status-change email alerts",
   `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("50 resumes/month")} and ${emailTextStrong("100 ATS scans/month")}`,
   "Document Vault, unlimited job tracker, and unlimited H-1B sponsor search",
 ], { ordered: false })}

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Single Document API
  * 
@@ -21,7 +22,7 @@ type RouteContext = {
 /**
  * GET - Fetch single document with signed URL for viewing
  */
-export async function GET(
+async function handleGET(
   request: NextRequest,
   context: RouteContext
 ) {
@@ -82,7 +83,7 @@ export async function GET(
 /**
  * PATCH - Update document metadata
  */
-export async function PATCH(
+async function handlePATCH(
   request: NextRequest,
   context: RouteContext
 ) {
@@ -173,7 +174,7 @@ export async function PATCH(
 /**
  * DELETE - Delete document (from DB and S3)
  */
-export async function DELETE(
+async function handleDELETE(
   request: NextRequest,
   context: RouteContext
 ) {
@@ -240,3 +241,7 @@ export async function DELETE(
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/documents/[id]', 'GET');
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/documents/[id]', 'PATCH');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/documents/[id]', 'DELETE');

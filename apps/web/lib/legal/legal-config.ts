@@ -15,6 +15,7 @@ export const LEGAL_VERSION_ID = '2026-08-26';
 const PRIVACY_CHOICES_EFFECTIVE_DATE = 'July 26, 2026';
 export const PRIVACY_CHOICES_VERSION_ID = '2026-07-26';
 export const EXTENSION_PRIVACY_RELEASE_VERSION_ID = '2026-09-25';
+export const PRIVACY_POLICY_VERSION_ID = '2026-10-10';
 
 export const COMPANY = {
   legalName: 'Zyene, Inc.',
@@ -110,7 +111,7 @@ export const RISKY_MARKETING_PHRASES = [
 
 /** Policy version IDs (YYYY-MM-DD). Bump when copy changes materially. */
 export const LEGAL_POLICY_VERSIONS = {
-  privacy_policy: EXTENSION_PRIVACY_RELEASE_VERSION_ID,
+  privacy_policy: PRIVACY_POLICY_VERSION_ID,
   terms_of_service: LEGAL_VERSION_ID,
   refund_policy: LEGAL_VERSION_ID,
   disclaimer: LEGAL_VERSION_ID,
@@ -160,6 +161,12 @@ export const THIRD_PARTY_SERVICES = [
     purpose:
       'Optional browser analytics with consent, plus limited server-side service events for security, billing, reliability, and core feature operation',
     privacyUrl: 'https://posthog.com/privacy',
+  },
+  {
+    name: 'Sentry',
+    purpose:
+      'Error monitoring for service reliability, with filtered diagnostic reports and no session replay',
+    privacyUrl: 'https://sentry.io/privacy/',
   },
   {
     name: 'Google Analytics (GA4)',
@@ -360,8 +367,8 @@ export const MATERIAL_CHANGE_NOTICE =
 export function formatPolicyVersionLabel(policyType: LegalPolicyType): string {
   const version = LEGAL_POLICY_VERSIONS[policyType];
   const effectiveDate =
-    version === EXTENSION_PRIVACY_RELEASE_VERSION_ID
-      ? 'September 25, 2026'
+    version === PRIVACY_POLICY_VERSION_ID
+      ? 'October 10, 2026'
       : version === PRIVACY_CHOICES_VERSION_ID
       ? PRIVACY_CHOICES_EFFECTIVE_DATE
       : LEGAL_EFFECTIVE_DATE;

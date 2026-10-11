@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Resume draft autosave API (ISS-025).
  *
@@ -19,7 +20,7 @@ import {
     apiUnauthorized,
 } from '@/lib/api/response';
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
     try {
         const supabase = await createClient();
         const {
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest) {
     }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     try {
         const supabase = await createClient();
         const {
@@ -92,7 +93,7 @@ export async function POST(req: NextRequest) {
     }
 }
 
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
     try {
         const supabase = await createClient();
         const {
@@ -113,3 +114,7 @@ export async function DELETE(req: NextRequest) {
         return apiServerError(e);
     }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/resume-generator/drafts', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/drafts', 'POST');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/resume-generator/drafts', 'DELETE');

@@ -19,7 +19,7 @@ import {
   emailTextP,
   emailTextStrong,
   type EmailHeaderVariant,
-} from "./email-brand";
+} from './email-brand';
 
 export {
   emailTextP,
@@ -44,7 +44,7 @@ export function buildTransactionalEmail(opts: {
 ${emailCardOpen({
   headerHtml: emailBrandHeaderWithLogo({
     title: opts.headerTitle,
-    variant: opts.headerVariant ?? "brand",
+    variant: opts.headerVariant ?? 'brand',
   }),
 })}
 ${opts.bodyHtml}
@@ -60,8 +60,8 @@ ${innerHtml}
 }
 
 export function emailOtpBox(code: string): string {
-  return `<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border:1px solid ${EMAIL.border};border-radius:10px;padding:24px;text-align:center;margin:24px 0;">
-  <span class="tmo-force-text" style="font-size:32px;font-weight:700;letter-spacing:10px;color:${EMAIL.text} !important;font-family:ui-monospace,monospace;">${code}</span>
+  return `<div class="tmo-force-surface" style="background:${EMAIL.borderLight};border:1px solid ${EMAIL.border};border-radius:10px;padding:20px 12px;text-align:center;margin:24px 0;">
+  <span class="tmo-force-text" style="font-size:32px;font-weight:700;letter-spacing:5px;color:${EMAIL.text} !important;font-family:ui-monospace,monospace;white-space:nowrap;">${code}</span>
 </div>`;
 }
 
@@ -70,7 +70,10 @@ export function emailWarningNote(html: string): string {
 }
 
 /** Internal support alerts (contact form, partnerships). */
-export function buildInternalAlertEmail(title: string, bodyHtml: string): string {
+export function buildInternalAlertEmail(
+  title: string,
+  bodyHtml: string
+): string {
   return buildTransactionalEmail({
     headerTitle: title,
     bodyHtml: `${emailBodySectionOpen()}${bodyHtml}${emailBodySectionClose()}`,

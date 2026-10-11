@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Stripe Checkout Session Creation
  *
@@ -87,7 +88,7 @@ const getPrices = () => ({
 
 const getProIntroPriceId = () => process.env.STRIPE_PRICE_PRO_INTRO?.trim();
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const stripe = getStripe();
     const supabase = getSupabase();
@@ -700,3 +701,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/premium/create-checkout', 'POST');

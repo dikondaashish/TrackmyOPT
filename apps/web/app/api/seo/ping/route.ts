@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,7 @@ function getIndexNowKey(): string {
   return INDEXNOW_KEY_FALLBACK;
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const configuredSecret = process.env.SEO_PING_SECRET;
   if (!configuredSecret) {
     console.error('SEO_PING_SECRET env var is not set — rejecting request');
@@ -57,3 +58,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true, results });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/seo/ping', 'POST');

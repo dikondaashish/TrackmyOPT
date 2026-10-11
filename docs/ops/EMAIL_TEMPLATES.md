@@ -7,17 +7,56 @@ Complete reference for **subject lines**, **who receives** each mail, and **what
 
 ---
 
-## Supabase Auth (not in application code)
+## Supabase authentication
 
-Configured in **Supabase Dashboard → Authentication → Email templates**.
+The versioned source is `apps/web/lib/notifications/supabase-auth-templates.ts`.
+Render it with the offline QA command below before updating Supabase Dashboard →
+Authentication → Emails. Application deployment does not publish hosted auth templates.
 
-| Flow | Notes |
-|------|--------|
-| Sign up / email confirmation | Template in Supabase |
-| Password reset | Template in Supabase |
-| Magic link | Template in Supabase |
+| Templates | Behavior preserved |
+|---|---|
+| Confirm signup, reauthentication | `{{ .Token }}` code entry; signup and identity verification use separate instructions |
+| Invitation, magic link, email change, password reset | `{{ .ConfirmationURL }}` button and copyable fallback link |
+| Password/email/phone changed, sign-in method linked/removed, MFA added/removed | Existing Supabase variables and notification enablement settings |
 
-Subjects and HTML are **not** defined in this repo.
+Do not enable security notifications or change auth settings when publishing template
+content. All 13 templates were published and their persisted source verified on
+October 10, 2026; the seven security notifications remained disabled.
+Do not put verification codes in subject lines. Avoid fixed expiry claims;
+expiry is controlled by the hosted auth configuration.
+
+## Complete offline QA
+
+```sh
+pnpm --filter web email-qa:render
+python3 -m http.server 8766 --directory /tmp/trackmyopt-email-qa
+```
+
+Open `http://127.0.0.1:8766/after/matrix.html`, then **Run all layout checks**.
+Rendering sends no email and does not query or mutate the database. The catalog
+calls the same builders as production, including cancellation/checkout/activation
+variants, consultation confirmations, support alerts, all four daily tools, all
+seven enrollment tools, seven document types, case changes, weekly summaries,
+saved deadlines, policy notices, admin drafts, and all 13 hosted auth templates.
+The renderer also includes the archived September 2026 product update and long
+name, address, and filename fixtures.
+
+The October 10, 2026 audit rendered **84 fixtures** and checked **1,260 combinations**
+at 320, 768, and 1366 pixels in light mode, forced dark CSS, Outlook dark selectors,
+stripped style blocks, and blocked images. All checks passed without horizontal
+overflow. Signup was also visually inspected at 375 pixels. These are browser
+rendering and CSS fallback checks; they do not certify native Gmail, Apple Mail,
+or Outlook inbox rendering or email deliverability.
+
+Corrections include solid header colors when gradients are unavailable, narrower
+mobile padding and code spacing, explicit dark-mode text colors, escaped user
+content, consistent Free-plan resume limits in HTML and text, concise daily and
+enrollment instructions, current-fee links instead of hard-coded filing fees,
+and Eastern calendar-day document expiry handling. Weekly summaries and saved
+case deadlines include an HTML alternative while preserving their plain text.
+
+Admin bulk notices remain drafts. Replace every bracketed incident, ownership,
+policy, and effective-date field with verified details before sending.
 
 ---
 

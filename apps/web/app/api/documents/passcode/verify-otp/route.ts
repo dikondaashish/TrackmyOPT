@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Passcode Change OTP Verification API
  * 
@@ -15,7 +16,7 @@ import bcrypt from 'bcryptjs';
 const MAX_OTP_ATTEMPTS = 5;
 const OTP_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -150,3 +151,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/documents/passcode/verify-otp', 'POST');

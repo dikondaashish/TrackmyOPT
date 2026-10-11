@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -39,7 +40,7 @@ function withCors(response: NextResponse): NextResponse {
   return response;
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
@@ -54,7 +55,7 @@ function errorResponse(error: string, status: number) {
  * POST /api/resume-generator/process-url
  * Extract content from a public HTTPS job posting or resume document.
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const userId = await getUserId(req);
   if (!userId) {
     return errorResponse('Unauthorized', 401);
@@ -253,3 +254,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/process-url', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/process-url', 'POST');

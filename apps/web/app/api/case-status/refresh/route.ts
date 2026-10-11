@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -15,7 +16,7 @@ const corsHeaders = {
  * POST /api/case-status/refresh
  * Manually trigger a status check for one case (primary if omitted).
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -123,6 +124,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/case-status/refresh', 'POST');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/refresh', 'OPTIONS');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Stripe Webhook Handler
  *
@@ -45,7 +46,7 @@ import {
 } from './subscription';
 import { getStripe, supabase, updateTransactionStatus } from './shared';
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const stripe = getStripe();
   const body = await req.text();
   const signature = (await headers()).get('stripe-signature');
@@ -217,3 +218,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ received: true });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/premium/webhook', 'POST');

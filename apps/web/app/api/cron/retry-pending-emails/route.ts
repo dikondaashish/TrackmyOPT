@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Retries transactional emails stuck in email_queue (status=pending) after SMTP
  * never completed — e.g. serverless returned before send finished.
@@ -180,7 +181,7 @@ async function resolveBodiesForRetry(
   return null;
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const cronAuthError = verifyCronAuth(req);
   if (cronAuthError) return cronAuthError;
 
@@ -290,6 +291,9 @@ export async function GET(req: NextRequest) {
   });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   return GET(req);
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/retry-pending-emails', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/cron/retry-pending-emails', 'POST');

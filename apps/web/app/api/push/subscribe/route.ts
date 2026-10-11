@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -12,7 +13,7 @@ const corsHeaders = {
 /**
  * POST /api/push/subscribe — store browser push subscription (Pro users).
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
 /**
  * DELETE /api/push/subscribe — remove subscription by endpoint.
  */
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
@@ -94,3 +95,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/push/subscribe', 'POST');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/push/subscribe', 'DELETE');

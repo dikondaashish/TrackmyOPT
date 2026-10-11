@@ -14,7 +14,7 @@ import {
   LEGAL_POLICY_VERSIONS,
   PLAN_DISPLAY_PRICES,
   PRIVACY_CHOICES_VERSION_ID,
-  EXTENSION_PRIVACY_RELEASE_VERSION_ID,
+  PRIVACY_POLICY_VERSION_ID,
   PRO_PAID_INTRO_PRICE,
   PRO_PAID_INTRO_REFUND_DAYS,
   PRO_TRIAL_DAYS,
@@ -30,9 +30,9 @@ describe('legal-config', () => {
     );
   });
 
-  it('dates the attorney-reviewed privacy choices disclosures independently', () => {
+  it('dates privacy and cookie disclosures independently', () => {
     expect(LEGAL_POLICY_VERSIONS.privacy_policy).toBe(
-      EXTENSION_PRIVACY_RELEASE_VERSION_ID
+      PRIVACY_POLICY_VERSION_ID
     );
     expect(LEGAL_POLICY_VERSIONS.cookie_policy).toBe(
       PRIVACY_CHOICES_VERSION_ID
@@ -41,7 +41,7 @@ describe('legal-config', () => {
       'July 26, 2026'
     );
     expect(formatPolicyVersionLabel('privacy_policy')).toContain(
-      'September 25, 2026'
+      'October 10, 2026'
     );
   });
 

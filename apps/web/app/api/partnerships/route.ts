@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -14,7 +15,7 @@ const bodySchema = z.object({
   message: z.string().max(50_000).optional(),
 });
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const { isRateLimited, unavailable } = await partnershipLimiter.check(req, 5, `partnerships:${ip}`);
@@ -104,3 +105,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/partnerships', 'POST');

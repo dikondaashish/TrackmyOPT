@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
@@ -11,7 +12,7 @@ export const dynamic = 'force-dynamic';
  * Export user data as JSON or CSV
  * Available to all users (not just Pro)
  */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -204,3 +205,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/user/export', 'GET');

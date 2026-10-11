@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { textractService } from '@/lib/aws/textract';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -14,7 +15,7 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
@@ -53,7 +54,7 @@ function safePdfFilename(value: unknown): string {
  * serverless instances don't lose the in-memory Map. The previous version
  * declared a Map at module scope that never survived between calls.
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     // Auth (ISS-024 + general hardening — was unauthenticated before)
     const userId = await getUserId(req);
     if (!userId) {
@@ -177,3 +178,6 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/ocr/start', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/ocr/start', 'POST');

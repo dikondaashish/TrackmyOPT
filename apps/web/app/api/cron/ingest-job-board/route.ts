@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
@@ -108,7 +109,7 @@ async function dispatchInBackground(
 }
 
 /** Queues only the enabled, previously authorized ATS sources. */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const denied = verifyCronAuth(req);
   if (denied) return denied;
 
@@ -131,3 +132,5 @@ export async function GET(req: NextRequest) {
     { status: 202 },
   );
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/ingest-job-board', 'GET');

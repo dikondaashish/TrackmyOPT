@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Tool-Specific Email API
  * 
@@ -23,7 +24,7 @@ export const dynamic = 'force-dynamic';
 const VALID_TOOLS = ['opt_apply', 'opt_clock', 'stem_apply', 'stem_clock'] as const;
 type ToolName = typeof VALID_TOOLS[number];
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: corsHeadersWebAndExtension(req),
@@ -33,7 +34,7 @@ export async function OPTIONS(req: NextRequest) {
 
 
 // GET - Fetch emails for all tools or specific tool
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
@@ -99,7 +100,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST - Update email for a specific tool
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   try {
     const { tool, email } = await req.json();
@@ -287,3 +288,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/user/tool-email', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/user/tool-email', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/user/tool-email', 'POST');

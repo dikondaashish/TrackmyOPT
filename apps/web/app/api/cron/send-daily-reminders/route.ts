@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Daily Email Reminder Cron Job
  * 
@@ -108,7 +109,7 @@ async function claimDailyReminderSlot(
 /**
  * GET - Send daily reminders to all eligible users
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const startTime = Date.now();
 
   const cronAuthError = verifyCronAuth(req);
@@ -505,3 +506,5 @@ function getUnemploymentMessage(daysLeft: number, total: number, type: 'OPT' | '
     return `EMERGENCY: Just ${daysLeft} days remaining! Accept ANY qualifying offer and contact your DSO immediately!`;
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/send-daily-reminders', 'GET');

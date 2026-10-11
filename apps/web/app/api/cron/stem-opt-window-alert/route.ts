@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * STEM OPT extension window alert — cron (90 days before OPT EAD end).
  *
@@ -40,7 +41,7 @@ function resolveStemOptTargetEmail(p: {
   return null;
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const startTime = Date.now();
 
   const cronAuthError = verifyCronAuth(req);
@@ -183,3 +184,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/stem-opt-window-alert', 'GET');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Application profile — user-provided data for job-application autofill.
  *
@@ -66,7 +67,7 @@ const EMPTY_PROFILE = {
   portfolio_url: null,
 };
 
-export async function GET() {
+async function handleGET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -94,7 +95,7 @@ export async function GET() {
   );
 }
 
-export async function PUT(req: NextRequest) {
+async function handlePUT(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -140,3 +141,6 @@ export async function PUT(req: NextRequest) {
 
   return apiOk(data ?? parsed.data, { headers: PRIVATE_RESPONSE_HEADERS });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/application-profile', 'GET');
+export const PUT = withSentryApiErrors(handlePUT, '/api/application-profile', 'PUT');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Lightweight PATCH endpoint for non-date profile flags
  * (onboarding_completed, future toggles).
@@ -52,7 +53,7 @@ function parseOnboardingAnalytics(body: Record<string, unknown>): OnboardingAnal
     return analytics;
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     try {
         const supabase = await createClient();
         const {
@@ -108,3 +109,5 @@ export async function POST(req: NextRequest) {
         return apiServerError(e);
     }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/profile/flags', 'POST');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -45,7 +46,7 @@ async function getUserIsPremium(
  * 2. User manual refresh
  * 3. Initial save (immediate check)
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const checkStartedAt = Date.now();
   let receiptNumberForLog: string | null = null;
   let analyticsUserId: string | null = null;
@@ -536,6 +537,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS(_req: NextRequest) {
+async function handleOPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/case-status/check', 'POST');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/check', 'OPTIONS');

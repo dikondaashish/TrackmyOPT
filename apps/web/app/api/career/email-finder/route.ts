@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { apiFail, apiOk, apiUnauthorized } from '@/lib/api/response';
@@ -45,7 +46,7 @@ function normalizeLinkedInUrl(input: string): string | null {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -94,3 +95,5 @@ export async function POST(req: NextRequest) {
 
   return apiOk({ linkedinUrl }, { headers: PRIVATE_HEADERS });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/career/email-finder', 'POST');

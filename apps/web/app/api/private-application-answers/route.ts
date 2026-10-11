@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -35,14 +36,14 @@ function adminClient() {
   );
 }
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: responseHeaders(req),
   });
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const headers = responseHeaders(req);
   try {
     const userId = await getUserId(req);
@@ -87,7 +88,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function PUT(req: NextRequest) {
+async function handlePUT(req: NextRequest) {
   const headers = responseHeaders(req);
   try {
     const userId = await getUserId(req);
@@ -173,7 +174,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   const headers = responseHeaders(req);
   try {
     const userId = await getUserId(req);
@@ -204,3 +205,8 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/private-application-answers', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/private-application-answers', 'GET');
+export const PUT = withSentryApiErrors(handlePUT, '/api/private-application-answers', 'PUT');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/private-application-answers', 'DELETE');

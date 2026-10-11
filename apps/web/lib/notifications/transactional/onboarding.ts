@@ -226,7 +226,7 @@ ${emailBodySectionOpen()}
 ${emailTextLead("You&rsquo;re on Pro &mdash; here&rsquo;s what&rsquo;s unlocked")}
 ${emailTextP(greeting)}
 ${emailTextP(
-  `Thank you for upgrading to ${emailTextStrong(`${COMPANY.productName} Premium`)}. You now have the full toolkit to stay OPT/STEM compliant, track USCIS cases automatically, and move your U.S. job search forward with confidence.`
+  `Thank you for upgrading to ${emailTextStrong(`${COMPANY.productName} Premium`)}. You now have the tools to manage OPT/STEM records and reminders, track USCIS cases automatically, and move your U.S. job search forward with confidence.`
 )}
 ${emailInfoCallout(`
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
@@ -254,7 +254,7 @@ ${emailInfoCallout(`
   ${welcomeOnboardingStepHtml(
     2,
     "Track your USCIS case automatically",
-    `Add your receipt number in <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Case Status Tracker</a> for daily auto-checks and instant change alerts.`
+    `Add your receipt number in <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Case Status Tracker</a> for daily auto-checks and status-change email alerts.`
   )}
   ${welcomeOnboardingStepHtml(
     3,

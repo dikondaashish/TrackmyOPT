@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Per-job tailored resume storage for the Chrome extension.
  *
@@ -43,7 +44,7 @@ const artifactWriteLimiter = rateLimit({
   name: 'extension-resume-artifact-write',
 });
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
@@ -60,7 +61,7 @@ async function loadCandidates(
   return (data ?? []) as StoredArtifactCandidate[];
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const headers = {
     ...corsHeadersWebAndExtension(req),
     'Cache-Control': 'private, no-store',
@@ -138,7 +139,7 @@ export async function GET(req: NextRequest) {
   );
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const headers = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) {
@@ -230,3 +231,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true, stored: true }, { headers });
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/resume-artifact', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/extension/resume-artifact', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/resume-artifact', 'POST');

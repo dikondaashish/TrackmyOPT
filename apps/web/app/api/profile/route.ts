@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
@@ -6,7 +7,7 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 // PATCH - Update user profile (full_name, timezone)
-export async function PATCH(request: NextRequest) {
+async function handlePATCH(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -102,7 +103,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 // GET - Fetch user profile
-export async function GET() {
+async function handleGET() {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -166,3 +167,6 @@ export async function GET() {
     );
   }
 }
+
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/profile', 'PATCH');
+export const GET = withSentryApiErrors(handleGET, '/api/profile', 'GET');

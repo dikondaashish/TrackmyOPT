@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -49,7 +50,7 @@ const FILING_PROFILE_COLUMNS = [
   "preparer_business_name", "preparer_email",
 ].join(", ");
 
-export async function GET(_req: NextRequest, context: RouteContext) {
+async function handleGET(_req: NextRequest, context: RouteContext) {
   try {
     const { id: sponsorId } = await context.params;
     const supabase = await createClient();
@@ -142,6 +143,9 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   }
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/career/h1b-sponsors/[id]', 'GET');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/career/h1b-sponsors/[id]', 'OPTIONS');

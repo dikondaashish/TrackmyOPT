@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 
 /**
@@ -6,7 +7,7 @@ import { NextResponse } from 'next/server';
  * by the extension callback. Extension signup now uses Supabase Auth directly
  * and requires OTP verification in the browser.
  */
-export async function POST() {
+async function handlePOST() {
   return NextResponse.json(
     {
       ok: false,
@@ -15,3 +16,5 @@ export async function POST() {
     { status: 410 }
   );
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/manual/signup', 'POST');

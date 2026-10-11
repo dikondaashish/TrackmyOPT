@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -9,7 +10,7 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const rateLimitResult = await checkRateLimitByIP(request, AUTH_RATE_LIMIT);
   if (!rateLimitResult.success) {
     return rateLimitResponse(rateLimitResult, 'Too many requests. Please try again later.');
@@ -68,3 +69,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/auth/check-blocked', 'POST');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import {
@@ -9,7 +10,7 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const rateLimitResult = await checkRateLimitByIP(request, EMAIL_RATE_LIMIT);
   if (!rateLimitResult.success) {
     return rateLimitResponse(rateLimitResult, 'Too many reset attempts. Please try again later.');
@@ -77,3 +78,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/auth/reset-password', 'POST');

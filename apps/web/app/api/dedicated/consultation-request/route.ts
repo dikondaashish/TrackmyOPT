@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -46,7 +47,7 @@ async function requireUser() {
 const safeRequestFields =
   "id, topic, status, case_status_id, scheduled_at, created_at, updated_at";
 
-export async function GET() {
+async function handleGET() {
   try {
     const user = await requireUser();
     if (!user) {
@@ -70,7 +71,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const user = await requireUser();
     if (!user) {
@@ -216,3 +217,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Could not submit request" }, { status: 500 });
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/dedicated/consultation-request', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/dedicated/consultation-request', 'POST');

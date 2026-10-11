@@ -49,7 +49,7 @@ ${emailTextP('Your USCIS case status has been updated:')}
   <p class="tmo-force-muted" style="margin:0 0 8px 0;color:${EMAIL.textMuted} !important;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Receipt number</p>
   <p class="tmo-force-text" style="margin:0;color:${EMAIL.text} !important;font-size:18px;font-weight:700;font-family:ui-monospace,monospace;">${safeReceipt}</p>
 </div>
-<div class="tmo-force-info-box" style="border-left:4px solid #10B981;background:#F0FDF4;padding:20px;border-radius:8px;margin:0 0 20px 0;">
+<div class="tmo-force-info-box" style="border:1px solid #86EFAC;background:#F0FDF4;padding:20px;border-radius:8px;margin:0 0 20px 0;">
   ${oldStatusBlock}
   <p class="tmo-force-info-text" style="margin:0 0 8px 0;color:#047857 !important;font-size:14px;font-weight:600;">New status</p>
   <p class="tmo-force-text" style="margin:0;color:${EMAIL.text} !important;font-size:17px;font-weight:600;">${safeNew}</p>

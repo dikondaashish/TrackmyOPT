@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -11,7 +12,7 @@ const db = () =>
   );
 const reply = (body: unknown, status = 200) =>
   NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const userId = await getUserId(req);
   if (!userId) return reply({ error: 'Unauthorized' }, 401);
   const client = db();
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
     delivery: delivery.data,
   });
 }
-export async function PATCH(req: NextRequest) {
+async function handlePATCH(req: NextRequest) {
   const userId = await getUserId(req);
   if (!userId) return reply({ error: 'Unauthorized' }, 401);
   const parsed = z
@@ -64,3 +65,6 @@ export async function PATCH(req: NextRequest) {
     ? reply({ error: 'Could not save preference' }, 503)
     : reply({ ok: true, enabled: parsed.data.enabled });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status/digest-preferences', 'GET');
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/case-status/digest-preferences', 'PATCH');

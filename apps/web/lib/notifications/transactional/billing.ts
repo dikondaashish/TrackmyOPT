@@ -3,8 +3,8 @@
  * trial transitions, receipts, and the Stripe-customer resolvers they need.
  */
 
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { EMAIL } from "../email-brand";
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { EMAIL } from '../email-brand';
 import {
   buildTransactionalEmail,
   emailBodySectionClose,
@@ -17,14 +17,14 @@ import {
   emailTextP,
   emailTextStrong,
   emailWarningNote,
-} from "../email-layout";
-import { COMPANY, LEGAL_CONTACT } from "@/lib/legal/legal-config";
-import { escapeHtml, formatMoney } from "./formatting";
+} from '../email-layout';
+import { COMPANY, LEGAL_CONTACT } from '@/lib/legal/legal-config';
+import { escapeHtml, formatMoney } from './formatting';
 import {
   getAppBaseUrl,
   queueTransactionalEmailSend,
   type QueueTransactionalResult,
-} from "./queue";
+} from './queue';
 
 /** HTML + plain text for payment-failed dunning (shared by send + preview catalog). */
 export function buildPaymentFailedEmailBodies(args: {
@@ -37,19 +37,20 @@ export function buildPaymentFailedEmailBodies(args: {
 }): { subject: string; html: string; text: string } {
   const base = getAppBaseUrl();
   const settingsUrl = `${base}/dashboard/settings?tab=subscription`;
-  const updateUrl = args.updatePaymentUrl?.trim() || `${base}/api/premium/portal`;
+  const updateUrl =
+    args.updatePaymentUrl?.trim() || `${base}/api/premium/portal`;
   const greeting = args.firstName?.trim()
     ? `Hi ${escapeHtml(args.firstName.trim())},`
-    : "Hi,";
+    : 'Hi,';
   const amountStr = formatMoney(args.amountCents, args.currency);
   const safePlan = escapeHtml(args.planLabel);
 
   const html = buildTransactionalEmail({
-    headerTitle: "Update your payment method",
+    headerTitle: 'Update your payment method',
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
-${emailTextLead("Your subscription payment needs attention")}
+${emailTextLead('Your subscription payment needs attention')}
 ${emailTextP(
   `We couldn&rsquo;t process the charge below. Stripe may retry automatically, but updating your card now helps you keep uninterrupted Premium access.`
 )}
@@ -69,20 +70,22 @@ ${emailInfoCallout(`
   </tr>
 </table>
 `)}
-${emailTextLead("What to do")}
+${emailTextLead('What to do')}
 ${emailTextList([
-  "Open the secure Stripe billing portal with the button below",
-  "Update your card or payment method and save",
+  'Open the secure Stripe billing portal with the button below',
+  'Update your card or payment method and save',
   `Or go to <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;font-weight:500;">Settings &rarr; Subscription</a> anytime`,
 ])}
-${emailPrimaryButton(updateUrl, "Update payment method")}
+${emailPrimaryButton(updateUrl, 'Update payment method')}
 ${emailTextMuted(
   `Questions? Contact <a href="mailto:${LEGAL_CONTACT.support}" class="tmo-force-link" style="color:${EMAIL.link} !important;">${LEGAL_CONTACT.support}</a>`
 )}
 ${emailBodySectionClose()}`,
   });
 
-  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+  const greetingText = args.firstName?.trim()
+    ? `Hi ${args.firstName.trim()},`
+    : 'Hi,';
   const text = `${greetingText}
 
 Your subscription payment needs attention.
@@ -101,7 +104,7 @@ Questions? ${LEGAL_CONTACT.support}
 © ${new Date().getFullYear()} ${COMPANY.legalName}`;
 
   return {
-    subject: "TrackMyOPT: Payment failed — update your card",
+    subject: 'TrackMyOPT: Payment failed — update your card',
     html,
     text,
   };
@@ -144,7 +147,7 @@ export async function sendPaymentFailedEmail(args: {
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "payment_failed",
+    emailType: 'payment_failed',
     subject,
     html,
     text,
@@ -154,7 +157,7 @@ export async function sendPaymentFailedEmail(args: {
       currency,
     },
     dedupe: {
-      kind: "payment_failed",
+      kind: 'payment_failed',
       stripeEventId,
       stripeInvoiceId: stripeInvoiceId ?? null,
     },
@@ -173,31 +176,34 @@ export function buildSubscriptionEndedEmailBodies(args: {
   const caseStatusUrl = `${base}/dashboard/case-status`;
   const greeting = args.firstName?.trim()
     ? `Hi ${escapeHtml(args.firstName.trim())},`
-    : "Hi,";
+    : 'Hi,';
   const safeEndDate = escapeHtml(args.accessEndedDate);
 
   const html = buildTransactionalEmail({
-    headerTitle: "Your Pro access has ended",
+    headerTitle: 'Your Pro access has ended',
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
-${emailTextLead("Pro now auto-checks your case daily &mdash; reopen alerts")}
+${emailTextLead('Pro now auto-checks your case daily &mdash; reopen alerts')}
 ${emailTextP(
   `Your paid subscription ended on ${emailTextStrong(safeEndDate)}. You&rsquo;re on Free now: manual case refresh still works, but daily USCIS auto-checks and status-change emails are paused.`
 )}
 ${emailInfoCallout(`
 <p class="tmo-force-info-text" style="margin:0;color:${EMAIL.infoText} !important;font-size:14px;line-height:1.55;">
-  Resubscribe to Pro and we&rsquo;ll auto-check USCIS every day and email you the moment your case status changes.
+  Resubscribe to Pro and we&rsquo;ll auto-check USCIS every day and email you when a check detects a change in your case status.
 </p>
 `)}
-${emailTextLead("What you still have on Free")}
-${emailTextList([
-  "OPT &amp; STEM timeline calculators and unemployment trackers",
-  "Manual USCIS case status checks and core dashboard access",
-  `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong("1 AI-built resume per month")}`,
-  "Chrome extension and saved account data",
-], { ordered: false })}
-${emailPrimaryButton(checkoutUrl, "Reopen daily USCIS alerts")}
+${emailTextLead('What you still have on Free')}
+${emailTextList(
+  [
+    'OPT &amp; STEM timeline calculators and unemployment trackers',
+    'Manual USCIS case status checks and core dashboard access',
+    `<strong>AI Resume Generator</strong> &mdash; ${emailTextStrong('1 AI-built resume per month')}`,
+    'Chrome extension and saved account data',
+  ],
+  { ordered: false }
+)}
+${emailPrimaryButton(checkoutUrl, 'Reopen daily USCIS alerts')}
 ${emailTextMuted(
   `No further charges unless you resubscribe. <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Case Status</a> &middot; <a href="${dashUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Dashboard</a> &middot; <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Billing settings</a>`
 )}
@@ -207,7 +213,9 @@ ${emailTextMuted(
 ${emailBodySectionClose()}`,
   });
 
-  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+  const greetingText = args.firstName?.trim()
+    ? `Hi ${args.firstName.trim()},`
+    : 'Hi,';
   const text = `${greetingText}
 
 Pro now auto-checks your case daily — reopen alerts.
@@ -219,7 +227,7 @@ Reopen daily USCIS alerts: ${checkoutUrl}
 What you still have on Free:
 - OPT & STEM calculators and unemployment trackers
 - Manual USCIS case checks
-- AI Resume Generator — 5/month
+- AI Resume Generator — 1/month
 - Chrome extension and saved data
 
 Dashboard: ${dashUrl}
@@ -230,7 +238,7 @@ Questions? ${LEGAL_CONTACT.support}
 — ${COMPANY.productName} Team`;
 
   return {
-    subject: "Pro now auto-checks your case daily — reopen alerts",
+    subject: 'Pro now auto-checks your case daily — reopen alerts',
     html,
     text,
   };
@@ -244,27 +252,29 @@ export function buildUnusedCancelWinbackEmailBodies(args: {
   const caseStatusUrl = `${getAppBaseUrl()}/dashboard/case-status`;
   const greeting = args.firstName?.trim()
     ? `Hi ${escapeHtml(args.firstName.trim())},`
-    : "Hi,";
-  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+    : 'Hi,';
+  const greetingText = args.firstName?.trim()
+    ? `Hi ${args.firstName.trim()},`
+    : 'Hi,';
 
   const html = buildTransactionalEmail({
-    headerTitle: "Your case still needs daily monitoring",
+    headerTitle: 'Your case still needs daily monitoring',
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
-${emailTextLead("Pro now auto-checks your case daily &mdash; reopen alerts")}
+${emailTextLead('Pro now auto-checks your case daily &mdash; reopen alerts')}
 ${emailTextP(
-  "You canceled because Pro wasn&rsquo;t getting used. That&rsquo;s fair &mdash; and it&rsquo;s fixed: Pro runs daily USCIS auto-checks and emails you when status changes, so you don&rsquo;t have to remember to refresh."
+  'If you were not using Pro regularly, daily checks can help: Pro runs daily USCIS auto-checks and emails you when status changes, so you don&rsquo;t have to remember to refresh.'
 )}
 ${emailTextList(
   [
-    "Automatic daily USCIS case checks",
-    "Instant email when your status changes",
-    "OPT/STEM reminders and document vault",
+    'Automatic daily USCIS case checks',
+    'Email when a daily check detects a status change',
+    'OPT/STEM reminders and document vault',
   ],
   { ordered: false }
 )}
-${emailPrimaryButton(checkoutUrl, "Restart Pro with daily auto-checks")}
+${emailPrimaryButton(checkoutUrl, 'Restart Pro with daily auto-checks')}
 ${emailTextMuted(
   `Prefer Free for now? Keep using <a href="${caseStatusUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">manual Case Status</a> anytime.`
 )}
@@ -275,7 +285,7 @@ ${emailBodySectionClose()}`,
 
 Pro now auto-checks your case daily — reopen alerts.
 
-You canceled because Pro wasn't getting used. Pro now runs daily USCIS auto-checks and emails you when status changes.
+Pro runs daily USCIS auto-checks and emails you when status changes.
 
 Restart Pro: ${checkoutUrl}
 Manual Case Status (Free): ${caseStatusUrl}
@@ -283,7 +293,7 @@ Manual Case Status (Free): ${caseStatusUrl}
 — ${COMPANY.productName} Team`;
 
   return {
-    subject: "Pro now auto-checks your case daily — reopen alerts",
+    subject: 'Pro now auto-checks your case daily — reopen alerts',
     html,
     text,
   };
@@ -297,7 +307,14 @@ export async function sendSubscriptionEndedEmail(args: {
   accessEndedDate: string;
   stripeEventId: string;
 }): Promise<QueueTransactionalResult> {
-  const { supabase, userId, toEmail, firstName, accessEndedDate, stripeEventId } = args;
+  const {
+    supabase,
+    userId,
+    toEmail,
+    firstName,
+    accessEndedDate,
+    stripeEventId,
+  } = args;
 
   const { subject, html, text } = buildSubscriptionEndedEmailBodies({
     firstName,
@@ -308,12 +325,12 @@ export async function sendSubscriptionEndedEmail(args: {
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "subscription_ended",
+    emailType: 'subscription_ended',
     subject,
     html,
     text,
     emailData: { access_ended_date: accessEndedDate },
-    dedupe: { kind: "stripe_event_alltime", stripeEventId },
+    dedupe: { kind: 'stripe_event_alltime', stripeEventId },
   });
 }
 
@@ -325,18 +342,23 @@ export async function sendUnusedCancelWinbackEmail(args: {
   stripeEventId: string;
 }): Promise<QueueTransactionalResult> {
   const { supabase, userId, toEmail, firstName, stripeEventId } = args;
-  const { subject, html, text } = buildUnusedCancelWinbackEmailBodies({ firstName });
+  const { subject, html, text } = buildUnusedCancelWinbackEmailBodies({
+    firstName,
+  });
 
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "unused_cancel_winback",
+    emailType: 'unused_cancel_winback',
     subject,
     html,
     text,
-    emailData: { cancel_feedback: "unused" },
-    dedupe: { kind: "stripe_event_alltime", stripeEventId: `${stripeEventId}:unused_winback` },
+    emailData: { cancel_feedback: 'unused' },
+    dedupe: {
+      kind: 'stripe_event_alltime',
+      stripeEventId: `${stripeEventId}:unused_winback`,
+    },
   });
 }
 
@@ -353,17 +375,17 @@ export function buildRefundProcessedEmailBodies(args: {
   const pricingUrl = `${base}/premium/checkout`;
   const greeting = args.firstName?.trim()
     ? `Hi ${escapeHtml(args.firstName.trim())},`
-    : "Hi,";
+    : 'Hi,';
   const amountStr = formatMoney(args.amountCents, args.currency);
 
   const html = buildTransactionalEmail({
-    headerTitle: "Refund confirmation",
+    headerTitle: 'Refund confirmation',
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
-${emailTextLead("Your refund has been processed")}
+${emailTextLead('Your refund has been processed')}
 ${emailTextP(
-  `This confirms we issued a refund to your original payment method and moved your account back to the ${emailTextStrong("Free")} plan. Your TrackMyOPT account stays active &mdash; nothing was deleted.`
+  `This confirms we issued a refund to your original payment method and moved your account back to the ${emailTextStrong('Free')} plan. Your TrackMyOPT account stays active &mdash; nothing was deleted.`
 )}
 ${emailInfoCallout(`
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
@@ -387,18 +409,21 @@ ${emailInfoCallout(`
   </tr>
 </table>
 `)}
-${emailTextLead("When to expect the credit")}
+${emailTextLead('When to expect the credit')}
 ${emailTextP(
-  `Most refunds appear on your statement within ${emailTextStrong("5&ndash;10 business days")}. Your bank or card issuer may take a few extra days to post the credit &mdash; the exact timing depends on their processing cycle.`
+  `Most refunds appear on your statement within ${emailTextStrong('5&ndash;10 business days')}. Your bank or card issuer may take a few extra days to post the credit &mdash; the exact timing depends on their processing cycle.`
 )}
-${emailTextLead("What this means for your account")}
-${emailTextList([
-  `${emailTextStrong("Premium access has ended")} &mdash; daily reminders, auto USCIS checks, document vault, and other Pro-only tools are paused`,
-  `${emailTextStrong("Your data is unchanged")} &mdash; OPT/STEM timelines, saved resumes, and profile settings remain in your account`,
-  `<strong>AI Resume Generator</strong> is still available on Free (${emailTextStrong("1 AI-built resume per month")})`,
-  `${emailTextStrong("No further charges")} unless you choose to subscribe again`,
-], { ordered: false })}
-${emailPrimaryButton(dashUrl, "Go to dashboard")}
+${emailTextLead('What this means for your account')}
+${emailTextList(
+  [
+    `${emailTextStrong('Premium access has ended')} &mdash; daily reminders, auto USCIS checks, document vault, and other Pro-only tools are paused`,
+    `${emailTextStrong('Your data is unchanged')} &mdash; OPT/STEM timelines, saved resumes, and profile settings remain in your account`,
+    `<strong>AI Resume Generator</strong> is still available on Free (${emailTextStrong('1 AI-built resume per month')})`,
+    `${emailTextStrong('No further charges')} unless you choose to subscribe again`,
+  ],
+  { ordered: false }
+)}
+${emailPrimaryButton(dashUrl, 'Go to dashboard')}
 ${emailTextMuted(
   `Changed your mind? You can resubscribe anytime from <a href="${pricingUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Premium checkout</a> or <a href="${settingsUrl}" class="tmo-force-link" style="color:${EMAIL.link} !important;">Billing settings</a>.`
 )}
@@ -411,7 +436,9 @@ ${emailTextMuted(
 ${emailBodySectionClose()}`,
   });
 
-  const greetingText = args.firstName?.trim() ? `Hi ${args.firstName.trim()},` : "Hi,";
+  const greetingText = args.firstName?.trim()
+    ? `Hi ${args.firstName.trim()},`
+    : 'Hi,';
   const text = `${greetingText}
 
 Your refund has been processed.
@@ -428,7 +455,7 @@ Most refunds appear within 5-10 business days. Your bank may take a few extra da
 What this means:
 - Premium access has ended (Pro-only tools are paused)
 - Your OPT/STEM timelines, saved resumes, and settings remain
-- AI Resume Generator still available on Free (5/month)
+- AI Resume Generator still available on Free (1/month)
 - No further charges unless you resubscribe
 
 Dashboard: ${dashUrl}
@@ -441,7 +468,7 @@ Questions? ${LEGAL_CONTACT.support}
 © ${new Date().getFullYear()} ${COMPANY.legalName}`;
 
   return {
-    subject: "TrackMyOPT: Refund confirmation",
+    subject: 'TrackMyOPT: Refund confirmation',
     html,
     text,
   };
@@ -456,7 +483,15 @@ export async function sendRefundAcknowledgmentEmail(args: {
   currency: string;
   stripeEventId: string;
 }): Promise<QueueTransactionalResult> {
-  const { supabase, userId, toEmail, firstName, amountCents, currency, stripeEventId } = args;
+  const {
+    supabase,
+    userId,
+    toEmail,
+    firstName,
+    amountCents,
+    currency,
+    stripeEventId,
+  } = args;
 
   const { subject, html, text } = buildRefundProcessedEmailBodies({
     firstName,
@@ -468,31 +503,28 @@ export async function sendRefundAcknowledgmentEmail(args: {
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "refund_processed",
+    emailType: 'refund_processed',
     subject,
     html,
     text,
     emailData: { amount_cents: amountCents, currency },
-    dedupe: { kind: "stripe_event_alltime", stripeEventId },
+    dedupe: { kind: 'stripe_event_alltime', stripeEventId },
   });
 }
 
 /**
  * Cancellation scheduled (cancel at period end) — not the same as subscription ended.
  */
-export async function sendCancellationConfirmedEmail(args: {
-  supabase: SupabaseClient;
-  userId: string;
-  toEmail: string;
-  firstName: string | null;
-  accessThroughDate: string;
-  nextChargeDate: string | null;
-  stripeEventId: string;
-}): Promise<QueueTransactionalResult> {
-  const { supabase, userId, toEmail, firstName, accessThroughDate, nextChargeDate, stripeEventId } = args;
+export function buildCancellationConfirmedEmailBodies(
+  args: Omit<
+    Parameters<typeof sendCancellationConfirmedEmail>[0],
+    'supabase' | 'userId' | 'toEmail' | 'stripeEventId'
+  >
+) {
+  const { firstName, accessThroughDate, nextChargeDate } = args;
   const base = getAppBaseUrl();
   const settingsUrl = `${base}/dashboard/settings`;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : 'Hi,';
   const chargeLine = nextChargeDate
     ? emailWarningNote(
         `<strong>Note:</strong> A charge may still be scheduled on ${escapeHtml(nextChargeDate)} if you cancel during a trial or billing window. Check Stripe receipts in billing settings.`
@@ -502,7 +534,7 @@ export async function sendCancellationConfirmedEmail(args: {
       );
 
   const html = buildTransactionalEmail({
-    headerTitle: "Cancellation confirmed",
+    headerTitle: 'Cancellation confirmed',
     bodyHtml: `
 ${emailBodySectionOpen()}
 ${emailTextP(greeting)}
@@ -510,28 +542,84 @@ ${emailTextP(
   `Your subscription is set to cancel. You keep full access until ${emailTextStrong(escapeHtml(accessThroughDate))}.`
 )}
 ${chargeLine}
-${emailPrimaryButton(settingsUrl, "View billing")}
+${emailPrimaryButton(settingsUrl, 'View billing')}
 ${emailBodySectionClose()}`,
   });
 
   const text = `Cancellation confirmed. Access through ${accessThroughDate}. Billing: ${settingsUrl}`;
 
+  return {
+    subject: 'TrackMyOPT: Subscription cancellation confirmed',
+    html,
+    text,
+  };
+}
+
+export async function sendCancellationConfirmedEmail(args: {
+  supabase: SupabaseClient;
+  userId: string;
+  toEmail: string;
+  firstName: string | null;
+  accessThroughDate: string;
+  nextChargeDate: string | null;
+  stripeEventId: string;
+}): Promise<QueueTransactionalResult> {
+  const { supabase, userId, toEmail, accessThroughDate, stripeEventId } = args;
+  const { html, text } = buildCancellationConfirmedEmailBodies(args);
+
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "subscription_cancel_confirmed",
-    subject: "TrackMyOPT: Subscription cancellation confirmed",
+    emailType: 'subscription_cancel_confirmed',
+    subject: 'TrackMyOPT: Subscription cancellation confirmed',
     html,
     text,
     emailData: { access_through: accessThroughDate },
-    dedupe: { kind: "stripe_event_alltime", stripeEventId },
+    dedupe: { kind: 'stripe_event_alltime', stripeEventId },
   });
 }
 
 /**
  * Subscription receipt after first paid period or immediate Dedicated charge.
  */
+export function buildSubscriptionReceiptEmailBodies(
+  args: Omit<
+    Parameters<typeof sendSubscriptionReceiptEmail>[0],
+    'supabase' | 'userId' | 'toEmail' | 'stripeEventId'
+  >
+) {
+  const {
+    firstName,
+    planLabel,
+    amountFormatted,
+    billingInterval,
+    periodEndDate,
+  } = args;
+  const base = getAppBaseUrl();
+  const settingsUrl = `${base}/dashboard/settings`;
+  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : 'Hi,';
+
+  const html = buildTransactionalEmail({
+    headerTitle: 'Subscription receipt',
+    bodyHtml: `
+${emailBodySectionOpen()}
+${emailTextP(greeting)}
+${emailTextP(`<strong>Plan:</strong> ${escapeHtml(planLabel)}`)}
+${emailTextP(`<strong>Amount:</strong> ${escapeHtml(amountFormatted)} (${escapeHtml(billingInterval)})`)}
+${emailTextP(`<strong>Current period ends:</strong> ${escapeHtml(periodEndDate)}`)}
+${emailTextMuted(
+  'This is an auto-renewing subscription. Cancel before renewal in Settings &rarr; Billing.'
+)}
+${emailPrimaryButton(settingsUrl, 'Billing settings')}
+${emailBodySectionClose()}`,
+  });
+
+  const text = `Receipt: ${planLabel} ${amountFormatted} (${billingInterval}). Period ends ${periodEndDate}. ${settingsUrl}`;
+
+  return { subject: 'TrackMyOPT: Subscription receipt', html, text };
+}
+
 export async function sendSubscriptionReceiptEmail(args: {
   supabase: SupabaseClient;
   userId: string;
@@ -547,43 +635,21 @@ export async function sendSubscriptionReceiptEmail(args: {
     supabase,
     userId,
     toEmail,
-    firstName,
     planLabel,
     amountFormatted,
-    billingInterval,
-    periodEndDate,
     stripeEventId,
   } = args;
-  const base = getAppBaseUrl();
-  const settingsUrl = `${base}/dashboard/settings`;
-  const greeting = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi,";
-
-  const html = buildTransactionalEmail({
-    headerTitle: "Subscription receipt",
-    bodyHtml: `
-${emailBodySectionOpen()}
-${emailTextP(greeting)}
-${emailTextP(`<strong>Plan:</strong> ${escapeHtml(planLabel)}`)}
-${emailTextP(`<strong>Amount:</strong> ${escapeHtml(amountFormatted)} (${escapeHtml(billingInterval)})`)}
-${emailTextP(`<strong>Current period ends:</strong> ${escapeHtml(periodEndDate)}`)}
-${emailTextMuted(
-  "This is an auto-renewing subscription. Cancel before renewal in Settings &rarr; Billing."
-)}
-${emailPrimaryButton(settingsUrl, "Billing settings")}
-${emailBodySectionClose()}`,
-  });
-
-  const text = `Receipt: ${planLabel} ${amountFormatted} (${billingInterval}). Period ends ${periodEndDate}. ${settingsUrl}`;
+  const { html, text } = buildSubscriptionReceiptEmailBodies(args);
 
   return queueTransactionalEmailSend({
     supabase,
     userId,
     emailAddress: toEmail,
-    emailType: "subscription_receipt",
-    subject: "TrackMyOPT: Subscription receipt",
+    emailType: 'subscription_receipt',
+    subject: 'TrackMyOPT: Subscription receipt',
     html,
     text,
     emailData: { plan: planLabel, amount: amountFormatted },
-    dedupe: { kind: "stripe_event_alltime", stripeEventId },
+    dedupe: { kind: 'stripe_event_alltime', stripeEventId },
   });
 }

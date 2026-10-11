@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import rateLimit from '@/lib/auth/rate-limit';
@@ -12,7 +13,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
@@ -21,7 +22,7 @@ const getAdminClient = () => createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -74,3 +75,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/uninstall-feedback', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/uninstall-feedback', 'POST');

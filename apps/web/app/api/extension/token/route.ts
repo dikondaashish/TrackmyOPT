@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 const corsHeaders = (req: NextRequest) => corsHeadersWebAndExtension(req);
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeaders(req) });
 }
 
@@ -21,7 +22,7 @@ export async function OPTIONS(req: NextRequest) {
  * background/content flows that require Bearer auth still work without the
  * extension-only OAuth redirect.
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -80,3 +81,6 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/token', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/extension/token', 'GET');

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { usePathname } from 'next/navigation';
 import {
   captureErrorBoundaryTriggered,
@@ -24,6 +25,7 @@ export default function ErrorBoundary({
     if (reportedRef.current || !shouldReportBoundaryError(error)) return;
     reportedRef.current = true;
 
+    Sentry.captureException(error);
     captureErrorBoundaryTriggered({
       route: pathname || 'unknown',
       component_area: 'global',

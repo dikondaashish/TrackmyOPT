@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { getCommunityEstimate } from '@/lib/community-opt/get-estimate';
@@ -21,7 +22,7 @@ export const dynamic = 'force-dynamic';
  *
  * GET ?receipt_prefix=&case_type=&label=&filing_category=&pp_start=&received=&days=
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
@@ -118,3 +119,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status/community-estimate', 'GET');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateResumeWithDeadline, ResumeGenerationTimeout, RESUME_AI_TIMEOUT_MS } from '@/lib/resume/generate-with-deadline';
@@ -54,11 +55,11 @@ const GenerateSchema = z.object({
     alignJobTitles: z.boolean().optional().default(false),
 });
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     return runWithAiRequestContext(() => handleGeneratePost(req));
 }
 
@@ -249,3 +250,6 @@ async function handleGeneratePost(req: NextRequest) {
         }
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/generate', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/generate', 'POST');

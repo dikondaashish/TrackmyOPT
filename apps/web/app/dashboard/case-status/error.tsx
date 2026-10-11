@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import Link from 'next/link';
 import { captureErrorBoundaryTriggered } from '@/lib/posthog-client';
 import {
@@ -21,6 +22,7 @@ export default function CaseStatusError({
     if (reportedRef.current || !shouldReportBoundaryError(error)) return;
     reportedRef.current = true;
 
+    Sentry.captureException(error);
     captureErrorBoundaryTriggered({
       route: '/dashboard/case-status',
       component_area: 'case_status',

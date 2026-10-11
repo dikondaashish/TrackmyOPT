@@ -1,8 +1,9 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getServerJob } from '@/lib/job-board/server-job-store';
 
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+async function handleGET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,3 +19,5 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: 'Unable to load job description' }, { status: 500 });
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/job-board/jobs/[id]/description', 'GET');

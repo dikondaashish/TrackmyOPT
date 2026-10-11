@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
@@ -70,7 +71,7 @@ async function resolveCreditPriceId(stripe: Stripe): Promise<string> {
   return prices.data[0].id;
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const userId = await getUserId(request);
     if (!userId) {
@@ -187,3 +188,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-credits/checkout', 'POST');

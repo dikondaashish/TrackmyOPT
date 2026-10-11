@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { captureServerEvent } from '@/lib/posthog-server';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -6,7 +7,7 @@ import { compileLatex, isCompilerTransportError } from '@/lib/resume/latex-compi
 
 const MAX_LATEX_CHARS = 200_000;
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
@@ -31,7 +32,7 @@ function hasValidPrivateCompilerUrl(): boolean {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const corsHeaders = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) {
@@ -103,3 +104,6 @@ export async function POST(req: NextRequest) {
     },
   });
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/compile', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/compile', 'POST');

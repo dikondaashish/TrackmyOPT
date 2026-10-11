@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 
@@ -18,7 +19,7 @@ import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
  * https://www.trackmyopt.com/{INDEXNOW_KEY}.txt
  */
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const cronAuthError = verifyCronAuth(request);
   if (cronAuthError) return cronAuthError;
 
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
 /**
  * GET endpoint for health check / API documentation
  */
-export async function GET() {
+async function handleGET() {
   return NextResponse.json({
     message: 'IndexNow API endpoint',
     usage: {
@@ -120,3 +121,6 @@ export async function GET() {
     documentation: 'https://www.indexnow.org/documentation',
   });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/indexnow', 'POST');
+export const GET = withSentryApiErrors(handleGET, '/api/indexnow', 'GET');

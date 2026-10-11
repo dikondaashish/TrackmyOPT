@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     // Supports both JWT (extension) and session-cookie (web) auth
     const userId = await getUserId(req);
@@ -68,3 +69,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/premium/invoices', 'GET');

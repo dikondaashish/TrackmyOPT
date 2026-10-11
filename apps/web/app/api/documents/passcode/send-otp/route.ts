@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Passcode Change OTP API
  * 
@@ -44,7 +45,7 @@ function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -190,3 +191,5 @@ function maskEmail(email: string): string {
   const maskedLocal = local.charAt(0) + '***' + local.charAt(local.length - 1);
   return `${maskedLocal}@${domain}`;
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/documents/passcode/send-otp', 'POST');

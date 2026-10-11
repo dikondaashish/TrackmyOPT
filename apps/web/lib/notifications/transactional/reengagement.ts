@@ -55,12 +55,12 @@ ${emailBodySectionOpen()}
 ${emailTextLead("Daily USCIS alerts &mdash; one step left")}
 ${emailTextP(greeting)}
 ${emailTextP(
-  "You started setting up daily USCIS alerts. Finish in one step and we&rsquo;ll email you the moment your case status changes."
+  "You started setting up daily USCIS alerts. Finish in one step and we&rsquo;ll email you when a check detects a case status change."
 )}
 ${emailTextList(
   [
     "Automatic daily USCIS case checks",
-    "Instant email alerts when your status changes",
+    "Email alerts when a check detects a status change",
     "Full case history in your dashboard",
   ],
   { ordered: false }
@@ -75,7 +75,7 @@ ${emailBodySectionClose()}`,
 You started setting up daily USCIS alerts. Finish in one step.
 
 - Automatic daily USCIS case checks
-- Instant email alerts when your status changes
+- Email alerts when a check detects a status change
 - Full case history in your dashboard
 
 Finish checkout: ${checkoutUrl}

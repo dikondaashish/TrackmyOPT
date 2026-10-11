@@ -1,3 +1,5 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import { buildCaseDeadlineEmailBodies } from '@/lib/notifications/case-summary-email';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
@@ -11,7 +13,7 @@ export const maxDuration = 300;
 
 /** Opt-in notices only. Atomic claims prevent concurrent runs sending twice.
  * Ambiguous SMTP outcomes are marked failed, never blindly auto-replayed. */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   return observeCaseWorker('case-deadlines', request, () => run(request));
 }
 
@@ -163,8 +165,7 @@ async function run(request: NextRequest) {
         const info = await transport.sendMail({
           from: getSmtpFromHeader(),
           to: address,
-          subject: 'TrackMyOPT: review your saved case deadline',
-          text: `Your saved task: ${notice.title}\nConfirmed deadline: ${notice.due_date}\n\nReview the exact requirements and time on your official notice or with your DSO. This reminder does not extend a deadline.\n\nhttps://www.trackmyopt.com/dashboard/case-status\nManage this reminder by marking the task complete on your case page.`,
+          ...buildCaseDeadlineEmailBodies(notice.title, notice.due_date),
         });
         if (!info.accepted?.length) throw new Error('Not accepted');
         const { error: saveError } = await db
@@ -197,3 +198,5 @@ async function run(request: NextRequest) {
     { status: failed ? 503 : 200 }
   );
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/send-case-deadline-reminders', 'GET');

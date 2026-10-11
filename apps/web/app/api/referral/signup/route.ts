@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * POST /api/referral/signup
  * 
@@ -19,11 +20,11 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     try {
         const userId = await getUserId(req);
         if (!userId) {
@@ -93,3 +94,6 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/referral/signup', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/referral/signup', 'POST');

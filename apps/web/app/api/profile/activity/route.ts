@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { apiFail, apiOk, apiServerError, apiUnauthorized } from "@/lib/api/response";
@@ -5,7 +6,7 @@ import { apiFail, apiOk, apiServerError, apiUnauthorized } from "@/lib/api/respo
 /**
  * Lightweight activity markers for activation cron (server-side, idempotent).
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const supabase = await createClient();
     const {
@@ -50,3 +51,5 @@ export async function POST(req: NextRequest) {
     return apiServerError(e);
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/profile/activity', 'POST');

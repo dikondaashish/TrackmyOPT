@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getCampaignSigningSecret, isCampaignDestinationAllowed, isKnownAutomatedEmailRequest, verifyCampaignToken } from '@/lib/notifications/campaign-tracking';
@@ -11,7 +12,7 @@ function redirect(url: string) {
   return response;
 }
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const token = verifyCampaignToken(request.nextUrl.searchParams.get('token'), getCampaignSigningSecret());
   if (token?.kind !== 'click') return redirect(fallback);
   let destination = fallback;
@@ -34,6 +35,9 @@ export async function GET(request: NextRequest) {
   return redirect(destination); // An analytics failure should not block a valid CTA.
 }
 
-export async function HEAD() {
+async function handleHEAD() {
   return new NextResponse(null, { headers: { 'Cache-Control': 'no-store' } });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/notifications/campaign/click', 'GET');
+export const HEAD = withSentryApiErrors(handleHEAD, '/api/notifications/campaign/click', 'HEAD');

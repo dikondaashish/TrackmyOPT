@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * DISABLED — USCIS API compliance (July 2026).
  *
@@ -10,7 +11,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-export async function POST() {
+async function handlePOST() {
   return NextResponse.json(
     {
       ok: false,
@@ -20,3 +21,5 @@ export async function POST() {
     { status: 410 }
   );
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/case-status/nearby/scan', 'POST');

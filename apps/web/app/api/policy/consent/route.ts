@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
@@ -34,7 +35,7 @@ function getRequestMeta(request: NextRequest) {
   return { ipAddress, userAgent };
 }
 
-export async function GET() {
+async function handleGET() {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -84,7 +85,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -238,3 +239,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/policy/consent', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/policy/consent', 'POST');

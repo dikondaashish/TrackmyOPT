@@ -1,3 +1,5 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import { buildCaseSummaryEmailHtml } from '@/lib/notifications/case-summary-email';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
@@ -7,7 +9,7 @@ import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
 import { buildCaseDigest, digestWeek } from '@/lib/case-status/digest';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   return observeCaseWorker('case-digests', req, () => run(req));
 }
 async function run(req: NextRequest) {
@@ -166,11 +168,13 @@ async function run(req: NextRequest) {
       } else if (latest.error || global.error) failed++;
       else
         try {
+          const text = buildCaseDigest(cases.data ?? [], notices.data ?? [], week);
           const info = await transport.sendMail({
             from: getSmtpFromHeader(),
             to: address,
             subject: 'Your TrackMyOPT weekly case summary',
-            text: buildCaseDigest(cases.data ?? [], notices.data ?? [], week),
+            text,
+            html: buildCaseSummaryEmailHtml('Your weekly case summary', text),
           });
           if (!info.accepted?.length) throw new Error('Not accepted');
           state = 'sent';
@@ -194,3 +198,5 @@ async function run(req: NextRequest) {
     { status: failed ? 503 : 200 }
   );
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/send-case-digests', 'GET');

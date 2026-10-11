@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
@@ -38,7 +39,7 @@ const transporter = nodemailer.createTransport({
  * Send email notification when case status changes
  * (Premium feature only)
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     // Verify internal request via shared secret (not spoofable header)
     const internalSecret = req.headers.get('X-Internal-Secret');
@@ -228,6 +229,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS(_req: NextRequest) {
+async function handleOPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/case-status/notify', 'POST');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/notify', 'OPTIONS');

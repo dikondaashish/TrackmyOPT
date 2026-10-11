@@ -36,6 +36,7 @@
                 "COMMUNITY_OPT_PULSE_URL",
                 "COMMUNITY_OPT_PULSE_KEY",
                 "POSTHOG_*",
+                "SENTRY_*",
                 "UPSTASH_*",
                 "KV_REST_API_URL",
                 "KV_REST_API_TOKEN"

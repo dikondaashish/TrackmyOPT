@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
@@ -87,7 +88,7 @@ async function createPortalSession(userId: string): Promise<{ url: string } | { 
 }
 
 /** JSON for in-app Manage billing buttons. */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     try {
         const userId = await resolveUserId(req);
         if (!userId) {
@@ -110,7 +111,7 @@ export async function POST(req: NextRequest) {
  * Phase 5: email deep-link — GET redirects straight into Stripe Customer Portal
  * so payment-failed CTAs skip Settings → Manage billing.
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
     try {
         const userId = await resolveUserId(req);
         if (!userId) {
@@ -136,3 +137,6 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/premium/portal', 'POST');
+export const GET = withSentryApiErrors(handleGET, '/api/premium/portal', 'GET');

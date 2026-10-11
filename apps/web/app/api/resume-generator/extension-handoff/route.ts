@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Authenticated bridge from the Chrome extension to the web LaTeX editor.
  *
@@ -22,7 +23,7 @@ const HANDOFF_PREFIX = 'extension-handoff-';
 const MAX_PAYLOAD_CHARS = 100_000;
 const MAX_HANDOFF_AGE_MS = 24 * 60 * 60 * 1000;
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
@@ -89,7 +90,7 @@ async function persistGeneratedResume(input: {
   });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) {
@@ -167,7 +168,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, handoffId }, { headers: cors });
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) {
@@ -203,3 +204,7 @@ export async function GET(req: NextRequest) {
   await supabase.from('resume_drafts').delete().eq('user_id', userId).eq('draft_key', draftKey);
   return NextResponse.json({ ok: true, payload: data.payload }, { headers: cors });
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/extension-handoff', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/extension-handoff', 'POST');
+export const GET = withSentryApiErrors(handleGET, '/api/resume-generator/extension-handoff', 'GET');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Document Upload API Endpoint
  * 
@@ -30,7 +31,7 @@ import { captureServerEvent } from '@/lib/posthog-server';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
 
     // Get user from session
@@ -250,3 +251,5 @@ export async function POST(request: NextRequest) {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes for AI processing
+
+export const POST = withSentryApiErrors(handlePOST, '/api/documents/upload', 'POST');

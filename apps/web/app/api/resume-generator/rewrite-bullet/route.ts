@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { rewriteBulletPoints } from '@/lib/ai/gemini-ai';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -9,11 +10,11 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     const userId = await getUserId(req);
     if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -41,3 +42,6 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/rewrite-bullet', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/rewrite-bullet', 'POST');

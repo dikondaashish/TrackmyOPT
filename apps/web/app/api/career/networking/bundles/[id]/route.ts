@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { after, NextRequest } from 'next/server';
 import { z } from 'zod';
 import { apiFail, apiOk, apiUnauthorized } from '@/lib/api/response';
@@ -12,7 +13,7 @@ export const maxDuration = 300;
 const privateHeaders = { 'Cache-Control': 'private, no-store' };
 type Ctx = { params: Promise<{ id: string }> };
 
-export async function GET(_req: NextRequest, { params }: Ctx) {
+async function handleGET(_req: NextRequest, { params }: Ctx) {
   const db = await createClient();
   const { data: { user } } = await db.auth.getUser();
   if (!user) return apiUnauthorized('Sign in to view outreach', { headers: privateHeaders });
@@ -42,7 +43,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   }, { headers: privateHeaders });
 }
 
-export async function POST(_req: NextRequest, { params }: Ctx) {
+async function handlePOST(_req: NextRequest, { params }: Ctx) {
   if (process.env.NETWORKING_BUNDLES_ENABLED === 'false') return apiFail('Outreach bundles are temporarily unavailable', { status: 503, headers: privateHeaders });
   const db = await createClient();
   const { data: { user } } = await db.auth.getUser();
@@ -67,7 +68,7 @@ export async function POST(_req: NextRequest, { params }: Ctx) {
 const EditSchema = z.object({ contactId: z.string().uuid(), subject: z.string().max(160).nullable(),
   emailBody: z.string().max(2000).nullable(), linkedinNote: z.string().min(1).max(300) }).strict();
 
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+async function handlePATCH(req: NextRequest, { params }: Ctx) {
   const db = await createClient();
   const { data: { user } } = await db.auth.getUser();
   if (!user) return apiUnauthorized('Sign in to edit outreach', { headers: privateHeaders });
@@ -91,3 +92,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   if (error) return apiFail('Could not save draft', { status: 503, headers: privateHeaders });
   return apiOk({ saved: true }, { headers: privateHeaders });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/career/networking/bundles/[id]', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/career/networking/bundles/[id]', 'POST');
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/career/networking/bundles/[id]', 'PATCH');

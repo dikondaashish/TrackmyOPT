@@ -1,9 +1,10 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from "next/server";
 import { buildCommunityStats } from "@/lib/opt/community-stats-builder";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+async function handleGET() {
   try {
     const data = await buildCommunityStats();
     return NextResponse.json(data, {
@@ -17,3 +18,5 @@ export async function GET() {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/opt/community-stats', 'GET');

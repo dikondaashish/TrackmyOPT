@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -26,14 +27,14 @@ const corsHeaders = {
 };
 
 // Handle preflight requests
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return new NextResponse(null, { status: 200, headers: corsHeaders });
 }
 
 /**
  * GET - Load saved OPT calculator data
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId || !UUID_RE.test(userId)) {
@@ -152,7 +153,7 @@ export async function GET(req: NextRequest) {
 /**
  * POST - Save OPT calculator data
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId || !UUID_RE.test(userId)) {
@@ -238,3 +239,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/opt/calculator', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/opt/calculator', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/opt/calculator', 'POST');

@@ -14,6 +14,36 @@ or planning. A newer explicit instruction such as "do not push", "local only",
 or a different target branch takes precedence. Higher-priority instructions and
 repository protections still apply.
 
+## Standing error-monitoring requirement
+
+Recorded at the owner's request on 2026-10-10.
+
+Unexpected failures anywhere in the TrackMyOPT portal must be reported to
+`zyene-inc / trackmyopt` in Sentry, with working notifications for new issues
+and regressions. Treat error monitoring as part of implementing and maintaining
+every feature, including browser UI, server/edge code, API handlers, payments,
+documents, resume tools, case tracking, email delivery, cron jobs, and background
+work. Report caught or partial failures explicitly even when a request returns
+HTTP 200; do not silently swallow unexpected errors.
+
+Keep expected validation, authentication, not-found, and rate-limit outcomes
+separate from unexpected failures. Preserve the diagnostic privacy filters;
+never send applicant data, credentials, documents, or AI inputs/outputs in error
+reports. Keep TrackMyOPT and Zyene Reviews projects and credentials separate.
+
+Keep the Sentry organization on the owner's free Developer plan. Do not start
+paid trials, upgrade the subscription, configure pay-as-you-go spending, or
+enable additional paid monitors without an explicit owner request. Keep error
+sampling at 100% for unexpected failures; Replay, tracing, Sentry logs, and
+metrics remain disabled. Respect the organization's quota and preserve Zyene
+Reviews' existing uptime monitor when the single free uptime slot is occupied.
+
+For new or changed flows, verify their error-reporting paths and consult
+`docs/ops/SENTRY.md`. State remaining runtime, outage-monitoring, quota, or
+delivery gaps accurately; never claim that every possible failure is guaranteed
+to be captured. Monitoring and notifications must remain a standing requirement
+for future work.
+
 ## Required delivery workflow
 
 1. Inspect the working tree and the configured remote. Preserve unrelated and

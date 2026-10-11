@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { verifyToken } from '@/lib/auth/jwt';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
@@ -9,7 +10,7 @@ import { sendFreeWelcomeEmail } from '@/lib/notifications/transactional/onboardi
 
 export const dynamic = 'force-dynamic';
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: corsHeadersWebAndExtension(req),
@@ -57,7 +58,7 @@ function toDayStart(value: string | Date): Date | null {
   return parsed;
 }
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const cors = corsHeadersWebAndExtension(request);
   try {
 
@@ -105,7 +106,7 @@ export async function GET(request: NextRequest) {
       
       
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        secureLog.error('/api/me: no session and no Bearer token');
+        secureLog.warn('/api/me: no session and no Bearer token');
         return NextResponse.json(
           { error: 'Not authenticated', user: null },
           { status: 401, headers: cors }
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest) {
       const decoded = await verifyToken(token);
       
       if (!decoded) {
-        secureLog.error('/api/me: JWT verification failed');
+        secureLog.warn('/api/me: JWT verification failed');
         return NextResponse.json(
           { error: 'Invalid or expired token', user: null },
           { status: 401, headers: cors }
@@ -136,7 +137,7 @@ export async function GET(request: NextRequest) {
       const { data: authUserData, error: authUserError } =
         await supabaseAdmin.auth.admin.getUserById(userId);
       if (authUserError || !authUserData.user) {
-        secureLog.error('/api/me: bearer user no longer exists');
+        secureLog.warn('/api/me: bearer user no longer exists');
         return NextResponse.json(
           { error: 'Invalid or expired token', user: null },
           { status: 401, headers: cors }
@@ -377,3 +378,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/me', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/me', 'GET');

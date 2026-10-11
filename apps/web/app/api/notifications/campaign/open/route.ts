@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getCampaignSigningSecret, isKnownAutomatedEmailRequest, verifyCampaignToken } from '@/lib/notifications/campaign-tracking';
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 const pixel = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
 const headers = { 'Content-Type': 'image/gif', 'Cache-Control': 'private, no-store, max-age=0', 'Referrer-Policy': 'no-referrer' };
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const token = verifyCampaignToken(request.nextUrl.searchParams.get('token'), getCampaignSigningSecret());
   if (token?.kind === 'open') {
     try {
@@ -21,6 +22,9 @@ export async function GET(request: NextRequest) {
   return new NextResponse(pixel, { headers });
 }
 
-export async function HEAD() {
+async function handleHEAD() {
   return new NextResponse(null, { headers }); // A preview HEAD request is not an open.
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/notifications/campaign/open', 'GET');
+export const HEAD = withSentryApiErrors(handleHEAD, '/api/notifications/campaign/open', 'HEAD');

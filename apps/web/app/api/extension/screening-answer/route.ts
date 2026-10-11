@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import { z } from 'zod';
@@ -44,11 +45,11 @@ function json(req: NextRequest, body: unknown, status = 200) {
   });
 }
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return json(req, {});
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   let untrusted: unknown;
   try { untrusted = await req.json(); } catch { return json(req, { ok:false, error:'insufficient_context' }, 400); }
   const questionText =
@@ -158,3 +159,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/screening-answer', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/screening-answer', 'POST');
