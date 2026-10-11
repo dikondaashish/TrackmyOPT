@@ -28,6 +28,18 @@ they cannot be enabled or required in workflow YAML.
    `Lint · Typecheck · Test · Build (20.x)`, `Playwright E2E`, CodeRabbit's
    review status, GitGuardian's security status, and `Vercel Preview Comments`.
 
+## Current branch protection on `main` (verified 2026-10-11)
+
+- Required status check: `Lint · Typecheck · Test · Build (20.x)` only. Playwright
+  E2E, CodeRabbit, GitGuardian, and Vercel Preview Comments report on pull
+  requests but are not required; item 4 above is the target, not the current state.
+- `enforce_admins` is **on**: administrators cannot push to `main` without the
+  required check passing, so changes go through a pull request. Force pushes and
+  branch deletion are disallowed. "Require branches to be up to date" and required
+  reviews are off.
+- Every merge to `main` deploys automatically (Vercel to production, and the
+  Render `TrackmyOPT` API service).
+
 Do not use a direct push to bypass pull-request-only review checks. A provider
 that reports no check on a pull request should be fixed in that provider's
 dashboard, not replaced with a successful placeholder workflow.
