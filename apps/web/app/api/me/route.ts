@@ -106,7 +106,7 @@ async function handleGET(request: NextRequest) {
       
       
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        secureLog.error('/api/me: no session and no Bearer token');
+        secureLog.warn('/api/me: no session and no Bearer token');
         return NextResponse.json(
           { error: 'Not authenticated', user: null },
           { status: 401, headers: cors }
@@ -117,7 +117,7 @@ async function handleGET(request: NextRequest) {
       const decoded = await verifyToken(token);
       
       if (!decoded) {
-        secureLog.error('/api/me: JWT verification failed');
+        secureLog.warn('/api/me: JWT verification failed');
         return NextResponse.json(
           { error: 'Invalid or expired token', user: null },
           { status: 401, headers: cors }
@@ -137,7 +137,7 @@ async function handleGET(request: NextRequest) {
       const { data: authUserData, error: authUserError } =
         await supabaseAdmin.auth.admin.getUserById(userId);
       if (authUserError || !authUserData.user) {
-        secureLog.error('/api/me: bearer user no longer exists');
+        secureLog.warn('/api/me: bearer user no longer exists');
         return NextResponse.json(
           { error: 'Invalid or expired token', user: null },
           { status: 401, headers: cors }
