@@ -24,7 +24,9 @@ the university resource pack.
 
 ## Plans
 
-Active plans live in [`plans/`](./plans/) (`growth-recovery-2026-10.md`). The master backlog stays at the docs root in
+Active plans live in [`plans/`](./plans/) (`growth-recovery-2026-10.md`, and the open
+issue [`supabase-migration-replay.md`](./plans/supabase-migration-replay.md): the
+migrations folder cannot rebuild the database from empty). The master backlog stays at the docs root in
 [pending-implementation-plan.md](./pending-implementation-plan.md).
 
 ## Operations

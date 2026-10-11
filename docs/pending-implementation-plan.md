@@ -133,6 +133,11 @@ Do these as separate small changes; none is required to submit the extension.
 **Done when:** each change has focused tests, no public API change is hidden,
 and the repository documentation matches the resulting boundary.
 
+8. **Make the Supabase migrations folder replayable from empty.** Core tables
+   come from the legacy `schema/` snapshot and `20260322_enforce_core_rls.sql` runs
+   before the tables it targets. Plan and constraints (production must not be
+   modified): `docs/plans/supabase-migration-replay.md`.
+
 ### 6. Finish measured autofill hardening
 
 These are data-driven follow-ups, not release blockers:

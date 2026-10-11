@@ -55,7 +55,8 @@ migration, so a fresh database needs the legacy `schema/` snapshot applied first
 (2) `20260322_enforce_core_rls.sql` references `h1b_sponsors` and `saved_resumes`,
 which later migrations create, so replaying in filename order can fail at that file.
 Production is unaffected (its objects already exist); fix these before relying on
-`supabase db reset` from this folder alone.
+`supabase db reset` from this folder alone. Tracked as an open issue in
+[docs/plans/supabase-migration-replay.md](../docs/plans/supabase-migration-replay.md).
 
 ---
 
