@@ -19,6 +19,7 @@ import { runPrefill, findApplicationForm, getPrefillCandidateSignature, type Gen
 import {
   RESUME_STATUS_ROW_CLASS,
   isResumeStatusAttached,
+  readyResumeDetail,
 } from './resume/resume-status-row';
 
 
@@ -230,7 +231,7 @@ function setCurrentGeneratedArtifact(artifact: GeneratedResumeArtifactV1): void 
   artifactStaleReason = null;
   scheduleCurrentArtifactExpiry(artifact);
   syncArtifactStaleBannerVisibility();
-  syncResumeStatusRows('ready');
+  syncResumeStatusRows('ready', readyResumeDetail(artifact.snapshot));
   if (currentAutofillPreferences.mode === 'continuous') {
     previousContinuousSignature = '';
     scheduleContinuousPrefill();
@@ -291,7 +292,12 @@ async function reconcileArtifactAvailabilityOnWidgetMount(
       queryWidget<HTMLElement>(`.${RESUME_STATUS_ROW_CLASS}`),
     )
   ) {
-    syncResumeStatusRows(artifactAvailable ? 'ready' : 'none');
+    syncResumeStatusRows(
+      artifactAvailable ? 'ready' : 'none',
+      resolved?.ok && resolved.source === 'generated_resume'
+        ? readyResumeDetail(resolved.snapshot)
+        : undefined,
+    );
   }
   paintPrefillButton(prefillButton, artifactAvailable);
   if (artifactAvailable) {

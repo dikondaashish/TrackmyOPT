@@ -59,7 +59,12 @@ function documentFixture(
     assert.equal(adapter.capabilities.searchableDropdown, true, `${adapter.id} declares dropdown support`);
   }
   assert.equal(selectAtsPrefillAdapter(documentFixture('www.linkedin.com')).capabilities.experience, false);
-  assert.equal(genericPrefillAdapter.capabilities.addRecord, undefined);
+  // Generic forms may add history rows, but only through a unique, visible Add
+  // button inside a recognised Experience/Education section.
+  assert.deepEqual(genericPrefillAdapter.capabilities.addRecord, {
+    experience: 'button,[role="button"]',
+    education: 'button,[role="button"]',
+  });
 }
 
 {

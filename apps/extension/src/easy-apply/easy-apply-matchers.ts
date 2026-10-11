@@ -35,7 +35,11 @@ export type FieldKind =
   | 'linkedinUrl'
   | 'githubUrl'
   | 'portfolioUrl'
-  | 'skills';
+  | 'skills'
+  // Resume-only kinds: filled solely from this job's generated resume.
+  | 'currentCompany'
+  | 'currentTitle'
+  | 'summary';
 
 /** Backwards-compatible name used by the deterministic prefill modules. */
 export const SENSITIVE_FIELD_RE = SENSITIVE_QUESTION_RE;
@@ -81,6 +85,8 @@ export function classifyField(labelText: string): FieldKind | null {
 
   // Order matters: exclusions first, then most-specific matches.
   if (SENSITIVE_FIELD_RE.test(t)) return null; // always left for the user
+  const resumeKind = classifyResumeOnlyField(t);
+  if (resumeKind) return resumeKind;
   if (ESSAY_RE.test(t)) return null;
   if (NON_APPLICANT_ORG_RE.test(t) || ORG_TRAP_RE.test(t)) return null;
 
@@ -156,4 +162,48 @@ export function classifyField(labelText: string): FieldKind | null {
   if (/\b(location|localisation|where are you currently located)\b/.test(t)) return 'location';
 
   return null;
+}
+
+const RECENCY_RE = /\b(?:current|currently|present|most recent|latest)\b/;
+/** Yes/no and permission prompts mention an employer but do not ask for it. */
+const YES_NO_PROMPT_RE =
+  /\?|\b(?:are you|do you|have you|did you|will you|would you|may we|can we|contact|reference|permission|ok to|okay to|notice)\b/;
+const SUMMARY_PHRASE_RE =
+  /\b(?:(?:professional|resume|career|profile|executive) summary|summary of qualifications)\b/;
+const SUMMARY_FILLER_RE =
+  /\b(?:summary|professional|resume|career|profile|executive|your|enter|required|optional|field)\b/g;
+const OPEN_QUESTION_RE =
+  /\b(?:describe|tell us|why|explain|cover letter|message|additional information|anything else|how|what)\b/;
+
+/**
+ * Applicant-history fields that sit outside a repeatable employment row:
+ * "Current company", "Most recent job title", "Professional summary". They are
+ * resume facts, never profile facts, so a value exists only when this job's
+ * generated resume does.
+ */
+function classifyResumeOnlyField(t: string): FieldKind | null {
+  if (ORG_TRAP_RE.test(t)) return null;
+  if (RECENCY_RE.test(t) && !OPEN_QUESTION_RE.test(t) && !YES_NO_PROMPT_RE.test(t)) {
+    if (/\b(?:company|employer|organization|organisation)\b/.test(t) &&
+        !/\b(?:email|website|web site|phone|address|url|size|industry)\b/.test(t)) {
+      return 'currentCompany';
+    }
+    if (/\b(?:job title|title|position|designation|role)\b/.test(t) &&
+        !/\b(?:salary|compensation|pay|level|description|responsibilit\w*)\b/.test(t)) {
+      return 'currentTitle';
+    }
+  }
+  if (!OPEN_QUESTION_RE.test(t) &&
+      (SUMMARY_PHRASE_RE.test(t) ||
+       (/\bsummary\b/.test(t) && !t.replace(SUMMARY_FILLER_RE, ' ').replace(/[(),*]/g, ' ').trim()))) {
+    return 'summary';
+  }
+  return null;
+}
+
+/** Kinds whose value comes only from the generated resume snapshot. */
+export function isResumeOnlyFieldKind(
+  kind: FieldKind
+): kind is 'currentCompany' | 'currentTitle' | 'summary' {
+  return kind === 'currentCompany' || kind === 'currentTitle' || kind === 'summary';
 }

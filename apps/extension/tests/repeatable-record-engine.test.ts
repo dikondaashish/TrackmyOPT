@@ -12,7 +12,7 @@ assert.match(source, /date\.precision === 'text'/, 'text-only dates are not conv
 assert.match(source, /getAttribute\('role'\) === 'combobox'/, 'custom comboboxes are skipped');
 assert.match(source, /hasAttribute\('aria-autocomplete'\)/, 'typeaheads are skipped');
 assert.match(source, /!isEmpty\(control\.element\)/, 'non-empty fields are never overwritten');
-assert.match(source, /remainingRecords: Math\.max\(0, sourceRecords\.length - visibleIndices\.length\)/);
+assert.match(source, /remainingRecords: Math\.max\(0, plan\.sourceRecords\.length - plan\.visibleIndices\.length\)/);
 assert.doesNotMatch(source, /\.click\s*\(/, 'engine cannot click host-page actions');
 assert.doesNotMatch(source, /console\.|analytics|chrome\.storage\.sync/, 'resume content is not logged or persisted');
 

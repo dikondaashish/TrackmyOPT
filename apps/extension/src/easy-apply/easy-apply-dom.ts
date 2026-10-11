@@ -246,6 +246,10 @@ export function valueForKind(kind: FieldKind, p: AutofillProfile): string {
     case 'portfolioUrl':
       return p.portfolioUrl;
     case 'skills':
+    case 'currentCompany':
+    case 'currentTitle':
+    case 'summary':
+      // Resume-only kinds: resolved from the generated resume snapshot.
       return '';
   }
 }
