@@ -16,6 +16,7 @@ import {
   isCareerPage,
 } from './job-portal/career-sites';
 import { runPrefill, findApplicationForm, getPrefillCandidateSignature, type GeneratedResumeAttachment, type PrefillOptions } from './easy-apply/easy-apply-engine';
+import { NEXT_STEP_NUDGE_COPY, shouldNudgeNextStep } from './prefill/next-step-nudge';
 import {
   RESUME_STATUS_ROW_CLASS,
   isResumeStatusAttached,
@@ -104,7 +105,7 @@ import {
   hasPortalPageMutation,
 } from './job-portal/job-portal-job-helpers';
 import { paintPrefillCoverage } from './job-portal/job-portal-prefill-coverage-ui';
-import { paintPrefillButton, syncResumeStatusRows } from './job-portal/job-portal-widget-ui';
+import { paintNextStepNudge, paintPrefillButton, syncResumeStatusRows } from './job-portal/job-portal-widget-ui';
 import { createJobTrackerWidget, disconnectWidgetViewportObserver, setJobTrackerWidgetHost, type PrefillExecutionSnapshot } from './job-portal/job-portal-tracker-widget';
 import {
   trackWidgetAnalytics,
@@ -644,7 +645,11 @@ function wireJobTrackerWidgetHost(): void {
     trackerApplicationIdFor,
     reconcileArtifactAvailabilityOnWidgetMount,
     generatedResumeFor,
-    executeResolvedPrefill: (job, mode) => executeResolvedPrefill(job, mode, undefined, true),
+    executeResolvedPrefill: async (job, mode) => {
+      const execution = await executeResolvedPrefill(job, mode, undefined, true);
+      if (mode === 'step_by_step') recordExplicitPrefillBaseline();
+      return execution;
+    },
     undoLastPrefill: async () => {
       const state = getPrefillUndoState();
       if (state.busy || !state.runId) return { restored: 0, skipped: 0, unsupported: 0 };
@@ -883,6 +888,44 @@ function runSuccessCheckDebounced() {
 }
 
 // Module-level references so both observer and interval can be cleaned up on unload.
+let lastExplicitPrefillAt: number | null = null;
+let lastExplicitPrefillSignature = '';
+let lastNextStepNudgeSignature = '';
+
+/** Baseline for the next-step nudge: what was still empty after this run. */
+function recordExplicitPrefillBaseline(): void {
+  lastExplicitPrefillAt = Date.now();
+  lastExplicitPrefillSignature = getPrefillCandidateSignature();
+  lastNextStepNudgeSignature = '';
+}
+let nextStepCheckTimer: number | null = null;
+
+/**
+ * Step-by-step mode never fills on its own. When the applicant advances to a
+ * new step after an explicit Prefill, say so once and let them click again.
+ */
+function scheduleNextStepCheck(): void {
+  if (lastExplicitPrefillAt === null || nextStepCheckTimer !== null) return;
+  nextStepCheckTimer = window.setTimeout(() => {
+    nextStepCheckTimer = null;
+    const line = queryWidget<HTMLElement>('.tmo-prefill-result-line');
+    const prefillButton = queryWidget<HTMLButtonElement>('.tmo-prefill-button');
+    const signature = getPrefillCandidateSignature();
+    if (!line || !shouldNudgeNextStep({
+      mode: currentAutofillPreferences.mode,
+      lastExplicitAt: lastExplicitPrefillAt,
+      now: Date.now(),
+      lastSignature: lastExplicitPrefillSignature,
+      currentSignature: signature,
+      lastNudgedSignature: lastNextStepNudgeSignature,
+      inFlight: prefillButton?.getAttribute('aria-busy') === 'true',
+    })) return;
+    lastNextStepNudgeSignature = signature;
+    paintNextStepNudge(line, NEXT_STEP_NUDGE_COPY);
+    announceWidgetStatus(NEXT_STEP_NUDGE_COPY);
+  }, 700);
+}
+
 let _spaObserver: MutationObserver | null = null;
 let _earlyRetryId: number | null = null;
 let _continuousPrefillObserver: MutationObserver | null = null;
@@ -1273,6 +1316,7 @@ function setupSpaObservers() {
       return;
     }
     syncLinkedInEasyApplyAction();
+    scheduleNextStepCheck();
     if (location.href !== lastUrl) {
       document.dispatchEvent(new Event('tmo-page-context-changed'));
       invalidateArtifactForUrlChange(location.href);

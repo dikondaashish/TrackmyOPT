@@ -22,7 +22,9 @@ import { createUploadProbe, waitForUploadEvidence, UPLOAD_STATUS_COPY, type Uplo
  *  3. NEVER overwrites a value the user already entered.
  *  4. Custom dropdowns are selected only when exactly one high-confidence
  *     saved value matches. Ambiguous or unsupported controls remain for review.
- *  5. No timers/delays for evasion, no loop. One open form, once.
+ *  5. No timers/delays for evasion. One open form per click: at most
+ *     MAX_PREFILL_PASSES bounded passes, each after the DOM settles, and only
+ *     when a dropdown choice could have revealed or enabled more fields.
  *  6. A resume PDF is attached only when the caller provides the
  *     job-scoped *generated* PDF for this posting. Never invent or upload a
  *     base/saved resume. If nothing was generated, leave the file input alone.
@@ -38,6 +40,16 @@ import { createUploadProbe, waitForUploadEvidence, UPLOAD_STATUS_COPY, type Uplo
 
 import { classifyField, isResumeOnlyFieldKind, type FieldKind } from './easy-apply-matchers';
 import { resumeOnlyFieldValue } from '../prefill/resume-history-fields';
+import { hasSeparateCountryCode, phoneValueAccepted, phoneValueForControl } from '../prefill/phone-prefill';
+import {
+  MAX_PREFILL_PASSES,
+  dependentControlNotReady,
+  isDependentLocationKind,
+  isReplaceablePageDefault,
+  waitForDomSettle,
+} from '../prefill/dependent-fields';
+import { detectAccessBarrier } from '../prefill/access-barriers';
+import { countryAlpha2 } from '../shared/phone-country-codes';
 import {
   emptyPrefillCoverage,
   summarizePrefillOutcomes,
@@ -139,6 +151,13 @@ export interface PrefillOptions {
 }
 
 const TOAST_ID = 'tmo-easy-apply-toast';
+
+/** A native select whose options are a country list (20+ recognised countries). */
+function selectListsCountries(el: HTMLElement): boolean {
+  if (el.tagName !== 'SELECT') return false;
+  const options = Array.from((el as HTMLSelectElement).options);
+  return options.filter(option => countryAlpha2(option.label || option.text)).length >= 20;
+}
 
 /** Current company/title are work-history facts; everything else is contact. */
 function visualGroupForKind(kind: FieldKind): 'skills' | 'experience' | 'contact' {
@@ -272,6 +291,9 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   }
 
   const historyRemaining = { experience: 0, education: 0 };
+  // Value-free tallies for the end-of-run summary.
+  let dropdownsSelected = 0;
+  const recordsTouched = { experience: new Set<number>(), education: new Set<number>() };
   const snapshot = featureFlags.artifactPrefill ? options.snapshot : undefined;
   if (snapshot && featureFlags.historyFields) {
     for (const section of ['experience', 'education'] as const) {
@@ -297,6 +319,9 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         if (accepted[index]) {
           fieldSources.push({ control: entry.element, source: 'resume' });
           visual.markFieldFilled(entry.element, section);
+          const recordIndex = historyControls.find(item => item.element === entry.element)?.recordIndex;
+          if (recordIndex !== undefined) recordsTouched[section].add(recordIndex);
+          if (entry.element.tagName === 'SELECT') dropdownsSelected += 1;
         } else {
           outcome.filledFields--;
           outcome.skippedFields++;
@@ -334,10 +359,12 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
           await visual.prepareField(element, section);
           if (stopped()) return { ...emptyCoverage, paused: true };
           const selection = await selectSmartDropdown(element, target.value, 'generic', target.matcher,
-            undefined, { shouldContinue: current });
+            undefined, { shouldContinue: current, pickOption: target.pickOption, searchText: target.searchText });
           if (stopped()) return { ...emptyCoverage, paused: true };
           if (selection.outcome === 'selected') {
             outcome.filledFields++;
+            dropdownsSelected += 1;
+            if (target.control.recordIndex !== undefined) recordsTouched[section].add(target.control.recordIndex);
             fieldSources.push({ control: element, source: 'resume' });
             visual.markFieldFilled(element, section);
           } else {
@@ -363,6 +390,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       );
     }
   }
+  const accessBarrier = detectAccessBarrier(container.ownerDocument);
   const coverageFor = (
     outcomes: PrefillControlOutcome[]
   ): PrefillCoverageResult => {
@@ -370,6 +398,12 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       ...summarizePrefillOutcomes(outcomes),
       adapterId: adapter.id,
       remainingRecords: historyRemaining,
+      recordsFilled: {
+        experience: recordsTouched.experience.size,
+        education: recordsTouched.education.size,
+      },
+      dropdownsSelected,
+      ...(accessBarrier ? { accessBarrier } : {}),
       applicationScan: scanApplicationFields(container),
       resumeAttachmentResult: resumeResult,
       uploadVerification,
@@ -442,15 +476,26 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     ...(filledOutcomes.some((outcome) => outcome.filled && outcome.fieldGroup === 'education') ? ['education'] : []),
   ];
 
-  for (const el of controls) {
-    if (stopped()) return { ...emptyCoverage, paused: true };
+  // Phone inputs whose country code is chosen in a separate control get only
+  // the national number, so the code is never entered twice.
+  const codeControls = controls.filter(control => classifyField(getLabelText(control)) === 'phoneCountryCode');
+  type ControlOutcome = 'filled' | 'chose' | 'skipped' | 'failed' | 'deferred' | 'stopped';
+
+  const fillControl = async (el: HTMLElement): Promise<ControlOutcome> => {
+    if (stopped()) return 'stopped';
     recoverPrefillControl(el);
     const labelText = getLabelText(el);
-    const kind = classifyField(labelText);
-    if (!kind) continue; // no confident match, or a sensitive field -> leave it
-    if (!adapter.capabilities[kind === 'skills' ? 'skills' : 'contact']) continue;
+    const classified = classifyField(labelText);
+    if (!classified) return 'skipped'; // no confident match, or a sensitive field -> leave it
+    // "Where are you located?" over a list of countries asks for the country.
+    const kind: FieldKind = (classified === 'location' || classified === 'city') && selectListsCountries(el)
+      ? 'country'
+      : classified;
+    if (!adapter.capabilities[kind === 'skills' ? 'skills' : 'contact']) return 'skipped';
     const group = visualGroupForKind(kind);
-    const value = kind === 'skills'
+    // A dependent list (state after country) may still be loading or disabled.
+    if (isDependentLocationKind(kind) && dependentControlNotReady(el)) return 'deferred';
+    let value = kind === 'skills'
       ? buildSkillsPrefillValue(
           snapshot?.skills ?? [],
           featureFlags.skills && options.autofillSkills === true
@@ -458,77 +503,92 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       : isResumeOnlyFieldKind(kind)
         ? resumeOnlyFieldValue(kind, snapshot, labelText)
         : valueForKind(kind, profile);
-    if (!value) continue; // we don't have this datum -> leave it blank
+    if (!value) return 'skipped'; // we don't have this datum -> leave it blank
+    if (kind === 'phone' && isFillable(el)) {
+      value = phoneValueForControl(el, value, profile.country, hasSeparateCountryCode(el, codeControls));
+      if (!value) return 'skipped'; // the number cannot fit this field intact
+    }
+    const accepts = kind === 'phone' ? phoneValueAccepted : undefined;
     // A resume summary longer than the field allows is left for the applicant
     // rather than silently cut mid-sentence.
     if (isResumeOnlyFieldKind(kind) && 'maxLength' in el &&
-        (el as HTMLInputElement).maxLength > 0 && value.length > (el as HTMLInputElement).maxLength) continue;
+        (el as HTMLInputElement).maxLength > 0 && value.length > (el as HTMLInputElement).maxLength) return 'skipped';
+    const writeValue = value;
 
     let changed = false;
+    let isDropdown = false;
     let retryWrite: PrefillRetryOperation['retry'] | undefined;
     if (kind === 'skills' && (!isPlainSkillsControl(el) || !isFillable(el))) {
-      continue; // tag editors/custom widgets require a tested ATS adapter
+      return 'skipped'; // tag editors/custom widgets require a tested ATS adapter
     } else if (isFillable(el)) {
       await visual.prepareField(el, group);
-      if (stopped()) return { ...emptyCoverage, paused: true };
+      if (stopped()) return 'stopped';
       // The applicant may type, navigate, or disable a field during feedback.
-      if (!el.isConnected || !isFillable(el)) { visual.clearActiveField(); continue; }
-      setNativeValue(el, value);
-      changed = await verifyNativeCommit(el, value, current);
+      if (!el.isConnected || !isFillable(el)) { visual.clearActiveField(); return 'skipped'; }
+      setNativeValue(el, writeValue);
+      changed = await verifyNativeCommit(el, writeValue, current, accepts);
       if (!changed) retryWrite = async () => {
         if (!current()) return null;
         const root = findApplicationForm();
         const target = recoverPrefillControl(el);
         if (!root || !target || !queryAllDeep(root, APPLICATION_CONTROL_SELECTOR).includes(target) ||
             !isFillable(target) || (kind === 'skills' && !isPlainSkillsControl(target))) return null;
-        setNativeValue(target, value);
-        return await verifyNativeCommit(target, value, current) ? { control: target, root } : null;
+        setNativeValue(target, writeValue);
+        return await verifyNativeCommit(target, writeValue, current, accepts) ? { control: target, root } : null;
       };
-    } else if (isFillableSelect(el)) {
-      const selectValue = matchingSelectValue(el, kind, value, dropdownContext);
-      if (!selectValue) continue; // never guess a dropdown option
-      await visual.prepareField(el, group);
-      if (stopped()) return { ...emptyCoverage, paused: true };
-      if (!el.isConnected || !isFillableSelect(el) || matchingSelectValue(el, kind, value, dropdownContext) !== selectValue) { visual.clearActiveField(); continue; }
-      setNativeSelectValue(el, selectValue);
-      changed = await verifyNativeCommit(el, selectValue, current);
+    } else if (isFillableSelect(el) || isReplaceablePageDefault(el, kind, writeValue, dropdownContext, profile.phone)) {
+      const select = el as HTMLSelectElement;
+      isDropdown = true;
+      const selectValue = matchingSelectValue(select, kind, writeValue, dropdownContext);
+      if (!selectValue) return 'skipped'; // never guess a dropdown option
+      if (select.value === selectValue) return 'skipped';
+      await visual.prepareField(select, group);
+      if (stopped()) return 'stopped';
+      if (!select.isConnected || matchingSelectValue(select, kind, writeValue, dropdownContext) !== selectValue) { visual.clearActiveField(); return 'skipped'; }
+      setNativeSelectValue(select, selectValue);
+      changed = await verifyNativeCommit(select, selectValue, current);
       if (!changed) retryWrite = async () => {
         if (!current()) return null;
         const root = findApplicationForm();
-        const target = recoverPrefillControl(el);
+        const target = recoverPrefillControl(select);
         if (!root || !target || !queryAllDeep(root, APPLICATION_CONTROL_SELECTOR).includes(target) ||
-            !isFillableSelect(target) || matchingSelectValue(target, kind, value, dropdownContext) !== selectValue) return null;
+            !isFillableSelect(target) || matchingSelectValue(target, kind, writeValue, dropdownContext) !== selectValue) return null;
         setNativeSelectValue(target, selectValue);
         return await verifyNativeCommit(target, selectValue, current) ? { control: target, root } : null;
       };
     } else if (isCustomDropdownControl(el)) {
-      if (!adapter.capabilities.searchableDropdown) continue;
-      if (customDropdownHasValue(el)) continue;
+      if (!adapter.capabilities.searchableDropdown) return 'skipped';
+      if (customDropdownHasValue(el)) return 'skipped';
+      isDropdown = true;
       await visual.prepareField(el, group);
-      if (stopped()) return { ...emptyCoverage, paused: true };
-      if (!el.isConnected) { visual.clearActiveField(); continue; }
+      if (stopped()) return 'stopped';
+      if (!el.isConnected) { visual.clearActiveField(); return 'skipped'; }
       const selection = await selectSmartDropdown(
         el,
-        value,
+        writeValue,
         dropdownMatchKind(kind),
         undefined,
         undefined,
         dropdownContext
       );
       changed = selection.outcome === 'selected';
+      if (!changed && selection.outcome === 'unsupported' && isDependentLocationKind(kind)) {
+        visual.clearActiveField();
+        return 'deferred';
+      }
       if (!changed && selection.outcome !== 'already_filled') retryWrite = async () => {
         if (!current()) return null;
         const root = findApplicationForm();
         const target = recoverPrefillControl(el);
         if (!root || !target || !queryAllDeep(root, APPLICATION_CONTROL_SELECTOR).includes(target) ||
             !isCustomDropdownControl(target) || customDropdownHasValue(target)) return null;
-        const selected = await selectSmartDropdown(target, value, dropdownMatchKind(kind), undefined, undefined, dropdownContext);
+        const selected = await selectSmartDropdown(target, writeValue, dropdownMatchKind(kind), undefined, undefined, dropdownContext);
         return selected.outcome === 'selected' && current() ? { control: target, root } : null;
       };
     } else {
-      continue;
+      return 'skipped';
     }
-    if (stopped()) return { ...emptyCoverage, paused: true };
+    if (stopped()) return 'stopped';
     if (!changed) {
       if (retryWrite) retryOperations.push({
         id: `contact:${retryOperations.length}`,
@@ -538,9 +598,11 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         originalControl: el,
         retry: retryWrite,
       });
-      visual.clearActiveField(); continue;
+      visual.clearActiveField();
+      return retryWrite ? 'failed' : 'skipped';
     }
     filled += 1;
+    if (isDropdown) dropdownsSelected += 1;
     fieldSources.push({ control: el, source: contactValueSource(snapshot, kind) });
     filledOutcomes.push({
       filled: true,
@@ -548,8 +610,35 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     });
     visual.markFieldFilled(el, group);
     if (!kinds.includes(kind)) kinds.push(kind);
-  }
+    // A dropdown choice is what typically reveals or enables more fields.
+    return isDropdown ? 'chose' : 'filled';
+  };
 
+  // Bounded passes: a choice can reveal or enable fields (country → state →
+  // city, "Yes" → follow-up). Later passes only visit controls not yet
+  // settled, and run only after the previous pass changed something and the
+  // DOM has settled. Values are written only into empty fields, so a pass
+  // can never overwrite an earlier one.
+  const settled = new Set<HTMLElement>();
+  let pending: HTMLElement[] = controls;
+  for (let pass = 0; pass < MAX_PREFILL_PASSES && pending.length > 0; pass += 1) {
+    let choiceMade = false;
+    for (const el of pending) {
+      const outcome = await fillControl(el);
+      if (outcome === 'stopped') return { ...emptyCoverage, paused: true };
+      // Skipped controls stay eligible: a hidden or empty one may be revealed
+      // by an answer in this pass. Classification is cheap; writes never repeat.
+      if (outcome === 'filled' || outcome === 'chose' || outcome === 'failed') settled.add(el);
+      if (outcome === 'chose') choiceMade = true;
+    }
+    // Another pass is useful only when a choice could have revealed or enabled
+    // fields (a deferred state list waits on exactly such a country choice).
+    if (!choiceMade) break;
+    await waitForDomSettle(container, current);
+    if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
+    pending = queryAllDeep<HTMLElement>(container, APPLICATION_CONTROL_SELECTOR)
+      .filter(control => !settled.has(control));
+  }
   if (filled === 0) {
     if (
       resumeResult === 'attached' ||

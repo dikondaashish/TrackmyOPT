@@ -442,6 +442,49 @@ test('a stored resume is restored on the apply page after the session is gone', 
   );
 });
 
+test('a stored resume restamped by the server after the request was made still attaches', async () => {
+  // Production order: the content script stamps request.now, then the server
+  // restamps the stored artifact with its own (later, possibly skewed) clock.
+  // Validating against request.now made every restored resume look
+  // "generated in the future" and fall back to profile-only.
+  const bundle = await buildBackgroundBundle();
+  const seedServer: ServerState = { storedArtifact: null, artifactLookups: [], artifactWrites: 0 };
+  const seedWorker = createWorker({ bundle, sessionValues: {}, server: seedServer, tabMessages: [] });
+  const generated = await seedWorker.dispatch({
+    type: 'GENERATE_RESUME',
+    jobDescription: 'Responsibilities: Build SQL dashboards and analyze product performance with the team. Qualifications: Three years of analytics experience and strong communication skills. Benefits include health insurance and paid time off.',
+    resumeId: 'resume-1',
+    templateId: 'classic',
+    companyName: 'Acme',
+    roleTitle: 'Software Engineer',
+    jobUrl: LISTING_URL,
+    jobKey: `${LISTING_URL}|Acme|Software Engineer`,
+    outputFilename: 'TrackMyOPT-resume-acme.pdf',
+  });
+  assert.equal(generated.ok, true);
+  const requestNow = new Date();
+  const serverClock = new Date(requestNow.getTime() + 5_000);
+  const server: ServerState = {
+    storedArtifact: {
+      ...generated.artifact,
+      generatedAt: serverClock.toISOString(),
+      expiresAt: new Date(serverClock.getTime() + 30 * 60_000).toISOString(),
+    },
+    artifactLookups: [],
+    artifactWrites: 0,
+  };
+  const worker = createWorker({ bundle, sessionValues: {}, server, tabMessages: [] });
+  const resolved = await worker.dispatch({
+    type: 'RESOLVE_V1_PREFILL_PAYLOAD',
+    request: {
+      now: requestNow.toISOString(),
+      jobContext: { jobUrl: APPLY_URL, companyName: 'Acme', roleTitle: 'Software Engineer' },
+    },
+  });
+  assert.equal(resolved.ok, true);
+  assert.equal(resolved.source, 'generated_resume');
+});
+
 test('a stored resume for a different posting is refused even if the server offers it', async () => {
   const bundle = await buildBackgroundBundle();
   const seedServer: ServerState = { storedArtifact: null, artifactLookups: [], artifactWrites: 0 };

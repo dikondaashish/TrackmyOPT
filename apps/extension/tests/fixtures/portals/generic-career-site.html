@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Data Engineer | Acme Fixture Careers</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"JobPosting","title":"Data Engineer","hiringOrganization":{"@type":"Organization","name":"Acme Fixture"},"description":"Build reliable data pipelines with Python and SQL. Work with analytics teams to ship dashboards and models."}</script><script src="/_fixture/_shared.js"></script></head>
+<body><main><h1>Data Engineer</h1><h2>Acme Fixture</h2><p>Build reliable data pipelines with Python and SQL. Work with analytics teams.</p>
+<form id="application-form">
+  <h3>Personal information</h3>
+  <label for="first">First name *</label><input id="first" name="first_name" required>
+  <label for="middle">Middle name</label><input id="middle" name="middle_name">
+  <label for="last">Last name *</label><input id="last" name="last_name" required>
+  <label for="email">Email *</label><input id="email" name="email" type="email" required>
+  <fieldset class="phone"><legend>Phone</legend>
+    <label for="cc">Country code</label><select id="cc" name="phone_country_code"><option value="">Select</option><option value="US">United States (+1)</option><option value="CA">Canada (+1)</option><option value="IN">India (+91)</option></select>
+    <label for="ph">Phone number *</label><input id="ph" name="phone_number" type="tel" required>
+  </fieldset>
+  <label for="country">Country *</label><select id="country" name="country" required><option value="">Select</option><option>Canada</option><option>United States of America</option><option>United States Minor Outlying Islands</option></select>
+  <label for="state">State *</label><select id="state" name="state" disabled required><option value="">Select</option></select>
+  <label for="city">City *</label><select id="city" name="city" disabled required><option value="">Select</option></select>
+  <label for="linkedin">LinkedIn profile</label><input id="linkedin" name="linkedin">
+  <label for="cur-co">Current company</label><input id="cur-co" name="current_company">
+  <label for="summary">Professional summary</label><textarea id="summary" name="summary"></textarea>
+  <fieldset id="exp"><legend>Work Experience</legend>
+    <div data-record-index="0"><input aria-label="Company"><input aria-label="Job title"><input aria-label="Start date" placeholder="MM/YYYY"><input aria-label="End date" placeholder="MM/YYYY"></div>
+    <button type="button" data-add>Add another</button></fieldset>
+  <fieldset id="edu"><legend>Education</legend>
+    <div data-record-index="0"><input aria-label="School"><select aria-label="Degree"><option value="">Select</option><option>High School</option><option>Bachelor's Degree</option><option>Master's Degree</option><option>Doctorate</option></select><input aria-label="Field of study"></div>
+    <button type="button" data-add>+ Add</button></fieldset>
+  <fieldset><legend>Work authorization</legend>
+    <label for="auth">Are you legally authorized to work in the United States?</label><select id="auth" name="work_authorization" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+    <label for="sponsor">Will you now or in the future require visa sponsorship?</label><select id="sponsor" name="sponsorship" required><option value="">Select</option><option>Yes</option><option>No</option></select>
+  </fieldset>
+  <label for="salary">Desired salary</label><input id="salary" name="salary">
+  <label for="resume">Resume/CV</label><input id="resume" name="resume" type="file" accept=".pdf">
+  <button type="submit" id="submit">Submit application</button>
+</form></main>
+<script>
+fixture.addRows('#exp', '<input aria-label="Company"><input aria-label="Job title"><input aria-label="Start date" placeholder="MM/YYYY"><input aria-label="End date" placeholder="MM/YYYY">');
+fixture.addRows('#edu', '<input aria-label="School"><select aria-label="Degree"><option value="">Select</option><option>High School</option><option>Bachelor\'s Degree</option><option>Master\'s Degree</option><option>Doctorate</option></select><input aria-label="Field of study">');
+fixture.cascade('#country', '#state', c => c.startsWith('United States of America') ? ['Tennessee','Texas','Utah'] : ['Ontario','Quebec']);
+fixture.cascade('#state', '#city', s => s === 'Texas' ? ['Austin','Dallas','Houston'] : ['Nashville']);
+fixture.phoneMask(document.getElementById('ph'));
+document.getElementById('submit').addEventListener('click', e => { e.preventDefault(); document.body.dataset.submitted = 'yes'; });
+</script></body></html>

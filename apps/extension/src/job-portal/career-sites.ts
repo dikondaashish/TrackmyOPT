@@ -241,12 +241,16 @@ export const ATS_HOST_SUFFIXES: readonly string[] = [
   // Core applicant tracking
   '.myworkdayjobs.com',    // Workday (wd1/wd2/wd3.myworkdayjobs.com)
   '.myworkday.com',        // Workday legacy
+  '.myworkdaysite.com',    // Workday candidate site
   '.greenhouse.io',        // Greenhouse
   '.lever.co',             // Lever
   '.icims.com',            // iCIMS
   '.taleo.net',            // Taleo / Oracle
   '.brassring.com',        // Brassring / Kenexa
   '.successfactors.com',   // SAP SuccessFactors
+  '.successfactors.eu',    // SAP SuccessFactors (EU data centres)
+  '.sapsf.com',            // SAP SuccessFactors career sites
+  '.sapsf.eu',             // SAP SuccessFactors career sites (EU)
   '.smartrecruiters.com',  // SmartRecruiters
   '.jazzhr.com',           // JazzHR
   '.bamboohr.com',         // BambooHR
@@ -281,6 +285,7 @@ export const ATS_HOST_SUFFIXES: readonly string[] = [
   '.cornerstone.com',      // Cornerstone OnDemand
   '.kronos.com',           // Kronos / UKG
   '.ultipro.com',          // UKG Pro (ex-UltiPro)
+  '.ukg.net',              // UKG Pro Recruiting (rec.pro.ukg.net)
   '.paycom.com',           // Paycom
   '.paychex.com',          // Paychex
   '.adp.com',              // ADP

@@ -313,6 +313,12 @@ function reconcileContact(
   return Object.fromEntries(entries) as ResumeAutofillSnapshotV1['contact'];
 }
 
+function sourceStatesYears(source: string, years: number): boolean {
+  if (!Number.isFinite(years) || years < 0) return false;
+  const value = String(years).replace(/\.0+$/, '').replace('.', '\\.');
+  return new RegExp(`(?:^|[^\\d.])${value}\\s*\\+?\\s*(?:years?|yrs?)\\b`).test(source);
+}
+
 /**
  * A date the source resume cannot confirm stays visible as text but loses its
  * machine-readable month/year, so prefill never writes an unconfirmed date.
@@ -376,6 +382,28 @@ function reconcileSnapshotWithSourceResume(
     unconfirmedTitles,
     snapshot: {
       ...snapshot,
+      // Never a computed or estimated figure: only a total the applicant
+      // wrote ("6 years", "6+ yrs") in their own resume.
+      totalYearsExperience:
+        snapshot.totalYearsExperience !== undefined &&
+        sourceStatesYears(normalizedSource, snapshot.totalYearsExperience)
+          ? snapshot.totalYearsExperience
+          : undefined,
+      // A tailored resume may surface job-description keywords; only skills
+      // and certifications the applicant listed are application facts.
+      skills: snapshot.skills.filter((skill) => sourceContains(normalizedSource, skill)),
+      certifications: snapshot.certifications
+        .filter((record) => sourceContains(normalizedSource, record.name))
+        .map((record) => ({
+          ...record,
+          issuer:
+            record.issuer && sourceContains(normalizedSource, record.issuer)
+              ? record.issuer
+              : undefined,
+          issuedDate: record.issuedDate
+            ? reconcileDate(normalizedSource, record.issuedDate)
+            : undefined,
+        })),
       contact: reconcileContact(
         snapshot.contact,
         sourceResumeText,

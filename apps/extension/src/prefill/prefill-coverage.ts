@@ -28,6 +28,12 @@ export interface PrefillCoverageResult {
   groups: Record<PrefillFieldGroup, PrefillCoverageGroupResult>;
   adapterId?: import('../job-portal/ats-prefill-adapters').AtsPrefillAdapter['id'];
   remainingRecords?: { experience: number; education: number };
+  /** Distinct history rows that received at least one verified value. */
+  recordsFilled?: { experience: number; education: number };
+  /** Native and custom dropdowns whose selection was verified. */
+  dropdownsSelected?: number;
+  /** A verification step the applicant must complete themselves. */
+  accessBarrier?: import('./access-barriers').AccessBarrier;
   firstSkippedSelector?: string;
   applicationScan?: ApplicationFieldScan;
   resumeAttachmentResult?: import('../easy-apply/easy-apply-attachments').ResumeAttachmentResult;
@@ -184,4 +190,51 @@ export function summarizePrefillOutcomes(
     groups: result.groups,
     ...(firstSkippedSelector ? { firstSkippedSelector } : {}),
   };
+}
+
+/**
+ * Controls the applicant should look at, in page order: required fields still
+ * empty, filled fields the site marks invalid, and writes that did not stick.
+ */
+export function attentionControls(result: PrefillCoverageResult): HTMLElement[] {
+  const scan = result.applicationScan;
+  const controls = [
+    ...(scan?.required ?? []).filter(field => !field.filled).map(field => field.control),
+    ...[...(scan?.required ?? []), ...(scan?.optional ?? [])]
+      .filter(field => field.filled && field.invalid).map(field => field.control),
+    ...(result.retryOperations ?? []).map(operation => operation.originalControl),
+  ].filter((control): control is HTMLElement => Boolean(control?.isConnected));
+  const unique = [...new Set(controls)];
+  return unique.sort((left, right) =>
+    left === right ? 0 : left.compareDocumentPosition(right) & 4 ? -1 : 1);
+}
+
+export interface PrefillRunSummary {
+  fieldsFilled: number;
+  experienceRecords: number;
+  educationRecords: number;
+  dropdownsSelected: number;
+  needsAttention: number;
+}
+
+export function prefillRunSummary(result: PrefillCoverageResult): PrefillRunSummary {
+  return {
+    fieldsFilled: result.filled,
+    experienceRecords: result.recordsFilled?.experience ?? 0,
+    educationRecords: result.recordsFilled?.education ?? 0,
+    dropdownsSelected: result.dropdownsSelected ?? 0,
+    needsAttention: attentionControls(result).length,
+  };
+}
+
+/** "24 fields filled · 4 experience records · 3 dropdowns selected · 2 need attention" */
+export function formatPrefillRunSummary(summary: PrefillRunSummary): string {
+  const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+  return [
+    plural(summary.fieldsFilled, 'field filled', 'fields filled'),
+    summary.experienceRecords ? plural(summary.experienceRecords, 'experience record', 'experience records') : '',
+    summary.educationRecords ? plural(summary.educationRecords, 'education record', 'education records') : '',
+    summary.dropdownsSelected ? plural(summary.dropdownsSelected, 'dropdown selected', 'dropdowns selected') : '',
+    summary.needsAttention ? plural(summary.needsAttention, 'needs attention', 'need attention') : '',
+  ].filter(Boolean).join(' · ');
 }

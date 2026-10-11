@@ -1,6 +1,7 @@
 import { markPrefillUndoUnsupported } from './prefill-undo';
 import { enclosingControlRoots, linkedControlElement, isInActiveControlTree } from './scoped-control-dom';
 import { recoverPrefillControl } from './prefill-control-recovery';
+import { countryAlpha2 } from '../shared/phone-country-codes';
 
 export type SmartDropdownMatchKind =
   | 'country'
@@ -18,6 +19,17 @@ export interface SmartDropdownContext {
   stateName?: string;
   /** Rechecked after async option loading, before any selection. */
   shouldContinue?: () => boolean;
+  /**
+   * Whole-list chooser for equivalence matches (e.g. degree level), returning
+   * one option index or -1. Used only when no per-option matcher is given.
+   */
+  pickOption?: (texts: readonly string[]) => number;
+  /**
+   * Text to type into a typeahead (aria-autocomplete) input so its options
+   * load, e.g. a school name. Typing is search, never the answer: a matching
+   * option must still be selected and verified.
+   */
+  searchText?: string;
 }
 
 export interface SmartDropdownOption {
@@ -71,18 +83,10 @@ function normalize(value: string): string {
 }
 
 function canonicalCountry(value: string): string {
-  const normalized = normalize(value);
-  if (
-    /^(?:us|usa|u s|u s a|united states|united states of america|america)$/.test(
-      normalized
-    )
-  ) {
-    return 'united states';
-  }
-  if (/^(?:uk|u k|gb|gbr|great britain|united kingdom)$/.test(normalized)) {
-    return 'united kingdom';
-  }
-  return normalized;
+  // One identity per country however it is written: "United States", "USA",
+  // "US", "United States of America"; "India", "IN", "IND".
+  const alpha2 = countryAlpha2(value);
+  return alpha2 ? `country:${alpha2}` : normalize(value);
 }
 
 function canonicalState(value: string): string {
@@ -507,10 +511,29 @@ function selectedExpectedOption(control: HTMLElement, option: SmartDropdownOptio
   ownSearch: string | undefined, kind: SmartDropdownMatchKind, context: SmartDropdownContext): boolean {
   const committed = committedChoice(control, ownSearch);
   if (!committed || PLACEHOLDER_RE.test(committed)) return false;
-  return normalize(committed) === normalize(option.text) ||
-    Boolean(option.value && normalize(committed) === normalize(option.value)) ||
-    ((kind === 'country' || kind === 'state') &&
-      canonical(committed, kind) === canonical(option.text, kind));
+  if (normalize(committed) === normalize(option.text) ||
+      Boolean(option.value && normalize(committed) === normalize(option.value))) return true;
+  if ((kind === 'country' || kind === 'state') &&
+      canonical(committed, kind) === canonical(option.text, kind)) return true;
+  // Widgets often display a short form of the option just clicked: "+1" for
+  // "United States (+1)", "Austin, TX" for "Austin, Texas, United States".
+  if (kind === 'phoneCountryCode') {
+    const shown = dialCodesInLabel(committed);
+    return shown.length > 0 && dialCodesInLabel(`${option.value} ${option.text}`).some(code => shown.includes(code));
+  }
+  if (kind === 'location') {
+    // Same place, shorter display: every segment the widget shows must agree
+    // with the clicked option (city exactly, region by state code/name,
+    // country by identity). "Boston, England" never confirms "Boston, MA".
+    const shown = committed.split(',').map(part => part.trim()).filter(Boolean);
+    const clicked = option.text.split(',').map(part => part.trim()).filter(Boolean);
+    if (!shown.length || shown.length > clicked.length) return false;
+    if (normalize(shown[0]) !== normalize(clicked[0])) return false;
+    if (shown.length >= 2 && canonicalState(shown[1]) !== canonicalState(clicked[1])) return false;
+    if (shown.length >= 3 && canonicalCountry(shown[2]) !== canonicalCountry(clicked[clicked.length - 1])) return false;
+    return true;
+  }
+  return false;
 }
 
 async function waitForSelection(control: HTMLElement, option: SmartDropdownOption,
@@ -591,8 +614,13 @@ export async function selectSmartDropdown(
     elements = optionElements(control);
   }
   let ownSearch: string | undefined;
-  const searchInput = kind === 'location' && control.tagName === 'INPUT' &&
-    (control.getAttribute('aria-autocomplete') === 'list' || leverLocationSelection(control)) ? control as HTMLInputElement : null;
+  const autocomplete = control.getAttribute('aria-autocomplete');
+  const typeahead = control.tagName === 'INPUT' && (autocomplete === 'list' || autocomplete === 'both');
+  const searchInput =
+    (kind === 'location' && control.tagName === 'INPUT' && (autocomplete === 'list' || leverLocationSelection(control))) ||
+    (context.searchText?.trim() && typeahead)
+      ? control as HTMLInputElement
+      : null;
   const cleanSearch = () => {
     // Do not remove a choice or text entered by the user while loading.
     if (searchInput && ownSearch !== undefined && searchInput.value === ownSearch && !customDropdownHasValue(control, ownSearch)) {
@@ -600,7 +628,7 @@ export async function selectSmartDropdown(
     }
   };
   if (searchInput && !customDropdownHasValue(control)) {
-    ownSearch = desiredValue.split(',')[0].trim();
+    ownSearch = context.searchText?.trim() || desiredValue.split(',')[0].trim();
     const stale = new Map(elements.map(element => [element, JSON.stringify(optionCandidate(element))]));
     setSearchValue(searchInput, ownSearch);
     // Greenhouse can load suggestions while its menu remains closed. Search
@@ -632,6 +660,11 @@ export async function selectSmartDropdown(
         customMatcher(candidate.text || candidate.value, desiredValue)
       );
     if (matching.length === 1) selectedIndex = matching[0].index;
+  } else if (context.pickOption) {
+    const texts = candidates.map(candidate => candidate.text || candidate.value);
+    const picked = context.pickOption(texts);
+    if (picked >= 0 && !candidates[picked]?.disabled &&
+        !PLACEHOLDER_RE.test(texts[picked].trim())) selectedIndex = picked;
   } else {
     const selected = chooseSmartDropdownOption(
       candidates,

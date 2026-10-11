@@ -11,6 +11,8 @@
     "test": "node scripts/run-unit-tests.mjs",
     "test:opt-browser": "node scripts/test-opt-tools-browser.mjs",
     "test:undo-browser": "node scripts/test-prefill-undo-browser.mjs",
+    "test:autofill-browser": "node scripts/test-autofill-browser.mjs",
+    "audit:live-portals": "node scripts/audit-live-portals.mjs",
     "package:store": "node scripts/package-store.mjs",
     "test:release-browser": "node scripts/test-release-browser.mjs"
   },

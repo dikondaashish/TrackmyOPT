@@ -11,6 +11,10 @@ export interface ScannedApplicationField {
   label: string;
   required: boolean;
   filled: boolean;
+  /** Filled, but the site marks it invalid (aria-invalid or failed validity). */
+  invalid?: boolean;
+  /** The site's own error message for this control, when it exposes one. */
+  errorText?: string;
   control?: HTMLElement;
 }
 
@@ -20,6 +24,8 @@ export interface ApplicationFieldScan {
   requiredPercent: number;
   unansweredRequired: number;
   optionalTotal: number;
+  /** Filled fields the site reports as invalid. */
+  invalidTotal: number;
   required: ScannedApplicationField[];
   optional: ScannedApplicationField[];
 }
@@ -191,6 +197,41 @@ function fieldKey(control: HTMLElement, index: number): string {
   );
 }
 
+function deepQueryAll<T extends Element>(root: ParentNode, selector: string): T[] {
+  const found = Array.from(root.querySelectorAll<T>(selector));
+  for (const host of Array.from(root.querySelectorAll<HTMLElement>('*'))) {
+    if (host.shadowRoot) found.push(...deepQueryAll<T>(host.shadowRoot, selector));
+  }
+  return found;
+}
+
+/**
+ * A filled control the site rejects: aria-invalid, or native validity failing
+ * for a reason other than being empty. The message comes only from the
+ * site's own error element (aria-errormessage / an alert or error element in
+ * aria-describedby), never from the value itself.
+ */
+function validationProblem(control: HTMLElement): { message?: string } | undefined {
+  const ariaInvalid = control.getAttribute('aria-invalid') === 'true';
+  const validity = (control as HTMLInputElement).validity;
+  const nativeInvalid = Boolean(validity && !validity.valid && !validity.valueMissing);
+  if (!ariaInvalid && !nativeInvalid) return undefined;
+  const root = control.getRootNode() as Document | ShadowRoot;
+  const ids = [
+    ...(control.getAttribute('aria-errormessage') || '').split(/\s+/),
+    ...(control.getAttribute('aria-describedby') || '').split(/\s+/),
+  ].filter(Boolean);
+  for (const id of ids) {
+    const element = root.getElementById?.(id);
+    if (!element) continue;
+    const isErrorElement = control.getAttribute('aria-errormessage')?.split(/\s+/).includes(id) ||
+      element.getAttribute('role') === 'alert' || /error|invalid/i.test(element.className || '');
+    const text = element.textContent?.replace(/\s+/g, ' ').trim();
+    if (isErrorElement && text) return { message: text.slice(0, 160) };
+  }
+  return {};
+}
+
 export function summarizeApplicationFields(
   fields: ScannedApplicationField[]
 ): ApplicationFieldScan {
@@ -205,6 +246,7 @@ export function summarizeApplicationFields(
       requiredTotal === 0 ? 100 : Math.round((requiredFilled / requiredTotal) * 100),
     unansweredRequired: requiredTotal - requiredFilled,
     optionalTotal: optionalFields.length,
+    invalidTotal: fields.filter((field) => field.filled && field.invalid).length,
     required: requiredFields,
     optional: optionalFields,
   };
@@ -215,7 +257,8 @@ export function scanApplicationFields(
 ): ApplicationFieldScan {
   const selector =
     `input,textarea,select,.ashby-application-form-input-yesno,${CUSTOM_DROPDOWN_SELECTOR}`;
-  const controls = Array.from(root.querySelectorAll<HTMLElement>(selector));
+  // Open shadow roots hold real application controls (SmartRecruiters).
+  const controls = deepQueryAll<HTMLElement>(root, selector);
   const fields: ScannedApplicationField[] = [];
   const seen = new Set<string>();
   for (let index = 0; index < controls.length; index += 1) {
@@ -236,11 +279,14 @@ export function scanApplicationFields(
     if (seen.has(key)) continue;
     seen.add(key);
     const label = labelFor(control) || `Application field ${fields.length + 1}`;
+    const filled = controlFilled(control, root);
+    const validation = filled ? validationProblem(control) : undefined;
     fields.push({
       key,
       label,
       required: required(control),
-      filled: controlFilled(control, root),
+      filled,
+      ...(validation ? { invalid: true, ...(validation.message ? { errorText: validation.message } : {}) } : {}),
       control,
     });
   }

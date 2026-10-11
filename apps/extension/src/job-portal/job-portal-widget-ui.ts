@@ -280,3 +280,15 @@ export function showMessage(message: string, isError: boolean): void {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 3000);
 }
+
+/** One-line prompt above the coverage summary: a new step has fields to fill. */
+export function paintNextStepNudge(line: HTMLElement, message: string): void {
+  line.querySelector('.tmo-next-step-nudge')?.remove();
+  const nudge = document.createElement('p');
+  nudge.className = 'tmo-next-step-nudge';
+  nudge.setAttribute('role', 'status');
+  nudge.textContent = message;
+  nudge.style.cssText = 'margin:0 0 10px;font:600 12px/1.5 system-ui;color:var(--tmo-widget-accent-strong, #245bd6);';
+  line.style.display = 'block';
+  line.prepend(nudge);
+}
