@@ -1,7 +1,7 @@
 # PostHog event taxonomy — TrackMyOPT
 
 **Project:** [369087](https://us.posthog.com/project/369087)  
-**Last updated:** 2026-10-10 (growth reporting audit)
+**Last updated:** 2026-10-11 (direct case onboarding)
 
 Canonical list of product events. Prefer these names in new dashboards and funnels. See [legacy-events.md](./legacy-events.md) for deprecated billing and case-status events.
 
@@ -23,6 +23,13 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | Event | Source | Properties | Notes |
 |-------|--------|------------|-------|
 | `onboarding_started` | Client | — | Wizard opened |
+| `onboarding_intent_selected` | Client | `intent`, `source` | `case_tracking` routes directly to case status; `opt_dates` continues the wizard. Source `onboarding_wizard`; requires consent at action time. This is not onboarding completion. |
+| `receipt_entry_viewed` | Client | `source` | Empty/new receipt form visible; `case_status` or `onboarding_wizard`. Consent-observed. |
+| `receipt_entry_submitted` | Client | `source` | Save attempted, including invalid input; never includes receipt input. |
+| `receipt_entry_validation_failed` | Client | `source`, `reason` | Local `empty` or `format`; expected validation, not a Sentry issue. |
+| `receipt_entry_save_failed` | Client | `source`, `reason` | `limit`, `request`, `network`, or `response`. Distinct from saved-but-pending status. |
+| `receipt_entry_saved` | Client | `source` | API confirms the submitted receipt is saved. Use server `receipt_added` for authoritative new enrollments. |
+| `receipt_entry_status_resolved` | Client | `source` | Successful status returned for the receipt just saved, not another primary case. No pending/failed result counted. |
 | `onboarding_completed` | Client + server | `variant` | Dates + profile saved |
 | `onboarding_receipt_variant_exposed` | Client | `variant` | Experiment 381118 |
 | `receipt_added` | Server | `receipt_prefix`, `notifications_enabled`, `plan_tier`, `is_new_enrollment` | New or changed receipt; `is_first_receipt` is not emitted. **Preferred** over legacy `case_status_enrolled` |
@@ -32,6 +39,14 @@ Canonical list of product events. Prefer these names in new dashboards and funne
 | `extension_detected` | Client | `version`, `source` | Chrome extension present on dashboard |
 | `dashboard_viewed` | Client | `has_receipt`, `path`, `plan_tier`, … | All dashboard routes (Phase 4); once per session |
 | `pwa_installed` | Client | `source` | `appinstalled` / standalone display mode |
+
+Receipt-entry events begin with the October 11 release, without historical
+backfill. Actions before analytics consent are not replayed. Activation capture
+now waits for consent and SDK readiness and remembers capture per account in
+the browser; the previous global marker is ignored. Returning activated users
+can therefore emit once under the new marker. Use new-signup cohorts and unique
+people, not raw activation event counts, when comparing periods. Delivery is
+best effort; these client events do not describe all users or grant access.
 
 ## Monetization
 

@@ -17,7 +17,9 @@ const test = base.extend<object, { vaultUrl: string }>({
       plugins: [react()],
       resolve: { alias: { '@': webRoot } },
       css: { postcss: webRoot },
-      server: { host: '127.0.0.1', port: 0, fs: { allow: [webRoot] } },
+      // Hot refresh is unnecessary for this immutable test fixture; its native
+      // wrapper can stall server startup on local macOS installations.
+      server: { host: '127.0.0.1', hmr: false, port: 0, fs: { allow: [webRoot] } },
       logLevel: 'error',
     });
     await server.listen();

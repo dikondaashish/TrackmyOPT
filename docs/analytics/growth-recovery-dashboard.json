@@ -327,6 +327,102 @@
           "query": "SELECT sum(n) AS signup_events, count() AS signup_people, countIf(n>1) AS people_with_repeated_signup FROM (SELECT person_id,count() AS n FROM events WHERE timestamp >= toStartOfDay(now()) - INTERVAL 28 DAY AND timestamp < toStartOfDay(now()) AND event='user_signed_up' GROUP BY person_id)"
         }
       }
+    },
+    {
+      "name": "Receipt entry: view \u2192 attempt \u2192 save \u2192 resolved",
+      "description": "New consent-observed receipt instrumentation starts October 11 deployment; no historical backfill. Seven-day ordered unique-person funnel split by the first entry source. Saved-but-pending is not a resolved status. Recent cohorts are immature. Compare complete post-release UTC windows.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "receipt_entry_viewed"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "receipt_entry_submitted"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "receipt_entry_saved"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "receipt_entry_status_resolved"
+            }
+          ],
+          "breakdownFilter": {
+            "breakdown": "source",
+            "breakdown_type": "event"
+          },
+          "version": 2,
+          "dateRange": {
+            "date_from": "2026-10-11",
+            "date_to": "-1d",
+            "explicitDate": true
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          }
+        }
+      }
+    },
+    {
+      "name": "Dashboard starting choice \u2192 receipt \u2192 resolved status",
+      "description": "Generic dashboard welcome only; direct acquisition links bypass this choice. Intent attributed at first touch. Seven-day ordered funnel, consent-observed; recent entrants are immature. New events have no historical backfill.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "FunnelsQuery",
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "onboarding_intent_selected"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "receipt_entry_viewed"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "receipt_entry_saved"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "receipt_entry_status_resolved"
+            }
+          ],
+          "breakdownFilter": {
+            "breakdown": "intent",
+            "breakdown_type": "event"
+          },
+          "version": 2,
+          "dateRange": {
+            "date_from": "2026-10-11",
+            "date_to": "-1d",
+            "explicitDate": true
+          },
+          "properties": [],
+          "filterTestAccounts": true,
+          "funnelsFilter": {
+            "funnelVizType": "steps",
+            "funnelOrderType": "ordered",
+            "funnelWindowInterval": 7,
+            "funnelWindowIntervalUnit": "day",
+            "funnelStepReference": "total",
+            "breakdownAttributionType": "first_touch"
+          }
+        }
+      }
     }
   ]
 }

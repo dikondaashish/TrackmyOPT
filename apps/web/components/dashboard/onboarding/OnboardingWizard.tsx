@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
+import { hasAnalyticsConsent } from "@/lib/cookie-consent";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/useToast";
 import {
@@ -11,6 +13,7 @@ import {
   captureOnboardingStepCompleted,
   captureOnboardingSkipped,
   captureOnboardingCompleted,
+  captureClientEvent,
   type OnboardingWizardStep,
 } from "@/lib/posthog-client";
 import { useOnboardingReceiptVariant } from "@/hooks/useOnboardingReceiptVariant";
@@ -18,7 +21,11 @@ import {
   isReceiptStepSkippable,
   shouldDeferReceiptStep,
 } from "@/lib/posthog/onboarding-receipt-variant";
-import { saveReceiptAndPoll, type CaseStatusRecord } from "@/lib/case-status/save-receipt-and-poll";
+import {
+  saveReceiptAndPoll,
+  type CaseStatusRecord,
+} from "@/lib/case-status/save-receipt-and-poll";
+import { trackReceiptEntry } from "@/lib/case-status/receipt-entry-observability";
 import {
   DEFAULT_FILING_CATEGORY,
   filingCategoryFromJourneyStatus,
@@ -44,7 +51,11 @@ interface OnboardingWizardProps {
   onSkip?: () => void;
 }
 
-export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizardProps) {
+export function OnboardingWizard({
+  isOpen,
+  onComplete,
+  onSkip,
+}: OnboardingWizardProps) {
   const { toast } = useToast();
   const { variant: receiptVariant } = useOnboardingReceiptVariant(isOpen);
 
@@ -65,10 +76,13 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
 
   // Receipt step
   const [receiptNumber, setReceiptNumber] = useState("");
-  const [filingCategory, setFilingCategory] = useState<FilingCategory>(DEFAULT_FILING_CATEGORY);
+  const [filingCategory, setFilingCategory] = useState<FilingCategory>(
+    DEFAULT_FILING_CATEGORY
+  );
   const [receiptError, setReceiptError] = useState<string | null>(null);
   const [isReceiptSaving, setIsReceiptSaving] = useState(false);
-  const [savedCaseStatus, setSavedCaseStatus] = useState<CaseStatusRecord | null>(null);
+  const [savedCaseStatus, setSavedCaseStatus] =
+    useState<CaseStatusRecord | null>(null);
   const [receiptStatusPending, setReceiptStatusPending] = useState(false);
 
   const onboardingTrackedRef = useRef(false);
@@ -82,6 +96,11 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
 
   const handleNext = () => {
     if (step === "welcome") {
+      if (hasAnalyticsConsent())
+        captureClientEvent("onboarding_intent_selected", {
+          intent: "opt_dates",
+          source: "onboarding_wizard",
+        });
       captureOnboardingStepCompleted({ step: "welcome" });
       setStep("course");
     } else if (step === "course") {
@@ -112,6 +131,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     if (step !== "receipt" || receiptPromptTrackedRef.current) return;
     receiptPromptTrackedRef.current = true;
     captureOnboardingReceiptPromptShown();
+    trackReceiptEntry("receipt_entry_viewed", "onboarding_wizard");
   }, [step]);
 
   const skipForNowClassName =
@@ -135,6 +155,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         return;
       }
     } catch {
+      Sentry.captureException(
+        new Error("Onboarding dismissal could not be saved")
+      );
       onboardingTrackedRef.current = false;
       toast({
         title: "Could not save onboarding",
@@ -153,7 +176,11 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       const dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
       if (dateRegex.test(value)) {
         const parts = value.split("/");
-        const date = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+        const date = new Date(
+          parseInt(parts[2]),
+          parseInt(parts[0]) - 1,
+          parseInt(parts[1])
+        );
         date.setDate(date.getDate() + 364);
 
         const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -225,6 +252,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         return;
       }
     } catch {
+      Sentry.captureException(
+        new Error("Onboarding completion could not be saved")
+      );
       onboardingTrackedRef.current = false;
       toast({
         title: "Could not save onboarding",
@@ -296,10 +326,23 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         setFilingCategory(filingCategoryFromJourneyStatus(status));
         setStep("receipt");
       } else {
-        throw new Error(result.error || "Failed to save dates");
+        if (response.ok)
+          Sentry.captureException(
+            new Error("Onboarding dates returned an unsuccessful response")
+          );
+        toast({
+          title: "Could not save dates",
+          description: "Please check your dates and try again.",
+          variant: "destructive",
+        });
       }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch {
+      Sentry.captureException(new Error("Onboarding dates request failed"));
+      toast({
+        title: "Could not save dates",
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      });
       setStep("dates");
     } finally {
       setIsSaving(false);
@@ -308,9 +351,17 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
 
   const handleReceiptSave = async () => {
     setReceiptError(null);
+    trackReceiptEntry("receipt_entry_submitted", "onboarding_wizard");
 
-    const validation = validateReceiptNumber(receiptNumber, { strictPrefix: true });
+    const validation = validateReceiptNumber(receiptNumber, {
+      strictPrefix: true,
+    });
     if (!validation.valid) {
+      trackReceiptEntry(
+        "receipt_entry_validation_failed",
+        "onboarding_wizard",
+        receiptNumber.trim() ? "format" : "empty"
+      );
       setReceiptError(validation.error);
       return;
     }
@@ -351,7 +402,12 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         );
       }
     } catch {
-      setReceiptError("An error occurred while saving your receipt. Please try again.");
+      Sentry.captureException(
+        new Error("Onboarding receipt save failed unexpectedly")
+      );
+      setReceiptError(
+        "An error occurred while saving your receipt. Please try again."
+      );
     } finally {
       setIsReceiptSaving(false);
       setReceiptStatusPending(false);
@@ -411,6 +467,9 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         return;
       }
     } catch {
+      Sentry.captureException(
+        new Error("Onboarding dismissal could not be saved")
+      );
       onboardingTrackedRef.current = false;
       return;
     }
@@ -450,13 +509,25 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
       >
         {/* Header Progress */}
         <div className="h-1.5 w-full bg-muted flex">
-          <div className={`h-full bg-blue-600 transition-all duration-500 ${progressWidth}`} />
+          <div
+            className={`h-full bg-blue-600 transition-all duration-500 ${progressWidth}`}
+          />
         </div>
 
-        <div className="p-8 sm:p-10 min-h-[460px] flex flex-col">
+        <div className="p-5 sm:p-10 min-h-[460px] max-h-[85dvh] overflow-y-auto flex flex-col">
           {step === "welcome" && (
             <WelcomeStep
               onNext={handleNext}
+              onTrackCase={() => {
+                if (hasAnalyticsConsent())
+                  captureClientEvent("onboarding_intent_selected", {
+                    intent: "case_tracking",
+                    source: "onboarding_wizard",
+                  });
+                // Route choice is not completed OPT setup; never wait on a
+                // profile write or call the dashboard reload callback here.
+                onSkip?.();
+              }}
               onSkipForNow={handleSkipForNow}
               skipForNowClassName={skipForNowClassName}
             />

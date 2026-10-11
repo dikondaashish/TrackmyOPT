@@ -103,3 +103,41 @@ Measurement rules:
 Review after seven complete days: compare eligible offer exposure, consent-observed click-through, checkout success, paid starts and cancellation requests by product source and billing interval. Review renewal after cohorts mature. Choose the next change from the largest observed loss and actual monitoring failures. This implementation cannot guarantee two paid starts daily.
 
 Authoritative implementation references: [PostHog event deduplication](https://posthog.com/docs/data/events), [Stripe Checkout fulfillment](https://docs.stripe.com/checkout/fulfillment), and [Stripe invoice fields](https://docs.stripe.com/api/invoices/object).
+
+## Direct case onboarding — October 11
+
+The generic dashboard welcome now offers **Track my case** and **Set up OPT
+dates**. Case tracking routes straight to the existing receipt page, dismisses
+the welcome locally, and does not write completed OPT setup flags or reload the
+dashboard. The dates choice preserves the current wizard and receipt experiment.
+Existing acquisition links that already target case status keep their direct path.
+
+Receipt instructions and the contextual case insight dialog use shorter copy.
+The existing focused $0.99 offer remains the post-result offer, with its existing
+eligibility, billing interval choices, renewal amounts, and explicit consent.
+There is no extra promotional modal or billing configuration change.
+
+Both receipt-entry paths share enrollment and polling. Polling finds the receipt
+just saved across all tracked cases, keeps saved-but-pending enrollment separate
+from a resolved result, and reports unexpected failures with static Sentry messages.
+The initial server check runs inside Next `after()` so response completion does
+not abandon the request; rejected or malformed background checks are reported.
+Expected validation, authentication, plan limits, and USCIS rejection outcomes
+remain separate. Pro eligibility and checkout network/invalid-response failures
+also report safe diagnostics. Existing privacy filters and free-plan monitoring
+settings remain unchanged; monitoring is subject to runtime and quota limits.
+
+The [event taxonomy](../../apps/web/lib/posthog/event-taxonomy.md) defines the new
+consent-observed receipt stages and starting intent. No receipt input, case ID,
+response body, or applicant information is included. The activation tracker now
+waits for consent and SDK readiness and scopes its browser marker to the account.
+Its marker change can allow returning activated users to capture once; compare
+new-signup cohorts rather than interpreting that as new activation growth.
+
+At the first review with seven complete post-release UTC days, compare starting
+choice → receipt view → attempt → confirmed save → resolved status, split by
+source and device. Include local validation reasons, saved-but-pending cases,
+checkout failures, and the existing eligible offer → verified paid-start funnel.
+Reconcile `pro_paid_intro_started` with Stripe. Keep the target of two verified
+$0.99 starts per day and 14 per week; this release is a measurable friction
+reduction, not evidence that the revenue target has been reached.

@@ -2,6 +2,7 @@
 
 import { Crown, Shield, Zap } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { PromoCodeCheckoutBar } from '@/components/pricing/PromoCodeCheckoutBar';
@@ -100,11 +101,13 @@ function PricingModalContent({
     if (isPremium) return;
 
     const controller = new AbortController();
+    let eligibilityStatus: number | undefined;
     void fetch('/api/premium/status', {
       credentials: 'include',
       signal: controller.signal,
     })
       .then(async (response) => {
+        eligibilityStatus = response.status;
         if (!response.ok)
           throw new Error('Unable to verify introductory eligibility');
         return response.json();
@@ -113,6 +116,8 @@ function PricingModalContent({
         if (controller.signal.aborted) return;
         const eligible =
           status?.proPaidIntroEligible ?? status?.proFreeTrialEligible;
+        if (typeof eligible !== 'boolean')
+          throw new Error('Missing Pro eligibility');
         setProIntroEligible(eligible === true);
         captureClientEvent('pro_offer_viewed', {
           source: checkoutSource,
@@ -121,8 +126,16 @@ function PricingModalContent({
         });
       })
       .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError')
+        if (
+          controller.signal.aborted ||
+          (error instanceof DOMException && error.name === 'AbortError')
+        )
           return;
+        if (eligibilityStatus === undefined || eligibilityStatus < 400) {
+          Sentry.captureException(
+            new Error('Pro offer eligibility request failed')
+          );
+        }
         // Fail closed: never advertise an introductory offer we cannot verify.
         setProIntroEligible(null);
         setEligibilityError(true);
@@ -280,20 +293,22 @@ function PricingModalContent({
         failure_kind: 'unexpected_response',
         plan_tier: selectedPlan,
       });
+      Sentry.captureException(
+        new Error('Pro checkout returned an unexpected response')
+      );
       setPromoError(
         'Unexpected checkout response. Please try again or contact support.'
       );
-    } catch (error) {
+    } catch {
+      Sentry.captureException(new Error('Pro checkout request failed'));
       captureClientEvent('pro_checkout_failed', {
         source: checkoutSource,
         failure_kind: 'network_or_response',
         plan_tier: selectedPlan,
       });
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Failed to start upgrade process.';
-      setPromoError(message);
+      setPromoError(
+        'Could not start checkout. Check your connection and try again.'
+      );
     } finally {
       setIsLoading(false);
     }
