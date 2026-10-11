@@ -3,7 +3,7 @@
   "description": "Track processing-guide acquisition and case activation. Seven-day ordered funnels; 28-day lookback excluding today. Recent cohorts are immature. Client consent affects coverage. SQL guardrails include all project actors; funnels exclude configured test accounts. See docs/plans/growth-recovery-2026-10.md.",
   "insights": [
     {
-      "name": "Guest acquisition: blog CTA \u2192 estimate \u2192 tracking \u2192 signup",
+      "name": "Guest acquisition: blog CTA → estimate → tracking → signup",
       "description": "Unique people; case-status CTA only. Ordered seven-day conversion window. Since tool launch October 5, excluding today; recent entrants are immature. Consent-observed, not all visitors.",
       "query": {
         "kind": "InsightVizNode",
@@ -173,7 +173,7 @@
       }
     },
     {
-      "name": "New signup \u2192 receipt added \u2192 activation (7 days)",
+      "name": "New signup → receipt added → activation (7 days)",
       "description": "Unique people, ordered within seven days after signup. Receipt event lacks is_first_receipt; this measures any receipt addition after signup. A client activation event requires consent; recent cohorts have not matured.",
       "query": {
         "kind": "InsightVizNode",
@@ -213,7 +213,7 @@
       }
     },
     {
-      "name": "Search-referred blog visit \u2192 CTA \u2192 activation",
+      "name": "Search-referred blog visit → CTA → activation",
       "description": "Search-referrer proxy, not verified organic sessions: Google/Bing/DuckDuckGo referral, no paid utm_medium. Unique people within seven days of blog pageview; repeat visits may enter. Compare this denominator only with its own funnel conversions.",
       "query": {
         "kind": "InsightVizNode",
@@ -329,7 +329,7 @@
       }
     },
     {
-      "name": "Receipt entry: view \u2192 attempt \u2192 save \u2192 resolved",
+      "name": "Receipt entry: view → attempt → save → resolved",
       "description": "New consent-observed receipt instrumentation starts October 11 deployment; no historical backfill. Seven-day ordered unique-person funnel split by the first entry source. Saved-but-pending is not a resolved status. Recent cohorts are immature. Compare complete post-release UTC windows.",
       "query": {
         "kind": "InsightVizNode",
@@ -359,9 +359,9 @@
           },
           "version": 2,
           "dateRange": {
-            "date_from": "2026-10-11",
+            "date_from": "-28d",
             "date_to": "-1d",
-            "explicitDate": true
+            "explicitDate": false
           },
           "properties": [],
           "filterTestAccounts": true,
@@ -377,7 +377,7 @@
       }
     },
     {
-      "name": "Dashboard starting choice \u2192 receipt \u2192 resolved status",
+      "name": "Dashboard starting choice → receipt → resolved status",
       "description": "Generic dashboard welcome only; direct acquisition links bypass this choice. Intent attributed at first touch. Seven-day ordered funnel, consent-observed; recent entrants are immature. New events have no historical backfill.",
       "query": {
         "kind": "InsightVizNode",
@@ -407,9 +407,9 @@
           },
           "version": 2,
           "dateRange": {
-            "date_from": "2026-10-11",
+            "date_from": "-28d",
             "date_to": "-1d",
-            "explicitDate": true
+            "explicitDate": false
           },
           "properties": [],
           "filterTestAccounts": true,
