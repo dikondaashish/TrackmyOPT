@@ -193,6 +193,7 @@ it('requires provider approval and supports the owner-approved existing Zoho acc
       SMTP_PASS: 'x',
     })
   ).toThrow('approval');
+  // Inert fixture strings: this provider-options test never connects to SMTP.
   const configured = {
     CAMPAIGN_MARKETING_PROVIDER_APPROVED: 'true',
     SMTP_HOST: 'smtp.zeptomail.com',
