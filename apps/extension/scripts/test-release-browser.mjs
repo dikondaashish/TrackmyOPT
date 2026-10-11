@@ -33,8 +33,39 @@ const launch = async () => {
     if (route.request().url().startsWith('https://jobs.lever.co/example/')) return route.fulfill({ contentType:'text/html',body:html });
     return route.fulfill({status:401,contentType:'application/json',body:'{"error":"not_signed_in"}'});
   });
-  return context.serviceWorkers()[0] ?? context.waitForEvent('serviceworker');
+  return extensionHandle();
 };
+// Root cause of the intermittent "browser has been closed" failures: after Chrome restarts on an
+// existing profile, Playwright can hold a service-worker handle whose script context it never saw
+// (seen on loaded machines). worker.evaluate() on that handle never returns, although the worker is
+// healthy and answers extension messages. Everything this test evaluates (chrome.storage,
+// chrome.runtime.getManifest, chrome.tabs) also exists in an extension page, so use the real worker
+// when it answers and otherwise a bare extension document that runs none of the extension's scripts.
+let extensionId;
+const answersWithin=(promise,ms)=>Promise.race([promise.then(()=>true,()=>false),new Promise(resolve=>setTimeout(()=>resolve(false),ms))]);
+async function discoverExtensionId(){
+  const page=await context.newPage();
+  try {
+    const {targetInfos}=await (await context.newCDPSession(page)).send('Target.getTargets');
+    const target=targetInfos.find(info=>info.url.startsWith('chrome-extension://'));
+    return target && new URL(target.url).host;
+  } finally { await page.close().catch(()=>{}); }
+}
+async function extensionHandle(){
+  // The first launch has to wait for Chrome to install the extension, which is slow on a loaded machine.
+  const worker=context.serviceWorkers()[0] ?? await context.waitForEvent('serviceworker',{timeout:extensionId?20000:60000}).catch(()=>undefined);
+  if(worker) extensionId=new URL(worker.url()).host;
+  if(worker && await answersWithin(worker.evaluate(()=>chrome.runtime.id),8000)) return worker;
+  extensionId??=await discoverExtensionId();
+  if(!extensionId) throw new Error('Chrome did not load the extension: no service worker and no chrome-extension:// target appeared.');
+  console.log('NOTE: Playwright could not evaluate in the service worker; using an extension page for chrome.* calls');
+  const page=await context.newPage();
+  await page.goto(`chrome-extension://${extensionId}/manifest.json`);
+  // Prove the background is alive without Playwright's worker handle: a dead worker has no receiving end.
+  const ping=await page.evaluate(()=>chrome.runtime.sendMessage({type:'TMO_RELEASE_TEST_PING'}).then(()=>'ok',error=>String(error?.message||error)));
+  assert.doesNotMatch(ping,/Receiving end does not exist/,'extension background did not receive a message after restart');
+  return { url:()=>`chrome-extension://${extensionId}/background.js`, evaluate:(fn,arg)=>page.evaluate(fn,arg) };
+}
 try {
   let worker = await launch();
   if(testReplacement) assert.equal(await worker.evaluate(() => chrome.runtime.getManifest().version),previousVersion);

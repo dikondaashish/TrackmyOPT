@@ -22,8 +22,12 @@ Consequences:
   `supabase migration repair` against production are **not safe**. The CLI sees
   almost every local file as "not applied" and would try to run them again.
   Do not use them on production.
-- `supabase db reset` against a **local** database is fine and is how the local
-  folder is validated: it must replay cleanly from empty.
+- `supabase db reset` against a **local** database cannot rebuild the whole schema
+  from this folder alone: the core tables are not created by any migration, and
+  `20260322_enforce_core_rls.sql` runs before the migrations that create the tables
+  it adds policies to (see "Known limits of replaying this folder" in
+  [`supabase/README.md`](../../supabase/README.md)). Use it only on a database that
+  already has the production schema.
 
 ## Adding a migration
 
@@ -42,8 +46,10 @@ Consequences:
 3. **Check it:** `node scripts/operations/check-migrations.mjs` (also runs in CI).
    It fails on duplicate versions, malformed names, and new files that are not
    newer than production.
-4. **Rehearse it** on a throwaway database: local `supabase db reset`, or a
-   Supabase development branch (branches can incur cost, so confirm that first).
+4. **Rehearse it** on a throwaway copy of the production schema (a Supabase
+   development branch, which can incur cost so confirm that first, or a local
+   database restored from a schema dump). Do not rehearse by replaying this folder
+   from empty; that does not work today.
 5. **Apply to production** with MCP `apply_migration` or the dashboard SQL editor,
    using the same SQL as the file. Then run the Supabase security and performance
    advisors and fix anything the change introduced.
