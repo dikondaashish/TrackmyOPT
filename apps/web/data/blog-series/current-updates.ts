@@ -186,9 +186,9 @@ export const currentUpdateArticles = [
     ],
     sections: [
       {
-        heading: 'What changed after our original August article',
+        heading: 'What the September court order changed',
         paragraphs: [
-          'Our original article explained a final rule that DHS had published with a planned September 15, 2026 effective date. On September 14, the U.S. District Court for the District of Massachusetts postponed that effective date and preliminarily barred further implementation. This update replaces the earlier “scheduled to take effect” guidance.',
+          'DHS published a final rule with a planned September 15, 2026 effective date. On September 14, the U.S. District Court for the District of Massachusetts postponed that effective date and preliminarily barred further implementation. This guidance reflects the court order, rather than treating the original schedule as proof that the rule started.',
           'The order is preliminary. It does not permanently erase the rule or decide every issue in the lawsuit. It postpones the rule pending further court order or resolution on the merits. The distinction matters: students should not act as if the new requirements started, but also should not assume the litigation can never change.',
           'The plaintiffs’ litigation page reports a September 30 appeal and an October 2 status conference while continuing to describe the rule as blocked nationwide. That is a status report from a party to the case. The court order is the primary authority for the postponement, and both are linked below.',
         ],
