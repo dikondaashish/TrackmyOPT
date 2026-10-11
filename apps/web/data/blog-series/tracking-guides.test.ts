@@ -57,6 +57,10 @@ describe('search-intent publishing contracts', () => {
   });
 
   it('preserves original publication dates and dates the court-aware refresh', () => {
+    expect(
+      researchArticleBySlug.get('september-2026-f1-fixed-admission-rule-opt')
+        ?.publishedDate
+    ).toBe('2026-09-15');
     expect(editorialRefreshes.map((article) => article.publishedDate)).toEqual([
       '2026-07-14',
       '2026-03-17',

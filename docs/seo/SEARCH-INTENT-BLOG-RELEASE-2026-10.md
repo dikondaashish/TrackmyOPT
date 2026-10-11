@@ -51,6 +51,11 @@ dates reflect this substantive edit. Structured articles use editorial dates
 in the sitemap, rather than the deployment clock. Blog cards are deduplicated
 by canonical slug.
 
+The D/S canonical has an explicit static route, so it now renders the same
+article record used by the index and sitemap. Its original live publication
+date is September 15, 2026; the older duplicate research record used August 27.
+An integration check covers this route to prevent that divergence recurring.
+
 ## Media
 
 Six new cover illustrations are optimized to 1200 × 630 WebP. They are

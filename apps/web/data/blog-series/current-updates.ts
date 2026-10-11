@@ -165,14 +165,15 @@ export const currentUpdateArticles = [
       'September 2026 F-1 rule',
     ],
     readTime: '6 min read',
-    publishedDate: '2026-08-27',
+    publishedDate: '2026-09-15',
     modifiedDate: '2026-10-11',
     newsSitemapEligible: false,
     cta: 'opt-timeline',
-    image: '/blog/students-campus-public-domain.jpg',
-    imageAlt: 'Students studying on the lawn at Bastyr University campus',
+    image: '/blog/september-2026-f1-fixed-admission-rule-opt.svg',
+    imageAlt:
+      'TrackMyOPT illustration of the F-1 Duration of Status court update',
     imageCaption:
-      'Students on the Bastyr University campus. Public-domain photograph released by Bastyr University.',
+      'TrackMyOPT illustration: check the current court status before acting on a published rule.',
     statusNote:
       'Checked October 11, 2026: the September 14 court order postponed the final rule. The plaintiffs’ current case page reports that it remains blocked nationwide. Litigation is ongoing; this is a dated update, not a guarantee that the order will remain unchanged.',
     directAnswer:
@@ -289,7 +290,6 @@ export const currentUpdateArticles = [
         url: 'https://oiss.yale.edu/news/important-update-court-action-on-the-ds-rule',
       },
       source.fixedAdmissionRule,
-      source.campusStudentsPhoto,
     ],
     related: [
       {
