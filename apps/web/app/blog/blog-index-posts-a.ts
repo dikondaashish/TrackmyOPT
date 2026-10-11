@@ -5,6 +5,18 @@ import {
 
 export const blogPostsPartOne = [
   {
+    slug: 'f1-visa-fbar-filing-requirements-2026',
+    title: 'Do F-1 Students on OPT or STEM OPT Need to File an FBAR? (2026)',
+    description:
+      'Compare five fictional students, follow the residency decision tree, and learn the foreign-account threshold and FBAR deadlines.',
+    category: 'Tax & Finance',
+    readTime: '16 min read',
+    date: 'October 11, 2026',
+    tags: ['FBAR', 'F-1', 'OPT', 'STEM OPT', 'Tax Residency'],
+    featured: true,
+    image: '/blog/fbar-2026/cover.png',
+  },
+  {
     slug: 'fy2027-h1b-no-second-lottery-opt-backup-plan',
     title:
       'FY 2027 H-1B Lottery: No Second Round — What OPT Students Must Do Now',
