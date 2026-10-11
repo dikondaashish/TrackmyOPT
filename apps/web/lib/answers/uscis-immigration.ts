@@ -564,83 +564,108 @@ export const uscisImmigrationAnswers: AnswerEntry[] = [
         }
     },
     {
-        slug: "what-is-rfe-uscis",
-        question: "What Is an RFE (Request for Evidence) from USCIS?",
-        shortAnswer:
-            "An RFE (Request for Evidence) is a written notice from USCIS asking an applicant to submit additional documentation or information needed to adjudicate their case. For OPT applicants, an RFE typically requests missing documents, clarification on eligibility, or corrected information, and must be responded to within 87 days to avoid denial.",
-        lastUpdated: "February 2026",
-        category: "uscis-immigration",
-        categoryLabel: "USCIS & Immigration",
-        keyTakeaway:
-            "If you receive an RFE, do not panic—carefully read every item requested, gather all required evidence, and submit a complete, well-organized response well before the 87-day deadline to maximize your chances of approval.",
-        sections: [
+        "slug": "what-is-rfe-uscis",
+        "question": "What Is an RFE (Request for Evidence) from USCIS?",
+        "shortAnswer": "An RFE is a USCIS notice requesting evidence needed to decide an application or petition. It is not a denial or an approval promise. Read the full notice, follow its specific response deadline and submission instructions, and address every requested item. Do not assume all RFEs allow 87 days.",
+        "lastUpdated": "October 11, 2026",
+        "category": "uscis-immigration",
+        "categoryLabel": "USCIS & Immigration",
+        "keyTakeaway": "Use the deadline and instructions printed on your RFE. Build a complete response with your DSO, employer, or attorney as appropriate, and keep copies and submission evidence.",
+        "sections": [
             {
-                heading: "What an RFE Is and Why USCIS Issues One",
-                paragraphs: [
-                    "A Request for Evidence (RFE) is an official notice issued by USCIS when an adjudicating officer determines that the evidence submitted with an application or petition is insufficient to make a decision. Rather than denying the case outright, the officer gives the applicant an opportunity to provide the missing or additional evidence needed to establish eligibility for the requested benefit.",
-                    "For F-1 students applying for OPT through Form I-765, common reasons for receiving an RFE include missing copies of previous I-20 forms, passport photos that do not meet USCIS specifications, a mismatch between the I-765 and the I-20 (such as different program end dates or eligibility categories), missing proof of student status, or a SEVIS record that appears inactive or inconsistent with the application.",
-                    "An RFE is not a denial. It is an opportunity to supplement your application with the information USCIS needs. However, receiving an RFE does add time to the overall processing timeline, often extending it by several weeks to months depending on how quickly you respond and how long USCIS takes to re-adjudicate after receiving your response."
+                "heading": "What an RFE Means—and What It Does Not Mean",
+                "paragraphs": [
+                    "USCIS may request additional evidence when the existing record is not enough to establish eligibility. The notice explains the evidence or clarification needed. A short case-status message saying an RFE was sent is a signal to retrieve the full notice; it cannot tell you what documents to prepare.",
+                    "An RFE is not a denial. It also does not mean that approval is guaranteed if you send something back. USCIS will consider the response with the existing record and decide whether the requirements are met. Avoid interpreting the request as a positive or negative prediction before reading it.",
+                    "For OPT or STEM OPT, the request may involve identity documents, student records, the recommendation or eligibility category, or evidence about the qualifying degree or employment arrangement. These are examples, not a list of requirements for every case. Follow the actual notice instead of assembling an unrelated checklist from a forum."
                 ]
             },
             {
-                heading: "How to Respond to an RFE",
-                paragraphs: [
-                    "When you receive an RFE, the first step is to carefully read the entire notice. The RFE letter will list each specific piece of evidence or information that USCIS is requesting. It will also include a deadline for your response—typically 87 days from the date the RFE was issued. It is essential to respond before this deadline because failure to respond results in USCIS adjudicating the case based on the existing record, which often leads to denial.",
-                    "Your response should address every item listed in the RFE, even if you believe some requests are unnecessary. Organize your response with a cover letter that references your receipt number, lists each RFE item, and explains how the enclosed evidence addresses each request. Include a copy of the original RFE notice with your response so the officer can easily match your submission to the pending case.",
-                    "Submit your RFE response to the address specified in the RFE notice—this is usually a specific USCIS lockbox or service center address that may differ from where you originally filed. Use a trackable mailing method (such as USPS Certified Mail, FedEx, or UPS) and keep copies of everything you send. Consider also contacting your DSO, as they may be able to provide supporting documentation or verify SEVIS information."
+                "heading": "Read the Actual Response Deadline",
+                "paragraphs": [
+                    "Use the response date printed in the notice and the instructions explaining how USCIS must receive the response. There is no universal 87-day deadline for every RFE. Different notices and circumstances can have different response periods, so a generic blog deadline should never replace the one USCIS gave you.",
+                    "Work backward from that date. Allow time to obtain records, arrange translations where required, have the response reviewed, and submit by the specified method. If the notice arrived late or cannot be found, contact USCIS through the appropriate official channel and seek advice promptly. Do not assume that missing mail automatically extends the deadline.",
+                    "If you cannot obtain an item, ask a qualified adviser how to address that specific issue. Do not invent evidence or silently leave the item out. A partial response can have consequences, and requests for an extension should not be assumed available. Keep the distinction between an RFE and a notice of intent to deny; they are different notices with their own instructions."
                 ],
-                bulletPoints: [
-                    "Read the entire RFE notice carefully and identify every requested item",
-                    "Respond to every item listed, not just some",
-                    "Include a cover letter referencing your receipt number",
-                    "Submit before the 87-day deadline (aim for well before)",
-                    "Use a trackable mailing method and keep copies of everything",
-                    "Contact your DSO for supporting documentation if needed"
-                ],
-                importantNote:
-                    "The 87-day deadline is counted from the date on the RFE notice, not from the date you receive it. Mail delays can reduce your effective response time, so act quickly."
+                "importantNote": "The full USCIS notice controls the response deadline, destination, and permitted submission method. Read it before acting."
             },
             {
-                heading: "Common RFE Scenarios for OPT Applicants",
-                paragraphs: [
-                    "One of the most frequent RFE scenarios for OPT applicants involves discrepancies between the Form I-765 and the Form I-20. For example, if the program end date on the I-765 does not match the I-20, USCIS will request clarification. This can happen when the DSO issues a program extension after the I-765 was filed, or when the student entered incorrect dates on the application.",
-                    "Another common scenario is a request for proof of student status, such as transcripts showing enrollment or a letter from the registrar confirming program completion. USCIS may also request additional identity documents if the submitted passport copies were unclear or if the applicant's name differs across documents (such as a maiden name versus married name).",
-                    "For STEM OPT extension applicants, RFEs may request proof that the employer is enrolled in E-Verify, a copy of the Form I-983 Training Plan, or verification that the applicant's degree qualifies as a STEM-designated field. Having these documents prepared and verified before filing can help avoid an RFE altogether."
+                "heading": "Build a Complete, Organized Response",
+                "paragraphs": [
+                    "Make a list of every requested item. For each, note who can provide it, what the document should show, and whether the response needs an explanation. Your DSO can help with school and SEVIS records; an employer can help with its own records; an attorney can assess a legal or eligibility issue.",
+                    "Use a cover letter or clear index where appropriate to connect the response to the notice and explain how the evidence addresses each request. Include the notice or response sheet as directed. Keep names and identifiers consistent and make sure copies are readable. A large pile of unrelated documents is harder to evaluate than a focused response.",
+                    "Submit through the method and destination stated in the RFE. Do not assume that the original application address is also the response address or that an online upload is permitted simply because you have an account. Save the complete response and proof of submission or delivery. Avoid submitting the same response through multiple routes unless instructed."
+                ],
+                "bulletPoints": [
+                    "Read the entire notice and list every requested item.",
+                    "Coordinate school, employer, and legal records with the appropriate people.",
+                    "Follow the notice’s deadline and submission instructions.",
+                    "Save the response, confirmation, and delivery evidence."
                 ]
             },
             {
-                heading: "What Happens After You Respond to an RFE",
-                paragraphs: [
-                    "After USCIS receives your RFE response, the case returns to an officer for review. The officer will evaluate the newly submitted evidence along with the original application to determine whether eligibility requirements are met. If the response fully addresses all requested items, the case will typically be approved. If the response is incomplete or the evidence is still insufficient, USCIS may issue another RFE, issue a Notice of Intent to Deny (NOID), or deny the application.",
-                    "The time between submitting an RFE response and receiving a decision varies. Some applicants receive a decision within a few weeks, while others wait several months. You can track the progress of your case using your receipt number on the USCIS Case Status Online tool. If your case status changes to 'Response to RFE Was Received,' it confirms that USCIS has received your submission.",
-                    "If your case is ultimately denied after an RFE response, the denial notice will explain the reasons. Depending on the circumstances, you may be able to file a motion to reopen or reconsider, or you may be able to submit a new application. Consult with your DSO and an immigration attorney to evaluate your options."
+                "heading": "Example: Ravi Receives an OPT Document Request",
+                "paragraphs": [
+                    "Fictional example: Ravi sees “Request for Evidence Was Sent” on his pending OPT case. He first opens the notice rather than assuming USCIS wants the same document requested from a friend.",
+                    "The notice asks for a particular student-record clarification. Ravi contacts his DSO, checks each requested item, and builds a response around the notice. He calendars its deadline and leaves time for review and delivery. He keeps the evidence and submission confirmation privately.",
+                    "If the case later shows that the response was received, Ravi records that milestone and continues checking for notices. He does not tell an employer that the response guarantees an approval date or gives him permission to work. The case still requires a decision and the applicable authorization documents."
+                ]
+            },
+            {
+                "heading": "After the Response: Status, Premium Clock, and Next Steps",
+                "paragraphs": [
+                    "USCIS will evaluate the new evidence with the existing record. The outcome may be approval, denial, or another notice depending on the case. A complete response is important, but completeness alone is not proof that every eligibility requirement is satisfied.",
+                    "There is no single response-to-decision timeline for every regular-processing case. Check the relevant official processing-time category and inquiry eligibility instead of assuming that a friend’s number of days applies. A response-received status confirms a recorded receipt, not the merits of the evidence.",
+                    "For a qualifying premium-processing request, 8 CFR 106.4 says an RFE or NOID stops the premium period. A new applicable period begins when USCIS receives the response. For eligible OPT/STEM I-765 premium cases, that period is 30 business days, subject to the governing requirements—not 30 calendar days and not a guaranteed approval.",
+                    "If USCIS issues a denial or another action-required notice, read it promptly and discuss the available options with a qualified adviser. Do not assume that a new application or a motion is available or appropriate in every case. Tracking alerts can help you notice a change, but cannot replace this review."
                 ]
             }
         ],
-        relatedLinks: [
-            { text: "USCIS Case Status Guide", href: "/blog/uscis-case-status-tracking-guide" },
-            { text: "OPT Application Checklist", href: "/blog/opt-application-checklist-2026" },
-            { text: "Case Status Tracker", href: "/features/case-status" },
-            { text: "OPT Processing Time", href: "/blog/opt-processing-time-2026" }
+        "relatedLinks": [
+            {
+                "text": "USCIS evidence and requests policy",
+                "href": "https://www.uscis.gov/policy-manual/volume-1-part-e-chapter-6"
+            },
+            {
+                "text": "Premium processing regulation and RFE restart",
+                "href": "https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-106/section-106.4"
+            },
+            {
+                "text": "OPT premium processing fee and clock",
+                "href": "/blog/opt-premium-processing-fee-increase-1780"
+            },
+            {
+                "text": "OPT myProgress estimates explained",
+                "href": "/blog/uscis-myprogress-taking-longer-than-expected-opt"
+            },
+            {
+                "text": "USCIS Case Status Guide",
+                "href": "/blog/uscis-case-status-tracking-guide"
+            }
         ],
-        relatedQuestions: [
-            { question: "What Is a NOID from USCIS?", slug: "what-is-noid-uscis" },
-            { question: "How Do You Track Your USCIS Case Status?", slug: "how-to-track-uscis-case-status" },
-            { question: "What Is Form I-765?", slug: "what-is-i-765" },
-            { question: "What Is a USCIS Receipt Number?", slug: "what-is-uscis-receipt-number" }
+        "relatedQuestions": [
+            {
+                "question": "What Is a NOID from USCIS?",
+                "slug": "what-is-noid-uscis"
+            },
+            {
+                "question": "How Do You Track Your USCIS Case Status?",
+                "slug": "how-to-track-uscis-case-status"
+            },
+            {
+                "question": "What Is Form I-765?",
+                "slug": "what-is-i-765"
+            }
         ],
-        metadata: {
-            title: "What Is an RFE (Request for Evidence) from USCIS? How to Respond | TrackMyOPT",
-            description:
-                "Learn what a USCIS RFE is, why OPT applicants receive them, how to respond within 87 days, and common RFE scenarios for I-765 applications.",
-            keywords: [
-                "RFE",
-                "Request for Evidence",
+        "metadata": {
+            "title": "USCIS RFE: Meaning, Response Deadline and Next Steps | TrackMyOPT",
+            "description": "Understand a USCIS RFE, follow the deadline in your notice, organize an OPT response, and learn how a premium-processing clock restarts.",
+            "keywords": [
                 "USCIS RFE",
-                "RFE response",
-                "OPT RFE",
+                "OPT RFE response",
+                "RFE deadline",
                 "I-765 RFE",
-                "USCIS additional evidence"
+                "premium processing RFE clock"
             ]
         }
     },
