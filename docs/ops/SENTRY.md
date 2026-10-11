@@ -1,6 +1,6 @@
 # Sentry error monitoring
 
-The Next.js app reports to `zyene-inc / javascript-nextjs-0u` using
+The Next.js app reports to `zyene-inc / trackmyopt` using
 `@sentry/nextjs`. Browser exceptions and rejected promises, React error
 boundaries (including root-layout failures), Next.js request errors, Node/edge
 runtime failures, and `console.error` reports are captured. Expected failures
@@ -9,6 +9,10 @@ Sentry issues. The separate ingestion API and Chrome extension do not run the
 Next.js SDK.
 
 Existing PostHog instrumentation and server console redaction remain active.
+
+The organization also contains `zyene-reviews` for Zyene Reviews. Keep the
+products' DSNs and Vercel upload credentials separate. TrackMyOPT's numeric
+project ID is `4512234317938688`; renaming its slug does not change the DSN.
 
 ## Deployment configuration
 

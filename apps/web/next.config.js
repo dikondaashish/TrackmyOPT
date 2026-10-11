@@ -404,7 +404,7 @@ if (process.env.ANALYZE === "true") {
 
 module.exports = withSentryConfig(wrappedConfig, {
   org: 'zyene-inc',
-  project: 'javascript-nextjs-0u',
+  project: 'trackmyopt',
   authToken: uploadSentrySourcemaps ? process.env.SENTRY_AUTH_TOKEN : undefined,
   silent: !process.env.CI,
   sourcemaps: {
