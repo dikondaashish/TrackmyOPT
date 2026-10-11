@@ -15,6 +15,7 @@
  * Built entirely from the design primitives — no bespoke CSS.
  */
 
+import { autofillErrorCopy } from './prefill/autofill-errors';
 import {
     banner, button, card, field, heading, row, select, stack, text, textarea, liveRegion,
 } from './design/primitives';
@@ -603,7 +604,7 @@ function startRun(input: StartRunInput, slot: HTMLElement, trigger: HTMLButtonEl
 }
 
 function renderResult(result: unknown, slot: HTMLElement, handle: RunConsoleHandle): void {
-    const data = result as { pdfBase64?: string; filename?: string; editorUrl?: string; baselineScore?: number; generatedScore?: number; savedToAccount?:boolean };
+    const data = result as { pdfBase64?: string; filename?: string; editorUrl?: string; baselineScore?: number; generatedScore?: number; savedToAccount?:boolean; structuredFieldsAvailable?: boolean };
     const scoreLine =
         data.baselineScore !== undefined && data.generatedScore !== undefined
             ? `Match score ${data.baselineScore} → ${data.generatedScore}`
@@ -633,7 +634,12 @@ function renderResult(result: unknown, slot: HTMLElement, handle: RunConsoleHand
 
     slot.replaceChildren(
         handle.node,
-        banner({ tone: data.savedToAccount === false ? 'warning':'success', title: 'Done', message: scoreLine + (data.savedToAccount === false ? ' Not saved to your account. Download a copy before closing.' : ''), actions })
+        banner({ tone: data.savedToAccount === false ? 'warning':'success', title: 'Done', message: scoreLine + (data.savedToAccount === false ? ' Not saved to your account. Download a copy before closing.' : ''), actions }),
+        // Prefill still attaches the PDF, but work history must be typed in.
+        ...(data.pdfBase64 && data.structuredFieldsAvailable === false
+            ? [banner({ tone: 'warning', title: autofillErrorCopy('extraction_failed').title,
+                message: 'Prefill will attach this resume, but its work history and education could not be read, so fill those sections yourself or regenerate.' })]
+            : [])
     );
 }
 

@@ -14,7 +14,8 @@ export type FormSectionKind =
   | 'unknown';
 
 export interface ClassifiedControl {
-  element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+  /** Buttons appear only as ATS listbox dropdowns (Workday) in history rows. */
+  element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLButtonElement;
   section: FormSectionKind;
   recordIndex?: number;
   field:
@@ -88,7 +89,8 @@ const SMARTRECRUITERS_HINTS: AdapterHints = {
 };
 
 const CAPABILITIES: Record<AtsPrefillAdapter['id'], AtsFieldCapabilities> = {
-  generic: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true },
+  generic: { contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
+    addRecord: { experience: 'button,[role="button"]', education: 'button,[role="button"]' } },
   workday: {
     contact: true, skills: true, experience: true, education: true, searchableDropdown: true,
     addRecord: {
@@ -234,9 +236,51 @@ export function classifySection(signal: string): FormSectionKind {
   return 'unknown';
 }
 
+/**
+ * Which end of a date range the nearest labelled enclosing group describes.
+ * Workday labels the group ("From" / formField-startDate) and gives the parts
+ * only "Month" and "Year"; fieldsets do the same with a "Start date" legend.
+ * The nearest level that names exactly one side decides; a level naming both
+ * (the whole record) is ambiguous and stops the search.
+ */
+function dateRangeSide(groupSignals: readonly string[]): 'start' | 'end' | null {
+  for (const signal of groupSignals) {
+    const start = /\b(?:start|from|began|started)\b/.test(signal);
+    const end = /\b(?:end|to|until|ended|graduation)\b/.test(signal);
+    if (start && end) return null;
+    if (start) return 'start';
+    if (end) return 'end';
+  }
+  return null;
+}
+
+/** Per-level labels of the few ancestors between a control and its record. */
+function enclosingGroupSignals(control: Element, boundary: Element): string[] {
+  const levels: string[] = [];
+  let current: Element | null = control.parentElement;
+  for (let depth = 0; current && current !== boundary && depth < 5; depth += 1) {
+    const legend = current.matches('fieldset')
+      ? current.querySelector(':scope > legend')?.textContent
+      : null;
+    // A group whose only label is a direct child <label> (Workday "From").
+    const labels = Array.from(current.querySelectorAll(':scope > label'))
+      .filter(label => !label.contains(control));
+    levels.push(normalizeFieldSignal([
+      current.getAttribute('data-automation-id'),
+      current.getAttribute('data-testid'),
+      current.getAttribute('aria-label'),
+      legend,
+      labels.length === 1 ? labels[0].textContent : null,
+    ].filter(Boolean).join(' ')));
+    current = current.parentElement;
+  }
+  return levels;
+}
+
 function classifyRepeatableField(
   signal: string,
-  section: FormSectionKind
+  section: FormSectionKind,
+  groupSignals: readonly string[] = []
 ): ClassifiedControl['field'] | null {
   if (!signal || SENSITIVE_FIELD_RE.test(signal)) return null;
   if (section === 'skills') {
@@ -249,8 +293,19 @@ function classifyRepeatableField(
     if (/\b(start year|from year)\b/.test(signal)) return 'startYear';
     if (/\b(end month|to month|graduation month)\b/.test(signal)) return 'endMonth';
     if (/\b(end year|to year|graduation year)\b/.test(signal)) return 'endYear';
-    if (/\b(start date|from date|date from)\b/.test(signal)) return 'startDate';
-    if (/\b(end date|to date|date to|graduation date)\b/.test(signal)) return 'endDate';
+    if (/\b(start date|from date|date from|date started|started on|employment start)\b/.test(signal)) return 'startDate';
+    if (/\b(end date|to date|date to|date ended|date left|ended on|graduation date|employment end)\b/.test(signal)) return 'endDate';
+    // A bare "From" / "To" / "Start" / "End" label on a date control, once
+    // format hints ("MM/YYYY") and required markers are set aside.
+    const bare = signal.replace(/\b(?:mm|mmm|mmmm|yy|yyyy|required|optional)\b|\*/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    if (/^(?:from|start)$/.test(bare)) return 'startDate';
+    if (/^(?:to|end|until)$/.test(bare)) return 'endDate';
+    // Bare "Month" / "Year" parts take their side from the enclosing group.
+    const part = /\bmonth\b/.test(signal) ? 'Month' : /\byear\b/.test(signal) &&
+      !/\byears\b/.test(signal) ? 'Year' : null;
+    const side = part ? dateRangeSide(groupSignals) : null;
+    if (part && side) return `${side}${part}` as ClassifiedControl['field'];
   }
   if (section === 'experience') {
     if (
@@ -305,17 +360,34 @@ function classifyWithHints(
     )
       continue;
 
-    for (const control of safeQueryAll<
+    const isHistory = section === 'experience' || section === 'education';
+    const sectionControls: Array<ClassifiedControl['element']> = safeQueryAll<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >(sectionElement, 'input, textarea, select')) {
+    >(sectionElement, 'input, textarea, select');
+    // Workday renders history dropdowns (degree, month) as listbox buttons.
+    // Merge them in document order so record numbering stays positional.
+    const listboxButtons = isHistory
+      ? safeQueryAll<HTMLButtonElement>(sectionElement, 'button[aria-haspopup="listbox"]')
+      : [];
+    if (listboxButtons.length) {
+      sectionControls.push(...listboxButtons);
+      sectionControls.sort((left, right) =>
+        left === right ? 0 : left.compareDocumentPosition(right) & 4 ? -1 : 1);
+    }
+    for (const control of sectionControls) {
       if (seen.has(control)) continue;
-      const field = classifyRepeatableField(controlSignal(control), section);
+      const record = isHistory
+        ? closestAcrossShadow(control, hints.repeatableRecords) || sectionElement
+        : sectionElement;
+      const field = classifyRepeatableField(
+        controlSignal(control),
+        section,
+        isHistory ? enclosingGroupSignals(control, record) : []
+      );
       if (!field) continue;
 
       let recordIndex: number | undefined;
       if (section === 'experience' || section === 'education') {
-        const record =
-          closestAcrossShadow(control, hints.repeatableRecords) || sectionElement;
         const records = recordsBySection[section];
         let index = records.indexOf(record);
         if (index < 0) {

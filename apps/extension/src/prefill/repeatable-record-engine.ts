@@ -3,6 +3,7 @@ import type {
   ResumeDateValue,
 } from '../resume/resume-autofill-contract';
 import { trackPrefillChange } from './prefill-undo';
+import { customDropdownHasValue } from './smart-dropdown';
 import type {
   ClassifiedControl,
   FormSectionKind,
@@ -118,6 +119,7 @@ export function assignControlsToVisibleRecords(
 function isNativeSafeControl(
   element: ClassifiedControl['element']
 ): element is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement {
+  if (element.tagName === 'BUTTON') return false;
   if (!isVisibleForRepeatablePrefill(element) || element.disabled) return false;
   if (
     element.matches?.(':disabled') ||
@@ -154,7 +156,20 @@ function isNativeSafeControl(
   );
 }
 
+/** ATS listbox/combobox dropdowns are filled by the async dropdown pass. */
+export function isRepeatableDropdown(element: ClassifiedControl['element']): boolean {
+  if (element instanceof HTMLSelectElement) return false;
+  return element.getAttribute('role') === 'combobox' ||
+    element.getAttribute('aria-haspopup') === 'listbox';
+}
+
 function isEmpty(element: ClassifiedControl['element']): boolean {
+  if (isRepeatableDropdown(element)) {
+    // The committed choice may live outside the control (React Select's
+    // single-value node), so the input's own value is not enough.
+    if (element.value.trim()) return false;
+    return typeof element.matches !== 'function' || !customDropdownHasValue(element);
+  }
   if (
     element instanceof HTMLInputElement &&
     ['checkbox', 'radio'].includes(element.type)
@@ -233,18 +248,58 @@ function validDate(
   );
 }
 
+const MONTH_LONG = (month: number) =>
+  new Intl.DateTimeFormat('en-US', { month: 'long', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(2020, month - 1, 1)));
+
+/** Format hint from the control's own placeholder, pattern, and labels. */
+function dateFormatHint(element: HTMLInputElement): string {
+  const root = element.getRootNode?.() as Document | ShadowRoot | undefined;
+  const described = (element.getAttribute('aria-describedby') || '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((id) => root?.getElementById?.(id)?.textContent || '');
+  return [
+    element.placeholder,
+    element.getAttribute('data-date-format'),
+    element.getAttribute('data-format'),
+    element.title,
+    element.getAttribute('aria-label'),
+    ...described,
+    element.closest('label')?.textContent,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase('en-US');
+}
+
+/**
+ * Text for a single date control. A resume states a month, never a day, so
+ * full-date controls and day-bearing text formats stay with the applicant.
+ * A year-only resume date is written only where the control asks for a year.
+ */
 function wholeDate(
   date: ResumeDateValue | undefined,
   element: ClassifiedControl['element']
 ): string | undefined {
-  if (
-    !validDate(date) ||
-    date.precision !== 'month' ||
-    !(element instanceof HTMLInputElement) ||
-    element.type !== 'month'
-  )
-    return undefined;
-  return `${String(date.year).padStart(4, '0')}-${String(date.month).padStart(2, '0')}`;
+  if (!validDate(date) || !(element instanceof HTMLInputElement)) return undefined;
+  const yyyy = String(date.year).padStart(4, '0');
+  const mm = date.precision === 'month' ? String(date.month).padStart(2, '0') : undefined;
+  if (element.type === 'month') return mm ? `${yyyy}-${mm}` : undefined;
+  if (element.type !== 'text') return undefined;
+
+  const hint = dateFormatHint(element);
+  // Never invent a day: DD in the expected format means the field is left.
+  if (/\bdd\b|\bday\b/.test(hint)) return undefined;
+  const yearOnly = /\b(?:yyyy|year)\b/.test(hint) && !/\b(?:mm|month)\b/.test(hint);
+  if (yearOnly || (element.maxLength > 0 && element.maxLength <= 4)) return yyyy;
+  if (!mm) return undefined;
+  if (/\byyyy[-/.]mm\b/.test(hint)) return `${yyyy}-${mm}`;
+  if (/\bmm-yyyy\b/.test(hint)) return `${mm}-${yyyy}`;
+  if (/\bmm\/yy\b/.test(hint)) return `${mm}/${yyyy.slice(2)}`;
+  if (/\bmonth\s+yyyy\b|\bmmmm\b/.test(hint)) return `${MONTH_LONG(date.month!)} ${yyyy}`;
+  // Employment forms overwhelmingly expect MM/YYYY when they give no hint.
+  return `${mm}/${yyyy}`;
 }
 
 function datePart(
@@ -366,15 +421,57 @@ function setNativeValue(
   });
 }
 
-/** Fill snapshot records into existing visible rows, in stable DOM/display order. */
-export function fillRepeatableRecords(
+/** Case-, spacing-, and punctuation-insensitive text equality. */
+function sameText(left: string, right: string): boolean {
+  const normalize = (value: string) =>
+    value.normalize('NFKC').toLocaleLowerCase('en-US')
+      .replace(/[‐‑‒–—]/g, '-').replace(/[.,;:]+$/g, '').replace(/\s+/g, ' ').trim();
+  return normalize(left) === normalize(right);
+}
+
+interface RowPlan {
+  sourceRecords: ReadonlyArray<Experience | Education>;
+  eligible: ClassifiedControl[];
+  visibleIndices: number[];
+  compatible: Map<number, boolean>;
+  firstConflictingRow: number | undefined;
+}
+
+/** Whether an existing value in a row agrees with the source record. */
+function existingValueAgrees(
+  control: ClassifiedControl,
+  record: Experience | Education
+): boolean {
+  // An ATS dropdown's committed label cannot be compared reliably, and a
+  // description parsed from the uploaded PDF rarely matches word for word.
+  // Neither identifies the employer, so both are neutral here.
+  if (isRepeatableDropdown(control.element) || control.field === 'description') return true;
+  let expected = valueForControl(control, record);
+  if (typeof expected === 'boolean') {
+    return control.element instanceof HTMLInputElement && control.element.checked === expected;
+  }
+  if (expected === undefined) return false;
+  const actual = control.element.value;
+  if (control.element instanceof HTMLSelectElement) {
+    if (!/^(start|end)(Month|Year)$/.test(control.field)) {
+      expected = selectOptionValue(control.element, [expected]);
+    }
+    return expected !== undefined && actual === expected;
+  }
+  return actual === expected || sameText(actual, expected);
+}
+
+/**
+ * Map visible rows to source records by display order and decide which rows
+ * may be completed. A partially completed row can belong to a different
+ * employer/school: fill its blanks only when every existing value agrees with
+ * that exact source record; otherwise never combine two people's record data.
+ */
+function planRows(
   section: RepeatableSection,
   controls: readonly ClassifiedControl[],
-  snapshot: ResumeAutofillSnapshotV1,
-  onFieldFilled?: (element: HTMLElement) => void,
-  onlyControl?: Element,
-  expectedValue?: string,
-): RepeatableFillOutcome {
+  snapshot: ResumeAutofillSnapshotV1
+): RowPlan {
   const sourceRecords =
     section === 'experience' ? snapshot.experience : snapshot.education;
   const eligible = controls
@@ -390,41 +487,107 @@ export function fillRepeatableRecords(
         .map((control) => control.recordIndex as number)
     ),
   ].sort((left, right) => left - right);
-  let filledFields = 0;
-  let skippedFields = 0;
-
-  // A partially completed row can belong to a different employer/school.
-  // Fill its blanks only when every existing value agrees with that exact
-  // source record; otherwise never combine two people's record data.
   const compatible = new Map<number, boolean>();
   for (const index of visibleIndices) {
     const record = sourceRecords[visibleIndices.indexOf(index)];
     compatible.set(index, Boolean(record) && eligible
       .filter(control => control.recordIndex === index && !isEmpty(control.element))
-      .every(control => {
-        let expected = valueForControl(control, record!);
-        if (typeof expected === 'string' && control.element instanceof HTMLSelectElement &&
-            !/^(start|end)(Month|Year)$/.test(control.field)) {
-          expected = selectOptionValue(control.element, [expected]);
-        }
-        return expected !== undefined &&
-          (typeof expected === 'boolean'
-            ? control.element instanceof HTMLInputElement && control.element.checked === expected
-            : control.element.value === expected);
-      }));
+      .every(control => existingValueAgrees(control, record!)));
   }
   const firstConflictingRow = visibleIndices.find(index => compatible.get(index) === false);
+  return { sourceRecords, eligible, visibleIndices, compatible, firstConflictingRow };
+}
 
-  for (const control of eligible) {
+function rowRecord(plan: RowPlan, control: ClassifiedControl): Experience | Education | undefined {
+  const index = control.recordIndex as number;
+  const record = plan.sourceRecords[plan.visibleIndices.indexOf(index)];
+  if (
+    !record ||
+    plan.compatible.get(index) !== true ||
+    (plan.firstConflictingRow !== undefined && index >= plan.firstConflictingRow)
+  ) return undefined;
+  return record;
+}
+
+/**
+ * True when every row that already holds values matches the resume record in
+ * the same position — for example, rows the ATS filled by parsing the very
+ * PDF we attached. New rows may then be added for the remaining records.
+ */
+export function existingRowsMatchSnapshot(
+  section: RepeatableSection,
+  controls: readonly ClassifiedControl[],
+  snapshot: ResumeAutofillSnapshotV1
+): boolean {
+  return planRows(section, controls, snapshot).firstConflictingRow === undefined;
+}
+
+export interface RepeatableDropdownTarget {
+  control: ClassifiedControl;
+  value: string;
+  /** Exact-option matcher; months accept any of their standard spellings. */
+  matcher?: (candidate: string, desired: string) => boolean;
+}
+
+/**
+ * ATS listbox/combobox dropdowns inside history rows, paired with the source
+ * value. The caller opens each one and selects only a single exact option.
+ */
+export function planRepeatableDropdownFills(
+  section: RepeatableSection,
+  controls: readonly ClassifiedControl[],
+  snapshot: ResumeAutofillSnapshotV1
+): RepeatableDropdownTarget[] {
+  const plan = planRows(section, controls, snapshot);
+  const targets: RepeatableDropdownTarget[] = [];
+  for (const control of plan.eligible) {
+    if (!isRepeatableDropdown(control.element) || !isVisibleForRepeatablePrefill(control.element) ||
+        !isEmpty(control.element)) continue;
+    const record = rowRecord(plan, control);
+    if (!record) continue;
+    const date = /^start/.test(control.field) ? record.startDate : record.endDate;
+    if (/Month$/.test(control.field)) {
+      if (!validDate(date) || date.precision !== 'month') continue;
+      const spellings = new Set(monthNames(date.month!).map(value => value.toLocaleLowerCase('en-US')));
+      targets.push({
+        control,
+        value: MONTH_LONG(date.month!),
+        matcher: candidate => spellings.has(candidate.trim().toLocaleLowerCase('en-US')),
+      });
+      continue;
+    }
+    if (/Year$/.test(control.field)) {
+      if (!validDate(date)) continue;
+      const year = String(date.year);
+      targets.push({ control, value: year, matcher: candidate => candidate.trim() === year });
+      continue;
+    }
+    const value = valueForControl(control, record);
+    if (typeof value === 'string' && value.trim()) targets.push({ control, value });
+  }
+  return targets;
+}
+
+/** Fill snapshot records into existing visible rows, in stable DOM/display order. */
+export function fillRepeatableRecords(
+  section: RepeatableSection,
+  controls: readonly ClassifiedControl[],
+  snapshot: ResumeAutofillSnapshotV1,
+  onFieldFilled?: (element: HTMLElement) => void,
+  onlyControl?: Element,
+  expectedValue?: string,
+): RepeatableFillOutcome {
+  const plan = planRows(section, controls, snapshot);
+  let filledFields = 0;
+  let skippedFields = 0;
+
+  for (const control of plan.eligible) {
     if (onlyControl && control.element !== onlyControl) continue;
-    const displayedIndex = visibleIndices.indexOf(
-      control.recordIndex as number
-    );
-    const record = sourceRecords[displayedIndex];
+    // Dropdowns are counted by the async dropdown pass, not here.
+    if (isRepeatableDropdown(control.element)) continue;
+    const record = rowRecord(plan, control);
     if (
       !record ||
-      compatible.get(control.recordIndex as number) !== true ||
-      (firstConflictingRow !== undefined && (control.recordIndex as number) >= firstConflictingRow) ||
       !isNativeSafeControl(control.element) ||
       !isEmpty(control.element)
     ) {
@@ -453,11 +616,11 @@ export function fillRepeatableRecords(
 
   return {
     section,
-    availableRecords: sourceRecords.length,
-    visibleRecordContainers: visibleIndices.length,
+    availableRecords: plan.sourceRecords.length,
+    visibleRecordContainers: plan.visibleIndices.length,
     filledFields,
     skippedFields,
-    remainingRecords: Math.max(0, sourceRecords.length - visibleIndices.length),
+    remainingRecords: Math.max(0, plan.sourceRecords.length - plan.visibleIndices.length),
   };
 }
 

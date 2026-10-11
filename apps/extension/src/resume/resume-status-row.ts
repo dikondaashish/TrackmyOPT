@@ -15,6 +15,7 @@
 
 import { UPLOAD_STATUS_COPY, type UploadVerification } from '../prefill/upload-verification';
 import { icon, type ExtensionIconName } from '../shared/icons';
+import type { ResumeAutofillSnapshotV1 } from './resume-autofill-contract';
 
 export const RESUME_STATUS_ROW_CLASS = 'tmo-resume-status-row';
 
@@ -132,6 +133,25 @@ export function paintResumeStatusRow(
     sublabel.textContent = nextDetail;
     sublabel.style.color = ink;
   }
+}
+
+/**
+ * "Ready" sublabel that says what this resume will fill besides the upload:
+ * how many jobs and schools were confirmed against the source resume, or that
+ * none could be read so history fields stay with the applicant. Kept short for
+ * the 320px widget.
+ */
+export function readyResumeDetail(
+  snapshot: ResumeAutofillSnapshotV1 | undefined,
+): string {
+  const jobs = snapshot?.experience.length ?? 0;
+  const schools = snapshot?.education.length ?? 0;
+  if (!jobs && !schools) return 'Attaches on prefill · work history not available';
+  const parts = [
+    jobs ? `${jobs} job${jobs === 1 ? '' : 's'}` : '',
+    schools ? `${schools} school${schools === 1 ? '' : 's'}` : '',
+  ].filter(Boolean);
+  return `Attaches + fills ${parts.join(', ')}`;
 }
 
 /** True once the file is really in the form; a later re-check must not undo it. */

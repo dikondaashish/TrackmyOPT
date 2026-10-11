@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 
+import * as Sentry from '@sentry/nextjs';
+
 import {
   AUTOFILL_CONTRACT_LIMITS,
   ResumeAutofillSnapshotV1Schema,
@@ -11,6 +13,24 @@ import { generateAiContent } from '../ai/google-ai';
 
 export const FINAL_LATEX_MAX_CHARS = 250_000;
 const NORMALIZED_RESUME_MAX_CHARS = 50_000;
+
+/**
+ * The route answers HTTP 200 when extraction fails (the PDF still works), so
+ * report the failure explicitly. Fixed messages only: never resume text, model
+ * output, or exception messages, which can echo applicant data.
+ */
+function reportExtractionFailure(
+  stage: 'extract' | 'validate' | 'title_recovery',
+  error?: unknown
+): void {
+  Sentry.captureException(
+    new Error(`Resume autofill snapshot ${stage} failed`),
+    {
+      tags: { feature: 'resume_autofill_snapshot', stage },
+      extra: { errorName: error instanceof Error ? error.name : typeof error },
+    }
+  );
+}
 
 type StructuredSnapshotExtractor = (input: {
   plainText: string;
@@ -258,10 +278,22 @@ function sourceContainsDate(source: string, date: ResumeDateValue): boolean {
     ['nov', 'november'],
     ['dec', 'december'],
   ][date.month - 1];
+  const month = String(date.month);
+  const paddedMonth = month.padStart(2, '0');
   return Boolean(
-    monthNames?.some((month) => source.includes(`${month} ${year}`)) ||
-      source.includes(`${date.month}/${year}`) ||
-      source.includes(`${date.month}-${year}`)
+    monthNames?.some(
+      (name) =>
+        source.includes(`${name} ${year}`) ||
+        source.includes(`${name}. ${year}`) ||
+        (name === 'sep' && source.includes(`sept ${year}`))
+    ) ||
+      [month, paddedMonth].some(
+        (value) =>
+          source.includes(`${value}/${year}`) ||
+          source.includes(`${value}-${year}`)
+      ) ||
+      source.includes(`${year}-${paddedMonth}`) ||
+      source.includes(`${year}/${paddedMonth}`)
   );
 }
 
@@ -281,40 +313,245 @@ function reconcileContact(
   return Object.fromEntries(entries) as ResumeAutofillSnapshotV1['contact'];
 }
 
+/**
+ * A date the source resume cannot confirm stays visible as text but loses its
+ * machine-readable month/year, so prefill never writes an unconfirmed date.
+ */
+function reconcileDate(
+  source: string,
+  date: ResumeDateValue
+): ResumeDateValue {
+  if (date.precision === 'text' || sourceContainsDate(source, date)) return date;
+  return { originalText: date.originalText, precision: 'text' };
+}
+
+type ExperienceRecord = ResumeAutofillSnapshotV1['experience'][number];
+
+interface ReconciledSnapshot {
+  snapshot: ResumeAutofillSnapshotV1;
+  /** Records whose tailored title is absent from the source resume. */
+  unconfirmedTitles: Array<{ index: number; record: ExperienceRecord }>;
+}
+
+/**
+ * Keep each fact only when the applicant's own source resume confirms it.
+ * Company (and school) anchor a record: without them the whole record goes.
+ * Every other unconfirmed field is dropped individually, so one misread date
+ * no longer discards an otherwise verified job. Titles are special: a tailored
+ * resume may present an aligned title, but an application must carry the
+ * applicant's real one, so unconfirmed titles are resolved separately.
+ */
 function reconcileSnapshotWithSourceResume(
   snapshot: ResumeAutofillSnapshotV1,
   sourceResumeText: string
-): ResumeAutofillSnapshotV1 {
+): ReconciledSnapshot {
   const normalizedSource = normalizeEvidence(sourceResumeText);
   const hasCurrentMarker = /\b(?:present|current|now)\b/.test(normalizedSource);
+  const unconfirmedTitles: ReconciledSnapshot['unconfirmedTitles'] = [];
+  const experience: ExperienceRecord[] = [];
+
+  for (const record of snapshot.experience) {
+    if (!sourceContains(normalizedSource, record.company)) continue;
+    const isCurrent = record.isCurrent && hasCurrentMarker;
+    const reconciled: ExperienceRecord = {
+      ...record,
+      location:
+        record.location && sourceContains(normalizedSource, record.location)
+          ? record.location
+          : undefined,
+      startDate: reconcileDate(normalizedSource, record.startDate),
+      endDate:
+        record.endDate && !isCurrent
+          ? reconcileDate(normalizedSource, record.endDate)
+          : undefined,
+      isCurrent,
+    };
+    if (!sourceContains(normalizedSource, record.title)) {
+      unconfirmedTitles.push({ index: experience.length, record: reconciled });
+    }
+    experience.push(reconciled);
+  }
 
   return {
-    ...snapshot,
-    contact: reconcileContact(
-      snapshot.contact,
-      sourceResumeText,
-      normalizedSource
-    ),
-    experience: snapshot.experience.filter((record) => {
-      if (!sourceContains(normalizedSource, record.company)) return false;
-      if (!sourceContains(normalizedSource, record.title)) return false;
-      if (!sourceContainsDate(normalizedSource, record.startDate)) return false;
-      if (
-        record.endDate &&
-        !sourceContainsDate(normalizedSource, record.endDate)
-      )
-        return false;
-      if (record.isCurrent && !hasCurrentMarker) return false;
-      return true;
-    }),
-    education: snapshot.education
-      .filter((record) => sourceContains(normalizedSource, record.school))
-      .map((record) => ({
-        ...record,
-        ...(record.degree && !sourceContains(normalizedSource, record.degree)
-          ? { degree: undefined }
-          : {}),
+    unconfirmedTitles,
+    snapshot: {
+      ...snapshot,
+      contact: reconcileContact(
+        snapshot.contact,
+        sourceResumeText,
+        normalizedSource
+      ),
+      experience,
+      education: snapshot.education
+        .filter((record) => sourceContains(normalizedSource, record.school))
+        .map((record) => ({
+          ...record,
+          degree:
+            record.degree && sourceContains(normalizedSource, record.degree)
+              ? record.degree
+              : undefined,
+          fieldOfStudy:
+            record.fieldOfStudy &&
+            sourceContains(normalizedSource, record.fieldOfStudy)
+              ? record.fieldOfStudy
+              : undefined,
+          location:
+            record.location && sourceContains(normalizedSource, record.location)
+              ? record.location
+              : undefined,
+          startDate: record.startDate
+            ? reconcileDate(normalizedSource, record.startDate)
+            : undefined,
+          endDate: record.endDate
+            ? reconcileDate(normalizedSource, record.endDate)
+            : undefined,
+        })),
+    },
+  };
+}
+
+const TITLE_PROXIMITY_CHARS = 400;
+
+/** The recovered title must sit near that employer in the source resume. */
+function titleNearCompany(
+  normalizedSource: string,
+  company: string,
+  title: string
+): boolean {
+  const normalizedCompany = normalizeEvidence(company);
+  const normalizedTitle = normalizeEvidence(title);
+  if (!normalizedCompany || !normalizedTitle) return false;
+  for (
+    let at = normalizedSource.indexOf(normalizedCompany);
+    at >= 0;
+    at = normalizedSource.indexOf(normalizedCompany, at + 1)
+  ) {
+    const window = normalizedSource.slice(
+      Math.max(0, at - TITLE_PROXIMITY_CHARS),
+      at + normalizedCompany.length + TITLE_PROXIMITY_CHARS
+    );
+    if (window.includes(normalizedTitle)) return true;
+  }
+  return false;
+}
+
+export type SourceTitleRecoverer = (input: {
+  sourceResumeText: string;
+  roles: Array<{
+    index: number;
+    company: string;
+    tailoredTitle: string;
+    startDateText: string;
+  }>;
+}) => Promise<unknown>;
+
+const SOURCE_TITLE_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    roles: {
+      type: 'array',
+      maxItems: AUTOFILL_CONTRACT_LIMITS.experience,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          index: { type: 'integer', minimum: 0 },
+          title: {
+            type: 'string',
+            maxLength: AUTOFILL_CONTRACT_LIMITS.shortText,
+          },
+        },
+        required: ['index', 'title'],
+      },
+    },
+  },
+  required: ['roles'],
+} as const;
+
+async function recoverSourceTitlesWithGemini(
+  input: Parameters<SourceTitleRecoverer>[0]
+): Promise<unknown> {
+  const prompt = `For each role below, return the job title exactly as written for that same employer and period in the SOURCE RESUME.
+
+Rules:
+- Copy the title verbatim from the source resume. Never paraphrase, translate, or invent.
+- If the source resume shows no title for that role, omit the role.
+- Return valid JSON matching the supplied schema.
+
+ROLES:
+${JSON.stringify(input.roles)}
+
+SOURCE RESUME:
+${input.sourceResumeText}`;
+
+  const response = await generateAiContent({
+    task: 'autofill_extract',
+    contents: prompt,
+    config: {
+      responseMimeType: 'application/json',
+      responseJsonSchema: SOURCE_TITLE_JSON_SCHEMA,
+      maxOutputTokens: 2_048,
+    },
+  });
+  const text = response.text?.trim();
+  if (!text) throw new Error('AI title recovery returned no data');
+  return JSON.parse(text);
+}
+
+/**
+ * Replace tailored titles the source cannot confirm with the applicant's real
+ * title for that role. A role whose real title cannot be verified is removed;
+ * applications must never receive a title the applicant did not hold.
+ */
+async function resolveUnconfirmedTitles(
+  reconciled: ReconciledSnapshot,
+  sourceResumeText: string,
+  recover: SourceTitleRecoverer
+): Promise<ResumeAutofillSnapshotV1> {
+  if (reconciled.unconfirmedTitles.length === 0) return reconciled.snapshot;
+  const normalizedSource = normalizeEvidence(sourceResumeText);
+  const recovered = new Map<number, string>();
+  try {
+    const raw = (await recover({
+      sourceResumeText: sourceResumeText.slice(0, NORMALIZED_RESUME_MAX_CHARS),
+      roles: reconciled.unconfirmedTitles.map(({ index, record }) => ({
+        index,
+        company: record.company,
+        tailoredTitle: record.title,
+        startDateText: record.startDate.originalText,
       })),
+    })) as { roles?: Array<{ index?: unknown; title?: unknown }> } | null;
+    const pending = new Map(
+      reconciled.unconfirmedTitles.map(({ index, record }) => [index, record])
+    );
+    for (const role of Array.isArray(raw?.roles) ? raw.roles : []) {
+      if (typeof role.index !== 'number' || typeof role.title !== 'string') continue;
+      const record = pending.get(role.index);
+      const title = role.title.trim();
+      if (
+        !record ||
+        !title ||
+        title.length > AUTOFILL_CONTRACT_LIMITS.shortText ||
+        !sourceContains(normalizedSource, title) ||
+        !titleNearCompany(normalizedSource, record.company, title)
+      )
+        continue;
+      recovered.set(role.index, title);
+    }
+  } catch (error) {
+    // Recovery is best-effort; unverified roles are removed below.
+    reportExtractionFailure('title_recovery', error);
+  }
+
+  const unconfirmed = new Set(reconciled.unconfirmedTitles.map(({ index }) => index));
+  return {
+    ...reconciled.snapshot,
+    experience: reconciled.snapshot.experience.flatMap((record, index) => {
+      if (!unconfirmed.has(index)) return [record];
+      const title = recovered.get(index);
+      return title ? [{ ...record, title }] : [];
+    }),
   };
 }
 
@@ -358,6 +595,7 @@ export async function extractAutofillSnapshot(input: {
   finalLatex: string;
   sourceResumeText: string;
   extractStructuredSnapshot?: StructuredSnapshotExtractor;
+  recoverSourceTitles?: SourceTitleRecoverer;
 }): Promise<ExtractAutofillSnapshotResult> {
   const generatedContentHash = hashFinalLatex(input.finalLatex);
   const plainText = latexToPlainText(input.finalLatex);
@@ -380,18 +618,21 @@ export async function extractAutofillSnapshot(input: {
       plainText,
       sections: splitResumeSections(plainText),
     });
-  } catch {
+  } catch (error) {
+    reportExtractionFailure('extract', error);
     return { ok: false, reason: 'extraction_failed', generatedContentHash };
   }
 
   const validated = ResumeAutofillSnapshotV1Schema.safeParse(rawSnapshot);
   if (!validated.success) {
+    reportExtractionFailure('validate');
     return { ok: false, reason: 'invalid_snapshot', generatedContentHash };
   }
 
-  const reconciled = reconcileSnapshotWithSourceResume(
-    validated.data,
-    input.sourceResumeText
+  const reconciled = await resolveUnconfirmedTitles(
+    reconcileSnapshotWithSourceResume(validated.data, input.sourceResumeText),
+    input.sourceResumeText,
+    input.recoverSourceTitles ?? recoverSourceTitlesWithGemini
   );
   const finalValidation = ResumeAutofillSnapshotV1Schema.safeParse(reconciled);
   if (!finalValidation.success) {

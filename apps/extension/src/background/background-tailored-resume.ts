@@ -235,7 +235,13 @@ export async function generateTailoredResume(input: {
       method: 'POST',
       signal,
       headers: auth,
-      body: JSON.stringify({ finalLatex: latex, sourceResumeId: resumeId }),
+      // A pasted resume has no stored row; its own text is the evidence the
+      // server reconciles extracted job history against.
+      body: JSON.stringify(
+        pastedResumeText
+          ? { finalLatex: latex, sourceResumeId: '__pasted__', sourceResumeText: pastedResumeText.slice(0, 60_000) }
+          : { finalLatex: latex, sourceResumeId: resumeId }
+      ),
     });
     const snapshotData = (await snapshotRes.json().catch(() => ({}))) as {
       structuredFieldsAvailable?: boolean;

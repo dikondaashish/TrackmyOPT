@@ -62,7 +62,8 @@ export const PREFILL_SOURCE_LABEL: Record<PrefillValueSource, string> = {
 export function contactValueSource(snapshot: ResumeAutofillSnapshotV1 | undefined, kind: import('../easy-apply/easy-apply-matchers').FieldKind): PrefillValueSource {
   if (kind === 'phoneDeviceType') return 'default';
   if (!snapshot) return 'profile';
-  if (kind === 'skills' || kind === 'yearsExperience' && snapshot.totalYearsExperience !== undefined) return 'resume';
+  if (kind === 'skills' || kind === 'currentCompany' || kind === 'currentTitle' || kind === 'summary' ||
+      kind === 'yearsExperience' && snapshot.totalYearsExperience !== undefined) return 'resume';
   if (kind === 'fullName') {
     if (snapshot.contact.fullName?.trim()) return 'resume';
     if (snapshot.contact.firstName?.trim() && snapshot.contact.lastName?.trim()) return 'resume';

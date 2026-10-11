@@ -20,6 +20,7 @@ export interface EligibleScreeningQuestion extends ScreeningQuestionControl {
 const NON_SCREENING = new Set<FieldKind>([
   'email','phone','firstName','lastName','fullName','city','state','location',
   'yearsExperience','linkedinUrl','portfolioUrl','skills',
+  'currentCompany','currentTitle','summary',
 ]);
 
 export function normalizeQuestionText(text: string): string {

@@ -1,5 +1,6 @@
 import { classifySection, sectionSignal, type AtsPrefillAdapter } from '../job-portal/ats-prefill-adapters';
-import { isVisibleForRepeatablePrefill } from './repeatable-record-engine';
+import { existingRowsMatchSnapshot, isVisibleForRepeatablePrefill } from './repeatable-record-engine';
+import type { ResumeAutofillSnapshotV1 } from '../resume/resume-autofill-contract';
 
 type Section = 'experience' | 'education';
 const SECTION_SELECTOR = 'fieldset,section,[role="group"],[data-automation-id],[data-testid],[data-test]';
@@ -9,9 +10,11 @@ function hasOpenSmartRecruitersEditor(root: HTMLElement, section: Section): bool
 }
 
 function uniqueAddButton(root: HTMLElement, section: Section, selector: string): HTMLElement | null {
+  // The button already sits inside the matching section, so a plain "Add" /
+  // "Add another" is unambiguous there. Uniqueness is still required below.
   const label = section === 'experience'
-    ? /^(?:add|\+)\s*(?:(?:work|professional)\s+)?(?:experience|employment|job)(?:\s+(?:entry|record))?$/i
-    : /^(?:add|\+)\s*(?:education|school|degree)(?:\s+(?:entry|record))?$/i;
+    ? /^(?:\+\s*)?(?:add|\+)(?:\s+(?:another|more|new|a|an))?(?:\s+(?:(?:work|professional)\s+)?(?:experience|employment|job|position|role|employer|work history))?(?:\s+(?:entry|record))?$/i
+    : /^(?:\+\s*)?(?:add|\+)(?:\s+(?:another|more|new|a|an))?(?:\s+(?:education|school|degree|qualification))?(?:\s+(?:entry|record))?$/i;
   const found = new Set<HTMLElement>();
   for (const sectionElement of Array.from(root.querySelectorAll<HTMLElement>(SECTION_SELECTOR))) {
     if (classifySection(sectionSignal(sectionElement)) !== section) continue;
@@ -47,18 +50,24 @@ export async function expandRepeatableRows(
   section: Section,
   desiredRecords: number,
   current: () => boolean,
+  snapshot?: ResumeAutofillSnapshotV1,
 ): Promise<number> {
   const selector = adapter.capabilities.addRecord?.[section];
   if (!selector || !current() || !root.isConnected) return 0;
-  // A user- or parser-populated row may already represent a different record.
-  // Do not create additional rows until that mapping has been reviewed.
-  if (adapter.classifyRepeatableSections(root).some(control => control.section === section &&
+  // A user-populated row may represent a different record. Rows the ATS
+  // filled by parsing the attached resume are fine when they agree with the
+  // resume record in the same position; anything else waits for review.
+  const controls = adapter.classifyRepeatableSections(root);
+  const populated = controls.some(control => control.section === section &&
       (control.element.value.trim() !== '' ||
-       (control.element instanceof HTMLInputElement && control.element.type === 'checkbox' && control.element.checked)))) return 0;
+       (control.element instanceof HTMLInputElement && control.element.type === 'checkbox' && control.element.checked)));
+  if (populated && (!snapshot || !existingRowsMatchSnapshot(section, controls, snapshot))) return 0;
   let count = recordCount(adapter, root, section);
   // SmartRecruiters OneClick starts with zero saved rows. Add opens an inline
   // editor; it does not persist a row. Never open another while one is active.
-  if ((count < 1 && adapter.id !== 'smartrecruiters') || count >= desiredRecords ||
+  // Other ATSs (Workday) may also start empty: the first Add then needs a
+  // unique, visible Add button inside a recognised history section.
+  if (count >= desiredRecords ||
       (adapter.id === 'smartrecruiters' && hasOpenSmartRecruitersEditor(root, section))) return 0;
   let added = 0;
   while (count < desiredRecords && added < 5 && current() && root.isConnected) {

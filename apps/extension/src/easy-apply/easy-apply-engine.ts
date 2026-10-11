@@ -36,7 +36,8 @@ import { createUploadProbe, waitForUploadEvidence, UPLOAD_STATUS_COPY, type Uplo
  * easy-apply-dom.ts, easy-apply-attachments.ts, easy-apply-form.ts.
  */
 
-import { classifyField } from './easy-apply-matchers';
+import { classifyField, isResumeOnlyFieldKind, type FieldKind } from './easy-apply-matchers';
+import { resumeOnlyFieldValue } from '../prefill/resume-history-fields';
 import {
   emptyPrefillCoverage,
   summarizePrefillOutcomes,
@@ -52,7 +53,7 @@ import type {
   ResumeAutofillSnapshotV1,
 } from '../resume/resume-autofill-contract';
 import { selectAtsPrefillAdapter } from '../job-portal/ats-prefill-adapters';
-import { fillRepeatableRecords } from '../prefill/repeatable-record-engine';
+import { fillRepeatableRecords, planRepeatableDropdownFills } from '../prefill/repeatable-record-engine';
 import { expandRepeatableRows } from '../prefill/repeatable-row-expansion';
 import { beginPrefillOperationSession } from '../prefill/prefill-operation-session';
 import { snapshotPrefillProgress } from '../prefill/prefill-progress-protocol';
@@ -138,6 +139,13 @@ export interface PrefillOptions {
 }
 
 const TOAST_ID = 'tmo-easy-apply-toast';
+
+/** Current company/title are work-history facts; everything else is contact. */
+function visualGroupForKind(kind: FieldKind): 'skills' | 'experience' | 'contact' {
+  if (kind === 'skills') return 'skills';
+  if (kind === 'currentCompany' || kind === 'currentTitle') return 'experience';
+  return 'contact';
+}
 
 function showToast(message: string): void {
   document.getElementById(TOAST_ID)?.remove();
@@ -269,7 +277,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     for (const section of ['experience', 'education'] as const) {
       if (!adapter.capabilities[section]) continue;
       if (options.allowRowCreation) {
-        await expandRepeatableRows(adapter, container, section, snapshot[section].length, current);
+        await expandRepeatableRows(adapter, container, section, snapshot[section].length, current, snapshot);
         if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
       }
       const historyControls = adapter.classifyRepeatableSections(container);
@@ -313,6 +321,32 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
               return { control: target, root };
             },
           });
+        }
+      }
+      // ATS dropdowns in history rows (Workday degree/month, React Select).
+      // Each selects only one exact option and is verified by smart-dropdown.
+      if (adapter.capabilities.searchableDropdown) {
+        const dropdowns = planRepeatableDropdownFills(section, adapter.classifyRepeatableSections(container), snapshot);
+        for (const target of dropdowns) {
+          if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
+          const element = target.control.element;
+          if (!element.isConnected) continue;
+          await visual.prepareField(element, section);
+          if (stopped()) return { ...emptyCoverage, paused: true };
+          const selection = await selectSmartDropdown(element, target.value, 'generic', target.matcher,
+            undefined, { shouldContinue: current });
+          if (stopped()) return { ...emptyCoverage, paused: true };
+          if (selection.outcome === 'selected') {
+            outcome.filledFields++;
+            fieldSources.push({ control: element, source: 'resume' });
+            visual.markFieldFilled(element, section);
+          } else {
+            visual.clearActiveField();
+            if (selection.outcome !== 'already_filled') {
+              outcome.skippedFields++;
+              visual.markNeedsUser(element);
+            }
+          }
         }
       }
       historyRemaining[section] = outcome.remainingRecords;
@@ -411,23 +445,31 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   for (const el of controls) {
     if (stopped()) return { ...emptyCoverage, paused: true };
     recoverPrefillControl(el);
-    const kind = classifyField(getLabelText(el));
+    const labelText = getLabelText(el);
+    const kind = classifyField(labelText);
     if (!kind) continue; // no confident match, or a sensitive field -> leave it
     if (!adapter.capabilities[kind === 'skills' ? 'skills' : 'contact']) continue;
+    const group = visualGroupForKind(kind);
     const value = kind === 'skills'
       ? buildSkillsPrefillValue(
           snapshot?.skills ?? [],
           featureFlags.skills && options.autofillSkills === true
         )
-      : valueForKind(kind, profile);
+      : isResumeOnlyFieldKind(kind)
+        ? resumeOnlyFieldValue(kind, snapshot, labelText)
+        : valueForKind(kind, profile);
     if (!value) continue; // we don't have this datum -> leave it blank
+    // A resume summary longer than the field allows is left for the applicant
+    // rather than silently cut mid-sentence.
+    if (isResumeOnlyFieldKind(kind) && 'maxLength' in el &&
+        (el as HTMLInputElement).maxLength > 0 && value.length > (el as HTMLInputElement).maxLength) continue;
 
     let changed = false;
     let retryWrite: PrefillRetryOperation['retry'] | undefined;
     if (kind === 'skills' && (!isPlainSkillsControl(el) || !isFillable(el))) {
       continue; // tag editors/custom widgets require a tested ATS adapter
     } else if (isFillable(el)) {
-      await visual.prepareField(el, kind === 'skills' ? 'skills' : 'contact');
+      await visual.prepareField(el, group);
       if (stopped()) return { ...emptyCoverage, paused: true };
       // The applicant may type, navigate, or disable a field during feedback.
       if (!el.isConnected || !isFillable(el)) { visual.clearActiveField(); continue; }
@@ -445,7 +487,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     } else if (isFillableSelect(el)) {
       const selectValue = matchingSelectValue(el, kind, value, dropdownContext);
       if (!selectValue) continue; // never guess a dropdown option
-      await visual.prepareField(el, 'contact');
+      await visual.prepareField(el, group);
       if (stopped()) return { ...emptyCoverage, paused: true };
       if (!el.isConnected || !isFillableSelect(el) || matchingSelectValue(el, kind, value, dropdownContext) !== selectValue) { visual.clearActiveField(); continue; }
       setNativeSelectValue(el, selectValue);
@@ -462,7 +504,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     } else if (isCustomDropdownControl(el)) {
       if (!adapter.capabilities.searchableDropdown) continue;
       if (customDropdownHasValue(el)) continue;
-      await visual.prepareField(el, 'contact');
+      await visual.prepareField(el, group);
       if (stopped()) return { ...emptyCoverage, paused: true };
       if (!el.isConnected) { visual.clearActiveField(); continue; }
       const selection = await selectSmartDropdown(
@@ -490,7 +532,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     if (!changed) {
       if (retryWrite) retryOperations.push({
         id: `contact:${retryOperations.length}`,
-        fieldGroup: kind === 'skills' ? 'skills' : 'contact',
+        fieldGroup: group,
         label: kind.replace(/([A-Z])/g, ' $1').toLowerCase(),
         source: contactValueSource(snapshot, kind),
         originalControl: el,
@@ -502,12 +544,9 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     fieldSources.push({ control: el, source: contactValueSource(snapshot, kind) });
     filledOutcomes.push({
       filled: true,
-      fieldGroup: kind === 'skills' ? 'skills' : 'contact',
+      fieldGroup: group,
     });
-    visual.markFieldFilled(
-      el,
-      kind === 'skills' ? 'skills' : 'contact'
-    );
+    visual.markFieldFilled(el, group);
     if (!kinds.includes(kind)) kinds.push(kind);
   }
 

@@ -2,7 +2,10 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
+vi.mock('@sentry/nextjs', () => sentry);
 
 import type { ResumeAutofillSnapshotV1 } from '../autofill-schema';
 import { extractAutofillSnapshot } from '../extract-autofill-snapshot';
@@ -102,6 +105,7 @@ describe('extractAutofillSnapshot', () => {
     const result = await extractAutofillSnapshot({
       finalLatex: fixture('job-a-final.tex'),
       sourceResumeText: fixture('job-a-source.txt'),
+      recoverSourceTitles: async () => ({ roles: [] }),
       extractStructuredSnapshot: async () => ({
         ...jobASnapshot,
         experience: [
@@ -121,6 +125,133 @@ describe('extractAutofillSnapshot', () => {
         ({ title }) => title === 'Target-JD Software Engineer'
       )
     ).toBe(false);
+  });
+
+  it('replaces an aligned job title with the real title from the source resume', async () => {
+    let recoveryInput: unknown;
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        experience: [
+          { ...jobASnapshot.experience[0], title: 'Staff Platform Engineer' },
+        ],
+      }),
+      recoverSourceTitles: async (input) => {
+        recoveryInput = input;
+        return { roles: [{ index: 0, title: 'Senior Data Engineer' }] };
+      },
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(recoveryInput).toMatchObject({
+      roles: [
+        {
+          index: 0,
+          company: 'Acme Analytics',
+          tailoredTitle: 'Staff Platform Engineer',
+          startDateText: 'Jan 2021',
+        },
+      ],
+    });
+    expect(result.snapshot.experience).toHaveLength(1);
+    expect(result.snapshot.experience[0].title).toBe('Senior Data Engineer');
+    // Tailored bullets are kept; only the identity facts come from the source.
+    expect(result.snapshot.experience[0].descriptionText).toBe(
+      'Built reliable data products for enterprise customers.'
+    );
+  });
+
+  it('rejects a recovered title the source resume does not show for that employer', async () => {
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        experience: [
+          { ...jobASnapshot.experience[0], title: 'Staff Platform Engineer' },
+        ],
+      }),
+      recoverSourceTitles: async () => ({
+        roles: [{ index: 0, title: 'Chief Data Officer' }],
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.snapshot.experience).toEqual([]);
+  });
+
+  it('drops a recovered title that appears only far from the employer', async () => {
+    const source = `${fixture('job-a-source.txt')}\n${'filler '.repeat(120)}\nVolunteer: Chief Data Officer`;
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: source,
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        experience: [
+          { ...jobASnapshot.experience[0], title: 'Staff Platform Engineer' },
+        ],
+      }),
+      recoverSourceTitles: async () => ({
+        roles: [{ index: 0, title: 'Chief Data Officer' }],
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.snapshot.experience).toEqual([]);
+  });
+
+  it('keeps a verified job when only a date or location cannot be confirmed', async () => {
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      recoverSourceTitles: async () => {
+        throw new Error('recovery must not run for confirmed titles');
+      },
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        experience: [
+          {
+            ...jobASnapshot.experience[0],
+            location: 'Seattle, WA',
+            endDate: {
+              originalText: 'Jun 2024',
+              year: 2024,
+              month: 6,
+              precision: 'month' as const,
+            },
+          },
+        ],
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const [job] = result.snapshot.experience;
+    expect(job.company).toBe('Acme Analytics');
+    expect(job.title).toBe('Senior Data Engineer');
+    expect(job.location).toBeUndefined();
+    expect(job.startDate).toMatchObject({ year: 2021, month: 1, precision: 'month' });
+    // An unconfirmed date keeps its text but can no longer be written to a form.
+    expect(job.endDate).toEqual({ originalText: 'Jun 2024', precision: 'text' });
+  });
+
+  it('confirms numeric month/year dates written differently in the source', async () => {
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt').replace('Jan 2021 - Mar 2024', '01/2021 - 2024-03'),
+      recoverSourceTitles: async () => ({ roles: [] }),
+      extractStructuredSnapshot: async () => jobASnapshot,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.snapshot.experience[0].startDate.precision).toBe('month');
+    expect(result.snapshot.experience[0].endDate?.precision).toBe('month');
   });
 
   it('decodes LaTeX-escaped company, school, email, and percent values before extraction', async () => {
@@ -187,6 +318,39 @@ describe('extractAutofillSnapshot', () => {
         .update(finalLatex, 'utf8')
         .digest('hex'),
     });
+  });
+
+  it('reports extraction and title-recovery failures to Sentry without resume content', async () => {
+    sentry.captureException.mockClear();
+    await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        experience: [{ ...jobASnapshot.experience[0], title: 'Staff Platform Engineer' }],
+      }),
+      recoverSourceTitles: async () => {
+        throw new Error('Alice Johnson Acme Analytics');
+      },
+    });
+    await extractAutofillSnapshot({
+      finalLatex: fixture('job-b-final.tex'),
+      sourceResumeText: fixture('job-b-source.txt'),
+      extractStructuredSnapshot: async () => {
+        throw new TypeError('model unavailable');
+      },
+    });
+
+    const reports = sentry.captureException.mock.calls.map(([error, context]) => ({
+      message: (error as Error).message,
+      stage: context.tags.stage,
+      errorName: context.extra.errorName,
+    }));
+    expect(reports).toEqual([
+      { message: 'Resume autofill snapshot title_recovery failed', stage: 'title_recovery', errorName: 'Error' },
+      { message: 'Resume autofill snapshot extract failed', stage: 'extract', errorName: 'TypeError' },
+    ]);
+    expect(JSON.stringify(sentry.captureException.mock.calls)).not.toContain('Alice');
   });
 
   it('returns a content hash but no snapshot when the constrained extractor is unavailable', async () => {

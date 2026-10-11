@@ -11,6 +11,7 @@ vi.mock('@/lib/resume/extract-autofill-snapshot', () => ({
 }));
 
 const { POST } = await import('./route');
+const { extractAutofillSnapshot } = await import('@/lib/resume/extract-autofill-snapshot');
 const request = (body: unknown) => new NextRequest('https://www.trackmyopt.com/api/resume-generator/autofill-snapshot', {
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
@@ -23,6 +24,32 @@ describe('POST /api/resume-generator/autofill-snapshot', () => {
   });
   it('rejects invalid source resume ids before database access', async () => {
     expect((await POST(request({ finalLatex: '\\documentclass{article}', sourceResumeId: 'wrong' }))).status).toBe(400);
+    expect(mocks.createClient).not.toHaveBeenCalled();
+  });
+  it('reconciles a pasted resume against its own text without database access', async () => {
+    vi.mocked(extractAutofillSnapshot).mockResolvedValue({
+      ok: true,
+      generatedContentHash: 'hash',
+      snapshot: { contact: {}, skills: [], experience: [], education: [], certifications: [] },
+    });
+    const response = await POST(request({
+      finalLatex: '\\documentclass{article}',
+      sourceResumeId: '__pasted__',
+      sourceResumeText: 'Acme Analytics\nSenior Data Engineer',
+    }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ ok: true, structuredFieldsAvailable: true });
+    expect(extractAutofillSnapshot).toHaveBeenCalledWith({
+      finalLatex: '\\documentclass{article}',
+      sourceResumeText: 'Acme Analytics\nSenior Data Engineer',
+    });
+    expect(mocks.createClient).not.toHaveBeenCalled();
+  });
+  it('requires pasted text for __pasted__ and rejects it for stored resumes', async () => {
+    expect((await POST(request({ finalLatex: 'x', sourceResumeId: '__pasted__' }))).status).toBe(400);
+    expect((await POST(request({
+      finalLatex: 'x', sourceResumeId: '__latest__', sourceResumeText: 'Injected evidence',
+    }))).status).toBe(400);
     expect(mocks.createClient).not.toHaveBeenCalled();
   });
 });

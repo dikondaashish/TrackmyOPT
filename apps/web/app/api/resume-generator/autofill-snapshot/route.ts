@@ -16,21 +16,38 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+const SOURCE_RESUME_TEXT_MAX_CHARS = 60_000;
+
 const RequestSchema = z
   .object({
     finalLatex: z.string().min(1).max(FINAL_LATEX_MAX_CHARS),
+    // A pasted resume has no stored row. Its own text is the evidence that
+    // reconciliation checks the tailored resume against.
+    sourceResumeText: z
+      .string()
+      .trim()
+      .min(1)
+      .max(SOURCE_RESUME_TEXT_MAX_CHARS)
+      .optional(),
     sourceResumeId: z
       .string()
       .refine(
         (value) =>
           value === '__latest__' ||
+          value === '__pasted__' ||
           /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
             value
           ),
         'Invalid source resume ID'
       ),
   })
-  .strict();
+  .strict()
+  .refine(
+    (value) =>
+      (value.sourceResumeId === '__pasted__') ===
+      (value.sourceResumeText !== undefined),
+    'Pasted resume text is required for, and only accepted with, __pasted__'
+  );
 
 const extractionRateLimit =
   hasUpstashRedisConfig()
@@ -81,6 +98,14 @@ async function handlePOST(req: NextRequest) {
     }
   }
 
+  if (parsed.data.sourceResumeText !== undefined) {
+    return respondWithExtraction(
+      parsed.data.finalLatex,
+      parsed.data.sourceResumeText,
+      cors
+    );
+  }
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -109,10 +134,15 @@ async function handlePOST(req: NextRequest) {
     );
   }
 
-  const result = await extractAutofillSnapshot({
-    finalLatex: parsed.data.finalLatex,
-    sourceResumeText: data.content,
-  });
+  return respondWithExtraction(parsed.data.finalLatex, data.content, cors);
+}
+
+async function respondWithExtraction(
+  finalLatex: string,
+  sourceResumeText: string,
+  cors: Record<string, string>
+) {
+  const result = await extractAutofillSnapshot({ finalLatex, sourceResumeText });
   if (!result.ok) {
     return NextResponse.json(
       {
