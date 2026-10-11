@@ -23,10 +23,10 @@ export function verifyUnsubscribeToken(token: string | null, secret: string | un
 
 export async function unsubscribeCampaignRecipient(supabase: SupabaseClient, messageId: string): Promise<'ok' | 'missing' | 'unavailable'> {
   const message = await supabase.from('email_queue').select('user_id,email_address,email_data,status')
-    .eq('id', messageId).eq('email_type', 'service_announcement').maybeSingle();
+    .eq('id', messageId).in('email_type', ['service_announcement','pending_case_first','pending_case_followup','checkout_recovery']).maybeSingle();
   if (message.error) return 'unavailable';
   const row = message.data;
-  if (!row?.user_id || !row.email_address || !row.email_data?.campaign_id ||
+  if (!row?.user_id || !row.email_address || !(row.email_data?.campaign_id || row.email_data?.experiment === 'pending_case_v1') ||
     !['sent', 'campaign_sending', 'campaign_unknown'].includes(row.status)) return 'missing';
 
   // Updating only this field preserves the user's reminder address and OPT/STEM preferences.

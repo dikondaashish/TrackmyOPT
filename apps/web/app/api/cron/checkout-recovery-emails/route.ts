@@ -23,6 +23,8 @@ import { captureServerEvent, normalizePlanTier } from "@/lib/posthog-server";
 import { sanitizeError, secureLog, logIdPrefix } from "@/lib/secure-logger";
 import { requireLiveStripeKeyInProduction } from "@/lib/stripe/require-live-key-in-production";
 
+import { pendingCaseEmailsEnabled, requireCasePromotionProvider } from "@/lib/notifications/pending-case-email";
+
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
@@ -54,13 +56,17 @@ async function handleGET(req: NextRequest) {
   let fresh_checkout_links = 0;
 
   try {
+    const experimentEnabled = pendingCaseEmailsEnabled();
+    if (experimentEnabled) requireCasePromotionProvider();
     const abandoners = await findCheckoutAbandoners(supabase);
     secureLog.info(`checkout-recovery: ${abandoners.length} candidate(s)`);
     const stripe = getStripe();
     const appBase = getAppBaseUrl();
 
     for (const user of abandoners) {
+      if (Date.now() - startTime > 240_000) break;
       processed += 1;
+      if (experimentEnabled && !stripe) throw new Error("Recovery billing verification unavailable");
 
       let stripeSession: { status: string | null; url: string | null } | null =
         null;
@@ -69,11 +75,20 @@ async function handleGET(req: NextRequest) {
           const session = await stripe.checkout.sessions.retrieve(
             user.stripeCheckoutSessionId
           );
+          if (session.status === "complete" || session.payment_status === "paid") {
+            skipped_dedup += 1;
+            continue;
+          }
           stripeSession = {
             status: session.status ?? null,
             url: session.url ?? null,
           };
         } catch (e) {
+          if (experimentEnabled) {
+            console.error("Checkout recovery billing verification failed");
+            failed += 1;
+            continue;
+          }
           secureLog.warn(
             "checkout-recovery session retrieve failed:",
             logIdPrefix(user.stripeCheckoutSessionId),
@@ -140,10 +155,10 @@ async function handleGET(req: NextRequest) {
       fresh_checkout_links,
       durationMs: Date.now() - startTime,
     });
-  } catch (error: unknown) {
-    secureLog.error("checkout-recovery cron error:", sanitizeError(error));
+  } catch {
+    console.error("Checkout recovery cron failed");
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal error" },
+      { error: "Checkout recovery unavailable" },
       { status: 500 }
     );
   }

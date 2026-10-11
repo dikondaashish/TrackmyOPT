@@ -186,4 +186,9 @@ Business target: two unique people starting the USD $0.99 seven-day Pro offer pe
 | `pro_intro_cancellation_requested` | Introductory Pro customer disables renewal | Stable subscription/request-time UUID; `during_intro`, `source`; no feedback text |
 | `payment_refunded` | Live subscription charge refund | Stable Stripe-event UUID/time; cumulative `amount_refunded_cents`, `is_full_refund`; all subscription plans |
 
-`source` accepts `case_status`, `pricing_modal`, `checkout_page` or `unknown`. Arbitrary client strings are discarded before Stripe metadata or analytics. Server billing events do not depend on client analytics consent, so their totals must not be divided by all client-observed visitors and presented as overall conversion. PostHog deduplication uses UUID, event, distinct ID and timestamp; stable `$insert_id` is also retained for audit. Delivery is best effort, so reconcile with Stripe.
+`source` accepts `case_status`, `pricing_modal`, `checkout_page`, `pending_case_email` or `unknown`. Arbitrary client strings are discarded before Stripe metadata or analytics. Server billing events do not depend on client analytics consent, so their totals must not be divided by all client-observed visitors and presented as overall conversion. PostHog deduplication uses UUID, event, distinct ID and timestamp; stable `$insert_id` is also retained for audit. Delivery is best effort, so reconcile with Stripe.
+
+
+## Pending-case email experiment (October 11, 2026)
+
+`pending_case_promotion_sent` records SMTP acceptance plus a persisted sent result, with `experiment=pending_case_v1` and `step=first|followup`. `pending_case_offer_engaged` records the first eligible, signed-in deliberate offer action. Neither an email GET nor a raw click qualifies engagement. These operational markers have no historical backfill and do not prove inbox delivery, reading, or incremental paid conversion. Signed monitoring-link tokens are removed from browser analytics URL properties. See [campaign operations](../../../../docs/ops/PENDING_CASE_EMAILS.md) for consent, shared caps, holdout analysis and Stripe reconciliation.

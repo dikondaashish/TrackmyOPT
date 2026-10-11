@@ -82,7 +82,7 @@ export async function findCheckoutAbandoners(
     .lte("created_at", maxCreatedAt);
 
   if (pendingErr) {
-    throw new Error(pendingErr.message);
+    throw new Error("Checkout recovery candidates unavailable");
   }
 
   if (!pendingRows?.length) return [];
@@ -107,7 +107,7 @@ export async function findCheckoutAbandoners(
   const userIds = [...latestByUser.keys()];
   if (userIds.length === 0) return [];
 
-  const [{ data: profiles }, { data: succeeded }, { data: recoverySent }] =
+  const [profileResult, succeededResult, recoveryResult] =
     await Promise.all([
       supabase
         .from("profiles")
@@ -125,16 +125,25 @@ export async function findCheckoutAbandoners(
         .eq("email_type", "checkout_recovery"),
     ]);
 
+  if (profileResult.error || succeededResult.error || recoveryResult.error) {
+    throw new Error("Checkout recovery eligibility unavailable");
+  }
+  const profiles = profileResult.data;
+  const succeeded = succeededResult.data;
+  const recoverySent = recoveryResult.data;
+
   const succeededSet = new Set((succeeded || []).map((r) => r.user_id));
   const recoverySentSet = new Set((recoverySent || []).map((r) => r.user_id));
 
-  const { data: consents } = await supabase
+  const { data: consents, error: consentError } = await supabase
     .from("billing_consent_events")
     .select("user_id, plan_id, billing_interval, created_at")
     .in("user_id", userIds)
     .eq("event_type", "checkout_recurring_consent")
     .gte("created_at", minCreatedAt)
     .order("created_at", { ascending: false });
+
+  if (consentError) throw new Error("Checkout recovery consent unavailable");
 
   const latestConsent = new Map<
     string,

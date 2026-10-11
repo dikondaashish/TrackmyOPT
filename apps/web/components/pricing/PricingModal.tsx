@@ -28,6 +28,7 @@ import {
   capturePricingCtaViewed,
 } from '@/lib/posthog-client';
 import { PLAN_LIST_PRICES, PLAN_PRICES } from '@/lib/pricing/plan-config';
+import type { ProCheckoutSource } from '@/lib/posthog/pro-conversion';
 
 interface PricingModalProps {
   open: boolean;
@@ -39,6 +40,7 @@ interface PricingModalProps {
   /** Slightly larger desktop typography on /premium/checkout (full-page flow). */
   checkoutPage?: boolean;
   caseMonitoring?: boolean;
+  checkoutSource?: ProCheckoutSource;
 }
 
 function isYearlyBillingDefault(interval: string | undefined): boolean {
@@ -48,7 +50,7 @@ function isYearlyBillingDefault(interval: string | undefined): boolean {
 export function PricingModal(props: PricingModalProps) {
   if (!props.open) return null;
   // A new opening/initial offer starts with fresh, unchecked billing consent.
-  const offerKey = `${props.initialPlan}:${props.initialInterval}:${props.caseMonitoring}:${props.checkoutPage}:${props.isPremium}`;
+  const offerKey = `${props.initialPlan}:${props.initialInterval}:${props.caseMonitoring}:${props.checkoutPage}:${props.isPremium}:${props.checkoutSource}`;
   return <PricingModalContent key={offerKey} {...props} />;
 }
 
@@ -61,15 +63,18 @@ function PricingModalContent({
   initialInterval,
   checkoutPage = false,
   caseMonitoring = false,
+  checkoutSource: sourceOverride,
 }: PricingModalProps) {
   const [comparePlans, setComparePlans] = useState(false);
   const focused = caseMonitoring && !comparePlans && !isPremium;
   const [eligibilityError, setEligibilityError] = useState(false);
-  const checkoutSource = caseMonitoring
-    ? 'case_status'
-    : checkoutPage
-      ? 'checkout_page'
-      : 'pricing_modal';
+  const checkoutSource =
+    sourceOverride ??
+    (caseMonitoring
+      ? 'case_status'
+      : checkoutPage
+        ? 'checkout_page'
+        : 'pricing_modal');
   const [isLoading, setIsLoading] = useState(false);
   /** Case monitoring defaults to monthly; comparison offers retain their initial interval. */
   const [isYearly, setIsYearly] = useState(() =>
@@ -114,6 +119,7 @@ function PricingModalContent({
       })
       .then((status) => {
         if (controller.signal.aborted) return;
+        if (status?.error) throw new Error('Pro eligibility unavailable');
         const eligible =
           status?.proPaidIntroEligible ?? status?.proFreeTrialEligible;
         if (typeof eligible !== 'boolean')

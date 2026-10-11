@@ -17,6 +17,7 @@ import { redactReceiptNumber, secureLog } from '@/lib/secure-logger';
 import { applyFreeUserChangeWedgeToUpdate } from '@/lib/case-status/free-change-wedge';
 import { resolveReceivedDate } from '@/lib/case-status/filing-date';
 import { resolvePpStartDateForStorage } from '@/lib/case-status/premium-processing';
+import { recordPendingCaseEmailSequence } from '@/lib/notifications/pending-case-email';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -507,6 +508,7 @@ async function handlePOST(req: NextRequest) {
       });
       if (logError) console.error('USCIS check telemetry write failed');
     } catch { console.error('USCIS check telemetry write failed'); }
+    await recordPendingCaseEmailSequence(supabase,bodyUserId,caseId);
 
     // If status changed, send notification (only for premium users)
     if (hasStatusChanged && currentCase) {

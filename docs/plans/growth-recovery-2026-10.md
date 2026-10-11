@@ -141,3 +141,15 @@ checkout failures, and the existing eligible offer → verified paid-start funne
 Reconcile `pro_paid_intro_started` with Stripe. Keep the target of two verified
 $0.99 starts per day and 14 per week; this release is a measurable friction
 reduction, not evidence that the revenue target has been reached.
+
+## Pending-case email experiment — October 11
+
+The owner authorized a two-email pending-case monitoring sequence and use of the
+existing Zoho/ZeptoMail account, citing written provider approval. See the
+[implementation and activation runbook](../ops/PENDING_CASE_EMAILS.md). Enrollment
+is prospective and requires a verified pending case; sending also requires an
+explicit marketing preference and current unpaid eligibility. A signed-in,
+deliberate offer visit qualifies the single follow-up. Checkout recovery shares
+the two-promotion cap. A deterministic 20% holdout supports comparison of matured
+Stripe-verified paid starts, alongside preference withdrawals and refunds. No
+historical audience or marketing consent is backfilled.
