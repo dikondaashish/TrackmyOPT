@@ -50,6 +50,12 @@ it('records only the static worker failure and flushes before acknowledging', as
     'synthetic-test-secret'
   );
 });
+it('accepts an empty HTTP body stream from the Render fetch transport', async () => {
+  const streamed = request(undefined, '');
+  expect(streamed.body).not.toBeNull();
+  expect((await POST(streamed)).status).toBe(200);
+  expect(m.capture).toHaveBeenCalledWith('Render pending case email enrollment failed', 'error');
+});
 it('limits repeated authenticated reports before sending to Sentry', async () => {
   m.allowance.mockResolvedValue({ success: false });
   expect((await POST(request())).status).toBe(429);

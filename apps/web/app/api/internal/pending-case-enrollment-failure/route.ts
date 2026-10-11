@@ -11,8 +11,17 @@ async function handlePOST(req: NextRequest) {
   const denied = verifyCronAuth(req);
   if (denied) return denied;
   // This endpoint accepts no caller-supplied diagnostic or applicant fields.
-  if (req.body !== null || req.nextUrl.search)
+  if (req.nextUrl.search || Number(req.headers.get('content-length') ?? '0') > 0)
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  // Node supplies a stream even for an empty POST. Inspect emptiness without
+  // parsing or forwarding diagnostics, and cancel a nonempty stream immediately.
+  if (req.body) {
+    const reader = req.body.getReader();
+    const first = await reader.read();
+    await reader.cancel();
+    if (!first.done)
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
   const allowance = await checkRateLimitByUser('render-pending-case-worker', {
     name: 'pending-case-enrollment-errors',
     limit: 5,
