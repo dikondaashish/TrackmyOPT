@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyToken } from '@/lib/auth/jwt';
@@ -13,7 +14,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
@@ -28,7 +29,7 @@ const getAdminClient = () => createClient(
  * Called by the extension to register its presence
  * This endpoint is specifically for extension session tracking
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     // Extension must use JWT auth
     const authHeader = req.headers.get('Authorization');
@@ -117,7 +118,7 @@ export async function POST(req: NextRequest) {
  * GET /api/extension/ping
  * Check if extension is registered for a user
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     // Try JWT first
     const authHeader = req.headers.get('Authorization');
@@ -170,3 +171,7 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/ping', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/ping', 'POST');
+export const GET = withSentryApiErrors(handleGET, '/api/extension/ping', 'GET');

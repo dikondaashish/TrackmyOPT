@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { textractService } from '@/lib/aws/textract';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -10,7 +11,7 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
@@ -20,7 +21,7 @@ export async function OPTIONS() {
  * ISS-024: durable status lookup. We persist completion to Supabase so cold
  * starts don't lose state, and we still hit Textract directly when needed.
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
     const userId = await getUserId(req);
     if (!userId) {
         return NextResponse.json(
@@ -153,3 +154,6 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/ocr/status', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/resume-generator/ocr/status', 'GET');

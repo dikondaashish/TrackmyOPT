@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -15,7 +16,7 @@ const corsHeaders = {
  * POST /api/case-status/viewed
  * Mark the case status page as viewed (dismisses the free-tier change wedge).
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -68,6 +69,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/case-status/viewed', 'POST');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/viewed', 'OPTIONS');

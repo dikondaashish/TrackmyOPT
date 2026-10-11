@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   checkRateLimitByIP,
@@ -24,7 +25,7 @@ const CASE_KINDS = new Set(['initial_opt', 'stem_opt']);
  * Guest-facing OPT decision window.
  * No auth. Only receipt prefix (3 chars) + received date — never a full receipt.
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const limited = await checkRateLimitByIP(req, PUBLIC_LIMIT);
     if (!limited.success) {
@@ -121,3 +122,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/public/opt-decision-window', 'GET');

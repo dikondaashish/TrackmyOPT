@@ -3,10 +3,24 @@
 The Next.js app reports to `zyene-inc / trackmyopt` using
 `@sentry/nextjs`. Browser exceptions and rejected promises, React error
 boundaries (including root-layout failures), Next.js request errors, Node/edge
-runtime failures, and `console.error` reports are captured. Expected failures
-that are returned without throwing or logging an error are not automatically
-Sentry issues. The separate ingestion API and Chrome extension do not run the
-Next.js SDK.
+runtime failures, and `console.error` reports are captured. Every Next.js API
+handler also reports returned HTTP 5xx responses through `withSentryApiErrors`,
+including handled failures, cron requests, and extension requests to the website.
+The browser HTTP client integration reports first-party `/api/` 5xx responses,
+including failures that occur before a server handler can run. Case workers
+report partial failures and audit-recording failures, even when an error was
+caught internally. Expected validation/authentication/not-found/rate-limit
+responses (4xx) do not create API-response issues. The separate ingestion API
+process and Chrome extension's own runtime do not run the Next.js SDK.
+
+When adding API handlers, export them through `withSentryApiErrors` with their
+static route pattern and HTTP method, as existing routes do. The wrapper never
+reads request or response bodies, preserves streaming responses, and lets
+thrown exceptions reach Next.js's normal error handler. Its diagnostic messages
+contain only the HTTP method, static route pattern (such as `/api/jobs/[id]`),
+and response status. Nested handler delegation reports the same response once.
+An HTTP 200 response containing an application error still requires explicit
+`console.error` or `Sentry.captureException` at the point of failure.
 
 Existing PostHog instrumentation and server console redaction remain active.
 
@@ -60,12 +74,21 @@ browser blocking, and provider delivery affect capture/notification delivery.
 
 Manage the rule in [Sentry alerts](https://zyene-inc.sentry.io/monitors/alerts/6147762/).
 
+A production [uptime monitor](https://zyene-inc.sentry.io/monitors/10601767/)
+is configured for `https://www.trackmyopt.com`, every minute with a five-second
+timeout, requiring an HTTP 2xx response. It is currently saved disabled; verify
+activation in Sentry before relying on outage checks. Three consecutive failures create an issue; one
+successful check resolves it. These issues use the same project email alert.
+Only the public homepage is checked; authenticated workflows still rely on
+application error reporting.
+
 ## Verification
 
 1. Configure the DSN in an ignored `apps/web/.env.local` file.
 2. Run `pnpm --filter web dev` from the monorepo root.
-3. Visit `/sentry-example-page`. Click the browser, server, and edge test buttons.
-4. Confirm the three synthetic errors appear in
+3. Visit `/sentry-example-page`. Click the browser, server, edge, and handled-API
+   test buttons. The handled-API button returns a synthetic 503 without throwing.
+4. Confirm the synthetic errors appear in
    [Sentry Issues](https://zyene-inc.sentry.io/issues/?project=4512234317938688),
    with environment `development`, and check the alert history.
 
@@ -77,6 +100,7 @@ Focused checks:
 
 ```bash
 pnpm --filter web exec vitest run lib/sentry/options.test.ts app/api/sentry-example/route.test.ts
+pnpm --filter web exec vitest run lib/sentry/api-errors.test.ts lib/case-status/worker-observability.test.ts
 pnpm --filter web run lint
 pnpm --filter web run typecheck
 pnpm --filter web run test

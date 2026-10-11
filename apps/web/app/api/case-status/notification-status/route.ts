@@ -1,10 +1,11 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const headers = { 'Cache-Control': 'no-store' };
   const userId = await getUserId(req);
   if (!userId)
@@ -49,3 +50,5 @@ export async function GET(req: NextRequest) {
     );
   return NextResponse.json({ ok: true, notification: data }, { headers });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status/notification-status', 'GET');

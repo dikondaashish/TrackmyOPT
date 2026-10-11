@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
@@ -16,7 +17,7 @@ const schema = z.object({
 });
 const headers = { 'Cache-Control': 'private, no-store' };
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   if (request.headers.get('origin') !== request.nextUrl.origin) {
     return NextResponse.json(
       { error: 'Request origin not allowed' },
@@ -64,3 +65,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/admin/login', 'POST');

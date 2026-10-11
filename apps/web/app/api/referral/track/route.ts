@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * POST /api/referral/track
  * 
@@ -23,11 +24,11 @@ const REFERRAL_CLICK_LIMIT = {
     name: 'referral-click',
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     try {
         const body = await req.json();
         const code = typeof body.code === "string"
@@ -81,3 +82,6 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/referral/track', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/referral/track', 'POST');

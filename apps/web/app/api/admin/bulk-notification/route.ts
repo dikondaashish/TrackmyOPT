@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { getAdminNoticeTemplates } from '@/lib/notifications/admin-notice-templates';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -52,7 +53,7 @@ const createTransporter = () => nodemailer.createTransport({
   maxMessages: 100,
 });
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     // Verify admin authorization
     const authHeader = request.headers.get('Authorization');
@@ -292,7 +293,7 @@ export async function POST(request: NextRequest) {
  * 
  * Returns email templates for common notification types
  */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   // Verify admin authorization
   const authHeader = request.headers.get('Authorization');
   const adminSecret = process.env.ADMIN_SECRET;
@@ -305,3 +306,6 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ templates });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/admin/bulk-notification', 'POST');
+export const GET = withSentryApiErrors(handleGET, '/api/admin/bulk-notification', 'GET');

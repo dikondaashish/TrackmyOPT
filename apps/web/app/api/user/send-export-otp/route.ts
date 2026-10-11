@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendExportOtpEmail } from '@/lib/notifications/email-service';
@@ -8,7 +9,7 @@ import { sendExportOtpEmail } from '@/lib/notifications/email-service';
  * Send OTP to user's email for ZIP export verification
  * Uses the centralized email service with proper SMTP configuration
  */
-export async function POST() {
+async function handlePOST() {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -74,3 +75,5 @@ export async function POST() {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/user/send-export-otp', 'POST');

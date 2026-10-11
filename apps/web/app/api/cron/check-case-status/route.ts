@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
@@ -14,7 +15,7 @@ export const maxDuration = 300;
  *
  * Vercel sends CRON_SECRET in the Authorization header automatically.
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   return observeCaseWorker('case-checks', req, () => run(req));
 }
 async function run(req: NextRequest) {
@@ -77,3 +78,5 @@ async function run(req: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/check-case-status', 'GET');

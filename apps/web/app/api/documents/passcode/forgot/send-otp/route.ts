@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Forgot-passcode OTP issuance (ISS-020).
  *
@@ -35,7 +36,7 @@ function maskEmail(email: string): string {
   return `${maskedLocal}@${domain}`;
 }
 
-export async function POST(_req: NextRequest) {
+async function handlePOST(_req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -105,3 +106,5 @@ export async function POST(_req: NextRequest) {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/documents/passcode/forgot/send-otp', 'POST');

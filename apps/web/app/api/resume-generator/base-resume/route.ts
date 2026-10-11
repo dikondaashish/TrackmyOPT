@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * GET /api/resume-generator/base-resume
  *
@@ -13,11 +14,11 @@ import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 
 export const dynamic = 'force-dynamic';
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) {
@@ -104,3 +105,6 @@ export async function GET(req: NextRequest) {
     { headers: cors }
   );
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/base-resume', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/resume-generator/base-resume', 'GET');

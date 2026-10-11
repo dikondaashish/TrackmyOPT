@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -19,7 +20,7 @@ const corsHeaders = {
  * PATCH /api/case-status/notifications
  * Toggle notification settings for user's case
  */
-export async function PATCH(req: NextRequest) {
+async function handlePATCH(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -126,7 +127,9 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-export async function OPTIONS(_req: NextRequest) {
+async function handleOPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
 
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/case-status/notifications', 'PATCH');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/notifications', 'OPTIONS');

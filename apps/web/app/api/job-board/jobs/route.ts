@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { findActiveTrackerStatus, inferJobFacts } from '@/lib/job-board/filters';
@@ -72,7 +73,7 @@ type TrackerEntry = {
   is_archived: boolean | null;
 };
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -221,3 +222,5 @@ export async function GET(request: Request) {
   const jobsWithMatches = jobs.map((job) => ({ ...job, resume_match: resumeMatches.get(job.id) || null }));
   return NextResponse.json({ jobs: jobsWithMatches, total: storePage.total, page, pageSize: PAGE_SIZE });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/job-board/jobs', 'GET');

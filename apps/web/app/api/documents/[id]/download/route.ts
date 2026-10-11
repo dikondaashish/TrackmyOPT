@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Document Download API
  * 
@@ -15,7 +16,7 @@ type RouteContext = {
   }>;
 };
 
-export async function GET(
+async function handleGET(
   request: NextRequest,
   context: RouteContext
 ) {
@@ -73,3 +74,5 @@ export async function GET(
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/documents/[id]/download', 'GET');

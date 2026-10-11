@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateSignedUrl } from '@/lib/aws/s3';
@@ -9,7 +10,7 @@ import JSZip from 'jszip';
  * Verify OTP and export user data as ZIP file
  * Includes: profile, OPT dates, case status, and all documents
  */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -158,3 +159,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/user/export-zip', 'POST');

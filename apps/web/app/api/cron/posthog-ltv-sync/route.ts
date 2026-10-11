@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Nightly LTV sync — pushes Supabase payment totals to PostHog person properties.
  *
@@ -47,7 +48,7 @@ function parseOffset(req: NextRequest): number {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const startTime = Date.now();
   const cronAuthError = verifyCronAuth(req);
   if (cronAuthError) return cronAuthError;
@@ -86,6 +87,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   return GET(req);
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/posthog-ltv-sync', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/cron/posthog-ltv-sync', 'POST');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Rate Limit Status API
  * 
@@ -12,7 +13,7 @@ import { getRateLimitStatus, getTimeUntilReset } from '@/lib/auth/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+async function handleGET(_request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -46,3 +47,4 @@ export async function GET(_request: NextRequest) {
   }
 }
 
+export const GET = withSentryApiErrors(handleGET, '/api/documents/rate-limit', 'GET');

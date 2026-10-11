@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
@@ -25,7 +26,7 @@ function trialPayload(proFreeTrialConsumed: boolean | null | undefined) {
 
 export const dynamic = 'force-dynamic';
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: corsHeadersWebAndExtension(req),
@@ -35,7 +36,7 @@ export async function OPTIONS(req: NextRequest) {
 /**
  * GET - Check if user has premium access
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   try {
     let userId: string | null = null;
@@ -326,3 +327,6 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/premium/status', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/premium/status', 'GET');

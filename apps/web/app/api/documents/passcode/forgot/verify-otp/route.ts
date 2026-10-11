@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Forgot-passcode OTP verify + reset (ISS-020).
  *
@@ -17,7 +18,7 @@ import { deleteManyFromS3 } from '@/lib/aws/s3';
 const MAX_OTP_ATTEMPTS = 5;
 const OTP_LOCKOUT_MS = 15 * 60 * 1000;
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -141,3 +142,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/documents/passcode/forgot/verify-otp', 'POST');

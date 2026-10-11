@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Insurance Eligibility API — saves and retrieves eligibility check data.
  * GET requires authenticated session (own records only).
@@ -44,7 +45,7 @@ async function getSessionUserId(): Promise<string | null> {
   return user?.id ?? null;
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const sessionUserId = await getSessionUserId();
     if (!sessionUserId) {
@@ -166,3 +167,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/insurance-eligibility', 'POST');
+export const GET = withSentryApiErrors(handleGET, '/api/insurance-eligibility', 'GET');

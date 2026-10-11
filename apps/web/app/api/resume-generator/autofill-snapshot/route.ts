@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { createClient } from '@supabase/supabase-js';
@@ -40,11 +41,11 @@ const extractionRateLimit =
       })
     : null;
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) {
@@ -134,3 +135,6 @@ export async function POST(req: NextRequest) {
     { headers: cors }
   );
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/autofill-snapshot', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/autofill-snapshot', 'POST');

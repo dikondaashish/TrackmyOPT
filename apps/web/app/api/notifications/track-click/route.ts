@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
@@ -39,7 +40,7 @@ function hmacSign(payload: string, secret: string): string {
   return crypto.createHmac('sha256', secret).update(payload).digest('hex');
 }
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   const url = searchParams.get('url');
@@ -92,3 +93,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/notifications/track-click', 'GET');

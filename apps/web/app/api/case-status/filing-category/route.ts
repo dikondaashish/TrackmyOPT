@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getUserId } from "@/lib/auth/get-user-id";
@@ -21,7 +22,7 @@ const corsHeaders = {
  * PATCH /api/case-status/filing-category
  * Update filing type without re-entering the receipt number.
  */
-export async function PATCH(req: NextRequest) {
+async function handlePATCH(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -105,6 +106,9 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
+
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/case-status/filing-category', 'PATCH');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/filing-category', 'OPTIONS');

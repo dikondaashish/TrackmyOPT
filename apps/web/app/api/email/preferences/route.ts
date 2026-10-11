@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Email Preferences API
  * 
@@ -33,7 +34,7 @@ function isValidEmail(email: string): boolean {
 /**
  * GET - Get user's email preferences
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -89,7 +90,7 @@ export async function GET(req: NextRequest) {
 /**
  * POST - Update email preferences
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -182,7 +183,7 @@ export async function POST(req: NextRequest) {
 /**
  * DELETE - Delete email preferences (stop all emails)
  */
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -220,3 +221,7 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/email/preferences', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/email/preferences', 'POST');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/email/preferences', 'DELETE');

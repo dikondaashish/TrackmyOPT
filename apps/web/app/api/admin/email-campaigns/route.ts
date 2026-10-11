@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmailCampaignAdmin } from '@/lib/auth/email-campaign-admin';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -5,7 +6,7 @@ import { campaignIdSchema } from '@/lib/notifications/campaign-tracking';
 import { getEmailCampaignReport, listEmailCampaigns } from '@/lib/notifications/campaign-reports';
 
 export const dynamic = 'force-dynamic';
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const admin = await getEmailCampaignAdmin();
   const headers = { 'Cache-Control': 'private, no-store' };
   if (admin.status !== 'admin') {
@@ -57,3 +58,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/admin/email-campaigns', 'GET');

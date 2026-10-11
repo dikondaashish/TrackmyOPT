@@ -1,9 +1,10 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { getI765ObservedTrends } from '@/lib/case-status/i765-observed-trends-server';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+async function handleGET() {
   const trends = await getI765ObservedTrends();
   if (!trends) {
     return NextResponse.json(
@@ -20,3 +21,5 @@ export async function GET() {
     }
   );
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status/i765-observed-trends', 'GET');

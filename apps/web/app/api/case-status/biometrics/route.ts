@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
@@ -18,7 +19,7 @@ const reply = (body: unknown, status = 200) =>
   NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
 /** User-reported attendance only. Never modifies USCIS status/history. */
-export async function PATCH(req: NextRequest) {
+async function handlePATCH(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) return reply({ error: 'Sign in to update your case.' }, 401);
@@ -67,3 +68,5 @@ export async function PATCH(req: NextRequest) {
     );
   }
 }
+
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/case-status/biometrics', 'PATCH');

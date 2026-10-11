@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { unstable_cache } from 'next/cache';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -77,7 +78,7 @@ async function renderPreview(
     }
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
     const userId = await getUserId(req);
     if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -106,3 +107,5 @@ export async function GET(req: NextRequest) {
         },
     });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/resume-generator/template-preview', 'GET');

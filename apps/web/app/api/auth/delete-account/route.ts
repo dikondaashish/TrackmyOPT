@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
@@ -16,7 +17,7 @@ function getStripe(): Stripe | null {
   });
 }
 
-export async function DELETE() {
+async function handleDELETE() {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -193,3 +194,5 @@ export async function DELETE() {
     );
   }
 }
+
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/auth/delete-account', 'DELETE');

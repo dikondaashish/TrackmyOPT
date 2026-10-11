@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest } from 'next/server';
 import { apiFail, apiOk, apiUnauthorized } from '@/lib/api/response';
 import { checkRateLimitByUser } from '@/lib/auth/api-rate-limit';
@@ -8,7 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const db = await createClient();
   const { data: { user } } = await db.auth.getUser();
   if (!user) return apiUnauthorized('Sign in to search companies');
@@ -25,3 +26,5 @@ export async function GET(req: NextRequest) {
     id: row.id, name: row.name, domain: normalizeDomain(row.website),
   })) });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/career/networking/companies', 'GET');

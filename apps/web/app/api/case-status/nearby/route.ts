@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * DISABLED — USCIS API compliance (July 2026).
  *
@@ -16,7 +17,7 @@ const corsHeaders = {
   "Cache-Control": "no-store",
 };
 
-export async function GET() {
+async function handleGET() {
   return NextResponse.json(
     {
       ok: false,
@@ -27,6 +28,9 @@ export async function GET() {
   );
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status/nearby', 'GET');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/nearby', 'OPTIONS');

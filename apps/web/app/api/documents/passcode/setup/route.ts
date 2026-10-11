@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Passcode Setup API
  * 
@@ -11,7 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { hashPasscode, isValidPasscode } from '@/lib/auth/passcode';
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
 
     const supabase = await createClient();
@@ -73,3 +74,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/documents/passcode/setup', 'POST');

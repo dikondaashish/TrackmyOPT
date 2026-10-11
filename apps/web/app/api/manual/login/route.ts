@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * POST /api/manual/login
  * 
@@ -18,7 +19,7 @@ import {
 } from "@/lib/auth/api-rate-limit";
 import { loginRequestSchema, validateRequest } from "@/lib/validation";
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   // SECURITY: Rate limit by IP to prevent brute force attacks
   let rateLimitResult = await checkRateLimitByIP(req, AUTH_RATE_LIMIT);
   if (!rateLimitResult.success) {
@@ -82,3 +83,5 @@ export async function POST(req: NextRequest) {
   const response = NextResponse.json({ ok: true });
   return addRateLimitHeaders(response, rateLimitResult);
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/manual/login', 'POST');

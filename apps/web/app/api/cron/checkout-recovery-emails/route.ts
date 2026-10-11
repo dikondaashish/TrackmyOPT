@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Checkout recovery emails — one nudge for users who started Pro checkout but didn't pay.
  *
@@ -38,7 +39,7 @@ function getStripe(): Stripe | null {
   });
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const startTime = Date.now();
 
   const cronAuthError = verifyCronAuth(req);
@@ -148,6 +149,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   return GET(req);
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/checkout-recovery-emails', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/cron/checkout-recovery-emails', 'POST');

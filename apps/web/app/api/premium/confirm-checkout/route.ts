@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse, after } from "next/server";
 import Stripe from "stripe";
 import { captureVerifiedProIntro } from "@/lib/posthog/verified-pro-billing";
@@ -21,7 +22,7 @@ const getStripe = () => {
   });
 };
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
     if (!userId) {
@@ -119,3 +120,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Failed to confirm checkout" }, { status: 500 });
   }
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/premium/confirm-checkout', 'POST');

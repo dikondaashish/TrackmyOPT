@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * User Notification Email API
  * 
@@ -21,7 +22,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 // GET - Fetch user's notification email
-export async function GET() {
+async function handleGET() {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -84,7 +85,7 @@ export async function GET() {
 }
 
 // POST - Update user's notification email
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json().catch(() => null);
 
@@ -227,3 +228,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/user/notification-email', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/user/notification-email', 'POST');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash } from 'node:crypto';
 
@@ -21,11 +22,11 @@ function json(req: NextRequest, body: unknown, status = 200) {
   });
 }
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return json(req, {});
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   if (!AUTOFILL_FEATURE_FLAGS.coverLetter) {
     return json(req, { error: 'feature_disabled' }, 501);
   }
@@ -98,3 +99,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/cover-letter', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/cover-letter', 'POST');

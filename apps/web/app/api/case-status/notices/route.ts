@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
@@ -14,7 +15,7 @@ const admin = () =>
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const userId = await getUserId(req);
   if (!userId) return json({ error: 'Unauthorized' }, 401);
   const caseId = req.nextUrl.searchParams.get('case_id');
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
   return json({ ok: true, notices: data });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const userId = await getUserId(req);
   if (!userId) return json({ error: 'Unauthorized' }, 401);
   return saveNotice(userId, await req.json().catch(() => null));
@@ -169,7 +170,7 @@ async function saveNotice(userId: string, body: unknown, noticeId?: string) {
   return json({ ok: true, notice: data }, 201);
 }
 
-export async function PATCH(req: NextRequest) {
+async function handlePATCH(req: NextRequest) {
   const userId = await getUserId(req);
   if (!userId) return json({ error: 'Unauthorized' }, 401);
   const body = await req.json().catch(() => null);
@@ -222,3 +223,7 @@ export async function PATCH(req: NextRequest) {
     );
   return json({ ok: true, notice: data });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status/notices', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/case-status/notices', 'POST');
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/case-status/notices', 'PATCH');

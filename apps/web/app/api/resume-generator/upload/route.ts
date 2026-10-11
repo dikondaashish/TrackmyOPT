@@ -1,9 +1,10 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { corsHeadersWebAndExtension } from '@/lib/api/cors-policy';
 import { normalizeResumeText, prepareResumeText } from '@/lib/resume/resume-text-limits';
 import { getUserId } from '@/lib/auth/get-user-id';
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
@@ -17,7 +18,7 @@ export const runtime = 'nodejs';
  * resume-generator route — this one was cookie-only until the Chrome extension
  * needed to call it for the side panel's upload option.
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     const corsHeaders = corsHeadersWebAndExtension(req);
     try {
         const userId = await getUserId(req);
@@ -156,3 +157,6 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/upload', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/upload', 'POST');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -12,7 +13,7 @@ const getAdminClient = () => createClient(
 
 export const dynamic = 'force-dynamic';
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
@@ -22,7 +23,7 @@ export async function OPTIONS(req: NextRequest) {
  * GET /api/user/sessions
  * Get recent sessions and extension status
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
@@ -90,7 +91,7 @@ export async function GET(req: NextRequest) {
  * POST /api/user/sessions
  * Record or update a session (called on login or extension activity)
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
@@ -185,7 +186,7 @@ export async function POST(req: NextRequest) {
  * DELETE /api/user/sessions
  * Revoke a session or disconnect extension
  */
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   const cors = corsHeadersWebAndExtension(req);
   try {
     const userId = await getUserId(req);
@@ -243,3 +244,8 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/user/sessions', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/user/sessions', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/user/sessions', 'POST');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/user/sessions', 'DELETE');

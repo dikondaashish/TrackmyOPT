@@ -55,3 +55,37 @@ it('stores only numeric metrics, never private response content', async () => {
   );
   expect(JSON.stringify(q.update.mock.calls)).not.toContain('private');
 });
+
+it('reports partial worker failures even when the response status is 200', async () => {
+  m.auth.mockReturnValue(null);
+  const q = {
+    insert: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    single: vi.fn().mockResolvedValue({ data: { id: 'run' }, error: null }),
+    update: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockResolvedValue({ error: null }),
+  };
+  m.create.mockReturnValue({ from: () => q });
+  const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+  try {
+    const response = NextResponse.json({
+      failed: 2,
+      recipient: 'private@example.test',
+    });
+    expect(
+      await observeCaseWorker(
+        'case-digests',
+        new NextRequest('https://example.test'),
+        async () => response
+      )
+    ).toBe(response);
+    expect(log).toHaveBeenCalledWith(
+      '[case-worker:case-digests] 2 worker failures'
+    );
+    expect(JSON.stringify(log.mock.calls)).not.toContain(
+      'private@example.test'
+    );
+  } finally {
+    log.mockRestore();
+  }
+});

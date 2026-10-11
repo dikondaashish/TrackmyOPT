@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { getSupabaseFilingsClient } from "@/lib/supabase/filings";
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 10;
 
 /** Lightweight daily keep-warm probe for the secondary filings project. */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const denied = verifyCronAuth(request);
   if (denied) return denied;
 
@@ -39,3 +40,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/filings-health', 'GET');

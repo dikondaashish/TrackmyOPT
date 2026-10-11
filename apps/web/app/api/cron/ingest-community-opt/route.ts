@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/api/verify-cron-auth";
 import { ingestCommunityOptTimelines } from "@/lib/community-opt/ingest";
@@ -12,10 +13,12 @@ export const maxDuration = 300;
  *
  * Written partner permission on file — not USCIS Case Status API data.
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const denied = verifyCronAuth(req);
   if (denied) return denied;
 
   const result = await ingestCommunityOptTimelines();
   return NextResponse.json(result, { status: result.ok ? 200 : 502 });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/ingest-community-opt', 'GET');

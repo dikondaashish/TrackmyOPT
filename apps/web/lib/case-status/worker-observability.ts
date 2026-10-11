@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
+import { secureLog, sanitizeError } from '@/lib/secure-logger';
 
 /** Record real executions only. A dry run never writes or sends anything. */
 export async function observeCaseWorker(
@@ -20,15 +21,21 @@ export async function observeCaseWorker(
     .insert({ worker })
     .select('id')
     .single();
-  if (error || !data)
+  if (error || !data) {
+    secureLog.error(`[case-worker:${worker}] Worker audit unavailable`);
     return NextResponse.json(
       { ok: false, error: 'Worker audit unavailable' },
       { status: 503 }
     );
+  }
   let response: NextResponse;
   try {
     response = await run();
-  } catch {
+  } catch (error) {
+    secureLog.error(
+      `[case-worker:${worker}] Worker failed`,
+      sanitizeError(error)
+    );
     response = NextResponse.json(
       { ok: false, error: 'Worker failed' },
       { status: 503 }
@@ -43,6 +50,9 @@ export async function observeCaseWorker(
       typeof body[key] === 'number' ? [[key, body[key]]] : []
     )
   );
+  if (typeof counts.failed === 'number' && counts.failed > 0) {
+    secureLog.error(`[case-worker:${worker}] ${counts.failed} worker failures`);
+  }
   const saved = await db
     .from('case_worker_runs')
     .update({
@@ -52,7 +62,10 @@ export async function observeCaseWorker(
       counts,
     })
     .eq('id', data.id);
-  if (saved.error)
+  if (saved.error) {
+    secureLog.error(
+      `[case-worker:${worker}] Worker result could not be recorded`
+    );
     return NextResponse.json(
       {
         ok: false,
@@ -61,5 +74,6 @@ export async function observeCaseWorker(
       },
       { status: 503 }
     );
+  }
   return response;
 }

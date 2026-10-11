@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { safeEqual } from "@/lib/api/secure-compare";
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
  *
  * Returns dispute evidence packet for a customer (consent, transactions, emails).
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const auth = req.headers.get("authorization");
   const adminSecret = process.env.ADMIN_SECRET;
   if (!adminSecret || !auth || !safeEqual(auth, `Bearer ${adminSecret}`)) {
@@ -99,3 +100,5 @@ export async function GET(req: NextRequest) {
       "This export is operational evidence only—not legal advice. Have counsel review policy text before launch.",
   });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/admin/billing-evidence', 'GET');

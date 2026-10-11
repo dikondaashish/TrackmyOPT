@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { after, NextRequest } from 'next/server';
 import { apiFail, apiOk, apiUnauthorized } from '@/lib/api/response';
 import { checkRateLimitByUser } from '@/lib/auth/api-rate-limit';
@@ -12,7 +13,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 const privateHeaders = { 'Cache-Control': 'private, no-store' };
 
-export async function GET() {
+async function handleGET() {
   const db = await createClient();
   const { data: { user } } = await db.auth.getUser();
   if (!user) return apiUnauthorized('Sign in to view outreach', { headers: privateHeaders });
@@ -37,7 +38,7 @@ export async function GET() {
   }, { headers: privateHeaders });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   if (process.env.NETWORKING_BUNDLES_ENABLED === 'false') return apiFail('Outreach bundles are temporarily unavailable', { status: 503, headers: privateHeaders });
   const db = await createClient();
   const { data: { user } } = await db.auth.getUser();
@@ -79,3 +80,6 @@ export async function POST(req: NextRequest) {
   }
   return apiOk({ bundleId }, { headers: privateHeaders });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/career/networking/bundles', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/career/networking/bundles', 'POST');

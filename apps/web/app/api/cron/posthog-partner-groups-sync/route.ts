@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Weekly partner group sync — refreshes university_partner group properties in PostHog.
  *
@@ -29,7 +30,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const startTime = Date.now();
   const cronAuthError = verifyCronAuth(req);
   if (cronAuthError) return cronAuthError;
@@ -69,6 +70,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   return GET(req);
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/posthog-partner-groups-sync', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/cron/posthog-partner-groups-sync', 'POST');

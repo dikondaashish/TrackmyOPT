@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -13,11 +14,11 @@ export const dynamic = 'force-dynamic';
 
 const HASH_RE = /^[0-9a-f]{64}$/;
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const headers = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401, headers });
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ ok: true, answer: data ? toSavedScreeningAnswer(data) : null }, { headers });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const headers = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401, headers });
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, answer: toSavedScreeningAnswer(data) }, { headers });
 }
 
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   const headers = corsHeadersWebAndExtension(req);
   const userId = await getUserId(req);
   if (!userId) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401, headers });
@@ -77,3 +78,7 @@ export async function DELETE(req: NextRequest) {
   return NextResponse.json({ ok: true, deleted: true }, { headers });
 }
 
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/extension/screening-answers', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/extension/screening-answers', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/extension/screening-answers', 'POST');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/extension/screening-answers', 'DELETE');

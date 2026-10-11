@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { buildAtsScanPrompt } from '@/lib/ai/prompts/ats-scan';
 import { generateAiContent } from '@/lib/ai/google-ai';
@@ -16,11 +17,11 @@ import {
     RESUME_TEXT_MAX_CHARS,
 } from '@/lib/resume/resume-text-limits';
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     const corsHeaders = corsHeadersWebAndExtension(req);
     const userId = await getUserId(req);
     if (!userId) {
@@ -192,3 +193,6 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/scan', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/scan', 'POST');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { buildCaseDeadlineEmailBodies } from '@/lib/notifications/case-summary-email';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -12,7 +13,7 @@ export const maxDuration = 300;
 
 /** Opt-in notices only. Atomic claims prevent concurrent runs sending twice.
  * Ambiguous SMTP outcomes are marked failed, never blindly auto-replayed. */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   return observeCaseWorker('case-deadlines', request, () => run(request));
 }
 
@@ -197,3 +198,5 @@ async function run(request: NextRequest) {
     { status: failed ? 503 : 200 }
   );
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/send-case-deadline-reminders', 'GET');

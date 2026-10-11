@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * Document Reminder Cron Job
  * 
@@ -46,7 +47,7 @@ interface ReminderWithDocument {
   document: DocumentData;
 }
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
 
   try {
     const cronAuthError = verifyCronAuth(request);
@@ -227,3 +228,4 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+export const GET = withSentryApiErrors(handleGET, '/api/cron/send-document-reminders', 'GET');

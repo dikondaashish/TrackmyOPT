@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { generateAiContent } from '@/lib/ai/google-ai';
@@ -29,7 +30,7 @@ const DraftSchema = z.object({
   linkedinNote: z.string().trim().min(1).max(300),
 });
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -103,7 +104,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+async function handleGET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return apiUnauthorized('Sign in to view networking usage', { headers: PRIVATE_HEADERS });
@@ -111,3 +112,6 @@ export async function GET() {
   if (!usage) return apiFail('Usage is temporarily unavailable', { status: 503, headers: PRIVATE_HEADERS });
   return apiOk(usage, { headers: PRIVATE_HEADERS });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/career/networking/draft', 'POST');
+export const GET = withSentryApiErrors(handleGET, '/api/career/networking/draft', 'GET');

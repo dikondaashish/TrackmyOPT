@@ -22,3 +22,13 @@ describe.each([
     expect(handler).toThrow(/TrackMyOPT Sentry .* verification/);
   });
 });
+
+it('returns a synthetic handled failure only in development', () => {
+  vi.stubEnv('NODE_ENV', 'development');
+  const request = new Request(
+    'https://example.test/api/sentry-example?handled=1'
+  );
+  expect(nodeError(request).status).toBe(503);
+  vi.stubEnv('NODE_ENV', 'production');
+  expect(nodeError(request).status).toBe(404);
+});

@@ -7,6 +7,15 @@ export default function SentryTestButtons() {
         type="button"
         className="rounded bg-blue-600 px-4 py-2 text-white"
         onClick={() => {
+          void fetch('/api/sentry-example?handled=1');
+        }}
+      >
+        Test handled API failure
+      </button>
+      <button
+        type="button"
+        className="rounded bg-blue-600 px-4 py-2 text-white"
+        onClick={() => {
           throw new Error('TrackMyOPT Sentry browser verification');
         }}
       >

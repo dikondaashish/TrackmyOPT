@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * One-time welcome_free resend — users whose welcome failed with SMTP 535 auth errors.
  *
@@ -55,7 +56,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   const startTime = Date.now();
 
   const cronAuthError = verifyCronAuth(req);
@@ -167,6 +168,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   return GET(req);
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/cron/welcome-free-resend', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/cron/welcome-free-resend', 'POST');

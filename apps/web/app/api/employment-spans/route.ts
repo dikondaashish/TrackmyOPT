@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
@@ -5,7 +6,7 @@ import { calendarDateISO } from '@/lib/immigration/calendar-days';
 import { normalizeCompanyDomain } from '@/lib/company-domain';
 
 // GET - Fetch all employment spans for the user
-export async function GET() {
+async function handleGET() {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -58,7 +59,7 @@ export async function GET() {
 }
 
 // POST - Save/update multiple employment spans
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -219,7 +220,7 @@ export async function POST(req: NextRequest) {
 }
 
 // DELETE - Remove an employment span by id
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -277,3 +278,7 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/employment-spans', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/employment-spans', 'POST');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/employment-spans', 'DELETE');

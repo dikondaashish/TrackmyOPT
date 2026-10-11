@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -61,7 +62,7 @@ function sortCases<T extends { is_primary?: boolean | null; created_at?: string 
  * GET /api/case-status
  * Returns all tracked cases; `data` is the primary case (backward compatible).
  */
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -114,7 +115,7 @@ export async function GET(req: NextRequest) {
  * POST /api/case-status
  * Add a new receipt or update an existing one (matched by receipt number).
  */
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -316,7 +317,7 @@ export async function POST(req: NextRequest) {
  * DELETE /api/case-status?id=<case_uuid>
  * Remove one tracked case.
  */
-export async function DELETE(req: NextRequest) {
+async function handleDELETE(req: NextRequest) {
   try {
     const userId = await getUserId(req);
 
@@ -394,6 +395,11 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/case-status', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/case-status', 'POST');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/case-status', 'DELETE');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status', 'OPTIONS');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { checkResumeLimit } from '@/lib/usage-limit';
 
@@ -5,7 +6,7 @@ export const dynamic = 'force-dynamic';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export async function GET(_req: NextRequest) {
+async function handleGET(_req: NextRequest) {
     try {
         const cookieStore = await cookies();
         const supabase = createServerClient(
@@ -59,3 +60,5 @@ export async function GET(_req: NextRequest) {
         );
     }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/user/usage', 'GET');

@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { createHash } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -57,7 +58,7 @@ function readCache(value: unknown, hash: string): CachedMatchProfile | null {
   };
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   const userId = await getUserId(req);
   if (!userId) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401, headers: PRIVATE_HEADERS });
@@ -176,3 +177,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true, resumeId, updatedAt, filename, source, cached: false, profile }, { headers: PRIVATE_HEADERS });
 }
+
+export const POST = withSentryApiErrors(handlePOST, '/api/job-board/resume-match', 'POST');

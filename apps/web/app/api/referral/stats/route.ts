@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 /**
  * GET /api/referral/stats?code=charvi
  * 
@@ -14,11 +15,11 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Internal-Secret",
 };
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
     try {
         // Admin-only: check for internal secret
         const secret = req.headers.get("X-Internal-Secret");
@@ -76,3 +77,6 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/referral/stats', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/referral/stats', 'GET');

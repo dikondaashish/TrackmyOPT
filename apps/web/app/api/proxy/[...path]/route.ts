@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
@@ -75,7 +76,7 @@ function stripUntrustedUserId(value: unknown): unknown {
   return trustedBody;
 }
 
-export async function GET(
+async function handleGET(
   req: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
@@ -83,7 +84,7 @@ export async function GET(
   return handleProxyRequest(req, resolvedParams.path);
 }
 
-export async function POST(
+async function handlePOST(
   req: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
@@ -91,7 +92,7 @@ export async function POST(
   return handleProxyRequest(req, resolvedParams.path);
 }
 
-export async function PUT(
+async function handlePUT(
   req: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
@@ -99,7 +100,7 @@ export async function PUT(
   return handleProxyRequest(req, resolvedParams.path);
 }
 
-export async function DELETE(
+async function handleDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
@@ -107,7 +108,7 @@ export async function DELETE(
   return handleProxyRequest(req, resolvedParams.path);
 }
 
-export async function PATCH(
+async function handlePATCH(
   req: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
@@ -193,3 +194,9 @@ async function handleProxyRequest(req: NextRequest, pathArray: string[]) {
     );
   }
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/proxy/[...path]', 'GET');
+export const POST = withSentryApiErrors(handlePOST, '/api/proxy/[...path]', 'POST');
+export const PUT = withSentryApiErrors(handlePUT, '/api/proxy/[...path]', 'PUT');
+export const DELETE = withSentryApiErrors(handleDELETE, '/api/proxy/[...path]', 'DELETE');
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/proxy/[...path]', 'PATCH');

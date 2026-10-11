@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAiContent } from '@/lib/ai/google-ai';
@@ -14,11 +15,11 @@ const limiter = rateLimit({
     name: 'fix-latex',
 });
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
     return NextResponse.json({}, { headers: corsHeadersWebAndExtension(req) });
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
     const corsHeaders = corsHeadersWebAndExtension(req);
     // Auth check first — rate limiter only catches distributed abuse, not anon access
     const userId = await getUserId(req);
@@ -72,3 +73,6 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/resume-generator/fix-latex', 'OPTIONS');
+export const POST = withSentryApiErrors(handlePOST, '/api/resume-generator/fix-latex', 'POST');

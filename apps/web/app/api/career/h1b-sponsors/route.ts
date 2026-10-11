@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -13,7 +14,7 @@ const corsHeaders = {
   "Cache-Control": "no-store",
 };
 
-export async function GET() {
+async function handleGET() {
   try {
     const supabase = await createClient();
     const {
@@ -79,6 +80,9 @@ export async function GET() {
   }
 }
 
-export async function OPTIONS() {
+async function handleOPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
+
+export const GET = withSentryApiErrors(handleGET, '/api/career/h1b-sponsors', 'GET');
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/career/h1b-sponsors', 'OPTIONS');

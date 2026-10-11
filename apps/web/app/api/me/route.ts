@@ -1,3 +1,4 @@
+import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse, after } from 'next/server';
 import { verifyToken } from '@/lib/auth/jwt';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
@@ -9,7 +10,7 @@ import { sendFreeWelcomeEmail } from '@/lib/notifications/transactional/onboardi
 
 export const dynamic = 'force-dynamic';
 
-export async function OPTIONS(req: NextRequest) {
+async function handleOPTIONS(req: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: corsHeadersWebAndExtension(req),
@@ -57,7 +58,7 @@ function toDayStart(value: string | Date): Date | null {
   return parsed;
 }
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const cors = corsHeadersWebAndExtension(request);
   try {
 
@@ -377,3 +378,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/me', 'OPTIONS');
+export const GET = withSentryApiErrors(handleGET, '/api/me', 'GET');
