@@ -76,8 +76,10 @@ Manage the rule in [Sentry alerts](https://zyene-inc.sentry.io/monitors/alerts/6
 
 A production [uptime monitor](https://zyene-inc.sentry.io/monitors/10601767/)
 is configured for `https://www.trackmyopt.com`, every minute with a five-second
-timeout, requiring an HTTP 2xx response. It is currently saved disabled; verify
-activation in Sentry before relying on outage checks. Three consecutive failures create an issue; one
+timeout, requiring an HTTP 2xx response. It is currently saved disabled because
+Sentry rejected activation: "You don't have enough pay-as-you-go available to
+create a new seat". No billing settings were changed. Verify activation in
+Sentry before relying on outage checks. Three consecutive failures create an issue; one
 successful check resolves it. These issues use the same project email alert.
 Only the public homepage is checked; authenticated workflows still rely on
 application error reporting.
