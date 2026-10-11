@@ -33,19 +33,29 @@ supabase/
 
 ## Migration naming
 
-Every file in `migrations/` must start with a unique version (`YYYYMMDDHHMMSS_description.sql`).
-Duplicate versions break `supabase db push` and `db reset`, and a migration that
-alters a table must sort after the one that creates it. Several early files still
-use date-only prefixes (e.g. `20241208_`); they are unique, so leave them as is.
+Every file in `migrations/` must start with a unique version
+(`YYYYMMDDHHMMSS_description.sql`). Duplicate versions break `supabase db push`
+and `db reset`, and a migration that alters a table must sort after the one that
+creates it. Several early files use date-only prefixes (e.g. `20241208_`); they
+are unique, so leave them as is.
 
 In the 2026-10 cleanup the collisions at `20241207_*`, `20260115_*` and
 `20260220120000_*` were renumbered (for example
 `20241207000001_add_lockout_duration.sql`, `20260115000001_create_job_tracker.sql`,
 `20260220120001_email_queue_retry_and_body.sql`). File contents did not change.
-If any of these were previously applied through the Supabase CLI, align the
-remote history before the next push (check with `supabase migration list`, then
-`supabase migration repair --status applied <new-version>` and
-`--status reverted <old-version>`). Do not re-run the SQL.
+
+**Relationship to the production history.** The production project
+(`deknauqkqqzwuvopqott`) records its applied migrations under timestamps assigned
+when each one was applied, not under these filenames. Checked 2026-10-10: only 13
+of the 102 local files share a version with production, 47 more match by name
+under a different version, and 42 are not tracked there at all (the early
+`2024*`/`2026011*`/`2026012*` files predate tracking). The renamed files either
+are not tracked in production (their objects already exist there) or already
+differed from production's version, so the rename changed nothing about production.
+Treat this folder as the schema source of truth for a fresh database
+(`supabase db reset`), not as a history `supabase db push` can replay against
+production. Do not run `supabase migration repair` against production to
+"align" it without a reviewed plan.
 
 ---
 

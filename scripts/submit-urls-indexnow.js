@@ -8,7 +8,8 @@
  *   pnpm submit:indexnow:url -- --slug stem-opt-extension-guide
  *
  * Env (optional):
- *   INDEXNOW_KEY — defaults to public key in apps/web/public/indexnow-key.txt
+ *   INDEXNOW_KEY — defaults to the public key in apps/web/public/trackmyopt2026indexnow.txt;
+ *   the key file must be served at https://www.trackmyopt.com/<key>.txt
  */
 
 const https = require("https");
@@ -63,7 +64,7 @@ function submitToIndexNow(urlList) {
   const payload = JSON.stringify({
     host: SITE,
     key,
-    keyLocation: `${BASE}/indexnow-key.txt`,
+    keyLocation: `${BASE}/${key}.txt`,
     urlList,
   });
 

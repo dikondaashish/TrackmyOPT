@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const indexNowPayload = {
     host: SITE_HOST,
     key: indexNowKey,
-    keyLocation: `https://${SITE_HOST}/indexnow-key.txt`,
+    keyLocation: `https://${SITE_HOST}/${indexNowKey}.txt`,
     urlList: urls.map((u) => (u.startsWith('http') ? u : `https://${SITE_HOST}${u}`)),
   };
 

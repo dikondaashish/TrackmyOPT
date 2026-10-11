@@ -88,7 +88,7 @@ async function submitBatch(batch, batchNumber) {
     const payload = JSON.stringify({
       host: 'www.trackmyopt.com',
       key: indexNowKey,
-      keyLocation: 'https://www.trackmyopt.com/indexnow-key.txt',
+      keyLocation: `https://www.trackmyopt.com/${indexNowKey}.txt`,
       urlList: batch,
     });
 

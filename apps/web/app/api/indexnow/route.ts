@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare IndexNow API request
     const indexNowPayload = {
-      host: 'trackmyopt.com',
+      host: 'www.trackmyopt.com',
       key: indexNowKey,
       keyLocation: `https://www.trackmyopt.com/${indexNowKey}.txt`,
       urlList: urlList.slice(0, 10000), // IndexNow limits to 10,000 URLs per request

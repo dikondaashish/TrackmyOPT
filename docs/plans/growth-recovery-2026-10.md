@@ -50,7 +50,7 @@ Do not promise recovery of October’s 216 lost weekly clicks: that page’s mon
 
 The [existing Blog → Signup dashboard](https://us.posthog.com/project/369087/dashboard/1802603) and [saved funnel](https://us.posthog.com/project/369087/insights/sztU304L) showed 624 CTA clickers and 168 subsequent signups (26.92%) for July 12–October 10, 2026. Its description specifies a 14-day ordered conversion window. This is a historical, consent-observed funnel; it is not a visitor-to-signup rate, a new-tool experiment result, or proof of incremental revenue. Recent entrants have not had a full 14 days to convert.
 
-Use the existing [event taxonomy](../apps/web/lib/posthog/event-taxonomy.md):
+Use the existing [event taxonomy](../../apps/web/lib/posthog/event-taxonomy.md):
 
 1. `$pageview`: organic landing visit to an intended blog or tool page.
 2. `blog_product_cta_clicked`: `variant = case-status`; break down by `source_page`. Exclude the separate `features-link` variant when measuring the guest-tool route.

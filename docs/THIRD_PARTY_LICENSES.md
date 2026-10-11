@@ -27,14 +27,24 @@ content, trademarks, or hosted services.
 - Copyright: Copyright (c) 2026 Kalil Bouzigues
 - Use: installed as a Python dependency (pinned in
   `apps/api/requirements.job-board.txt`, installed by `apps/api/Dockerfile`) for
-  public ATS fetch adapters, invoked via `ats-scrapers.runner.ts`. The
-  `beautifulsoup4>=4.12` dependency listed in the same file is not covered by
-  this document; its license is not recorded here.
+  public ATS fetch adapters, invoked via `ats-scrapers.runner.ts`.
 - Notice obligation: retain the upstream copyright and MIT permission notice in
   distributions containing substantial portions of the software.
 - Data caveat: the repository's company inventories and hosted job datasets are
   not imported by this project. Dataset use requires a separate data-license and
   source-policy review.
+
+### beautifulsoup4
+
+- Project: <https://www.crummy.com/software/BeautifulSoup/>
+- Declared in `apps/api/requirements.job-board.txt` as `beautifulsoup4>=4.12`
+  (unpinned lower bound; PyPI latest at 2026-10-10 is 4.15.0).
+- License: MIT (PyPI metadata: "MIT License"; author Leonard Richardson).
+- Use: imported by some non-enabled `ats-scrapers` adapter classes at import
+  time. Not modified or vendored.
+- Notice obligation: retain the upstream copyright and MIT permission notice in
+  distributions that bundle the package. The Docker image installs it with pip,
+  which keeps the package's own license file in `site-packages`.
 
 ## Reference only, not dependencies (code references permitted by license)
 

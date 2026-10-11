@@ -1,6 +1,6 @@
 # Narration addition
 
-The approved 90-second visual storyboard is unchanged. Added 15 Gemini Charon voice sections and dynamic music EQ/ducking. The original music-only cut remains in `../brag-output-2026-09-26-140204/`.
+The approved 90-second visual storyboard is unchanged. Added 15 Gemini Charon voice sections and dynamic music EQ/ducking. The original music-only cut is no longer tracked in git (superseded renders are gitignored).
 
 ## Prior duration revision
 

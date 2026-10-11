@@ -21,7 +21,7 @@ Google's listing form accepts a **YouTube video link**. Upload the MP4 to YouTub
 
 Official reference, checked September 26, 2026: [Chrome Web Store listing](https://developer.chrome.com/docs/webstore/cws-dashboard-listing).
 
-The 16:9 format and duration are design choices for a readable walkthrough, not claimed Google requirements. This shorter landscape revision preserves every feature and all 42 scenes from the approved 2:42 walkthrough. The previous video remains in `../brag-output-2026-09-26-131520/`.
+The 16:9 format and duration are design choices for a readable walkthrough, not claimed Google requirements. This shorter landscape revision preserves every feature and all 42 scenes from the approved 2:42 walkthrough. The previous video is no longer tracked in git (the superseded `brag-output-*` renders are gitignored and kept only on the author's machine).
 
 ## Edit and render
 

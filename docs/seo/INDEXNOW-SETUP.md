@@ -77,7 +77,7 @@ Both scripts submit directly to `https://api.indexnow.org/IndexNow` (they do not
 | `scripts/submit-to-indexnow.js` | Bulk-submits a hardcoded list of blog articles, feature pages, guides, other pages and the home page. Update the lists in the script when content is added | Root or `apps/web`: `pnpm submit:indexnow` (root delegates to `pnpm --filter web submit:indexnow`) |
 | `scripts/submit-urls-indexnow.js` | Submits specific URLs: full URLs, `/paths`, `--slug <post>` (maps to `/blog/<post>`) or bare slugs | Root: `pnpm submit:indexnow:url -- --slug my-new-post`; `apps/web` has the same `submit:indexnow:url` script |
 
-Key caveat: both scripts read `INDEXNOW_KEY` but fall back to `trackmyopt2026indexnow` and send `keyLocation` `https://www.trackmyopt.com/indexnow-key.txt` (file `apps/web/public/indexnow-key.txt`). The API route instead requires `INDEXNOW_KEY` (returns 500 if unset) and uses `https://www.trackmyopt.com/<INDEXNOW_KEY>.txt`. Keep the key and verification file consistent for whichever path you use.
+Key handling: every submitter (`/api/indexnow`, `/api/seo/ping`, and both scripts) now sends `keyLocation` as `https://www.trackmyopt.com/<key>.txt` for whichever key it uses, and `host` is `www.trackmyopt.com`. Both key files are served from `apps/web/public/`: `300fa2533a6f482aa589db8617927d1c.txt` and `trackmyopt2026indexnow.txt` (the scripts' and `/api/seo/ping`'s fallback key). If you set `INDEXNOW_KEY`, add a matching `<key>.txt` file containing exactly that key. `/api/indexnow` still returns 500 when `INDEXNOW_KEY` is unset.
 
 ## Key handling
 
