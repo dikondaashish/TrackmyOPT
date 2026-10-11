@@ -165,14 +165,15 @@ export const currentUpdateArticles = [
       'September 2026 F-1 rule',
     ],
     readTime: '6 min read',
-    publishedDate: '2026-08-27',
+    publishedDate: '2026-09-15',
     modifiedDate: '2026-10-11',
     newsSitemapEligible: false,
     cta: 'opt-timeline',
-    image: '/blog/students-campus-public-domain.jpg',
-    imageAlt: 'Students studying on the lawn at Bastyr University campus',
+    image: '/blog/september-2026-f1-fixed-admission-rule-opt.svg',
+    imageAlt:
+      'TrackMyOPT illustration of the F-1 Duration of Status court update',
     imageCaption:
-      'Students on the Bastyr University campus. Public-domain photograph released by Bastyr University.',
+      'TrackMyOPT illustration: check the current court status before acting on a published rule.',
     statusNote:
       'Checked October 11, 2026: the September 14 court order postponed the final rule. The plaintiffs’ current case page reports that it remains blocked nationwide. Litigation is ongoing; this is a dated update, not a guarantee that the order will remain unchanged.',
     directAnswer:
@@ -185,9 +186,9 @@ export const currentUpdateArticles = [
     ],
     sections: [
       {
-        heading: 'What changed after our original August article',
+        heading: 'What the September court order changed',
         paragraphs: [
-          'Our original article explained a final rule that DHS had published with a planned September 15, 2026 effective date. On September 14, the U.S. District Court for the District of Massachusetts postponed that effective date and preliminarily barred further implementation. This update replaces the earlier “scheduled to take effect” guidance.',
+          'DHS published a final rule with a planned September 15, 2026 effective date. On September 14, the U.S. District Court for the District of Massachusetts postponed that effective date and preliminarily barred further implementation. This guidance reflects the court order, rather than treating the original schedule as proof that the rule started.',
           'The order is preliminary. It does not permanently erase the rule or decide every issue in the lawsuit. It postpones the rule pending further court order or resolution on the merits. The distinction matters: students should not act as if the new requirements started, but also should not assume the litigation can never change.',
           'The plaintiffs’ litigation page reports a September 30 appeal and an October 2 status conference while continuing to describe the rule as blocked nationwide. That is a status report from a party to the case. The court order is the primary authority for the postponement, and both are linked below.',
         ],
@@ -289,7 +290,6 @@ export const currentUpdateArticles = [
         url: 'https://oiss.yale.edu/news/important-update-court-action-on-the-ds-rule',
       },
       source.fixedAdmissionRule,
-      source.campusStudentsPhoto,
     ],
     related: [
       {

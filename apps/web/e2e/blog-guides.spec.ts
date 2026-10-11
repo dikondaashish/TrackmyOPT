@@ -1,5 +1,27 @@
 import { expect, test } from '@playwright/test';
 
+test('static policy route uses the same court update and dates as the article record', async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await page.goto('/blog/september-2026-f1-fixed-admission-rule-opt', {
+    waitUntil: 'domcontentloaded',
+  });
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'F-1 Duration of Status Rule Paused: What OPT Students Should Do Now'
+  );
+  const schemas = await page
+    .locator('script[type="application/ld+json"]')
+    .allTextContents();
+  const article = schemas
+    .map((value) => JSON.parse(value))
+    .find((value) => value['@type'] === 'BlogPosting');
+  expect(article).toMatchObject({
+    datePublished: '2026-09-15',
+    dateModified: '2026-10-11',
+  });
+});
+
 test('I-140 guide has consistent metadata and a generic case-tracking action', async ({
   page,
 }) => {
@@ -43,17 +65,17 @@ test('mobile reduced-motion reader can play and pause the explainer without hori
   });
   await expect(figure.locator('img')).toHaveAttribute(
     'src',
-    '/blog/flows/address-change.png'
+    /\/blog\/flows\/address-change\.png$/
   );
   await play.click();
   await expect(figure.locator('img')).toHaveAttribute(
     'src',
-    '/blog/flows/address-change.gif'
+    /\/blog\/flows\/address-change\.gif$/
   );
   await page.getByRole('button', { name: 'Pause animation' }).click();
   await expect(figure.locator('img')).toHaveAttribute(
     'src',
-    '/blog/flows/address-change.png'
+    /\/blog\/flows\/address-change\.png$/
   );
   expect(
     await page.evaluate(
