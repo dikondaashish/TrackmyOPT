@@ -31,6 +31,13 @@ separate from unexpected failures. Preserve the diagnostic privacy filters;
 never send applicant data, credentials, documents, or AI inputs/outputs in error
 reports. Keep TrackMyOPT and Zyene Reviews projects and credentials separate.
 
+Keep the Sentry organization on the owner's free Developer plan. Do not start
+paid trials, upgrade the subscription, configure pay-as-you-go spending, or
+enable additional paid monitors without an explicit owner request. Keep error
+sampling at 100% for unexpected failures; Replay, tracing, Sentry logs, and
+metrics remain disabled. Respect the organization's quota and preserve Zyene
+Reviews' existing uptime monitor when the single free uptime slot is occupied.
+
 For new or changed flows, verify their error-reporting paths and consult
 `docs/ops/SENTRY.md`. State remaining runtime, outage-monitoring, quota, or
 delivery gaps accurately; never claim that every possible failure is guaranteed

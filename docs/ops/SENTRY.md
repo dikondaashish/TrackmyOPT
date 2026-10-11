@@ -28,6 +28,26 @@ The organization also contains `zyene-reviews` for Zyene Reviews. Keep the
 products' DSNs and Vercel upload credentials separate. TrackMyOPT's numeric
 project ID is `4512234317938688`; renaming its slug does not change the DSN.
 
+## Free-plan requirement
+
+The owner requires the free Developer plan (recorded 2026-10-10). Keep the
+existing error capture, production source maps, and new-issue/regression email
+alert. Error sampling stays at 100% (`sampleRate: 1`); Replay, tracing, Sentry
+logs, metrics, and attachments remain disabled. Expected 4xx outcomes are not
+reported as API-response errors, preserving the error quota for actual failures.
+
+Do not start paid trials, upgrade the subscription, or enable paid monitors
+without an explicit owner request. The free plan cannot use a
+[pay-as-you-go budget](https://www.sentry.help/en/articles/13965037-can-i-set-up-an-on-demand-pay-as-you-go-budget-for-my-free-developer-plan)
+to increase its quota. Check the organization's monthly usage in Sentry
+Settings → Subscription; quota exhaustion can prevent new events from being
+accepted. A free plan does not guarantee unlimited error collection.
+
+Sentry includes [one free uptime monitor per organization](https://www.sentry.help/en/articles/13964198-can-i-get-more-than-one-uptime-monitor).
+Zyene Reviews already uses that slot. Preserve its monitor and leave the extra
+TrackMyOPT monitor disabled while staying on the free plan. This uptime limit
+does not disable TrackMyOPT's application error reporting or email alert.
+
 ## Deployment configuration
 
 Set these in the `trackmy-opt-web` Vercel project before the next build:
