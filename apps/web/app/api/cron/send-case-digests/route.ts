@@ -145,7 +145,7 @@ async function run(req: NextRequest) {
         continue;
       }
       // Recheck global + digest opt-out immediately before handing off to SMTP.
-      const [latest, global] = await Promise.all([
+      const [latest, global, liveCases, liveNotices] = await Promise.all([
         db
           .from('case_digest_preferences')
           .select('enabled')
@@ -156,19 +156,24 @@ async function run(req: NextRequest) {
           .select('email_enabled')
           .eq('user_id', userId)
           .maybeSingle(),
+        db.from('case_status').select('label,current_status,last_checked_at,change_log')
+          .eq('user_id', userId).order('created_at').limit(100),
+        db.from('case_notices').select('title,due_date').eq('user_id', userId)
+          .is('completed_at', null).gte('due_date', today).lte('due_date', horizon)
+          .order('due_date').limit(100),
       ]);
       let state: 'sent' | 'failed' | 'cancelled' = 'failed';
       if (
         !latest.error &&
-        !global.error &&
-        (latest.data?.enabled !== true || global.data?.email_enabled === false)
+        !global.error && !liveCases.error && !liveNotices.error &&
+        (latest.data?.enabled !== true || global.data?.email_enabled === false || !liveCases.data?.length)
       ) {
         state = 'cancelled';
         skipped++;
-      } else if (latest.error || global.error) failed++;
+      } else if (latest.error || global.error || liveCases.error || liveNotices.error) failed++;
       else
         try {
-          const text = buildCaseDigest(cases.data ?? [], notices.data ?? [], week);
+          const text = buildCaseDigest(liveCases.data ?? [], liveNotices.data ?? [], week);
           const info = await transport.sendMail({
             from: getSmtpFromHeader(),
             to: address,

@@ -10,6 +10,7 @@ type QueryRecord = {
 const mocks = vi.hoisted(() => ({
   queries: [] as QueryRecord[],
   fetchCaseStatus: vi.fn(),
+  removedAfterFetch: false,
 }));
 
 vi.mock('@supabase/supabase-js', () => ({
@@ -20,7 +21,7 @@ vi.mock('@supabase/supabase-js', () => ({
 
       const query = {
         select() {
-          record.operation = 'select';
+          record.operation ??= 'select';
           return query;
         },
         update() {
@@ -40,7 +41,7 @@ vi.mock('@supabase/supabase-js', () => ({
           error: null,
         }),
         single: async () => ({
-          data:
+          data: mocks.removedAfterFetch && table === 'case_status' ? null :
             table === 'profiles'
               ? { premium_status: false }
               : { id: 'case-row-a', user_id: 'user-a', current_status: null },
@@ -80,6 +81,7 @@ describe('POST /api/case-status/check row scoping', () => {
   beforeEach(() => {
     mocks.queries.length = 0;
     mocks.fetchCaseStatus.mockReset();
+    mocks.removedAfterFetch = false;
     vi.stubEnv('CRON_SECRET', 'test-secret');
     vi.stubEnv('USCIS_MOCK', 'true');
     vi.stubEnv('VERCEL_ENV', 'development');
@@ -162,4 +164,18 @@ describe('POST /api/case-status/check row scoping', () => {
       ])
     );
   });
+  it('discards a live USCIS result after the user removes the case', async () => {
+    vi.stubEnv('USCIS_MOCK', 'false');
+    mocks.fetchCaseStatus.mockImplementation(async () => {
+      mocks.removedAfterFetch = true;
+      return { success: true, data: { status: 'Case Was Approved', description: 'Private status', histCaseStatus: [] } };
+    });
+    const response = await POST(new NextRequest('http://localhost/api/case-status/check', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Internal-Secret': 'test-secret', 'X-Force-Refresh': 'true' },
+      body: JSON.stringify({ receipt_number: 'IOE9822487119', user_id: 'user-a' }),
+    }));
+    expect(await response.json()).toEqual({ ok: true, skipped: true, reason: 'Tracking removed' });
+    expect(mocks.queries.filter(query => query.operation === 'update' || query.operation === 'insert')).toEqual([]);
+  });
+
 });

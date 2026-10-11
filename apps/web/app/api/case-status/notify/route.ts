@@ -86,7 +86,10 @@ async function handlePOST(req: NextRequest) {
       .single();
 
     if (userError || !userData) {
-      console.error('Error fetching user:', userError);
+      if (userError && userError.code !== 'PGRST116') {
+        console.error('Case notification profile lookup failed');
+        return NextResponse.json({ ok: false, error: 'Database error' }, { status: 500, headers: corsHeaders });
+      }
       return NextResponse.json(
         { ok: false, error: 'User not found' },
         { status: 404, headers: corsHeaders }
@@ -101,7 +104,8 @@ async function handlePOST(req: NextRequest) {
       .eq('receipt_number', receipt_number.toUpperCase())
       .maybeSingle();
 
-    if (caseError || !caseData || !caseData.notifications_enabled) {
+    if (caseError) throw new Error('Case notification enrollment lookup failed');
+    if (!caseData || !caseData.notifications_enabled) {
       return NextResponse.json(
         { ok: true, message: 'Notifications disabled' },
         { status: 200, headers: corsHeaders }
@@ -121,7 +125,7 @@ async function handlePOST(req: NextRequest) {
       await supabase.auth.admin.getUserById(user_id);
 
     if (authError || !authData.user) {
-      console.error('Error fetching auth user:', authError);
+      console.error('Case notification Auth lookup failed');
       return NextResponse.json(
         { ok: false, error: 'Could not fetch user email' },
         { status: 500, headers: corsHeaders }
@@ -137,6 +141,20 @@ async function handlePOST(req: NextRequest) {
         { ok: false, error: 'User email not found' },
         { status: 404, headers: corsHeaders }
       );
+    }
+
+    // Revalidate at delivery, after the profile/Auth lookups. A delayed event
+    // must not send a case removed since the initial check.
+    const deliveryAllowed = async () => {
+      const { data, error } = await supabase.from('case_status')
+        .select('notifications_enabled, current_status')
+        .eq('user_id', user_id).eq('receipt_number', receipt_number.toUpperCase())
+        .maybeSingle();
+      if (error) throw new Error('Case notification delivery lookup failed');
+      return Boolean(data?.notifications_enabled && data.current_status === new_status);
+    };
+    if (!await deliveryAllowed()) {
+      return NextResponse.json({ ok: true, message: 'Tracking removed or notification superseded' }, { status: 200, headers: corsHeaders });
     }
 
     // Send email notification via SMTP
@@ -159,15 +177,16 @@ async function handlePOST(req: NextRequest) {
       if (!info.accepted?.length)
         throw new Error('Email provider did not accept the message');
 
-      if (isWebPushConfigured()) {
-        const { data: subs } = await supabase
+      if (isWebPushConfigured() && await deliveryAllowed()) {
+        const { data: subs, error: pushLookupError } = await supabase
           .from('push_subscriptions')
           .select('endpoint, p256dh, auth')
           .eq('user_id', user_id);
 
+        if (pushLookupError) throw new Error('Case notification push lookup failed');
         const pushTitle = 'USCIS case status updated';
         const pushBody = new_status;
-        await Promise.allSettled(
+        const pushResults = await Promise.allSettled(
           (subs ?? []).map((sub) =>
             sendCaseStatusPush(
               {
@@ -178,10 +197,11 @@ async function handlePOST(req: NextRequest) {
             )
           )
         );
+        if (pushResults.some(result => result.status === 'rejected')) console.error('Case notification push delivery failed');
       }
 
       // Log successful email to email_queue for delivery tracking
-      await supabase.from('email_queue').insert({
+      const { error: deliveryLogError } = await supabase.from('email_queue').insert({
         user_id,
         email_address: userEmail,
         email_type: 'case_status_change',
@@ -191,28 +211,29 @@ async function handlePOST(req: NextRequest) {
         status: 'sent',
         provider_message_id: info.messageId || null,
       });
+      if (deliveryLogError) console.error('Case notification delivery log failed');
 
       return NextResponse.json(
         { ok: true, message: 'Notification sent', email_id: info.messageId },
         { status: 200, headers: corsHeaders }
       );
-    } catch (emailError) {
-      console.error('Error sending email:', emailError);
+    } catch {
+      console.error('Case notification delivery failed');
 
       // Log failed email to email_queue for debugging/retry
       try {
-        await supabase.from('email_queue').insert({
+        const { error: failureLogError } = await supabase.from('email_queue').insert({
           user_id,
           email_address: userEmail,
           email_type: 'case_status_change',
           email_subject: `TrackMyOPT — USCIS case status update — ${receipt_number}`,
           email_data: { receipt_number, old_status, new_status },
           status: 'failed',
-          error_message:
-            emailError instanceof Error ? emailError.message : 'Unknown error',
+          error_message: 'Notification delivery failed',
         });
-      } catch (logErr) {
-        console.error('Failed to log email to queue:', logErr);
+        if (failureLogError) console.error('Case notification failure log failed');
+      } catch {
+        console.error('Case notification failure log failed');
       }
 
       return NextResponse.json(
@@ -220,8 +241,8 @@ async function handlePOST(req: NextRequest) {
         { status: 500, headers: corsHeaders }
       );
     }
-  } catch (error) {
-    console.error('Error in POST /api/case-status/notify:', error);
+  } catch {
+    console.error('Case notification failed');
     return NextResponse.json(
       { ok: false, error: 'Internal server error' },
       { status: 500, headers: corsHeaders }

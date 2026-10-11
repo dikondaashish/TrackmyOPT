@@ -48,7 +48,6 @@ async function getUserIsPremium(
  */
 async function handlePOST(req: NextRequest) {
   const checkStartedAt = Date.now();
-  let receiptNumberForLog: string | null = null;
   let analyticsUserId: string | null = null;
   let analyticsTrigger: ReturnType<typeof resolveCaseCheckTrigger> = 'unknown';
   let analyticsSource: ReturnType<typeof resolveCaseCheckSource> = 'api';
@@ -104,7 +103,6 @@ async function handlePOST(req: NextRequest) {
 
     const body = await req.json();
     const { receipt_number, user_id: bodyUserId } = body;
-    receiptNumberForLog = receipt_number || null;
 
     if (!receipt_number) {
       return NextResponse.json(
@@ -132,13 +130,14 @@ async function handlePOST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { data: caseMeta } = await supabase
+    const { data: caseMeta, error: caseMetaError } = await supabase
       .from('case_status')
       .select('id, user_id, current_status')
       .eq('receipt_number', normalizedReceipt)
       .eq('user_id', bodyUserId)
       .maybeSingle();
 
+    if (caseMetaError) throw new Error('USCIS enrollment lookup failed');
     if (!caseMeta) {
       await finishFailed(403, 'unauthorized_receipt');
       return NextResponse.json(
@@ -150,6 +149,10 @@ async function handlePOST(req: NextRequest) {
     // are intentionally shareable across users, so receipt_number alone is not
     // an authorization boundary for service-role operations.
     const caseId = caseMeta.id;
+    const removedResponse = () => NextResponse.json(
+      { ok: true, skipped: true, reason: 'Tracking removed' },
+      { status: 200, headers: corsHeaders }
+    );
 
     await trackCaseStatusCheckStarted({
       userId: analyticsUserId,
@@ -230,12 +233,15 @@ async function handlePOST(req: NextRequest) {
       );
 
       // Get current case for comparison
-      const { data: currentCase } = await supabase
+      const { data: currentCase, error: currentCaseError } = await supabase
         .from('case_status')
         .select('*')
         .eq('id', caseId)
         .eq('user_id', bodyUserId)
         .single();
+
+      if (currentCaseError && currentCaseError.code !== 'PGRST116') throw new Error('USCIS case lookup failed');
+      if (!currentCase) return removedResponse();
 
       const isFirstCheck = currentCase && !currentCase.current_status;
       const hasStatusChanged = currentCase &&
@@ -284,11 +290,13 @@ async function handlePOST(req: NextRequest) {
         isPremium,
       });
 
-      await supabase
+      const { data: updatedMock, error: mockUpdateError } = await supabase
         .from('case_status')
         .update(mockUpdateData)
         .eq('id', caseId)
-        .eq('user_id', bodyUserId);
+        .eq('user_id', bodyUserId).select('id').maybeSingle();
+      if (mockUpdateError) throw new Error('USCIS mock persistence failed');
+      if (!updatedMock) return removedResponse();
 
       await finishCompleted(mockStatus.status, 200);
 
@@ -337,14 +345,16 @@ async function handlePOST(req: NextRequest) {
       // Persist failure state so the UI can show "last refresh failed" and
       // cron can apply exponential backoff via consecutive_failures.
       try {
-        const { data: row } = await supabase
+        const { data: row, error: failureLookupError } = await supabase
           .from('case_status')
           .select('consecutive_failures')
           .eq('id', caseId)
           .eq('user_id', bodyUserId)
           .single();
-        const prevFails = row?.consecutive_failures || 0;
-        await supabase
+        if (failureLookupError && failureLookupError.code !== 'PGRST116') throw new Error('USCIS failure lookup failed');
+        if (!row) return removedResponse();
+        const prevFails = row.consecutive_failures || 0;
+        const { data: updatedFailure, error: failureUpdateError } = await supabase
           .from('case_status')
           .update({
             last_check_failed_at: new Date().toISOString(),
@@ -353,22 +363,26 @@ async function handlePOST(req: NextRequest) {
             consecutive_failures: prevFails + 1,
           })
           .eq('id', caseId)
-          .eq('user_id', bodyUserId);
-      } catch (e) {
-        console.error('Failed to persist USCIS failure state:', e);
+          .eq('user_id', bodyUserId).select('id').maybeSingle();
+        if (failureUpdateError) throw new Error('USCIS failure persistence failed');
+        if (!updatedFailure) return removedResponse();
+      } catch {
+        console.error('USCIS failure persistence failed');
+        throw new Error('USCIS failure persistence failed');
       }
 
       // Append to uscis_check_log for ops observability
       try {
-        await supabase.from('uscis_check_log').insert({
+        const { error: logError } = await supabase.from('uscis_check_log').insert({
+          case_id: caseId,
           receipt_number,
           success: false,
           source: isManualRefresh ? 'manual' : 'cron',
           duration_ms: Date.now() - checkStartedAt,
           error_code: errorCode,
-          error_message: errorMessage.slice(0, 500),
         });
-      } catch { /* ignore log failures */ }
+        if (logError) console.error('USCIS check telemetry write failed');
+      } catch { console.error('USCIS check telemetry write failed'); }
 
       const failureHttpStatus = uscisResult.error.code === 500 ? 500 : 400;
       await finishFailed(failureHttpStatus, uscisResult.error.code);
@@ -396,13 +410,15 @@ async function handlePOST(req: NextRequest) {
       .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('Error fetching current case:', fetchError);
+      console.error('USCIS current case lookup failed');
       await finishFailed(500, 'db_fetch_error');
       return NextResponse.json(
         { ok: false, error: 'Database error' },
         { status: 500, headers: corsHeaders }
       );
     }
+
+    if (!currentCase) return removedResponse();
 
     // Check if status has changed OR this is the first check (no previous status)
     const isFirstCheck = currentCase && !currentCase.current_status;
@@ -466,24 +482,14 @@ async function handlePOST(req: NextRequest) {
     });
 
     // Update database — reset failure counters on success (ISS-012)
-    const { error: updateError } = await supabase
+    const { data: updatedCase, error: updateError } = await supabase
       .from('case_status')
       .update(updateData)
       .eq('id', caseId)
-      .eq('user_id', bodyUserId);
-
-    // Log successful check (ISS-015 observability)
-    try {
-      await supabase.from('uscis_check_log').insert({
-        receipt_number,
-        success: true,
-        source: isManualRefresh ? 'manual' : 'cron',
-        duration_ms: Date.now() - checkStartedAt,
-      });
-    } catch { /* ignore */ }
+      .eq('user_id', bodyUserId).select('id').maybeSingle();
 
     if (updateError) {
-      console.error('Error updating case status:', updateError);
+      console.error('USCIS case persistence failed');
       await finishFailed(500, 'db_update_error');
       return NextResponse.json(
         { ok: false, error: 'Failed to update database' },
@@ -491,6 +497,16 @@ async function handlePOST(req: NextRequest) {
       );
     }
 
+
+    if (!updatedCase) return removedResponse();
+    try {
+      const { error: logError } = await supabase.from('uscis_check_log').insert({
+        case_id: caseId, receipt_number, success: true,
+        source: isManualRefresh ? 'manual' : 'cron',
+        duration_ms: Date.now() - checkStartedAt,
+      });
+      if (logError) console.error('USCIS check telemetry write failed');
+    } catch { console.error('USCIS check telemetry write failed'); }
 
     // If status changed, send notification (only for premium users)
     if (hasStatusChanged && currentCase) {
@@ -508,8 +524,10 @@ async function handlePOST(req: NextRequest) {
           old_status: currentCase.current_status,
           new_status: uscisStatus.status,
         }),
-      }).catch((err) => {
-        console.error('Failed to send notification:', err);
+      }).then((response) => {
+        if (!response.ok) console.error('USCIS notification request failed');
+      }).catch(() => {
+        console.error('USCIS notification request failed');
       });
     }
 

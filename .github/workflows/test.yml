@@ -60,6 +60,9 @@ jobs:
           node scripts/operations/check-migrations.mjs
           node --test scripts/operations/check-migrations.test.mjs
 
+      - name: Case retention PostgreSQL regression tests
+        run: node scripts/operations/test-case-data-retention.mjs
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

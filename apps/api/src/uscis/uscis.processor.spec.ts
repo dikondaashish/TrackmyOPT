@@ -10,7 +10,7 @@ it('rejects checks during an outage instead of silently marking skipped jobs suc
   const query = {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
-    single: jest
+    maybeSingle: jest
       .fn()
       .mockResolvedValue({ data: { current_status: 'Case Was Received' } }),
   };
@@ -75,4 +75,52 @@ it('records failure without advancing the last successful check', async () => {
   const update = query.update.mock.calls[0][0];
   expect(update).not.toHaveProperty('last_checked_at');
   expect(update.last_check_failed_at).toEqual(expect.any(String));
+});
+
+it('drops a result when deletion removes the exact case before persistence', async () => {
+  const query = {
+    select: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    maybeSingle: jest
+      .fn()
+      .mockResolvedValueOnce({
+        data: {
+          id: 'case-1',
+          current_status: 'Case Was Received',
+          change_log: [],
+        },
+        error: null,
+      })
+      .mockResolvedValueOnce({ data: null, error: null }),
+    single: jest.fn().mockResolvedValue({ data: { premium_status: true } }),
+  };
+  jest
+    .mocked(createClient)
+    .mockReturnValue({ from: () => query } as unknown as ReturnType<
+      typeof createClient
+    >);
+  const service = {
+    checkUSCISStatus: jest.fn().mockResolvedValue({
+      status: 'Case Was Approved',
+      description: '',
+      histCaseStatus: [],
+    }),
+  };
+  const processor = new UscisProcessor(
+    service as unknown as UscisService,
+    new ConfigService(),
+  );
+  const notify = jest.spyOn(
+    processor as unknown as { triggerNotification: () => Promise<void> },
+    'triggerNotification',
+  );
+  expect(
+    await processor.handleCheckStatus({
+      id: 'synthetic',
+      data: { receiptNumber: 'IOE0000000001', userId: 'owner' },
+    } as Job<{ receiptNumber: string; userId: string }>),
+  ).toEqual({ skipped: true, reason: 'Tracking removed' });
+  expect(query.eq).toHaveBeenCalledWith('id', 'case-1');
+  expect(notify).not.toHaveBeenCalled();
 });
