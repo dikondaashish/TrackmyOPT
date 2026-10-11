@@ -124,10 +124,7 @@ export class UscisProcessor {
 
     if (isFinalFailure) {
       await this.recordSchedule(job, 'failed', checkFailureCode(error.message));
-      this.logger.error(
-        `[DEAD LETTER] Job ${job.id} permanently failed for ${receiptNumber} ` +
-          `(User: ${userId}) after ${job.attemptsMade} attempts: ${error.message}`,
-      );
+      this.logger.error('USCIS case check exhausted its retries');
 
       // Optionally update the case_status to reflect the failure
       try {
@@ -142,17 +139,12 @@ export class UscisProcessor {
           })
           .eq('receipt_number', receiptNumber)
           .eq('user_id', userId);
-        if (updateError) throw new Error(updateError.message);
-      } catch (dbErr) {
-        this.logger.error(
-          `[DEAD LETTER] Failed to record check failure: ${dbErr}`,
-        );
+        if (updateError) throw new Error('USCIS case persistence failed');
+      } catch {
+        this.logger.error('USCIS failure bookkeeping failed');
       }
     } else {
-      this.logger.warn(
-        `[Retry ${job.attemptsMade}/${job.opts?.attempts || 3}] ` +
-          `Job ${job.id} failed for ${receiptNumber}: ${error.message}`,
-      );
+      this.logger.warn('USCIS case check will retry');
     }
   }
 
@@ -162,16 +154,11 @@ export class UscisProcessor {
   ) {
     const { receiptNumber, userId } = job.data;
     await this.recordSchedule(job, 'running');
-    this.logger.log(
-      `[Job ${job.id}] Checking status for ${receiptNumber} (User: ${userId})...`,
-    );
+    this.logger.log('USCIS case check started');
 
     // ── Circuit Breaker: Skip if USCIS API is down ──
     if (this.circuitOpenUntil && Date.now() < this.circuitOpenUntil) {
-      this.logger.warn(
-        `[Job ${job.id}] Circuit OPEN — skipping ${receiptNumber} ` +
-          `(resumes in ${Math.ceil((this.circuitOpenUntil - Date.now()) / 1000)}s)`,
-      );
+      this.logger.warn('USCIS outage circuit is open');
       throw new Error('USCIS_CIRCUIT_OPEN');
     }
 
@@ -180,18 +167,18 @@ export class UscisProcessor {
       const { data: existingCase, error: fetchError } = await this.supabase
         .from('case_status')
         .select(
-          'current_status, last_checked_at, notifications_enabled, change_log',
+          'id, current_status, last_checked_at, notifications_enabled, change_log',
         )
         .eq('receipt_number', receiptNumber)
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (fetchError) {
-        this.logger.error(
-          `[Job ${job.id}] Failed to fetch existing case: ${fetchError.message}`,
-        );
-        throw new Error(fetchError.message);
+        this.logger.error('USCIS enrolled case lookup failed');
+        throw new Error('USCIS enrolled case lookup failed');
       }
+
+      if (!existingCase) return { skipped: true, reason: 'Tracking removed' };
 
       if (existingCase?.current_status) {
         const isFinalState = isTerminalCase(
@@ -200,9 +187,7 @@ export class UscisProcessor {
 
         if (isFinalState) {
           await this.recordSchedule(job, 'cancelled');
-          this.logger.log(
-            `[Job ${job.id}] Skipping ${receiptNumber} — final state: ${existingCase.current_status}`,
-          );
+          this.logger.log('USCIS terminal case check skipped');
           return { skipped: true, reason: 'Final State' };
         }
       }
@@ -300,22 +285,22 @@ export class UscisProcessor {
         }
       }
 
-      const { error: updateError } = await this.supabase
+      const { data: updatedCase, error: updateError } = await this.supabase
         .from('case_status')
         .update(updateData)
-        .eq('receipt_number', receiptNumber)
-        .eq('user_id', userId);
+        .eq('id', existingCase.id)
+        .eq('user_id', userId)
+        .select('id')
+        .maybeSingle();
 
       if (updateError) {
-        this.logger.error(
-          `[Job ${job.id}] Failed to update DB for ${receiptNumber}: ${updateError.message}`,
-        );
-        throw new Error(updateError.message);
+        this.logger.error('USCIS case persistence failed');
+        throw new Error('USCIS case persistence failed');
       }
 
-      this.logger.log(
-        `[Job ${job.id}] Updated ${receiptNumber}: "${result.status}" (changed: ${hasStatusChanged})`,
-      );
+      if (!updatedCase) return { skipped: true, reason: 'Tracking removed' };
+
+      this.logger.log('USCIS case persistence completed');
 
       // ── Step 7: Trigger email notification on status change (premium only) ──
       if (hasStatusChanged && existingCase?.notifications_enabled) {
@@ -336,9 +321,6 @@ export class UscisProcessor {
         isFirstCheck,
       };
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-
       // ── Circuit Breaker: Track consecutive failures ──
       this.consecutiveFailures++;
       if (this.consecutiveFailures >= FAILURE_THRESHOLD) {
@@ -349,9 +331,7 @@ export class UscisProcessor {
         );
       }
 
-      this.logger.error(
-        `[Job ${job.id}] Failed for ${receiptNumber}: ${errorMessage}`,
-      );
+      this.logger.error('USCIS case check failed');
       throw error;
     }
   }
@@ -393,9 +373,7 @@ export class UscisProcessor {
     const cronSecret = this.configService.get<string>('CRON_SECRET');
 
     if (!cronSecret) {
-      this.logger.warn(
-        `[Notification] CRON_SECRET not set — skipping notification for ${receiptNumber}`,
-      );
+      this.logger.error('USCIS notification secret missing');
       return;
     }
 
@@ -415,20 +393,12 @@ export class UscisProcessor {
       });
 
       if (response.ok) {
-        this.logger.log(
-          `[Notification] Sent for ${receiptNumber}: "${oldStatus}" → "${newStatus}"`,
-        );
+        this.logger.log('USCIS notification request completed');
       } else {
-        this.logger.warn(
-          `[Notification] Failed for ${receiptNumber}: HTTP ${response.status}`,
-        );
+        this.logger.error('USCIS notification request failed');
       }
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        `[Notification] Error for ${receiptNumber}: ${errorMessage}`,
-      );
+    } catch {
+      this.logger.error('USCIS notification request failed');
       // Don't throw — notification failure shouldn't fail the job
     }
   }

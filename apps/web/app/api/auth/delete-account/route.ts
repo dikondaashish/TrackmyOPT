@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import Stripe from 'stripe';
 import { cancelStripeSubscriptionsForCustomer } from '@/lib/premium/cancel-stripe-subscriptions-for-customer';
 import { logIdPrefix, sanitizeError, secureLog } from '@/lib/secure-logger';
+import { deleteAccountData } from '@/lib/privacy/delete-account-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,11 +64,13 @@ async function handleDELETE() {
     );
 
     // Load billing id before any row deletes (profiles row holds stripe_customer_id)
-    const { data: billingProfile } = await supabaseAdmin
+    const { data: billingProfile, error: billingError } = await supabaseAdmin
       .from('profiles')
       .select('stripe_customer_id')
       .eq('user_id', userId)
       .maybeSingle();
+
+    if (billingError) throw new Error('Account deletion: billing lookup failed');
 
     const stripeCustomerId = billingProfile?.stripe_customer_id?.trim() || null;
 
@@ -75,10 +78,7 @@ async function handleDELETE() {
     if (stripeCustomerId) {
       const stripe = getStripe();
       if (!stripe) {
-        secureLog.warn(
-          'Account delete: STRIPE_SECRET_KEY missing; skipping Stripe cancel (dev/local?)',
-          { stripeCustomerId: logIdPrefix(stripeCustomerId) },
-        );
+        throw new Error('Account deletion: payment provider unavailable');
       } else {
         try {
           const { cancelledIds } = await cancelStripeSubscriptionsForCustomer(stripe, stripeCustomerId);
@@ -113,65 +113,13 @@ async function handleDELETE() {
       }
     }
 
-    // Add email to blocked_emails table to prevent re-registration
-    if (userEmail) {
-      await supabaseAdmin.from('blocked_emails').upsert({
-        email: userEmail.toLowerCase(),
-        reason: 'account_deleted',
-        deleted_at: new Date().toISOString(),
-      }, {
-        onConflict: 'email',
-      });
-    }
-
-    // Delete user data from ALL tables (explicit deletion for USCIS compliance)
-    // Note: Most tables have ON DELETE CASCADE, but we're explicit for audit trail
-    
-    // Core user data
-    await supabaseAdmin.from('profiles').delete().eq('user_id', userId);
-    await supabaseAdmin.from('opt_status').delete().eq('user_id', userId);
-    await supabaseAdmin.from('employment_spans').delete().eq('user_id', userId);
-    await supabaseAdmin.from('case_status').delete().eq('user_id', userId);
-    
-    // Document vault data
-    await supabaseAdmin.from('document_reminders').delete().eq('user_id', userId);
-    await supabaseAdmin.from('documents').delete().eq('user_id', userId);
-    await supabaseAdmin.from('document_passcodes').delete().eq('user_id', userId);
-    
-    // Email and notification data
-    await supabaseAdmin.from('email_preferences').delete().eq('user_id', userId);
-    await supabaseAdmin.from('email_queue').delete().eq('user_id', userId);
-    await supabaseAdmin.from('notification_settings').delete().eq('user_id', userId);
-    
-    // Payment data (subscription state lives on profiles; no separate subscriptions table)
-    await supabaseAdmin.from('payment_transactions').delete().eq('user_id', userId);
-
-    // Job tracker & resume (interviews/followups CASCADE when applications deleted)
-    await supabaseAdmin.from('job_applications').delete().eq('user_id', userId);
-    await supabaseAdmin.from('job_stages').delete().eq('user_id', userId);
-    await supabaseAdmin.from('resume_generations').delete().eq('user_id', userId);
-    await supabaseAdmin.from('resumes').delete().eq('user_id', userId);
-
-    // Session and OTP data
-    await supabaseAdmin.from('user_sessions').delete().eq('user_id', userId);
-    await supabaseAdmin.from('export_otps').delete().eq('user_id', userId);
-    await supabaseAdmin.from('passcode_otps').delete().eq('user_id', userId);
-    
-    // Insurance eligibility data (table name: insurance_eligibility_checks)
-    await supabaseAdmin.from('insurance_eligibility_checks').delete().eq('user_id', userId);
-
-    // Application profile (autofill data)
-    await supabaseAdmin.from('application_profile').delete().eq('user_id', userId);
-    await supabaseAdmin.from('private_application_answers').delete().eq('user_id', userId);
-
-    // Policy consent records
-    await supabaseAdmin.from('policy_consents').delete().eq('user_id', userId);
+    await deleteAccountData(supabaseAdmin, userId, userEmail);
 
     // Finally, delete the user from auth
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteError) {
-      console.error('Error deleting user:', deleteError);
+      console.error('Account deletion: Auth cleanup failed');
       return NextResponse.json(
         { error: 'Failed to delete account' },
         { status: 500 }
@@ -179,15 +127,16 @@ async function handleDELETE() {
     }
 
     // Sign out the user
-    await supabase.auth.signOut();
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) console.error('Account deletion: session cleanup failed after Auth deletion');
 
     return NextResponse.json({ 
       success: true, 
       message: 'Account deleted successfully' 
     });
 
-  } catch (error) {
-    console.error('Delete account error:', error);
+  } catch {
+    console.error('Account deletion: cleanup failed');
     return NextResponse.json(
       { error: 'Failed to delete account' },
       { status: 500 }

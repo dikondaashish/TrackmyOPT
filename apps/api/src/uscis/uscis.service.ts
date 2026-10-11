@@ -46,7 +46,7 @@ export class UscisService {
         .select('id, receipt_number, user_id, current_status')
         .order('id')
         .range(offset, offset + pageSize - 1);
-      if (error) throw new Error(`Failed to fetch cases: ${error.message}`);
+      if (error) throw new Error('Failed to fetch cases');
       const rows = (data ?? []) as {
         id: string;
         receipt_number: string;
@@ -63,12 +63,13 @@ export class UscisService {
         .eq('premium_status', true)
         .order('user_id')
         .range(offset, offset + pageSize - 1);
-      if (error)
-        throw new Error(`Failed to fetch premium profiles: ${error.message}`);
+      if (error) throw new Error('Failed to fetch premium profiles');
       const rows = (data ?? []) as { user_id: string }[];
       premiumIds.push(...rows.map((p) => p.user_id));
       if (rows.length < pageSize) break;
     }
+    // Daily cron also disposes of legacy Redis payloads for removed cases.
+    if (!dryRun) await this.purgeUnenrolledJobs(cases);
     if (!cases || cases.length === 0) {
       this.logger.log('No cases found to check');
       return { count: 0, skippedFree: 0 };
@@ -118,8 +119,8 @@ export class UscisService {
       data: { receiptNumber: c.receipt_number, userId: c.user_id },
       opts: {
         jobId: `daily-${c.id}-${day}`,
-        removeOnComplete: { age: 3 * 86400, count: 20000 },
-        removeOnFail: false, // Keep failed jobs for dead letter inspection
+        removeOnComplete: true,
+        removeOnFail: true, // Durable content-free failures go to monitoring, not Redis payloads
         attempts: 3,
         backoff: { type: 'exponential' as const, delay: 5000 },
         delay: Math.max(0, scheduled.getTime() - Date.now()),
@@ -155,15 +156,61 @@ export class UscisService {
     return { count: premiumCases.length, skippedFree };
   }
 
+  /** Bounded sweep of inactive legacy jobs; active jobs finish under the live
+   * enrollment guard and are swept on the next cron if legacy options kept them.
+   * Collect before removing so offset pagination does not skip shifted entries.
+   */
+  async purgeUnenrolledJobs(
+    cases: { user_id: string; receipt_number: string }[],
+  ) {
+    const enrolled = new Set(
+      cases.map((c) => c.user_id + ':' + c.receipt_number.trim().toUpperCase()),
+    );
+    const jobs: Bull.Job[] = [];
+    for (let offset = 0; ; offset += 1000) {
+      const page = await this.uscisQueue.getJobs(
+        ['waiting', 'delayed', 'paused', 'completed', 'failed'],
+        offset,
+        offset + 999,
+      );
+      jobs.push(...page);
+      if (page.length < 1000) break;
+      if (jobs.length >= 100000)
+        throw new Error('Case queue cleanup exceeded its bounded batch');
+    }
+    let removed = 0;
+    for (const job of jobs) {
+      if (job.name !== 'check-status') continue;
+      const data = (job.data ?? {}) as {
+        userId?: unknown;
+        receiptNumber?: unknown;
+      };
+      if (
+        !enrolled.has(
+          (typeof data.userId === 'string' ? data.userId : '') +
+            ':' +
+            (typeof data.receiptNumber === 'string'
+              ? data.receiptNumber.trim().toUpperCase()
+              : ''),
+        )
+      ) {
+        await job.remove();
+        removed++;
+      }
+    }
+    return removed;
+  }
+
   /**
    * Queue a single check status job
    */
   async queueCheckStatus(receiptNumber: string, userId: string) {
-    this.logger.log(`Queueing check for ${receiptNumber} (User: ${userId})`);
-    return this.uscisQueue.add('check-status', {
-      receiptNumber,
-      userId,
-    });
+    this.logger.log('Queueing an enrolled USCIS case check');
+    return this.uscisQueue.add(
+      'check-status',
+      { receiptNumber, userId },
+      { removeOnComplete: true, removeOnFail: true },
+    );
   }
 
   /**

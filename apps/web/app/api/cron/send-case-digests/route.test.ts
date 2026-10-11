@@ -52,6 +52,7 @@ function setup({
   optout = false,
   lateOptout = false,
   duplicate = false,
+  removedCase = false,
 } = {}) {
   const candidates = query({
     data: [{ user_id: 'owner', updated_at: '2026-09-23' }],
@@ -77,6 +78,8 @@ function setup({
     delivery,
     query({ data: { enabled: !lateOptout }, error: null }),
     query({ data: { email_enabled: true }, error: null }),
+    query({ data: removedCase ? [] : [{ current_status: 'Current live status', last_checked_at: null }], error: null }),
+    query({ data: [], error: null }),
     final,
   ];
   const from = vi.fn();
@@ -136,4 +139,14 @@ it('records rejection as failed and never retries uncertain SMTP', async () => {
   expect(q.final.update).toHaveBeenCalledWith(
     expect.objectContaining({ state: 'failed' })
   );
+});
+
+it('rebuilds the digest from live enrollments and cancels if the last case was removed', async () => {
+  setup({ removedCase: true });
+  expect(await (await GET(req())).json()).toMatchObject({ sent: 0, skipped: 1 });
+  expect(m.send).not.toHaveBeenCalled();
+  setup();
+  await GET(req());
+  expect(m.send.mock.calls[0][0].text).toContain('Current live status');
+  expect(m.send.mock.calls[0][0].text).not.toContain('Received');
 });

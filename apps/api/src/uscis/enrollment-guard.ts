@@ -93,15 +93,26 @@ async function writeAuditLog(
   callSite: string,
 ): Promise<void> {
   try {
-    await supabase.from('uscis_api_audit').insert({
-      user_id: userId,
-      receipt_number_hash: decision.receiptHash,
-      allowed: decision.allowed,
-      reason: decision.reason,
-      call_site: callSite,
-    });
-  } catch {
-    // Non-blocking audit write
+    const { data, error } = await supabase
+      .from('uscis_api_audit')
+      .insert({
+        user_id: userId,
+        receipt_number_hash: decision.receiptHash,
+        allowed: decision.allowed,
+        reason: decision.reason,
+        call_site: callSite,
+      })
+      .select('id')
+      .maybeSingle();
+    if (error) throw new Error('USCIS enrollment audit write failed');
+    // The database trigger returns no row when the enrollment was removed
+    // after the initial read. Do not call USCIS using that stale permission.
+    if (decision.allowed && !data) throw new UnauthorizedReceiptLookupError();
+  } catch (error) {
+    if (error instanceof UnauthorizedReceiptLookupError) throw error;
+    console.error('USCIS enrollment audit write failed');
+    if (decision.allowed)
+      throw new Error('Could not record USCIS enrollment audit');
   }
 }
 

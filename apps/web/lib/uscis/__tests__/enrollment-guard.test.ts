@@ -6,22 +6,16 @@ import {
 import { UnauthorizedReceiptLookupError } from "@/lib/uscis/errors";
 import { fetchCaseStatus } from "@/lib/uscis/client";
 
-function mockSupabase(enrolled: boolean, error = false) {
-  return {
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          eq: () => ({
-            maybeSingle: async () =>
-              error
-                ? { data: null, error: { message: "db" } }
-                : { data: enrolled ? { id: "case-1" } : null, error: null },
-          }),
-        }),
-      }),
-      insert: async () => ({ error: null }),
-    }),
-  } as never;
+function mockSupabase(enrolled: boolean, error = false, audit: 'ok' | 'removed' | 'failed' = 'ok') {
+  return { from(table: string) {
+    const query = {
+      select: () => query, eq: () => query, insert: () => query,
+      maybeSingle: async () => table === 'uscis_api_audit'
+        ? { data: audit === 'ok' ? { id: 'audit-1' } : null, error: audit === 'failed' ? { message: 'private' } : null }
+        : { data: enrolled ? { id: 'case-1' } : null, error: error ? { message: 'db' } : null },
+    };
+    return query;
+  } } as never;
 }
 
 describe("evaluateEnrollmentGuard", () => {
@@ -103,5 +97,19 @@ describe("fetchCaseStatus", () => {
       })
     ).rejects.toThrow();
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('audit persistence boundary', () => {
+  it('blocks USCIS when deletion invalidates the audit insert', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    await expect(fetchCaseStatus({ receiptNumber: 'IOE9822487119', userId: 'user-a', callSite: 'test', supabase: mockSupabase(true, false, 'removed') })).rejects.toBeInstanceOf(UnauthorizedReceiptLookupError);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+  it('fails closed and reports no private message when the audit write fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(assertReceiptEnrolledByUser(mockSupabase(true, false, 'failed'), { receiptNumber: 'IOE9822487119', userId: 'user-a', callSite: 'test' })).rejects.toThrow('Could not record');
+    expect(errorSpy).toHaveBeenCalledWith('USCIS enrollment audit write failed');
+    expect(JSON.stringify(errorSpy.mock.calls)).not.toContain('private');
   });
 });

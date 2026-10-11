@@ -46,6 +46,7 @@ describe('daily USCIS queue pagination', () => {
       .mockResolvedValue([]);
     const service = new UscisService(new ConfigService(), {
       addBulk,
+      getJobs: jest.fn().mockResolvedValue([]),
     } as unknown as Queue);
     return { service, addBulk, ranges };
   }
@@ -74,8 +75,52 @@ describe('daily USCIS queue pagination', () => {
   it('does not queue an incomplete population after a page error', async () => {
     const { service, addBulk } = setup(true);
     await expect(service.queueAllActiveCases()).rejects.toThrow(
-      'page unavailable',
+      'Failed to fetch cases',
     );
     expect(addBulk).not.toHaveBeenCalled();
+  });
+});
+
+describe('case queue data retention', () => {
+  it('removes failed/delayed legacy payloads only for missing enrollments', async () => {
+    const removed = {
+      name: 'check-status',
+      data: { userId: 'removed', receiptNumber: 'IOE0000000001' },
+      remove: jest.fn().mockResolvedValue(undefined),
+    };
+    const shared = {
+      name: 'check-status',
+      data: { userId: 'owner', receiptNumber: 'IOE0000000001' },
+      remove: jest.fn(),
+    };
+    const other = { name: 'other-task', data: {}, remove: jest.fn() };
+    const getJobs = jest.fn().mockResolvedValue([removed, shared, other]);
+    const service = new UscisService(new ConfigService(), {
+      getJobs,
+    } as unknown as Queue);
+    expect(
+      await service.purgeUnenrolledJobs([
+        { user_id: 'owner', receipt_number: 'IOE0000000001' },
+      ]),
+    ).toBe(1);
+    expect(removed.remove).toHaveBeenCalledTimes(1);
+    expect(shared.remove).not.toHaveBeenCalled();
+    expect(other.remove).not.toHaveBeenCalled();
+    expect(getJobs).toHaveBeenCalledWith(
+      ['waiting', 'delayed', 'paused', 'completed', 'failed'],
+      0,
+      999,
+    );
+  });
+  it('does not retain private job payloads after new manual jobs finish or fail', async () => {
+    const add = jest.fn().mockResolvedValue({ id: 'job' });
+    const service = new UscisService(new ConfigService(), {
+      add,
+    } as unknown as Queue);
+    await service.queueCheckStatus('IOE0000000001', 'owner');
+    expect(add).toHaveBeenCalledWith('check-status', expect.anything(), {
+      removeOnComplete: true,
+      removeOnFail: true,
+    });
   });
 });

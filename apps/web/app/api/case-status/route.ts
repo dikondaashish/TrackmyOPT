@@ -325,10 +325,12 @@ async function handleDELETE(req: NextRequest) {
 
     const supabaseAdmin = await getSupabaseAdmin();
 
-    const { data: userCases } = await supabaseAdmin
+    const { data: userCases, error: lookupError } = await supabaseAdmin
       .from('case_status')
       .select('id')
       .eq('user_id', userId);
+
+    if (lookupError) throw new Error('Case deletion lookup failed');
 
     if (!userCases?.length) {
       return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
@@ -353,7 +355,7 @@ async function handleDELETE(req: NextRequest) {
       .select('id, is_primary');
 
     if (dbError) {
-      console.error('Database error deleting case status:', dbError);
+      console.error('Case deletion: database cleanup failed');
       return NextResponse.json(
         { ok: false, error: 'Failed to delete case status' },
         { status: 500, headers: corsHeaders }
@@ -362,23 +364,25 @@ async function handleDELETE(req: NextRequest) {
 
     const removed = deleted?.[0];
     if (removed?.is_primary) {
-      const { data: remaining } = await supabaseAdmin
+      const { data: remaining, error: remainingError } = await supabaseAdmin
         .from('case_status')
         .select('id')
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
         .limit(1);
+      if (remainingError) throw new Error('Case deletion primary lookup failed');
       if (remaining?.[0]) {
-        await supabaseAdmin
+        const { error: primaryError } = await supabaseAdmin
           .from('case_status')
           .update({ is_primary: true, updated_at: new Date().toISOString() })
-          .eq('id', remaining[0].id);
+          .eq('id', remaining[0].id).eq('user_id', userId);
+        if (primaryError) throw new Error('Case deletion primary update failed');
       }
     }
 
     return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
-  } catch (error) {
-    console.error('Error in DELETE /api/case-status:', error);
+  } catch {
+    console.error('Case deletion: cleanup failed');
     return NextResponse.json(
       { ok: false, error: 'Internal server error' },
       { status: 500, headers: corsHeaders }
