@@ -142,7 +142,9 @@ Follow-up review:
   Full lint passed with existing warnings and zero errors. Changed/new paths
   also passed focused lint. React Doctor: 91/100, no changed-file issues.
 - All 30 Playwright checks passed, including the two historical blog/login
-  routes in both Chromium and mobile WebKit. These local smoke checks do not
+  routes in both Chromium and mobile WebKit. The four route checks also passed
+  with an explicit post-mount consent interaction before checking errors.
+  These local smoke checks do not
   reconstruct Safari's historical browser environment or prove its original
   recursion cause fixed.
 - No PostHog status/suppression changes or hosting actions were made. GitHub's

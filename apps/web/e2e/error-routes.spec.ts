@@ -22,6 +22,15 @@ for (const path of [
       }
     });
     await page.goto(path, { waitUntil: 'domcontentloaded' });
+    // The banner appears only after mount; dismissing it proves client hydration finished.
+    const privacyChoices = page.getByRole('region', {
+      name: 'Privacy choices',
+      exact: true,
+    });
+    await privacyChoices
+      .getByRole('button', { name: 'Essential Only', exact: true })
+      .click();
+    await expect(privacyChoices).toBeHidden();
     if (path === '/login') {
       const email = page.locator('input[type="email"]').first();
       await expect(email).toBeEnabled();
