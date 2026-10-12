@@ -51,7 +51,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
             {article.category}
           </span>
           <span className="rounded-full bg-blue-100 px-3 py-1 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-            Verified 2026 Guide
+            {article.badgeLabel ?? 'Verified 2026 Guide'}
           </span>
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
@@ -73,7 +73,10 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
             </>
           )}
           <span aria-hidden>•</span>
-          <span>Reviewed against primary government sources</span>
+          <span>
+            {article.reviewLabel ??
+              'Reviewed against primary government sources'}
+          </span>
         </div>
       </header>
 

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1200, height=600" />
+    <title>PERM review pause: know your case stage</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --teal: #176b78;
+        --navy: #152c49;
+        --ivory: #f6f8fc;
+        --white: #ffffff;
+        --active: #e5f2f4;
+        --border: #cad7e7;
+        --muted: #29435e;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        width: 1200px;
+        height: 600px;
+        overflow: hidden;
+        background: var(--ivory);
+        color: var(--navy);
+      }
+      #stage {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        font-family: system-ui, sans-serif;
+      }
+      #flow-clip { width: 100%; height: 100%; padding: 40px; box-sizing: border-box; }
+      header { border-top: 5px solid var(--teal); padding-top: 18px; }
+      .status {
+        font-size: 17px;
+        line-height: 1.4;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: var(--teal);
+      }
+      h1 {
+        font-family: serif;
+        font-size: 40px;
+        line-height: 1.2;
+        margin: 15px 0 32px;
+      }
+      .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 23px; }
+      .step {
+        position: relative;
+        height: 300px;
+        padding: 20px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        background: var(--white);
+        overflow: hidden;
+      }
+      .label {
+        font-size: 17px;
+        line-height: 1.4;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: var(--teal);
+      }
+      .num {
+        font-size: 28px;
+        line-height: 1.2;
+        font-weight: 700;
+        margin: 14px 0;
+      }
+      h2 { font-size: 24px; line-height: 1.2; min-height: 58px; margin: 0 0 14px; }
+      p { font-size: 22px; line-height: 1.4; margin: 0; color: var(--muted); }
+      .marker {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 7px;
+        background: var(--teal);
+        transform-origin: left center;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 17px;
+        line-height: 1.4;
+        color: var(--muted);
+      }
+      .brand { font-weight: 700; color: var(--navy); white-space: nowrap; }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="main" data-start="0" data-width="1200" data-height="600" data-fps="30" data-duration="9">
+      <section id="flow-clip" class="clip" data-start="0" data-duration="9" data-track-index="0">
+        <header id="flow-header">
+          <div class="status" id="flow-status">REPORTED OCTOBER 8 · CHECKED OCTOBER 12, 2026</div>
+          <h1 id="flow-title">PERM review pause: know your case stage</h1>
+        </header>
+        <div class="steps" id="flow-steps">
+          <article class="step" id="step-0">
+            <div class="label" id="step-0-label">WHAT HAPPENED</div>
+            <div class="num" id="step-0-number">01</div>
+            <h2 id="step-0-heading">Eight named companies</h2>
+            <p id="step-0-body">Reported stop of new and pending PERM applications.</p>
+            <div class="marker" id="step-0-marker" aria-hidden="true"></div>
+          </article>
+          <article class="step" id="step-1">
+            <div class="label" id="step-1-label">WHAT APPLIES NOW</div>
+            <div class="num" id="step-1-number">02</div>
+            <h2 id="step-1-heading">Check your case stage</h2>
+            <p id="step-1-body">Identify the PERM stage and current work authorization.</p>
+            <div class="marker" id="step-1-marker" aria-hidden="true"></div>
+          </article>
+          <article class="step" id="step-2">
+            <div class="label" id="step-2-label">WHAT COMES NEXT</div>
+            <div class="num" id="step-2-number">03</div>
+            <h2 id="step-2-heading">Watch for guidance</h2>
+            <p id="step-2-body">Reopening date and later instructions are unknown.</p>
+            <div class="marker" id="step-2-marker" aria-hidden="true"></div>
+          </article>
+        </div>
+        <footer id="flow-footer">
+          <span id="flow-note">The report does not cancel every H-1B, EAD, I-140 or I-485.</span>
+          <span class="brand" id="flow-brand">TrackMyOPT</span>
+        </footer>
+      </section>
+    </div>
+    <script>
+      const palette = { rest: '#ffffff', active: '#e5f2f4' };
+      const tl = gsap.timeline({ paused: true });
+      for (let i = 0; i < 3; i++) {
+        const start = i * 3;
+        tl.fromTo(
+          '#step-' + i + '-marker',
+          { scaleX: 0 },
+          { scaleX: 1, duration: 2.5, ease: 'none' },
+          start
+        );
+        tl.fromTo(
+          '#step-' + i,
+          { backgroundColor: palette.rest },
+          { backgroundColor: palette.active, duration: 0.4, ease: 'power2.out' },
+          start
+        );
+        tl.fromTo(
+          '#step-' + i,
+          { backgroundColor: palette.active },
+          { backgroundColor: palette.rest, duration: 0.4, ease: 'power2.in', immediateRender: false },
+          start + 2.6
+        );
+      }
+      window.__timelines.main = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

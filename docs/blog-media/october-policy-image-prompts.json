@@ -1,0 +1,25 @@
+{
+  "tool": "built-in image_gen",
+  "prompts": [
+    [
+      "h1b-grace",
+      "Use case: editorial-illustration. Create a wide landscape editorial cover for TrackMyOPT's article on the proposed removal of the H-1B 60-day layoff grace period. A fictional South Asian software professional at a home desk reviewing a calendar, employment letter, and two possible paths represented by simple arrows. Calm, practical, thoughtful mood; sophisticated illustrated paper texture, navy and emerald accents, warm cream background, accessible and human. No words, numbers, logos, government seals, watermarks, or implication the proposal is already law. Keep all important content in the central 1200:630 crop."
+    ],
+    [
+      "h1b-fees",
+      "Use case: editorial-illustration. Wide landscape cover for TrackMyOPT's October 2026 H-1B fee comparison article. A fictional international graduate and an employer representative calmly compare two different document stacks, one with a courthouse silhouette and one with a drafting pen, with a small calculator between them. Sophisticated modern editorial illustration, navy and emerald on warm cream, nuanced paper texture, balanced composition. No text, numbers, logos, seals, or alarmist imagery. Central 1200:630 crop must retain all subjects."
+    ],
+    [
+      "h1b-employer",
+      "Use case: editorial-illustration. Wide landscape cover for TrackMyOPT's article about H-1B employer scrutiny and sponsor research. A fictional international graduate asking a recruiter questions at an office meeting; between them a transparent checklist of abstract marks and employment documents, city office background. Human, reassuring, professional editorial illustration, fine paper texture, navy and emerald accents on cream. No readable text, numbers, company logos, government seals or watermarks. Keep central 1200:630 crop."
+    ],
+    [
+      "tn-screening",
+      "Use case: editorial-illustration. Wide landscape cover for TrackMyOPT's article about TN and TD visa online presence review. A fictional Mexican professional with a laptop and phone organizing a passport, visa application and family travel folder; simplified public-profile interface abstract shapes on screens. Calm, capable human editorial illustration, navy and emerald with cream, elegant texture. No readable text, numbers, company logos, official seals, flags, or watermarks. Central 1200:630 crop retains all subjects."
+    ],
+    [
+      "perm-pause",
+      "Use case: editorial-illustration. Wide landscape cover for TrackMyOPT's article on October 2026 PERM labor certification suspension at named tech employers. A fictional South Asian tech worker consulting an immigration attorney, a staged path of three document folders across the desk, first folder with a simple pause icon and later folders with neutral outlines. Focus on understanding the process, not panic. Sophisticated human editorial illustration, fine paper texture, navy and emerald with warm cream. No text, numbers, brands, company logos, seals, watermarks or implied visa cancellation. Central 1200:630 crop."
+    ]
+  ]
+}

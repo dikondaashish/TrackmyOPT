@@ -40,7 +40,7 @@ export default function PermLaborCertificationPage() {
                 title={metadata.title as string}
                 description={metadata.description as string}
                 publishedDate="2026-04-29"
-                modifiedDate="2026-04-29"
+                modifiedDate="2026-10-12"
                 author="Vinay Kumar"
                 canonicalUrl={metadata.alternates?.canonical as string}
             />
@@ -59,9 +59,14 @@ export default function PermLaborCertificationPage() {
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 9 min read</span>
                     <span>•</span>
-                    <span>Updated July 12, 2026</span>
+                    <span>Updated October 12, 2026</span>
                 </div>
             </header>
+
+            <aside className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+                <p className="font-semibold">October 12, 2026 update: officials announced a halt to new and pending PERM applications involving eight named employers on October 8. Confirm your legal employer, case stage and remaining deadlines with immigration counsel.</p>
+                <Link href="/blog/perm-suspension-tech-companies-october-2026" className="mt-2 inline-block font-semibold underline">Read the PERM suspension guide</Link>
+            </aside>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/perm-labor-certification-opt.png" alt="Department of Labor form and classified newspaper ads representing the PERM labor certification process" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
