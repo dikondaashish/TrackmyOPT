@@ -272,7 +272,7 @@ export const octoberNewsArticles = [
       },
     ],
     dataNote:
-      'Sources were checked October 11, 2026. Priya, Daniel, and Mei are fictional; their examples illustrate conditional planning and do not determine eligibility or predict final policy. Keyword choices reflect topic relevance and reader questions, not measured search-volume data. The cover is AI-generated conceptual art.',
+      'Sources were checked October 11, 2026. Priya, Daniel, and Mei are fictional; their examples illustrate conditional planning and do not determine eligibility or predict final policy. The cover is AI-generated conceptual art.',
   }),
   defineArticle({
     slug: 'cpt-lawsuit-october-2026-internship-rules',
@@ -493,6 +493,6 @@ export const octoberNewsArticles = [
       },
     ],
     dataNote:
-      'Verified against the linked filings and institutional notices on October 11, 2026. Plaintiff arguments are identified as arguments; no granted CPT injunction is asserted. Aisha, Luis, and Hana are fictional teaching examples. No applicant data is used. The cover is AI-generated conceptual art; keywords are editorial selections, not measured search-volume data.',
+      'Verified against the linked filings and institutional notices on October 11, 2026. Plaintiff arguments are identified as arguments; no granted CPT injunction is asserted. Aisha, Luis, and Hana are fictional teaching examples. No applicant data is used. The cover is AI-generated conceptual art.',
   }),
 ];
