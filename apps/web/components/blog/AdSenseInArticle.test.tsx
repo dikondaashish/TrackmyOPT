@@ -5,15 +5,19 @@ import {
   COOKIE_CONSENT_TIMESTAMP_KEY,
   setStoredCookieConsent,
 } from '@/lib/cookie-consent';
+import { ADSENSE_READY_EVENT } from '@/lib/adsense';
 import { AdSenseInArticle } from './AdSenseInArticle';
 
 describe('AdSenseInArticle', () => {
   beforeEach(() => {
     vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(320);
-    vi.stubGlobal('ResizeObserver', class {
-      observe() {}
-      disconnect() {}
-    });
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe() {}
+        disconnect() {}
+      }
+    );
     localStorage.clear();
     delete window.adsbygoogle;
     document.getElementById('adsense-script')?.remove();
@@ -38,8 +42,14 @@ describe('AdSenseInArticle', () => {
 
     render(<AdSenseInArticle />);
 
-    expect(screen.getByRole('complementary', { name: 'Advertisement' })).toBeInTheDocument();
-    expect(screen.getByRole('complementary').querySelector('[data-ad-slot="5965065084"]')).toBeInTheDocument();
+    expect(
+      screen.getByRole('complementary', { name: 'Advertisement' })
+    ).toBeInTheDocument();
+    expect(
+      screen
+        .getByRole('complementary')
+        .querySelector('[data-ad-slot="5965065084"]')
+    ).toBeInTheDocument();
     expect(window.adsbygoogle).toHaveLength(1);
     expect(document.getElementById('adsense-script')).toBeInTheDocument();
   });
@@ -52,7 +62,77 @@ describe('AdSenseInArticle', () => {
       setStoredCookieConsent('accepted');
     });
 
-    expect(screen.getByRole('complementary', { name: 'Advertisement' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('complementary', { name: 'Advertisement' })
+    ).toBeInTheDocument();
+  });
+
+  it('queues each element once while the SDK status attribute is still absent', () => {
+    setStoredCookieConsent('accepted');
+    render(<AdSenseInArticle />);
+    act(() => {
+      window.dispatchEvent(new Event(ADSENSE_READY_EVENT));
+      window.dispatchEvent(new Event(ADSENSE_READY_EVENT));
+    });
+    expect(window.adsbygoogle).toHaveLength(1);
+  });
+
+  it('waits for the actual ad width, even when its container is wide', () => {
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(
+      function (this: HTMLElement) {
+        return this.tagName === 'INS' ? 139 : 320;
+      }
+    );
+    setStoredCookieConsent('accepted');
+    render(<AdSenseInArticle />);
+    expect(window.adsbygoogle).toBeUndefined();
+  });
+
+  it('rechecks current width when the SDK becomes ready', () => {
+    setStoredCookieConsent('accepted');
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(0);
+    render(<AdSenseInArticle />);
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(320);
+    act(() => window.dispatchEvent(new Event(ADSENSE_READY_EVENT)));
+    expect(window.adsbygoogle).toHaveLength(1);
+  });
+
+  it('initializes after a resize without repeated requests', () => {
+    let notifyResize = () => {};
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          notifyResize = callback;
+        }
+        observe() {}
+        disconnect() {}
+      }
+    );
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(0);
+    setStoredCookieConsent('accepted');
+    render(<AdSenseInArticle />);
+    expect(window.adsbygoogle).toBeUndefined();
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(320);
+    act(() => {
+      notifyResize();
+      notifyResize();
+    });
+    expect(window.adsbygoogle).toHaveLength(1);
+  });
+
+  it('reports an unexpected initialization failure without vendor payloads', () => {
+    const report = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.adsbygoogle = [];
+    vi.spyOn(window.adsbygoogle, 'push').mockImplementation(() => {
+      throw new Error('private vendor payload');
+    });
+    setStoredCookieConsent('accepted');
+    render(<AdSenseInArticle />);
+    act(() => window.dispatchEvent(new Event(ADSENSE_READY_EVENT)));
+    expect(report).toHaveBeenCalledExactlyOnceWith(
+      '[AdSenseInArticle] ad initialization failed'
+    );
   });
 
   it('does not queue a fluid ad in a container narrower than 250px', () => {

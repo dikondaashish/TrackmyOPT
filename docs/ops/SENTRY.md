@@ -85,6 +85,23 @@ expected missing/closed contexts are normal detection outcomes. Unexpected
 bridge failures and open-tool timeouts use fixed error reports. The extension's
 own background runtime still has the coverage limitation described above.
 
+## Historical PostHog code review
+
+The [one-year PostHog review](POSTHOG_CODE_REVIEW_2026-10-12.md) records all 81
+issue groups and their evidence limits. AdSense now reserves each actual slot
+before queueing and measures its current width. Template PDF cleanup consumes
+cancellation rejections. Unexpected ad initialization, PDF load/render/cleanup,
+and activation probe failures use fixed console diagnostics captured by Sentry.
+Activation checks retain retry and account/consent guards; expected offline,
+unmount, and authentication outcomes remain separate. Dashboard sidebar storage
+also uses the safe helpers when storage is null or blocked.
+
+PostHog and boundary reporting no longer drop React DOM removeChild/insertBefore
+failures based solely on their message. Historical page-only/minified Safari
+recursion, anonymous rejections, and non-clock hydration causes remain
+unverified; do not describe a suppression label or an old last-seen date as a
+root-cause repair. This source review does not verify deployment or recurrence.
+
 ## Free-plan requirement
 
 The owner requires the free Developer plan (recorded 2026-10-10). Keep the
