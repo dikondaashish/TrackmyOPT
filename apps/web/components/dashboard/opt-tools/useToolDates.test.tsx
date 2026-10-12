@@ -82,8 +82,12 @@ it.each([
       )
     );
     renderHook(useToolDates);
-    await waitFor(() => expect(log).toHaveBeenCalledWith(message));
-    expect(log.mock.calls).toEqual([[message]]);
+    await waitFor(() =>
+      expect(log).toHaveBeenCalledWith(`${message} (stage=payload, status=200)`)
+    );
+    expect(log.mock.calls).toEqual([
+      [`${message} (stage=payload, status=200)`],
+    ]);
   }
 );
 
@@ -139,7 +143,33 @@ it('reports failed network requests without the rejected error contents', async 
   const { result } = renderHook(useToolDates);
   await waitFor(() => expect(result.current.loading).toBe(false));
   expect(log.mock.calls).toEqual([
-    ['OPT tools: failed to load saved dates'],
-    ['OPT tools: failed to load plan status'],
+    ['OPT tools: failed to load saved dates (stage=network, status=none)'],
+    ['OPT tools: failed to load plan status (stage=network, status=none)'],
   ]);
 });
+
+for (const route of ['/api/opt/calculator', '/api/premium/status']) {
+  it.each(['http', 'json', 'payload'] as const)(
+    `${route} distinguishes %s failures without leaking private contents`,
+    async (stage) => {
+      vi.useRealTimers();
+      const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async (url: string) => {
+          if (url !== route)
+            return response({ ok: true, data: {}, isPremium: false });
+          if (stage === 'http') return response({ error: 'Private body' }, 503);
+          if (stage === 'json')
+            return new Response('Private HTML', { status: 200 });
+          return response(null);
+        })
+      );
+      renderHook(useToolDates);
+      await waitFor(() => expect(log).toHaveBeenCalledTimes(1));
+      expect(log.mock.calls[0]).toEqual([
+        `OPT tools: failed to load ${route.includes('calculator') ? 'saved dates' : 'plan status'} (stage=${stage}, status=${stage === 'http' ? 503 : 200})`,
+      ]);
+    }
+  );
+}

@@ -54,11 +54,15 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      let stage = 'network';
+      let status: number | 'none' = 'none';
       try {
         const res = await fetch('/api/employment-spans', {
           credentials: 'include',
           cache: 'no-store',
         });
+        status = res.status;
+        stage = 'http';
         if (res.status === 401) {
           if (!cancelled) setHistoryState('guest');
           return;
@@ -68,15 +72,20 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
           return;
         }
         if (!res.ok) throw new Error();
+        stage = 'json';
         const body = await res.json();
-        if (!body.ok || !Array.isArray(body.spans)) throw new Error();
+        stage = 'payload';
+        if (!body?.ok || !Array.isArray(body.spans)) throw new Error();
+        stage = 'processing';
         if (!cancelled) {
           setSpans(mapEmploymentSpans(body.spans));
           setHistoryState('ready');
         }
       } catch {
         if (!cancelled) {
-          console.error('OPT tools: failed to load employment history');
+          console.error(
+            `OPT tools: failed to load employment history (stage=${stage}, status=${status})`
+          );
           setHistoryState('error');
         }
       }

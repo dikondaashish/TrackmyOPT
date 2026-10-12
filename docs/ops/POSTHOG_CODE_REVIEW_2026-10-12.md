@@ -178,6 +178,19 @@ diagnostics do not retain the failed response/status or network cause. The
 current code separates expected 4xx outcomes and provides retry/error states;
 these reports remain unverified rather than being relabeled as repaired.
 
+The next review reloaded the all-status, one-year PostHog UI and loaded all
+81 entries. Its 81 unique issue IDs match this audit (sorted-ID checksum
+`ce4c7275`). It also inspected the raw Sentry event and confirmed that it contains
+no underlying request failure/status. The plan-status issue was already archived
+by the time of this review; no status was changed here, and archival is not
+repair evidence. The three loaders now preserve a fixed failure stage and HTTP
+status in their diagnostic message. Regression checks reproduce network,
+HTTP 503/500, invalid JSON, and null/malformed payload failures while rejecting
+private response/error contents; expected 4xx outcomes stay quiet and history
+retry still recovers. A privacy-scrubber regression verifies these safe fields
+survive reporting. This repairs lost diagnostic information, not the unknown
+historical request failures, and does not increase the proven-fixed count.
+
 Production source-map upload is already implemented and gated on production
 release configuration. Missing historical maps cannot be reconstructed by a new
 build. See [PostHog stack traces](https://posthog.com/docs/error-tracking/stack-traces)

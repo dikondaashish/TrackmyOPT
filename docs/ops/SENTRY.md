@@ -33,7 +33,12 @@ The OPT/STEM tools report unexpected saved-date, plan-status, employment-history
 and date-save failures with fixed diagnostic messages, including malformed or
 failed HTTP 200 responses. Expected 4xx outcomes and requests canceled by
 unmounting stay separate. Reports omit dates, employment records, response bodies,
-and rejected error contents.
+and rejected error contents. Loading failures retain only a fixed stage
+(`network`, `http`, `json`, `payload`, or `processing`) and numeric HTTP status
+(or `none` before a response). These distinguish transport failures, non-2xx
+responses, invalid JSON, rejected payloads, and local processing failures without
+relaxing the Sentry privacy scrubber. Historical reports without these fields
+cannot be retroactively diagnosed from this change.
 
 ## Browser error triage
 
