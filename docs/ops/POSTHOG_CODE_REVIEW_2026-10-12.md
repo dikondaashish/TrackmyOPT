@@ -106,6 +106,17 @@ explicit resume feature OpenGraph type, safe consent storage, JSON-LD context
 serialization, and the exact Brave/iOS wallet-injection filter. No broad
 RangeError, hydration, generic network, or unknown-rejection suppression added.
 
+A further current-component review reproduced two defects in the public OPT
+decision-window tool. Browser translation replacing the submit label caused
+`NotFoundError` and unmounted the form; stable label spans now survive the icon
+changes. Server-rendering on October 8 and hydrating on October 12 retained the
+stale input `max` attribute; the existing client-date hook now supplies the
+visitor's date after hydration. Both regression tests fail against the previous
+component and pass after the change. Unexpected lookup failures now emit safe
+stage/status diagnostics, including invalid successful payloads, while expected
+4xx responses remain quiet. These are reproduced source repairs; their presence
+on a current tool does not attribute every historic DOM or hydration group.
+
 ## Remaining evidence limits
 
 The 12 Safari/iOS recursion groups have either no stack or page-URL-only frames,

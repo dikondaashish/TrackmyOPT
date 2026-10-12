@@ -94,3 +94,61 @@ test('translated landing controls update without DOM mutation failures', async (
   await expect(sound).toHaveText('Unmute');
   expect(errors).toEqual([]);
 });
+
+test('translated decision-window submission and cached date limit stay usable', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (
+      message.type() === 'error' &&
+      /hydration|react error #418/i.test(message.text())
+    ) {
+      errors.push(message.text());
+    }
+  });
+  await page.clock.install({ time: new Date('2027-01-15T12:00:00Z') });
+  let finishResponse!: () => void;
+  const responseReady = new Promise<void>((resolve) => {
+    finishResponse = resolve;
+  });
+  await page.route('**/api/public/opt-decision-window?*', async (route) => {
+    await responseReady;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        estimate: null,
+        daysSinceFiled: 30,
+      }),
+    });
+  });
+  await page.goto('/tools/opt-decision-window', {
+    waitUntil: 'domcontentloaded',
+  });
+  const privacyChoices = page.getByRole('region', {
+    name: 'Privacy choices',
+    exact: true,
+  });
+  await privacyChoices
+    .getByRole('button', { name: 'Essential Only', exact: true })
+    .click();
+  await expect(privacyChoices).toBeHidden();
+  const date = page.getByLabel('USCIS received / receipt date');
+  await expect(date).toHaveAttribute('max', '2027-01-15');
+  await date.fill('2026-12-16');
+  const button = page.locator('button[type="submit"]');
+  await translateLabel(button, 'Show my decision window', 'Mostrar mi ventana');
+  await button.click();
+  await expect(button).toBeDisabled();
+  await expect(button).toHaveText('Checking similar cases…');
+  finishResponse();
+  await expect(button).toBeEnabled();
+  await expect(button).toHaveText('Show my decision window');
+  await expect(
+    page.getByRole('link', { name: 'Track live status free', exact: true })
+  ).toBeVisible();
+  expect(errors).toEqual([]);
+});

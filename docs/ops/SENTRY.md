@@ -41,6 +41,12 @@ processing failures without
 relaxing the Sentry privacy scrubber. Historical reports without these fields
 cannot be retroactively diagnosed from this change.
 
+The public OPT decision-window lookup follows the same stage/status diagnostics
+for unexpected failures and validates the numeric values it renders before
+showing an estimate. Expected 4xx outcomes keep the normal error state without
+Sentry error reporting. The submit label survives browser translation and its
+date limit is set after hydration.
+
 ## Browser error triage
 
 React error #418 is a hydration mismatch and remains observable in both Sentry
