@@ -21,10 +21,16 @@ references; stored resolution failures also report missing maps. Current
 TrackMyOPT release maps are present in PostHog, but cannot identify page-only
 historical frames.
 
+A further source/replay review against main
+`9253825f369a173f42562a70c3bdcd7ddb89c606` again returned all 81 groups with no
+additional page. It reproduced two current translation-related DOM crashes and
+an empty-context serializer defect, described below. This adds proven source
+repairs; it still does not establish 81 individually proven historical fixes.
+
 A resolved/suppressed label and an old bundle are not evidence of a root-cause
 fix. The table below retains every issue ID and separates source repairs from
 historical attribution limits. No person/session identifiers, response bodies,
-applicant data, or replay content are included.
+applicant data, or private replay content are included.
 
 ## Source changes and verification
 
@@ -76,6 +82,23 @@ applicant data, or replay content are included.
   visible instead of treating suppression as a fix. Four reporting regressions
   failed before this change and pass afterward. This restores observability;
   it does not establish the historical DOM mutation's cause.
+- **Translated landing controls (further review):** replacing the enhancement
+  and sound-button text nodes with browser-translation `font` elements reproduced
+  `NotFoundError` on each real component before the repair. Wrap changing labels
+  in stable spans so icon replacement can insert before an element React still
+  owns. Also isolate the resume description heading and changing editor text
+  from conditionally inserted children. Regression tests verify enhancement
+  through completion and sound toggling after translation. Keep translation and
+  ordinary error capture enabled; no DOM prototype patch or exception filter.
+  These components are reachable on the homepage. Their reproduction does not
+  establish the source of every historical login/dashboard DOM failure.
+- **JSON-LD context (further review):** the serializer's promised non-empty
+  context fallback failed for an empty string or empty array. Both cases failed
+  regression assertions before the repair and now use the schema.org fallback.
+  Exercise the exact reader operation, `@context.toLowerCase()`, against the
+  actual site-identity and landing schemas and absent/non-string contexts.
+  Empty-context fallback is a separate source defect; it is not evidence that
+  an empty string caused the recorded undefined-context exceptions.
 
 Existing source mitigations verified: the clock hook's deterministic first
 render and browser-date hydration tests, pure login countdown/OTP state updates,
@@ -93,6 +116,20 @@ presence alone does not establish that blog code caused the failures. Eight
 other opaque/anonymous exceptions and the generic Safari `Load failed` lack
 sufficient source evidence. Leave these unverified and observable.
 
+The further review establishes a browser association: all 411 events in the
+largest recursion group have the Google iOS app's `GSA` user-agent marker. A
+direct stored-issue-ID query across the 12 groups returned 488 event rows, of
+which 479 carry that marker; this is distinct from the issue aggregates' 491
+occurrences. A retained recording at the latest occurrence shows translated
+page text and `google-anno-*` elements. Google's
+[AdSense documentation](https://support.google.com/adsense/answer/13844047?hl=en)
+identifies this format as ad intents, which modifies existing text. This is
+evidence of third-party DOM changes, not proof that AdSense, translation, or
+the native browser script caused the recursion. The injected script's source
+was not retained in replay. The recorded AdSense implementation can still be
+downloaded, but its `Ok`/`Qk` functions and line 226 do not match the captured
+alternating recursion frames. Do not suppress these failures on that association.
+
 The newest #418 group includes dashboard/jobs/job-tracker, blog, OPT dates,
 pricing, and six clock events. The clock cause is reproduced and fixed, but that
 fix does not explain the older non-clock events. Additional job-tracker date
@@ -103,11 +140,43 @@ banner's first render, and pricing render are deterministic in inspected code.
 Current tests/build cannot prove all historical hydration causes fixed.
 
 The eight JSON-LD reader errors point to short page/global scripts and a
-`@context.toLowerCase` reader absent from this repository. The serializer now
-emits a string root context; an external reader is an inference, not proven
-ownership. Likewise an opaque cross-origin Script error has no recoverable
-root cause. Existing browser bridge/extension signatures and AdSense vendor
-network failures are external classifications, not repaired third-party code.
+`@context.toLowerCase` reader absent from this repository.
+[WebKit bug 255764](https://bugs.webkit.org/show_bug.cgi?id=255764) reproduces
+that same expression failure for array-root JSON-LD. Fetching the complete Git
+history recovered the old root layout: it emitted an array until
+[commit 57ad188e](https://github.com/dikondaashish/TrackmyOPT/commit/57ad188e812d640c9cb79961699f8a640881217b)
+on June 14 at 17:08 UTC, which changed it to an object with `@graph` and a root
+context. Evaluating the exact reader operation on the layout's schema expression
+before that commit throws `TypeError`; after it, the operation returns
+`https://schema.org`. All 67 reported occurrences in these eight groups precede
+that change (the latest is June 14 at 15:55 UTC). Current site schemas also pass
+the reader regression. This proves the historical source incompatibility and
+its repair. The exact HTML/browser script for each captured event is unavailable,
+so individual attribution remains an inference rather than an 81-issue guarantee.
+Likewise an opaque cross-origin Script error has no recoverable root cause.
+Existing browser bridge/extension signatures and AdSense vendor network failures
+are external classifications, not repaired third-party code.
+
+The retired React chunks `83aa3e20a906fd5d.js`, `4c6c10ffb8e9f9cd.js`, and
+`a2ed8749a800b7e8.js` all returned 404 in the further review. The checkout was
+initially shallow; a full fetch recovered 1,902 main-branch commits back to
+October 2025. The earlier conclusion that history began after the May–July DOM
+events was incorrect. Recovered June/July download and portal repairs do not
+identify the component behind framework-only frames; the July remediation
+notes themselves distinguish portal hygiene from the blanket exception filter
+that stopped alerts. That filter has been removed in this review. The video
+control was introduced in September, after these DOM groups' last events, so
+its new repair cannot explain those events. Missing original bundle/maps still
+prevent proving that all 13 groups shared the resume-control defect.
+
+Sentry's TrackMyOPT-only unresolved view also showed three new, handled OPT
+API-loading diagnostics on release `9253825f369a`: [plan status](https://zyene-inc.sentry.io/issues/7788622047/?project=4512234317938688),
+[saved dates](https://zyene-inc.sentry.io/issues/7788622046/?project=4512234317938688),
+and [employment history](https://zyene-inc.sentry.io/issues/7788622026/?project=4512234317938688).
+They share a trace and have working application source maps. The fixed privacy
+diagnostics do not retain the failed response/status or network cause. The
+current code separates expected 4xx outcomes and provides retry/error states;
+these reports remain unverified rather than being relabeled as repaired.
 
 Production source-map upload is already implemented and gated on production
 release configuration. Missing historical maps cannot be reconstructed by a new
@@ -150,6 +219,30 @@ Follow-up review:
 - No PostHog status/suppression changes or hosting actions were made. GitHub's
   required CI and Playwright checks must pass before delivery to protected main.
 
+Further source/replay review:
+
+- Full web suite: 312 files / 2,097 tests passed. A separate focused run passed
+  all eight translated-control and JSON-LD reader tests; the six new JSON-LD
+  tests were created after the full suite started. The translation crashes and
+  empty-context assertions failed against the previous source before repair.
+- Full monorepo type checks and lint passed. Changed/new TypeScript paths also
+  passed focused lint. React Doctor remained 91/100, with no changed-file issues.
+- The initial production build compiled the application, then found malformed
+  generated `.next/dev/types` files left by overlapping development/browser
+  validation. No development server remained running; those generated files
+  were cleared in the task worktree. An interrupted retry had no final result;
+  the restarted clean build passed with CI's placeholder environment, including
+  TypeScript and all 421 generated pages. The protected GitHub build must also
+  pass before merge; its final result is recorded on the pull request.
+- All six route/translated-control Playwright checks passed in Chromium and
+  mobile WebKit. The resume control is desktop-only; video sound controls were
+  exercised in both browsers. Cold-build timeouts and a translated accessible
+  name in the initial locator fixture were corrected before the final run.
+- The owner cannot reproduce the Google iPhone app environment on a device.
+  Local WebKit does not include that app's injected scripts and does not prove
+  its historical recursion fixed. No issue status/suppression or hosting
+  actions were made.
+
 ## Complete issue inventory
 
 Counts are issue groups, not unique root causes. IDs map directly to the original
@@ -169,9 +262,9 @@ PostHog view. “Mitigation” does not mean every historical occurrence is expl
 | OpenGraph probe | 1 | Existing metadata mitigation verified |
 | Native browser bridge | 1 | Existing external signature classification |
 | AdSense network failure | 1 | Vendor stack verified; existing external classification |
-| React DOM mutation | 13 | Blanket filter removed; historical cause unverified |
+| React DOM mutation | 13 | Two current translated-control crashes reproduced/repaired; individual historical causes unverified |
 | Opaque cross-origin error | 1 | Existing opaque error classification; root cause unavailable |
-| JSON-LD reader | 8 | Existing serializer mitigation verified; ownership unverified |
+| JSON-LD reader | 8 | Historical root-array incompatibility reproduced and June repair verified; current reader tests pass; exact event attribution remains an inference |
 | Login state updates | 1 | Existing pure state updaters verified |
 | Navigation cancellation | 1 | Expected context teardown classification |
 | Extension global | 1 | External content-script signature |

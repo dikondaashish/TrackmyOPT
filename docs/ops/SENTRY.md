@@ -108,6 +108,20 @@ avoid dnd-kit's server/client counter mismatch. Individual historical #418 cause
 remain unverified; do not describe a suppression label or an old last-seen date
 as a root-cause repair. This source review does not verify deployment or recurrence.
 
+The further October 12 review reproduced browser-translation DOM crashes in the
+landing resume enhancement and video sound controls. Their changing labels now
+have stable elements, with translated-node regression checks; translation and
+DOM error capture remain enabled. JSON-LD tests also exercise the captured
+reader expression on current site schemas, and the serializer now uses its
+fallback for empty contexts. Recovered Git history reproduces that expression
+failure on the old root-array layout and verifies the June 14 object-root repair;
+all eight historical groups precede it, while exact event attribution remains
+an inference. Historical Safari recursion has a strong Google
+iOS browser association, but its injected source is unavailable. Three new
+production OPT API-loading diagnostics on release `9253825f369a` were observed
+in the TrackMyOPT-only Sentry view; their captured data does not establish the
+response/network cause. These and the remaining historical gaps stay unverified.
+
 ## Free-plan requirement
 
 The owner requires the free Developer plan (recorded 2026-10-10). Keep the
