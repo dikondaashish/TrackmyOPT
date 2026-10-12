@@ -94,13 +94,19 @@ cancellation rejections. Unexpected ad initialization, PDF load/render/cleanup,
 and activation probe failures use fixed console diagnostics captured by Sentry.
 Activation checks retain retry and account/consent guards; expected offline,
 unmount, and authentication outcomes remain separate. Dashboard sidebar storage
-also uses the safe helpers when storage is null or blocked.
+also uses the safe helpers when storage is null or blocked, as does the job
+tracker's saved-view preference.
 
 PostHog and boundary reporting no longer drop React DOM removeChild/insertBefore
 failures based solely on their message. Historical page-only/minified Safari
-recursion, anonymous rejections, and non-clock hydration causes remain
-unverified; do not describe a suppression label or an old last-seen date as a
-root-cause repair. This source review does not verify deployment or recurrence.
+recursion and anonymous rejections remain unverified after inspecting the full
+stored frame origins. The follow-up reproduced and repaired four job-tracker
+hydration mismatches (relative dates, due counts, month grid, and table dates)
+using a stable first render. Date-only follow-ups now keep the visitor's selected
+calendar day. The board also uses a stable React ID for drag instructions to
+avoid dnd-kit's server/client counter mismatch. Individual historical #418 causes
+remain unverified; do not describe a suppression label or an old last-seen date
+as a root-cause repair. This source review does not verify deployment or recurrence.
 
 ## Free-plan requirement
 

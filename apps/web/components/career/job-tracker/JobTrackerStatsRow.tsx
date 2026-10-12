@@ -2,21 +2,24 @@
 
 import { JobApplication } from "@/lib/career/job-tracker/types";
 import { FileText, Users, Bell, Trophy } from "lucide-react";
+import { format } from "date-fns";
+import { useClientDate } from "@/hooks/useClientDate";
 
 interface JobTrackerStatsRowProps {
     applications: JobApplication[];
 }
 
 export function JobTrackerStatsRow({ applications }: JobTrackerStatsRowProps) {
+    const clientDate = useClientDate();
     const totalApps = applications.length;
     const activeInterviews = applications.filter(a => ["Recruiter Screen", "Interviewing", "Final Round"].includes(a.status)).length;
     const offers = applications.filter(a => a.status === "Offer").length;
 
-    // Check next_follow_up_at to see created logic? Or just simple count from applications? 
-    // The requirement says "Follow-ups Due". 
-    // We can filter applications having next_follow_up_at <= today
-    const startOfToday = new Date().toISOString().split('T')[0];
-    const followupsDue = applications.filter(a => a.next_follow_up_at && a.next_follow_up_at <= startOfToday).length;
+    // Use the visitor's calendar day after hydration, including date-only follow-ups.
+    const startOfToday = clientDate ? format(new Date(), "yyyy-MM-dd") : null;
+    const followupsDue = startOfToday
+        ? applications.filter(a => a.next_follow_up_at && a.next_follow_up_at <= startOfToday).length
+        : "…";
 
     const stats = [
         {
