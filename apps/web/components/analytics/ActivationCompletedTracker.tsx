@@ -1,22 +1,37 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { z } from 'zod';
+import { useEffect, useRef } from 'react';
+import { supabase } from '@/lib/supabase/client';
 import {
   ANALYTICS_CONSENT_CHANGE_EVENT,
   captureActivationCompleted,
   isBrowserPostHogReady,
-} from "@/lib/posthog-client";
-import { hasAnalyticsConsent } from "@/lib/cookie-consent";
+} from '@/lib/posthog-client';
+import { hasAnalyticsConsent } from '@/lib/cookie-consent';
 import {
   daysSinceSignupDate,
   hasSuccessfulCaseCheck,
   isActivatedUser,
   isWithinActivationWindow,
-} from "@/lib/posthog/activation";
+} from '@/lib/posthog/activation';
 
-const ACTIVATION_CAPTURED_KEY = "tmo:activation_completed_captured";
+const ACTIVATION_CAPTURED_KEY = 'tmo:activation_completed_captured';
 const POLL_MS = 15_000;
+const isOffline = () => navigator.onLine === false;
+// Validate only the fields this probe consumes. Never include response data in reports.
+const caseSchema = z.object({
+  receipt_number: z.string().nullable().optional(),
+  current_status: z.string().nullable().optional(),
+  last_checked_at: z.string().nullable().optional(),
+});
+const caseResponseSchema = z
+  .object({
+    ok: z.literal(true),
+    cases: z.array(caseSchema).optional(),
+    data: caseSchema.nullable().optional(),
+  })
+  .refine((value) => value.cases !== undefined || value.data !== undefined);
 
 /**
  * Fires `activation_completed` once when Phase 4 activation is met:
@@ -34,7 +49,7 @@ export function ActivationCompletedTracker() {
     const alreadyCaptured = (userId: string) => {
       try {
         return (
-          localStorage.getItem(`${ACTIVATION_CAPTURED_KEY}:${userId}`) === "1"
+          localStorage.getItem(`${ACTIVATION_CAPTURED_KEY}:${userId}`) === '1'
         );
       } catch {
         return false;
@@ -45,6 +60,7 @@ export function ActivationCompletedTracker() {
       if (
         cancelled ||
         requestInFlight ||
+        isOffline() ||
         !hasAnalyticsConsent() ||
         !isBrowserPostHogReady()
       ) {
@@ -58,32 +74,41 @@ export function ActivationCompletedTracker() {
       try {
         const {
           data: { user },
+          error: authError,
         } = await supabase.auth.getUser();
+        if (authError) {
+          // Missing/expired authentication is expected; provider failures are not.
+          if (
+            authError.status &&
+            authError.status >= 400 &&
+            authError.status < 500
+          )
+            return;
+          throw new Error('Activation authentication check failed');
+        }
         if (
           !user ||
+          !hasAnalyticsConsent() ||
+          !isBrowserPostHogReady() ||
           cancelled ||
           trackedUserRef.current === user.id ||
           alreadyCaptured(user.id)
         )
           return;
 
-        const caseRes = await fetch("/api/case-status", {
-          credentials: "include",
-          cache: "no-store",
+        const caseRes = await fetch('/api/case-status', {
+          credentials: 'include',
+          cache: 'no-store',
           signal: controller.signal,
         });
 
         let hasReceipt = false;
         let hasSuccessfulCheck = false;
         if (caseRes.ok) {
-          const caseJson = await caseRes.json().catch(() => null);
-          const cases: Array<{
-            receipt_number?: string;
-            current_status?: string | null;
-            last_checked_at?: string | null;
-          }> = caseJson?.cases?.length
+          const caseJson = caseResponseSchema.parse(await caseRes.json());
+          const cases = caseJson.cases?.length
             ? caseJson.cases
-            : caseJson?.data
+            : caseJson.data
               ? [caseJson.data]
               : [];
           const primary =
@@ -109,13 +134,20 @@ export function ActivationCompletedTracker() {
         });
         trackedUserRef.current = user.id;
         try {
-          localStorage.setItem(`${ACTIVATION_CAPTURED_KEY}:${user.id}`, "1");
+          localStorage.setItem(`${ACTIVATION_CAPTURED_KEY}:${user.id}`, '1');
         } catch {
           /* ignore */
         }
       } catch {
-        // This is a best-effort analytics probe. Offline transitions, aborted
-        // navigations, and privacy tools must not surface as product errors.
+        // Intentional teardown/offline transitions are expected. Other failures
+        // stay observable through the Sentry console integration without user data.
+        if (
+          !cancelled &&
+          !controller.signal.aborted &&
+          !isOffline()
+        ) {
+          console.error('[ActivationCompletedTracker] activation check failed');
+        }
       } finally {
         if (activeController === controller) activeController = null;
         requestInFlight = false;
@@ -125,10 +157,10 @@ export function ActivationCompletedTracker() {
     void tryCapture();
 
     const onVisible = () => {
-      if (document.visibilityState === "visible") void tryCapture();
+      if (document.visibilityState === 'visible') void tryCapture();
     };
-    window.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("focus", onVisible);
+    window.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
     window.addEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onVisible);
     const pollId = window.setInterval(() => void tryCapture(), POLL_MS);
 
@@ -136,8 +168,8 @@ export function ActivationCompletedTracker() {
       cancelled = true;
       activeController?.abort();
       window.clearInterval(pollId);
-      window.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("focus", onVisible);
+      window.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
       window.removeEventListener(ANALYTICS_CONSENT_CHANGE_EVENT, onVisible);
     };
   }, []);

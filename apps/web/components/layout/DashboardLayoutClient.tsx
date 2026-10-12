@@ -6,6 +6,7 @@ import { Sidebar } from "./Sidebar";
 import { ResumePromoBanner } from "@/components/promo/ResumePromoBanner";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { safeStorageGet, safeStorageSet } from "@/lib/safe-storage";
 import { PremiumStatusProvider, usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { PolicyUpdateConsentModal } from "@/components/compliance/PolicyUpdateConsentModal";
 import { PostHogIdentify } from "@/components/analytics/PostHogIdentify";
@@ -87,7 +88,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
     // Sets the resolved boolean so the layout can apply the correct CSS class
     // without any server/client mismatch.
     useEffect(() => {
-        const saved = localStorage.getItem("trackmyopt_sidebar_collapsed");
+        const saved = safeStorageGet("trackmyopt_sidebar_collapsed");
         setIsSidebarCollapsed(saved === "true");
     }, []);
 
@@ -95,7 +96,7 @@ function DashboardLayoutInner({ children }: DashboardLayoutClientProps) {
         // Treat null (not-yet-resolved) as expanded (false) for the first toggle.
         const newState = !(isSidebarCollapsed ?? false);
         setIsSidebarCollapsed(newState);
-        localStorage.setItem("trackmyopt_sidebar_collapsed", String(newState));
+        safeStorageSet("trackmyopt_sidebar_collapsed", String(newState));
     };
 
     const handleMobileMenuToggle = () => {

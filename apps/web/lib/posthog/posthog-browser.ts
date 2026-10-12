@@ -4,23 +4,8 @@ import { getStoredCookieConsent } from "@/lib/cookie-consent";
 import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
 import { POSTHOG_SESSION_RECORDING } from "@/lib/posthog/session-replay-privacy";
 
-/**
- * Benign React DOM teardown races (fast navigation, extensions, portal cleanup).
- * Translation widgets and content scripts reparent nodes React owns, so the
- * commit phase fails on both `removeChild` and `insertBefore`.
- */
-export function isBenignReactDomTeardownError(message: string): boolean {
-  const lower = message.toLowerCase();
-  if (!lower.includes("removechild") && !lower.includes("insertbefore")) {
-    return false;
-  }
-  return (
-    lower.includes("null") ||
-    lower.includes("undefined") ||
-    lower.includes("not an object") ||
-    lower.includes("not a child of this node")
-  );
-}
+// React DOM removeChild/insertBefore failures remain observable. A message
+// alone cannot distinguish an extension mutation from a first-party defect.
 
 /** Supabase Realtime WebSocket blocked by browser privacy settings — not a product bug. */
 export function isBenignWebSocketError(message: string): boolean {
@@ -239,7 +224,6 @@ export function isBenignNavigationAbortError(message: string): boolean {
 /** Shared text heuristics for $exception and error-boundary reporting. */
 export function isBenignExceptionMessage(message: string): boolean {
   return (
-    isBenignReactDomTeardownError(message) ||
     isBenignWebSocketError(message) ||
     isBenignResizeObserverLoopError(message) ||
     isBenignAdSenseTagError(message) ||

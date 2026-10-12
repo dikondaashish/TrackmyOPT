@@ -4,15 +4,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertCircle, FileText } from "lucide-react";
 
 import previewAssets from "@/lib/documents/template-preview-assets.json";
-import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
+import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 
 type PdfPage = { pageNumber: number; width: number; height: number };
 
-async function destroyPdfDocument(document: PDFDocumentProxy | null): Promise<void> {
-    const destroy = (document as (PDFDocumentProxy & {
-        destroy?: () => void | Promise<void>;
-    }) | null)?.destroy;
-    if (destroy) await destroy.call(document);
+async function destroyPdfLoadingTask(task: PDFDocumentLoadingTask | null): Promise<void> {
+    try {
+        await task?.destroy();
+    } catch (error) {
+        // Closing/replacing a preview intentionally cancels PDF.js work.
+        if (!(error instanceof Error && error.name === "RenderingCancelledException")) {
+            console.error("[TemplatePdfPreview] document cleanup failed");
+        }
+    }
 }
 
 interface TemplatePdfPreviewProps {
@@ -136,6 +140,7 @@ export function TemplatePdfPreview({
     useEffect(() => {
         let cancelled = false;
         const generation = ++generationRef.current;
+        let loadingTask: PDFDocumentLoadingTask | null = null;
 
         (async () => {
             setStatus("loading");
@@ -148,13 +153,12 @@ export function TemplatePdfPreview({
                 const pdfjs = await loadPdfjs();
                 if (cancelled || generation !== generationRef.current) return;
 
-                const doc = await pdfjs.getDocument({ data: buffer }).promise;
+                loadingTask = pdfjs.getDocument({ data: buffer });
+                const doc = await loadingTask.promise;
                 if (cancelled || generation !== generationRef.current) {
-                    await destroyPdfDocument(doc);
                     return;
                 }
 
-                void destroyPdfDocument(pdfDocRef.current);
                 pdfDocRef.current = doc;
 
                 onPageCountRef.current?.(doc.numPages);
@@ -170,9 +174,9 @@ export function TemplatePdfPreview({
                 if (cancelled || generation !== generationRef.current) return;
                 setPages(list);
                 setStatus("ready");
-            } catch (err) {
+            } catch {
                 if (!cancelled && generation === generationRef.current) {
-                    console.error("[TemplatePdfPreview]", err);
+                    console.error("[TemplatePdfPreview] document load failed");
                     setStatus("error");
                 }
             }
@@ -180,6 +184,9 @@ export function TemplatePdfPreview({
 
         return () => {
             cancelled = true;
+            if (pdfDocRef.current?.loadingTask === loadingTask) pdfDocRef.current = null;
+            // Stop pending loads as well as completed documents when closing/replacing.
+            void destroyPdfLoadingTask(loadingTask);
         };
     }, [templateId, maxPages, attempt]);
 
@@ -215,9 +222,9 @@ export function TemplatePdfPreview({
 
     useEffect(() => {
         let cancelled = false;
-        void paint(() => cancelled).catch((error) => {
+        void paint(() => cancelled).catch(() => {
             if (!cancelled) {
-                console.error("[TemplatePdfPreview] render", error);
+                console.error("[TemplatePdfPreview] page render failed");
                 setStatus("error");
             }
         });
@@ -228,14 +235,6 @@ export function TemplatePdfPreview({
         };
     }, [paint]);
 
-    useEffect(() => {
-        return () => {
-            if (pdfDocRef.current) {
-                void destroyPdfDocument(pdfDocRef.current);
-                pdfDocRef.current = null;
-            }
-        };
-    }, []);
 
     return (
         <div ref={containerRef} className="w-full">
