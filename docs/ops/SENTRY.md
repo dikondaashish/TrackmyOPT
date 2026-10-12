@@ -61,6 +61,30 @@ The organization also contains `zyene-reviews` for Zyene Reviews. Keep the
 products' DSNs and Vercel upload credentials separate. TrackMyOPT's numeric
 project ID is `4512234317938688`; renaming its slug does not change the DSN.
 
+## Session, image, and extension recovery
+
+The October 12 [TrackMyOPT issue review](SENTRY_ISSUE_REMEDIATION_2026-10-12.md)
+covers only project `4512234317938688`. The locked `@supabase/auth-js@2.75.0`
+has a pnpm patch that validates primitive/array storage before user hydration,
+clears malformed session and user cookies with a fixed diagnostic, and preserves
+an in-progress OAuth PKCE verifier. It also guards browser URL access during
+server initialization. Keep the patch when updating dependencies until the
+upstream implementation and regression tests verify the same recovery. The
+proxy batches cookie updates and preserves every updated/deleted chunk on both
+normal responses and redirects.
+
+Retryable refresh-network failures keep the existing session and remain
+reportable. The SDK already retries transient fetch failures; do not convert
+provider outages into successful authentication or suppress their reports.
+
+Blog covers report optimizer failures, retry the original static image, then
+use a static fallback. If both originals and fallback fail, the layout retains
+an accessible placeholder and reports each failure with a fixed message.
+Dashboard extension messaging consumes callback errors and rejected promises;
+expected missing/closed contexts are normal detection outcomes. Unexpected
+bridge failures and open-tool timeouts use fixed error reports. The extension's
+own background runtime still has the coverage limitation described above.
+
 ## Free-plan requirement
 
 The owner requires the free Developer plan (recorded 2026-10-10). Keep the
@@ -111,6 +135,8 @@ disabled. The shared `beforeSend` filter also removes custom scope data,
 attachments, request URLs, and source context. It redacts known sensitive
 patterns in error messages, including email addresses, receipt numbers,
 credentials, billing IDs, UUIDs, and URL credentials/queries/fragments.
+Serialized object/array payloads, including truncated session JSON, are removed
+wholesale from diagnostic text while preserving the message prefix and stack.
 
 Keep applicant details out of error strings: pattern filtering cannot recognize
 every possible personal value. Privacy disclosure lives in `/privacy` and

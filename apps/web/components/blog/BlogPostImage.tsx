@@ -23,10 +23,28 @@ export function BlogPostImage({
   priority,
   preload,
 }: BlogPostImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [failure, setFailure] = useState<{
+    src: string;
+    stage: 'original' | 'fallback' | 'unavailable';
+  } | null>(null);
+  const stage = failure?.src === src ? failure.stage : 'optimized';
+  const imgSrc = stage === 'fallback' ? FALLBACK : src;
+
+  if (stage === 'unavailable') {
+    return (
+      <div
+        role="img"
+        aria-label={alt}
+        className={`absolute inset-0 flex items-center justify-center bg-gray-100 text-sm text-gray-500 dark:bg-zinc-800 dark:text-gray-400 ${className ?? ''}`}
+      >
+        Cover unavailable
+      </div>
+    );
+  }
 
   return (
     <Image
+      key={`${src}:${stage}`}
       src={imgSrc}
       alt={alt}
       fill
@@ -34,11 +52,20 @@ export function BlogPostImage({
       preload={preload}
       className={className}
       sizes={sizes}
+      unoptimized={stage !== 'optimized'}
       onError={() => {
         Sentry.captureException(new Error('Blog cover image failed to load'), {
           tags: { feature: 'blog-cover-image' },
         });
-        if (imgSrc !== FALLBACK) setImgSrc(FALLBACK);
+        setFailure({
+          src,
+          stage:
+            stage === 'optimized'
+              ? 'original'
+              : stage === 'original' && src !== FALLBACK
+                ? 'fallback'
+                : 'unavailable',
+        });
       }}
     />
   );
