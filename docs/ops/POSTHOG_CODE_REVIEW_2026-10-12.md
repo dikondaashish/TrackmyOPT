@@ -7,6 +7,20 @@ for every group, including vendor frames. Also inspected all 17 historical event
 the newest React #418 group. No issue status, suppression, billing, project,
 Vercel, or Render settings were changed in this review.
 
+A follow-up review against main `88270797c9ba265f4ee66db7bf72bc1055ce67d5`
+returned the same 81 groups. For the 58 groups with unresolved attribution,
+reviewed the original stored frame origins across all 976 events, rather than
+only the latest/first 20 samples. Those events contain a single exception each.
+This covers 491 Safari recursion events, 197 hydration events, 193 DOM mutation
+events, 67 JSON-LD reader events, 20 anonymous exceptions, and 8 network failures.
+The full-frame query returned 256 distinct issue/source/function/failure rows,
+below its 2,000-row limit; exceptions without frames were counted separately.
+No hidden application frames were recovered for the Safari or anonymous errors.
+The three retired React chunk filenames returned no matching symbol-set
+references; stored resolution failures also report missing maps. Current
+TrackMyOPT release maps are present in PostHog, but cannot identify page-only
+historical frames.
+
 A resolved/suppressed label and an old bundle are not evidence of a root-cause
 fix. The table below retains every issue ID and separates source repairs from
 historical attribution limits. No person/session identifiers, response bodies,
@@ -36,10 +50,26 @@ applicant data, or replay content are included.
   old destroy path; a loading-task test reproduced pending loads not being
   destroyed on close. The installed SDK requires the loading-task API. The selectable editor already consumes its
   paint and document-cleanup cancellations; its regression tests were retained.
+- **Job-tracker dates (follow-up):** four real SSR/hydration regressions were
+  reproduced with server HTML from September 30 and a browser date of October 1:
+  card relative labels, follow-up counts, calendar month, and table follow-ups.
+  Reuse the existing post-hydration date hook so their first render is stable;
+  compute visitor-local labels/counts afterward. Calendar navigation and Today
+  still work. Parse date-only follow-ups as local calendar dates and use calendar
+  day differences, keeping Today/Overdue badges and filters consistent in western
+  time zones. This repairs reachable bugs; framework-only historical stacks do
+  not prove that these components caused every recorded #418 occurrence.
+- **Drag instructions (follow-up):** the full job-tracker board also reproduced
+  an attribute mismatch after earlier server renders. dnd-kit's module counter
+  emitted different `aria-describedby` IDs during hydration, and React retained
+  the stale server attribute. Supply React's stable `useId` to the drag context;
+  a real-board test verifies the card still references the rendered instructions.
+  The same test blocks storage reads/writes and confirms the table view works.
 - **Unavailable storage:** consent/login/referral already use safe storage.
   Dashboard sidebar bootstrap and toggle still touched `localStorage` directly;
   route both through the same tested safe storage helpers so null/locked storage
-  does not crash the shell.
+  does not crash the shell. The follow-up also guards the job tracker's saved-view
+  read/write through those helpers, preserving view changes when storage is blocked.
 - **React DOM diagnostics:** remove the blanket removeChild/insertBefore message
   filter. These historical events have React bundle frames and no evidence
   proving an extension caused them. Keep future exceptions and boundary reports
@@ -65,8 +95,10 @@ sufficient source evidence. Leave these unverified and observable.
 
 The newest #418 group includes dashboard/jobs/job-tracker, blog, OPT dates,
 pricing, and six clock events. The clock cause is reproduced and fixed, but that
-fix does not explain the older non-clock events. Other #418 groups show React
-internals or retired chunks only. The dashboard's initial sidebar state, promo
+fix does not explain the older non-clock events. Additional job-tracker date
+and drag-instruction mismatches are now reproduced and repaired, without
+attributing every historical event to those components. Other #418 groups show
+React internals or retired chunks only. The dashboard's initial sidebar state, promo
 banner's first render, and pricing render are deterministic in inspected code.
 Current tests/build cannot prove all historical hydration causes fixed.
 
@@ -86,6 +118,8 @@ requested. Sentry sampling, privacy filters, plan, and alerts are unchanged.
 
 ## Local validation
 
+Initial review:
+
 - Full web unit suite: 307 files / 2,084 tests passed before the final three
   resize/diagnostic/pending-load tests were added. Final focused checks: nine
   files / 84 tests passed, including Sentry privacy and storage/consent tests.
@@ -99,6 +133,21 @@ requested. Sentry sampling, privacy filters, plan, and alerts are unchanged.
 - Delivery requires the protected GitHub CI and Playwright jobs to pass. Their
   final results are recorded on the pull request; no hosting checks are included.
 
+Follow-up review:
+
+- Full web suite: 310 files / 2,095 tests passed. All eight new job-tracker
+  regressions also passed in a separate `TZ=America/New_York` run; the default
+  UTC run caught the date/month hydration mismatches before their repair.
+- Production build passed, including TypeScript and 421 generated pages.
+  Full lint passed with existing warnings and zero errors. Changed/new paths
+  also passed focused lint. React Doctor: 91/100, no changed-file issues.
+- All 30 Playwright checks passed, including the two historical blog/login
+  routes in both Chromium and mobile WebKit. These local smoke checks do not
+  reconstruct Safari's historical browser environment or prove its original
+  recursion cause fixed.
+- No PostHog status/suppression changes or hosting actions were made. GitHub's
+  required CI and Playwright checks must pass before delivery to protected main.
+
 ## Complete issue inventory
 
 Counts are issue groups, not unique root causes. IDs map directly to the original
@@ -107,7 +156,7 @@ PostHog view. “Mitigation” does not mean every historical occurrence is expl
 | Family | Groups | Code disposition |
 | --- | ---: | --- |
 | Brave wallet injection | 1 | Existing exact external signature filter; no wallet integration |
-| React hydration | 16 | Clock mitigation verified; other historical causes unverified |
+| React hydration | 16 | Clock and job-tracker date causes reproduced/repaired; individual historical causes remain unverified |
 | ResizeObserver notifications | 2 | Existing browser notification filter; no source attribution |
 | AdSense slot sizing/duplicates | 6 | Actual-slot sizing and synchronous queue reservation repaired |
 | Safari recursion | 12 | Unverified; preserve reporting |
@@ -125,7 +174,7 @@ PostHog view. “Mitigation” does not mean every historical occurrence is expl
 | Navigation cancellation | 1 | Expected context teardown classification |
 | Extension global | 1 | External content-script signature |
 | Injected host bridge | 4 | Existing external bridge signature |
-| Unavailable local storage | 1 | Existing helper verified; dashboard consumers repaired |
+| Unavailable local storage | 1 | Existing helper verified; dashboard and job-tracker consumers repaired |
 
 ### Brave wallet injection
 

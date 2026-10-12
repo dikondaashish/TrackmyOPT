@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { JobApplication, JobStage } from "@/lib/career/job-tracker/types";
 import { CompanyLogo } from "./CompanyLogo";
+import { useClientDate } from "@/hooks/useClientDate";
 import { cn } from "@/lib/utils";
 import {
     ExternalLink,
@@ -53,6 +54,7 @@ export function JobTrackerTableView({
     onStageChange,
     onDelete
 }: JobTrackerTableViewProps) {
+    const clientDate = useClientDate();
     const [sortField, setSortField] = useState<SortField>("applied");
     const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
     const [editingStage, setEditingStage] = useState<string | null>(null);
@@ -158,7 +160,7 @@ export function JobTrackerTableView({
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
                         {sortedApplications.map((app) => {
-                            const followupBadge = app.next_follow_up_at
+                            const followupBadge = clientDate && app.next_follow_up_at
                                 ? getFollowupBadgeInfo(app.next_follow_up_at)
                                 : null;
                             const isOffer = app.status === "Offer";
@@ -241,7 +243,7 @@ export function JobTrackerTableView({
                                     <td className="px-4 py-3">
                                         <p className="text-sm text-gray-500 dark:text-gray-400">
                                             {app.applied_at
-                                                ? format(parseISO(app.applied_at), "MMM d, yyyy")
+                                                ? (clientDate ? format(parseISO(app.applied_at), "MMM d, yyyy") : "…")
                                                 : "—"
                                             }
                                         </p>
@@ -257,7 +259,7 @@ export function JobTrackerTableView({
                                                 followupBadge?.variant === "soon" && "text-yellow-600",
                                                 followupBadge?.variant === "none" && "text-gray-500 dark:text-gray-400"
                                             )}>
-                                                {getRelativeDate(app.next_follow_up_at)}
+                                                {clientDate ? getRelativeDate(app.next_follow_up_at) : "…"}
                                             </span>
                                         ) : (
                                             <span className="text-sm text-gray-400">—</span>
