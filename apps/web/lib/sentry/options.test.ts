@@ -116,6 +116,7 @@ describe('Sentry diagnostic privacy', () => {
       ...sentryOptions('https://public@example.com/1'),
       enabled: true,
       defaultIntegrations: false,
+      integrations: [Sentry.captureConsoleIntegration({ levels: ['error'] })],
       transport: () => ({
         send: async (envelope: unknown) => {
           envelopes.push(envelope);
@@ -130,10 +131,14 @@ describe('Sentry diagnostic privacy', () => {
       Sentry.captureException(
         new Error('Synthetic failure for applicant@example.com IOE1234567890')
       );
+      Sentry.captureException(new Error('Minified React error #418'));
+      console.error('OPT tools: failed to load saved dates');
     });
     expect(await Sentry.flush(2000)).toBe(true);
     const payload = JSON.stringify(envelopes);
     expect(payload).toContain('Synthetic failure');
+    expect(payload).toContain('Minified React error #418');
+    expect(payload).toContain('OPT tools: failed to load saved dates');
     expect(payload).not.toContain('applicant@example.com');
     expect(payload).not.toContain('IOE1234567890');
     expect(payload).not.toContain('private resume');

@@ -211,6 +211,73 @@ describe("shouldDropExceptionEvent", () => {
     ).toBe(false);
   });
 
+  it('drops the exact Brave iOS wallet-injection failure', () => {
+    expect(
+      shouldDropExceptionEvent({
+        $browser: 'Brave',
+        $os: 'iOS',
+        $exception_list: [
+          {
+            type: 'TypeError',
+            value:
+              "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+            stacktrace: {
+              frames: [
+                {
+                  source: '/blog/h1b-approval-rates-by-company',
+                  function: 'global code',
+                  lineno: 1,
+                  colno: 16,
+                },
+              ],
+            },
+          },
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it.each([
+    { $browser: 'Chrome', $os: 'iOS' },
+    { $browser: 'Brave', $os: 'Windows' },
+    {},
+    {
+      $browser: 'Brave',
+      $os: 'iOS',
+      $exception_list: [
+        {
+          value:
+            "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+          stacktrace: {
+            frames: [
+              {
+                filename:
+                  'https://www.trackmyopt.com/_next/static/chunks/app.js',
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      $browser: 'Brave',
+      $os: 'iOS',
+      $exception_list: [{ value: 'Failed to compile resume PDF' }],
+    },
+  ])(
+    'keeps wallet-like failures without browser-injection evidence: %j',
+    (properties) => {
+      expect(
+        shouldDropExceptionEvent({
+          $exception_values: [
+            "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+          ],
+          ...properties,
+        })
+      ).toBe(false);
+    }
+  );
+
   it("drops insertBefore teardown races alongside removeChild", () => {
     const message =
       "NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node.";

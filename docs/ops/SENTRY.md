@@ -29,6 +29,34 @@ An HTTP 200 response containing an application error still requires explicit
 
 Existing PostHog instrumentation and server console redaction remain active.
 
+The OPT/STEM tools report unexpected saved-date, plan-status, employment-history,
+and date-save failures with fixed diagnostic messages, including malformed or
+failed HTTP 200 responses. Expected 4xx outcomes and requests canceled by
+unmounting stay separate. Reports omit dates, employment records, response bodies,
+and rejected error contents.
+
+## Browser error triage
+
+React error #418 is a hydration mismatch and remains observable in both Sentry
+and PostHog. On October 12, 2026, both occurrences shown in PostHog were on
+`/tools/opt-clock`. The shared tool hook rendered the current local date during
+SSR; static HTML can retain the build date while the browser uses a later date
+or a different timezone. The hook now starts with an empty date, refreshes after
+hydration, and updates each minute and on focus. Regression checks hydrate HTML
+from a different day and exercise both public OPT/STEM clocks with a different
+browser date and timezone. This fixes that reproduced cause; other hydration
+causes still need investigation if they recur.
+
+The `window.ethereum.selectedAddress = undefined` TypeError shown on
+`/blog/h1b-approval-rates-by-company` came from Brave on iOS, with a page-only
+global-code stack. It matches [Brave's wallet-injection bug](https://github.com/brave/brave-browser/issues/58670);
+TrackMyOPT has no wallet integration. PostHog drops only the exact signature
+with Brave/iOS metadata and page-script evidence. Bundled errors, mixed product
+errors, and events without that evidence remain reportable. This classification
+does not change Sentry capture, alerts, sampling, or privacy settings, and does
+not remove historical events. Do not resolve an issue solely to clear the list;
+check its release, last occurrence, and post-deployment evidence first.
+
 The organization also contains `zyene-reviews` for Zyene Reviews. Keep the
 products' DSNs and Vercel upload credentials separate. TrackMyOPT's numeric
 project ID is `4512234317938688`; renaming its slug does not change the DSN.
