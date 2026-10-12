@@ -40,10 +40,13 @@ export function useToolDates() {
   const [attempt, setAttempt] = useState(0);
   const version = useRef(0);
   const saveLock = useRef(false);
-  const [today, setToday] = useState(localTodayISO);
+  // Static pages can outlive their build date. Keep SSR and the first browser
+  // render identical, then calculate the visitor's local date after hydration.
+  const [today, setToday] = useState('');
 
   useEffect(() => {
     const refresh = () => setToday(localTodayISO());
+    refresh();
     const timer = setInterval(refresh, 60_000);
     window.addEventListener('focus', refresh);
     return () => {
@@ -65,6 +68,10 @@ export function useToolDates() {
           if (!cancelled) setGuest(true);
           return;
         }
+        if (res.status >= 400 && res.status < 500) {
+          if (!cancelled) setLoadError(true);
+          return;
+        }
         if (!res.ok) throw new Error();
         const body = await res.json();
         if (!body.ok) throw new Error();
@@ -77,26 +84,29 @@ export function useToolDates() {
           setGuest(false);
         }
       } catch {
-        if (!cancelled) setLoadError(true);
+        if (!cancelled) {
+          console.error('OPT tools: failed to load saved dates');
+          setLoadError(true);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     void fetch('/api/premium/status', { credentials: 'include' })
       .then(async (res) => {
-        if (res.ok) {
-          const body = await res.json();
-          if (
-            !cancelled &&
-            typeof body.isPremium === 'boolean' &&
-            (!body.error || body.error === 'Not authenticated')
-          ) {
-            setPremium(body.isPremium);
-            setPremiumKnown(true);
-          }
+        if (cancelled || (res.status >= 400 && res.status < 500)) return;
+        if (!res.ok) throw new Error();
+        const body = await res.json();
+        if (body.error && body.error !== 'Not authenticated') throw new Error();
+        if (typeof body.isPremium !== 'boolean') throw new Error();
+        if (!cancelled) {
+          setPremium(body.isPremium);
+          setPremiumKnown(true);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) console.error('OPT tools: failed to load plan status');
+      });
     return () => {
       cancelled = true;
     };
@@ -131,6 +141,7 @@ export function useToolDates() {
     setSaving(true);
     setSaveError('');
     setSuccess(false);
+    let unexpectedFailure = true;
     try {
       const res = await fetch('/api/opt/calculator', {
         method: 'POST',
@@ -138,6 +149,7 @@ export function useToolDates() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
       });
+      unexpectedFailure = !(res.status >= 400 && res.status < 500);
       const body = await res.json();
       if (!res.ok || !body.ok)
         throw new Error(
@@ -151,6 +163,7 @@ export function useToolDates() {
       }));
       if (version.current === submittedVersion) setSuccess(true);
     } catch (error) {
+      if (unexpectedFailure) console.error('OPT tools: failed to save dates');
       setSaveError(
         error instanceof Error
           ? error.message

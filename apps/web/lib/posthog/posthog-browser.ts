@@ -147,6 +147,29 @@ export function isOpaqueCrossOriginScriptError(
   );
 }
 
+/** Brave iOS injects this assignment even when its wallet provider is absent.
+ * https://github.com/brave/brave-browser/issues/58670
+ * Require the browser/OS and page-script evidence; keep bundled or mixed errors.
+ */
+export function isBraveWalletInjectionError(
+  properties: Record<string, unknown> | undefined
+): boolean {
+  if (properties?.$browser !== 'Brave' || properties.$os !== 'iOS')
+    return false;
+  const message =
+    "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')";
+  const values = extractExceptionValues(properties);
+  const sources = extractExceptionFrameSources(properties);
+  return (
+    values.includes(message) &&
+    values.every((value) => value === message || value === 'TypeError') &&
+    sources.length > 0 &&
+    sources.every(
+      (source) => !/\/_next\/|turbopack:|\.[cm]?js(?:$|[?#])/i.test(source)
+    )
+  );
+}
+
 /**
  * Instagram / Facebook / iOS in-app browsers inject native bridges that call
  * `window.webkit.messageHandlers` on pagehide. Missing handlers throw TypeError
@@ -234,6 +257,7 @@ export function shouldDropExceptionEvent(
   const text = extractExceptionMessages(properties);
   return (
     isBenignExceptionMessage(text) ||
+    isBraveWalletInjectionError(properties) ||
     isBenignAdSenseNetworkError(properties) ||
     isOpaqueCrossOriginScriptError(properties)
   );
