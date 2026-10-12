@@ -1,5 +1,35 @@
 import { expect, test } from '@playwright/test';
 
+test('blog cover loads its static original when the image optimizer fails', async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.route('**/_next/image?**', (route) =>
+    route.fulfill({ status: 503, body: 'Synthetic image optimizer failure' })
+  );
+  await page.goto('/blog/opt-receipt-number-not-working', {
+    waitUntil: 'domcontentloaded',
+  });
+  const cover = page.getByRole('img', {
+    name: 'Illustration of a student checking an OPT receipt document with a magnifying glass.',
+    exact: true,
+  });
+  await expect(cover).toHaveAttribute(
+    'src',
+    /\/blog\/opt-receipt-number-not-working\.webp$/
+  );
+  await expect
+    .poll(() =>
+      cover.evaluate(
+        (image: HTMLImageElement) => image.complete && image.naturalWidth > 0
+      )
+    )
+    .toBe(true);
+  expect(errors).toEqual([]);
+});
+
 test('static policy route uses the same court update and dates as the article record', async ({
   page,
 }) => {
@@ -67,7 +97,17 @@ test('mobile reduced-motion reader can play and pause the explainer without hori
     'src',
     /\/blog\/flows\/address-change\.png$/
   );
-  await play.click();
+  // A server-rendered button is visible before React attaches its handler.
+  // Retry the real interaction until it produces the requested playing state.
+  await expect
+    .poll(
+      async () => {
+        if (await play.isVisible()) await play.click();
+        return figure.getByRole('button').getAttribute('aria-pressed');
+      },
+      { timeout: 15_000 }
+    )
+    .toBe('true');
   await expect(figure.locator('img')).toHaveAttribute(
     'src',
     /\/blog\/flows\/address-change\.gif$/

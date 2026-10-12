@@ -1,0 +1,89 @@
+diff --git a/dist/main/GoTrueClient.js b/dist/main/GoTrueClient.js
+index f6f8c0f5e2b1108923e06b5a068680ff1c28a389..835a3dbab2be3ff930ade8ca7dc65296f09d8ee9 100644
+--- a/dist/main/GoTrueClient.js
++++ b/dist/main/GoTrueClient.js
+@@ -202,7 +202,7 @@ class GoTrueClient {
+     async _initialize() {
+         var _a;
+         try {
+-            const params = (0, helpers_1.parseParametersFromURL)(window.location.href);
++            const params = (0, helpers_1.isBrowser)() ? (0, helpers_1.parseParametersFromURL)(window.location.href) : {};
+             let callbackUrlType = 'none';
+             if (this._isImplicitGrantCallback(params)) {
+                 callbackUrlType = 'implicit';
+@@ -1788,6 +1788,15 @@ class GoTrueClient {
+         this._debug(debugName, 'begin');
+         try {
+             const currentSession = (await (0, helpers_1.getItemAsync)(this.storage, this.storageKey));
++            // Reject corrupt persisted values without logging them or clearing PKCE.
++            if (currentSession !== null && (typeof currentSession !== 'object' || Array.isArray(currentSession))) {
++                console.error('Auth session storage was invalid; sign in again');
++                await (0, helpers_1.removeItemAsync)(this.storage, this.storageKey);
++                await (0, helpers_1.removeItemAsync)(this.storage, this.storageKey + '-user');
++                if (this.userStorage) await (0, helpers_1.removeItemAsync)(this.userStorage, this.storageKey + '-user');
++                await this._notifyAllSubscribers('SIGNED_OUT', null);
++                return;
++            }
+             if (currentSession && this.userStorage) {
+                 let maybeUser = (await (0, helpers_1.getItemAsync)(this.userStorage, this.storageKey + '-user'));
+                 if (!this.storage.isServer && Object.is(this.storage, this.userStorage) && !maybeUser) {
+diff --git a/dist/module/GoTrueClient.js b/dist/module/GoTrueClient.js
+index e2214e12f6cda3c6f2c367f1187c0fd8fcc7bd88..24666022c9f0b53ee3feecb703501079bdfdbb59 100644
+--- a/dist/module/GoTrueClient.js
++++ b/dist/module/GoTrueClient.js
+@@ -197,7 +197,7 @@ class GoTrueClient {
+     async _initialize() {
+         var _a;
+         try {
+-            const params = parseParametersFromURL(window.location.href);
++            const params = isBrowser() ? parseParametersFromURL(window.location.href) : {};
+             let callbackUrlType = 'none';
+             if (this._isImplicitGrantCallback(params)) {
+                 callbackUrlType = 'implicit';
+@@ -1783,6 +1783,15 @@ class GoTrueClient {
+         this._debug(debugName, 'begin');
+         try {
+             const currentSession = (await getItemAsync(this.storage, this.storageKey));
++            // Reject corrupt persisted values without logging them or clearing PKCE.
++            if (currentSession !== null && (typeof currentSession !== 'object' || Array.isArray(currentSession))) {
++                console.error('Auth session storage was invalid; sign in again');
++                await removeItemAsync(this.storage, this.storageKey);
++                await removeItemAsync(this.storage, this.storageKey + '-user');
++                if (this.userStorage) await removeItemAsync(this.userStorage, this.storageKey + '-user');
++                await this._notifyAllSubscribers('SIGNED_OUT', null);
++                return;
++            }
+             if (currentSession && this.userStorage) {
+                 let maybeUser = (await getItemAsync(this.userStorage, this.storageKey + '-user'));
+                 if (!this.storage.isServer && Object.is(this.storage, this.userStorage) && !maybeUser) {
+diff --git a/src/GoTrueClient.ts b/src/GoTrueClient.ts
+index 341d35ce018ec2655bceb10e4b4a7285a3e9d35f..b8b335ce5e341b99eb52ed1859b0838e36ccf9ea 100644
+--- a/src/GoTrueClient.ts
++++ b/src/GoTrueClient.ts
+@@ -400,7 +400,7 @@ export default class GoTrueClient {
+    */
+   private async _initialize(): Promise<InitializeResult> {
+     try {
+-      const params = parseParametersFromURL(window.location.href)
++      const params = isBrowser() ? parseParametersFromURL(window.location.href) : {}
+       let callbackUrlType = 'none'
+       if (this._isImplicitGrantCallback(params)) {
+         callbackUrlType = 'implicit'
+@@ -2456,6 +2456,17 @@ export default class GoTrueClient {
+     try {
+       const currentSession = (await getItemAsync(this.storage, this.storageKey)) as Session | null
+ 
++      // Corrupt cookie chunks can decode to a primitive. Never hydrate user
++      // fields or log that payload. Preserve a new OAuth flow's PKCE verifier.
++      if (currentSession !== null && (typeof currentSession !== 'object' || Array.isArray(currentSession))) {
++        console.error('Auth session storage was invalid; sign in again')
++        await removeItemAsync(this.storage, this.storageKey)
++        await removeItemAsync(this.storage, this.storageKey + '-user')
++        if (this.userStorage) await removeItemAsync(this.userStorage, this.storageKey + '-user')
++        await this._notifyAllSubscribers('SIGNED_OUT', null)
++        return
++      }
++
+       if (currentSession && this.userStorage) {
+         let maybeUser: { user: User | null } | null = (await getItemAsync(
+           this.userStorage,

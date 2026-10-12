@@ -9,6 +9,45 @@ afterEach(async () => {
 });
 
 describe('Sentry diagnostic privacy', () => {
+  it.each([
+    `Cannot create property 'user' on string '{"access_token":"synthetic-access","user_metadata":{"full_name":"Synthetic Person","provider_id":"synthetic-provider","avatar_url":"https://example.test/private-avatar"}}'`,
+    `Cannot create property 'user' on string '{"access_token":"synthetic-access","user_metadata":{"full_name":"Synthetic Person"`,
+    'Unexpected response: ["Synthetic Person", "synthetic-private-answer"]',
+  ])(
+    'removes serialized payloads from every diagnostic text field: %s',
+    (message) => {
+      const result = scrubSentryEvent(
+        {
+          type: undefined,
+          message,
+          logentry: { message },
+          exception: { values: [{ type: 'TypeError', value: message }] },
+        },
+        {}
+      );
+      const payload = JSON.stringify(result);
+      expect(payload).not.toContain('Synthetic Person');
+      expect(payload).not.toContain('synthetic-access');
+      expect(payload).not.toContain('synthetic-provider');
+      expect(payload).not.toContain('private-avatar');
+      expect(payload).not.toContain('synthetic-private-answer');
+      expect(payload).toContain('[REDACTED_PAYLOAD]');
+      expect(result.exception?.values?.[0].type).toBe('TypeError');
+    }
+  );
+
+  it('preserves diagnostic bracket labels and hydration errors', () => {
+    const result = scrubSentryEvent(
+      {
+        type: undefined,
+        message: '[Sentry] static trace lifecycle; Minified React error #418',
+      },
+      {}
+    );
+    expect(result.message).toBe(
+      '[Sentry] static trace lifecycle; Minified React error #418'
+    );
+  });
   it('removes private scope data, attachments, and source locals while preserving a useful stack', () => {
     const event: ErrorEvent = {
       type: undefined,

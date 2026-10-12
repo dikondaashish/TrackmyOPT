@@ -23,7 +23,7 @@
  * This proxy runs before page rendering.
  */
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { CRAWLER_NOINDEX_HEADERS, isSearchCrawler } from '@/lib/is-search-crawler';
 import { DEFAULT_POST_AUTH_PATH } from '@/lib/auth/post-auth-landing';
@@ -106,44 +106,18 @@ export async function proxy(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          // Set cookie on request for subsequent proxy/pages
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-          // Set cookie on response for browser
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          });
+        setAll(cookiesToSet) {
+          // Keep all refreshed/deleted chunks, including earlier auth batches.
+          const previousCookies = response.cookies.getAll();
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request: { headers: request.headers } });
+          previousCookies.forEach(cookie => response.cookies.set(cookie));
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
         },
       },
     }
@@ -159,12 +133,16 @@ export async function proxy(request: NextRequest) {
     // Redirect to login page with return URL so user can come back after login
     const loginUrl = new URL(isEmailAdminRoute ? '/admin/login' : '/login', request.url);
     if (!isEmailAdminRoute) loginUrl.searchParams.set('returnTo', pathname + request.nextUrl.search);
-    return NextResponse.redirect(loginUrl);
+    const redirect = NextResponse.redirect(loginUrl);
+    response.cookies.getAll().forEach(cookie => redirect.cookies.set(cookie));
+    return redirect;
   }
 
   // Auth route + authenticated = send them into case status (Phase 4 activation path)
   if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL(DEFAULT_POST_AUTH_PATH, request.url));
+    const redirect = NextResponse.redirect(new URL(DEFAULT_POST_AUTH_PATH, request.url));
+    response.cookies.getAll().forEach(cookie => redirect.cookies.set(cookie));
+    return redirect;
   }
 
   // Security headers (CSP, X-Frame-Options, etc.) are set site-wide in next.config.js

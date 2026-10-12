@@ -3,14 +3,27 @@ import { sanitize } from '@/lib/secure-logger';
 
 /** Remove URL credentials, queries, fragments, and private record identifiers. */
 function scrubText(value: string): string {
-  const withoutQueries = value.replace(/https?:\/\/[^\s"'<>]+/g, (value) => {
-    try {
-      const url = new URL(value);
-      return `${url.origin}${url.pathname}`;
-    } catch {
-      return '[REDACTED_URL]';
+  // SDK errors can embed entire serialized sessions, including truncated JSON.
+  // Redact the payload as a whole; field-pattern filtering cannot remove names,
+  // identity metadata, documents, or AI text whose contents we cannot predict.
+  const payloadStart = value.search(
+    /\{|\[(?=\s*(?:"|\{|\d|true\b|false\b|null\b))/
+  );
+  const diagnostic =
+    payloadStart < 0
+      ? value
+      : `${value.slice(0, payloadStart)}[REDACTED_PAYLOAD]`;
+  const withoutQueries = diagnostic.replace(
+    /https?:\/\/[^\s"'<>]+/g,
+    (value) => {
+      try {
+        const url = new URL(value);
+        return `${url.origin}${url.pathname}`;
+      } catch {
+        return '[REDACTED_URL]';
+      }
     }
-  });
+  );
   return String(sanitize(withoutQueries)).replace(
     /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
     '[REDACTED_ID]'
