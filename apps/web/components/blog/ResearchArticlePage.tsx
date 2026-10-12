@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   AlertTriangle,
@@ -15,6 +14,7 @@ import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import type { ResearchArticle } from '@/data/blog-series/types';
 import { AdSenseInArticle } from '@/components/blog/AdSenseInArticle';
 import { BlogFlowFigure } from '@/components/blog/BlogFlowFigure';
+import { BlogPostImage } from '@/components/blog/BlogPostImage';
 import styles from './ResearchArticlePage.module.css';
 
 const SITE = 'https://www.trackmyopt.com';
@@ -79,13 +79,12 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
 
       <figure className="mb-10">
         <div className="relative aspect-[1200/630] overflow-hidden rounded-2xl shadow-xl">
-          <Image
+          <BlogPostImage
             src={image}
             alt={
               article.imageAlt ??
               `International student reviewing documents for ${article.title}`
             }
-            fill
             preload
             sizes="(min-width: 768px) 896px, 100vw"
             className="object-cover"

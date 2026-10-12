@@ -3,8 +3,10 @@ import {
   fixedAdmissionLitigation,
 } from './editorial-refreshes';
 import { defineArticle, source, standardRelated } from './shared';
+import { octoberNewsArticles } from './october-news';
 
 export const currentUpdateArticles = [
+  ...octoberNewsArticles,
   defineArticle({
     slug: 'november-2026-visa-bulletin-predictions-opt-workers',
     title:
