@@ -40,5 +40,24 @@ five GIFs and their matching PNG posters. The shared blog figure starts on
 the poster and provides Play/Pause controls and accessible text steps.
 Temporary captures, caches and rendered intermediates remain untracked.
 
+## Verified exports
+
+All five flows passed the HyperFrames runtime, layout, motion and contrast
+checks with zero errors. The retained standalone layout produces one
+sub-composition advisory. The exported GIFs were decoded and inspected at
+1, 4 and 7 seconds; all stage copy and footer text stay in frame.
+
+| Asset | GIF bytes | PNG poster bytes | Duration |
+| --- | ---: | ---: | ---: |
+| `h1b-grace` | 127,140 | 50,308 | 9.0 seconds |
+| `h1b-fees` | 132,926 | 52,467 | 9.0 seconds |
+| `h1b-employer` | 132,459 | 52,807 | 9.0 seconds |
+| `tn-screening` | 128,191 | 53,053 | 9.0 seconds |
+| `perm-pause` | 143,182 | 55,179 | 9.0 seconds |
+
+Each output is 1200 × 600. Renders used screenshot capture with hardware
+GPU, one worker, then FFmpeg and Gifsicle compression. Production GIFs are
+far below the one-megabyte per-figure budget.
+
 The user authorized the completed blog assets, including their GIF renders,
 as part of this batch. Google indexing timing is independent of media export.
