@@ -15,10 +15,21 @@ const CRAWL_DISALLOW = [
     "/auth/reset-password",
 ] as const;
 
+// Crawlers must fetch these legacy URLs to discover their permanent redirects.
+// Exact matches keep the rest of /dashboard/ excluded from crawling.
+const CRAWL_ALLOW = [
+    "/",
+    "/dashboard/help$",
+    "/dashboard/opt-tools/opt-apply$",
+    "/dashboard/opt-tools/opt-clock$",
+    "/dashboard/opt-tools/stem-apply$",
+    "/dashboard/opt-tools/stem-clock$",
+] as const;
+
 function botRule(userAgent: string) {
     return {
         userAgent,
-        allow: ["/"],
+        allow: [...CRAWL_ALLOW],
         disallow: [...CRAWL_DISALLOW],
     };
 }
@@ -90,11 +101,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
         rules: [
             ...aiAndSearchBots.map(botRule),
-            {
-                userAgent: "*",
-                allow: ["/"],
-                disallow: [...CRAWL_DISALLOW],
-            },
+            botRule("*"),
         ],
     };
 }
