@@ -130,6 +130,13 @@ export function parseUSCISResponse(
   });
   const submitted =
     typeof value.submittedDate === 'string' ? value.submittedDate : '';
+  // USCIS documents this as changing on public AND internal/administrative events.
+  // Kept as an exact string to study later; it is not treated as a status change.
+  const modified =
+    typeof value.modifiedDate === 'string' &&
+    /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(value.modifiedDate.trim())
+      ? value.modifiedDate.trim()
+      : null;
   const date = submitted ? new Date(submitted.split(' ')[0]) : null;
   return {
     receiptNumber: expectedReceipt,
@@ -149,6 +156,7 @@ export function parseUSCISResponse(
         ? value.current_case_status_desc_en
         : '',
     histCaseStatus,
+    modifiedDate: modified,
   };
 }
 export async function fetchCaseStatus(
