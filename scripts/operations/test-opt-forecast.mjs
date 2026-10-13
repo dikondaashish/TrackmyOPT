@@ -66,8 +66,11 @@ try {
   await sql(
     read('../../supabase/migrations/20261013133431_opt_forecast_observations.sql')
   );
+  await sql(
+    read('../../supabase/migrations/20261013185730_opt_community_snapshot_on_change.sql')
+  );
   await sql(assertions);
-  console.log('PASS: private immutable history, temporal reads, deduplication, metadata revisions, job claims, deletion and receipt-change invalidation');
+  console.log('PASS: private immutable history, temporal reads, deduplication, metadata revisions, job claims, deletion and receipt-change invalidation, change-only community snapshots');
 } finally {
   await command(['rm', '-f', container]).catch(() => {});
 }

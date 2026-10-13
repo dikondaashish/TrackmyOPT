@@ -53,3 +53,25 @@ request and delivery response. A merge to main releases both web and API.
 Customer-facing survival estimates stay off until the separate out-of-sample
 review described in [the engine guide](OPT_FORECAST_ENGINE.md). The existing
 community estimator continues throughout evidence collection.
+
+## Post-release production check — October 13, 2026 (18:57 UTC)
+
+Aggregate, receipt-free reads of `deknauqkqqzwuvopqott`:
+
+- The release merged at 16:37 UTC, after that day's 14:00 USCIS batch and the
+  15:30 import, which therefore ran on the previous code. The first daily batch
+  and import on this code run on October 14.
+- One successful USCIS observation was recorded (a manual check at 17:39 UTC).
+- The 18:15 UTC refresh completed `ready` for `opt-aj-v1` with four cohort
+  curves, an empty backtest, `promotionEligible: false`, and one
+  `limited_data` forecast. `completed_at` holds the run's data cutoff, which is
+  why it precedes `created_at`.
+- No community snapshots yet. The import upserts about 3,640 rows per day,
+  and none had changed upstream in two days. Since the original trigger
+  snapshotted every upsert, forward migration `20261013185730` now records one
+  baseline per row and then only real changes. This avoids about 2 MB/day of
+  duplicates.
+- Policy: `uscis_training_authorized=true`, `promoted_model=NULL`. Database
+  size: 427,060,371 bytes. Daily USCIS observations (about 1,850 rows at about
+  0.5 KB each) remain the expected growth; measure it after several full days.
+- No unresolved Sentry issues in the preceding 24 hours.

@@ -87,7 +87,11 @@ export function VerifiedForecastPanel({
     forecast: Forecast | null;
     failed: boolean;
   } | null>(null);
-  const [utcDay, setUtcDay] = useState('');
+  // Start on today's UTC day so the first clock tick does not refetch (each
+  // forecast read is recorded as a shown forecast).
+  const [utcDay, setUtcDay] = useState(() =>
+    new Date().toISOString().slice(0, 10)
+  );
   useEffect(() => {
     // A clock subscription changes state only at a new UTC day; it makes no network
     // request during the other minute ticks and recovers after a sleeping tab.
