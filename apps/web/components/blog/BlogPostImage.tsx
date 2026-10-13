@@ -54,18 +54,20 @@ export function BlogPostImage({
       sizes={sizes}
       unoptimized={stage !== 'optimized'}
       onError={() => {
-        Sentry.captureException(new Error('Blog cover image failed to load'), {
-          tags: { feature: 'blog-cover-image' },
-        });
-        setFailure({
-          src,
-          stage:
-            stage === 'optimized'
-              ? 'original'
-              : stage === 'original' && src !== FALLBACK
-                ? 'fallback'
-                : 'unavailable',
-        });
+        const next =
+          stage === 'optimized'
+            ? 'original'
+            : stage === 'original' && src !== FALLBACK
+              ? 'fallback'
+              : 'unavailable';
+        // A single dropped request recovers through the next stage; report
+        // only when every source failed and the reader sees no cover.
+        if (next === 'unavailable')
+          Sentry.captureException(
+            new Error('Blog cover image failed to load'),
+            { tags: { feature: 'blog-cover-image' } }
+          );
+        setFailure({ src, stage: next });
       }}
     />
   );

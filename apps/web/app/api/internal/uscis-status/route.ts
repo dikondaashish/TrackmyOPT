@@ -11,6 +11,27 @@ const schema = z
     receiptNumber: z.string().regex(/^[A-Z]{3}\d{10}$/),
   })
   .strict();
+// Brief edge/network blips between Vercel and Render (~10s) should not fail a
+// case whose worker is healthy; retry the probe before giving up.
+const PROBE_ATTEMPTS = 3;
+const PROBE_TIMEOUT_MS = 5_000;
+const PROBE_RETRY_DELAY_MS = 1_000;
+async function workerReachable(workerUrl: string): Promise<boolean> {
+  for (let attempt = 1; attempt <= PROBE_ATTEMPTS; attempt++) {
+    try {
+      const health = await fetch(workerUrl, {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+      });
+      if (health.ok) return true;
+    } catch {
+      // Network failure or timeout; retried below.
+    }
+    if (attempt < PROBE_ATTEMPTS)
+      await new Promise((resolve) => setTimeout(resolve, PROBE_RETRY_DELAY_MS));
+  }
+  return false;
+}
 async function handlePOST(req: NextRequest) {
   const denied = verifyWorkerAuth(req);
   if (denied) return denied;
@@ -22,11 +43,10 @@ async function handlePOST(req: NextRequest) {
     // a batch longer than the Free instance's 15-minute idle window.
     const workerUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!workerUrl) throw new Error('Case worker URL missing');
-    const health = await fetch(workerUrl, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!health.ok) throw new Error('Case worker unavailable');
+    if (!(await workerReachable(workerUrl))) {
+      console.error('Internal daily case sync: worker unreachable');
+      return NextResponse.json({ ok: false }, { status: 503 });
+    }
     // Reuse the same persistence/date/notification flow as an initial or manual
     // check. A daily trigger never promotes the free user's display snapshot.
     const secret = process.env.CRON_SECRET;

@@ -52,9 +52,11 @@ describe('blog cover failures', () => {
       'src',
       '/blog/international-student-guidance-library-2026.png'
     );
+    // Recovered stages are not failures the reader can see.
+    expect(Sentry.captureException).not.toHaveBeenCalled();
     fireEvent.error(screen.getByRole('img'));
     expect(screen.getByRole('img')).toHaveTextContent('Cover unavailable');
-    expect(Sentry.captureException).toHaveBeenCalledTimes(3);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     for (const [error, context] of vi.mocked(Sentry.captureException).mock
       .calls) {
       expect(error).toBeInstanceOf(Error);

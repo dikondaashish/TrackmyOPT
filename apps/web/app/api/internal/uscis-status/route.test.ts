@@ -40,8 +40,31 @@ it('uses the complete persistence flow with an explicit daily trigger', async ()
   expect(delegated.headers.get('X-Internal-Secret')).toBe('synthetic-cron');
 });
 it('does not spend USCIS requests when the worker is unavailable', async () => {
-  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.useFakeTimers();
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {});
   m.fetch.mockResolvedValue(new Response(null, { status: 503 }));
-  expect((await POST(request())).status).toBe(503);
+  const pending = POST(request());
+  await vi.runAllTimersAsync();
+  expect((await pending).status).toBe(503);
+  expect(m.fetch).toHaveBeenCalledTimes(3);
   expect(m.sync).not.toHaveBeenCalled();
+  expect(error).toHaveBeenCalledWith(
+    'Internal daily case sync: worker unreachable'
+  );
+  vi.useRealTimers();
+});
+it('retries a transient worker probe failure before syncing', async () => {
+  vi.useFakeTimers();
+  m.fetch
+    .mockRejectedValueOnce(new TypeError('fetch failed'))
+    .mockResolvedValue(new Response(null, { status: 200 }));
+  m.sync.mockResolvedValue(
+    Response.json({ ok: true, data: { status: 'Approved' } })
+  );
+  const pending = POST(request());
+  await vi.runAllTimersAsync();
+  expect((await pending).status).toBe(200);
+  expect(m.fetch).toHaveBeenCalledTimes(2);
+  expect(m.sync).toHaveBeenCalledTimes(1);
+  vi.useRealTimers();
 });
