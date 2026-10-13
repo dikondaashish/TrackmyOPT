@@ -2,7 +2,11 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
-import { sentryOptions, scrubSentryEvent } from './options';
+import {
+  isForeignScriptEvent,
+  sentryOptions,
+  scrubSentryEvent,
+} from './options';
 
 afterEach(async () => {
   await Sentry.close();
@@ -201,5 +205,41 @@ describe('Sentry diagnostic privacy', () => {
     expect(payload).not.toContain('IOE1234567890');
     expect(payload).not.toContain('private resume');
     expect(envelopes.length).toBeGreaterThan(0);
+  });
+});
+
+describe('Sentry third-party script filtering', () => {
+  const withFrames = (...filenames: string[]): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'TypeError',
+          value: "Cannot read properties of null (reading 'postMessage')",
+          stacktrace: { frames: filenames.map((filename) => ({ filename })) },
+        },
+      ],
+    },
+  });
+
+  it('drops errors raised entirely by userscripts or extensions', () => {
+    expect(
+      isForeignScriptEvent(withFrames('<anonymous>', 'app:///userscript.html'))
+    ).toBe(true);
+    expect(
+      isForeignScriptEvent(withFrames('chrome-extension://abc/content.js'))
+    ).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(withFrames('app:///userscript.html'), {})).toBeNull();
+  });
+
+  it('keeps errors that involve first-party frames', () => {
+    expect(
+      isForeignScriptEvent(
+        withFrames('chrome-extension://abc/content.js', 'app:///_next/app.js')
+      )
+    ).toBe(false);
+    expect(isForeignScriptEvent(withFrames('<anonymous>'))).toBe(false);
+    expect(isForeignScriptEvent({ type: undefined, message: 'x' })).toBe(false);
   });
 });

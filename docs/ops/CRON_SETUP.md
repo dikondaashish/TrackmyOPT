@@ -103,3 +103,7 @@ Not a standing cron. Set `FREE_RECEIPT_REENGAGEMENT_ENABLED=true`, run until `re
 | **URL** | `https://www.trackmyopt.com/api/cron/posthog-partner-groups-sync` |
 | **Schedule** | Weekly (route comment suggests Monday 7:00 AM UTC) |
 | **Env** | `POSTHOG_PARTNER_GROUPS_SYNC_ENABLED=true` |
+
+Case syncing now includes every enrolled case, including free accounts and secondary
+cases. See [daily case sync](DAILY_CASE_SYNC.md) for display gating, refresh sequence,
+provider limits, retries, and monitoring.

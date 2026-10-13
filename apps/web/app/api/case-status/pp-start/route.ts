@@ -69,6 +69,7 @@ async function handlePATCH(req: NextRequest) {
       .from("case_status")
       .update({
         pp_start_date: isoDate,
+        reported_premium_start: isoDate,
         updated_at: new Date().toISOString(),
       })
       .eq("id", case_id)

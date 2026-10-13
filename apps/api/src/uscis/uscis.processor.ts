@@ -4,103 +4,18 @@ import * as Bull from 'bull';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { UscisService } from './uscis.service';
-import { isTerminalCase, checkFailureCode } from './check-schedule';
-import { reportPendingCaseEnrollmentFailure } from './pending-case-enrollment-observability';
+import { checkFailureCode } from './check-schedule';
 
-type StatusHistoryEntry = { status: string; date: string; description: string };
-
-function normalizeStatusText(value: string): string {
-  return value.toLowerCase().replace(/\s+/g, ' ').trim();
-}
-
-export function buildStatusHistoryFromUscis(
-  currentStatus: string,
-  currentDescription: string,
-  histCaseStatus: Array<{ date: string; completedText: string }>,
-): StatusHistoryEntry[] {
-  const sanitizedDescription = currentDescription.trim();
-
-  if (!histCaseStatus.length) {
-    if (!currentStatus.trim()) return [];
-    return [
-      {
-        status: currentStatus,
-        // Observation time is stored in last_checked_at, not an event date.
-        date: '',
-        description: sanitizedDescription || currentStatus,
-      },
-    ];
-  }
-
-  const mapped = histCaseStatus.map((item, index) => {
-    const isLatest = index === 0;
-    const matchesCurrent =
-      item.completedText === currentStatus ||
-      normalizeStatusText(item.completedText) ===
-        normalizeStatusText(currentStatus);
-    const useFullDescription =
-      isLatest && matchesCurrent && Boolean(sanitizedDescription);
-
-    return {
-      status: item.completedText,
-      date: item.date,
-      description: useFullDescription
-        ? sanitizedDescription
-        : item.completedText,
-    };
-  });
-
-  const latest = mapped[0];
-  const latestMatchesCurrent =
-    latest &&
-    (latest.status === currentStatus ||
-      normalizeStatusText(latest.status) ===
-        normalizeStatusText(currentStatus));
-
-  if (currentStatus.trim() && !latestMatchesCurrent) {
-    return [
-      {
-        status: currentStatus,
-        date: '',
-        description: sanitizedDescription || currentStatus,
-      },
-      ...mapped,
-    ];
-  }
-
-  if (sanitizedDescription && mapped.length > 0) {
-    mapped[0] = {
-      ...mapped[0],
-      status: currentStatus || mapped[0].status,
-      description: sanitizedDescription,
-    };
-  }
-
-  return mapped;
-}
-
-/**
- * Final status keywords — cases in these states will never change again.
- * Skipping them avoids wasting USCIS API quota.
- */
-
-/**
- * Circuit breaker for USCIS API outages.
- * After FAILURE_THRESHOLD consecutive API errors, we trip the circuit
- * and skip remaining jobs for COOLDOWN_MS to avoid burning retries.
- */
 const FAILURE_THRESHOLD = 5;
-const COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
+const COOLDOWN_MS = 2 * 60 * 1000;
+type CaseJob = Bull.Job<{ receiptNumber: string; userId: string }>;
 
 @Processor('uscis')
 export class UscisProcessor {
   private readonly logger = new Logger(UscisProcessor.name);
   private supabase: SupabaseClient;
-
-  // Circuit breaker state
   private consecutiveFailures = 0;
-  private circuitOpenUntil: number | null = null;
-
+  private circuitOpenUntil = 0;
   constructor(
     private readonly uscisService: UscisService,
     private readonly configService: ConfigService,
@@ -110,257 +25,87 @@ export class UscisProcessor {
       this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY') || '',
     ) as unknown as SupabaseClient;
   }
-
-  /**
-   * Dead letter handler — fires when a job exhausts all retries.
-   * Logs the failure for debugging so it doesn't silently disappear.
-   */
-  @OnQueueFailed()
-  async onFailed(
-    job: Bull.Job<{ receiptNumber: string; userId: string }>,
-    error: Error,
-  ) {
-    const { receiptNumber, userId } = job.data;
-    const isFinalFailure = job.attemptsMade >= (job.opts?.attempts || 1);
-
-    if (isFinalFailure) {
-      await this.recordSchedule(job, 'failed', checkFailureCode(error.message));
-      this.logger.error('USCIS case check exhausted its retries');
-
-      // Optionally update the case_status to reflect the failure
-      try {
-        const { error: updateError } = await this.supabase
-          .from('case_status')
-          .update({
-            last_check_failed_at: new Date().toISOString(),
-            last_check_error_code: checkFailureCode(error.message),
-            last_check_error_message:
-              'Automatic check could not complete after retries. Try a manual refresh.',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('receipt_number', receiptNumber)
-          .eq('user_id', userId);
-        if (updateError) throw new Error('USCIS case persistence failed');
-      } catch {
-        this.logger.error('USCIS failure bookkeeping failed');
-      }
-    } else {
-      this.logger.warn('USCIS case check will retry');
-    }
-  }
-
   @Process('check-status')
-  async handleCheckStatus(
-    job: Bull.Job<{ receiptNumber: string; userId: string }>,
-  ) {
-    const { receiptNumber, userId } = job.data;
-    await this.recordSchedule(job, 'running');
-    this.logger.log('USCIS case check started');
-
-    // ── Circuit Breaker: Skip if USCIS API is down ──
-    if (this.circuitOpenUntil && Date.now() < this.circuitOpenUntil) {
-      this.logger.warn('USCIS outage circuit is open');
-      throw new Error('USCIS_CIRCUIT_OPEN');
+  async handleCheckStatus(job: CaseJob) {
+    if (String(job.id).startsWith('daily-')) {
+      const { data, error } = await this.supabase
+        .from('case_check_jobs')
+        .select('state')
+        .eq('job_id', String(job.id))
+        .eq('user_id', job.data.userId)
+        .maybeSingle();
+      if (error) {
+        await this.reportFailure();
+        throw new Error('Could not read daily check outcome');
+      }
+      if (data?.state === 'succeeded')
+        return { skipped: true, reason: 'Daily check already completed' };
     }
-
+    await this.recordSchedule(job, 'running');
+    if (Date.now() < this.circuitOpenUntil)
+      throw new Error('USCIS_CIRCUIT_OPEN');
     try {
-      // ── Step 1: Smart Polling — Skip cases in final states ──
-      const { data: existingCase, error: fetchError } = await this.supabase
-        .from('case_status')
-        .select(
-          'id, current_status, last_checked_at, notifications_enabled, change_log',
-        )
-        .eq('receipt_number', receiptNumber)
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (fetchError) {
-        this.logger.error('USCIS enrolled case lookup failed');
-        throw new Error('USCIS enrolled case lookup failed');
-      }
-
-      if (!existingCase) return { skipped: true, reason: 'Tracking removed' };
-
-      if (existingCase?.current_status) {
-        const isFinalState = isTerminalCase(
-          String(existingCase.current_status),
-        );
-
-        if (isFinalState) {
-          await this.recordSchedule(job, 'cancelled');
-          this.logger.log('USCIS terminal case check skipped');
-          return { skipped: true, reason: 'Final State' };
-        }
-      }
-
-      // Delayed daily jobs re-check entitlement before calling USCIS.
-      if (String(job.id).startsWith('daily-')) {
-        const profile = await this.supabase
-          .from('profiles')
-          .select('premium_status')
-          .eq('user_id', userId)
-          .single();
-        if (profile.error)
-          throw new Error('Could not verify monitoring entitlement');
-        if (!profile.data?.premium_status) {
-          await this.recordSchedule(job, 'cancelled');
-          return { skipped: true, reason: 'Automatic monitoring disabled' };
-        }
-      }
-
-      // ── Step 2: Call USCIS API ──
+      // The authenticated web flow revalidates enrollment and ownership before
+      // USCIS, persistence and sending. This includes every tier and final status.
       const result = await this.uscisService.checkUSCISStatus(
-        receiptNumber,
-        userId,
+        job.data.receiptNumber,
+        job.data.userId,
       );
-
-      // ✅ Reset circuit breaker on success
       this.consecutiveFailures = 0;
-      this.circuitOpenUntil = null;
-
-      // ── Step 3: Detect status change ──
-      const isFirstCheck = existingCase && !existingCase.current_status;
-      const hasStatusChanged =
-        existingCase &&
-        existingCase.current_status !== null &&
-        existingCase.current_status !== String(result.status);
-
-      // ── Step 4: Transform history to match DB schema ──
-      const statusHistory = buildStatusHistoryFromUscis(
-        String(result.status),
-        String(result.description),
-        result.histCaseStatus,
+      this.circuitOpenUntil = 0;
+      await this.recordSchedule(
+        job,
+        result.skipped ? 'cancelled' : 'succeeded',
       );
-
-      // ── Step 5: Build change_log entry (our own changelog) ──
-      const existingChangelog = (
-        Array.isArray(existingCase?.change_log) ? existingCase.change_log : []
-      ) as Array<{
-        date: string;
-        old_status: string | null;
-        new_status: string;
-      }>;
-
-      if (hasStatusChanged) {
-        existingChangelog.push({
-          date: new Date().toISOString(),
-          old_status: existingCase.current_status
-            ? String(existingCase.current_status)
-            : null,
-          new_status: result.status,
-        });
+      return result;
+    } catch (error) {
+      if (error instanceof Error && /UPSTREAM_(404|422)/.test(error.message))
+        await job.discard();
+      if (
+        !(
+          error instanceof Error &&
+          /UPSTREAM_(400|404|422|429)/.test(error.message)
+        )
+      ) {
+        this.consecutiveFailures++;
+        if (this.consecutiveFailures >= FAILURE_THRESHOLD)
+          this.circuitOpenUntil = Date.now() + COOLDOWN_MS;
       }
-
-      // ── Step 6: Update database with correct column names ──
-      const updateData: Record<string, unknown> = {
-        current_status: result.status,
-        case_type: result.caseType,
-        received_date: result.receivedDate,
-        last_checked_at: new Date().toISOString(),
-        last_check_failed_at: null,
-        last_check_error_code: null,
-        last_check_error_message: null,
-        consecutive_failures: 0,
-        status_history: statusHistory,
-        change_log: existingChangelog,
-        updated_at: new Date().toISOString(),
-      };
-
-      // Only update last_status_change_at if status actually changed
-      if (isFirstCheck || hasStatusChanged) {
-        updateData.last_status_change_at = new Date().toISOString();
-      }
-
-      // Free-tier wedge: persist change moment when email alert is suppressed
-      if (hasStatusChanged && !isFirstCheck) {
-        const { data: profile } = await this.supabase
-          .from('profiles')
-          .select('premium_status')
-          .eq('user_id', userId)
-          .single();
-
-        const isPremium = profile?.premium_status === true;
-        if (!isPremium) {
-          updateData.status_last_changed_at = new Date().toISOString();
-          updateData.last_change_alert_suppressed = true;
-        }
-      }
-
-      const { data: updatedCase, error: updateError } = await this.supabase
-        .from('case_status')
-        .update(updateData)
-        .eq('id', existingCase.id)
-        .eq('user_id', userId)
-        .select('id')
-        .maybeSingle();
-
-      if (updateError) {
-        this.logger.error('USCIS case persistence failed');
-        throw new Error('USCIS case persistence failed');
-      }
-
-      if (!updatedCase) return { skipped: true, reason: 'Tracking removed' };
-      if (process.env.PENDING_CASE_EMAILS_ENABLED === 'true') {
-        try {
-          const enrollment = await this.supabase.rpc(
-            'record_pending_case_email_sequence',
-            {
-              p_user_id: userId,
-              p_case_id: String(existingCase.id),
-            },
-          );
-          if (enrollment.error)
-            throw new Error('Pending case email enrollment failed');
-        } catch {
-          this.logger.error('Pending case email enrollment failed');
-          const reported = await reportPendingCaseEnrollmentFailure(
-            this.configService.get<string>('CRON_SECRET'),
-          );
-          if (!reported)
-            this.logger.error(
-              'Pending case enrollment error report unavailable',
-            );
-        }
-      }
-
-      this.logger.log('USCIS case persistence completed');
-
-      // ── Step 7: Trigger email notification on status change (premium only) ──
-      if (hasStatusChanged && existingCase?.notifications_enabled) {
-        await this.triggerNotification(
-          userId,
-          receiptNumber,
-          String(existingCase.current_status),
-          String(result.status),
-        );
-      }
-
-      await this.recordSchedule(job, 'succeeded');
-
-      return {
-        receiptNumber,
-        status: result.status,
-        changed: hasStatusChanged,
-        isFirstCheck,
-      };
-    } catch (error: unknown) {
-      // ── Circuit Breaker: Track consecutive failures ──
-      this.consecutiveFailures++;
-      if (this.consecutiveFailures >= FAILURE_THRESHOLD) {
-        this.circuitOpenUntil = Date.now() + COOLDOWN_MS;
-        this.logger.error(
-          `[CIRCUIT BREAKER] Tripped after ${this.consecutiveFailures} consecutive failures. ` +
-            `Pausing all USCIS checks for ${COOLDOWN_MS / 1000}s.`,
-        );
-      }
-
-      this.logger.error('USCIS case check failed');
+      this.logger.warn(
+        `USCIS case sync failed (${checkFailureCode(error instanceof Error ? error.message : '')})`,
+      );
       throw error;
     }
   }
-
+  @OnQueueFailed()
+  async onFailed(job: CaseJob, error: Error) {
+    if (
+      job.attemptsMade < (job.opts.attempts || 1) &&
+      !/UPSTREAM_(404|422)/.test(error.message)
+    )
+      return;
+    try {
+      await this.recordSchedule(job, 'failed', checkFailureCode(error.message));
+      const { error: updateError } = await this.supabase
+        .from('case_status')
+        .update({
+          last_check_failed_at: new Date().toISOString(),
+          last_check_error_code: checkFailureCode(error.message),
+          last_check_error_message:
+            'Automatic check could not complete. Try a manual refresh.',
+        })
+        .eq('receipt_number', job.data.receiptNumber)
+        .eq('user_id', job.data.userId);
+      if (updateError) throw new Error('USCIS failure bookkeeping failed');
+    } catch {
+      this.logger.error('USCIS failure bookkeeping failed');
+      await this.reportFailure();
+    }
+    if (!/UPSTREAM_(400|404|422|429)/.test(error.message))
+      await this.reportFailure();
+  }
   private async recordSchedule(
-    job: Bull.Job<{ receiptNumber: string; userId: string }>,
+    job: CaseJob,
     state: string,
     errorCode: string | null = null,
   ) {
@@ -372,57 +117,35 @@ export class UscisProcessor {
         state,
         error_code: errorCode,
         ...(state === 'running'
-          ? { attempted_at: stamp }
+          ? { attempted_at: stamp, completed_at: null }
           : { completed_at: stamp }),
       })
       .eq('job_id', String(job.id))
       .eq('user_id', job.data.userId);
-    if (error) throw new Error('Could not record scheduled check outcome');
+    if (error) {
+      await this.reportFailure();
+      throw new Error('Could not record scheduled check outcome');
+    }
   }
-
-  /**
-   * Trigger a status change notification via the Next.js notify endpoint.
-   * Fire-and-forget — we don't block the worker on email delivery.
-   */
-  private async triggerNotification(
-    userId: string,
-    receiptNumber: string,
-    oldStatus: string,
-    newStatus: string,
-  ): Promise<void> {
-    const siteUrl =
+  private async reportFailure() {
+    const key = this.configService.get<string>('API_SECRET_KEY');
+    const site =
       this.configService.get<string>('NEXT_PUBLIC_SITE_URL') ||
-      'http://localhost:3001';
-    const cronSecret = this.configService.get<string>('CRON_SECRET');
-
-    if (!cronSecret) {
-      this.logger.error('USCIS notification secret missing');
+      'https://www.trackmyopt.com';
+    if (!key) {
+      this.logger.error('USCIS worker monitoring authentication missing');
       return;
     }
-
     try {
-      const response = await fetch(`${siteUrl}/api/case-status/notify`, {
+      const response = await fetch(`${site}/api/internal/case-worker-failure`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Internal-Secret': cronSecret,
-        },
-        body: JSON.stringify({
-          user_id: userId,
-          receipt_number: receiptNumber,
-          old_status: oldStatus,
-          new_status: newStatus,
-        }),
+        headers: { 'x-api-key': key },
+        signal: AbortSignal.timeout(5000),
       });
-
-      if (response.ok) {
-        this.logger.log('USCIS notification request completed');
-      } else {
-        this.logger.error('USCIS notification request failed');
-      }
+      if (!response.ok && response.status !== 429)
+        this.logger.error('USCIS worker error reporting unavailable');
     } catch {
-      this.logger.error('USCIS notification request failed');
-      // Don't throw — notification failure shouldn't fail the job
+      this.logger.error('USCIS worker error reporting unavailable');
     }
   }
 }

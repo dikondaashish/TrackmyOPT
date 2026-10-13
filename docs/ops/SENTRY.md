@@ -14,8 +14,11 @@ responses (4xx) do not create API-response issues. The separate ingestion API
 process and Chrome extension's own runtime do not run the Next.js SDK. The Render
 pending-case email enrollment catch sends a fixed, authenticated, body-free error
 signal to `/api/internal/pending-case-enrollment-failure`, where the web SDK
-captures and flushes it. This narrow bridge does not cover all ingestion API
-errors; its transport failures remain visible in Render logs. It accepts no
+captures and flushes it. The daily case worker also sends a fixed body-free signal to
+`/api/internal/case-worker-failure`, authenticated with the existing API key.
+Scheduled USCIS calls and persistence run through the monitored web sync flow.
+The daily cron reports failed/overdue jobs from the preceding day. These bridges
+do not cover all ingestion API errors; its transport failures remain visible in Render logs. It accepts no
 caller-supplied diagnostics or applicant data and limits repeated reports.
 
 When adding API handlers, export them through `withSentryApiErrors` with their
@@ -48,6 +51,23 @@ Sentry error reporting. The submit label survives browser translation and its
 date limit is set after hydration.
 
 ## Browser error triage
+
+### OPT forecast evidence and validation
+
+The forecast API and refresh cron use `withSentryApiErrors`; failed immutable
+observation writes fail the case check so its durable retry can recover the
+evidence. Model-read/write failures never publish a partial ready run. A daily
+sync still pending at the last forecast slot emits a fixed error message.
+Community partial-source failures are explicitly reported even when other
+sources succeed. Browser forecast failures use a fixed message and retain the
+historical comparison. No receipt, provider body or case dates enter these
+diagnostics. Expected limited evidence, source review, unauthorized access and
+ordinary waiting-for-sync states do not create issues.
+
+Model freshness and accuracy reports are stored in private database run records,
+not Sentry metrics. This does not add paid monitors, tracing, Replay or logs.
+Cron absence requires an external freshness check; a job that never executes
+cannot report itself. See [forecast operations](../predictions/OPT_FORECAST_ENGINE.md).
 
 React error #418 is a hydration mismatch and remains observable in both Sentry
 and PostHog. On October 12, 2026, both occurrences shown in PostHog were on

@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 type QueryRecord = {
   table: string;
   operation?: 'select' | 'update' | 'insert';
+  payload?: Record<string, unknown>;
   filters: Array<[string, unknown]>;
 };
 
@@ -11,10 +12,13 @@ const mocks = vi.hoisted(() => ({
   queries: [] as QueryRecord[],
   fetchCaseStatus: vi.fn(),
   removedAfterFetch: false,
+  profileMissing: false,
+  rpc: vi.fn().mockResolvedValue({ data: true, error: null }),
 }));
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
+    rpc: mocks.rpc,
     from(table: string) {
       const record: QueryRecord = { table, filters: [] };
       mocks.queries.push(record);
@@ -24,7 +28,8 @@ vi.mock('@supabase/supabase-js', () => ({
           record.operation ??= 'select';
           return query;
         },
-        update() {
+        update(payload: Record<string, unknown>) {
+          record.payload = payload;
           record.operation = 'update';
           return query;
         },
@@ -37,15 +42,26 @@ vi.mock('@supabase/supabase-js', () => ({
           return query;
         },
         maybeSingle: async () => ({
-          data: { id: 'case-row-a', user_id: 'user-a', current_status: null },
+          data:
+            table === 'profiles'
+              ? mocks.profileMissing
+                ? null
+                : { premium_status: false }
+              : { id: 'case-row-a', user_id: 'user-a', current_status: null },
           error: null,
         }),
         single: async () => ({
-          data: mocks.removedAfterFetch && table === 'case_status' ? null :
-            table === 'profiles'
-              ? { premium_status: false }
-              : { id: 'case-row-a', user_id: 'user-a', current_status: null },
-          error: null,
+          data:
+            (mocks.removedAfterFetch && table === 'case_status') ||
+            (mocks.profileMissing && table === 'profiles')
+              ? null
+              : table === 'profiles'
+                ? { premium_status: false }
+                : { id: 'case-row-a', user_id: 'user-a', current_status: null },
+          error:
+            mocks.profileMissing && table === 'profiles'
+              ? { code: 'PGRST116' }
+              : null,
         }),
       };
 
@@ -82,6 +98,8 @@ describe('POST /api/case-status/check row scoping', () => {
     mocks.queries.length = 0;
     mocks.fetchCaseStatus.mockReset();
     mocks.removedAfterFetch = false;
+    mocks.profileMissing = false;
+    mocks.rpc.mockReset().mockResolvedValue({ data: true, error: null });
     vi.stubEnv('CRON_SECRET', 'test-secret');
     vi.stubEnv('USCIS_MOCK', 'true');
     vi.stubEnv('VERCEL_ENV', 'development');
@@ -92,7 +110,7 @@ describe('POST /api/case-status/check row scoping', () => {
     vi.unstubAllEnvs();
   });
 
-  it('updates only the enrolled user\'s exact case row when receipt numbers are shared', async () => {
+  it("updates only the enrolled user's exact case row when receipt numbers are shared", async () => {
     const response = await POST(
       new NextRequest('http://localhost/api/case-status/check', {
         method: 'POST',
@@ -109,6 +127,7 @@ describe('POST /api/case-status/check row scoping', () => {
     );
 
     expect(response.status).toBe(200);
+    expect(mocks.rpc).not.toHaveBeenCalled();
 
     const caseUpdates = mocks.queries.filter(
       (query) => query.table === 'case_status' && query.operation === 'update'
@@ -124,6 +143,56 @@ describe('POST /api/case-status/check row scoping', () => {
       'receipt_number',
       'IOE9822487119',
     ]);
+  });
+
+  it('syncs an enrolled case without a profile using free behavior', async () => {
+    vi.stubEnv('USCIS_MOCK', 'false');
+    mocks.profileMissing = true;
+    mocks.fetchCaseStatus.mockResolvedValue({
+      success: true,
+      data: {
+        receiptNumber: 'IOE0000000001',
+        status: 'Case Was Received',
+        description: 'Case was received.',
+        caseType: 'I-765',
+        receivedDate: null,
+        histCaseStatus: [],
+      },
+    });
+    const response = await POST(
+      new NextRequest('https://example.test/api/case-status/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Secret': 'test-secret',
+          'X-Force-Refresh': 'true',
+          'X-Check-Trigger': 'daily',
+        },
+        body: JSON.stringify({
+          receipt_number: 'IOE0000000001',
+          user_id: 'user-a',
+        }),
+      })
+    );
+    expect(response.status).toBe(200);
+    const update = mocks.queries.find(
+      (q) => q.table === 'case_status' && q.operation === 'update'
+    );
+    expect(update?.payload).toMatchObject({
+      current_status: 'Case Was Received',
+    });
+    expect(update?.payload).not.toHaveProperty('free_visible_status');
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      'record_opt_case_observation',
+      expect.objectContaining({
+        p_case_id: 'case-row-a',
+        p_provider: expect.objectContaining({
+          status: 'Case Was Received',
+          events: [],
+        }),
+      })
+    );
+    expect(mocks.queries.some((q) => q.table === 'email_queue')).toBe(false);
   });
 
   it('scopes persisted USCIS failures to the same owned row', async () => {
@@ -152,7 +221,7 @@ describe('POST /api/case-status/check row scoping', () => {
       })
     );
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(503);
     const caseUpdates = mocks.queries.filter(
       (query) => query.table === 'case_status' && query.operation === 'update'
     );
@@ -168,14 +237,124 @@ describe('POST /api/case-status/check row scoping', () => {
     vi.stubEnv('USCIS_MOCK', 'false');
     mocks.fetchCaseStatus.mockImplementation(async () => {
       mocks.removedAfterFetch = true;
-      return { success: true, data: { status: 'Case Was Approved', description: 'Private status', histCaseStatus: [] } };
+      return {
+        success: true,
+        data: {
+          status: 'Case Was Approved',
+          description: 'Private status',
+          histCaseStatus: [],
+        },
+      };
     });
-    const response = await POST(new NextRequest('http://localhost/api/case-status/check', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Internal-Secret': 'test-secret', 'X-Force-Refresh': 'true' },
-      body: JSON.stringify({ receipt_number: 'IOE9822487119', user_id: 'user-a' }),
-    }));
-    expect(await response.json()).toEqual({ ok: true, skipped: true, reason: 'Tracking removed' });
-    expect(mocks.queries.filter(query => query.operation === 'update' || query.operation === 'insert')).toEqual([]);
+    const response = await POST(
+      new NextRequest('http://localhost/api/case-status/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Secret': 'test-secret',
+          'X-Force-Refresh': 'true',
+        },
+        body: JSON.stringify({
+          receipt_number: 'IOE9822487119',
+          user_id: 'user-a',
+        }),
+      })
+    );
+    expect(await response.json()).toEqual({
+      ok: true,
+      skipped: true,
+      reason: 'Tracking removed',
+    });
+    expect(
+      mocks.queries.filter(
+        (query) => query.operation === 'update' || query.operation === 'insert'
+      )
+    ).toEqual([]);
   });
+});
 
+it('does not claim success when immutable observation persistence fails', async () => {
+  mocks.queries.length = 0;
+  mocks.removedAfterFetch = false;
+  vi.stubEnv('USCIS_MOCK', 'false');
+  vi.stubEnv('CRON_SECRET', 'test-secret');
+  mocks.fetchCaseStatus.mockResolvedValue({
+    success: true,
+    data: {
+      status: 'Case Was Received',
+      description: '',
+      caseType: 'I-765',
+      receivedDate: null,
+      histCaseStatus: [],
+    },
+  });
+  mocks.rpc.mockResolvedValueOnce({
+    data: null,
+    error: { message: 'private database detail' },
+  });
+  const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => {});
+  const response = await POST(
+    new NextRequest('https://example.test/api/case-status/check', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': 'test-secret',
+        'X-Force-Refresh': 'true',
+        'X-Check-Trigger': 'daily',
+      },
+      body: JSON.stringify({
+        receipt_number: 'IOE0000000001',
+        user_id: 'user-a',
+      }),
+    })
+  );
+  expect(response.status).toBe(500);
+  expect(
+    mocks.queries.some(
+      (q) => q.table === 'case_status' && q.operation === 'update'
+    )
+  ).toBe(false);
+  expect(JSON.stringify(diagnostic.mock.calls)).not.toContain(
+    'private database detail'
+  );
+  diagnostic.mockRestore();
+});
+
+it('daily sync persists free data without changing the free display snapshot', async () => {
+  mocks.queries.length = 0;
+  mocks.removedAfterFetch = false;
+  vi.stubEnv('USCIS_MOCK', 'false');
+  vi.stubEnv('CRON_SECRET', 'test-secret');
+  mocks.fetchCaseStatus.mockResolvedValue({
+    success: true,
+    data: {
+      status: 'Case Was Approved',
+      description: 'Approved',
+      caseType: 'I-765',
+      receivedDate: null,
+      histCaseStatus: [],
+    },
+  });
+  const response = await POST(
+    new NextRequest('http://localhost/api/case-status/check', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': 'test-secret',
+        'X-Force-Refresh': 'true',
+        'X-Check-Trigger': 'daily',
+      },
+      body: JSON.stringify({
+        receipt_number: 'IOE0000000001',
+        user_id: 'user-a',
+      }),
+    })
+  );
+  expect(response.status).toBe(200);
+  const updates = mocks.queries.filter(
+    (q) => q.table === 'case_status' && q.operation === 'update'
+  );
+  expect(updates).toHaveLength(1);
+  expect(updates[0]?.payload?.current_status).toBe('Case Was Approved');
+  expect(updates[0]?.payload).not.toHaveProperty('free_visible_status');
 });

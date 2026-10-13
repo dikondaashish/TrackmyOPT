@@ -236,7 +236,6 @@ export function useCaseStatusController() {
   }, [deleteNotice]);
 
   // ── Supabase Realtime: Instant UI updates when cron updates DB ──
-  useCaseStatusRealtime(caseStatus, setCaseStatus);
 
   // Community processing-time estimate (partner timelines — not USCIS API).
   const {
@@ -249,7 +248,7 @@ export function useCaseStatusController() {
     communityStages,
     communityEstimateLoading,
     communityEvidence,
-  } = useCommunityEstimate(caseStatus, clientNowMs);
+  } = useCommunityEstimate(caseStatus, clientNowMs, isPremium === true);
 
   const filingCategoryPromptKey = caseStatus?.id
     ? `tmo_filing_prompt_dismissed_${caseStatus.id}`
@@ -304,56 +303,81 @@ export function useCaseStatusController() {
     }
   };
 
-  const loadCaseStatus = async (
-    isInitial = false,
-    preferredId?: string | null
-  ) => {
-    try {
-      const response = await fetch('/api/case-status', {
-        credentials: 'include',
-        cache: 'no-store',
-      });
+  const loadCaseStatus = useCallback(
+    async (isInitial = false, preferredId?: string | null) => {
+      try {
+        const response = await fetch('/api/case-status', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (!result.ok) {
-          reportReceiptEntryFailure('case_status', 'load', 'response');
-          setLoadError('Could not load your case status.');
+        if (response.ok) {
+          const result = await response.json();
+          if (!result.ok) {
+            reportReceiptEntryFailure('case_status', 'load', 'response');
+            setLoadError('Could not load your case status.');
+            return null;
+          }
+          if (typeof result.isPremium === 'boolean')
+            setIsPremium(result.isPremium);
+          const cases: CaseStatus[] = result.cases?.length
+            ? result.cases
+            : result.data
+              ? [result.data]
+              : [];
+          if (cases.length > 0) {
+            applyCasesToState(
+              cases,
+              preferredId !== undefined ? preferredId : selectedCaseId,
+              result.primaryCaseId
+            );
+            setLoadError(null);
+            return cases.find((c) => c.id === selectedCaseId) ?? cases[0];
+          }
+          setTrackedCases([]);
+          setCaseStatus(null);
+          setSelectedCaseId(null);
+          setLoadError(null);
           return null;
         }
-        const cases: CaseStatus[] = result.cases?.length
-          ? result.cases
-          : result.data
-            ? [result.data]
-            : [];
-        if (cases.length > 0) {
-          applyCasesToState(
-            cases,
-            preferredId !== undefined ? preferredId : selectedCaseId,
-            result.primaryCaseId
-          );
-          setLoadError(null);
-          return cases.find((c) => c.id === selectedCaseId) ?? cases[0];
-        }
-        setTrackedCases([]);
-        setCaseStatus(null);
-        setSelectedCaseId(null);
-        setLoadError(null);
+        // ISS-030: differentiate "no case" from "couldn't load"
+        setLoadError('Could not load your case status.');
         return null;
+      } catch {
+        reportReceiptEntryFailure('case_status', 'load', 'network');
+        setLoadError(
+          'Could not load your case status. Check your connection and try again.'
+        );
+        return null;
+      } finally {
+        if (isInitial) setIsInitialLoad(false);
       }
-      // ISS-030: differentiate "no case" from "couldn't load"
-      setLoadError('Could not load your case status.');
-      return null;
-    } catch {
-      reportReceiptEntryFailure('case_status', 'load', 'network');
-      setLoadError(
-        'Could not load your case status. Check your connection and try again.'
-      );
-      return null;
-    } finally {
-      if (isInitial) setIsInitialLoad(false);
-    }
-  };
+    },
+    [applyCasesToState, selectedCaseId]
+  );
+
+  const reloadVisibleCases = useCallback(() => {
+    void loadCaseStatus(false, selectedCaseId);
+  }, [loadCaseStatus, selectedCaseId]);
+  useCaseStatusRealtime(caseStatus, reloadVisibleCases, isPremium === true);
+
+  // Realtime may be unavailable on this account. Read our database only; never
+  // spend USCIS requests merely because a premium dashboard stays open.
+  useEffect(() => {
+    if (isPremium !== true) return;
+    const reload = () => {
+      if (document.visibilityState === 'visible')
+        void loadCaseStatus(false, selectedCaseId);
+    };
+    const timer = setInterval(reload, 60_000);
+    window.addEventListener('focus', reload);
+    document.addEventListener('visibilitychange', reload);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', reload);
+      document.removeEventListener('visibilitychange', reload);
+    };
+  }, [isPremium, loadCaseStatus, selectedCaseId]);
 
   const handleSave = async () => {
     setError(null);
