@@ -396,9 +396,6 @@ export function CaseStatusSection() {
                 emailAlertsEnabled={caseStatus.notifications_enabled}
                 emailAddress={notificationEmail}
                 onEditEmail={() => setIsEditingEmail(true)}
-                onUpgrade={
-                  isPremium === false ? () => openProTrialModal() : undefined
-                }
               />
               <NotificationDelivery
                 key={caseStatus.id + (caseStatus.last_checked_at ?? '')}
