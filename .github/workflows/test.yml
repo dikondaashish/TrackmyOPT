@@ -63,6 +63,9 @@ jobs:
       - name: Case retention PostgreSQL regression tests
         run: node scripts/operations/test-case-data-retention.mjs
 
+      - name: Daily case sync PostgreSQL regression tests
+        run: node scripts/operations/test-daily-case-sync.mjs
+
       - name: Pending case email PostgreSQL regression tests
         run: node scripts/operations/test-pending-case-email-sequence.mjs
 

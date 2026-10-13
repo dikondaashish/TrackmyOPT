@@ -17,7 +17,7 @@ describe("Case status paywall triggers", () => {
 
   it("uses trial CTA and canonical Free/Pro copy", () => {
     expect(PRODUCT_CTAS.startTrial).toMatch(/\$0\.99.*7 days/i);
-    expect(CASE_STATUS_MESSAGING.statusChangeHeadline).toMatch(/Alerts \+ daily/i);
+    expect(CASE_STATUS_MESSAGING.statusChangeHeadline).toMatch(/Automatic updates and email alerts/i);
     expect(CASE_STATUS_MESSAGING.receiptAddedNotice).toMatch(/Manual refresh/i);
     expect(CASE_STATUS_MESSAGING.trialCtaStrip).toMatch(/get pro/i);
     expect(CASE_STATUS_MESSAGING.freeProCanonical).toMatch(/Free:/);

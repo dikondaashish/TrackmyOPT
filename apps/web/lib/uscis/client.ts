@@ -1,17 +1,15 @@
-/**
- * Sole entry point for USCIS Case Status API HTTP calls in the Next.js app.
- * Every lookup runs the enrollment guard first (fail closed).
- */
-
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { assertReceiptEnrolledByUser } from "@/lib/uscis/enrollment-guard";
-import { UnauthorizedReceiptLookupError } from "@/lib/uscis/errors";
-import { sanitizeError, redactReceiptNumber, secureLog } from "@/lib/secure-logger";
-import type {
-  USCISHistoryItem,
-  USCISResult,
-  USCISStatus,
-} from "@/lib/immigration/uscis-checker";
+/** Sole USCIS HTTP entry point: enrollment, shared pacing/quota, timeouts and safe errors. */
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { assertReceiptEnrolledByUser } from '@/lib/uscis/enrollment-guard';
+import { UnauthorizedReceiptLookupError } from '@/lib/uscis/errors';
+import type { USCISResult, USCISStatus } from '@/lib/immigration/uscis-checker';
+import {
+  acquireUSCISRequest,
+  deferUSCISRequests,
+  providerRetryAfter,
+  USCISRateLimitError,
+  uscisEnvironment,
+} from './request-governor';
 
 export type FetchCaseStatusInput = {
   receiptNumber: string;
@@ -19,259 +17,211 @@ export type FetchCaseStatusInput = {
   callSite: string;
   supabase?: SupabaseClient;
 };
-
-interface USCISAPIResponse {
-  case_status: {
-    receiptNumber: string;
-    formType: string;
-    submittedDate: string;
-    modifiedDate: string;
-    current_case_status_text_en: string;
-    current_case_status_desc_en: string;
-    hist_case_status?: Array<{
-      date: string;
-      completed_text_en: string;
-    }>;
-  };
-  message: string;
-}
-
 let cachedToken: { token: string; expiresAt: number } | null = null;
-
-function getServiceSupabase(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) {
-    throw new UnauthorizedReceiptLookupError(
-      "Server misconfiguration: cannot verify receipt enrollment."
+class ProviderError extends Error {
+  constructor(
+    readonly code: number,
+    readonly retryAfter?: number
+  ) {
+    super(`USCIS upstream HTTP ${code}`);
+  }
+}
+function approvedEndpoint(value: string) {
+  const url = new URL(value);
+  if (
+    url.protocol !== 'https:' ||
+    !['api.uscis.gov', 'api-int.uscis.gov'].includes(url.hostname) ||
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash
+  )
+    throw new Error('Invalid USCIS endpoint configuration');
+  return url.toString().replace(/\/$/, '');
+}
+async function upstreamFetch(
+  db: SupabaseClient,
+  environment: string,
+  url: string,
+  init: RequestInit
+) {
+  await acquireUSCISRequest(db, environment);
+  const response = await fetch(url, {
+    ...init,
+    redirect: 'error',
+    signal: AbortSignal.timeout(25_000),
+  });
+  if (!response.ok) {
+    if (response.status === 401) cachedToken = null;
+    const seconds = providerRetryAfter(
+      response,
+      response.status === 401 || response.status === 403 ? 300 : 60
     );
+    if (
+      response.status === 429 ||
+      response.status >= 500 ||
+      [401, 403].includes(response.status)
+    )
+      await deferUSCISRequests(db, environment, seconds);
+    throw new ProviderError(response.status, seconds);
   }
-  return createClient(url, key);
+  return response;
 }
-
-async function getUSCISAccessToken(): Promise<string | null> {
-  try {
-    if (cachedToken && Date.now() < cachedToken.expiresAt) {
-      return cachedToken.token;
-    }
-
-    const clientId = process.env.USCIS_CLIENT_ID;
-    const clientSecret = process.env.USCIS_CLIENT_SECRET;
-    const tokenUrl =
-      process.env.USCIS_TOKEN_URL || "https://api.uscis.gov/oauth/accesstoken";
-
-    if (!clientId || !clientSecret) {
-      console.error("[USCIS] Missing USCIS_CLIENT_ID or USCIS_CLIENT_SECRET");
-      return null;
-    }
-
-    const response = await fetch(tokenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "client_credentials",
-        client_id: clientId,
-        client_secret: clientSecret,
-      }).toString(),
-    });
-
-    if (!response.ok) {
-      console.error(`[USCIS] OAuth failed with status ${response.status}`);
-      return null;
-    }
-
-    const data = await response.json();
-    const { access_token, expires_in } = data;
-
-    if (!access_token) {
-      console.error("[USCIS] No access_token in OAuth response");
-      return null;
-    }
-
-    cachedToken = {
-      token: access_token,
-      expiresAt: Date.now() + (expires_in - 300) * 1000,
-    };
-
-    return access_token;
-  } catch (error) {
-    console.error("[USCIS] OAuth error:", sanitizeError(error));
-    return null;
-  }
+async function accessToken(
+  db: SupabaseClient,
+  environment: string,
+  tokenUrl: string
+) {
+  if (cachedToken && cachedToken.expiresAt > Date.now())
+    return cachedToken.token;
+  const clientId = process.env.USCIS_CLIENT_ID;
+  const clientSecret = process.env.USCIS_CLIENT_SECRET;
+  if (!clientId || !clientSecret) throw new Error('USCIS credentials missing');
+  const response = await upstreamFetch(db, environment, tokenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+    }).toString(),
+  });
+  const data = await response.json();
+  if (
+    typeof data.access_token !== 'string' ||
+    !data.access_token ||
+    !Number.isFinite(Number(data.expires_in)) ||
+    Number(data.expires_in) <= 0
+  )
+    throw new Error('Invalid USCIS OAuth response');
+  cachedToken = {
+    token: data.access_token,
+    expiresAt: Date.now() + Math.max(1, Number(data.expires_in) - 60) * 1000,
+  };
+  return cachedToken.token;
 }
-
-function parseUSCISDate(dateString: string | null): string | null {
-  if (!dateString) return null;
-
-  try {
-    const parts = dateString.split(" ")[0].split("-");
-    if (parts.length !== 3) return null;
-
-    const [month, day, year] = parts;
-    const date = new Date(`${year}-${month}-${day}`);
-
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return null;
-  }
+/** Legacy and IOE responses share case_status; IOE may omit submittedDate/history. */
+export function parseUSCISResponse(
+  raw: unknown,
+  expectedReceipt: string
+): USCISStatus {
+  const value = (raw as { case_status?: Record<string, unknown> } | null)
+    ?.case_status;
+  if (
+    !value ||
+    value.receiptNumber !== expectedReceipt ||
+    typeof value.current_case_status_text_en !== 'string' ||
+    !value.current_case_status_text_en.trim()
+  )
+    throw new Error('Invalid USCIS case status response');
+  const history = value.hist_case_status;
+  if (history != null && !Array.isArray(history))
+    throw new Error('Invalid USCIS history response');
+  const histCaseStatus = (
+    (history as Array<Record<string, unknown>> | undefined) ?? []
+  ).map((item) => {
+    if (
+      !item ||
+      typeof item.date !== 'string' ||
+      typeof item.completed_text_en !== 'string'
+    )
+      throw new Error('Invalid USCIS history response');
+    return { date: item.date, completedText: item.completed_text_en };
+  });
+  const submitted =
+    typeof value.submittedDate === 'string' ? value.submittedDate : '';
+  const date = submitted ? new Date(submitted.split(' ')[0]) : null;
+  return {
+    receiptNumber: expectedReceipt,
+    status: value.current_case_status_text_en,
+    caseType: typeof value.formType === 'string' ? value.formType : '',
+    receivedDate:
+      date && Number.isFinite(date.getTime())
+        ? date.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            timeZone: 'UTC',
+          })
+        : null,
+    description:
+      typeof value.current_case_status_desc_en === 'string'
+        ? value.current_case_status_desc_en
+        : '',
+    histCaseStatus,
+  };
 }
-
-async function callUscisCaseStatusApi(
-  receiptNumber: string
-): Promise<USCISResult> {
-  try {
-    const accessToken = await getUSCISAccessToken();
-    if (!accessToken) {
-      return {
-        success: false,
-        error: {
-          code: 401,
-          message: "Authentication failed",
-          userMessage:
-            "Unable to connect to USCIS at this time. Please try again later.",
-          details: "Failed to obtain OAuth access token",
-        },
-      };
-    }
-
-    const baseUrl =
-      process.env.USCIS_API_BASE_URL || "https://api.uscis.gov/case-status";
-    const url = `${baseUrl}/${receiptNumber}`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      const errorMessage = errorData?.message || "Unknown error";
-
-      secureLog.error(
-        `[USCIS] ${response.status} for ${redactReceiptNumber(receiptNumber)}: ${errorMessage}`
-      );
-
-      if (response.status === 401) {
-        cachedToken = null;
-      }
-
-      switch (response.status) {
-        case 401:
-          return {
-            success: false,
-            error: {
-              code: 401,
-              message: errorMessage,
-              userMessage:
-                "Session expired. Please refresh the page and try again.",
-              details: "Access token is invalid or expired",
-            },
-          };
-        case 404:
-          return {
-            success: false,
-            error: {
-              code: 404,
-              message: errorMessage,
-              userMessage: `Case not found. USCIS does not recognize receipt number "${receiptNumber}". Please double-check the number and try again.`,
-              details: "Receipt number not found in USCIS system",
-            },
-          };
-        case 422:
-          return {
-            success: false,
-            error: {
-              code: 422,
-              message: errorMessage,
-              userMessage: `Invalid receipt number format. "${receiptNumber}" should be 13 characters: a 3-letter prefix followed by 10 digits (e.g., IOE1234567890).`,
-              details: "Receipt number format validation failed",
-            },
-          };
-        case 429:
-          return {
-            success: false,
-            error: {
-              code: 429,
-              message: errorMessage,
-              userMessage:
-                "Too many requests. Please wait a moment and try again.",
-              details: "USCIS API rate limit exceeded",
-            },
-          };
-        case 503:
-          return {
-            success: false,
-            error: {
-              code: 503,
-              message: errorMessage,
-              userMessage:
-                "USCIS service is temporarily unavailable. Please try again later.",
-              details: "USCIS API is temporarily unavailable",
-            },
-          };
-        default:
-          return {
-            success: false,
-            error: {
-              code: response.status,
-              message: errorMessage,
-              userMessage: `Unable to check case status (error ${response.status}). Please try again later.`,
-              details: `Unexpected HTTP ${response.status}`,
-            },
-          };
-      }
-    }
-
-    const data: USCISAPIResponse = await response.json();
-
-    const histCaseStatus: USCISHistoryItem[] = (
-      data.case_status.hist_case_status || []
-    ).map((item) => ({
-      date: item.date,
-      completedText: item.completed_text_en,
-    }));
-
-    const status: USCISStatus = {
-      receiptNumber: data.case_status.receiptNumber,
-      status: data.case_status.current_case_status_text_en,
-      caseType: data.case_status.formType,
-      receivedDate: parseUSCISDate(data.case_status.submittedDate),
-      description: data.case_status.current_case_status_desc_en,
-      histCaseStatus,
-    };
-
-    return { success: true, data: status };
-  } catch (error) {
-    console.error("[USCIS] Exception:", sanitizeError(error));
-    return {
-      success: false,
-      error: {
-        code: 500,
-        message: "Connection error",
-        userMessage:
-          "Unable to connect to USCIS. Please check your internet connection and try again.",
-        details: "Network or unexpected exception",
-      },
-    };
-  }
-}
-
 export async function fetchCaseStatus(
   input: FetchCaseStatusInput
 ): Promise<USCISResult> {
-  const supabase = input.supabase ?? getServiceSupabase();
-  const normalizedReceipt = await assertReceiptEnrolledByUser(supabase, {
+  const db =
+    input.supabase ??
+    createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  // Authorization failure propagates to callers; credentials remain untouched.
+  const receipt = await assertReceiptEnrolledByUser(db, {
     userId: input.userId,
     receiptNumber: input.receiptNumber,
     callSite: input.callSite,
   });
-
-  return callUscisCaseStatusApi(normalizedReceipt);
+  try {
+    const baseUrl = approvedEndpoint(
+      process.env.USCIS_API_BASE_URL || 'https://api.uscis.gov/case-status'
+    );
+    const tokenUrl = approvedEndpoint(
+      process.env.USCIS_TOKEN_URL || 'https://api.uscis.gov/oauth/accesstoken'
+    );
+    if (new URL(baseUrl).hostname !== new URL(tokenUrl).hostname)
+      throw new Error('USCIS endpoint environments differ');
+    const environment = uscisEnvironment(baseUrl);
+    const token = await accessToken(db, environment, tokenUrl);
+    const response = await upstreamFetch(
+      db,
+      environment,
+      `${baseUrl}/${receipt}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      }
+    );
+    return {
+      success: true,
+      data: parseUSCISResponse(await response.json(), receipt),
+    };
+  } catch (error) {
+    if (error instanceof UnauthorizedReceiptLookupError) throw error;
+    const code =
+      error instanceof USCISRateLimitError
+        ? 429
+        : error instanceof ProviderError
+          ? error.code
+          : 500;
+    const retryAfter =
+      error instanceof USCISRateLimitError || error instanceof ProviderError
+        ? error.retryAfter
+        : undefined;
+    if (![404, 422, 429].includes(code))
+      console.error(`[USCIS] Case status request failed (${code})`);
+    return {
+      success: false,
+      error: {
+        code,
+        retryAfter,
+        message: `USCIS request failed (${code})`,
+        userMessage:
+          code === 404
+            ? 'USCIS could not return this case. Check the receipt number; some protected cases are unavailable through the API.'
+            : code === 422
+              ? 'USCIS did not accept this receipt number.'
+              : code === 429
+                ? 'USCIS requests are temporarily paused. Please try again later.'
+                : 'Unable to connect to USCIS. Please try again later.',
+      },
+    };
+  }
 }

@@ -6,7 +6,10 @@ import { UscisService } from './uscis.service';
 jest.mock('@supabase/supabase-js', () => ({ createClient: jest.fn() }));
 
 describe('daily USCIS queue pagination', () => {
-  function setup(failPage = false) {
+  function setup(
+    failPage = false,
+    outcomes: { job_id: string; state: string }[] = [],
+  ) {
     const ranges: Array<[string, number]> = [];
     const from = jest.fn((table: string) => {
       const query = {
@@ -14,7 +17,7 @@ describe('daily USCIS queue pagination', () => {
         update: jest.fn().mockReturnThis(),
         in: jest.fn().mockReturnThis(),
         then: (resolve: (value: unknown) => unknown) =>
-          Promise.resolve({ error: null }).then(resolve),
+          Promise.resolve({ data: outcomes, error: null }).then(resolve),
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
@@ -51,23 +54,43 @@ describe('daily USCIS queue pagination', () => {
     return { service, addBulk, ranges };
   }
 
-  it('queues eligible cases beyond the first 1000 and pages premium users too', async () => {
+  it('queues every enrolled case beyond 1000 without querying plans', async () => {
     const { service, addBulk, ranges } = setup();
     await expect(service.queueAllActiveCases()).resolves.toEqual({
-      count: 1100,
-      skippedFree: 581,
+      count: 1681,
+      skippedFree: 0,
+      queued: 3362,
     });
     expect(ranges).toContainEqual(['case_status', 1000]);
-    expect(ranges).toContainEqual(['profiles', 1000]);
-    expect(addBulk.mock.calls[0][0]).toHaveLength(2200);
+    expect(ranges.some(([table]) => table === 'profiles')).toBe(false);
+    expect(addBulk.mock.calls[0][0]).toHaveLength(3362);
+  });
+
+  it('does not requeue completed daily checks, but recovers failures after repair', async () => {
+    const day = new Date().toISOString().slice(0, 10);
+    const done = `daily-case-0-${day}`;
+    const failed = `daily-case-1-${day}`;
+    const { service, addBulk } = setup(false, [
+      { job_id: done, state: 'succeeded' },
+      { job_id: failed, state: 'failed' },
+    ]);
+    const result = await service.queueAllActiveCases();
+    expect(result.queued).toBe(3361);
+    const jobs = addBulk.mock.calls[0][0] as {
+      opts: { jobId: string; backoff: { delay: number } };
+    }[];
+    expect(jobs.some((j) => j.opts.jobId === done)).toBe(false);
+    expect(jobs.some((j) => j.opts.jobId === failed)).toBe(true);
+    expect(jobs.every((j) => j.opts.backoff.delay >= 300000)).toBe(true);
   });
 
   it('dry run reads every page but does not queue or persist jobs', async () => {
     const { service, addBulk } = setup();
     expect(await service.queueAllActiveCases(true)).toEqual({
-      count: 1100,
-      skippedFree: 581,
+      count: 1681,
+      skippedFree: 0,
       dryRun: true,
+      queued: 0,
     });
     expect(addBulk).not.toHaveBeenCalled();
   });
@@ -82,6 +105,24 @@ describe('daily USCIS queue pagination', () => {
 });
 
 describe('case queue data retention', () => {
+  it('rebuilds inactive daily jobs with legacy retry and retention options', async () => {
+    const legacy = {
+      id: 'daily-existing-case-2026-10-12',
+      name: 'check-status',
+      data: { userId: 'owner', receiptNumber: 'IOE0000000001' },
+      opts: { backoff: { type: 'exponential', delay: 5000 } },
+      remove: jest.fn().mockResolvedValue(undefined),
+    };
+    const service = new UscisService(new ConfigService(), {
+      getJobs: jest.fn().mockResolvedValue([legacy]),
+    } as unknown as Queue);
+    expect(
+      await service.purgeUnenrolledJobs([
+        { user_id: 'owner', receipt_number: 'IOE0000000001' },
+      ]),
+    ).toBe(1);
+    expect(legacy.remove).toHaveBeenCalledTimes(1);
+  });
   it('removes failed/delayed legacy payloads only for missing enrollments', async () => {
     const removed = {
       name: 'check-status',

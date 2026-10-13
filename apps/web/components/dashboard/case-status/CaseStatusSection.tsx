@@ -160,17 +160,38 @@ export function CaseStatusSection() {
         <Card className="p-5">
           <h2 className="font-semibold">Set up your Pro case monitoring</h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
-            <li>{caseStatus ? 'Receipt added. Confirm this is the case you want monitored.' : 'Add your receipt below to begin scheduled checks.'}</li>
-            <li>{caseStatus?.notifications_enabled ? 'Status-change emails are enabled for this case.' : 'Enable status-change emails in Notification Settings.'}</li>
-            <li>Review your notification address so alerts reach the right inbox.</li>
+            <li>
+              {caseStatus
+                ? 'Receipt added. Confirm this is the case you want monitored.'
+                : 'Add your receipt below to begin scheduled checks.'}
+            </li>
+            <li>
+              {caseStatus?.notifications_enabled
+                ? 'Status-change emails are enabled for this case.'
+                : 'Enable status-change emails in Notification Settings.'}
+            </li>
+            <li>
+              Review your notification address so alerts reach the right inbox.
+            </li>
           </ol>
           {caseStatus && (
-            <button type="button" className="mt-3 min-h-11 text-sm font-medium text-blue-600 underline dark:text-blue-400" onClick={() => {
-              setIsEditingEmail(true);
-              document.getElementById('case-notification-settings')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }}>Review notification settings</button>
+            <button
+              type="button"
+              className="mt-3 min-h-11 text-sm font-medium text-blue-600 underline dark:text-blue-400"
+              onClick={() => {
+                setIsEditingEmail(true);
+                document
+                  .getElementById('case-notification-settings')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+            >
+              Review notification settings
+            </button>
           )}
-          <p className="mt-2 text-xs text-muted-foreground">Checks run daily. See the monitoring panel below for the last successful check and scheduled queue time.</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Checks run daily. See the monitoring panel below for the last
+            successful check and scheduled queue time.
+          </p>
         </Card>
       )}
 
@@ -280,9 +301,11 @@ export function CaseStatusSection() {
             formTypeMismatch={formTypeMismatch}
           />
 
-          {isPremium === false && clientNowMs !== null && isVerifiedPendingCase(caseStatus, clientNowMs) && (
-            <ProductEmailPreference compact />
-          )}
+          {isPremium === false &&
+            clientNowMs !== null &&
+            isVerifiedPendingCase(caseStatus, clientNowMs) && (
+              <ProductEmailPreference compact />
+            )}
 
           {/* ── 3. MAIN CASE HERO CARD ── */}
           {isEditingReceipt ? (
@@ -380,7 +403,7 @@ export function CaseStatusSection() {
           </CaseStatusPanelErrorBoundary>
 
           {/* ── 4b. PP Countdown (keep existing component) ── */}
-          {isOptCase && !formTypeMismatch && (
+          {isPremium === true && isOptCase && !formTypeMismatch && (
             <CaseStatusPanelErrorBoundary area="pp_countdown">
               <PremiumProcessingCountdown
                 caseId={caseStatus.id}
@@ -393,34 +416,39 @@ export function CaseStatusSection() {
           )}
 
           {/* ── 5. ANALYTICS SECTION ── */}
-          <Card className="p-4 sm:p-6 border-border shadow-sm">
-            <CaseStatusPanelErrorBoundary area="analytics">
-              <AnalyticsPanels
-                key={caseStatus.id}
-                receiptNumber={caseStatus.receipt_number}
-                isPremium={isPremium}
-                onUpgrade={() => openProTrialModal()}
-                daysSinceFiled={daysSinceFiled ?? 0}
-                prediction={communityPrediction ?? undefined}
-                summary={communitySummary}
-                evidence={communityEvidence?.evidence}
-                premiumUpgrade={communityEvidence?.premiumUpgrade}
-                currentStatus={caseStatus.current_status}
-                stages={communityStages}
-                phase={deriveJourneyPhase(caseStatus.current_status, safeStatusHistory)}
-                heatmap={communityHeatmap}
-                weeklyTrend={communityWeeklyTrend}
-                histogram={communityHistogram}
-                similarFiling={communitySimilarFiling}
-                receivedDate={caseStatus.received_date}
-                premiumProcessing={Boolean(caseStatus.pp_start_date)}
-                estimateLoading={communityEstimateLoading}
-                estimatesAvailable={isOptCase}
-                filingCategory={caseStatus.filing_category}
-                caseType={caseStatus.case_type}
-              />
-            </CaseStatusPanelErrorBoundary>
-          </Card>
+          {isPremium === true && (
+            <Card className="p-4 sm:p-6 border-border shadow-sm">
+              <CaseStatusPanelErrorBoundary area="analytics">
+                <AnalyticsPanels
+                  key={caseStatus.id}
+                  receiptNumber={caseStatus.receipt_number}
+                  isPremium={isPremium}
+                  onUpgrade={() => openProTrialModal()}
+                  daysSinceFiled={daysSinceFiled ?? 0}
+                  prediction={communityPrediction ?? undefined}
+                  summary={communitySummary}
+                  evidence={communityEvidence?.evidence}
+                  premiumUpgrade={communityEvidence?.premiumUpgrade}
+                  currentStatus={caseStatus.current_status}
+                  stages={communityStages}
+                  phase={deriveJourneyPhase(
+                    caseStatus.current_status,
+                    safeStatusHistory
+                  )}
+                  heatmap={communityHeatmap}
+                  weeklyTrend={communityWeeklyTrend}
+                  histogram={communityHistogram}
+                  similarFiling={communitySimilarFiling}
+                  receivedDate={caseStatus.received_date}
+                  premiumProcessing={Boolean(caseStatus.pp_start_date)}
+                  estimateLoading={communityEstimateLoading}
+                  estimatesAvailable={isOptCase}
+                  filingCategory={caseStatus.filing_category}
+                  caseType={caseStatus.case_type}
+                />
+              </CaseStatusPanelErrorBoundary>
+            </Card>
+          )}
 
           {/* ── 6. OPT JOURNEY SECTION ── */}
           {isOptCase && (

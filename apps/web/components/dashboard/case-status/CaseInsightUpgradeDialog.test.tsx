@@ -19,7 +19,7 @@ describe('CaseInsightUpgradeDialog', () => {
     );
 
     expect(
-      screen.getByText('Let TrackMyOPT check your case daily.')
+      screen.getByText('See daily updates automatically with Pro.')
     ).toBeInTheDocument();
     expect(screen.getByText(/you are 42 days in/i)).toHaveTextContent(
       '318 comparable community cases'

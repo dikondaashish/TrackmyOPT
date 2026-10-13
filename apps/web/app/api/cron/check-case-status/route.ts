@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
@@ -35,6 +36,22 @@ async function run(req: NextRequest) {
     }
 
     const dryRun = req.nextUrl.searchParams.get('dry_run') === '1';
+    if (!dryRun) {
+      const db = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      const stamp = Date.now();
+      const { count, error } = await db
+        .from('case_check_jobs')
+        .select('job_id', { count: 'exact', head: true })
+        .gte('scheduled_for', new Date(stamp - 26 * 3600_000).toISOString())
+        .lt('scheduled_for', new Date(stamp - 2 * 3600_000).toISOString())
+        .in('state', ['scheduling', 'queued', 'running', 'failed']);
+      if (error) console.error('Daily case worker health lookup failed');
+      else if (count)
+        console.error(`Daily case checks overdue or failed: ${count}`);
+    }
     const response = await fetch(
       `${apiUrl}/uscis/check-all${dryRun ? '?dry_run=1' : ''}`,
       {
@@ -63,7 +80,7 @@ async function run(req: NextRequest) {
       {
         ok: true,
         dryRun,
-        queued: dryRun ? 0 : result.count,
+        queued: dryRun ? 0 : (result.queued ?? result.count),
         eligible: result.count,
         message: dryRun ? 'No checks queued' : 'Batch job triggered',
         result,
@@ -79,4 +96,8 @@ async function run(req: NextRequest) {
   }
 }
 
-export const GET = withSentryApiErrors(handleGET, '/api/cron/check-case-status', 'GET');
+export const GET = withSentryApiErrors(
+  handleGET,
+  '/api/cron/check-case-status',
+  'GET'
+);

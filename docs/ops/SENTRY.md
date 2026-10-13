@@ -14,8 +14,11 @@ responses (4xx) do not create API-response issues. The separate ingestion API
 process and Chrome extension's own runtime do not run the Next.js SDK. The Render
 pending-case email enrollment catch sends a fixed, authenticated, body-free error
 signal to `/api/internal/pending-case-enrollment-failure`, where the web SDK
-captures and flushes it. This narrow bridge does not cover all ingestion API
-errors; its transport failures remain visible in Render logs. It accepts no
+captures and flushes it. The daily case worker also sends a fixed body-free signal to
+`/api/internal/case-worker-failure`, authenticated with the existing API key.
+Scheduled USCIS calls and persistence run through the monitored web sync flow.
+The daily cron reports failed/overdue jobs from the preceding day. These bridges
+do not cover all ingestion API errors; its transport failures remain visible in Render logs. It accepts no
 caller-supplied diagnostics or applicant data and limits repeated reports.
 
 When adding API handlers, export them through `withSentryApiErrors` with their

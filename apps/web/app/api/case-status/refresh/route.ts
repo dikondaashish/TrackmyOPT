@@ -2,131 +2,104 @@ import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 180;
+const headers = { 'Cache-Control': 'no-store' };
+const reply = (
+  body: unknown,
+  status = 200,
+  extra: Record<string, string> = {}
+) => NextResponse.json(body, { status, headers: { ...headers, ...extra } });
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Cache-Control': 'no-store',
-};
-
-/**
- * POST /api/case-status/refresh
- * Manually trigger a status check for one case (primary if omitted).
- */
 async function handlePOST(req: NextRequest) {
-  try {
-    const userId = await getUserId(req);
-
-    if (!userId) {
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized' },
-        { status: 401, headers: corsHeaders }
-      );
-    }
-
-    const body = await req.json().catch(() => ({}));
-    const caseId = typeof body.case_id === 'string' ? body.case_id : null;
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    let row: { receipt_number: string; last_checked_at: string | null } | null = null;
-
-    if (caseId) {
-      const { data } = await supabase
-        .from('case_status')
-        .select('receipt_number, last_checked_at')
-        .eq('user_id', userId)
-        .eq('id', caseId)
-        .maybeSingle();
-      row = data;
-    } else {
-      const { data: primary } = await supabase
-        .from('case_status')
-        .select('receipt_number, last_checked_at')
-        .eq('user_id', userId)
-        .eq('is_primary', true)
-        .maybeSingle();
-      row = primary;
-    }
-
-    if (!row) {
-      const { data: fallback } = await supabase
-        .from('case_status')
-        .select('receipt_number, last_checked_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      row = fallback;
-    }
-
-    if (!row) {
-      return NextResponse.json(
-        { ok: false, error: 'No case status found' },
-        { status: 404, headers: corsHeaders }
-      );
-    }
-
-    const COOLDOWN_MS = 5 * 60 * 1000;
-
-    if (row.last_checked_at) {
-      const lastChecked = new Date(row.last_checked_at).getTime();
-      const elapsed = Date.now() - lastChecked;
-      if (elapsed < COOLDOWN_MS) {
-        const remainingSec = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
-        return NextResponse.json(
-          {
-            ok: false,
-            error: `Please wait ${remainingSec} seconds before refreshing again`,
-            retryAfter: remainingSec,
-          },
-          { status: 429, headers: { ...corsHeaders, 'Retry-After': String(remainingSec) } }
-        );
-      }
-    }
-
-    const checkResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/check`,
+  const userId = await getUserId(req);
+  if (!userId) return reply({ ok: false, error: 'Unauthorized' }, 401);
+  const body = await req.json().catch(() => null);
+  if (
+    !body ||
+    (body.case_id != null && !z.string().uuid().safeParse(body.case_id).success)
+  )
+    return reply({ ok: false, error: 'Invalid case' }, 400);
+  const db = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  let caseId = body.case_id;
+  if (!caseId) {
+    const { data, error } = await db
+      .from('case_status')
+      .select('id')
+      .eq('user_id', userId)
+      .order('is_primary', { ascending: false })
+      .order('created_at')
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error('Manual case lookup failed');
+    caseId = data?.id;
+  }
+  if (!caseId) return reply({ ok: false, error: 'No case status found' }, 404);
+  const { data: action, error } = await db.rpc('prepare_case_refresh', {
+    p_case_id: caseId,
+    p_user_id: userId,
+  });
+  if (error || !action)
+    throw new Error('Manual case refresh preparation failed');
+  if (action.source === 'missing')
+    return reply({ ok: false, error: 'No case status found' }, 404);
+  if (action.source === 'cooldown')
+    return reply(
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Internal-Secret': process.env.CRON_SECRET || '',
-          'X-Force-Refresh': 'true',
-        },
-        body: JSON.stringify({ receipt_number: row.receipt_number, user_id: userId }),
-      }
+        ok: false,
+        error: 'Please wait before refreshing again',
+        retryAfter: action.retry_after,
+      },
+      429,
+      { 'Retry-After': String(action.retry_after) }
     );
-
-    if (!checkResponse.ok) {
-      return NextResponse.json(
-        { ok: false, error: 'Failed to refresh status' },
-        { status: 500, headers: corsHeaders }
-      );
+  if (action.source === 'database')
+    return reply({ ok: true, source: 'database' });
+  if (action.source !== 'uscis')
+    throw new Error('Invalid manual case refresh action');
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/check`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': process.env.CRON_SECRET || '',
+        'X-Force-Refresh': 'true',
+      },
+      body: JSON.stringify({
+        receipt_number: action.receipt_number,
+        user_id: userId,
+      }),
+      signal: AbortSignal.timeout(175_000),
     }
-
-    return NextResponse.json(
-      { ok: true, message: 'Status refreshed successfully' },
-      { status: 200, headers: corsHeaders }
-    );
-  } catch (error) {
-    console.error('Error in POST /api/case-status/refresh:', error);
-    return NextResponse.json(
-      { ok: false, error: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+  );
+  const result = await response.json();
+  if (!response.ok || result.ok !== true || result.skipped) {
+    if (response.ok && result.ok !== true)
+      console.error('Manual case check returned an unsuccessful response');
+    const status =
+      response.status === 429 ? 429 : response.status >= 500 ? 502 : 400;
+    return reply(
+      {
+        ok: false,
+        error: result.error || 'Could not refresh this case',
+        retryAfter: result.retryAfter,
+      },
+      status,
+      response.headers.has('Retry-After')
+        ? { 'Retry-After': response.headers.get('Retry-After')! }
+        : {}
     );
   }
+  return reply({ ok: true, source: 'uscis' });
 }
-
-async function handleOPTIONS() {
-  return NextResponse.json({}, { status: 200, headers: corsHeaders });
-}
-
-export const POST = withSentryApiErrors(handlePOST, '/api/case-status/refresh', 'POST');
-export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/refresh', 'OPTIONS');
+export const POST = withSentryApiErrors(
+  handlePOST,
+  '/api/case-status/refresh',
+  'POST'
+);

@@ -1,3 +1,4 @@
+import { getActiveUserPlanTier } from '@/lib/premium/user-plan-tier';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -12,6 +13,8 @@ async function handleGET(req: NextRequest) {
       headers: { 'Cache-Control': 'no-store' },
     });
   if (!userId) return reply({ error: 'Unauthorized' }, 401);
+  if ((await getActiveUserPlanTier(userId)) === 'free')
+    return reply({ error: 'Monitor details require premium' }, 403);
   const id = req.nextUrl.searchParams.get('case_id');
   if (!z.string().uuid().safeParse(id).success)
     return reply({ error: 'Invalid case' }, 400);
@@ -52,4 +55,8 @@ async function handleGET(req: NextRequest) {
   return reply({ next: next.data, attempt: attempt.data });
 }
 
-export const GET = withSentryApiErrors(handleGET, '/api/case-status/monitor-schedule', 'GET');
+export const GET = withSentryApiErrors(
+  handleGET,
+  '/api/case-status/monitor-schedule',
+  'GET'
+);
