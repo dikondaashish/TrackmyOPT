@@ -24,6 +24,8 @@ const sql = (input) =>
       '-i',
       container,
       'psql',
+      '-h',
+      '127.0.0.1',
       '-X',
       '-qAt',
       '-v',
@@ -47,7 +49,9 @@ try {
   let ready = false;
   for (let i = 0; i < 40; i++) {
     try {
-      await command(['exec', container, 'pg_isready', '-U', 'postgres']);
+      // The image starts a temporary socket-only database during initialization.
+      // Wait for the final TCP server, using the same transport as the assertions.
+      await command(['exec', container, 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']);
       ready = true;
       break;
     } catch {

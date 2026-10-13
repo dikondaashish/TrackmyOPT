@@ -13,10 +13,12 @@ const mocks = vi.hoisted(() => ({
   fetchCaseStatus: vi.fn(),
   removedAfterFetch: false,
   profileMissing: false,
+  rpc: vi.fn().mockResolvedValue({ data: true, error: null }),
 }));
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
+    rpc: mocks.rpc,
     from(table: string) {
       const record: QueryRecord = { table, filters: [] };
       mocks.queries.push(record);
@@ -97,6 +99,7 @@ describe('POST /api/case-status/check row scoping', () => {
     mocks.fetchCaseStatus.mockReset();
     mocks.removedAfterFetch = false;
     mocks.profileMissing = false;
+    mocks.rpc.mockReset().mockResolvedValue({ data: true, error: null });
     vi.stubEnv('CRON_SECRET', 'test-secret');
     vi.stubEnv('USCIS_MOCK', 'true');
     vi.stubEnv('VERCEL_ENV', 'development');
@@ -124,6 +127,7 @@ describe('POST /api/case-status/check row scoping', () => {
     );
 
     expect(response.status).toBe(200);
+    expect(mocks.rpc).not.toHaveBeenCalled();
 
     const caseUpdates = mocks.queries.filter(
       (query) => query.table === 'case_status' && query.operation === 'update'
@@ -178,6 +182,16 @@ describe('POST /api/case-status/check row scoping', () => {
       current_status: 'Case Was Received',
     });
     expect(update?.payload).not.toHaveProperty('free_visible_status');
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      'record_opt_case_observation',
+      expect.objectContaining({
+        p_case_id: 'case-row-a',
+        p_provider: expect.objectContaining({
+          status: 'Case Was Received',
+          events: [],
+        }),
+      })
+    );
     expect(mocks.queries.some((q) => q.table === 'email_queue')).toBe(false);
   });
 
@@ -257,6 +271,53 @@ describe('POST /api/case-status/check row scoping', () => {
       )
     ).toEqual([]);
   });
+});
+
+it('does not claim success when immutable observation persistence fails', async () => {
+  mocks.queries.length = 0;
+  mocks.removedAfterFetch = false;
+  vi.stubEnv('USCIS_MOCK', 'false');
+  vi.stubEnv('CRON_SECRET', 'test-secret');
+  mocks.fetchCaseStatus.mockResolvedValue({
+    success: true,
+    data: {
+      status: 'Case Was Received',
+      description: '',
+      caseType: 'I-765',
+      receivedDate: null,
+      histCaseStatus: [],
+    },
+  });
+  mocks.rpc.mockResolvedValueOnce({
+    data: null,
+    error: { message: 'private database detail' },
+  });
+  const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => {});
+  const response = await POST(
+    new NextRequest('https://example.test/api/case-status/check', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': 'test-secret',
+        'X-Force-Refresh': 'true',
+        'X-Check-Trigger': 'daily',
+      },
+      body: JSON.stringify({
+        receipt_number: 'IOE0000000001',
+        user_id: 'user-a',
+      }),
+    })
+  );
+  expect(response.status).toBe(500);
+  expect(
+    mocks.queries.some(
+      (q) => q.table === 'case_status' && q.operation === 'update'
+    )
+  ).toBe(false);
+  expect(JSON.stringify(diagnostic.mock.calls)).not.toContain(
+    'private database detail'
+  );
+  diagnostic.mockRestore();
 });
 
 it('daily sync persists free data without changing the free display snapshot', async () => {

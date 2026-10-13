@@ -40,6 +40,23 @@ and rejected error contents.
 
 ## Browser error triage
 
+### OPT forecast evidence and validation
+
+The forecast API and refresh cron use `withSentryApiErrors`; failed immutable
+observation writes fail the case check so its durable retry can recover the
+evidence. Model-read/write failures never publish a partial ready run. A daily
+sync still pending at the last forecast slot emits a fixed error message.
+Community partial-source failures are explicitly reported even when other
+sources succeed. Browser forecast failures use a fixed message and retain the
+historical comparison. No receipt, provider body or case dates enter these
+diagnostics. Expected limited evidence, source review, unauthorized access and
+ordinary waiting-for-sync states do not create issues.
+
+Model freshness and accuracy reports are stored in private database run records,
+not Sentry metrics. This does not add paid monitors, tracing, Replay or logs.
+Cron absence requires an external freshness check; a job that never executes
+cannot report itself. See [forecast operations](../predictions/OPT_FORECAST_ENGINE.md).
+
 React error #418 is a hydration mismatch and remains observable in both Sentry
 and PostHog. On October 12, 2026, both occurrences shown in PostHog were on
 `/tools/opt-clock`. The shared tool hook rendered the current local date during

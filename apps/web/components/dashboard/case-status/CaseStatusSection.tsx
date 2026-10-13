@@ -36,6 +36,7 @@ import { UrgentActionBanner } from '@/components/dashboard/case-status/panels/Ur
 import { CaseHeroCard } from '@/components/dashboard/case-status/panels/CaseHeroCard';
 import { MonitorHealthStrip } from '@/components/dashboard/case-status/panels/MonitorHealthStrip';
 import { AnalyticsPanels } from '@/components/dashboard/case-status/panels/AnalyticsPanels';
+import { VerifiedForecastPanel } from '@/components/dashboard/case-status/panels/VerifiedForecastPanel';
 import { ToolsAccordion } from '@/components/dashboard/case-status/panels/ToolsAccordion';
 import { CaseActionCenter } from '@/components/dashboard/case-status/panels/CaseActionCenter';
 import { DedicatedConsultationCard } from '@/components/dashboard/case-status/panels/DedicatedConsultationCard';
@@ -423,6 +424,9 @@ export function CaseStatusSection() {
           {isPremium === true && (
             <Card className="p-4 sm:p-6 border-border shadow-sm">
               <CaseStatusPanelErrorBoundary area="analytics">
+                {isPremium === true && isOptCase && (
+                  <VerifiedForecastPanel caseId={caseStatus.id} lastCheckedAt={caseStatus.last_checked_at ?? null} />
+                )}
                 <AnalyticsPanels
                   key={caseStatus.id}
                   receiptNumber={caseStatus.receipt_number}

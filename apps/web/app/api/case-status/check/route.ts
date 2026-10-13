@@ -1,6 +1,7 @@
 import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
 import { visibleStatusSnapshot } from '@/lib/case-status/visible-status';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import { recordObservation } from '@/lib/opt-forecast/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -476,6 +477,14 @@ async function handlePOST(req: NextRequest) {
 
     if (!currentCase) return removedResponse();
 
+    // Preserve actual provider evidence before updating the mutable dashboard row.
+    // This branch is reached only after a real successful USCIS response (never mocks).
+    // A failed write returns 5xx so the durable worker retries instead of losing history.
+    const observedAt = new Date().toISOString();
+    if (!(await recordObservation(supabase, caseId, uscisStatus, observedAt))) {
+      return removedResponse();
+    }
+
     // Check if status has changed OR this is the first check (no previous status)
     const isFirstCheck = currentCase && !currentCase.current_status;
     const hasStatusChanged =
@@ -634,8 +643,8 @@ async function handlePOST(req: NextRequest) {
       },
       { status: 200, headers: corsHeaders }
     );
-  } catch (error) {
-    console.error('Error in POST /api/case-status/check:', error);
+  } catch {
+    console.error('USCIS case check failed unexpectedly');
     await finishFailed(500, 'internal_error');
     return NextResponse.json(
       { ok: false, error: 'Internal server error' },
