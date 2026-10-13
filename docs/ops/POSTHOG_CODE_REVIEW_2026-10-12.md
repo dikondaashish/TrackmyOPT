@@ -106,6 +106,17 @@ explicit resume feature OpenGraph type, safe consent storage, JSON-LD context
 serialization, and the exact Brave/iOS wallet-injection filter. No broad
 RangeError, hydration, generic network, or unknown-rejection suppression added.
 
+A further current-component review reproduced two defects in the public OPT
+decision-window tool. Browser translation replacing the submit label caused
+`NotFoundError` and unmounted the form; stable label spans now survive the icon
+changes. Server-rendering on October 8 and hydrating on October 12 retained the
+stale input `max` attribute; the existing client-date hook now supplies the
+visitor's date after hydration. Both regression tests fail against the previous
+component and pass after the change. Unexpected lookup failures now emit safe
+stage/status diagnostics, including invalid successful payloads, while expected
+4xx responses remain quiet. These are reproduced source repairs; their presence
+on a current tool does not attribute every historic DOM or hydration group.
+
 ## Remaining evidence limits
 
 The 12 Safari/iOS recursion groups have either no stack or page-URL-only frames,
@@ -177,6 +188,19 @@ They share a trace and have working application source maps. The fixed privacy
 diagnostics do not retain the failed response/status or network cause. The
 current code separates expected 4xx outcomes and provides retry/error states;
 these reports remain unverified rather than being relabeled as repaired.
+
+The next review reloaded the all-status, one-year PostHog UI and loaded all
+81 entries. Its 81 unique issue IDs match this audit (sorted-ID checksum
+`ce4c7275`). It also inspected the raw Sentry event and confirmed that it contains
+no underlying request failure/status. The plan-status issue was already archived
+by the time of this review; no status was changed here, and archival is not
+repair evidence. The three loaders now preserve a fixed failure stage and HTTP
+status in their diagnostic message. Regression checks reproduce network,
+HTTP 503/500, invalid JSON, and null/malformed payload failures while rejecting
+private response/error contents; expected 4xx outcomes stay quiet and history
+retry still recovers. A privacy-scrubber regression verifies these safe fields
+survive reporting. This repairs lost diagnostic information, not the unknown
+historical request failures, and does not increase the proven-fixed count.
 
 Production source-map upload is already implemented and gated on production
 release configuration. Missing historical maps cannot be reconstructed by a new

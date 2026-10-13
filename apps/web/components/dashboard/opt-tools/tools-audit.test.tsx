@@ -208,7 +208,7 @@ it('does not show unemployment counts if history cannot load and supports retry'
     ).queryByRole('progressbar')
   ).not.toBeInTheDocument();
   expect(log.mock.calls).toEqual([
-    ['OPT tools: failed to load employment history'],
+    ['OPT tools: failed to load employment history (stage=http, status=500)'],
   ]);
   fetchMock.mockImplementation(original);
   fireEvent.click(
@@ -357,3 +357,30 @@ it('does not silently select a rolled-over invalid date in the calendar', () => 
     screen.queryByRole('button', { pressed: true })
   ).not.toBeInTheDocument();
 });
+
+it.each(['network', 'json', 'payload'] as const)(
+  'identifies employment-history %s failures without private contents',
+  async (stage) => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const original = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (url, options) => {
+      if (url !== '/api/employment-spans') return original(url, options);
+      if (stage === 'network') throw new Error('Private rejected details');
+      if (stage === 'json')
+        return {
+          ...response({}),
+          json: async () => {
+            throw new SyntaxError('Private HTML');
+          },
+        };
+      return response(null);
+    });
+    render(<OptClockTool />);
+    await screen.findByText(/Could not load employment history/);
+    expect(log.mock.calls).toEqual([
+      [
+        `OPT tools: failed to load employment history (stage=${stage}, status=${stage === 'network' ? 'none' : 200})`,
+      ],
+    ]);
+  }
+);

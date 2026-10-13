@@ -13,6 +13,25 @@ afterEach(async () => {
 });
 
 describe('Sentry diagnostic privacy', () => {
+  it('retains fixed request stages and HTTP status through the privacy scrubber', () => {
+    const message =
+      'OPT tools: failed to load saved dates (stage=http, status=503)';
+    const result = scrubSentryEvent(
+      {
+        type: undefined,
+        message,
+        logentry: { message },
+        exception: { values: [{ value: message }] },
+        extra: { response: 'Synthetic private response' },
+      },
+      {}
+    );
+    expect(result.message).toBe(message);
+    expect(result.logentry?.message).toBe(message);
+    expect(result.exception?.values?.[0].value).toBe(message);
+    expect(JSON.stringify(result)).not.toContain('Synthetic private response');
+  });
+
   it.each([
     `Cannot create property 'user' on string '{"access_token":"synthetic-access","user_metadata":{"full_name":"Synthetic Person","provider_id":"synthetic-provider","avatar_url":"https://example.test/private-avatar"}}'`,
     `Cannot create property 'user' on string '{"access_token":"synthetic-access","user_metadata":{"full_name":"Synthetic Person"`,

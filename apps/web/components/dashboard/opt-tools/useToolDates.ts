@@ -59,11 +59,15 @@ export function useToolDates() {
     let cancelled = false;
     const requestedVersion = version.current;
     void (async () => {
+      let stage = 'network';
+      let status: number | 'none' = 'none';
       try {
         const res = await fetch('/api/opt/calculator', {
           credentials: 'include',
           cache: 'no-store',
         });
+        status = res.status;
+        stage = 'http';
         if (res.status === 401) {
           if (!cancelled) setGuest(true);
           return;
@@ -73,8 +77,11 @@ export function useToolDates() {
           return;
         }
         if (!res.ok) throw new Error();
+        stage = 'json';
         const body = await res.json();
-        if (!body.ok) throw new Error();
+        stage = 'payload';
+        if (!body?.ok) throw new Error();
+        stage = 'processing';
         if (!cancelled && version.current === requestedVersion) {
           const loaded = { ...EMPTY };
           for (const key of Object.keys(EMPTY) as (keyof ToolDates)[])
@@ -85,27 +92,40 @@ export function useToolDates() {
         }
       } catch {
         if (!cancelled) {
-          console.error('OPT tools: failed to load saved dates');
+          // Only fixed stages and the numeric HTTP status enter diagnostics.
+          console.error(
+            `OPT tools: failed to load saved dates (stage=${stage}, status=${status})`
+          );
           setLoadError(true);
         }
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
+    let planStage = 'network';
+    let planStatus: number | 'none' = 'none';
     void fetch('/api/premium/status', { credentials: 'include' })
       .then(async (res) => {
+        planStatus = res.status;
+        planStage = 'http';
         if (cancelled || (res.status >= 400 && res.status < 500)) return;
         if (!res.ok) throw new Error();
+        planStage = 'json';
         const body = await res.json();
-        if (body.error && body.error !== 'Not authenticated') throw new Error();
-        if (typeof body.isPremium !== 'boolean') throw new Error();
+        planStage = 'payload';
+        if (body?.error && body.error !== 'Not authenticated')
+          throw new Error();
+        if (typeof body?.isPremium !== 'boolean') throw new Error();
         if (!cancelled) {
           setPremium(body.isPremium);
           setPremiumKnown(true);
         }
       })
       .catch(() => {
-        if (!cancelled) console.error('OPT tools: failed to load plan status');
+        if (!cancelled)
+          console.error(
+            `OPT tools: failed to load plan status (stage=${planStage}, status=${planStatus})`
+          );
       });
     return () => {
       cancelled = true;

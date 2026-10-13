@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Loader2, Search } from 'lucide-react';
 import { captureClientEvent } from '@/lib/posthog-client';
+import { useClientDate } from '@/hooks/useClientDate';
 
 type CaseKind = 'initial_opt' | 'stem_opt';
 
@@ -24,10 +25,7 @@ type ApiOk = {
   message?: string;
 };
 
-type ApiErr = { ok: false; error: string };
-
-function todayIsoLocal(): string {
-  const d = new Date();
+function todayIsoLocal(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -35,6 +33,7 @@ function todayIsoLocal(): string {
 }
 
 export function OptDecisionWindowTool() {
+  const clientDate = useClientDate();
   const [caseKind, setCaseKind] = useState<CaseKind>('initial_opt');
   const [received, setReceived] = useState('');
   const [receiptPrefix, setReceiptPrefix] = useState('');
@@ -48,6 +47,8 @@ export function OptDecisionWindowTool() {
     setResult(null);
     setLoading(true);
 
+    let stage = 'network';
+    let status: number | 'none' = 'none';
     try {
       const params = new URLSearchParams({
         received: received.trim(),
@@ -57,11 +58,14 @@ export function OptDecisionWindowTool() {
       if (prefix) params.set('receipt_prefix', prefix);
 
       const res = await fetch(`/api/public/opt-decision-window?${params}`);
-      const data = (await res.json()) as ApiOk | ApiErr;
-
-      if (!res.ok || !data.ok) {
+      status = res.status;
+      stage = 'http';
+      if (res.status >= 400 && res.status < 500) {
+        const body = await res.json().catch(() => null);
         setError(
-          !data.ok ? data.error : 'Could not load your decision window.'
+          typeof body?.error === 'string'
+            ? body.error
+            : 'Could not load your decision window.'
         );
         captureClientEvent('opt_decision_window_failed', {
           case_kind: caseKind,
@@ -70,7 +74,27 @@ export function OptDecisionWindowTool() {
         });
         return;
       }
-
+      if (!res.ok) throw new Error();
+      stage = 'json';
+      const data = (await res.json()) as ApiOk | null;
+      stage = 'payload';
+      if (
+        !data ||
+        data.ok !== true ||
+        !Number.isFinite(data.daysSinceFiled) ||
+        (data.message !== undefined && typeof data.message !== 'string') ||
+        (data.estimate !== null &&
+          (!data.estimate ||
+            !Number.isFinite(data.estimate.medianDays) ||
+            !Number.isFinite(data.estimate.cohortSize) ||
+            (data.estimate.p25Days !== null &&
+              !Number.isFinite(data.estimate.p25Days)) ||
+            (data.estimate.p75Days !== null &&
+              !Number.isFinite(data.estimate.p75Days))))
+      ) {
+        throw new Error();
+      }
+      stage = 'processing';
       setResult(data);
       captureClientEvent('opt_decision_window_viewed', {
         case_kind: caseKind,
@@ -79,6 +103,9 @@ export function OptDecisionWindowTool() {
         cohort_size: data.estimate?.cohortSize ?? 0,
       });
     } catch {
+      console.error(
+        `OPT decision window: failed to load estimate (stage=${stage}, status=${status})`
+      );
       setError('Network error. Please try again.');
       captureClientEvent('opt_decision_window_failed', {
         case_kind: caseKind,
@@ -153,13 +180,14 @@ export function OptDecisionWindowTool() {
               id="opt-dw-received"
               type="date"
               required
-              max={todayIsoLocal()}
+              max={clientDate ? todayIsoLocal(clientDate) : undefined}
               value={received}
               onChange={(e) => setReceived(e.target.value)}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
             />
             <p className="mt-1.5 text-xs text-muted-foreground">
-              From your I-797C receipt notice — the date USCIS received your I-765.
+              From your I-797C receipt notice — the date USCIS received your
+              I-765.
             </p>
           </div>
 
@@ -169,7 +197,9 @@ export function OptDecisionWindowTool() {
               className="mb-2 block text-sm font-semibold text-foreground"
             >
               Receipt prefix{' '}
-              <span className="font-normal text-muted-foreground">(optional)</span>
+              <span className="font-normal text-muted-foreground">
+                (optional)
+              </span>
             </label>
             <input
               id="opt-dw-prefix"
@@ -180,12 +210,15 @@ export function OptDecisionWindowTool() {
               placeholder="IOE"
               value={receiptPrefix}
               onChange={(e) =>
-                setReceiptPrefix(e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3))
+                setReceiptPrefix(
+                  e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3)
+                )
               }
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 font-mono text-sm uppercase text-foreground"
             />
             <p className="mt-1.5 text-xs text-muted-foreground">
-              First 3 letters only (IOE, EAC, WAC…). Never enter your full receipt number here.
+              First 3 letters only (IOE, EAC, WAC…). Never enter your full
+              receipt number here.
             </p>
           </div>
 
@@ -203,11 +236,11 @@ export function OptDecisionWindowTool() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Checking similar cases…
+                <span>Checking similar cases…</span>
               </>
             ) : (
               <>
-                Show my decision window
+                <span>Show my decision window</span>
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </>
             )}
@@ -251,9 +284,9 @@ export function OptDecisionWindowTool() {
               </dl>
 
               <p className="mt-4 text-[9px] leading-snug text-muted-foreground/80">
-                Based on {estimate.cohortSize.toLocaleString()} completed community
-                reports for similar cases. Planning estimate only — not a USCIS
-                decision date.
+                Based on {estimate.cohortSize.toLocaleString()} completed
+                community reports for similar cases. Planning estimate only —
+                not a USCIS decision date.
               </p>
             </>
           ) : (
