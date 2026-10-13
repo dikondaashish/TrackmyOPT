@@ -49,6 +49,9 @@
       "ws": "8.21.3",
       "@xmldom/xmldom": "0.8.13",
       "path-to-regexp": "8.4.2"
+    },
+    "patchedDependencies": {
+      "@supabase/auth-js@2.75.0": "patches/@supabase__auth-js@2.75.0.patch"
     }
   }
 }

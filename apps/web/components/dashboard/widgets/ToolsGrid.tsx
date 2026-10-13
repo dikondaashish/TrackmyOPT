@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { sendExtensionMessage, type ExtensionResponse } from "@/lib/extension/browser-messaging";
 import { Download, ExternalLink, Check, Loader2, Calendar, GraduationCap, Clock, Timer } from "lucide-react";
 
 // Chrome API type declarations for extension communication
@@ -14,20 +15,11 @@ declare const chrome: {
     sendMessage: (
       extensionId: string,
       message: { type: string; tool?: string },
-      callback: (response: ExtensionResponse) => void
-    ) => void;
+      callback: (response: ExtensionResponse | undefined) => void
+    ) => void | Promise<ExtensionResponse | undefined>;
     lastError?: { message: string };
   };
 };
-
-interface ExtensionResponse {
-  ok: boolean;
-  installed?: boolean;
-  version?: string;
-  opened?: boolean;
-  message?: string;
-  error?: string;
-}
 
 // Chrome Extension Configuration
 const EXTENSION_ID = process.env.NEXT_PUBLIC_CHROME_EXTENSION_ID || "";
@@ -151,37 +143,8 @@ export function ToolsGrid() {
       return false;
     }
 
-    return new Promise((resolve) => {
-      let resolved = false;
-      try {
-        chrome.runtime!.sendMessage(
-          EXTENSION_ID,
-          { type: "PING" },
-          (response) => {
-            if (resolved) return;
-            resolved = true;
-            
-            if (chrome.runtime?.lastError) {
-              resolve(false);
-            } else if (response && response.installed) {
-              resolve(true);
-            } else {
-              resolve(false);
-            }
-          }
-        );
-        
-        // Timeout fallback
-        setTimeout(() => {
-          if (!resolved) {
-            resolved = true;
-            resolve(false);
-          }
-        }, 2000);
-      } catch {
-        resolve(false);
-      }
-    });
+    const response = await sendExtensionMessage(chrome.runtime, EXTENSION_ID, { type: "PING" });
+    return Boolean(response?.installed);
   }, []);
 
   // Check extension on mount
@@ -207,35 +170,14 @@ export function ToolsGrid() {
     setExtensionInstalled(installed);
 
     if (installed && EXTENSION_ID && chrome.runtime) {
-      // Extension is installed - send message to open the tool
-      try {
-        chrome.runtime.sendMessage(
-          EXTENSION_ID,
-          { type: "OPEN_TOOL", tool: extensionPage },
-          (response) => {
-            setLoadingTool(null);
-            
-            if (chrome.runtime?.lastError) {
-              setToast({ message: "Error communicating with extension", type: "error" });
-              return;
-            }
-
-            if (response && response.ok) {
-              if (response.opened) {
-                setToast({ message: "Tool opened in extension!", type: "success" });
-              } else {
-                // Popup couldn't be opened directly - show instruction
-                setToast({ 
-                  message: "Click the TrackMyOPT extension icon in your browser toolbar to open the tool", 
-                  type: "info" 
-                });
-              }
-            }
-          }
-        );
-      } catch (_err) {
-        setLoadingTool(null);
-        setToast({ message: "Error opening extension", type: "error" });
+      const response = await sendExtensionMessage(chrome.runtime, EXTENSION_ID, { type: "OPEN_TOOL", tool: extensionPage });
+      setLoadingTool(null);
+      if (!response || !response.ok) {
+        setToast({ message: "Error communicating with extension. Please try again.", type: "error" });
+      } else if (response.opened) {
+        setToast({ message: "Tool opened in extension!", type: "success" });
+      } else {
+        setToast({ message: "Click the TrackMyOPT extension icon in your browser toolbar to open the tool", type: "info" });
       }
     } else {
       // Extension not installed - redirect to Chrome Web Store

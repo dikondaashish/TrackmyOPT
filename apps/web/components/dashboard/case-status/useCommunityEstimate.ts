@@ -20,7 +20,8 @@ import type {
 /** Community processing-time estimate state for the active case. */
 export function useCommunityEstimate(
   caseStatus: CaseStatus | null,
-  clientNowMs: number | null
+  clientNowMs: number | null,
+  enabled = true
 ) {
   const [communityPrediction, setCommunityPrediction] =
     useState<CommunityEstimate | null>(null);
@@ -48,7 +49,9 @@ export function useCommunityEstimate(
 
   // Community processing-time estimate (partner timelines — not USCIS API).
   useEffect(() => {
-    if (!caseStatus?.receipt_number) {
+    if (!enabled || !caseStatus?.receipt_number) {
+      setCommunityEvidence(null);
+      setCommunityEstimateLoading(false);
       setCommunityPrediction(null);
       setCommunitySummary(null);
       setCommunityStages(null);
@@ -160,6 +163,7 @@ export function useCommunityEstimate(
     caseStatus?.pp_start_date,
     caseStatus?.received_date,
     clientNowMs,
+    enabled,
   ]);
 
   return {

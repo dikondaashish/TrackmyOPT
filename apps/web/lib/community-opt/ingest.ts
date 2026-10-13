@@ -1,13 +1,13 @@
-import { createClient } from "@supabase/supabase-js";
-import { cleanPartnerCase } from "./clean";
-import type { CleanedCommunityCase, PartnerCasePayload } from "./types";
+import { createClient } from '@supabase/supabase-js';
+import { cleanPartnerCase } from './clean';
+import type { CleanedCommunityCase, PartnerCasePayload } from './types';
 
-const OPT_TRACKER_DEFAULT = "https://opt-tracker.com";
+const OPT_TRACKER_DEFAULT = 'https://opt-tracker.com';
 const OPT_TRACKER_PER_PAGE = 50;
 const OPT_TRACKER_MAX_PAGES = 120;
 
-const OPT_PULSE_DEFAULT_URL = "https://agkagshxgeavfbbpmbcz.supabase.co";
-const OPT_PULSE_DEFAULT_KEY = "sb_publishable_Xn9rnx_g2fOiKNjK0X3JHQ_bgB4vO7o";
+const OPT_PULSE_DEFAULT_URL = 'https://agkagshxgeavfbbpmbcz.supabase.co';
+const OPT_PULSE_DEFAULT_KEY = 'sb_publishable_Xn9rnx_g2fOiKNjK0X3JHQ_bgB4vO7o';
 const OPT_PULSE_PAGE = 1000;
 const OPT_PULSE_MAX_ROWS = 20000;
 
@@ -19,7 +19,8 @@ type PartnerListResponse = {
 
 function optTrackerBase(): string {
   return (
-    process.env.COMMUNITY_OPT_API_BASE?.replace(/\/$/, "") || OPT_TRACKER_DEFAULT
+    process.env.COMMUNITY_OPT_API_BASE?.replace(/\/$/, '') ||
+    OPT_TRACKER_DEFAULT
   );
 }
 
@@ -38,8 +39,13 @@ async function fetchOptTrackerCases(): Promise<SourceFetch> {
     `${base}/api/cases?page=1&per_page=${OPT_TRACKER_PER_PAGE}&sort_col=updated_at&sort_dir=desc`
   );
   const totalPages = page1.total_pages ?? 1;
-  if (!Number.isInteger(totalPages) || totalPages < 1 || totalPages > OPT_TRACKER_MAX_PAGES || !Array.isArray(page1.cases)) {
-    throw new Error("Incomplete partner case listing");
+  if (
+    !Number.isInteger(totalPages) ||
+    totalPages < 1 ||
+    totalPages > OPT_TRACKER_MAX_PAGES ||
+    !Array.isArray(page1.cases)
+  ) {
+    throw new Error('Incomplete partner case listing');
   }
   const raw: PartnerCasePayload[] = [...(page1.cases ?? [])];
   for (let page = 2; page <= totalPages; page++) {
@@ -47,21 +53,24 @@ async function fetchOptTrackerCases(): Promise<SourceFetch> {
       `${base}/api/cases?page=${page}&per_page=${OPT_TRACKER_PER_PAGE}&sort_col=updated_at&sort_dir=desc`
     );
     if (!Array.isArray(body.cases) || !body.cases.length) {
-      throw new Error("Incomplete partner case listing");
+      throw new Error('Incomplete partner case listing');
     }
     raw.push(...body.cases);
   }
-  if (typeof page1.total === "number" && raw.length < page1.total - OPT_TRACKER_PER_PAGE) {
-    throw new Error("Partner case count does not match the fetched pages");
+  if (
+    typeof page1.total === 'number' &&
+    raw.length < page1.total - OPT_TRACKER_PER_PAGE
+  ) {
+    throw new Error('Partner case count does not match the fetched pages');
   }
   return {
     cases: raw.map((r) => ({
       ...r,
       id: `optt_${r.id}`,
-      source: r.source ?? "reddit",
+      source: r.source ?? 'reddit',
     })),
     pages: totalPages,
-    total: typeof page1.total === "number" ? page1.total : null,
+    total: typeof page1.total === 'number' ? page1.total : null,
   };
 }
 
@@ -81,21 +90,24 @@ type OptPulseRow = {
 };
 
 export function pulseCommunitySource(redditUrl: string | null | undefined) {
-  if (!redditUrl) return "other";
+  if (!redditUrl) return 'other';
   try {
     const host = new URL(redditUrl).hostname.toLowerCase();
-    return host === "reddit.com" || host.endsWith(".reddit.com") || host === "redd.it"
-      ? "reddit"
-      : "other";
+    return host === 'reddit.com' ||
+      host.endsWith('.reddit.com') ||
+      host === 'redd.it'
+      ? 'reddit'
+      : 'other';
   } catch {
-    return "other";
+    return 'other';
   }
 }
 
 /** opt-pulse.vercel.app — public Supabase `cases` table. Ids namespaced `optp_`. */
 async function fetchOptPulseCases(): Promise<SourceFetch> {
   const url =
-    process.env.COMMUNITY_OPT_PULSE_URL?.replace(/\/$/, "") || OPT_PULSE_DEFAULT_URL;
+    process.env.COMMUNITY_OPT_PULSE_URL?.replace(/\/$/, '') ||
+    OPT_PULSE_DEFAULT_URL;
   const key = process.env.COMMUNITY_OPT_PULSE_KEY || OPT_PULSE_DEFAULT_KEY;
 
   const out: PartnerCasePayload[] = [];
@@ -126,7 +138,7 @@ async function fetchOptPulseCases(): Promise<SourceFetch> {
     }
     if (rows.length < OPT_PULSE_PAGE) break;
     if (offset + rows.length >= OPT_PULSE_MAX_ROWS) {
-      throw new Error("Partner case pagination limit reached");
+      throw new Error('Partner case pagination limit reached');
     }
   }
   return { cases: out, pages, total: out.length };
@@ -137,11 +149,11 @@ async function fetchJson<T>(
   headers: Record<string, string> = {}
 ): Promise<T> {
   const res = await fetch(url, {
-    headers: { Accept: "application/json", ...headers },
-    cache: "no-store",
+    headers: { Accept: 'application/json', ...headers },
+    cache: 'no-store',
   });
   if (!res.ok) {
-    throw new Error(`Partner API ${res.status} on ${url.split("?")[0]}`);
+    throw new Error(`Partner API ${res.status} on ${url.split('?')[0]}`);
   }
   return (await res.json()) as T;
 }
@@ -183,16 +195,16 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
       rowsUpserted: 0,
       rowsSkipped: 0,
       bySource: {},
-      error: "Supabase not configured",
+      error: 'Supabase not configured',
     };
   }
 
   const supabase = createClient(url, key);
 
   const { data: run, error: runErr } = await supabase
-    .from("community_opt_ingest_runs")
-    .insert({ status: "running" })
-    .select("id")
+    .from('community_opt_ingest_runs')
+    .insert({ status: 'running' })
+    .select('id')
     .single();
 
   if (runErr || !run) {
@@ -201,7 +213,7 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
       rowsUpserted: 0,
       rowsSkipped: 0,
       bySource: {},
-      error: runErr?.message ?? "Failed to open ingest run",
+      error: 'Failed to open community ingest run',
     };
   }
 
@@ -212,14 +224,15 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
   const sourceErrors: string[] = [];
 
   const sources: Array<{ name: string; fetch: () => Promise<SourceFetch> }> = [
-    { name: "opt-tracker", fetch: fetchOptTrackerCases },
-    { name: "opt-pulse", fetch: fetchOptPulseCases },
+    { name: 'opt-tracker', fetch: fetchOptTrackerCases },
+    { name: 'opt-pulse', fetch: fetchOptPulseCases },
   ];
 
   let sourceTotal: number | null = null;
 
   try {
     const cleaned: CleanedCommunityCase[] = [];
+    const rawDates = new Map<string, Record<string, string | null>>();
     for (const src of sources) {
       try {
         const { cases: raw, pages, total } = await src.fetch();
@@ -233,13 +246,31 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
             continue;
           }
           cleaned.push(row);
+          // Preserve original date fields for correction audits without names or post text.
+          rawDates.set(
+            row.external_id,
+            Object.fromEntries(
+              [
+                'init_date',
+                'approve_date',
+                'pp_date',
+                'card_produce_date',
+                'delivered_date',
+              ].map((key) => {
+                const value = r[key as keyof PartnerCasePayload];
+                return [
+                  key,
+                  typeof value === 'string' ? value.slice(0, 100) : null,
+                ];
+              })
+            )
+          );
           kept += 1;
         }
         bySource[src.name] = kept;
-      } catch (err) {
-        sourceErrors.push(
-          `${src.name}: ${err instanceof Error ? err.message : String(err)}`
-        );
+      } catch {
+        sourceErrors.push(`${src.name}: import failed`);
+        console.error('Community OPT source import failed');
         bySource[src.name] = 0;
       }
     }
@@ -250,7 +281,7 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
     const CHUNK = 200;
     for (let i = 0; i < deduped.length; i += CHUNK) {
       const slice = deduped.slice(i, i + CHUNK);
-      const { error } = await supabase.from("community_opt_timelines").upsert(
+      const { error } = await supabase.from('community_opt_timelines').upsert(
         slice.map((r) => ({
           external_id: r.external_id,
           source: r.source,
@@ -268,42 +299,47 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
           days_to_produce: r.days_to_produce,
           days_to_deliver: r.days_to_deliver,
           external_updated_at: r.external_updated_at,
+          source_evidence: rawDates.get(r.external_id) ?? null,
         })),
-        { onConflict: "external_id" }
+        { onConflict: 'external_id' }
       );
-      if (error) throw new Error(error.message);
+      if (error) throw new Error('Community timeline persistence failed');
       rowsUpserted += slice.length;
     }
 
     // All sources failed to yield anything → treat as error.
     const ok = cleaned.length > 0 || sourceErrors.length < sources.length;
-    await supabase
-      .from("community_opt_ingest_runs")
+    const { error: completionError } = await supabase
+      .from('community_opt_ingest_runs')
       .update({
-        status: ok ? "ok" : "error",
+        status: ok ? 'ok' : 'error',
         finished_at: new Date().toISOString(),
         pages_fetched: pagesFetched,
         rows_upserted: rowsUpserted,
         rows_skipped: rowsSkipped,
         source_total: sourceTotal,
-        error_message: sourceErrors.length ? sourceErrors.join(" | ").slice(0, 2000) : null,
+        error_message: sourceErrors.length
+          ? sourceErrors.join(' | ').slice(0, 2000)
+          : null,
       })
-      .eq("id", run.id);
+      .eq('id', run.id);
+    if (completionError)
+      throw new Error('Community import completion persistence failed');
 
     return {
       ok,
       rowsUpserted,
       rowsSkipped,
       bySource,
-      error: sourceErrors.length ? sourceErrors.join(" | ") : undefined,
+      error: sourceErrors.length ? sourceErrors.join(' | ') : undefined,
       runId: run.id,
     };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    await supabase
-      .from("community_opt_ingest_runs")
+  } catch {
+    const message = 'Community OPT import failed';
+    const { error: failureError } = await supabase
+      .from('community_opt_ingest_runs')
       .update({
-        status: "error",
+        status: 'error',
         finished_at: new Date().toISOString(),
         pages_fetched: pagesFetched,
         rows_upserted: rowsUpserted,
@@ -311,7 +347,9 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
         source_total: sourceTotal,
         error_message: message.slice(0, 2000),
       })
-      .eq("id", run.id);
+      .eq('id', run.id);
+    if (failureError)
+      console.error('Community import failure state persistence failed');
 
     return {
       ok: false,

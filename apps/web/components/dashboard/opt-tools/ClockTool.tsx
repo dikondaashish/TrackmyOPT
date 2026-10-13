@@ -63,6 +63,10 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
           if (!cancelled) setHistoryState('guest');
           return;
         }
+        if (res.status >= 400 && res.status < 500) {
+          if (!cancelled) setHistoryState('error');
+          return;
+        }
         if (!res.ok) throw new Error();
         const body = await res.json();
         if (!body.ok || !Array.isArray(body.spans)) throw new Error();
@@ -71,7 +75,10 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
           setHistoryState('ready');
         }
       } catch {
-        if (!cancelled) setHistoryState('error');
+        if (!cancelled) {
+          console.error('OPT tools: failed to load employment history');
+          setHistoryState('error');
+        }
       }
     })();
     return () => {
@@ -188,7 +195,9 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
               : 'Initial OPT unemployment estimate'}
           </h3>
           <span className="text-xs text-muted-foreground">
-            Through {formatDate(state.today)}
+            {state.today
+              ? `Through ${formatDate(state.today)}`
+              : 'Checking local date…'}
           </span>
         </div>
         {historyState === 'error' ? (

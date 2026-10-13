@@ -1,4 +1,7 @@
+import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
+import { visibleStatusSnapshot } from '@/lib/case-status/visible-status';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import { recordObservation } from '@/lib/opt-forecast/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -19,10 +22,13 @@ import { resolveReceivedDate } from '@/lib/case-status/filing-date';
 import { resolvePpStartDateForStorage } from '@/lib/case-status/premium-processing';
 import { recordPendingCaseEmailSequence } from '@/lib/notifications/pending-case-email';
 
+export const maxDuration = 180;
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Internal-Secret',
+  'Access-Control-Allow-Headers':
+    'Content-Type, Authorization, X-Internal-Secret',
   'Cache-Control': 'no-store',
 };
 
@@ -30,13 +36,14 @@ async function getUserIsPremium(
   supabase: SupabaseClient,
   userId: string
 ): Promise<boolean> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
-    .select('premium_status')
+    .select('premium_status, subscription_expires_at, plan_tier')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
+  if (error) throw new Error('Case plan lookup failed');
   const profile = data as { premium_status?: boolean | null } | null;
-  return profile?.premium_status === true;
+  return resolveActivePlanTier(profile) !== 'free';
 }
 
 /**
@@ -90,7 +97,9 @@ async function handlePOST(req: NextRequest) {
     // Verify internal request or cron authorization
     const internalSecret = req.headers.get('X-Internal-Secret');
     const expectedSecret = process.env.CRON_SECRET;
-    const isInternalRequest = Boolean(expectedSecret && internalSecret === expectedSecret);
+    const isInternalRequest = Boolean(
+      expectedSecret && internalSecret === expectedSecret
+    );
 
     if (!isInternalRequest) {
       const cronAuthError = verifyCronAuth(req);
@@ -150,10 +159,11 @@ async function handlePOST(req: NextRequest) {
     // are intentionally shareable across users, so receipt_number alone is not
     // an authorization boundary for service-role operations.
     const caseId = caseMeta.id;
-    const removedResponse = () => NextResponse.json(
-      { ok: true, skipped: true, reason: 'Tracking removed' },
-      { status: 200, headers: corsHeaders }
-    );
+    const removedResponse = () =>
+      NextResponse.json(
+        { ok: true, skipped: true, reason: 'Tracking removed' },
+        { status: 200, headers: corsHeaders }
+      );
 
     await trackCaseStatusCheckStarted({
       userId: analyticsUserId,
@@ -164,9 +174,11 @@ async function handlePOST(req: NextRequest) {
 
     // SMART POLLING: Check if case is in a final state before calling external API
     // Only apply this optimization for automated checks (Cron), not manual user refreshes
-    const isManualRefresh = req.headers.get('X-Force-Refresh') === 'true';
+    const forceRefresh = req.headers.get('X-Force-Refresh') === 'true';
+    const isDailyWorker = req.headers.get('X-Check-Trigger') === 'daily';
+    const isManualRefresh = forceRefresh && !isDailyWorker;
 
-    if (!isManualRefresh) {
+    if (!forceRefresh) {
       const { data: existingCase } = await supabase
         .from('case_status')
         .select('current_status, last_checked_at')
@@ -181,16 +193,16 @@ async function handlePOST(req: NextRequest) {
           'Withdrawal Acknowledged',
           'Notice Explaining USCIS Actions Was Mailed',
           'Termination Notice Sent',
-          'Refund Of An Unused Fee'
+          'Refund Of An Unused Fee',
         ];
 
-        const isFinalState = FINAL_STATUS_KEYWORDS.some(keyword =>
+        const isFinalState = FINAL_STATUS_KEYWORDS.some((keyword) =>
           existingCase.current_status!.includes(keyword)
         );
 
         if (isFinalState) {
           secureLog.log(
-            `[case-status] Skipping ${redactReceiptNumber(receipt_number)} (final state: [status redacted])`,
+            `[case-status] Skipping ${redactReceiptNumber(receipt_number)} (final state: [status redacted])`
           );
           await finishCompleted(existingCase.current_status, 200);
           return NextResponse.json(
@@ -201,8 +213,8 @@ async function handlePOST(req: NextRequest) {
                 status: existingCase.current_status,
                 changed: false,
                 skipped: true,
-                reason: 'Final State'
-              }
+                reason: 'Final State',
+              },
             },
             { status: 200, headers: corsHeaders }
           );
@@ -221,7 +233,9 @@ async function handlePOST(req: NextRequest) {
 
     // Loud, single warning if USCIS_MOCK was set in prod — we ignored it.
     if (process.env.USCIS_MOCK === 'true' && !useMock) {
-      console.warn('[USCIS] USCIS_MOCK=true was set but ignored in production environment.');
+      console.warn(
+        '[USCIS] USCIS_MOCK=true was set but ignored in production environment.'
+      );
     }
 
     if (useMock) {
@@ -241,16 +255,20 @@ async function handlePOST(req: NextRequest) {
         .eq('user_id', bodyUserId)
         .single();
 
-      if (currentCaseError && currentCaseError.code !== 'PGRST116') throw new Error('USCIS case lookup failed');
+      if (currentCaseError && currentCaseError.code !== 'PGRST116')
+        throw new Error('USCIS case lookup failed');
       if (!currentCase) return removedResponse();
 
       const isFirstCheck = currentCase && !currentCase.current_status;
-      const hasStatusChanged = currentCase &&
+      const hasStatusChanged =
+        currentCase &&
         currentCase.current_status !== null &&
         currentCase.current_status !== mockStatus.status;
 
       // Build change_log entry (our own changelog)
-      const existingChangelog = Array.isArray(currentCase?.change_log) ? currentCase.change_log : [];
+      const existingChangelog = Array.isArray(currentCase?.change_log)
+        ? currentCase.change_log
+        : [];
       if (hasStatusChanged) {
         existingChangelog.push({
           date: new Date().toISOString(),
@@ -277,14 +295,25 @@ async function handlePOST(req: NextRequest) {
           currentStatus: mockStatus.status,
         }),
         last_checked_at: new Date().toISOString(),
-        last_status_change_at: (isFirstCheck || hasStatusChanged)
-          ? new Date().toISOString()
-          : currentCase?.last_status_change_at,
+        last_status_change_at:
+          isFirstCheck || hasStatusChanged
+            ? new Date().toISOString()
+            : currentCase?.last_status_change_at,
         status_history: statusHistory,
         change_log: existingChangelog,
         updated_at: new Date().toISOString(),
       };
 
+      if (
+        isManualRefresh ||
+        isPremium ||
+        req.headers.get('X-Check-Trigger') === 'initial'
+      ) {
+        mockUpdateData.free_visible_status = visibleStatusSnapshot({
+          ...currentCase,
+          ...mockUpdateData,
+        });
+      }
       applyFreeUserChangeWedgeToUpdate(mockUpdateData, {
         hasStatusChanged: Boolean(hasStatusChanged),
         isFirstCheck: Boolean(isFirstCheck),
@@ -295,7 +324,9 @@ async function handlePOST(req: NextRequest) {
         .from('case_status')
         .update(mockUpdateData)
         .eq('id', caseId)
-        .eq('user_id', bodyUserId).select('id').maybeSingle();
+        .eq('user_id', bodyUserId)
+        .select('id')
+        .maybeSingle();
       if (mockUpdateError) throw new Error('USCIS mock persistence failed');
       if (!updatedMock) return removedResponse();
 
@@ -338,9 +369,10 @@ async function handlePOST(req: NextRequest) {
     // Handle USCIS API errors (ISS-012: persist failure + observability log)
     if (!uscisResult.success) {
       const errorCode = String(uscisResult.error.code);
-      const errorMessage = uscisResult.error.userMessage || 'USCIS check failed';
-      secureLog.error(
-        `[case-status] USCIS API error for ${redactReceiptNumber(receipt_number)}: ${errorCode}`,
+      const errorMessage =
+        uscisResult.error.userMessage || 'USCIS check failed';
+      secureLog.warn(
+        `[case-status] USCIS API error for ${redactReceiptNumber(receipt_number)}: ${errorCode}`
       );
 
       // Persist failure state so the UI can show "last refresh failed" and
@@ -352,20 +384,25 @@ async function handlePOST(req: NextRequest) {
           .eq('id', caseId)
           .eq('user_id', bodyUserId)
           .single();
-        if (failureLookupError && failureLookupError.code !== 'PGRST116') throw new Error('USCIS failure lookup failed');
+        if (failureLookupError && failureLookupError.code !== 'PGRST116')
+          throw new Error('USCIS failure lookup failed');
         if (!row) return removedResponse();
         const prevFails = row.consecutive_failures || 0;
-        const { data: updatedFailure, error: failureUpdateError } = await supabase
-          .from('case_status')
-          .update({
-            last_check_failed_at: new Date().toISOString(),
-            last_check_error_code: errorCode,
-            last_check_error_message: errorMessage.slice(0, 500),
-            consecutive_failures: prevFails + 1,
-          })
-          .eq('id', caseId)
-          .eq('user_id', bodyUserId).select('id').maybeSingle();
-        if (failureUpdateError) throw new Error('USCIS failure persistence failed');
+        const { data: updatedFailure, error: failureUpdateError } =
+          await supabase
+            .from('case_status')
+            .update({
+              last_check_failed_at: new Date().toISOString(),
+              last_check_error_code: errorCode,
+              last_check_error_message: errorMessage.slice(0, 500),
+              consecutive_failures: prevFails + 1,
+            })
+            .eq('id', caseId)
+            .eq('user_id', bodyUserId)
+            .select('id')
+            .maybeSingle();
+        if (failureUpdateError)
+          throw new Error('USCIS failure persistence failed');
         if (!updatedFailure) return removedResponse();
       } catch {
         console.error('USCIS failure persistence failed');
@@ -374,18 +411,28 @@ async function handlePOST(req: NextRequest) {
 
       // Append to uscis_check_log for ops observability
       try {
-        const { error: logError } = await supabase.from('uscis_check_log').insert({
-          case_id: caseId,
-          receipt_number,
-          success: false,
-          source: isManualRefresh ? 'manual' : 'cron',
-          duration_ms: Date.now() - checkStartedAt,
-          error_code: errorCode,
-        });
+        const { error: logError } = await supabase
+          .from('uscis_check_log')
+          .insert({
+            case_id: caseId,
+            receipt_number,
+            success: false,
+            source: isManualRefresh ? 'manual' : 'cron',
+            duration_ms: Date.now() - checkStartedAt,
+            error_code: errorCode,
+          });
         if (logError) console.error('USCIS check telemetry write failed');
-      } catch { console.error('USCIS check telemetry write failed'); }
+      } catch {
+        console.error('USCIS check telemetry write failed');
+      }
 
-      const failureHttpStatus = uscisResult.error.code === 500 ? 500 : 400;
+      const failureHttpStatus =
+        uscisResult.error.code === 429
+          ? 429
+          : uscisResult.error.code >= 500 ||
+              [401, 403].includes(uscisResult.error.code)
+            ? 503
+            : 400;
       await finishFailed(failureHttpStatus, uscisResult.error.code);
 
       return NextResponse.json(
@@ -394,8 +441,17 @@ async function handlePOST(req: NextRequest) {
           error: uscisResult.error.userMessage,
           errorCode: uscisResult.error.code,
           errorDetails: uscisResult.error.details,
+          retryAfter: uscisResult.error.retryAfter,
         },
-        { status: uscisResult.error.code === 500 ? 500 : 400, headers: corsHeaders }
+        {
+          status: failureHttpStatus,
+          headers: {
+            ...corsHeaders,
+            ...(uscisResult.error.retryAfter
+              ? { 'Retry-After': String(uscisResult.error.retryAfter) }
+              : {}),
+          },
+        }
       );
     }
 
@@ -421,9 +477,18 @@ async function handlePOST(req: NextRequest) {
 
     if (!currentCase) return removedResponse();
 
+    // Preserve actual provider evidence before updating the mutable dashboard row.
+    // This branch is reached only after a real successful USCIS response (never mocks).
+    // A failed write returns 5xx so the durable worker retries instead of losing history.
+    const observedAt = new Date().toISOString();
+    if (!(await recordObservation(supabase, caseId, uscisStatus, observedAt))) {
+      return removedResponse();
+    }
+
     // Check if status has changed OR this is the first check (no previous status)
     const isFirstCheck = currentCase && !currentCase.current_status;
-    const hasStatusChanged = currentCase &&
+    const hasStatusChanged =
+      currentCase &&
       currentCase.current_status !== null &&
       currentCase.current_status !== uscisStatus.status;
 
@@ -435,9 +500,10 @@ async function handlePOST(req: NextRequest) {
       uscisStatus.histCaseStatus
     );
 
-
     // Build change_log entry (our own changelog)
-    const existingChangelog = Array.isArray(currentCase?.change_log) ? currentCase.change_log : [];
+    const existingChangelog = Array.isArray(currentCase?.change_log)
+      ? currentCase.change_log
+      : [];
     if (hasStatusChanged) {
       existingChangelog.push({
         date: new Date().toISOString(),
@@ -464,9 +530,10 @@ async function handlePOST(req: NextRequest) {
         currentStatus: uscisStatus.status,
       }),
       last_checked_at: new Date().toISOString(),
-      last_status_change_at: (isFirstCheck || hasStatusChanged)
-        ? new Date().toISOString()
-        : currentCase?.last_status_change_at,
+      last_status_change_at:
+        isFirstCheck || hasStatusChanged
+          ? new Date().toISOString()
+          : currentCase?.last_status_change_at,
       status_history: statusHistory,
       change_log: existingChangelog,
       updated_at: new Date().toISOString(),
@@ -482,12 +549,25 @@ async function handlePOST(req: NextRequest) {
       isPremium,
     });
 
+    if (
+      isManualRefresh ||
+      isPremium ||
+      req.headers.get('X-Check-Trigger') === 'initial'
+    ) {
+      updateData.free_visible_status = visibleStatusSnapshot({
+        ...currentCase,
+        ...updateData,
+      });
+    }
+
     // Update database — reset failure counters on success (ISS-012)
     const { data: updatedCase, error: updateError } = await supabase
       .from('case_status')
       .update(updateData)
       .eq('id', caseId)
-      .eq('user_id', bodyUserId).select('id').maybeSingle();
+      .eq('user_id', bodyUserId)
+      .select('id')
+      .maybeSingle();
 
     if (updateError) {
       console.error('USCIS case persistence failed');
@@ -498,39 +578,55 @@ async function handlePOST(req: NextRequest) {
       );
     }
 
-
     if (!updatedCase) return removedResponse();
     try {
-      const { error: logError } = await supabase.from('uscis_check_log').insert({
-        case_id: caseId, receipt_number, success: true,
-        source: isManualRefresh ? 'manual' : 'cron',
-        duration_ms: Date.now() - checkStartedAt,
-      });
+      const { error: logError } = await supabase
+        .from('uscis_check_log')
+        .insert({
+          case_id: caseId,
+          receipt_number,
+          success: true,
+          source: isManualRefresh ? 'manual' : 'cron',
+          duration_ms: Date.now() - checkStartedAt,
+        });
       if (logError) console.error('USCIS check telemetry write failed');
-    } catch { console.error('USCIS check telemetry write failed'); }
-    await recordPendingCaseEmailSequence(supabase,bodyUserId,caseId);
+    } catch {
+      console.error('USCIS check telemetry write failed');
+    }
+    if (!isDailyWorker)
+      await recordPendingCaseEmailSequence(supabase, bodyUserId, caseId);
 
     // If status changed, send notification (only for premium users)
-    if (hasStatusChanged && currentCase) {
-
-      // Trigger notification (async, don't wait)
-      fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/notify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Internal-Secret': process.env.CRON_SECRET || '',
-        },
-        body: JSON.stringify({
-          user_id: currentCase.user_id,
-          receipt_number,
-          old_status: currentCase.current_status,
-          new_status: uscisStatus.status,
-        }),
-      }).then((response) => {
-        if (!response.ok) console.error('USCIS notification request failed');
-      }).catch(() => {
-        console.error('USCIS notification request failed');
-      });
+    if (
+      hasStatusChanged &&
+      currentCase &&
+      isPremium &&
+      currentCase.notifications_enabled
+    ) {
+      // Await delivery so serverless completion does not terminate the send.
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/case-status/notify`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Internal-Secret': process.env.CRON_SECRET || '',
+          },
+          signal: AbortSignal.timeout(55_000),
+          body: JSON.stringify({
+            user_id: currentCase.user_id,
+            receipt_number,
+            old_status: currentCase.current_status,
+            new_status: uscisStatus.status,
+          }),
+        }
+      )
+        .then((response) => {
+          if (!response.ok) console.error('USCIS notification request failed');
+        })
+        .catch(() => {
+          console.error('USCIS notification request failed');
+        });
     }
 
     await finishCompleted(uscisStatus.status, 200);
@@ -547,8 +643,8 @@ async function handlePOST(req: NextRequest) {
       },
       { status: 200, headers: corsHeaders }
     );
-  } catch (error) {
-    console.error('Error in POST /api/case-status/check:', error);
+  } catch {
+    console.error('USCIS case check failed unexpectedly');
     await finishFailed(500, 'internal_error');
     return NextResponse.json(
       { ok: false, error: 'Internal server error' },
@@ -561,5 +657,13 @@ async function handleOPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
 
-export const POST = withSentryApiErrors(handlePOST, '/api/case-status/check', 'POST');
-export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/check', 'OPTIONS');
+export const POST = withSentryApiErrors(
+  handlePOST,
+  '/api/case-status/check',
+  'POST'
+);
+export const OPTIONS = withSentryApiErrors(
+  handleOPTIONS,
+  '/api/case-status/check',
+  'OPTIONS'
+);

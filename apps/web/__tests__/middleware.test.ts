@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { proxy } from '@/proxy';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 // Mock Supabase
 vi.mock('@supabase/ssr', () => ({
@@ -9,7 +9,11 @@ vi.mock('@supabase/ssr', () => ({
       auth: {
         getUser: vi.fn().mockImplementation(async () => {
           // If the auth cookie is missing, simulate no user
-          const cookieHeader = options.cookies.get('sb-mock-auth-token');
+          const cookieHeader = options.cookies
+            .getAll()
+            .find(
+              (cookie: { name: string }) => cookie.name === 'sb-mock-auth-token'
+            )?.value;
           if (!cookieHeader) return { data: { user: null }, error: null };
           return { data: { user: { id: 'user_123' } }, error: null };
         }),
@@ -28,7 +32,9 @@ describe('Supabase Auth Middleware', () => {
     const response = await proxy(request);
 
     expect(response?.status).toBe(307);
-    expect(response?.headers.get('location')).toBe('http://localhost:3000/login?returnTo=%2Fdashboard');
+    expect(response?.headers.get('location')).toBe(
+      'http://localhost:3000/login?returnTo=%2Fdashboard'
+    );
   });
 
   it('allows unauthenticated users to access public static routes', async () => {
@@ -48,7 +54,9 @@ describe('Supabase Auth Middleware', () => {
     const response = await proxy(request);
 
     expect(response?.status).toBe(307);
-    expect(response?.headers.get('location')).toBe('http://localhost:3000/dashboard');
+    expect(response?.headers.get('location')).toBe(
+      'http://localhost:3000/dashboard'
+    );
   });
 
   it('allows authenticated users to access protected /dashboard routes', async () => {

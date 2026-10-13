@@ -4,23 +4,8 @@ import { getStoredCookieConsent } from "@/lib/cookie-consent";
 import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
 import { POSTHOG_SESSION_RECORDING } from "@/lib/posthog/session-replay-privacy";
 
-/**
- * Benign React DOM teardown races (fast navigation, extensions, portal cleanup).
- * Translation widgets and content scripts reparent nodes React owns, so the
- * commit phase fails on both `removeChild` and `insertBefore`.
- */
-export function isBenignReactDomTeardownError(message: string): boolean {
-  const lower = message.toLowerCase();
-  if (!lower.includes("removechild") && !lower.includes("insertbefore")) {
-    return false;
-  }
-  return (
-    lower.includes("null") ||
-    lower.includes("undefined") ||
-    lower.includes("not an object") ||
-    lower.includes("not a child of this node")
-  );
-}
+// React DOM removeChild/insertBefore failures remain observable. A message
+// alone cannot distinguish an extension mutation from a first-party defect.
 
 /** Supabase Realtime WebSocket blocked by browser privacy settings — not a product bug. */
 export function isBenignWebSocketError(message: string): boolean {
@@ -147,6 +132,29 @@ export function isOpaqueCrossOriginScriptError(
   );
 }
 
+/** Brave iOS injects this assignment even when its wallet provider is absent.
+ * https://github.com/brave/brave-browser/issues/58670
+ * Require the browser/OS and page-script evidence; keep bundled or mixed errors.
+ */
+export function isBraveWalletInjectionError(
+  properties: Record<string, unknown> | undefined
+): boolean {
+  if (properties?.$browser !== 'Brave' || properties.$os !== 'iOS')
+    return false;
+  const message =
+    "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')";
+  const values = extractExceptionValues(properties);
+  const sources = extractExceptionFrameSources(properties);
+  return (
+    values.includes(message) &&
+    values.every((value) => value === message || value === 'TypeError') &&
+    sources.length > 0 &&
+    sources.every(
+      (source) => !/\/_next\/|turbopack:|\.[cm]?js(?:$|[?#])/i.test(source)
+    )
+  );
+}
+
 /**
  * Instagram / Facebook / iOS in-app browsers inject native bridges that call
  * `window.webkit.messageHandlers` on pagehide. Missing handlers throw TypeError
@@ -216,7 +224,6 @@ export function isBenignNavigationAbortError(message: string): boolean {
 /** Shared text heuristics for $exception and error-boundary reporting. */
 export function isBenignExceptionMessage(message: string): boolean {
   return (
-    isBenignReactDomTeardownError(message) ||
     isBenignWebSocketError(message) ||
     isBenignResizeObserverLoopError(message) ||
     isBenignAdSenseTagError(message) ||
@@ -234,6 +241,7 @@ export function shouldDropExceptionEvent(
   const text = extractExceptionMessages(properties);
   return (
     isBenignExceptionMessage(text) ||
+    isBraveWalletInjectionError(properties) ||
     isBenignAdSenseNetworkError(properties) ||
     isOpaqueCrossOriginScriptError(properties)
   );

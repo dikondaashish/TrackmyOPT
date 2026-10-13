@@ -18,6 +18,7 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar, Bell, Video, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useClientDate } from "@/hooks/useClientDate";
 
 interface JobTrackerCalendarViewProps {
     applications: JobApplication[];
@@ -34,7 +35,9 @@ interface CalendarEvent {
 }
 
 export function JobTrackerCalendarView({ applications, onCardClick }: JobTrackerCalendarViewProps) {
-    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const clientDate = useClientDate();
+    const [selectedMonth, setCurrentMonth] = useState<Date | null>(null);
+    const currentMonth = selectedMonth ?? clientDate;
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     // Generate all events from applications
@@ -77,6 +80,7 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
 
     // Generate calendar days
     const calendarDays = useMemo(() => {
+        if (!currentMonth) return [];
         const monthStart = startOfMonth(currentMonth);
         const monthEnd = endOfMonth(currentMonth);
         const calendarStart = startOfWeek(monthStart);
@@ -95,6 +99,10 @@ export function JobTrackerCalendarView({ applications, onCardClick }: JobTracker
     const getEventsForDay = (day: Date) => {
         return events.filter(event => isSameDay(event.date, day));
     };
+
+    if (!currentMonth) {
+        return <div role="status" className="py-12 text-center text-sm text-gray-500">Loading calendar…</div>;
+    }
 
     return (
         <div className="flex flex-col lg:flex-row gap-6">

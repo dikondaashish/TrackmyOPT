@@ -1,0 +1,413 @@
+# TrackMyOPT PostHog code review — 2026-10-12
+
+Reviewed the all-status, one-year view in PostHog project 369087 against GitHub
+main `a2d7a2acd62cee862e8737b8be3e6f3f8c940303`. Both pages of the issue query
+returned 81 groups. Inspected the latest exception and available stack sample (up to 50 frames)
+for every group, including vendor frames. Also inspected all 17 historical events in
+the newest React #418 group. No issue status, suppression, billing, project,
+Vercel, or Render settings were changed in this review.
+
+A follow-up review against main `88270797c9ba265f4ee66db7bf72bc1055ce67d5`
+returned the same 81 groups. For the 58 groups with unresolved attribution,
+reviewed the original stored frame origins across all 976 events, rather than
+only the latest/first 20 samples. Those events contain a single exception each.
+This covers 491 Safari recursion events, 197 hydration events, 193 DOM mutation
+events, 67 JSON-LD reader events, 20 anonymous exceptions, and 8 network failures.
+The full-frame query returned 256 distinct issue/source/function/failure rows,
+below its 2,000-row limit; exceptions without frames were counted separately.
+No hidden application frames were recovered for the Safari or anonymous errors.
+The three retired React chunk filenames returned no matching symbol-set
+references; stored resolution failures also report missing maps. Current
+TrackMyOPT release maps are present in PostHog, but cannot identify page-only
+historical frames.
+
+A further source/replay review against main
+`9253825f369a173f42562a70c3bdcd7ddb89c606` again returned all 81 groups with no
+additional page. It reproduced two current translation-related DOM crashes and
+an empty-context serializer defect, described below. This adds proven source
+repairs; it still does not establish 81 individually proven historical fixes.
+
+A resolved/suppressed label and an old bundle are not evidence of a root-cause
+fix. The table below retains every issue ID and separates source repairs from
+historical attribution limits. No person/session identifiers, response bodies,
+applicant data, or private replay content are included.
+
+## Source changes and verification
+
+- **AdSense units:** reserve each actual `ins` element synchronously before
+  pushing its request. Repeated SDK-ready/resize callbacks cannot queue that
+  element again while Google's status attribute is pending. Check both the
+  current container and actual slot width (at least 250px); observe both for
+  resize and retry readiness when initially hidden/narrow. Unexpected synchronous
+  initialization failures use a fixed diagnostic. Consent still gates loading.
+  Tests reproduced three failures before the fix: duplicate requests, a 139px
+  slot in a wide container, and failure to initialize after becoming visible.
+- **Activation tracker:** retain the existing single-flight/abort protection;
+  validate successful case responses and report unexpected request/authentication
+  and malformed-response failures with a fixed Sentry-captured console message.
+  Do not consume the account marker after failure. Offline, teardown, and expected
+  authentication outcomes remain separate. Tests cover recovery/retry, malformed
+  payloads, consent withdrawal, aborted requests, and account-scoped capture.
+- **Template PDF cleanup:** use the installed PDF.js 6 loading-task destroy API
+  (the document proxy no longer exposes `destroy`) and consume rejected document-destroy promises on close,
+  replacement, and pending loads. Expected PDF render cancellation
+  stays quiet; unexpected cleanup/render/load failures use fixed diagnostics
+  without PDF text. Mocked cleanup rejection tests detected the unchecked
+  old destroy path; a loading-task test reproduced pending loads not being
+  destroyed on close. The installed SDK requires the loading-task API. The selectable editor already consumes its
+  paint and document-cleanup cancellations; its regression tests were retained.
+- **Job-tracker dates (follow-up):** four real SSR/hydration regressions were
+  reproduced with server HTML from September 30 and a browser date of October 1:
+  card relative labels, follow-up counts, calendar month, and table follow-ups.
+  Reuse the existing post-hydration date hook so their first render is stable;
+  compute visitor-local labels/counts afterward. Calendar navigation and Today
+  still work. Parse date-only follow-ups as local calendar dates and use calendar
+  day differences, keeping Today/Overdue badges and filters consistent in western
+  time zones. This repairs reachable bugs; framework-only historical stacks do
+  not prove that these components caused every recorded #418 occurrence.
+- **Drag instructions (follow-up):** the full job-tracker board also reproduced
+  an attribute mismatch after earlier server renders. dnd-kit's module counter
+  emitted different `aria-describedby` IDs during hydration, and React retained
+  the stale server attribute. Supply React's stable `useId` to the drag context;
+  a real-board test verifies the card still references the rendered instructions.
+  The same test blocks storage reads/writes and confirms the table view works.
+- **Unavailable storage:** consent/login/referral already use safe storage.
+  Dashboard sidebar bootstrap and toggle still touched `localStorage` directly;
+  route both through the same tested safe storage helpers so null/locked storage
+  does not crash the shell. The follow-up also guards the job tracker's saved-view
+  read/write through those helpers, preserving view changes when storage is blocked.
+- **React DOM diagnostics:** remove the blanket removeChild/insertBefore message
+  filter. These historical events have React bundle frames and no evidence
+  proving an extension caused them. Keep future exceptions and boundary reports
+  visible instead of treating suppression as a fix. Four reporting regressions
+  failed before this change and pass afterward. This restores observability;
+  it does not establish the historical DOM mutation's cause.
+- **Translated landing controls (further review):** replacing the enhancement
+  and sound-button text nodes with browser-translation `font` elements reproduced
+  `NotFoundError` on each real component before the repair. Wrap changing labels
+  in stable spans so icon replacement can insert before an element React still
+  owns. Also isolate the resume description heading and changing editor text
+  from conditionally inserted children. Regression tests verify enhancement
+  through completion and sound toggling after translation. Keep translation and
+  ordinary error capture enabled; no DOM prototype patch or exception filter.
+  These components are reachable on the homepage. Their reproduction does not
+  establish the source of every historical login/dashboard DOM failure.
+- **JSON-LD context (further review):** the serializer's promised non-empty
+  context fallback failed for an empty string or empty array. Both cases failed
+  regression assertions before the repair and now use the schema.org fallback.
+  Exercise the exact reader operation, `@context.toLowerCase()`, against the
+  actual site-identity and landing schemas and absent/non-string contexts.
+  Empty-context fallback is a separate source defect; it is not evidence that
+  an empty string caused the recorded undefined-context exceptions.
+
+Existing source mitigations verified: the clock hook's deterministic first
+render and browser-date hydration tests, pure login countdown/OTP state updates,
+explicit resume feature OpenGraph type, safe consent storage, JSON-LD context
+serialization, and the exact Brave/iOS wallet-injection filter. No broad
+RangeError, hydration, generic network, or unknown-rejection suppression added.
+
+## Remaining evidence limits
+
+The 12 Safari/iOS recursion groups have either no stack or page-URL-only frames,
+sometimes repeating minified pairs such as `Ok`/`Qk` at page line 226. There is no
+mapped first-party function or captured source context to attribute this to a
+reachable application function. Page URLs also occur on `/dashboard`; their
+presence alone does not establish that blog code caused the failures. Eight
+other opaque/anonymous exceptions and the generic Safari `Load failed` lack
+sufficient source evidence. Leave these unverified and observable.
+
+The further review establishes a browser association: all 411 events in the
+largest recursion group have the Google iOS app's `GSA` user-agent marker. A
+direct stored-issue-ID query across the 12 groups returned 488 event rows, of
+which 479 carry that marker; this is distinct from the issue aggregates' 491
+occurrences. A retained recording at the latest occurrence shows translated
+page text and `google-anno-*` elements. Google's
+[AdSense documentation](https://support.google.com/adsense/answer/13844047?hl=en)
+identifies this format as ad intents, which modifies existing text. This is
+evidence of third-party DOM changes, not proof that AdSense, translation, or
+the native browser script caused the recursion. The injected script's source
+was not retained in replay. The recorded AdSense implementation can still be
+downloaded, but its `Ok`/`Qk` functions and line 226 do not match the captured
+alternating recursion frames. Do not suppress these failures on that association.
+
+The newest #418 group includes dashboard/jobs/job-tracker, blog, OPT dates,
+pricing, and six clock events. The clock cause is reproduced and fixed, but that
+fix does not explain the older non-clock events. Additional job-tracker date
+and drag-instruction mismatches are now reproduced and repaired, without
+attributing every historical event to those components. Other #418 groups show
+React internals or retired chunks only. The dashboard's initial sidebar state, promo
+banner's first render, and pricing render are deterministic in inspected code.
+Current tests/build cannot prove all historical hydration causes fixed.
+
+The eight JSON-LD reader errors point to short page/global scripts and a
+`@context.toLowerCase` reader absent from this repository.
+[WebKit bug 255764](https://bugs.webkit.org/show_bug.cgi?id=255764) reproduces
+that same expression failure for array-root JSON-LD. Fetching the complete Git
+history recovered the old root layout: it emitted an array until
+[commit 57ad188e](https://github.com/dikondaashish/TrackmyOPT/commit/57ad188e812d640c9cb79961699f8a640881217b)
+on June 14 at 17:08 UTC, which changed it to an object with `@graph` and a root
+context. Evaluating the exact reader operation on the layout's schema expression
+before that commit throws `TypeError`; after it, the operation returns
+`https://schema.org`. All 67 reported occurrences in these eight groups precede
+that change (the latest is June 14 at 15:55 UTC). Current site schemas also pass
+the reader regression. This proves the historical source incompatibility and
+its repair. The exact HTML/browser script for each captured event is unavailable,
+so individual attribution remains an inference rather than an 81-issue guarantee.
+Likewise an opaque cross-origin Script error has no recoverable root cause.
+Existing browser bridge/extension signatures and AdSense vendor network failures
+are external classifications, not repaired third-party code.
+
+The retired React chunks `83aa3e20a906fd5d.js`, `4c6c10ffb8e9f9cd.js`, and
+`a2ed8749a800b7e8.js` all returned 404 in the further review. The checkout was
+initially shallow; a full fetch recovered 1,902 main-branch commits back to
+October 2025. The earlier conclusion that history began after the May–July DOM
+events was incorrect. Recovered June/July download and portal repairs do not
+identify the component behind framework-only frames; the July remediation
+notes themselves distinguish portal hygiene from the blanket exception filter
+that stopped alerts. That filter has been removed in this review. The video
+control was introduced in September, after these DOM groups' last events, so
+its new repair cannot explain those events. Missing original bundle/maps still
+prevent proving that all 13 groups shared the resume-control defect.
+
+Sentry's TrackMyOPT-only unresolved view also showed three new, handled OPT
+API-loading diagnostics on release `9253825f369a`: [plan status](https://zyene-inc.sentry.io/issues/7788622047/?project=4512234317938688),
+[saved dates](https://zyene-inc.sentry.io/issues/7788622046/?project=4512234317938688),
+and [employment history](https://zyene-inc.sentry.io/issues/7788622026/?project=4512234317938688).
+They share a trace and have working application source maps. The fixed privacy
+diagnostics do not retain the failed response/status or network cause. The
+current code separates expected 4xx outcomes and provides retry/error states;
+these reports remain unverified rather than being relabeled as repaired.
+
+Production source-map upload is already implemented and gated on production
+release configuration. Missing historical maps cannot be reconstructed by a new
+build. See [PostHog stack traces](https://posthog.com/docs/error-tracking/stack-traces)
+and [troubleshooting](https://posthog.com/docs/error-tracking/troubleshooting).
+Deployments and post-release recurrence verification are left to the owner as
+requested. Sentry sampling, privacy filters, plan, and alerts are unchanged.
+
+## Local validation
+
+Initial review:
+
+- Full web unit suite: 307 files / 2,084 tests passed before the final three
+  resize/diagnostic/pending-load tests were added. Final focused checks: nine
+  files / 84 tests passed, including Sentry privacy and storage/consent tests.
+- Monorepo type checks and subsequent web type check passed; production build
+  passed, including TypeScript and 421 generated pages.
+- Full lint passed with existing warnings; changed paths have one existing
+  dashboard effect warning and zero errors. React Doctor: 90/100, no issues in
+  changed files.
+- Playwright: all 26 tests passed. The initial run could not launch because the
+  required Chromium runtime was missing; installing it resolved that prerequisite.
+- Delivery requires the protected GitHub CI and Playwright jobs to pass. Their
+  final results are recorded on the pull request; no hosting checks are included.
+
+Follow-up review:
+
+- Full web suite: 310 files / 2,095 tests passed. All eight new job-tracker
+  regressions also passed in a separate `TZ=America/New_York` run; the default
+  UTC run caught the date/month hydration mismatches before their repair.
+- Production build passed, including TypeScript and 421 generated pages.
+  Full lint passed with existing warnings and zero errors. Changed/new paths
+  also passed focused lint. React Doctor: 91/100, no changed-file issues.
+- All 30 Playwright checks passed, including the two historical blog/login
+  routes in both Chromium and mobile WebKit. The four route checks also passed
+  with an explicit post-mount consent interaction before checking errors.
+  These local smoke checks do not
+  reconstruct Safari's historical browser environment or prove its original
+  recursion cause fixed.
+- No PostHog status/suppression changes or hosting actions were made. GitHub's
+  required CI and Playwright checks must pass before delivery to protected main.
+
+Further source/replay review:
+
+- Full web suite: 312 files / 2,097 tests passed. A separate focused run passed
+  all eight translated-control and JSON-LD reader tests; the six new JSON-LD
+  tests were created after the full suite started. The translation crashes and
+  empty-context assertions failed against the previous source before repair.
+- Full monorepo type checks and lint passed. Changed/new TypeScript paths also
+  passed focused lint. React Doctor remained 91/100, with no changed-file issues.
+- The initial production build compiled the application, then found malformed
+  generated `.next/dev/types` files left by overlapping development/browser
+  validation. No development server remained running; those generated files
+  were cleared in the task worktree. An interrupted retry had no final result;
+  the restarted clean build passed with CI's placeholder environment, including
+  TypeScript and all 421 generated pages. The protected GitHub build must also
+  pass before merge; its final result is recorded on the pull request.
+- All six route/translated-control Playwright checks passed in Chromium and
+  mobile WebKit. The resume control is desktop-only; video sound controls were
+  exercised in both browsers. Cold-build timeouts and a translated accessible
+  name in the initial locator fixture were corrected before the final run.
+- The owner cannot reproduce the Google iPhone app environment on a device.
+  Local WebKit does not include that app's injected scripts and does not prove
+  its historical recursion fixed. No issue status/suppression or hosting
+  actions were made.
+
+## Complete issue inventory
+
+Counts are issue groups, not unique root causes. IDs map directly to the original
+PostHog view. “Mitigation” does not mean every historical occurrence is explained.
+
+| Family | Groups | Code disposition |
+| --- | ---: | --- |
+| Brave wallet injection | 1 | Existing exact external signature filter; no wallet integration |
+| React hydration | 16 | Clock and job-tracker date causes reproduced/repaired; individual historical causes remain unverified |
+| ResizeObserver notifications | 2 | Existing browser notification filter; no source attribution |
+| AdSense slot sizing/duplicates | 6 | Actual-slot sizing and synchronous queue reservation repaired |
+| Safari recursion | 12 | Unverified; preserve reporting |
+| Unattributed network failure | 1 | Unverified; no generic network filter |
+| Unattributed exception | 8 | Unverified; preserve reporting |
+| PDF cancellation | 1 | Reachable cleanup rejection repaired; historical stack absent |
+| Activation request | 1 | Existing rejection handling retained; diagnostics/retry repaired |
+| OpenGraph probe | 1 | Existing metadata mitigation verified |
+| Native browser bridge | 1 | Existing external signature classification |
+| AdSense network failure | 1 | Vendor stack verified; existing external classification |
+| React DOM mutation | 13 | Two current translated-control crashes reproduced/repaired; individual historical causes unverified |
+| Opaque cross-origin error | 1 | Existing opaque error classification; root cause unavailable |
+| JSON-LD reader | 8 | Historical root-array incompatibility reproduced and June repair verified; current reader tests pass; exact event attribution remains an inference |
+| Login state updates | 1 | Existing pure state updaters verified |
+| Navigation cancellation | 1 | Expected context teardown classification |
+| Extension global | 1 | External content-script signature |
+| Injected host bridge | 4 | Existing external bridge signature |
+| Unavailable local storage | 1 | Existing helper verified; dashboard and job-tracker consumers repaired |
+
+### Brave wallet injection
+
+- `01a12b1a-668b-77b0-b727-0679837fcfff`
+
+### React hydration
+
+- `01a04fc1-3d4d-7522-adc4-a28192fa28d3`
+- `019f3de7-4875-7a30-b9bf-9c78c3201372`
+- `019e8b40-e2bd-7b40-993f-872e1a8abbe1`
+- `019e74bc-184f-7f93-b069-c4d9e7334a39`
+- `019ecbf3-88c7-7880-96ae-fb55c495a60c`
+- `019ec89c-7b0c-7801-83ed-63b7b1baa75e`
+- `019ec35f-f034-77a3-872a-acb4290d247e`
+- `019e6a67-e817-7b60-9a0f-d5ad38f00257`
+- `019e67fd-df7d-72d1-a8b9-ac295b70045a`
+- `019e9020-e633-78e0-8119-ebf214c8f328`
+- `019e71dd-7579-7c01-81fa-5d9dfbf2752f`
+- `019e7061-aa4d-7fa3-a035-b89119acc0c5`
+- `019e738d-4fcd-7a53-bb40-baff219ad68a`
+- `019ea8dd-4893-72c1-bddc-d93d4864b388`
+- `019e71dd-7579-7c01-81fa-5db64023c12f`
+- `019e71dd-7579-7c01-81fa-5daf988145e1`
+
+### ResizeObserver notifications
+
+- `01a05491-6ef7-7fe3-93f3-3da293b2d085`
+- `01a09dfc-7016-7ce2-ae12-b7f52f7317e8`
+
+### AdSense slot sizing/duplicates
+
+- `01a0edd1-36d8-79e1-883c-e0725d60a6a2`
+- `01a0d442-8d8e-7450-a9e0-38aa8815997d`
+- `01a08edb-9e26-7c81-8e83-e9c74e1583f2`
+- `01a07d33-7479-7553-a26e-4fff16247bb5`
+- `01a07c3b-2930-7db2-bedf-069f8c8c3671`
+- `01a04a63-661b-72f0-882e-525a99207282`
+
+### Safari recursion
+
+- `01a07e99-9de0-7c00-875a-398189225f4c`
+- `01a0a63a-8e9c-7c43-8f40-81b71a4b9fc9`
+- `01a0a63a-8e9d-7df0-81a7-42763179c95c`
+- `01a0a63a-8e9c-7c43-8f40-81c8038c9da2`
+- `01a0992f-d20b-79a1-bf5a-d46cbe985e27`
+- `019eaa01-fd72-7c52-8702-0705a0cfc8aa`
+- `01a0adc9-8a0f-72f1-9876-99c629cc0c68`
+- `01a05b10-8486-76b0-a3a3-49a12f03cde1`
+- `01a05b10-8487-7e61-ae63-0aff8af4e60c`
+- `01a08703-c252-7651-9209-539c4c6c9270`
+- `01a08703-c253-71b1-908e-61dfabde5f78`
+- `01a05b10-8487-7e61-ae63-0ae6143df765`
+
+### Unattributed network failure
+
+- `019f3850-c735-7123-9fdf-3f42fd5b5a15`
+
+### Unattributed exception
+
+- `01a0b6bb-a0c1-7552-bf81-0d19289ad7ad`
+- `01a0b6be-2c3b-7a61-bcfe-824a9862b666`
+- `01a0b6bb-2cb7-7e91-b793-a4a8b63f6e8f`
+- `01a0b6bb-2cb7-7e91-b793-a4b54a618b50`
+- `01a0637f-427a-7bd0-8df6-16d5bff25c01`
+- `01a0345a-502a-7df2-974a-ad43bf64c598`
+- `019eaa01-d718-70f0-9ec2-894a1ac9cf4e`
+- `019eaa01-d719-7bd0-9f16-1ad888a8d265`
+
+### PDF cancellation
+
+- `01a03eb5-bfc8-78e3-9654-0f98da595b37`
+
+### Activation request
+
+- `019fa331-55e4-7652-bbe3-4eb9ec60d4a9`
+
+### OpenGraph probe
+
+- `019fa51b-b43e-7761-91d6-cce59ee12955`
+
+### Native browser bridge
+
+- `019f89fe-fa96-73d2-98b6-5bc6386819d2`
+
+### AdSense network failure
+
+- `019e7f10-5cdb-7d93-a734-059f54a2dda0`
+
+### React DOM mutation
+
+- `019e67b9-5206-7170-abff-79544d034bf0`
+- `019e67b8-f6a7-7d40-8925-254575503916`
+- `019ec8a0-0d02-7a00-ade9-d537457d9704`
+- `019ed3ef-12ad-71a2-b5ed-9a4ec2b9c37d`
+- `019e6aff-8ccb-7e43-a619-6d2e9b26ba62`
+- `019ea964-d0d2-7ef3-8de7-1b49f7ac5b91`
+- `019e7e4d-ecad-7031-80fa-29c7fb33bc3f`
+- `019e7986-94ed-7ae2-9ed6-4040aa7f6012`
+- `019e7986-94ed-7ae2-9ed6-40330c70646a`
+- `019e7986-94ed-7ae2-9ed6-402eb3a15a23`
+- `019e7986-94ed-7ae2-9ed6-400caa7b9742`
+- `019e7986-94ed-7ae2-9ed6-4011d016fed2`
+- `019e7986-94ed-7ae2-9ed6-3ff1f0701a83`
+
+### Opaque cross-origin error
+
+- `019e8041-0160-74f0-a095-6440adf0ec60`
+
+### JSON-LD reader
+
+- `019eae4e-f21d-7280-ad02-787bd759b35c`
+- `019e6aae-e8ab-7ba1-88f1-078183b7a872`
+- `019ebcd2-83b9-72d1-9452-2b8d0cf08fda`
+- `019e7073-682e-77e3-a8dd-c7c255fa34ef`
+- `019eb84d-4991-7361-ac87-76537a9b5ca0`
+- `019e8041-32ab-7011-a153-c4f5e7c43801`
+- `019e9655-ce9c-7e92-9779-c25fb35a8e87`
+- `019e849a-5dda-7400-bcd3-be726984e919`
+
+### Login state updates
+
+- `019eacb8-b2b1-72f1-ab50-c8320498c696`
+
+### Navigation cancellation
+
+- `019e9102-96b8-7853-8915-1fe87640a090`
+
+### Extension global
+
+- `019e891e-9ff3-7c03-86a0-0328275318f3`
+
+### Injected host bridge
+
+- `019e8511-2f91-7083-b1fa-4994bf0d3ac8`
+- `019e8511-2f8e-77a1-8cf5-541c4a2ffef6`
+- `019e8511-2f8e-77a1-8cf5-54266b5b7f6a`
+- `019e7422-fd82-7140-bd6a-0e9810329f16`
+
+### Unavailable local storage
+
+- `019e7cba-93cb-7d22-b6d5-57114da913e3`

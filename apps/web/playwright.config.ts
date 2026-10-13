@@ -30,5 +30,10 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'webkit-error-routes',
+      testMatch: 'error-routes.spec.ts',
+      use: { ...devices['iPhone 13'] },
+    },
   ],
 });

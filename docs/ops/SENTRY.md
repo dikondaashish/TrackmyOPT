@@ -14,8 +14,11 @@ responses (4xx) do not create API-response issues. The separate ingestion API
 process and Chrome extension's own runtime do not run the Next.js SDK. The Render
 pending-case email enrollment catch sends a fixed, authenticated, body-free error
 signal to `/api/internal/pending-case-enrollment-failure`, where the web SDK
-captures and flushes it. This narrow bridge does not cover all ingestion API
-errors; its transport failures remain visible in Render logs. It accepts no
+captures and flushes it. The daily case worker also sends a fixed body-free signal to
+`/api/internal/case-worker-failure`, authenticated with the existing API key.
+Scheduled USCIS calls and persistence run through the monitored web sync flow.
+The daily cron reports failed/overdue jobs from the preceding day. These bridges
+do not cover all ingestion API errors; its transport failures remain visible in Render logs. It accepts no
 caller-supplied diagnostics or applicant data and limits repeated reports.
 
 When adding API handlers, export them through `withSentryApiErrors` with their
@@ -29,9 +32,115 @@ An HTTP 200 response containing an application error still requires explicit
 
 Existing PostHog instrumentation and server console redaction remain active.
 
+The OPT/STEM tools report unexpected saved-date, plan-status, employment-history,
+and date-save failures with fixed diagnostic messages, including malformed or
+failed HTTP 200 responses. Expected 4xx outcomes and requests canceled by
+unmounting stay separate. Reports omit dates, employment records, response bodies,
+and rejected error contents.
+
+## Browser error triage
+
+### OPT forecast evidence and validation
+
+The forecast API and refresh cron use `withSentryApiErrors`; failed immutable
+observation writes fail the case check so its durable retry can recover the
+evidence. Model-read/write failures never publish a partial ready run. A daily
+sync still pending at the last forecast slot emits a fixed error message.
+Community partial-source failures are explicitly reported even when other
+sources succeed. Browser forecast failures use a fixed message and retain the
+historical comparison. No receipt, provider body or case dates enter these
+diagnostics. Expected limited evidence, source review, unauthorized access and
+ordinary waiting-for-sync states do not create issues.
+
+Model freshness and accuracy reports are stored in private database run records,
+not Sentry metrics. This does not add paid monitors, tracing, Replay or logs.
+Cron absence requires an external freshness check; a job that never executes
+cannot report itself. See [forecast operations](../predictions/OPT_FORECAST_ENGINE.md).
+
+React error #418 is a hydration mismatch and remains observable in both Sentry
+and PostHog. On October 12, 2026, both occurrences shown in PostHog were on
+`/tools/opt-clock`. The shared tool hook rendered the current local date during
+SSR; static HTML can retain the build date while the browser uses a later date
+or a different timezone. The hook now starts with an empty date, refreshes after
+hydration, and updates each minute and on focus. Regression checks hydrate HTML
+from a different day and exercise both public OPT/STEM clocks with a different
+browser date and timezone. This fixes that reproduced cause; other hydration
+causes still need investigation if they recur.
+
+The `window.ethereum.selectedAddress = undefined` TypeError shown on
+`/blog/h1b-approval-rates-by-company` came from Brave on iOS, with a page-only
+global-code stack. It matches [Brave's wallet-injection bug](https://github.com/brave/brave-browser/issues/58670);
+TrackMyOPT has no wallet integration. PostHog drops only the exact signature
+with Brave/iOS metadata and page-script evidence. Bundled errors, mixed product
+errors, and events without that evidence remain reportable. This classification
+does not change Sentry capture, alerts, sampling, or privacy settings, and does
+not remove historical events. Do not resolve an issue solely to clear the list;
+check its release, last occurrence, and post-deployment evidence first.
+
 The organization also contains `zyene-reviews` for Zyene Reviews. Keep the
 products' DSNs and Vercel upload credentials separate. TrackMyOPT's numeric
 project ID is `4512234317938688`; renaming its slug does not change the DSN.
+
+## Session, image, and extension recovery
+
+The October 12 [TrackMyOPT issue review](SENTRY_ISSUE_REMEDIATION_2026-10-12.md)
+covers only project `4512234317938688`. The locked `@supabase/auth-js@2.75.0`
+has a pnpm patch that validates primitive/array storage before user hydration,
+clears malformed session and user cookies with a fixed diagnostic, and preserves
+an in-progress OAuth PKCE verifier. It also guards browser URL access during
+server initialization. Keep the patch when updating dependencies until the
+upstream implementation and regression tests verify the same recovery. The
+proxy batches cookie updates and preserves every updated/deleted chunk on both
+normal responses and redirects.
+
+Retryable refresh-network failures keep the existing session and remain
+reportable. The SDK already retries transient fetch failures; do not convert
+provider outages into successful authentication or suppress their reports.
+
+Blog covers report optimizer failures, retry the original static image, then
+use a static fallback. If both originals and fallback fail, the layout retains
+an accessible placeholder and reports each failure with a fixed message.
+Dashboard extension messaging consumes callback errors and rejected promises;
+expected missing/closed contexts are normal detection outcomes. Unexpected
+bridge failures and open-tool timeouts use fixed error reports. The extension's
+own background runtime still has the coverage limitation described above.
+
+## Historical PostHog code review
+
+The [one-year PostHog review](POSTHOG_CODE_REVIEW_2026-10-12.md) records all 81
+issue groups and their evidence limits. AdSense now reserves each actual slot
+before queueing and measures its current width. Template PDF cleanup consumes
+cancellation rejections. Unexpected ad initialization, PDF load/render/cleanup,
+and activation probe failures use fixed console diagnostics captured by Sentry.
+Activation checks retain retry and account/consent guards; expected offline,
+unmount, and authentication outcomes remain separate. Dashboard sidebar storage
+also uses the safe helpers when storage is null or blocked, as does the job
+tracker's saved-view preference.
+
+PostHog and boundary reporting no longer drop React DOM removeChild/insertBefore
+failures based solely on their message. Historical page-only/minified Safari
+recursion and anonymous rejections remain unverified after inspecting the full
+stored frame origins. The follow-up reproduced and repaired four job-tracker
+hydration mismatches (relative dates, due counts, month grid, and table dates)
+using a stable first render. Date-only follow-ups now keep the visitor's selected
+calendar day. The board also uses a stable React ID for drag instructions to
+avoid dnd-kit's server/client counter mismatch. Individual historical #418 causes
+remain unverified; do not describe a suppression label or an old last-seen date
+as a root-cause repair. This source review does not verify deployment or recurrence.
+
+The further October 12 review reproduced browser-translation DOM crashes in the
+landing resume enhancement and video sound controls. Their changing labels now
+have stable elements, with translated-node regression checks; translation and
+DOM error capture remain enabled. JSON-LD tests also exercise the captured
+reader expression on current site schemas, and the serializer now uses its
+fallback for empty contexts. Recovered Git history reproduces that expression
+failure on the old root-array layout and verifies the June 14 object-root repair;
+all eight historical groups precede it, while exact event attribution remains
+an inference. Historical Safari recursion has a strong Google
+iOS browser association, but its injected source is unavailable. Three new
+production OPT API-loading diagnostics on release `9253825f369a` were observed
+in the TrackMyOPT-only Sentry view; their captured data does not establish the
+response/network cause. These and the remaining historical gaps stay unverified.
 
 ## Free-plan requirement
 
@@ -83,6 +192,8 @@ disabled. The shared `beforeSend` filter also removes custom scope data,
 attachments, request URLs, and source context. It redacts known sensitive
 patterns in error messages, including email addresses, receipt numbers,
 credentials, billing IDs, UUIDs, and URL credentials/queries/fragments.
+Serialized object/array payloads, including truncated session JSON, are removed
+wholesale from diagnostic text while preserving the message prefix and stack.
 
 Keep applicant details out of error strings: pattern filtering cannot recognize
 every possible personal value. Privacy disclosure lives in `/privacy` and
