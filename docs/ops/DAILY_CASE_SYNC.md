@@ -51,10 +51,27 @@ credential configuration. `API_SECRET_KEY`, already shared by Vercel and Render,
 authenticates worker callbacks. Render defaults its website callback origin to
 `https://www.trackmyopt.com`; it no longer requires separate USCIS credentials
 or `CRON_SECRET` to sync or request notifications. The internal sync route checks
-Render availability before spending a provider request. This creates real inbound
-traffic during a long batch, which helps prevent the Free service's 15-minute
-idle shutdown. Render Free remains subject to restarts, Redis data loss, monthly
-limits, and suspension; no availability guarantee is implied.
+Render availability before spending a provider request, to avoid consuming the
+USCIS request budget when the worker is already unavailable for persistence.
+
+### Render workspace and compute plans
+
+On October 12, 2026, the Render dashboard confirmed **Zyene's workspace is Pro**.
+The same dashboard showed the production **TrackmyOPT web service**
+(`srv-d5q1o4koud1c73drob40`) and **trackmyopt-queue Key Value instance**
+(`red-d5q1l89r0fns73d7pghg`) on **Free compute plans**. Workspace subscriptions
+and service compute plans are separate; a Pro workspace does not automatically
+upgrade either instance. See [Render billing](https://render.com/docs/faq#billing)
+and [Free instance limitations](https://render.com/docs/free).
+
+With those verified compute settings, the web service can still spin down after
+15 minutes without inbound traffic, and the queue can lose its in-memory data on
+restart. The availability check creates real inbound traffic during an active
+batch; durable PostgreSQL job outcomes and re-dispatch support queue recovery.
+Free compute also retains its documented usage and suspension limits. Recheck
+each service's compute plan before changing these operational assumptions. The
+availability check, recovery logic, and USCIS request limits remain useful with
+paid compute; a workspace or compute upgrade does not change USCIS allowances.
 
 The PostgreSQL request governor covers OAuth, manual calls, daily calls, and
 retries across instances. It grants at most one request every **250 ms** (4 TPS).
