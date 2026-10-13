@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Job Application for Data Engineer at Acme Fixture</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"JobPosting","title":"Data Engineer","hiringOrganization":{"@type":"Organization","name":"Acme Fixture"},"description":"Build reliable data pipelines with Python and SQL. Work with analytics teams to ship dashboards and models."}</script><script src="/_fixture/_shared.js"></script></head>
+<body><div id="app_body"><h1 class="app-title">Data Engineer</h1><span class="company-name">at Acme Fixture</span>
+<div id="content"><p>Build reliable data pipelines with Python and SQL. Work with analytics teams.</p></div>
+<form id="application_form" class="application--form" action="#">
+  <div class="field"><label for="first_name">First Name <span class="asterisk">*</span></label><input type="text" id="first_name" name="job_application[first_name]" aria-required="true"></div>
+  <div class="field"><label for="last_name">Last Name <span class="asterisk">*</span></label><input type="text" id="last_name" name="job_application[last_name]" aria-required="true"></div>
+  <div class="field"><label for="email">Email <span class="asterisk">*</span></label><input type="text" id="email" name="job_application[email]" aria-required="true"></div>
+  <div class="field"><label for="phone">Phone</label><input type="text" id="phone" name="job_application[phone]"></div>
+  <div class="field"><label for="candidate-location">Location (City)</label><input id="candidate-location" role="combobox" aria-autocomplete="list" name="job_application[location]"></div>
+  <div class="field" id="resume_field"><label for="resume">Resume/CV</label><input type="file" id="resume" name="job_application[resume]" accept=".pdf"></div>
+  <div class="field"><label for="q1">LinkedIn Profile</label><input type="text" id="q1" name="job_application[answers_attributes][0][text_value]"></div>
+  <div class="field"><label for="q2">Current Company</label><input type="text" id="q2" name="job_application[answers_attributes][1][text_value]"></div>
+  <div class="field"><label for="q3">Will you now or in the future require sponsorship for employment visa status?</label><select id="q3" name="job_application[answers_attributes][2][boolean_value]"><option value="">--</option><option value="1">Yes</option><option value="0">No</option></select></div>
+  <div id="demographic_questions"><label for="gender">Gender</label><select id="gender" name="gender"><option value="">Please select</option><option>Male</option><option>Female</option><option>Decline to self-identify</option></select></div>
+  <input type="submit" id="submit_app" value="Submit Application">
+</form></div>
+<script>
+fixture.typeahead(document.getElementById('candidate-location'), ['Dallas, Texas, United States','Dallas, Georgia, United States','Dallastown, Pennsylvania, United States']);
+document.getElementById('resume').addEventListener('change', e => setTimeout(() => { const f = document.createElement('span'); f.className = 'filename'; f.textContent = e.target.files[0]?.name || ''; document.getElementById('resume_field').append(f); }, 300));
+document.getElementById('application_form').addEventListener('submit', e => { e.preventDefault(); document.body.dataset.submitted = 'yes'; });
+</script></body></html>

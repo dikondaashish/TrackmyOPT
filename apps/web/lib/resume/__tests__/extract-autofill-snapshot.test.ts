@@ -98,7 +98,44 @@ describe('extractAutofillSnapshot', () => {
     expect(result.snapshot.contact).toEqual({});
     expect(result.snapshot.experience).toEqual([]);
     expect(result.snapshot.education).toEqual([]);
-    expect(result.snapshot.skills).toEqual(['Python', 'SQL']);
+    // Skills must also be listed in the applicant's own resume.
+    expect(result.snapshot.skills).toEqual([]);
+  });
+
+  it('keeps total years, skills, and certifications only when the source resume states them', async () => {
+    const source = `${fixture('job-a-source.txt')}\nSummary: 6+ years building data platforms.\nSkills: Python, Airflow\nCertifications: AWS Certified Data Engineer (Amazon)`;
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: source,
+      recoverSourceTitles: async () => ({ roles: [] }),
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        totalYearsExperience: 6,
+        skills: ['Python', 'Kubernetes'],
+        certifications: [
+          { name: 'AWS Certified Data Engineer', issuer: 'Amazon' },
+          { name: 'Google Professional Data Engineer', issuer: 'Google' },
+        ],
+      }),
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.snapshot.totalYearsExperience).toBe(6);
+    expect(result.snapshot.skills).toEqual(['Python']);
+    expect(result.snapshot.certifications).toEqual([
+      { name: 'AWS Certified Data Engineer', issuer: 'Amazon' },
+    ]);
+
+    const computed = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      recoverSourceTitles: async () => ({ roles: [] }),
+      extractStructuredSnapshot: async () => ({ ...jobASnapshot, totalYearsExperience: 3 }),
+    });
+    expect(computed.ok).toBe(true);
+    if (!computed.ok) return;
+    // Jan 2021 – Mar 2024 is ~3 years, but the resume never says so.
+    expect(computed.snapshot.totalYearsExperience).toBeUndefined();
   });
 
   it('never lets a rewritten job title enter the autofill snapshot', async () => {

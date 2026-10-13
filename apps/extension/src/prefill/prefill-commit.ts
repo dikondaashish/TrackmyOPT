@@ -5,12 +5,14 @@ export async function verifyNativeCommit(
   element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
   expected: string,
   current: () => boolean,
+  /** Accepts a value the site reformatted (e.g. a phone mask). */
+  accepts: (actual: string, expected: string) => boolean = (actual, value) => actual === value,
 ): Promise<boolean> {
   const view = element.ownerDocument.defaultView;
   if (!view) return false;
   for (let check = 0; check < 2; check++) {
     await new Promise<void>(resolve => view.setTimeout(resolve, 80));
-    if (!current() || !element.isConnected || element.value !== expected) return false;
+    if (!current() || !element.isConnected || !accepts(element.value, expected)) return false;
   }
   return true;
 }

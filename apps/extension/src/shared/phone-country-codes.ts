@@ -107,7 +107,36 @@ const COUNTRY_NAME_TO_ALPHA2: Record<string, string> = {
   venezuela: 'VE',
   ecuador: 'EC',
   uruguay: 'UY',
+  // Official and ISO forms portals list instead of the common name.
+  'u s': 'US',
+  'u s a': 'US',
+  'korea republic of': 'KR',
+  'republic of korea': 'KR',
+  'viet nam': 'VN',
+  turkiye: 'TR',
+  'russian federation': 'RU',
+  'people s republic of china': 'CN',
+  'hong kong sar': 'HK',
+  'hong kong sar china': 'HK',
+  britain: 'GB',
+  // ISO-3166 alpha-3 codes some country lists use as labels or values.
+  gbr: 'GB', can: 'CA', ind: 'IN', aus: 'AU', deu: 'DE', fra: 'FR',
+  chn: 'CN', jpn: 'JP', mex: 'MX', bra: 'BR', irl: 'IE', nzl: 'NZ',
+  sgp: 'SG', are: 'AE', pak: 'PK', bgd: 'BD',
 };
+
+/**
+ * ISO alpha-2 for a country name, alias, or code — the same identity no matter
+ * how a form spells it ("United States", "USA", "US", "United States of
+ * America"). Null when the value is not a country this table knows.
+ */
+export function countryAlpha2(value: string): string | null {
+  const raw = (value || '').trim();
+  if (!raw) return null;
+  const upper = raw.toUpperCase();
+  if (/^[A-Z]{2}$/.test(upper) && COUNTRY_DIAL_CODES[upper]) return upper;
+  return COUNTRY_NAME_TO_ALPHA2[normalizeName(raw)] ?? null;
+}
 
 function normalizeName(value: string): string {
   return value
@@ -159,4 +188,54 @@ export function resolveDialCode(input: {
     dialCodeFromPhoneNumber(input.phone || '') ??
     dialCodeForCountry(input.country || '')
   );
+}
+
+export interface NormalizedPhone {
+  /** Dial code without "+", when the number or the country states one. */
+  dial: string | null;
+  /** The number without its dial code, in the applicant's own formatting. */
+  national: string;
+  /** National digits only. */
+  nationalDigits: string;
+  /** +<dial><number>, or null when no dial code is known. */
+  e164: string | null;
+}
+
+/**
+ * Split a stored phone number into dial code and national number without
+ * changing the applicant's digits. "+1 (555) 123-4567" and "15551234567" in
+ * the US both become dial "1", national "(555) 123-4567" / "5551234567".
+ */
+export function normalizePhone(raw: string, country?: string): NormalizedPhone {
+  const trimmed = (raw || '').trim();
+  const international = trimmed.startsWith('+') || /^00\d/.test(trimmed);
+  const explicitDial = international
+    ? dialCodeFromPhoneNumber(`+${trimmed.replace(/^\+|^00/, '')}`)
+    : null;
+  let dial = explicitDial ?? dialCodeForCountry(country || '');
+  let national = trimmed;
+  if (explicitDial) {
+    // Remove "+<dial>" / "00<dial>" and the separator after it, keeping the
+    // rest exactly as typed.
+    const prefix = new RegExp(`^(?:\\+|00)\\s*${explicitDial.split('').join('[\\s.-]?')}[\\s.\\-)]*`);
+    national = trimmed.replace(prefix, '').replace(/^\(\s*\)\s*/, '').trim();
+  } else if (international) {
+    // An unknown "+code": keep the number whole; no dial can be asserted.
+    dial = null;
+  } else if (dial === '1') {
+    // North American numbers are often stored with the leading 1.
+    const digits = trimmed.replace(/\D/g, '');
+    if (digits.length === 11 && digits.startsWith('1')) {
+      national = trimmed.replace(/^\s*1[\s.-]*/, '');
+    }
+  }
+  const nationalDigits = national.replace(/\D/g, '');
+  // E.164 drops a domestic trunk "0" (UK 07…, India 0…); NANP has none.
+  const e164Digits = dial && dial !== '1' ? nationalDigits.replace(/^0/, '') : nationalDigits;
+  return {
+    dial,
+    national,
+    nationalDigits,
+    e164: dial && e164Digits ? `+${dial}${e164Digits}` : null,
+  };
 }

@@ -57,6 +57,21 @@ export function reachableDocuments(): Document[] {
 }
 
 /** Build a lowercased label string for a control from every nearby signal. */
+/**
+ * A caption's own text, without the text of controls nested inside it. A
+ * <label> wrapping a <select> otherwise reads as its whole option list
+ * ("What is your location? Afghanistan Albania … Vatican City …").
+ */
+function captionText(caption: Element | null | undefined): string | undefined {
+  if (!caption) return undefined;
+  if (!caption.querySelector('select, option, datalist, [role="listbox"], [role="option"]')) {
+    return caption.textContent ?? undefined;
+  }
+  const copy = caption.cloneNode(true) as Element;
+  copy.querySelectorAll('select, option, datalist, [role="listbox"], [role="option"]').forEach(node => node.remove());
+  return copy.textContent ?? undefined;
+}
+
 export function getLabelText(el: HTMLElement): string {
   const parts: string[] = [];
   const push = (s: string | null | undefined) => {
@@ -96,7 +111,7 @@ export function getLabelText(el: HTMLElement): string {
   }
   const component = (rootNode as ShadowRoot).host;
   if (component?.matches('spl-input, spl-textarea')) push(component.getAttribute('label'));
-  push(el.closest('label')?.textContent);
+  push(captionText(el.closest('label')));
   const ashbyField = el.closest('.ashby-application-form-field-entry');
   if (ashbyField?.getAttribute('data-field-path') === '_systemfield_name') push('full name');
   push(ashbyField?.querySelector(':scope > .ashby-application-form-question-title')?.textContent);
@@ -109,9 +124,9 @@ export function getLabelText(el: HTMLElement): string {
     '[data-automation-id*="formField" i], [data-testid*="field" i], .application-field, .form-field, .field',
   );
   push(
-    fieldWrapper?.querySelector(
+    captionText(fieldWrapper?.querySelector(
       'label, legend, [data-automation-id*="label" i], [class*="label" i]',
-    )?.textContent,
+    )),
   );
 
   // Last resort: many generic company forms place a plain <span>/<div>/<p>/

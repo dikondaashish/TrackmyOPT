@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Data Engineer - Acme Fixture Careers</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"JobPosting","title":"Data Engineer","hiringOrganization":{"@type":"Organization","name":"Acme Fixture"},"description":"Build reliable data pipelines with Python and SQL. Work with analytics teams to ship dashboards and models."}</script><script src="/_fixture/_shared.js"></script></head>
+<body><div data-automation-id="jobApplicationPage"><h2 data-automation-id="jobPostingHeader">Data Engineer</h2>
+<h3>My Experience</h3>
+<div data-automation-id="resumeUpload"><h4>Resume/CV</h4><div data-automation-id="file-upload-drop-zone">
+  <label for="resumeAttachments--attachments">Resume/CV</label><input type="file" id="resumeAttachments--attachments" data-automation-id="file-upload-input-ref" accept=".pdf"></div></div>
+<div data-automation-id="websitePanelSet"><div data-automation-id="formField-linkedinQuestion"><label for="li">LinkedIn</label><input id="li" data-automation-id="linkedinQuestion"></div></div>
+<div data-automation-id="workExperienceSection" role="group" aria-label="Work Experience"><h4>Work Experience</h4>
+  <button type="button" data-add data-automation-id="Add">Add</button></div>
+<div data-automation-id="educationSection" role="group" aria-label="Education"><h4>Education</h4>
+  <button type="button" data-add data-automation-id="Add">Add</button></div>
+<div><button type="button" data-automation-id="bottom-navigation-next-button">Save and Continue</button></div>
+</div>
+<script>
+const workRow = i => '<div data-automation-id="workExperienceCard">' +
+  '<div data-automation-id="formField-jobTitle"><label for="jt'+i+'">Job Title</label><input id="jt'+i+'" data-automation-id="jobTitle"></div>' +
+  '<div data-automation-id="formField-companyName"><label for="co'+i+'">Company</label><input id="co'+i+'" data-automation-id="company"></div>' +
+  '<div data-automation-id="formField-currentlyWorkHere"><label><input type="checkbox" data-automation-id="currentlyWorkHere"> I currently work here</label></div>' +
+  '<div data-automation-id="formField-startDate"><label>From</label><div data-automation-id="dateInputWrapper">' +
+    '<input aria-label="Month" data-automation-id="dateSectionMonth-input" role="spinbutton" placeholder="MM">' +
+    '<input aria-label="Year" data-automation-id="dateSectionYear-input" role="spinbutton" placeholder="YYYY"></div></div>' +
+  '<div data-automation-id="formField-endDate"><label>To</label><div data-automation-id="dateInputWrapper">' +
+    '<input aria-label="Month" data-automation-id="dateSectionMonth-input" role="spinbutton" placeholder="MM">' +
+    '<input aria-label="Year" data-automation-id="dateSectionYear-input" role="spinbutton" placeholder="YYYY"></div></div>' +
+  '<div data-automation-id="formField-roleDescription"><label for="rd'+i+'">Role Description</label><textarea id="rd'+i+'" data-automation-id="description"></textarea></div></div>';
+const eduRow = i => '<div data-automation-id="educationCard">' +
+  '<div data-automation-id="formField-schoolItem"><label for="sc'+i+'">School or University</label><input id="sc'+i+'" data-automation-id="school"></div>' +
+  '<div data-automation-id="formField-degree"><label id="dl'+i+'">Degree</label><button type="button" id="dg'+i+'" aria-haspopup="listbox" aria-labelledby="dl'+i+'" aria-label="Degree">Select One</button></div>' +
+  '<div data-automation-id="formField-fieldOfStudy"><label for="fs'+i+'">Field of Study</label><input id="fs'+i+'"></div></div>';
+document.getElementById('resumeAttachments--attachments').addEventListener('change', event => setTimeout(() => {
+  const ok = document.createElement('div');
+  ok.setAttribute('data-automation-id', 'file-upload-successful');
+  ok.textContent = event.target.files[0]?.name || '';
+  document.querySelector('[data-automation-id="file-upload-drop-zone"]').append(ok);
+}, 300));
+document.querySelector('[data-automation-id="bottom-navigation-next-button"]').addEventListener('click', e => { e.currentTarget.dataset.clicked = 'yes'; });
+for (const [section, make] of [['workExperienceSection', workRow], ['educationSection', eduRow]]) {
+  const group = document.querySelector('[data-automation-id="'+section+'"]');
+  const add = group.querySelector('[data-add]');
+  add.addEventListener('click', () => {
+    const count = group.querySelectorAll('[data-automation-id$="Card"]').length;
+    add.insertAdjacentHTML('beforebegin', make(count));
+    add.textContent = 'Add Another';
+    const degree = document.getElementById('dg'+count);
+    if (degree) degree.addEventListener('mousedown', () => {
+      document.getElementById('dg-list')?.remove();
+      const list = document.createElement('ul'); list.id = 'dg-list'; list.setAttribute('role', 'listbox');
+      degree.setAttribute('aria-controls', 'dg-list'); degree.setAttribute('aria-expanded', 'true');
+      for (const text of ['High School or Equivalent', "Associate's Degree", "Bachelor's Degree", "Master's Degree", 'Doctorate']) {
+        const li = document.createElement('li'); li.setAttribute('role', 'option'); li.textContent = text;
+        li.addEventListener('click', () => { degree.textContent = text; list.remove(); degree.setAttribute('aria-expanded', 'false'); });
+        list.append(li);
+      }
+      document.body.append(list);
+    });
+  });
+}
+</script></body></html>

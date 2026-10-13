@@ -4,6 +4,7 @@ import type {
 } from '../resume/resume-autofill-contract';
 import { trackPrefillChange } from './prefill-undo';
 import { customDropdownHasValue } from './smart-dropdown';
+import { matchDegreeOption } from './degree-match';
 import type {
   ClassifiedControl,
   FormSectionKind,
@@ -231,6 +232,27 @@ function selectOptionValue(
   return enabled[0].value;
 }
 
+/**
+ * Native option for a non-date history value. Degrees also match by level
+ * ("Master of Science" → "Master's Degree") when exactly one option fits.
+ */
+function nativeSelectValue(
+  select: HTMLSelectElement,
+  field: ClassifiedControl['field'],
+  value: string
+): string | undefined {
+  const exact = selectOptionValue(select, [value]);
+  if (exact !== undefined || field !== 'degree') return exact;
+  const options = Array.from(select.options).filter(option =>
+    option.value && !option.disabled && !option.closest?.('optgroup[disabled]'));
+  const index = matchDegreeOption(options.map(option => option.label || option.text), value);
+  if (index < 0) return undefined;
+  const chosen = options[index].value;
+  return Array.from(select.options).filter(option => option.value === chosen).length === 1
+    ? chosen
+    : undefined;
+}
+
 function validDate(
   date: ResumeDateValue | undefined
 ): date is ResumeDateValue & { year: number } {
@@ -454,7 +476,7 @@ function existingValueAgrees(
   const actual = control.element.value;
   if (control.element instanceof HTMLSelectElement) {
     if (!/^(start|end)(Month|Year)$/.test(control.field)) {
-      expected = selectOptionValue(control.element, [expected]);
+      expected = nativeSelectValue(control.element, control.field, expected);
     }
     return expected !== undefined && actual === expected;
   }
@@ -527,6 +549,10 @@ export interface RepeatableDropdownTarget {
   value: string;
   /** Exact-option matcher; months accept any of their standard spellings. */
   matcher?: (candidate: string, desired: string) => boolean;
+  /** Whole-list chooser for values matched by equivalence (degree level). */
+  pickOption?: (texts: readonly string[]) => number;
+  /** Text typed into a typeahead so its options load. */
+  searchText?: string;
 }
 
 /**
@@ -563,7 +589,15 @@ export function planRepeatableDropdownFills(
       continue;
     }
     const value = valueForControl(control, record);
-    if (typeof value === 'string' && value.trim()) targets.push({ control, value });
+    if (typeof value !== 'string' || !value.trim()) continue;
+    if (control.field === 'degree') {
+      // Search by the degree's level word ("Master"), which lists also use.
+      const level = value.match(/\b(bachelor|master|doctor|associate|ph\.?d|mba)/i)?.[0];
+      targets.push({ control, value, searchText: level ?? value,
+        pickOption: texts => matchDegreeOption(texts, value) });
+    } else {
+      targets.push({ control, value, searchText: value });
+    }
   }
   return targets;
 }
@@ -600,7 +634,7 @@ export function fillRepeatableRecords(
       control.element instanceof HTMLSelectElement &&
       !/^(start|end)(Month|Year)$/.test(control.field)
     ) {
-      value = selectOptionValue(control.element, [value]);
+      value = nativeSelectValue(control.element, control.field, value);
     }
     if (onlyControl && expectedValue !== undefined && value !== expectedValue) {
       skippedFields += 1;

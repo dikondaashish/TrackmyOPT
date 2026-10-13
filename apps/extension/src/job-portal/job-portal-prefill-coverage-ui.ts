@@ -1,11 +1,18 @@
 import { PREFILL_SOURCE_LABEL } from '../prefill/prefill-contact-source';
 import { UPLOAD_STATUS_COPY } from '../prefill/upload-verification';
+import { ACCESS_BARRIER_COPY } from '../prefill/access-barriers';
 /**
  * Prefill coverage summary UI painted into the widget coverage line.
  */
 
 import { jumpToPrefillField, type PrefillCoverageResult } from '../easy-apply/easy-apply-engine';
-import { formatPrefillCoverageSummary, retryPrefillOperation } from '../prefill/prefill-coverage';
+import {
+  attentionControls,
+  formatPrefillCoverageSummary,
+  formatPrefillRunSummary,
+  prefillRunSummary,
+  retryPrefillOperation,
+} from '../prefill/prefill-coverage';
 
 export function paintPrefillCoverage(
   line: HTMLElement,
@@ -38,6 +45,13 @@ export function paintPrefillCoverage(
     notice.style.cssText = 'margin:0 0 10px;font:500 12px/1.5 system-ui;';
     line.appendChild(notice);
   }
+  if (result.accessBarrier) {
+    const notice = document.createElement('p');
+    notice.setAttribute('role', 'status');
+    notice.textContent = ACCESS_BARRIER_COPY[result.accessBarrier];
+    notice.style.cssText = 'margin:0 0 10px;font:500 12px/1.5 system-ui;color:var(--tmo-color-warning-ink, #9b4b13);';
+    line.appendChild(notice);
+  }
   if (scan && scannedFieldCount > 0) {
     const scanHeader = document.createElement('div');
     scanHeader.style.cssText =
@@ -58,6 +72,15 @@ export function paintPrefillCoverage(
     count.style.cssText =
       'margin-top:3px;color:var(--tmo-widget-muted, #60718b);font-size:12px;line-height:1.5;';
     line.appendChild(count);
+
+    // What this run did, in one line the applicant can trust.
+    const run = document.createElement('div');
+    run.className = 'tmo-prefill-run-summary';
+    run.setAttribute('role', 'status');
+    run.textContent = formatPrefillRunSummary(prefillRunSummary(result));
+    run.style.cssText =
+      'margin-top:6px;color:var(--tmo-widget-ink, #17243b);font:500 12px/1.5 system-ui;overflow-wrap:anywhere;';
+    line.appendChild(run);
 
     const track = document.createElement('div');
     track.setAttribute('role', 'progressbar');
@@ -97,7 +120,8 @@ export function paintPrefillCoverage(
       const list = document.createElement('div');
       list.style.cssText =
         'display:grid;grid-auto-rows:max-content;gap:0;max-height:240px;overflow:auto;padding:0 4px 0 0;line-height:1.5;overscroll-behavior:contain;';
-      for (const field of [...fields].sort((a,b) => Number(a.filled)-Number(b.filled))) {
+      const needsFix = (field: typeof fields[number]) => field.filled && field.invalid;
+      for (const field of [...fields].sort((a,b) => Number(a.filled && !a.invalid)-Number(b.filled && !b.invalid))) {
         const item = document.createElement('div');
         item.style.cssText =
           'display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:12px;padding:9px 0;min-height:36px;box-sizing:border-box;line-height:1.5;';
@@ -108,15 +132,38 @@ export function paintPrefillCoverage(
         const state = document.createElement('span');
         const uploadState = field.control?.tagName === 'INPUT' && (field.control as HTMLInputElement).type === 'file'
           ? result.uploadVerification?.[/cover/i.test(field.label) ? 'cover_letter' : 'resume'] : undefined;
-        state.textContent = uploadState && uploadState !== 'verified' ? 'Check upload' : field.filled
-          ? '✓ Done'
-          : field.required
-            ? 'Missing'
-            : 'Optional';
+        state.textContent = uploadState && uploadState !== 'verified' ? 'Check upload' : needsFix(field)
+          ? 'Fix'
+          : field.filled
+            ? '✓ Done'
+            : field.required
+              ? 'Missing'
+              : 'Optional';
         state.style.cssText =
           `display:block;white-space:nowrap;font:500 11px/1.65 system-ui;color:${
-            field.filled ? 'var(--tmo-color-success-ink, #168465)' : field.required ? 'var(--tmo-color-warning-ink, #9b4b13)' : 'var(--tmo-widget-muted, #60718b)'
+            field.filled && !needsFix(field) ? 'var(--tmo-color-success-ink, #168465)' : field.required || needsFix(field) ? 'var(--tmo-color-warning-ink, #9b4b13)' : 'var(--tmo-widget-muted, #60718b)'
           };`;
+        if (needsFix(field) && field.errorText) {
+          const error = document.createElement('small');
+          // textContent only — the site's own error copy.
+          error.textContent = field.errorText;
+          error.style.cssText = 'display:block;font:400 11px/1.5 system-ui;color:var(--tmo-color-warning-ink, #9b4b13);';
+          label.appendChild(error);
+        }
+        if ((needsFix(field) || (!field.filled && field.required)) && field.control) {
+          // Each item needing attention takes the applicant straight to it.
+          const control = field.control;
+          label.setAttribute('role', 'button');
+          label.tabIndex = 0;
+          label.title = 'Go to this field';
+          label.style.cursor = 'pointer';
+          label.style.textDecoration = 'underline';
+          const go = () => focusControl(control);
+          label.addEventListener('click', go);
+          label.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); go(); }
+          });
+        }
         const source = result.fieldSources?.find(entry => entry.control === field.control)?.source;
         if (source) {
           const detail = document.createElement('small');
@@ -156,20 +203,29 @@ export function paintPrefillCoverage(
     });
     line.appendChild(button);
   }
-  const firstRemaining = scan?.required.find(field => !field.filled)?.control;
-  if (firstRemaining || (!scan && result.skipped > 0 && result.firstSkippedSelector)) {
+  const attention = attentionControls(result);
+  if (attention.length || (!scan && result.skipped > 0 && result.firstSkippedSelector)) {
     const jump = document.createElement('button');
     jump.type = 'button';
-    jump.textContent = 'Review missing fields';
+    jump.textContent = attention.length > 1 ? `Review ${attention.length} fields needing attention` : 'Review missing fields';
     jump.style.cssText =
       'display:block;width:100%;min-height:40px;margin-top:12px;padding:9px 12px;border:1px solid var(--tmo-widget-border, #dce3ed);border-radius:8px;background:var(--tmo-widget-surface, #fafbfe);color:var(--tmo-widget-accent-strong, #245bd6);font:600 12px/1.5 system-ui;text-align:center;cursor:pointer;';
+    // Each click moves to the next field that still needs attention.
+    let next = 0;
     jump.addEventListener('click', () => {
-      if (firstRemaining?.isConnected) {
-        const reduced = firstRemaining.ownerDocument.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-        firstRemaining.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'center' });
-        firstRemaining.focus({ preventScroll: true });
+      const pending = attention.filter(control => control.isConnected);
+      if (pending.length) {
+        focusControl(pending[next % pending.length]);
+        next += 1;
       } else if (!scan) jumpToPrefillField(result.firstSkippedSelector || '');
     });
     line.appendChild(jump);
   }
+}
+
+function focusControl(control: HTMLElement): void {
+  if (!control.isConnected) return;
+  const reduced = control.ownerDocument.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  control.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'center' });
+  control.focus({ preventScroll: true });
 }

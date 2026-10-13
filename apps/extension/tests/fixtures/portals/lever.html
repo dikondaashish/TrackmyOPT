@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Acme Fixture - Data Engineer</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"JobPosting","title":"Data Engineer","hiringOrganization":{"@type":"Organization","name":"Acme Fixture"},"description":"Build reliable data pipelines with Python and SQL. Work with analytics teams to ship dashboards and models."}</script><script src="/_fixture/_shared.js"></script></head>
+<body><div class="posting-headline"><h2>Data Engineer</h2></div><div class="section page-centered"><p>Build reliable data pipelines with Python and SQL.</p></div>
+<form id="application-form" class="application-form" action="#">
+  <ul><li class="application-question"><label><div class="application-label">Full name<span class="required">✱</span></div><div class="application-field"><input type="text" name="name" required></div></label></li>
+  <li class="application-question"><label><div class="application-label">Email<span class="required">✱</span></div><div class="application-field"><input type="email" name="email" required></div></label></li>
+  <li class="application-question"><label><div class="application-label">Phone</div><div class="application-field"><input type="text" name="phone"></div></label></li>
+  <li class="application-question"><label><div class="application-label">Current company</div><div class="application-field"><input type="text" name="org"></div></label></li>
+  <li class="application-question"><label><div class="application-label">LinkedIn URL</div><div class="application-field"><input type="text" name="urls[LinkedIn]"></div></label></li>
+  <li class="application-question"><label><div class="application-label">GitHub URL</div><div class="application-field"><input type="text" name="urls[GitHub]"></div></label></li>
+  <li class="application-question"><label><div class="application-label">Resume/CV</div><div class="application-field"><input type="file" name="resume" accept=".pdf"><span class="resume-upload-success" hidden></span><span class="resume-upload-failure" hidden></span></div></label></li></ul>
+  <button type="submit" id="btn-submit">Submit application</button>
+</form>
+<script>document.querySelector('[name=resume]').addEventListener('change', () => setTimeout(() => { const ok = document.querySelector('.resume-upload-success'); ok.hidden = false; ok.textContent = document.querySelector('[name=resume]').files[0]?.name || ''; }, 300));
+document.getElementById('application-form').addEventListener('submit', e => { e.preventDefault(); document.body.dataset.submitted = 'yes'; });</script></body></html>

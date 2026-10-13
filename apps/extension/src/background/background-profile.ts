@@ -123,7 +123,9 @@ export async function resolveCurrentV1PrefillPayload(
     if (stored) {
       const restored = await resolveV1PrefillPayload({
         artifact: stored,
-        request,
+        // The restored window starts when it was fetched, after this request
+        // was created; validate it against the current time.
+        request: { ...request, now: new Date().toISOString() },
         discardRejectedArtifact: false,
         fetchProfileFallback,
       });

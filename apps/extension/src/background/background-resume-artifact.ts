@@ -7,7 +7,7 @@ import {
 } from '../resume/active-resume-artifact-store';
 import { getExtensionBearerToken } from './background-auth';
 import { validateGeneratedResumeArtifactV1 } from '../resume/resume-artifact-validator';
-import { validateArtifactForPrefill } from '../resume/resume-artifact-lifecycle';
+import { RESUME_ARTIFACT_TTL_MS, validateArtifactForPrefill } from '../resume/resume-artifact-lifecycle';
 import type { SavedJobResumeResponse } from '../resume/saved-job-resume';
 import { readCachedToken } from '../shared/token-store';
 
@@ -235,12 +235,22 @@ export async function lookupSavedJobResume(
       }))
     )
       return { ok: false, error: 'invalid_resume' };
-    const valid = artifact as GeneratedResumeArtifactV1;
+    // The server restamps a stored artifact's review window with its own
+    // clock at request time. Re-base it on this device's clock: otherwise the
+    // request's latency (or any server clock lead) makes the artifact look
+    // generated in the future, which validation rightly rejects, and a resume
+    // saved to the account never attached.
+    const reviewStartedAt = Date.now();
+    const valid: GeneratedResumeArtifactV1 = {
+      ...(artifact as GeneratedResumeArtifactV1),
+      generatedAt: new Date(reviewStartedAt).toISOString(),
+      expiresAt: new Date(reviewStartedAt + RESUME_ARTIFACT_TTL_MS).toISOString(),
+    };
     if (
       !validateArtifactForPrefill(
         valid,
         { jobUrl, companyName: '', roleTitle: '' },
-        Date.now()
+        reviewStartedAt
       ).valid
     )
       return { ok: false, error: 'invalid_resume' };

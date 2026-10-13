@@ -37,6 +37,7 @@ assert.deepEqual(summarizeApplicationFields(fields), {
   requiredPercent: 100,
   unansweredRequired: 0,
   optionalTotal: 3,
+  invalidTotal: 0,
   required: fields.slice(0, 15),
   optional: fields.slice(15),
 });

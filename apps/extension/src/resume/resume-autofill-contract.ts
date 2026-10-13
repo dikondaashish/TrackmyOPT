@@ -206,7 +206,7 @@ export function normalizeJobIdentityText(value: string): string {
     .toLocaleLowerCase('en-US');
 }
 
-const WORKDAY_HOST_RE = /(?:^|\.)(?:myworkdayjobs|myworkday)\.com$/i;
+const WORKDAY_HOST_RE = /(?:^|\.)(?:myworkdayjobs|myworkday|myworkdaysite)\.com$/i;
 const ICIMS_HOST_RE = /(?:^|\.)icims\.com$/i;
 
 function normalizeRequisitionId(value: string): string {

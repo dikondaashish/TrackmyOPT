@@ -41,6 +41,11 @@ export type FieldKind =
   | 'currentTitle'
   | 'summary';
 
+/** Questions about a name, not requests for it ("How do you pronounce your name?"). */
+const NAME_QUESTION_RE = /\b(pronounc\w*|preferred|nickname|pronouns?|phonetic|how do|how should)\b/;
+/** Location choices about the role or office rather than where the applicant lives. */
+const ROLE_LOCATION_RE = /\b(opportunity|office|preferred|desired|which location|work location|job location|position location|hiring location|relocat\w*)\b/;
+
 /** Backwards-compatible name used by the deterministic prefill modules. */
 export const SENSITIVE_FIELD_RE = SENSITIVE_QUESTION_RE;
 
@@ -49,7 +54,9 @@ export const SENSITIVE_FIELD_RE = SENSITIVE_QUESTION_RE;
  * data into these — skip them.
  */
 const ESSAY_RE =
-  /\b(describe|tell us|why do|why are|explain|cover letter|message|summary|additional information|anything else)\b/i;
+  /\b(describe|tell us|why do|why are|explain|cover letter|message|summary|additional information|anything else|share|contributions?|elaborate)\b/i;
+/** Consent and acknowledgement prompts mention a channel ("Phone") but ask for agreement. */
+const CONSENT_RE = /\b(consent|i agree|acknowledge|opt in|opt-in|authori[sz]e (?:you|us) to)\b/i;
 
 /**
  * Fields about a company / school / reference / manager — someone or something
@@ -88,6 +95,7 @@ export function classifyField(labelText: string): FieldKind | null {
   const resumeKind = classifyResumeOnlyField(t);
   if (resumeKind) return resumeKind;
   if (ESSAY_RE.test(t)) return null;
+  if (CONSENT_RE.test(t)) return null;
   if (NON_APPLICANT_ORG_RE.test(t) || ORG_TRAP_RE.test(t)) return null;
 
   // Rule 8: only a dedicated, plainly labelled skills field. Qualifiers are
@@ -125,7 +133,10 @@ export function classifyField(labelText: string): FieldKind | null {
     return 'phoneDeviceType';
   }
 
-  if (/\b(phone|telephone|tel|téléphone|telefono|mobile|cell|portable)\b/.test(t)) return 'phone';
+  // A bare "tel" is a phone token only outside a parenthesised code:
+  // "Telugu (TEL)" in a language list is not a phone number.
+  if (/\b(phone|telephone|téléphone|telefono|mobile|cell|portable)\b/.test(t) ||
+      (/\btel\b/.test(t) && !/\(\s*tel\s*\)/.test(labelText.toLowerCase()))) return 'phone';
   // normalizeFieldSignal splits camelCase, so "LinkedIn" becomes "linked in";
   // tolerate the space/hyphen so human-facing "LinkedIn Profile URL" labels match.
   if (/\blinked[\s-]?in\b/.test(t)) return 'linkedinUrl';
@@ -148,7 +159,8 @@ export function classifyField(labelText: string): FieldKind | null {
 
   if (/\b(first name|given name|prénom|prenom|nombre|vorname)\b/.test(t)) return 'firstName';
   if (/\b(last name|surname|family name|apellido|nachname)\b/.test(t)) return 'lastName';
-  if (/\b(full name|legal name|your name|nom complet|nombre completo)\b/.test(t)) return 'fullName';
+  if (/\b(full name|legal name|your name|nom complet|nombre completo)\b/.test(t) &&
+      !NAME_QUESTION_RE.test(t)) return 'fullName';
   if (t === 'name') return 'fullName'; // HTML autocomplete="name"
 
   if (/\b(address line\s*1|street address|street-address)\b/.test(t)) return 'streetAddress';
@@ -159,7 +171,10 @@ export function classifyField(labelText: string): FieldKind | null {
   if (/\b(county|district)\b/.test(t)) return 'countyDistrict';
   if (/\b(city|town|ville|ciudad)\b/.test(t)) return 'city';
   if (/\b(state|province|région|region)\b/.test(t)) return 'state';
-  if (/\b(location|localisation|where are you currently located)\b/.test(t)) return 'location';
+  // "Which office / job location?" is a choice about the role, not the
+  // applicant's home location, and stays with the applicant.
+  if (/\b(location|localisation|where are you currently located)\b/.test(t) &&
+      !ROLE_LOCATION_RE.test(t)) return 'location';
 
   return null;
 }
@@ -173,7 +188,7 @@ const SUMMARY_PHRASE_RE =
 const SUMMARY_FILLER_RE =
   /\b(?:summary|professional|resume|career|profile|executive|your|enter|required|optional|field)\b/g;
 const OPEN_QUESTION_RE =
-  /\b(?:describe|tell us|why|explain|cover letter|message|additional information|anything else|how|what)\b/;
+  /\b(?:describe|tell us|why|explain|cover letter|message|additional information|anything else|how|what|share|elaborate)\b/;
 
 /**
  * Applicant-history fields that sit outside a repeatable employment row:
