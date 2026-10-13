@@ -166,19 +166,15 @@ async function copy() {
   }
 }
 
+function countMissing(ids: string[], present: Set<string>) {
+  return ids.filter((id) => !present.has(id)).length;
+}
+
 async function verify() {
   const sampleSize = positiveInt(argument('--sample'), 200);
   const supabase = filingsClient();
   const { driver, connection } = await oracleConnection();
   try {
-    // A HEAD exact count returns 500 on this project; a one-row GET with
-    // count=exact returns the same total reliably.
-    const { count, error } = await supabase
-      .from('h1b_filings')
-      .select('id', { count: 'exact' })
-      .limit(1);
-    if (error) throw new Error(`Supabase count failed: ${error.message}`);
-    if (typeof count !== 'number') throw new Error('Supabase count missing');
     const oracleCount = await connection.execute(
       'SELECT COUNT(*) AS n FROM h1b_filings',
       [],
@@ -186,22 +182,62 @@ async function verify() {
     );
     const oracleRows = Number(oracleCount.rows?.[0]?.N ?? -1);
 
-    // Evenly spaced offsets give a deterministic sample across the id range.
-    const total = count ?? 0;
-    const step = Math.max(1, Math.floor(total / sampleSize));
+    // Exact counts hit the filings project's statement timeout, so walk every
+    // source id with keyset pages instead and reconcile each page's id range
+    // against Oracle. This yields the exact total and any missing/extra ids.
+    // Lowercase UUID text sorts identically in Postgres and Oracle (binary).
+    const sampleEvery = Math.max(1, Math.floor(233_575 / sampleSize));
+    const sampleIds: string[] = [];
+    let total = 0;
+    let missingIds = 0;
+    let extraIds = 0;
+    let lastId: string | null = null;
+    for (;;) {
+      let query = supabase
+        .from('h1b_filings')
+        .select('id')
+        .order('id')
+        .limit(PAGE_SIZE);
+      if (lastId) query = query.gt('id', lastId);
+      const { data, error } = await query;
+      if (error) throw new Error(`Supabase id scan failed: ${error.message}`);
+      const ids = (data ?? []).map((row: { id: unknown }) => String(row.id));
+      if (!ids.length) break;
+      const upper = ids[ids.length - 1];
+      const oracleIds = await connection.execute(
+        lastId
+          ? 'SELECT id FROM h1b_filings WHERE id > :lo AND id <= :hi'
+          : 'SELECT id FROM h1b_filings WHERE id <= :hi',
+        lastId ? { lo: lastId, hi: upper } : { hi: upper },
+        { outFormat: driver.OUT_FORMAT_OBJECT },
+      );
+      const inOracle = new Set((oracleIds.rows ?? []).map((r) => String(r.ID)));
+      for (const id of ids) {
+        if (!inOracle.has(id)) missingIds += 1;
+        if (total % sampleEvery === 0 && sampleIds.length < sampleSize)
+          sampleIds.push(id);
+        total += 1;
+      }
+      extraIds += inOracle.size - (ids.length - countMissing(ids, inOracle));
+      lastId = upper;
+    }
+    // Oracle rows above the last source id would also be extras.
+    if (lastId) {
+      const tail = await connection.execute(
+        'SELECT COUNT(*) AS n FROM h1b_filings WHERE id > :lo',
+        { lo: lastId },
+        { outFormat: driver.OUT_FORMAT_OBJECT },
+      );
+      extraIds += Number(tail.rows?.[0]?.N ?? 0);
+    }
+
     const sample: Record<string, unknown>[] = [];
-    for (
-      let offset = 0;
-      offset < total && sample.length < sampleSize;
-      offset += step * 50
-    ) {
-      const { data, error: sampleError } = await supabase
+    for (let index = 0; index < sampleIds.length; index += 100) {
+      const { data, error } = await supabase
         .from('h1b_filings')
         .select('*')
-        .order('id')
-        .range(offset, offset + 49);
-      if (sampleError)
-        throw new Error(`Supabase sample failed: ${sampleError.message}`);
+        .in('id', sampleIds.slice(index, index + 100));
+      if (error) throw new Error(`Supabase sample failed: ${error.message}`);
       sample.push(...((data ?? []) as Record<string, unknown>[]));
     }
 
@@ -235,12 +271,20 @@ async function verify() {
       }
     }
 
-    const passed = oracleRows === total && missing === 0 && mismatched === 0;
+    const passed =
+      oracleRows === total &&
+      missingIds === 0 &&
+      extraIds === 0 &&
+      sample.length === sampleIds.length &&
+      missing === 0 &&
+      mismatched === 0;
     console.log(
       JSON.stringify({
         status: passed ? 'verified' : 'mismatch',
         supabaseRows: total,
         oracleRows,
+        missingIds,
+        extraIds,
         sampled: sample.length,
         missing,
         mismatched,
