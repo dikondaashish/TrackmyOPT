@@ -171,10 +171,14 @@ async function verify() {
   const supabase = filingsClient();
   const { driver, connection } = await oracleConnection();
   try {
+    // A HEAD exact count returns 500 on this project; a one-row GET with
+    // count=exact returns the same total reliably.
     const { count, error } = await supabase
       .from('h1b_filings')
-      .select('id', { count: 'exact', head: true });
+      .select('id', { count: 'exact' })
+      .limit(1);
     if (error) throw new Error(`Supabase count failed: ${error.message}`);
+    if (typeof count !== 'number') throw new Error('Supabase count missing');
     const oracleCount = await connection.execute(
       'SELECT COUNT(*) AS n FROM h1b_filings',
       [],
