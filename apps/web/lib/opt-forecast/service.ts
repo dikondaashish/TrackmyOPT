@@ -37,6 +37,8 @@ export async function recordObservation(
             date: e.date,
             status: e.completedText,
           })),
+          // Only when USCIS sends it (non-IOE receipts), for the silent-update study.
+          ...(status.modifiedDate ? { modified: status.modifiedDate } : {}),
         },
       }),
       'observation write'

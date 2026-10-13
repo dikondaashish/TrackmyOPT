@@ -13,6 +13,8 @@ export type ProviderEvidence = {
   form: string;
   received: string | null;
   events: Array<{ date: string; status: string }>;
+  /** USCIS modifiedDate when provided (never for IOE receipts). Not used by the model. */
+  modified?: string;
 };
 export type Observation = {
   id: number;

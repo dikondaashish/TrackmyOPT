@@ -16,6 +16,8 @@ export interface USCISStatus {
   receivedDate: string | null;
   description: string;
   histCaseStatus: USCISHistoryItem[];
+  /** USCIS back-end change time ("MM-DD-YYYY HH:MM:SS"); never sent for IOE receipts. */
+  modifiedDate?: string | null;
 }
 
 export interface USCISError {

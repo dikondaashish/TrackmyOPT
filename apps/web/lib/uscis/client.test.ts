@@ -57,6 +57,24 @@ it('handles IOE payloads without inventing omitted submitted dates', () => {
     )
   ).toMatchObject({ receivedDate: null, histCaseStatus: [] });
 });
+it('keeps only a well-formed USCIS modifiedDate', () => {
+  const parse = (modifiedDate: unknown) =>
+    parseUSCISResponse(
+      {
+        case_status: {
+          receiptNumber: input.receiptNumber,
+          formType: 'I-765',
+          current_case_status_text_en: 'Case Was Received',
+          modifiedDate,
+        },
+      },
+      input.receiptNumber
+    ).modifiedDate;
+  expect(parse('09-05-2023 14:28:46')).toBe('09-05-2023 14:28:46');
+  expect(parse(undefined)).toBeNull();
+  expect(parse('yesterday')).toBeNull();
+  expect(parse({ at: 1 })).toBeNull();
+});
 it('refuses malformed or mismatched success bodies', () => {
   expect(() =>
     parseUSCISResponse(

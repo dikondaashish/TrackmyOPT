@@ -131,6 +131,27 @@ it('sends only allowlisted provider fields and returns deletion races honestly',
     events: [],
   });
 });
+it('forwards USCIS modifiedDate only when it was provided', async () => {
+  const m = database({});
+  m.rpc.mockResolvedValue({ data: true, error: null });
+  await recordObservation(
+    m.db,
+    'case',
+    {
+      receiptNumber: 'MSC0000000001',
+      status: 'Case Was Received',
+      caseType: 'I-765',
+      receivedDate: null,
+      description: 'private',
+      histCaseStatus: [],
+      modifiedDate: '10-13-2026 09:15:00',
+    },
+    '2026-10-13T00:00:00Z'
+  );
+  expect(m.rpc.mock.calls[0]![1].p_provider.modified).toBe(
+    '10-13-2026 09:15:00'
+  );
+});
 
 const premiumCase = (patch: Record<string, unknown> = {}) => ({
   id: 'case',

@@ -55,4 +55,10 @@ UPDATE public.case_status SET receipt_number='IOE0000000003' WHERE id='00000000-
 SELECT public.test_assert((SELECT count(*)=0 FROM public.opt_case_observations WHERE case_id='00000000-0000-0000-0000-000000000002'),'changed receipt retained prior application history');
 DELETE FROM public.community_opt_timelines;
 SELECT public.test_assert((SELECT count(*)=0 FROM public.opt_community_observations),'community removal retained history');
+SELECT public.record_opt_case_observation('00000000-0000-0000-0000-000000000003',now()-interval '1 minute','{"status":"Case Was Received","form":"I-765","received":null,"events":[],"modified":"10-13-2026 09:15:00"}');
+SELECT public.test_assert((SELECT provider->>'modified'='10-13-2026 09:15:00' FROM public.opt_case_observations WHERE case_id='00000000-0000-0000-0000-000000000003' ORDER BY id DESC LIMIT 1),'valid modifiedDate not kept');
+SELECT public.record_opt_case_observation('00000000-0000-0000-0000-000000000003',now()-interval '2 minutes','{"status":"Case Was Received","form":"I-765","received":null,"events":[],"modified":"<script>"}');
+SELECT public.test_assert((SELECT NOT (provider ? 'modified') FROM public.opt_case_observations WHERE case_id='00000000-0000-0000-0000-000000000003' AND synced_at < now()-interval '90 seconds'),'malformed modifiedDate kept');
+SELECT public.record_opt_case_observation('00000000-0000-0000-0000-000000000003',now()-interval '3 minutes','{"status":"Case Was Received","form":"I-765","received":null,"events":[]}');
+SELECT public.test_assert((SELECT NOT (provider ? 'modified') FROM public.opt_case_observations WHERE case_id='00000000-0000-0000-0000-000000000003' AND synced_at < now()-interval '150 seconds' AND synced_at > now()-interval '4 minutes'),'absent modifiedDate added a key');
 RESET ROLE;
