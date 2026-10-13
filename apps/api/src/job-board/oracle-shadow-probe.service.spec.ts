@@ -2,7 +2,10 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OracleJobDataStore } from './oracle-job-data-store';
 import { resolveJobDataStore } from './job-data-store.config';
-import { OracleShadowProbeService } from './oracle-shadow-probe.service';
+import {
+  OracleShadowProbeService,
+  safeOracleErrorCode,
+} from './oracle-shadow-probe.service';
 
 type ConfigValues = Record<string, boolean | number | string | undefined>;
 
@@ -110,6 +113,33 @@ describe('OracleShadowProbeService', () => {
     expect(errorSpy.mock.calls.flat().join(' ')).not.toContain(
       'private detail',
     );
+  });
+
+  it('logs only a well-formed Oracle error code, never the message', async () => {
+    const { service } = setup({ ORACLE_SHADOW_PROBE_ON_BOOT: true });
+    const failure = Object.assign(new Error('ORA-01017: private detail'), {
+      code: 'ORA-01017',
+    });
+    jest.spyOn(OracleJobDataStore, 'fromEnvironment').mockReturnValue({
+      healthCheck: jest.fn().mockRejectedValue(failure),
+      close: jest.fn().mockResolvedValue(undefined),
+    } as unknown as OracleJobDataStore);
+
+    await service.runProbe();
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^Oracle shadow probe failed \(\d+ms, ORA-01017\)$/,
+      ),
+    );
+    expect(errorSpy.mock.calls.flat().join(' ')).not.toContain('private');
+  });
+
+  it('drops malformed error codes', () => {
+    expect(safeOracleErrorCode({ code: 'NJS-500' })).toBe('NJS-500');
+    expect(safeOracleErrorCode({ code: 'secret=abc' })).toBeUndefined();
+    expect(safeOracleErrorCode(new Error('x'))).toBeUndefined();
+    expect(safeOracleErrorCode(null)).toBeUndefined();
   });
 
   it('swallows Oracle failures without changing production storage selection', async () => {
