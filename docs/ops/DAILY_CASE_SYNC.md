@@ -6,7 +6,9 @@ calendar day** (`0 14 * * *`). This is 10:00 AM New York during daylight time an
 individual request finishes exactly 24 hours after the preceding request.
 
 Every currently enrolled `case_status` row is eligible, including free accounts,
-secondary cases, and cases with a final status. Only user-enrolled receipts may
+secondary cases, and cases with a final status. An enrolled case without a profile
+row still syncs using free-tier display and notification rules. Real profile lookup
+errors fail closed. Only user-enrolled receipts may
 be queried; neighboring receipts and quarantined cache entries remain excluded.
 Deleting a case cancels its persisted schedule and subsequent enrollment checks
 prevent provider calls, writes, or notifications for that removed enrollment.
