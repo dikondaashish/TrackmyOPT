@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import {
   ForecastDetails,
   VerifiedForecastPanel,
@@ -60,4 +60,20 @@ it('shows limited evidence honestly and logs failed loads without response conte
     'OPT approval forecast could not be loaded'
   );
   error.mockRestore();
+});
+it('requests once per visit and again only at a new UTC day', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+  vi.setSystemTime(new Date('2026-10-13T23:58:30Z'));
+  const fetch = vi
+    .fn()
+    .mockImplementation(() =>
+      Promise.resolve(new Response(null, { status: 403 }))
+    );
+  vi.stubGlobal('fetch', fetch);
+  render(<VerifiedForecastPanel caseId="case" lastCheckedAt={null} />);
+  await act(() => vi.advanceTimersByTimeAsync(60_000));
+  expect(fetch).toHaveBeenCalledTimes(1);
+  await act(() => vi.advanceTimersByTimeAsync(60_000));
+  expect(fetch).toHaveBeenCalledTimes(2);
+  vi.useRealTimers();
 });

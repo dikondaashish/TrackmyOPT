@@ -13,7 +13,7 @@ Migration `20261013133431_opt_forecast_observations.sql` adds:
 | --- | --- |
 | `opt_case_identity` | Stable random application UUID shared only when the existing enrolled receipts match exactly. Stable across removal of one shared enrollment. No new receipt/hash copy. |
 | `opt_case_observations` | Immutable successful provider observations and dated metadata revisions. `observed_at` is DB ingestion time; `synced_at` is successful provider-check time; raw allowlisted status events carry their own dates. Retried identical sync timestamp is idempotent. |
-| `opt_community_observations` | Immutable copies of each future partner upsert, with original allowlisted date strings for correction audits. Import time is not pending confirmation. |
+| `opt_community_observations` | Immutable snapshots of partner rows: one baseline on the first import after release, then one per actual change (forward migration `20261013185730`). Unchanged daily upserts only refresh `updated_at`. Original allowlisted date strings support correction audits. Import time is not pending confirmation. |
 | `opt_forecast_policy` | Explicit source-use authorization reference and separately reviewed serving model/cohort artifact. Default closed; not client-writable. |
 | `opt_forecast_runs` | Version, cutoff, curve inputs/outputs, aggregate backtest report and completion state. Ten-minute claims serialize workers; retry gets a new UUID so late writers cannot publish. |
 | `opt_forecast_run_cases` | Membership for deletion invalidation; no persistent model survives removal of a contributing enrollment. |

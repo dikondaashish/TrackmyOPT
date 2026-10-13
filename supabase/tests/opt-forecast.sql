@@ -7,6 +7,7 @@ INSERT INTO public.case_status VALUES
 ('00000000-0000-0000-0000-000000000003','10000000-0000-0000-0000-000000000003','IOE0000000002','stem_extension',now(),'2026-01-01',NULL);
 GRANT SELECT,UPDATE,DELETE ON public.case_status TO service_role;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.community_opt_timelines TO service_role;
+INSERT INTO public.community_opt_timelines(id,external_id,case_kind,premium_processing,init_date,source) VALUES('20000000-0000-0000-0000-000000000002','optt_preexisting','initial_opt',false,'2026-02-01','reddit');
 -- APPLY MIGRATION HERE
 CREATE FUNCTION public.test_assert(ok boolean,message text) RETURNS void LANGUAGE plpgsql AS $$
 BEGIN IF ok IS DISTINCT FROM true THEN RAISE EXCEPTION '%',message; END IF; END $$;
@@ -32,6 +33,14 @@ UPDATE public.community_opt_timelines SET approve_date='2026-04-01',days_to_appr
 SELECT public.test_assert((SELECT count(*)=2 FROM public.opt_community_observations),'community correction overwrote history');
 SELECT public.test_assert((SELECT count(*)=1 FROM public.read_opt_community_asof(clock_timestamp())),'asof community duplicates');
 SELECT public.test_assert((SELECT payload->>'approve_date'='2026-04-01' FROM public.read_opt_community_asof(clock_timestamp())),'community latest wrong');
+UPDATE public.community_opt_timelines SET source=source WHERE external_id='optt_synthetic';
+SELECT public.test_assert((SELECT count(*)=2 FROM public.opt_community_observations),'unchanged daily upsert duplicated a snapshot');
+UPDATE public.community_opt_timelines SET source=source WHERE external_id='optt_preexisting';
+SELECT public.test_assert((SELECT count(*)=1 FROM public.opt_community_observations WHERE payload->>'external_id'='optt_preexisting'),'first import after release did not record a baseline');
+UPDATE public.community_opt_timelines SET source=source WHERE external_id='optt_preexisting';
+SELECT public.test_assert((SELECT count(*)=1 FROM public.opt_community_observations WHERE payload->>'external_id'='optt_preexisting'),'unchanged baseline duplicated');
+UPDATE public.community_opt_timelines SET source_evidence='{"approve_date":"2026-05-01"}' WHERE external_id='optt_preexisting';
+SELECT public.test_assert((SELECT count(*)=2 FROM public.opt_community_observations WHERE payload->>'external_id'='optt_preexisting'),'raw date correction not versioned');
 UPDATE public.opt_forecast_policy SET uscis_training_authorized=true,authorization_reference='synthetic test permission';
 SELECT public.test_assert(public.claim_opt_forecast_run(current_date,'test-v1')->>'state'='running','claim failed');
 SELECT public.test_assert(public.claim_opt_forecast_run(current_date,'test-v1')->>'state'='busy','concurrent run allowed');
