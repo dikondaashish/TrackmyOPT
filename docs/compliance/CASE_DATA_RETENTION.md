@@ -37,6 +37,19 @@ partner community timelines are a separate source and were not changed.
 
 ## Exceptions and limits
 
+### Prospective OPT forecast data
+
+The OPT forecast migration adds enrolled-case observations and versioned
+forecasts with `ON DELETE CASCADE`. A before-delete trigger invalidates every
+model run containing that enrollment, including its derived forecasts, before
+membership pointers disappear. A shared receipt's remaining enrollment keeps
+its own observations and stable application UUID. Receipt replacement removes
+the old evidence rather than attaching it to a different application. These
+records remain private personal data. They do not form a departed-user archive.
+The new source-use policy defaults pooled training off until the reviewed
+agreement reference is recorded; publication separately requires validation.
+See [the forecast data contract](../predictions/OPT_FORECAST_ENGINE.md).
+
 - The 4,139 quarantined neighbor-scan cache rows and the
   [existing evidence log](evidence-log.md) remain protected. They are excluded
   from ordinary cache cleanup and product reads. Counsel must decide their

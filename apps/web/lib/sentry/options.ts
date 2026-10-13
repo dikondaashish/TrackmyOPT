@@ -3,14 +3,27 @@ import { sanitize } from '@/lib/secure-logger';
 
 /** Remove URL credentials, queries, fragments, and private record identifiers. */
 function scrubText(value: string): string {
-  const withoutQueries = value.replace(/https?:\/\/[^\s"'<>]+/g, (value) => {
-    try {
-      const url = new URL(value);
-      return `${url.origin}${url.pathname}`;
-    } catch {
-      return '[REDACTED_URL]';
+  // SDK errors can embed entire serialized sessions, including truncated JSON.
+  // Redact the payload as a whole; field-pattern filtering cannot remove names,
+  // identity metadata, documents, or AI text whose contents we cannot predict.
+  const payloadStart = value.search(
+    /\{|\[(?=\s*(?:"|\{|\d|true\b|false\b|null\b))/
+  );
+  const diagnostic =
+    payloadStart < 0
+      ? value
+      : `${value.slice(0, payloadStart)}[REDACTED_PAYLOAD]`;
+  const withoutQueries = diagnostic.replace(
+    /https?:\/\/[^\s"'<>]+/g,
+    (value) => {
+      try {
+        const url = new URL(value);
+        return `${url.origin}${url.pathname}`;
+      } catch {
+        return '[REDACTED_URL]';
+      }
     }
-  });
+  );
   return String(sanitize(withoutQueries)).replace(
     /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
     '[REDACTED_ID]'
@@ -87,6 +100,27 @@ export function scrubSentryEvent(
   };
 }
 
+// Browser extensions and userscript managers inject code into our pages; their
+// crashes are not TrackMyOPT failures and would otherwise exhaust the quota.
+const FOREIGN_SCRIPT =
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$/i;
+const EXPLICIT_FOREIGN_SCRIPT =
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript/i;
+
+/** True when every stack frame belongs to injected third-party script. */
+export function isForeignScriptEvent(event: ErrorEvent): boolean {
+  const files = (event.exception?.values ?? []).flatMap((exception) =>
+    (exception.stacktrace?.frames ?? [])
+      .map((frame) => frame.filename ?? frame.abs_path)
+      .filter((file): file is string => Boolean(file))
+  );
+  return (
+    files.length > 0 &&
+    files.every((file) => FOREIGN_SCRIPT.test(file)) &&
+    files.some((file) => EXPLICIT_FOREIGN_SCRIPT.test(file))
+  );
+}
+
 export function sentryOptions(
   dsn: string | undefined
 ): Parameters<typeof init>[0] {
@@ -112,7 +146,8 @@ export function sentryOptions(
       stackFrameVariables: false,
       frameContextLines: 0,
     },
-    beforeSend: scrubSentryEvent,
+    beforeSend: (event, hint) =>
+      isForeignScriptEvent(event) ? null : scrubSentryEvent(event, hint),
     beforeSendTransaction: () => null,
     beforeSendLog: () => null,
     beforeSendMetric: () => null,

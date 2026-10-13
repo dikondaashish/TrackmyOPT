@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 export default function RelocatingPage() {
     return (
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-05-04" modifiedDate="2026-05-04" author="Vinay Kumar" canonicalUrl={metadata.alternates?.canonical as string} />
+            <BlogPostSchema title={metadata.title as string} description={metadata.description as string} publishedDate="2026-05-04" modifiedDate="2026-10-11" author="Vinay Kumar" canonicalUrl={metadata.alternates?.canonical as string} />
             <header className="mb-10 text-center">
                 <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Life in US</span>
@@ -37,7 +37,7 @@ export default function RelocatingPage() {
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Got an OPT job in a different state? Follow this immigration-safe moving checklist to ensure you don't accidentally violate your F-1 status during the move.</p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 6 min read</span>
-                    <span>•</span><span>Updated July 12, 2026</span>
+                    <span>•</span><span>Updated October 11, 2026</span>
                 </div>
             </header>
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
@@ -63,7 +63,7 @@ export default function RelocatingPage() {
                         { title: "Get a new state driver's license", desc: "Most states require you to get a new license within 30-60 days of establishing residency." },
                         { title: "Register your car in the new state", desc: "If you own a car, you must register it and get new plates (usually within 30 days)." },
                         { title: "Update your employer's records", desc: "Give HR your new address for W-2 and tax purposes." },
-                        { title: "Forward your mail via USPS", desc: "Set up mail forwarding at usps.com so you don't miss any USCIS or immigration notices." },
+                        { title: "Update USCIS and your student records", desc: "Update USCIS and your DSO/SEVIS records separately. USPS forwarding does not update USCIS or forward USCIS mail." },
                         { title: "Update your bank address", desc: "Banks use your address for verification. Update it to avoid account freezes." },
                     ].map((item, i) => (
                         <div key={i} className="flex items-start gap-3 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm">
@@ -105,6 +105,7 @@ export default function RelocatingPage() {
                     </Link>
                 </div>
             </div>
+            <p className="mt-8 text-sm text-gray-600 dark:text-gray-300">Application still pending? <Link href="/blog/moving-while-opt-pending-ead-delivery" className="text-blue-600 underline">Follow the pending OPT address and EAD-delivery checklist.</Link></p>
         </article>
     );
 }

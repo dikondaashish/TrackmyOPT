@@ -1,3 +1,5 @@
+import { verifyWorkerAuth } from '@/lib/api/verify-worker-auth';
+import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -45,7 +47,10 @@ async function handlePOST(req: NextRequest) {
     const internalSecret = req.headers.get('X-Internal-Secret');
     const expectedSecret = process.env.CRON_SECRET;
 
-    if (!expectedSecret || internalSecret !== expectedSecret) {
+    if (
+      (!expectedSecret || internalSecret !== expectedSecret) &&
+      verifyWorkerAuth(req)
+    ) {
       return NextResponse.json(
         { ok: false, error: 'Unauthorized' },
         { status: 401, headers: corsHeaders }
@@ -80,7 +85,7 @@ async function handlePOST(req: NextRequest) {
     const { data: userData, error: userError } = await supabase
       .from('profiles')
       .select(
-        'email, notification_email, first_name, last_name, premium_status'
+        'email, notification_email, first_name, last_name, premium_status, subscription_expires_at, plan_tier'
       )
       .eq('user_id', user_id)
       .single();
@@ -88,7 +93,10 @@ async function handlePOST(req: NextRequest) {
     if (userError || !userData) {
       if (userError && userError.code !== 'PGRST116') {
         console.error('Case notification profile lookup failed');
-        return NextResponse.json({ ok: false, error: 'Database error' }, { status: 500, headers: corsHeaders });
+        return NextResponse.json(
+          { ok: false, error: 'Database error' },
+          { status: 500, headers: corsHeaders }
+        );
       }
       return NextResponse.json(
         { ok: false, error: 'User not found' },
@@ -104,7 +112,8 @@ async function handlePOST(req: NextRequest) {
       .eq('receipt_number', receipt_number.toUpperCase())
       .maybeSingle();
 
-    if (caseError) throw new Error('Case notification enrollment lookup failed');
+    if (caseError)
+      throw new Error('Case notification enrollment lookup failed');
     if (!caseData || !caseData.notifications_enabled) {
       return NextResponse.json(
         { ok: true, message: 'Notifications disabled' },
@@ -113,7 +122,7 @@ async function handlePOST(req: NextRequest) {
     }
 
     // Check if user is premium
-    if (!userData.premium_status) {
+    if (resolveActivePlanTier(userData) === 'free') {
       return NextResponse.json(
         { ok: true, message: 'Notifications are a premium feature' },
         { status: 200, headers: corsHeaders }
@@ -146,15 +155,31 @@ async function handlePOST(req: NextRequest) {
     // Revalidate at delivery, after the profile/Auth lookups. A delayed event
     // must not send a case removed since the initial check.
     const deliveryAllowed = async () => {
-      const { data, error } = await supabase.from('case_status')
+      const { data, error } = await supabase
+        .from('case_status')
         .select('notifications_enabled, current_status')
-        .eq('user_id', user_id).eq('receipt_number', receipt_number.toUpperCase())
+        .eq('user_id', user_id)
+        .eq('receipt_number', receipt_number.toUpperCase())
         .maybeSingle();
       if (error) throw new Error('Case notification delivery lookup failed');
-      return Boolean(data?.notifications_enabled && data.current_status === new_status);
+      const { data: profile, error: planError } = await supabase
+        .from('profiles')
+        .select('premium_status, subscription_expires_at, plan_tier')
+        .eq('user_id', user_id)
+        .maybeSingle();
+      if (planError)
+        throw new Error('Case notification plan revalidation failed');
+      return Boolean(
+        data?.notifications_enabled &&
+          data.current_status === new_status &&
+          resolveActivePlanTier(profile) !== 'free'
+      );
     };
-    if (!await deliveryAllowed()) {
-      return NextResponse.json({ ok: true, message: 'Tracking removed or notification superseded' }, { status: 200, headers: corsHeaders });
+    if (!(await deliveryAllowed())) {
+      return NextResponse.json(
+        { ok: true, message: 'Tracking removed or notification superseded' },
+        { status: 200, headers: corsHeaders }
+      );
     }
 
     // Send email notification via SMTP
@@ -177,13 +202,14 @@ async function handlePOST(req: NextRequest) {
       if (!info.accepted?.length)
         throw new Error('Email provider did not accept the message');
 
-      if (isWebPushConfigured() && await deliveryAllowed()) {
+      if (isWebPushConfigured() && (await deliveryAllowed())) {
         const { data: subs, error: pushLookupError } = await supabase
           .from('push_subscriptions')
           .select('endpoint, p256dh, auth')
           .eq('user_id', user_id);
 
-        if (pushLookupError) throw new Error('Case notification push lookup failed');
+        if (pushLookupError)
+          throw new Error('Case notification push lookup failed');
         const pushTitle = 'USCIS case status updated';
         const pushBody = new_status;
         const pushResults = await Promise.allSettled(
@@ -197,21 +223,25 @@ async function handlePOST(req: NextRequest) {
             )
           )
         );
-        if (pushResults.some(result => result.status === 'rejected')) console.error('Case notification push delivery failed');
+        if (pushResults.some((result) => result.status === 'rejected'))
+          console.error('Case notification push delivery failed');
       }
 
       // Log successful email to email_queue for delivery tracking
-      const { error: deliveryLogError } = await supabase.from('email_queue').insert({
-        user_id,
-        email_address: userEmail,
-        email_type: 'case_status_change',
-        email_subject: `TrackMyOPT — USCIS case status update — ${receipt_number}`,
-        email_data: { receipt_number, old_status, new_status },
-        sent_at: new Date().toISOString(),
-        status: 'sent',
-        provider_message_id: info.messageId || null,
-      });
-      if (deliveryLogError) console.error('Case notification delivery log failed');
+      const { error: deliveryLogError } = await supabase
+        .from('email_queue')
+        .insert({
+          user_id,
+          email_address: userEmail,
+          email_type: 'case_status_change',
+          email_subject: `TrackMyOPT — USCIS case status update — ${receipt_number}`,
+          email_data: { receipt_number, old_status, new_status },
+          sent_at: new Date().toISOString(),
+          status: 'sent',
+          provider_message_id: info.messageId || null,
+        });
+      if (deliveryLogError)
+        console.error('Case notification delivery log failed');
 
       return NextResponse.json(
         { ok: true, message: 'Notification sent', email_id: info.messageId },
@@ -222,16 +252,19 @@ async function handlePOST(req: NextRequest) {
 
       // Log failed email to email_queue for debugging/retry
       try {
-        const { error: failureLogError } = await supabase.from('email_queue').insert({
-          user_id,
-          email_address: userEmail,
-          email_type: 'case_status_change',
-          email_subject: `TrackMyOPT — USCIS case status update — ${receipt_number}`,
-          email_data: { receipt_number, old_status, new_status },
-          status: 'failed',
-          error_message: 'Notification delivery failed',
-        });
-        if (failureLogError) console.error('Case notification failure log failed');
+        const { error: failureLogError } = await supabase
+          .from('email_queue')
+          .insert({
+            user_id,
+            email_address: userEmail,
+            email_type: 'case_status_change',
+            email_subject: `TrackMyOPT — USCIS case status update — ${receipt_number}`,
+            email_data: { receipt_number, old_status, new_status },
+            status: 'failed',
+            error_message: 'Notification delivery failed',
+          });
+        if (failureLogError)
+          console.error('Case notification failure log failed');
       } catch {
         console.error('Case notification failure log failed');
       }
@@ -254,5 +287,13 @@ async function handleOPTIONS(_req: NextRequest) {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
 
-export const POST = withSentryApiErrors(handlePOST, '/api/case-status/notify', 'POST');
-export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/notify', 'OPTIONS');
+export const POST = withSentryApiErrors(
+  handlePOST,
+  '/api/case-status/notify',
+  'POST'
+);
+export const OPTIONS = withSentryApiErrors(
+  handleOPTIONS,
+  '/api/case-status/notify',
+  'OPTIONS'
+);

@@ -1,4 +1,5 @@
 import { JobApplication, JobStage } from "./types";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 
 // ============================================================================
 // FILTER TYPES
@@ -76,7 +77,7 @@ export function filterApplications(
             const nextFollowup = (app as any).next_follow_up_at;
             if (!nextFollowup) return false;
 
-            const followupDate = new Date(nextFollowup);
+            const followupDate = parseISO(nextFollowup);
             followupDate.setHours(0, 0, 0, 0);
 
             switch (filters.followupFilter) {
@@ -142,12 +143,7 @@ export function sortApplications(
  * Get relative date string (e.g., "Today", "Tomorrow", "3 days ago")
  */
 export function getRelativeDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
-
-    const diffDays = Math.round((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = differenceInCalendarDays(parseISO(dateStr), new Date());
 
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "Tomorrow";
@@ -162,12 +158,7 @@ export function getRelativeDate(dateStr: string): string {
  * Get follow-up badge variant based on date
  */
 export function getFollowupBadgeInfo(dateStr: string): { text: string; variant: "overdue" | "today" | "soon" | "none" } {
-    const date = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
-
-    const diffDays = Math.round((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = differenceInCalendarDays(parseISO(dateStr), new Date());
 
     if (diffDays < 0) return { text: "Overdue", variant: "overdue" };
     if (diffDays === 0) return { text: "Today", variant: "today" };

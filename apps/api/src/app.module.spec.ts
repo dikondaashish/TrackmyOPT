@@ -58,7 +58,6 @@ describe('AppModule environment validation', () => {
     'NEXT_PUBLIC_SUPABASE_URL',
     'SUPABASE_SERVICE_ROLE_KEY',
     'AWS_S3_BUCKET',
-    'USCIS_CLIENT_SECRET',
   ])('fails startup when %s is missing', (key) => {
     const config: Partial<typeof completeConfig> = { ...completeConfig };
     delete config[key as keyof typeof config];

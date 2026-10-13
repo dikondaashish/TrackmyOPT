@@ -28,7 +28,7 @@ const MIN_FLUID_AD_WIDTH_PX = 250;
  */
 export function AdSenseInArticle() {
   const [consent, setConsent] = useState<CookieConsentStatus>(null);
-  const [slotWideEnough, setSlotWideEnough] = useState(false);
+  const queuedAdRef = useRef<HTMLModElement | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const adRef = useRef<HTMLModElement>(null);
 
@@ -48,37 +48,39 @@ export function AdSenseInArticle() {
     const container = containerRef.current;
     if (!container) return;
 
-    const syncWidth = () => {
-      setSlotWideEnough(container.offsetWidth >= MIN_FLUID_AD_WIDTH_PX);
-    };
-
-    syncWidth();
-    const observer = new ResizeObserver(syncWidth);
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [consent]);
-
-  useEffect(() => {
-    if (consent !== 'accepted' || !slotWideEnough) return;
-
     const renderAd = () => {
       const ad = adRef.current;
-      if (!ad || ad.dataset.adsbygoogleStatus) return;
+      // The SDK sets its status asynchronously; reserve the element before push.
+      // Measure the slot again on readiness/resize instead of trusting old layout.
+      if (
+        !ad ||
+        queuedAdRef.current === ad ||
+        ad.dataset.adsbygoogleStatus ||
+        container.offsetWidth < MIN_FLUID_AD_WIDTH_PX ||
+        ad.offsetWidth < MIN_FLUID_AD_WIDTH_PX
+      )
+        return;
 
       try {
+        queuedAdRef.current = ad;
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (error) {
-        // Ad blockers and delayed consent scripts are expected client conditions.
-        console.warn('AdSense in-article unit failed to initialize', error);
+      } catch {
+        console.error('[AdSenseInArticle] ad initialization failed');
       }
     };
 
+    const observer = new ResizeObserver(renderAd);
+    observer.observe(container);
+    if (adRef.current) observer.observe(adRef.current);
     window.addEventListener(ADSENSE_READY_EVENT, renderAd);
     renderAd();
     loadAdSense();
 
-    return () => window.removeEventListener(ADSENSE_READY_EVENT, renderAd);
-  }, [consent, slotWideEnough]);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener(ADSENSE_READY_EVENT, renderAd);
+    };
+  }, [consent]);
 
   if (consent !== 'accepted') return null;
 

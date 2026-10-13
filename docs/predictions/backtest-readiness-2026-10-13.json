@@ -1,0 +1,943 @@
+{
+  "schemaVersion": 1,
+  "retrospectivePendingCorrections": 0,
+  "asOf": "2026-10-13T13:00:00.000Z",
+  "landmarks": [
+    "2026-08-01T23:59:59.999Z",
+    "2026-09-01T23:59:59.999Z",
+    "2026-10-01T23:59:59.999Z"
+  ],
+  "promotionEligible": false,
+  "limitations": [
+    "Approval-date errors and interval coverage below describe observed approvals only; use IPCW Brier and forecast availability alongside them.",
+    "Independent censoring and delayed-entry assumptions require sensitivity review.",
+    "Repeated landmarks are correlated; paired comparisons average within each application and bootstrap applications. Independent censoring and cohort stability still require review.",
+    "Community imports do not confirm pending status. Sources are not pooled into the verified survival fit.",
+    "C candidates use receipt cohorts; status-transition effects are not fitted without validation."
+  ],
+  "models": {
+    "A_legacy": {
+      "attempted": 0,
+      "uniqueApplications": 0,
+      "forecasts": 0,
+      "observedApprovals": 0,
+      "meanAbsoluteErrorDays": null,
+      "medianAbsoluteErrorDays": null,
+      "within7": null,
+      "within14": null,
+      "within30": null,
+      "coverage50": {
+        "n": 0,
+        "value": null
+      },
+      "coverage80": {
+        "n": 0,
+        "value": null
+      },
+      "segments": {},
+      "waitingGroups": {
+        "under_90_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        },
+        "90_plus_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        }
+      }
+    },
+    "B_survival": {
+      "attempted": 0,
+      "uniqueApplications": 0,
+      "forecasts": 0,
+      "observedApprovals": 0,
+      "meanAbsoluteErrorDays": null,
+      "medianAbsoluteErrorDays": null,
+      "within7": null,
+      "within14": null,
+      "within30": null,
+      "coverage50": {
+        "n": 0,
+        "value": null
+      },
+      "coverage80": {
+        "n": 0,
+        "value": null
+      },
+      "segments": {},
+      "waitingGroups": {
+        "under_90_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        },
+        "90_plus_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        }
+      }
+    },
+    "C_receipt_30": {
+      "attempted": 0,
+      "uniqueApplications": 0,
+      "forecasts": 0,
+      "observedApprovals": 0,
+      "meanAbsoluteErrorDays": null,
+      "medianAbsoluteErrorDays": null,
+      "within7": null,
+      "within14": null,
+      "within30": null,
+      "coverage50": {
+        "n": 0,
+        "value": null
+      },
+      "coverage80": {
+        "n": 0,
+        "value": null
+      },
+      "segments": {},
+      "waitingGroups": {
+        "under_90_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        },
+        "90_plus_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        }
+      }
+    },
+    "C_receipt_60": {
+      "attempted": 0,
+      "uniqueApplications": 0,
+      "forecasts": 0,
+      "observedApprovals": 0,
+      "meanAbsoluteErrorDays": null,
+      "medianAbsoluteErrorDays": null,
+      "within7": null,
+      "within14": null,
+      "within30": null,
+      "coverage50": {
+        "n": 0,
+        "value": null
+      },
+      "coverage80": {
+        "n": 0,
+        "value": null
+      },
+      "segments": {},
+      "waitingGroups": {
+        "under_90_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        },
+        "90_plus_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        }
+      }
+    },
+    "C_receipt_90": {
+      "attempted": 0,
+      "uniqueApplications": 0,
+      "forecasts": 0,
+      "observedApprovals": 0,
+      "meanAbsoluteErrorDays": null,
+      "medianAbsoluteErrorDays": null,
+      "within7": null,
+      "within14": null,
+      "within30": null,
+      "coverage50": {
+        "n": 0,
+        "value": null
+      },
+      "coverage80": {
+        "n": 0,
+        "value": null
+      },
+      "segments": {},
+      "waitingGroups": {
+        "under_90_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        },
+        "90_plus_days": {
+          "attempted": 0,
+          "uniqueApplications": 0,
+          "forecasts": 0,
+          "observedApprovals": 0,
+          "meanAbsoluteErrorDays": null,
+          "medianAbsoluteErrorDays": null,
+          "within7": null,
+          "within14": null,
+          "within30": null,
+          "coverage50": {
+            "n": 0,
+            "value": null
+          },
+          "coverage80": {
+            "n": 0,
+            "value": null
+          }
+        }
+      }
+    }
+  },
+  "ipcwBrier": {
+    "2026-08-01T23:59:59.999Z": {
+      "A_legacy": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "B_survival": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_30": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_60": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_90": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ]
+    },
+    "2026-09-01T23:59:59.999Z": {
+      "A_legacy": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "B_survival": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_30": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_60": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_90": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ]
+    },
+    "2026-10-01T23:59:59.999Z": {
+      "A_legacy": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "B_survival": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_30": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_60": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ],
+      "C_receipt_90": [
+        {
+          "horizon": 7,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 14,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 30,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 60,
+          "score": null,
+          "eligible": 0
+        },
+        {
+          "horizon": 90,
+          "score": null,
+          "eligible": 0
+        }
+      ]
+    }
+  },
+  "ipcwIntervalCalibration": {
+    "2026-08-01T23:59:59.999Z": {
+      "A_legacy": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "B_survival": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_30": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_60": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_90": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      }
+    },
+    "2026-09-01T23:59:59.999Z": {
+      "A_legacy": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "B_survival": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_30": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_60": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_90": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      }
+    },
+    "2026-10-01T23:59:59.999Z": {
+      "A_legacy": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "B_survival": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_30": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_60": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      },
+      "C_receipt_90": {
+        "interval50": {
+          "coverage": null,
+          "nominal": 0.5,
+          "eligible": 0
+        },
+        "interval80": {
+          "coverage": null,
+          "nominal": 0.8,
+          "eligible": 0
+        }
+      }
+    }
+  },
+  "pairedMeanErrorDifferenceVersusA": {
+    "B_survival": {
+      "applications": 0,
+      "meanDifferenceDays": null,
+      "bootstrap95": null
+    },
+    "C_receipt_30": {
+      "applications": 0,
+      "meanDifferenceDays": null,
+      "bootstrap95": null
+    },
+    "C_receipt_60": {
+      "applications": 0,
+      "meanDifferenceDays": null,
+      "bootstrap95": null
+    },
+    "C_receipt_90": {
+      "applications": 0,
+      "meanDifferenceDays": null,
+      "bootstrap95": null
+    }
+  }
+}

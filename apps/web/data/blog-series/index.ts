@@ -1,3 +1,5 @@
+import { trackingGuides } from './tracking-guides';
+import { editorialRefreshes } from './editorial-refreshes';
 import { currentUpdateArticles } from './current-updates';
 import { dataResearchArticles } from './data-research';
 import { statusAndEmploymentArticles } from './status-and-employment';
@@ -5,6 +7,7 @@ import { taxArticles } from './tax';
 import type { ResearchArticle } from './types';
 
 export const researchArticles: ResearchArticle[] = [
+  ...trackingGuides,
   ...currentUpdateArticles,
   ...statusAndEmploymentArticles,
   ...taxArticles,
@@ -12,10 +15,16 @@ export const researchArticles: ResearchArticle[] = [
 ];
 
 export const researchArticleBySlug = new Map(
-  researchArticles.map((article) => [article.slug, article])
+  [...researchArticles, ...editorialRefreshes].map((article) => [
+    article.slug,
+    article,
+  ])
 );
 
-export const researchBlogCards = researchArticles.map((article, index) => ({
+export const researchBlogCards = [
+  ...researchArticles,
+  ...editorialRefreshes,
+].map((article, index) => ({
   slug: article.slug,
   title: article.title,
   description: article.description,

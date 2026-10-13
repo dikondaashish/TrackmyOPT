@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CPT: guidance, challenge, your next step</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 600px;
+        overflow: hidden;
+        background: #f6f8fc;
+        color: #152c49;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        font-family: 'Lato', sans-serif;
+        padding: 42px;
+      }
+      header {
+        border-top: 5px solid #176b78;
+        padding-top: 18px;
+      }
+      .status {
+        font-size: 17px;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: #176b78;
+      }
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 40px;
+        line-height: 1.2;
+        margin: 15px 0 32px;
+      }
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+      .step {
+        position: relative;
+        min-height: 264px;
+        padding: 24px 18px;
+        border: 2px solid #cad7e7;
+        border-radius: 12px;
+        background: #fff;
+        overflow: hidden;
+      }
+      .label {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: #176b78;
+      }
+      .num {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 14px 0;
+        color: #152c49;
+      }
+      h2 {
+        font-size: 24px;
+        margin: 0 0 14px;
+      }
+      p {
+        font-size: 18px;
+        line-height: 1.6;
+        margin: 0;
+        color: #29435e;
+      }
+      .marker {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 7px;
+        background: #176b78;
+        transform-origin: left;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid #cad7e7;
+        font-size: 17px;
+        color: #29435e;
+      }
+      .brand {
+        font-weight: 700;
+        color: #152c49;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-width="1200"
+      data-height="600"
+      data-duration="9"
+    >
+      <section
+        id="process-flow"
+        class="clip"
+        data-start="0"
+        data-duration="9"
+        data-track-index="0"
+      >
+        <header>
+          <div class="status">RELIEF REQUESTED • CHECKED OCTOBER 11, 2026</div>
+          <h1>CPT: guidance, challenge, your next step</h1>
+        </header>
+        <div class="steps">
+          <div class="step" id="step-0">
+            <div class="label">WHAT HAPPENED</div>
+            <div class="num">01</div>
+            <h2>August 12 + 24</h2>
+            <p>SEVP issued CPT guidance.<br />Schools reviewed internships.</p>
+            <div class="marker"></div>
+          </div>
+          <div class="step" id="step-1">
+            <div class="label">WHAT HAPPENED NEXT</div>
+            <div class="num">02</div>
+            <h2>October 5 + 6</h2>
+            <p>Organizations filed suit.<br />They requested court relief.</p>
+            <div class="marker"></div>
+          </div>
+          <div class="step" id="step-2">
+            <div class="label">WHAT TO DO NOW</div>
+            <div class="num">03</div>
+            <h2>Confirm with your DSO</h2>
+            <p>
+              Confirm academic requirements.<br />Get authorization before work.
+            </p>
+            <div class="marker"></div>
+          </div>
+        </div>
+        <footer>
+          <span
+            >A filed lawsuit is not an order granting relief or permission to
+            work.</span
+          ><span class="brand">TrackMyOPT</span>
+        </footer>
+      </section>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      for (let i = 0; i < 3; i++) {
+        tl.fromTo(
+          '#step-' + i + ' .marker',
+          { scaleX: 0 },
+          { scaleX: 1, duration: 2.5, ease: 'none' },
+          i * 3
+        );
+        tl.to(
+          '#step-' + i,
+          { backgroundColor: '#e5f2f4', duration: 0.4, ease: 'power2.out' },
+          i * 3
+        );
+        tl.to(
+          '#step-' + i,
+          { backgroundColor: '#ffffff', duration: 0.4, ease: 'power2.in' },
+          i * 3 + 2.6
+        );
+      }
+      window.__timelines.main = tl;
+    </script>
+  </body>
+</html>

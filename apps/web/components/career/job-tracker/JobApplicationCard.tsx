@@ -8,6 +8,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
 import { getRelativeDate } from "@/lib/career/job-tracker/filtering";
 import { CompanyLogo } from "./CompanyLogo";
+import { useClientDate } from "@/hooks/useClientDate";
 
 interface JobApplicationCardProps {
     application: JobApplication & {
@@ -25,6 +26,7 @@ export function JobApplicationCard({
     onArchive,
     onDelete,
 }: JobApplicationCardProps) {
+    const clientDate = useClientDate();
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const {
@@ -191,7 +193,7 @@ export function JobApplicationCard({
 
             <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-                    Added {getRelativeDate(application.applied_at || application.created_at)}
+                    Added {clientDate ? getRelativeDate(application.applied_at || application.created_at) : "…"}
                 </span>
 
                 {application.sponsor_h1b && (

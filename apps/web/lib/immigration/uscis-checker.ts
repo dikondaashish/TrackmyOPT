@@ -23,6 +23,7 @@ export interface USCISError {
   message: string;
   userMessage: string;
   details?: string;
+  retryAfter?: number;
 }
 
 export type USCISResult =

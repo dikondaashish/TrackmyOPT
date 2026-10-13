@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 import {
   extractExceptionMessages,
   isBenignAdSenseNetworkError,
@@ -6,114 +6,81 @@ import {
   isBenignInjectedBridgeRejection,
   isBenignInjectedOpenGraphProbeError,
   isBenignNavigationAbortError,
-  isBenignReactDomTeardownError,
   isBenignWebkitMessageHandlersError,
   isBenignWebSocketUnavailableError,
   isOpaqueCrossOriginScriptError,
   shouldDropExceptionEvent,
-} from "@/lib/posthog/posthog-browser";
+} from '@/lib/posthog/posthog-browser';
 
-describe("isBenignReactDomTeardownError", () => {
-  it("matches Chrome removeChild null race", () => {
-    expect(
-      isBenignReactDomTeardownError(
-        "Cannot read properties of null (reading 'removeChild')"
-      )
-    ).toBe(true);
-  });
-
-  it("matches Safari parentNode.removeChild race", () => {
-    expect(
-      isBenignReactDomTeardownError(
-        "null is not an object (evaluating '(n=n.parentNode).parentNode.removeChild')"
-      )
-    ).toBe(true);
-  });
-
-  it("does not drop unrelated TypeErrors", () => {
-    expect(
-      isBenignReactDomTeardownError("Cannot read properties of null (reading 'map')")
-    ).toBe(false);
-  });
-
-  it("does not drop React hydration #418", () => {
-    expect(
-      isBenignReactDomTeardownError(
-        "Minified React error #418; visit https://react.dev/errors/418"
-      )
-    ).toBe(false);
-  });
-});
-
-describe("shouldDropExceptionEvent", () => {
-  it("reads $exception_values from PostHog payloads", () => {
+describe('shouldDropExceptionEvent', () => {
+  it('keeps DOM mutation failures without provenance', () => {
     expect(
       shouldDropExceptionEvent({
         $exception_values: [
           "Cannot read properties of null (reading 'removeChild')",
         ],
       })
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it("reads nested $exception_list.value", () => {
+  it('keeps DOM mutation failures from nested exception payloads', () => {
     expect(
       shouldDropExceptionEvent({
         $exception_list: [
           {
-            type: "TypeError",
+            type: 'TypeError',
             value:
               "null is not an object (evaluating '(n=n.parentNode).parentNode.removeChild')",
           },
         ],
       })
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it("keeps real product errors", () => {
+  it('keeps real product errors', () => {
     expect(
       shouldDropExceptionEvent({
-        $exception_values: ["Failed to compile resume PDF"],
+        $exception_values: ['Failed to compile resume PDF'],
       })
     ).toBe(false);
   });
 
-  it("handles empty properties", () => {
+  it('handles empty properties', () => {
     expect(shouldDropExceptionEvent(undefined)).toBe(false);
-    expect(extractExceptionMessages(undefined)).toBe("");
+    expect(extractExceptionMessages(undefined)).toBe('');
   });
 
-  it("drops Supabase Realtime WebSocket unavailable", () => {
-    expect(isBenignWebSocketUnavailableError("WebSocket not available")).toBe(
+  it('drops Supabase Realtime WebSocket unavailable', () => {
+    expect(isBenignWebSocketUnavailableError('WebSocket not available')).toBe(
       true
     );
     expect(
       shouldDropExceptionEvent({
-        $exception_values: ["WebSocket not available"],
+        $exception_values: ['WebSocket not available'],
       })
     ).toBe(true);
     expect(
       shouldDropExceptionEvent({
         $exception_values: [
-          "The operation is insecure. WebSocket connection failed",
+          'The operation is insecure. WebSocket connection failed',
         ],
       })
     ).toBe(true);
   });
 
-  it("drops network failures proven to originate inside AdSense", () => {
+  it('drops network failures proven to originate inside AdSense', () => {
     const properties = {
-      $exception_values: ["Failed to fetch"],
+      $exception_values: ['Failed to fetch'],
       $exception_list: [
         {
-          type: "TypeError",
-          value: "Failed to fetch",
+          type: 'TypeError',
+          value: 'Failed to fetch',
           stacktrace: {
             frames: [
               {
-                source: "/pagead/js/adsbygoogle.js",
+                source: '/pagead/js/adsbygoogle.js',
                 filename:
-                  "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",
+                  'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
               },
             ],
           },
@@ -125,14 +92,14 @@ describe("shouldDropExceptionEvent", () => {
     expect(shouldDropExceptionEvent(properties)).toBe(true);
   });
 
-  it("keeps first-party network failures observable", () => {
+  it('keeps first-party network failures observable', () => {
     const properties = {
-      $exception_values: ["Failed to fetch"],
+      $exception_values: ['Failed to fetch'],
       $exception_list: [
         {
-          value: "Failed to fetch",
+          value: 'Failed to fetch',
           stacktrace: {
-            frames: [{ source: "/_next/static/chunks/app.js" }],
+            frames: [{ source: '/_next/static/chunks/app.js' }],
           },
         },
       ],
@@ -142,25 +109,25 @@ describe("shouldDropExceptionEvent", () => {
     expect(shouldDropExceptionEvent(properties)).toBe(false);
   });
 
-  it("drops opaque cross-origin Script error placeholders", () => {
+  it('drops opaque cross-origin Script error placeholders', () => {
     const properties = {
-      $exception_list: [{ type: "Error", value: "Script error." }],
+      $exception_list: [{ type: 'Error', value: 'Script error.' }],
     };
 
     expect(isOpaqueCrossOriginScriptError(properties)).toBe(true);
     expect(shouldDropExceptionEvent(properties)).toBe(true);
   });
 
-  it("keeps generic Safari Load failed errors without third-party evidence", () => {
+  it('keeps generic Safari Load failed errors without third-party evidence', () => {
     const properties = {
-      $exception_values: ["Load failed"],
+      $exception_values: ['Load failed'],
     };
 
     expect(isBenignAdSenseNetworkError(properties)).toBe(false);
     expect(shouldDropExceptionEvent(properties)).toBe(false);
   });
 
-  it("drops Instagram/iOS webkit.messageHandlers bridge noise", () => {
+  it('drops Instagram/iOS webkit.messageHandlers bridge noise', () => {
     expect(
       isBenignWebkitMessageHandlersError(
         "undefined is not an object (evaluating 'window.webkit.messageHandlers')"
@@ -175,9 +142,8 @@ describe("shouldDropExceptionEvent", () => {
     ).toBe(true);
   });
 
-  it("drops an injected script probing a missing og:type tag", () => {
-    const message =
-      `null is not an object (evaluating 'document.querySelector("meta[property='og:type']").content')`;
+  it('drops an injected script probing a missing og:type tag', () => {
+    const message = `null is not an object (evaluating 'document.querySelector("meta[property='og:type']").content')`;
 
     expect(isBenignInjectedOpenGraphProbeError(message)).toBe(true);
     expect(
@@ -186,14 +152,14 @@ describe("shouldDropExceptionEvent", () => {
         $exception_list: [
           {
             value: message,
-            stacktrace: { frames: [{ source: "/features/resume-ai" }] },
+            stacktrace: { frames: [{ source: '/features/resume-ai' }] },
           },
         ],
       })
     ).toBe(true);
   });
 
-  it("keeps unrelated querySelector failures observable", () => {
+  it('keeps unrelated querySelector failures observable', () => {
     expect(
       isBenignInjectedOpenGraphProbeError(
         `null is not an object (evaluating 'document.querySelector("#checkout").content')`
@@ -201,73 +167,155 @@ describe("shouldDropExceptionEvent", () => {
     ).toBe(false);
   });
 
-  it("keeps React hydration #418 observable", () => {
+  it('keeps React hydration #418 observable', () => {
     expect(
       shouldDropExceptionEvent({
         $exception_values: [
-          "Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]=",
+          'Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]=',
         ],
       })
     ).toBe(false);
   });
 
-  it("drops insertBefore teardown races alongside removeChild", () => {
+  it('drops the exact Brave iOS wallet-injection failure', () => {
+    expect(
+      shouldDropExceptionEvent({
+        $browser: 'Brave',
+        $os: 'iOS',
+        $exception_list: [
+          {
+            type: 'TypeError',
+            value:
+              "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+            stacktrace: {
+              frames: [
+                {
+                  source: '/blog/h1b-approval-rates-by-company',
+                  function: 'global code',
+                  lineno: 1,
+                  colno: 16,
+                },
+              ],
+            },
+          },
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it.each([
+    { $browser: 'Chrome', $os: 'iOS' },
+    { $browser: 'Brave', $os: 'Windows' },
+    {},
+    {
+      $browser: 'Brave',
+      $os: 'iOS',
+      $exception_list: [
+        {
+          value:
+            "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+          stacktrace: {
+            frames: [
+              {
+                filename:
+                  'https://www.trackmyopt.com/_next/static/chunks/app.js',
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      $browser: 'Brave',
+      $os: 'iOS',
+      $exception_list: [{ value: 'Failed to compile resume PDF' }],
+    },
+  ])(
+    'keeps wallet-like failures without browser-injection evidence: %j',
+    (properties) => {
+      expect(
+        shouldDropExceptionEvent({
+          $exception_values: [
+            "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+          ],
+          ...properties,
+        })
+      ).toBe(false);
+    }
+  );
+
+  it('reports insertBefore failures from application bundles', () => {
     const message =
       "NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node.";
 
-    expect(isBenignReactDomTeardownError(message)).toBe(true);
-    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+    expect(
+      shouldDropExceptionEvent({
+        $exception_values: [message],
+        $exception_list: [
+          {
+            value: message,
+            stacktrace: { frames: [{ source: '/_next/static/chunks/app.js' }] },
+          },
+        ],
+      })
+    ).toBe(false);
   });
 
-  it("drops injected page-bridge rejections", () => {
+  it('drops injected page-bridge rejections', () => {
     const message =
-      "Non-Error promise rejection captured with value: Object Not Found Matching Id:5, MethodName:update, ParamCount:4";
+      'Non-Error promise rejection captured with value: Object Not Found Matching Id:5, MethodName:update, ParamCount:4';
 
     expect(isBenignInjectedBridgeRejection(message)).toBe(true);
-    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(
+      true
+    );
   });
 
-  it("drops extension content-script globals", () => {
+  it('drops extension content-script globals', () => {
     const message =
       "'TypeError' captured as exception with message: 'undefined is not an object (evaluating 'contentScriptData.init_ts')'";
 
     expect(isBenignExtensionContentScriptError(message)).toBe(true);
-    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(
+      true
+    );
   });
 
-  it("drops promise aborts caused by navigating away", () => {
+  it('drops promise aborts caused by navigating away', () => {
     const message =
-      "AbortError: Promise was rejected because the browsing context is going away";
+      'AbortError: Promise was rejected because the browsing context is going away';
 
     expect(isBenignNavigationAbortError(message)).toBe(true);
-    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(true);
+    expect(shouldDropExceptionEvent({ $exception_values: [message] })).toBe(
+      true
+    );
   });
 
-  it("drops ResizeObserver loop noise", () => {
+  it('drops ResizeObserver loop noise', () => {
     expect(
       shouldDropExceptionEvent({
         $exception_values: [
-          "ResizeObserver loop completed with undelivered notifications.",
+          'ResizeObserver loop completed with undelivered notifications.',
         ],
       })
     ).toBe(true);
   });
 
-  it("drops AdSense fluid width TagErrors", () => {
+  it('drops AdSense fluid width TagErrors', () => {
     expect(
       shouldDropExceptionEvent({
         $exception_values: [
-          "TagError: adsbygoogle.push() error: Fluid responsive ads must be at least 250px wide: availableWidth=139",
+          'TagError: adsbygoogle.push() error: Fluid responsive ads must be at least 250px wide: availableWidth=139',
         ],
       })
     ).toBe(true);
   });
 
-  it("drops AdSense empty-slot and duplicate-ins TagErrors", () => {
+  it('drops AdSense empty-slot and duplicate-ins TagErrors', () => {
     expect(
       shouldDropExceptionEvent({
         $exception_values: [
-          "TagError: adsbygoogle.push() error: No slot size for availableWidth=0",
+          'TagError: adsbygoogle.push() error: No slot size for availableWidth=0',
         ],
       })
     ).toBe(true);
@@ -280,16 +328,18 @@ describe("shouldDropExceptionEvent", () => {
     ).toBe(true);
   });
 
-  it("keeps genuine aborts and unrelated rejections observable", () => {
+  it('keeps genuine aborts and unrelated rejections observable', () => {
     expect(
-      isBenignNavigationAbortError("AbortError: The user aborted a request.")
+      isBenignNavigationAbortError('AbortError: The user aborted a request.')
     ).toBe(false);
     expect(
-      isBenignInjectedBridgeRejection("Object Not Found in case status response")
+      isBenignInjectedBridgeRejection(
+        'Object Not Found in case status response'
+      )
     ).toBe(false);
     expect(
       shouldDropExceptionEvent({
-        $exception_values: ["RangeError: Maximum call stack size exceeded."],
+        $exception_values: ['RangeError: Maximum call stack size exceeded.'],
       })
     ).toBe(false);
   });

@@ -34,7 +34,8 @@ function normalizeSchema(raw: Record<string, unknown>): Record<string, unknown> 
   // Guard 1 & 2: "@context" must be a plain string
   const ctx = schema["@context"];
   if (typeof ctx !== "string" || !ctx) {
-    schema["@context"] = ctx != null ? String(ctx) : FALLBACK_CONTEXT;
+    const context = ctx != null ? String(ctx) : "";
+    schema["@context"] = context || FALLBACK_CONTEXT;
   }
 
   return schema;

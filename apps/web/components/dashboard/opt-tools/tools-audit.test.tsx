@@ -193,6 +193,7 @@ it('loads saved STEM employment history and uses combined initial plus STEM coun
   expect(result).toHaveTextContent('150 available');
 });
 it('does not show unemployment counts if history cannot load and supports retry', async () => {
+  const log = vi.spyOn(console, 'error').mockImplementation(() => {});
   const original = fetchMock.getMockImplementation()!;
   fetchMock.mockImplementation(async (url, options) =>
     url === '/api/employment-spans' ? response({}, 500) : original(url, options)
@@ -206,6 +207,9 @@ it('does not show unemployment counts if history cannot load and supports retry'
       screen.getByRole('region', { name: 'Unemployment estimate' })
     ).queryByRole('progressbar')
   ).not.toBeInTheDocument();
+  expect(log.mock.calls).toEqual([
+    ['OPT tools: failed to load employment history'],
+  ]);
   fetchMock.mockImplementation(original);
   fireEvent.click(
     screen.getByRole('button', { name: 'Retry employment history' })
@@ -219,6 +223,7 @@ it('does not show unemployment counts if history cannot load and supports retry'
   );
 });
 it('allows guest previews without failed-save alerts or account writes', async () => {
+  const log = vi.spyOn(console, 'error').mockImplementation(() => {});
   fetchMock.mockResolvedValue(response({}, 401));
   render(<OptClockTool />);
   await screen.findByText('Sign in to save your dates');
@@ -242,6 +247,7 @@ it('allows guest previews without failed-save alerts or account writes', async (
   expect(
     fetchMock.mock.calls.some(([, options]) => options?.method === 'POST')
   ).toBe(false);
+  expect(log).not.toHaveBeenCalled();
 });
 it('does not treat an expired history session as no employment for a signed-in user', async () => {
   const original = fetchMock.getMockImplementation()!;

@@ -3,16 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bull';
 import * as Bull from 'bull';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { fetchCaseStatus, type USCISStatus } from './uscis-client';
-import { filterCasesForPremiumAutoCheck } from './premium-auto-check';
-import { nextDailyCheck, isTerminalCase } from './check-schedule';
+import { dailyCheckDay, nextDailyCheck } from './check-schedule';
 
-export type { USCISHistoryItem, USCISStatus } from './uscis-client';
+export type CaseSyncOutcome = {
+  status?: string;
+  changed?: boolean;
+  isFirstCheck?: boolean;
+  skipped?: boolean;
+};
 
 @Injectable()
 export class UscisService {
   private readonly logger = new Logger(UscisService.name);
-  private cachedToken: { token: string; expiresAt: number } | null = null;
   private supabase: SupabaseClient;
 
   constructor(
@@ -26,8 +28,7 @@ export class UscisService {
   }
 
   /**
-   * Queue daily auto-checks for Pro/Dedicated (premium_status) cases only.
-   * Free users refresh manually via case-status/check.
+   * Queue every currently enrolled case, regardless of tier or last status.
    */
   async queueAllActiveCases(dryRun = false) {
     // PostgREST caps each response. Stable ordering and explicit ranges keep
@@ -38,7 +39,6 @@ export class UscisService {
       user_id: string;
       current_status?: string;
     }[] = [];
-    const premiumIds: string[] = [];
     const pageSize = 1000;
     for (let offset = 0; ; offset += pageSize) {
       const { data, error } = await this.supabase
@@ -56,60 +56,28 @@ export class UscisService {
       cases.push(...rows);
       if (rows.length < pageSize) break;
     }
-    for (let offset = 0; ; offset += pageSize) {
-      const { data, error } = await this.supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('premium_status', true)
-        .order('user_id')
-        .range(offset, offset + pageSize - 1);
-      if (error) throw new Error('Failed to fetch premium profiles');
-      const rows = (data ?? []) as { user_id: string }[];
-      premiumIds.push(...rows.map((p) => p.user_id));
-      if (rows.length < pageSize) break;
-    }
     // Daily cron also disposes of legacy Redis payloads for removed cases.
     if (!dryRun) await this.purgeUnenrolledJobs(cases);
     if (!cases || cases.length === 0) {
       this.logger.log('No cases found to check');
-      return { count: 0, skippedFree: 0 };
+      return { count: 0, skippedFree: 0, queued: 0 };
     }
-
-    const { premiumCases, skippedFree } = filterCasesForPremiumAutoCheck(
-      cases.filter((c) => !isTerminalCase(c.current_status)),
-      premiumIds,
-    );
 
     if (dryRun)
-      return { count: premiumCases.length, skippedFree, dryRun: true };
-
-    if (premiumCases.length === 0) {
-      this.logger.log(
-        `No premium cases to auto-check (skipped ${skippedFree} free)`,
-      );
-      return { count: 0, skippedFree };
-    }
-
-    this.logger.log(
-      `Queueing ${premiumCases.length} premium cases for auto-check (skipped ${skippedFree} free)`,
-    );
-
-    // Stagger jobs with 150ms delay between each to stay within USCIS 10 TPS limit
+      return { count: cases.length, skippedFree: 0, dryRun: true, queued: 0 };
+    this.logger.log(`Queueing ${cases.length} enrolled cases for daily sync`);
+    // Staggering spreads queue work; the shared provider gate enforces the limit.
     const now = new Date();
-    const todaySlot = new Date(now);
-    todaySlot.setUTCHours(14, 0, 0, 0);
-    const next = nextDailyCheck(
-      new Date(Math.max(now.getTime(), todaySlot.getTime())),
-    );
-    const scheduledCases = premiumCases.flatMap((c, index) => [
+    const next = nextDailyCheck(now);
+    const scheduledCases = cases.flatMap((c, index) => [
       {
         c,
-        scheduled: new Date(now.getTime() + index * 150),
-        day: now.toISOString().slice(0, 10),
+        scheduled: new Date(now.getTime() + index * 1000),
+        day: dailyCheckDay(now),
       },
       {
         c,
-        scheduled: new Date(next.getTime() + index * 150),
+        scheduled: new Date(next.getTime() + index * 1000),
         day: next.toISOString().slice(0, 10),
       },
     ]);
@@ -122,38 +90,57 @@ export class UscisService {
         removeOnComplete: true,
         removeOnFail: true, // Durable content-free failures go to monitoring, not Redis payloads
         attempts: 3,
-        backoff: { type: 'exponential' as const, delay: 5000 },
+        backoff: { type: 'fixed' as const, delay: 5 * 60 * 1000 },
         delay: Math.max(0, scheduled.getTime() - Date.now()),
       },
     }));
 
+    // Durable outcomes outlive Redis payload removal. Re-running cron must not
+    // recheck a completed case on the same day; unfinished dispatches recover.
+    const completed = new Set<string>();
+    for (let offset = 0; offset < jobs.length; offset += 100) {
+      const { data, error } = await this.supabase
+        .from('case_check_jobs')
+        .select('job_id,state')
+        .in(
+          'job_id',
+          jobs.slice(offset, offset + 100).map((j) => j.opts.jobId),
+        );
+      if (error) throw new Error('Could not read check schedule');
+      for (const row of (data ?? []) as { job_id: string; state: string }[])
+        if (row.state === 'succeeded') completed.add(row.job_id);
+    }
+    const pendingJobs = jobs.filter((j) => !completed.has(j.opts.jobId));
+    if (!pendingJobs.length)
+      return { count: cases.length, skippedFree: 0, queued: 0 };
     const { error: scheduleError } = await this.supabase
       .from('case_check_jobs')
       .upsert(
-        scheduledCases.map(({ c, scheduled, day }) => ({
-          job_id: `daily-${c.id}-${day}`,
-          case_id: c.id,
-          user_id: c.user_id,
-          scheduled_for: scheduled.toISOString(),
-          state: 'scheduling',
-        })),
+        scheduledCases
+          .filter(({ c, day }) => !completed.has(`daily-${c.id}-${day}`))
+          .map(({ c, scheduled, day }) => ({
+            job_id: `daily-${c.id}-${day}`,
+            case_id: c.id,
+            user_id: c.user_id,
+            scheduled_for: scheduled.toISOString(),
+            state: 'scheduling',
+          })),
         { onConflict: 'job_id', ignoreDuplicates: true },
       );
     if (scheduleError) throw new Error('Could not persist check schedule');
-    await this.uscisQueue.addBulk(jobs);
-    for (let offset = 0; offset < jobs.length; offset += 100) {
-      const { error: queuedError } = await this.supabase
+    if (pendingJobs.length) await this.uscisQueue.addBulk(pendingJobs);
+    for (let offset = 0; offset < pendingJobs.length; offset += 100) {
+      const { error } = await this.supabase
         .from('case_check_jobs')
         .update({ state: 'queued' })
         .in(
           'job_id',
-          jobs.slice(offset, offset + 100).map((j) => j.opts.jobId),
+          pendingJobs.slice(offset, offset + 100).map((j) => j.opts.jobId),
         )
-        .eq('state', 'scheduling');
-      if (queuedError) throw new Error('Could not confirm check schedule');
+        .in('state', ['scheduling', 'failed', 'cancelled']);
+      if (error) throw new Error('Could not confirm check schedule');
     }
-
-    return { count: premiumCases.length, skippedFree };
+    return { count: cases.length, skippedFree: 0, queued: pendingJobs.length };
   }
 
   /** Bounded sweep of inactive legacy jobs; active jobs finish under the live
@@ -181,11 +168,24 @@ export class UscisService {
     let removed = 0;
     for (const job of jobs) {
       if (job.name !== 'check-status') continue;
+      // Rebuild inactive daily jobs created before the shared-client release.
+      // Bull retains old options when addBulk sees the same deterministic ID.
+      // Durable succeeded outcomes prevent rechecking completed days.
+      const backoff = job.opts?.backoff;
+      const legacyDaily =
+        String(job.id).startsWith('daily-') &&
+        (job.opts.removeOnComplete !== true ||
+          job.opts.removeOnFail !== true ||
+          typeof backoff !== 'object' ||
+          !backoff ||
+          backoff.delay !== 300000 ||
+          backoff.type !== 'fixed');
       const data = (job.data ?? {}) as {
         userId?: unknown;
         receiptNumber?: unknown;
       };
       if (
+        legacyDaily ||
         !enrolled.has(
           (typeof data.userId === 'string' ? data.userId : '') +
             ':' +
@@ -219,31 +219,38 @@ export class UscisService {
   async checkUSCISStatus(
     receiptNumber: string,
     userId: string,
-  ): Promise<USCISStatus> {
-    const clientId = this.configService.get<string>('USCIS_CLIENT_ID') || '';
-    const clientSecret =
-      this.configService.get<string>('USCIS_CLIENT_SECRET') || '';
-    const baseUrl =
-      this.configService.get<string>('USCIS_API_BASE_URL') ||
-      'https://api.uscis.gov/case-status';
-    const tokenUrl =
-      this.configService.get<string>('USCIS_TOKEN_URL') ||
-      'https://api.uscis.gov/oauth/accesstoken';
-
-    return fetchCaseStatus({
-      receiptNumber,
-      userId,
-      callSite: 'api/uscis.processor',
-      supabase: this.supabase,
-      clientId,
-      clientSecret,
-      baseUrl,
-      tokenUrl,
-      cachedToken: this.cachedToken,
-      setCachedToken: (token) => {
-        this.cachedToken = token;
-      },
-      logger: this.logger,
+  ): Promise<CaseSyncOutcome> {
+    // One HTTP client/credential source for manual and scheduled checks. The
+    // web endpoint verifies current enrollment before reading USCIS credentials.
+    const siteUrl =
+      this.configService.get<string>('NEXT_PUBLIC_SITE_URL') ||
+      'https://www.trackmyopt.com';
+    const key = this.configService.get<string>('API_SECRET_KEY');
+    if (!key) throw new Error('USCIS worker authentication missing');
+    const response = await fetch(`${siteUrl}/api/internal/uscis-status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+      body: JSON.stringify({ receiptNumber, userId }),
+      signal: AbortSignal.timeout(175_000),
     });
+    if (response.status === 403) return { skipped: true };
+    if (!response.ok) {
+      const failure = (await response.json().catch(() => null)) as {
+        errorCode?: number;
+      } | null;
+      const code = failure?.errorCode;
+      throw new Error(
+        `USCIS_UPSTREAM_${code && [401, 403, 404, 422, 429, 500, 503].includes(code) ? code : response.status}`,
+      );
+    }
+    const result = (await response.json()) as {
+      ok?: boolean;
+      skipped?: boolean;
+      data?: CaseSyncOutcome;
+    };
+    if (result.ok && result.skipped) return { skipped: true };
+    if (!result.ok || !result.data?.status)
+      throw new Error('USCIS_INVALID_RESPONSE');
+    return result.data;
   }
 }

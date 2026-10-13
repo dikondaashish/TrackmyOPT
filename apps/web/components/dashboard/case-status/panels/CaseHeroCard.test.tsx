@@ -93,12 +93,27 @@ it('keeps date-only filing records on their saved calendar date in local time', 
 });
 
 it('makes the actual USCIS status the heading and keeps unknown dates explicit', () => {
-  render(<CaseHeroCard caseStatus={caseStatus} caseState="pending" />);
+  render(
+    <CaseHeroCard caseStatus={caseStatus} caseState="pending" isPremium />
+  );
   expect(
     screen.getByRole('heading', { name: 'Case Was Received', level: 2 })
   ).toBeInTheDocument();
   expect(screen.getByText('Filing date not added')).toBeInTheDocument();
   expect(screen.getByText('Not recorded')).toBeInTheDocument();
+});
+
+it('keeps basic case status and manual refresh available without premium metrics', () => {
+  render(<CaseHeroCard caseStatus={caseStatus} caseState="pending" />);
+  expect(
+    screen.getByRole('heading', { name: 'Case Was Received' })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Check for updates' })
+  ).toBeInTheDocument();
+  expect(screen.queryByText('Since filed')).not.toBeInTheDocument();
+  expect(screen.queryByText('Recorded updates')).not.toBeInTheDocument();
+  expect(screen.queryByText('Last status change')).not.toBeInTheDocument();
 });
 
 it('does not invent a current status when one has not arrived', () => {

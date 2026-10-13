@@ -37,6 +37,9 @@ export type Database = {
       }
       case_status: {
         Row: {
+          free_visible_status: Json | null
+          free_first_refresh_pending: boolean
+          last_manual_check_at: string | null
           case_type: string | null
           change_log: Json | null
           consecutive_failures: number
@@ -65,6 +68,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          free_visible_status?: Json | null
+          free_first_refresh_pending?: boolean
+          last_manual_check_at?: string | null
           case_type?: string | null
           change_log?: Json | null
           consecutive_failures?: number
@@ -93,6 +99,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          free_visible_status?: Json | null
+          free_first_refresh_pending?: boolean
+          last_manual_check_at?: string | null
           case_type?: string | null
           change_log?: Json | null
           consecutive_failures?: number

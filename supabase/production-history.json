@@ -1,8 +1,8 @@
 {
   "_comment": "Snapshot of production (Supabase project deknauqkqqzwuvopqott) migration history vs the local files in supabase/migrations. Production records each migration under the timestamp assigned when it was applied, which differs from most local filenames. Read-only snapshot; see docs/ops/SUPABASE_MIGRATIONS.md before changing it. localFiles maps every migration file that existed when this snapshot was taken to its production version (null = not tracked in production history).",
   "project": "deknauqkqqzwuvopqott",
-  "checkedAt": "2026-10-11",
-  "latestVersion": "20261011194301",
+  "checkedAt": "2026-10-12",
+  "latestVersion": "20261013133431",
   "applied": [
     {
       "version": "20260114204002",
@@ -375,6 +375,14 @@
     {
       "version": "20261011194301",
       "name": "pending_case_email_indexes"
+    },
+    {
+      "version": "20261012195529",
+      "name": "daily_case_sync"
+    },
+    {
+      "version": "20261013133431",
+      "name": "opt_forecast_observations"
     }
   ],
   "localFiles": {

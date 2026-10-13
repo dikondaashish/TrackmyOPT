@@ -107,7 +107,7 @@ export function ExtensionHeroVideo() {
                         className="inline-flex h-10 items-center gap-2 rounded-lg px-2 text-sm font-medium transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     >
                         {isMuted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
-                        {isMuted ? "Unmute" : "Mute"}
+                        <span>{isMuted ? "Unmute" : "Mute"}</span>
                     </button>
                 </div>
                 <a

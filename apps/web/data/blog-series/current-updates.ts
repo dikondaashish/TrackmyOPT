@@ -1,6 +1,12 @@
+import {
+  fixedAdmissionCourtOrder,
+  fixedAdmissionLitigation,
+} from './editorial-refreshes';
 import { defineArticle, source, standardRelated } from './shared';
+import { octoberNewsArticles } from './october-news';
 
 export const currentUpdateArticles = [
+  ...octoberNewsArticles,
   defineArticle({
     slug: 'november-2026-visa-bulletin-predictions-opt-workers',
     title:
@@ -64,8 +70,7 @@ export const currentUpdateArticles = [
           'Dates advance: check the actual cutoff, the USCIS chart choice, and all other filing requirements',
           'Dates retrogress or become unavailable: review the impact on your case with counsel; do not assume an EAD extension',
         ],
-        note:
-          'Treat any specific November cutoff date on a third-party site as speculation until travel.state.gov publishes the official bulletin. Publication timing is not a guaranteed release date.',
+        note: 'Treat any specific November cutoff date on a third-party site as speculation until travel.state.gov publishes the official bulletin. Publication timing is not a guaranteed release date.',
       },
       {
         heading: 'What OPT Workers Should Do Before November Releases',
@@ -115,7 +120,8 @@ export const currentUpdateArticles = [
           'No. OPT and STEM OPT authorization follow F-1 rules and your EAD dates. A priority date becoming current does not extend OPT.',
       },
       {
-        question: 'Where should I track my OPT case while waiting for a green card?',
+        question:
+          'Where should I track my OPT case while waiting for a green card?',
         answer:
           'Use TrackMyOPT for USCIS case status, unemployment days, and STEM deadlines alongside your employer’s immigration counsel for I-140/I-485 strategy.',
       },
@@ -124,7 +130,8 @@ export const currentUpdateArticles = [
       source.visaBulletin,
       source.augustBulletin,
       {
-        label: 'Visa Bulletin for October 2026: published baseline for this outlook',
+        label:
+          'Visa Bulletin for October 2026: published baseline for this outlook',
         publisher: 'U.S. Department of State',
         url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2027/visa-bulletin-for-october-2026.html',
       },
@@ -147,141 +154,163 @@ export const currentUpdateArticles = [
   defineArticle({
     slug: 'september-2026-f1-fixed-admission-rule-opt',
     title:
-      'September 15, 2026 F-1 Rule: I-94 Dates, OPT, and Travel Explained',
-    seoTitle: 'September 2026 F-1 Rule: I-94, OPT & Travel',
+      'F-1 Duration of Status Rule Paused: What OPT Students Should Do Now',
+    seoTitle: 'F-1 Duration of Status Rule Paused: OPT and Travel',
     description:
-      'DHS is scheduled to replace F-1 Duration of Status with fixed I-94 admission dates on September 15, 2026. Learn the transition rules, 30-day grace period, OPT deadline, and travel effect.',
+      'The September 2026 fixed-admission rule is postponed by a court order. Understand what remains in place and how to check OPT and travel guidance before acting.',
     category: 'F-1 Policy Update',
     tags: [
-      'F-1 Visa Rule 2026',
       'Duration of Status',
-      'I-94 Admit Until Date',
-      'OPT Travel',
-      'STEM OPT',
+      'F-1 rule paused',
+      'OPT filing deadline',
+      'I-94',
+      'September 2026 F-1 rule',
     ],
-    readTime: '11 min read',
-    publishedDate: '2026-08-27',
-    modifiedDate: '2026-08-27',
-    newsSitemapEligible: true,
-    newsPublishedAt: '2026-08-27T15:00:00Z',
+    readTime: '6 min read',
+    publishedDate: '2026-09-15',
+    modifiedDate: '2026-10-11',
+    newsSitemapEligible: false,
     cta: 'opt-timeline',
-    image: '/blog/students-campus-public-domain.jpg',
-    imageAlt: 'Students studying on the lawn at Bastyr University campus',
+    image: '/blog/september-2026-f1-fixed-admission-rule-opt.svg',
+    imageAlt:
+      'TrackMyOPT illustration of the F-1 Duration of Status court update',
     imageCaption:
-      'Students on the Bastyr University campus. Public-domain photograph released by Bastyr University.',
+      'TrackMyOPT illustration: check the current court status before acting on a published rule.',
     statusNote:
-      'Status as of August 27, 2026: DHS published this as a final rule scheduled to take effect September 15, 2026. Litigation and implementation guidance can change the timeline or details. Before travel, an I-539 filing, a transfer, or an OPT decision, check your DSO’s current instructions and the official rule.',
+      'Checked October 11, 2026: the September 14 court order postponed the final rule. The plaintiffs’ current case page reports that it remains blocked nationwide. Litigation is ongoing; this is a dated update, not a guarantee that the order will remain unchanged.',
     directAnswer:
-      'Starting September 15, 2026, DHS is scheduled to replace F-1 “Duration of Status” admissions with a date-specific Form I-94 Admit Until Date (AUD), generally tied to the I-20 program end date for no more than four years plus a 30-day grace period. Students already in the United States under D/S have transition rules. For many of them, a timely OPT or STEM OPT I-765 filed by March 18, 2027 does not also require Form I-539—but travel or a later filing can change that result.',
+      'The DHS fixed-admission rule scheduled for September 15, 2026 did not take effect as planned. A September 14 court order postponed its effective date and barred implementation pending further order or resolution on the merits. The existing Duration of Status framework remains in place according to the current litigation update. Continue ordinary compliance and confirm current DSO guidance before filing or travel.',
     keyTakeaways: [
-      'The new framework is scheduled to begin September 15, 2026; a newly issued I-94 will show a date-specific AUD rather than D/S.',
-      'For new F-1 admissions, the AUD is generally the I-20 program end date, up to four years, plus a 30-day grace period.',
-      'F-1 students already in the United States under D/S on September 15 may keep transition protections, including the legacy 60-day grace period in the described circumstances.',
-      'For the transition exception, an F-1 student under D/S who remains in the United States and timely files OPT or STEM OPT I-765 by March 18, 2027 does not also file I-539; reentry or filing later can require both filings.',
+      'A published final rule and a rule currently in effect are different things.',
+      'The September 14 order postponed this rule; an appeal alone does not remove that postponement.',
+      'Do not file a new extension-of-stay request solely because an old article says this postponed rule requires one.',
+      'Maintain current F-1 requirements, and check guidance before a time-sensitive decision.',
     ],
     sections: [
       {
-        heading: 'What Changes on September 15, 2026?',
+        heading: 'What the September court order changed',
         paragraphs: [
-          'DHS published a final rule scheduled to end Duration of Status (D/S) admissions for F, J, and I nonimmigrants. For F-1 students, an I-94 issued on or after the effective date is expected to show an Admit Until Date (AUD): a specific end date for authorized stay rather than the notation D/S.',
-          'For a new F-1 admission, the rule generally ties the admission period to the program end date on Form I-20, for no more than four years, and adds a 30-day departure grace period. A fixed AUD is not your visa-expiration date; it is the deadline that controls your authorized stay after entry. Read the I-94 issued for your own admission.',
+          'DHS published a final rule with a planned September 15, 2026 effective date. On September 14, the U.S. District Court for the District of Massachusetts postponed that effective date and preliminarily barred further implementation. This guidance reflects the court order, rather than treating the original schedule as proof that the rule started.',
+          'The order is preliminary. It does not permanently erase the rule or decide every issue in the lawsuit. It postpones the rule pending further court order or resolution on the merits. The distinction matters: students should not act as if the new requirements started, but also should not assume the litigation can never change.',
+          'The plaintiffs’ litigation page reports a September 30 appeal and an October 2 status conference while continuing to describe the rule as blocked nationwide. That is a status report from a party to the case. The court order is the primary authority for the postponement, and both are linked below.',
+        ],
+        sources: [fixedAdmissionCourtOrder, fixedAdmissionLitigation],
+      },
+      {
+        heading: 'What students should do while the rule is postponed',
+        paragraphs: [
+          'Continue the requirements that apply to your current status: school enrollment where required, authorized employment, OPT or STEM OPT reporting, and keeping documents and address records accurate. The court order does not excuse unrelated F-1 compliance or authorize work outside the applicable rules.',
+          'Do not submit an extension-of-stay filing solely because the postponed rule would have introduced that requirement. A person can still have a separate reason to need a filing or correction. Ask the DSO or qualified immigration counsel about the actual situation rather than assuming that every I-539 question disappeared.',
+          'For OPT planning, confirm the program end date, the SEVIS recommendation date, and the current filing window with the DSO. A copied calendar from an older rule summary can be misleading when it mixes pre-rule requirements with provisions whose effective date has been postponed.',
+        ],
+        sources: [fixedAdmissionCourtOrder],
+        links: [
+          {
+            label: 'OPT filing timing with May and December examples',
+            href: '/blog/spring-graduates-opt-application-timing-2026',
+          },
         ],
       },
       {
-        heading: 'If You Are Already in the United States Under D/S',
+        heading: 'Why current regulation text can be confusing',
         paragraphs: [
-          'The transition rules matter most for current students. University guidance interpreting the final rule says an F-1 student admitted for D/S and physically present in the United States on September 15 may remain through the program end date or EAD end date, plus the existing 60-day F-1 grace period, subject to the transition maximum.',
-          'That transition does not last forever. The guidance calculates the outer transition endpoint as November 14, 2030 for F-1 students. More importantly for near-term planning, travel and reentry after September 15 can end the D/S transition and produce a date-specific AUD on the new I-94.',
+          'A regulation database can display codified amendments even when a court has postponed the rule that introduced them. Reading that text without the court order can make a future or blocked deadline look immediately applicable. The publication date, planned effective date, court action, and agency implementation status must be checked together.',
+          'This is particularly important for the shorter post-program OPT filing and requested-start windows described in the fixed-admission rule. Do not combine those postponed changes with the pre-rule filing system and present the result as a universal current deadline.',
+          'Use official filing guidance and your school’s current instructions, and identify which rule and court status a source is describing. When sources conflict on a time-sensitive filing, ask the DSO or qualified counsel to resolve the conflict before submission. A general blog cannot determine every student’s legal deadline.',
         ],
-        note:
-          'Do not assume your I-94 will change automatically on September 15. Check the I-94 after every entry to the United States. Your physical location, entry date, and the document CBP issues to you matter.',
-      },
-      {
-        heading: 'OPT and STEM OPT: The March 18, 2027 Transition Deadline',
-        paragraphs: [
-          'The final rule includes a temporary exception for certain students who were admitted for D/S and remain in the United States through the transition. If they timely file Form I-765 for post-completion OPT or STEM OPT by March 18, 2027, they do not also need to file Form I-539 for an extension of stay under that exception.',
-          'The exception is fact-specific. The University of Arizona’s implementation guidance says a student who leaves the United States before filing I-765 will receive an AUD upon reentry and must then file both the I-765 and I-539. Students who apply after March 18, 2027 may also need both filings. Do not treat another student’s travel history as an answer for your case.',
-        ],
-        bullets: [
-          'Potential transition exception: D/S admission, in the United States on September 15, no departure before filing, and a timely I-765 by March 18, 2027',
-          'Potential added filing: travel and reentry after the effective date before the I-765 filing',
-          'Potential added filing: OPT or STEM OPT I-765 submitted after March 18, 2027',
+        sources: [fixedAdmissionCourtOrder],
+        links: [
+          {
+            label: 'DHS published final rule (postponed)',
+            href: 'https://www.govinfo.gov/content/pkg/FR-2026-07-17/html/2026-14439.htm',
+          },
         ],
       },
       {
-        heading: 'Travel, Program Extensions, Transfers, and Grace Periods',
+        heading: 'Example: Jordan reads an old four-year-limit headline',
         paragraphs: [
-          'The final rule does not ban international travel, but returning after September 15 can change the admission framework that applies to you. Ask your DSO to review your I-20, travel dates, pending filings, and expected program or EAD end date before you depart. A valid visa stamp alone does not tell you what AUD CBP will issue.',
-          'The rule also reduces the standard F-1 grace period after completion of study or post-completion practical training from 60 days to 30 days for students subject to the new fixed-AUD framework. The transition rules may preserve a 60-day grace period for qualifying current D/S students until they travel and reenter or receive an extension of stay.',
-          'DHS also added restrictions on certain transfers and educational-objective changes. Because those rules depend on degree level, timing, and narrow exceptions, confirm the plan with your school before changing programs or transferring.',
+          'Fictional example: Jordan is preparing a December graduation OPT application. An old headline says all F-1 students must immediately switch to a fixed admission period and file an extension.',
+          'Jordan checks the date and discovers that the article described the rule before the court order. Jordan asks the international office for current guidance and checks the I-94 and school records. The filing plan follows the current framework, rather than treating a postponed requirement as active.',
+          'If a later court order changes the situation, Jordan will review the plan again. A saved screenshot of today’s status is not proof that the same instructions will apply months later. The useful habit is to verify the source and date at the point of action.',
         ],
       },
       {
-        heading: 'A Safe Planning Checklist for F-1 Students',
+        heading: 'Travel still needs its own document review',
         paragraphs: [
-          'This rule makes personal dates more important, not less. Your I-20, I-94, EAD, SEVIS history, travel date, and filing date can all affect the next step. Track those documents before you book a flight or start an application.',
-          'This guide is educational, not individual legal advice. If an AUD could expire, your OPT filing is close to March 18, 2027, or you have a pending change of status or cap-gap question, get case-specific guidance from your DSO and qualified immigration counsel before the deadline.',
+          'The postponement is not a promise of admission after international travel. Review the passport, visa where required, I-20 and travel endorsement, employment or OPT documents, and I-94. Other travel restrictions, visa processing, or individual circumstances can matter independently of this lawsuit.',
+          'Ask the DSO about your particular stage of OPT or STEM OPT before leaving. A pending application, a missing EAD, or a change in employment can require different advice. Do not treat a court-status update as a complete travel checklist.',
+          'After entry, check the record CBP actually issued and seek a correction through the proper process if it is wrong. TrackMyOPT can help organize dates and reminders, but does not determine admissibility or change the official immigration record.',
+        ],
+        links: [
+          {
+            label: 'Travel on OPT: documents and questions',
+            href: '/blog/can-you-travel-on-opt-complete-guide',
+          },
         ],
       },
     ],
     checklist: [
-      'Download your current I-94 and save it with your passport, I-20, EAD, and USCIS notices.',
-      'If you are considering travel on or after September 15, ask your DSO how reentry could affect your AUD and OPT filing plan.',
-      'If you expect to file OPT or STEM OPT, calendar both the ordinary filing window and the March 18, 2027 transition deadline.',
-      'After each entry, confirm the new I-94 record before relying on a prior D/S admission.',
+      'Read the dated court-status update.',
+      'Confirm current OPT and travel instructions with the DSO.',
+      'Keep I-20, I-94, EAD, and notices accurate and accessible.',
+      'Recheck guidance before a filing or international trip.',
     ],
     mistakes: [
-      'Confusing the visa-stamp expiration date with the I-94 Admit Until Date.',
-      'Assuming every current F-1 student automatically moves to a 30-day grace period on September 15.',
-      'Traveling or filing after the transition deadline without reviewing whether I-539 is also needed.',
-      'Using a general internet answer instead of the DSO’s advice for a transfer, program extension, or change of level.',
+      'Treating the originally scheduled effective date as proof the rule started.',
+      'Assuming a preliminary order is a permanent resolution.',
+      'Mixing a postponed requirement with ordinary OPT deadlines.',
     ],
     faq: [
       {
-        question: 'Do current F-1 students need to leave the United States on September 15, 2026?',
+        question: 'Did the fixed-admission rule start on September 15, 2026?',
         answer:
-          'No. Current students admitted for D/S who are physically present in the United States on the effective date have transition rules. Their exact authorized stay depends on their program or EAD dates, travel, and other actions, so they should review the rule with their DSO.',
+          'The September 14 court order postponed its effective date and barred implementation pending further order or resolution. The current plaintiffs’ update reports that it remains blocked nationwide.',
       },
       {
-        question: 'Will my I-94 automatically change from D/S to a date?',
+        question: 'Does the appeal mean the rule is now in effect?',
         answer:
-          'Not necessarily. Guidance for current D/S students says the I-94 does not automatically change immediately. Travel and reentry after September 15, a later OPT filing, or other actions can result in a new date-specific AUD.',
+          'An appeal alone does not remove the district court’s postponement. Check for a subsequent court order and current guidance before acting.',
       },
       {
-        question: 'Do I need I-539 with my OPT I-765?',
+        question: 'Do I need I-539 only because of this rule?',
         answer:
-          'It depends. The transition exception can remove the I-539 requirement for qualifying D/S students who remain in the United States and timely file by March 18, 2027. Travel before filing or a later filing may require both. Confirm your facts with your DSO and counsel.',
+          'Do not assume that the postponed rule creates a current filing requirement. Separate individual circumstances may still require advice or a filing.',
       },
       {
-        question: 'Does this rule eliminate H-1B cap-gap?',
+        question:
+          'Can I stop following OPT reporting rules while the case continues?',
         answer:
-          'The rule does not itself eliminate the general cap-gap policy. A fixed AUD can add timing questions, so eligible students should coordinate early with the DSO, employer, and qualified immigration counsel.',
+          'No. The postponement does not waive the other requirements governing your status, employment, and reporting.',
       },
     ],
     sources: [
+      fixedAdmissionCourtOrder,
+      fixedAdmissionLitigation,
+      {
+        label: 'University guidance following the court order',
+        publisher: 'Yale OISS',
+        url: 'https://oiss.yale.edu/news/important-update-court-action-on-the-ds-rule',
+      },
       source.fixedAdmissionRule,
-      source.fixedAdmissionUniversityGuide,
-      source.campusStudentsPhoto,
     ],
     related: [
       {
-        label: 'Complete OPT application checklist',
-        href: '/blog/opt-application-checklist-2026',
+        label: 'OPT filing timing',
+        href: '/blog/spring-graduates-opt-application-timing-2026',
       },
       {
-        label: 'Can you travel while on OPT?',
+        label: 'Travel on OPT',
         href: '/blog/can-you-travel-on-opt-complete-guide',
       },
       {
-        label: 'H-1B cap-gap extension guide',
-        href: '/blog/h1b-cap-gap-extension',
+        label: 'OPT timeline tool',
+        href: '/tools/opt-clock',
       },
     ],
   }),
   defineArticle({
     slug: 'dhs-proposes-103265-h1b-fee-2026',
-    title:
-      'DHS Proposes a $103,265 H-1B Fee: What OPT Students Should Know',
+    title: 'DHS Proposes a $103,265 H-1B Fee: What OPT Students Should Know',
     seoTitle: 'New $103,265 H-1B Fee Proposal: OPT Impact',
     description:
       'DHS published a proposed $103,265 additional fee for cap-subject H-1B petitions. It is not in effect today. See who may be affected, what has not changed for OPT, and what to watch next.',
@@ -328,8 +357,7 @@ export const currentUpdateArticles = [
           'No. The proposed rule concerns a potential employer filing fee for cap-subject H-1B petitions. It does not change the eligibility rules, filing windows, employment requirements, unemployment limits, or EAD validity rules for OPT or STEM OPT.',
           'For an F-1 student, the practical issue is future sponsorship: a cap-subject employer may reassess its hiring plans if the proposal becomes final. That does not mean every employer will make the same decision, and it does not alter your current authorization to work on OPT.',
         ],
-        note:
-          'Separate two questions: “Am I authorized to work on OPT now?” and “Could an employer’s future H-1B filing cost change?” Your OPT documents and your employer’s petition strategy are not the same legal question.',
+        note: 'Separate two questions: “Am I authorized to work on OPT now?” and “Could an employer’s future H-1B filing cost change?” Your OPT documents and your employer’s petition strategy are not the same legal question.',
       },
       {
         heading: 'Which H-1B Cases Would the Proposal Cover?',
@@ -398,7 +426,11 @@ export const currentUpdateArticles = [
           'The proposal says the additional fee would not apply to H-1B petitions that are not subject to the cap, and names certain higher-education and research organizations as examples. Confirm the classification of a specific employer or petition with the employer and qualified counsel.',
       },
     ],
-    sources: [source.h1bFeeProposal, source.h1bFeeBulletin, source.uscisHqPhoto],
+    sources: [
+      source.h1bFeeProposal,
+      source.h1bFeeBulletin,
+      source.uscisHqPhoto,
+    ],
     related: [
       {
         label: 'OPT to H-1B transition guide',
@@ -1376,7 +1408,13 @@ export const currentUpdateArticles = [
     description:
       'Official October 2026 Visa Bulletin dates for EB-1, EB-2 and EB-3 India. Compare final action and filing dates, the FY 2027 reset, and next steps for OPT workers.',
     category: 'Green Card Outlook',
-    tags: ['October 2026 Visa Bulletin', 'FY 2027', 'EB-1 India', 'EB-2 India', 'EB-3 India'],
+    tags: [
+      'October 2026 Visa Bulletin',
+      'FY 2027',
+      'EB-1 India',
+      'EB-2 India',
+      'EB-3 India',
+    ],
     readTime: '8 min read',
     modifiedDate: '2026-10-10',
     cta: 'opt-timeline',
@@ -1487,7 +1525,8 @@ export const currentUpdateArticles = [
     ],
     sources: [
       {
-        label: 'Visa Bulletin for October 2026: official final-action and filing charts',
+        label:
+          'Visa Bulletin for October 2026: official final-action and filing charts',
         publisher: 'U.S. Department of State',
         url: 'https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2027/visa-bulletin-for-october-2026.html',
       },

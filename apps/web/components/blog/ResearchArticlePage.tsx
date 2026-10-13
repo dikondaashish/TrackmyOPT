@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   AlertTriangle,
@@ -14,6 +13,9 @@ import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import type { ResearchArticle } from '@/data/blog-series/types';
 import { AdSenseInArticle } from '@/components/blog/AdSenseInArticle';
+import { BlogFlowFigure } from '@/components/blog/BlogFlowFigure';
+import { BlogPostImage } from '@/components/blog/BlogPostImage';
+import styles from './ResearchArticlePage.module.css';
 
 const SITE = 'https://www.trackmyopt.com';
 const DEFAULT_IMAGE = '/blog/international-student-guidance-library-2026.png';
@@ -77,14 +79,13 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
 
       <figure className="mb-10">
         <div className="relative aspect-[1200/630] overflow-hidden rounded-2xl shadow-xl">
-          <Image
+          <BlogPostImage
             src={image}
             alt={
               article.imageAlt ??
               `International student reviewing documents for ${article.title}`
             }
-            fill
-            priority
+            preload
             sizes="(min-width: 768px) 896px, 100vw"
             className="object-cover"
           />
@@ -115,7 +116,32 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
 
       <AdSenseInArticle />
 
-      <div className="prose prose-lg prose-longform dark:prose-invert max-w-none prose-a:text-blue-600 dark:prose-a:text-blue-400">
+      {article.showContents && (
+        <nav
+          aria-label="In this guide"
+          className="mb-10 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
+        >
+          <p className="mb-3 font-bold text-gray-900 dark:text-white">
+            In this guide
+          </p>
+          <ol className="grid gap-2 text-sm sm:grid-cols-2">
+            {article.sections.map((section, index) => (
+              <li key={section.heading}>
+                <a
+                  href={`#section-${index + 1}`}
+                  className="text-blue-700 hover:underline dark:text-blue-300"
+                >
+                  {section.heading}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
+      <div
+        className={`${styles.reading} prose prose-lg dark:prose-invert max-w-none`}
+      >
         <section>
           <h2>What You Should Know First</h2>
           <ul>
@@ -128,13 +154,48 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         {article.sections.map((section, index) => (
           <section
             id={`section-${index + 1}`}
-            className="scroll-mt-24"
+            className="scroll-mt-40"
             key={section.heading}
           >
+            {section.anchors?.map((anchor) => (
+              <span
+                id={anchor}
+                key={anchor}
+                className="block scroll-mt-40"
+                aria-hidden
+              />
+            ))}
             <h2>{section.heading}</h2>
             {section.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+            {section.sources && (
+              <p className="text-sm">
+                Sources:{' '}
+                {section.sources.map((source, sourceIndex) => (
+                  <span key={source.url}>
+                    {sourceIndex > 0 && '; '}
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            )}
+            {section.links && (
+              <ul>
+                {section.links.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href}>{link.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {section.visual && <BlogFlowFigure visual={section.visual} />}
             {section.bullets && (
               <ul>
                 {section.bullets.map((item) => (
@@ -162,7 +223,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           </section>
         ))}
 
-        <section>
+        <section id="checklist">
           <h2>Your Action Checklist</h2>
           <div className="not-prose grid gap-3">
             {article.checklist.map((item) => (
@@ -194,7 +255,9 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         sourcePage={`/blog/${article.slug}`}
       />
 
-      <div className="prose prose-lg dark:prose-invert max-w-none">
+      <div
+        className={`${styles.reading} prose prose-lg dark:prose-invert max-w-none`}
+      >
         {article.category.includes('Tax') && (
           <aside className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-100">
             <strong>Tax disclaimer:</strong> This educational guide is not tax,
@@ -213,7 +276,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
           </section>
         )}
 
-        <section>
+        <section id="faq">
           <h2>Frequently Asked Questions</h2>
           {article.faq.map((item) => (
             <div className="mb-6" key={item.question}>

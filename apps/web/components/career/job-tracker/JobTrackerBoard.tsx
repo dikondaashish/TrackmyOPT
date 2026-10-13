@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useId } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { safeStorageGet, safeStorageSet } from "@/lib/safe-storage";
 import { ClipboardList, ArrowLeft, Plus } from "lucide-react";
 import { PricingModal } from "@/components/pricing/PricingModal";
 import { AddColumnModal } from "./AddColumnModal";
@@ -71,6 +72,7 @@ const dropAnimation: DropAnimation = {
 
 export function JobTrackerBoard({ initialApplications, planTier, customStages }: JobTrackerBoardProps) {
     const router = useRouter();
+    const dragInstructionsId = useId();
     const [applications, setApplications] = useState<JobApplication[]>(initialApplications);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
@@ -81,7 +83,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
     const [currentView, setCurrentView] = useState<JobTrackerView>("board");
 
     useEffect(() => {
-        const saved = localStorage.getItem("trackmyopt_job_tracker_view");
+        const saved = safeStorageGet("trackmyopt_job_tracker_view");
         if (saved && ["board", "table", "calendar"].includes(saved)) {
             setCurrentView(saved as JobTrackerView);
         }
@@ -89,7 +91,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
 
     const handleViewChange = (view: JobTrackerView) => {
         setCurrentView(view);
-        localStorage.setItem("trackmyopt_job_tracker_view", view);
+        safeStorageSet("trackmyopt_job_tracker_view", view);
     };
 
     // Filter & Sort State
@@ -473,6 +475,7 @@ export function JobTrackerBoard({ initialApplications, planTier, customStages }:
             {/* View Content */}
             {currentView === "board" && (
                 <DndContext
+                    id={dragInstructionsId}
                     sensors={sensors}
                     collisionDetection={customCollisionDetection}
                     onDragStart={handleDragStart}

@@ -60,7 +60,7 @@ export default function USCISCaseStatusTrackingGuide() {
                 { name: "Blog", url: "https://www.trackmyopt.com/blog" },
                 { name: "Uscis Case Status Tracking Guide", url: "https://www.trackmyopt.com/blog/uscis-case-status-tracking-guide" },
             ]} />
-            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-05" modifiedDate="2026-07-27" author="Vinay Kumar" faqItems={[...USCIS_TRACKING_FAQS]} />
+            <BlogPostSchema title={metadata.title} description={metadata.description} publishedDate="2026-06-05" modifiedDate="2026-10-11" author="Vinay Kumar" faqItems={[...USCIS_TRACKING_FAQS]} />
             {/* Breadcrumb */}
             <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
                 <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -491,6 +491,7 @@ export default function USCISCaseStatusTrackingGuide() {
                 </Link>
             </div>
 
+            <p className="mt-8 text-sm text-gray-600 dark:text-gray-300"><Link href="/blog/opt-receipt-number-not-working" className="text-blue-600 underline">Receipt not working? Follow the OPT receipt troubleshooting steps.</Link></p>
         </article>
     );
 }

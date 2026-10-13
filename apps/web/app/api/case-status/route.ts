@@ -1,10 +1,15 @@
+import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
+import { caseForViewer } from '@/lib/case-status/visible-status';
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { after, NextRequest, NextResponse } from 'next/server';
 import { triggerInitialCaseCheck } from '@/lib/case-status/trigger-initial-check';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
 import { sendEnrollmentEmail } from '@/lib/notifications/email-service';
-import { caseLimitMessage, getCaseTrackingLimit } from '@/lib/case-status/case-limits';
+import {
+  caseLimitMessage,
+  getCaseTrackingLimit,
+} from '@/lib/case-status/case-limits';
 import { pickPrimaryCase } from '@/lib/case-status/select-primary-case';
 import { withNormalizedStatusHistory } from '@/lib/case-status/normalize-status-history';
 import { captureServerEvent, normalizePlanTier } from '@/lib/posthog-server';
@@ -34,22 +39,25 @@ async function getUserPremium(
   supabase: Awaited<ReturnType<typeof getSupabaseAdmin>>,
   userId: string
 ) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
-    .select('plan_tier, premium_status, first_name')
+    .select('plan_tier, premium_status, subscription_expires_at, first_name')
     .eq('user_id', userId)
     .maybeSingle();
-  const isPremium = data?.premium_status === true;
+  if (error) throw new Error('Case plan lookup failed');
+  const isPremium = resolveActivePlanTier(data) !== 'free';
   return {
     isPremium,
-    planTier: normalizePlanTier(data?.plan_tier || (isPremium ? 'pro' : 'free')),
+    planTier: normalizePlanTier(
+      data?.plan_tier || (isPremium ? 'pro' : 'free')
+    ),
     firstName: data?.first_name ?? 'there',
   };
 }
 
-function sortCases<T extends { is_primary?: boolean | null; created_at?: string | null }>(
-  cases: T[]
-): T[] {
+function sortCases<
+  T extends { is_primary?: boolean | null; created_at?: string | null },
+>(cases: T[]): T[] {
   return [...cases].sort((a, b) => {
     if (a.is_primary && !b.is_primary) return -1;
     if (!a.is_primary && b.is_primary) return 1;
@@ -91,7 +99,10 @@ async function handleGET(req: NextRequest) {
       );
     }
 
-    const sorted = sortCases(cases ?? []).map((row) => withNormalizedStatusHistory(row));
+    const { isPremium } = await getUserPremium(supabase, userId);
+    const sorted = sortCases(cases ?? []).map((row) =>
+      withNormalizedStatusHistory(caseForViewer(row, isPremium))
+    );
     const primary = pickPrimaryCase(sorted);
 
     return NextResponse.json(
@@ -100,6 +111,7 @@ async function handleGET(req: NextRequest) {
         data: primary ?? null,
         cases: sorted,
         primaryCaseId: primary?.id ?? null,
+        isPremium,
       },
       { status: 200, headers: corsHeaders }
     );
@@ -135,14 +147,20 @@ async function handlePOST(req: NextRequest) {
     // the analytics below keep reporting the same two failure codes.
     const validation = validateRequest(body, caseStatusRequestSchema);
     if (!validation.success) {
-      const rawReceipt = (body as { receipt_number?: unknown } | null)?.receipt_number;
-      const receiptMissing = typeof rawReceipt !== 'string' || rawReceipt.trim() === '';
+      const rawReceipt = (body as { receipt_number?: unknown } | null)
+        ?.receipt_number;
+      const receiptMissing =
+        typeof rawReceipt !== 'string' || rawReceipt.trim() === '';
 
       await captureServerEvent(userId, 'receipt_validation_failed', {
         ...(receiptMissing
           ? {}
-          : { receipt_prefix: getReceiptPrefix(rawReceipt.toUpperCase().trim()) }),
-        validation_error_code: receiptMissing ? 'missing_receipt' : 'invalid_format',
+          : {
+              receipt_prefix: getReceiptPrefix(rawReceipt.toUpperCase().trim()),
+            }),
+        validation_error_code: receiptMissing
+          ? 'missing_receipt'
+          : 'invalid_format',
       });
 
       return NextResponse.json(
@@ -166,11 +184,16 @@ async function handlePOST(req: NextRequest) {
     } = validation.data;
 
     const supabaseAdmin = await getSupabaseAdmin();
-    const { isPremium, planTier, firstName } = await getUserPremium(supabaseAdmin, userId);
+    const { isPremium, planTier, firstName } = await getUserPremium(
+      supabaseAdmin,
+      userId
+    );
 
     const { data: userCases } = await supabaseAdmin
       .from('case_status')
-      .select('id, receipt_number, current_status, is_primary, filing_category, case_type, filing_category_confirmed_at')
+      .select(
+        'id, receipt_number, current_status, is_primary, filing_category, case_type, filing_category_confirmed_at'
+      )
       .eq('user_id', userId);
 
     const existing = (userCases ?? []).find(
@@ -195,7 +218,9 @@ async function handlePOST(req: NextRequest) {
     }
 
     const shouldBePrimary =
-      set_primary || isFirstCase || (userCases ?? []).every((c) => !c.is_primary);
+      set_primary ||
+      isFirstCase ||
+      (userCases ?? []).every((c) => !c.is_primary);
 
     if (shouldBePrimary && !isFirstCase) {
       await supabaseAdmin
@@ -277,8 +302,11 @@ async function handlePOST(req: NextRequest) {
     );
 
     if (isNewEnrollment && isPremium) {
-      secureLog.log(`[case-status] New enrollment: ${redactReceiptNumber(normalizedReceipt)}`);
-      const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+      secureLog.log(
+        `[case-status] New enrollment: ${redactReceiptNumber(normalizedReceipt)}`
+      );
+      const { data: userData } =
+        await supabaseAdmin.auth.admin.getUserById(userId);
       const userEmail = userData?.user?.email;
       if (userEmail) {
         try {
@@ -289,10 +317,15 @@ async function handlePOST(req: NextRequest) {
       }
     }
 
-    after(() => triggerInitialCaseCheck(normalizedReceipt, userId));
+    if (isNewReceipt)
+      after(() => triggerInitialCaseCheck(normalizedReceipt, userId));
 
     return NextResponse.json(
-      { ok: true, data: caseStatus, enrollmentEmailSent: isNewEnrollment },
+      {
+        ok: true,
+        data: caseStatus ? caseForViewer(caseStatus, isPremium) : null,
+        enrollmentEmailSent: isNewEnrollment,
+      },
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {
@@ -333,14 +366,20 @@ async function handleDELETE(req: NextRequest) {
     if (lookupError) throw new Error('Case deletion lookup failed');
 
     if (!userCases?.length) {
-      return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
+      return NextResponse.json(
+        { ok: true },
+        { status: 200, headers: corsHeaders }
+      );
     }
 
     let targetId = caseId as string | null;
     if (!targetId) {
       if (userCases.length > 1) {
         return NextResponse.json(
-          { ok: false, error: 'case id is required when tracking multiple cases' },
+          {
+            ok: false,
+            error: 'case id is required when tracking multiple cases',
+          },
           { status: 400, headers: corsHeaders }
         );
       }
@@ -370,17 +409,23 @@ async function handleDELETE(req: NextRequest) {
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
         .limit(1);
-      if (remainingError) throw new Error('Case deletion primary lookup failed');
+      if (remainingError)
+        throw new Error('Case deletion primary lookup failed');
       if (remaining?.[0]) {
         const { error: primaryError } = await supabaseAdmin
           .from('case_status')
           .update({ is_primary: true, updated_at: new Date().toISOString() })
-          .eq('id', remaining[0].id).eq('user_id', userId);
-        if (primaryError) throw new Error('Case deletion primary update failed');
+          .eq('id', remaining[0].id)
+          .eq('user_id', userId);
+        if (primaryError)
+          throw new Error('Case deletion primary update failed');
       }
     }
 
-    return NextResponse.json({ ok: true }, { status: 200, headers: corsHeaders });
+    return NextResponse.json(
+      { ok: true },
+      { status: 200, headers: corsHeaders }
+    );
   } catch {
     console.error('Case deletion: cleanup failed');
     return NextResponse.json(
@@ -396,5 +441,13 @@ async function handleOPTIONS() {
 
 export const GET = withSentryApiErrors(handleGET, '/api/case-status', 'GET');
 export const POST = withSentryApiErrors(handlePOST, '/api/case-status', 'POST');
-export const DELETE = withSentryApiErrors(handleDELETE, '/api/case-status', 'DELETE');
-export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status', 'OPTIONS');
+export const DELETE = withSentryApiErrors(
+  handleDELETE,
+  '/api/case-status',
+  'DELETE'
+);
+export const OPTIONS = withSentryApiErrors(
+  handleOPTIONS,
+  '/api/case-status',
+  'OPTIONS'
+);

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>OPT fees: proposal to possible policy</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 600px;
+        overflow: hidden;
+        background: #f6f8fc;
+        color: #152c49;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        font-family: 'Lato', sans-serif;
+        padding: 42px;
+      }
+      header {
+        border-top: 5px solid #176b78;
+        padding-top: 18px;
+      }
+      .status {
+        font-size: 17px;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: #176b78;
+      }
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 40px;
+        line-height: 1.2;
+        margin: 15px 0 32px;
+      }
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+      .step {
+        position: relative;
+        min-height: 264px;
+        padding: 24px 18px;
+        border: 2px solid #cad7e7;
+        border-radius: 12px;
+        background: #fff;
+        overflow: hidden;
+      }
+      .label {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: #176b78;
+      }
+      .num {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 14px 0;
+        color: #152c49;
+      }
+      h2 {
+        font-size: 24px;
+        margin: 0 0 14px;
+      }
+      p {
+        font-size: 18px;
+        line-height: 1.6;
+        margin: 0;
+        color: #29435e;
+      }
+      .marker {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 7px;
+        background: #176b78;
+        transform-origin: left;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid #cad7e7;
+        font-size: 17px;
+        color: #29435e;
+      }
+      .brand {
+        font-weight: 700;
+        color: #152c49;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      data-hf-id="hf-o0yv"
+      id="root"
+      data-composition-id="main"
+      data-width="1200"
+      data-height="600"
+      data-duration="9"
+    >
+      <section
+        data-hf-id="hf-5trn"
+        class="clip"
+        data-start="0"
+        data-duration="9"
+        data-track-index="0"
+      >
+        <header data-hf-id="hf-0drs">
+          <div data-hf-id="hf-cbvd" class="status">
+            PROPOSED • CHECKED OCTOBER 11, 2026
+          </div>
+          <h1 data-hf-id="hf-pp7a">OPT fees: proposal to possible policy</h1>
+        </header>
+        <div data-hf-id="hf-70xd" class="steps">
+          <div data-hf-id="hf-2c4p" class="step" id="step-0">
+            <div data-hf-id="hf-gu4d" class="label">WHAT HAPPENED</div>
+            <div data-hf-id="hf-rokj" class="num">01</div>
+            <h2 data-hf-id="hf-3q1h">October 8 proposal</h2>
+            <p data-hf-id="hf-6pz6">
+              School-paid fees proposed:<br data-hf-id="hf-x5px" />$70,000 first
+              / $30,000 later
+            </p>
+            <div data-hf-id="hf-ehi6" class="marker"></div>
+          </div>
+          <div data-hf-id="hf-1kgw" class="step" id="step-1">
+            <div data-hf-id="hf-bc40" class="label">WHAT APPLIES NOW</div>
+            <div data-hf-id="hf-ra9i" class="num">02</div>
+            <h2 data-hf-id="hf-93aq">Current OPT rules</h2>
+            <p data-hf-id="hf-n6ps">
+              Keep your real filing dates.<br data-hf-id="hf-rsrt" />No new fee
+              due from this proposal.
+            </p>
+            <div data-hf-id="hf-7g1u" class="marker"></div>
+          </div>
+          <div data-hf-id="hf-cfyj" class="step" id="step-2">
+            <div data-hf-id="hf-5w9e" class="label">WHAT COMES NEXT</div>
+            <div data-hf-id="hf-qvyh" class="num">03</div>
+            <h2 data-hf-id="hf-av2a">Possible final rule</h2>
+            <p data-hf-id="hf-iwxv">
+              Comment deadline: November 9.<br data-hf-id="hf-szow" />Final text
+              and start date unknown.
+            </p>
+            <div data-hf-id="hf-7ucv" class="marker"></div>
+          </div>
+        </div>
+        <footer data-hf-id="hf-d3ia">
+          <span data-hf-id="hf-j0fe"
+            >A future final rule could differ. No current $70,000 fee
+            requirement.</span
+          ><span data-hf-id="hf-gk22" class="brand">TrackMyOPT</span>
+        </footer>
+      </section>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      for (let i = 0; i < 3; i++) {
+        tl.fromTo(
+          '#step-' + i + ' .marker',
+          { scaleX: 0 },
+          { scaleX: 1, duration: 2.5, ease: 'none' },
+          i * 3
+        );
+        tl.to(
+          '#step-' + i,
+          { backgroundColor: '#e5f2f4', duration: 0.4, ease: 'power2.out' },
+          i * 3
+        );
+        tl.to(
+          '#step-' + i,
+          { backgroundColor: '#ffffff', duration: 0.4, ease: 'power2.in' },
+          i * 3 + 2.6
+        );
+      }
+      window.__timelines.main = tl;
+    </script>
+  </body>
+</html>

@@ -173,13 +173,9 @@ export function CookieConsent({
               Your privacy choices
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              TrackMyOPT uses necessary technology for login, security, and core
-              features. With your permission, we also use browser-based product
-              analytics (PostHog and Google Analytics) and advertising cookies
-              (AdSense) to support free content. Essential Only prevents those
-              optional browser tools from loading. Limited server-side events
-              may still be processed for security, billing, reliability, and
-              core features.{' '}
+              TrackMyOPT uses essential technology to work securely. With your
+              permission, we also use browser analytics (PostHog, Google
+              Analytics) and advertising cookies (AdSense).{' '}
               <Link
                 href="/cookie-policy"
                 className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
@@ -200,12 +196,6 @@ export function CookieConsent({
               >
                 Essential Only
               </button>
-              <Link
-                href="/cookie-policy"
-                className="px-6 py-2.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm font-medium text-center transition-colors"
-              >
-                Learn More
-              </Link>
             </div>
             {consent !== null ? (
               <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">

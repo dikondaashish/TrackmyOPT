@@ -58,7 +58,10 @@ describe('CookieConsent', () => {
     expect(
       screen.getByRole('region', { name: 'Privacy choices' })
     ).toBeInTheDocument();
-    expect(screen.getByText(/server-side events/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Cookie Policy' })).toHaveAttribute(
+      'href',
+      '/cookie-policy'
+    );
     expect(document.getElementById('ga4-script')).toBeNull();
     expect(document.getElementById('adsense-script')).toBeNull();
 

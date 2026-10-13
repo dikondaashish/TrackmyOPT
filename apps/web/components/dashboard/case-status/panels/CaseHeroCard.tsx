@@ -42,6 +42,7 @@ interface CaseHeroCardProps {
     biometrics_attended_date?: string | null;
   };
   caseState: CaseState;
+  isPremium?: boolean;
   ppOverdueDays?: number;
   ppDeadlineDate?: string | null;
   updateCount?: number;
@@ -57,6 +58,7 @@ interface CaseHeroCardProps {
 export function CaseHeroCard({
   caseStatus,
   caseState,
+  isPremium = false,
   ppOverdueDays = 0,
   ppDeadlineDate,
   updateCount = 0,
@@ -90,7 +92,7 @@ export function CaseHeroCard({
   const lastChangeDate = caseStatus.last_status_change_at
     ? formatDisplayDateNoon(caseStatus.last_status_change_at)
     : 'Not recorded';
-  const ppActive = Boolean(ppDeadlineDate);
+  const ppActive = isPremium && Boolean(ppDeadlineDate);
   const isUrgent = caseState === 'urgent';
 
   const handleCopy = async () => {
@@ -121,7 +123,7 @@ export function CaseHeroCard({
             </span>
           </div>
           <p className="mt-4 text-xs font-medium text-muted-foreground">
-            Latest USCIS status
+            USCIS status
           </p>
           <h2 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight leading-snug break-words">
             {caseStatus.current_status?.trim() || 'Awaiting USCIS status'}
@@ -173,33 +175,37 @@ export function CaseHeroCard({
         </section>
       )}
 
-      <dl className="grid grid-cols-2 gap-x-5 gap-y-3 border-y border-border py-4 mb-4 sm:grid-cols-4 text-sm">
-        <div>
-          <dt className="text-xs text-muted-foreground">Since filed</dt>
-          <dd className="mt-1 font-semibold tabular-nums">
-            {!hasFilingDate
-              ? 'Not added'
-              : days === null
-                ? 'Calculating…'
-                : `${days} days`}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">Recorded updates</dt>
-          <dd className="mt-1 font-semibold tabular-nums">{updateCount}</dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">Last status change</dt>
-          <dd className="mt-1 font-semibold">{lastChangeDate}</dd>
-        </div>
-        <div>
-          <dt className="text-xs text-muted-foreground">Receipt origin</dt>
-          <dd className="mt-1 font-semibold">
-            {serviceCenter}
-            {serviceCenterLocation ? ` · ${serviceCenterLocation}` : ''}
-          </dd>
-        </div>
-      </dl>
+      {isPremium && (
+        <dl className="grid grid-cols-2 gap-x-5 gap-y-3 border-y border-border py-4 mb-4 sm:grid-cols-4 text-sm">
+          <div>
+            <dt className="text-xs text-muted-foreground">Since filed</dt>
+            <dd className="mt-1 font-semibold tabular-nums">
+              {!hasFilingDate
+                ? 'Not added'
+                : days === null
+                  ? 'Calculating…'
+                  : `${days} days`}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Recorded updates</dt>
+            <dd className="mt-1 font-semibold tabular-nums">{updateCount}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">
+              Last status change
+            </dt>
+            <dd className="mt-1 font-semibold">{lastChangeDate}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted-foreground">Receipt origin</dt>
+            <dd className="mt-1 font-semibold">
+              {serviceCenter}
+              {serviceCenterLocation ? ` · ${serviceCenterLocation}` : ''}
+            </dd>
+          </div>
+        </dl>
+      )}
 
       {/* Inline actions */}
       <div className="flex flex-wrap gap-2">

@@ -2,13 +2,56 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
-import { sentryOptions, scrubSentryEvent } from './options';
+import {
+  isForeignScriptEvent,
+  sentryOptions,
+  scrubSentryEvent,
+} from './options';
 
 afterEach(async () => {
   await Sentry.close();
 });
 
 describe('Sentry diagnostic privacy', () => {
+  it.each([
+    `Cannot create property 'user' on string '{"access_token":"synthetic-access","user_metadata":{"full_name":"Synthetic Person","provider_id":"synthetic-provider","avatar_url":"https://example.test/private-avatar"}}'`,
+    `Cannot create property 'user' on string '{"access_token":"synthetic-access","user_metadata":{"full_name":"Synthetic Person"`,
+    'Unexpected response: ["Synthetic Person", "synthetic-private-answer"]',
+  ])(
+    'removes serialized payloads from every diagnostic text field: %s',
+    (message) => {
+      const result = scrubSentryEvent(
+        {
+          type: undefined,
+          message,
+          logentry: { message },
+          exception: { values: [{ type: 'TypeError', value: message }] },
+        },
+        {}
+      );
+      const payload = JSON.stringify(result);
+      expect(payload).not.toContain('Synthetic Person');
+      expect(payload).not.toContain('synthetic-access');
+      expect(payload).not.toContain('synthetic-provider');
+      expect(payload).not.toContain('private-avatar');
+      expect(payload).not.toContain('synthetic-private-answer');
+      expect(payload).toContain('[REDACTED_PAYLOAD]');
+      expect(result.exception?.values?.[0].type).toBe('TypeError');
+    }
+  );
+
+  it('preserves diagnostic bracket labels and hydration errors', () => {
+    const result = scrubSentryEvent(
+      {
+        type: undefined,
+        message: '[Sentry] static trace lifecycle; Minified React error #418',
+      },
+      {}
+    );
+    expect(result.message).toBe(
+      '[Sentry] static trace lifecycle; Minified React error #418'
+    );
+  });
   it('removes private scope data, attachments, and source locals while preserving a useful stack', () => {
     const event: ErrorEvent = {
       type: undefined,
@@ -116,6 +159,7 @@ describe('Sentry diagnostic privacy', () => {
       ...sentryOptions('https://public@example.com/1'),
       enabled: true,
       defaultIntegrations: false,
+      integrations: [Sentry.captureConsoleIntegration({ levels: ['error'] })],
       transport: () => ({
         send: async (envelope: unknown) => {
           envelopes.push(envelope);
@@ -130,13 +174,53 @@ describe('Sentry diagnostic privacy', () => {
       Sentry.captureException(
         new Error('Synthetic failure for applicant@example.com IOE1234567890')
       );
+      Sentry.captureException(new Error('Minified React error #418'));
+      console.error('OPT tools: failed to load saved dates');
     });
     expect(await Sentry.flush(2000)).toBe(true);
     const payload = JSON.stringify(envelopes);
     expect(payload).toContain('Synthetic failure');
+    expect(payload).toContain('Minified React error #418');
+    expect(payload).toContain('OPT tools: failed to load saved dates');
     expect(payload).not.toContain('applicant@example.com');
     expect(payload).not.toContain('IOE1234567890');
     expect(payload).not.toContain('private resume');
     expect(envelopes.length).toBeGreaterThan(0);
+  });
+});
+
+describe('Sentry third-party script filtering', () => {
+  const withFrames = (...filenames: string[]): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'TypeError',
+          value: "Cannot read properties of null (reading 'postMessage')",
+          stacktrace: { frames: filenames.map((filename) => ({ filename })) },
+        },
+      ],
+    },
+  });
+
+  it('drops errors raised entirely by userscripts or extensions', () => {
+    expect(
+      isForeignScriptEvent(withFrames('<anonymous>', 'app:///userscript.html'))
+    ).toBe(true);
+    expect(
+      isForeignScriptEvent(withFrames('chrome-extension://abc/content.js'))
+    ).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(withFrames('app:///userscript.html'), {})).toBeNull();
+  });
+
+  it('keeps errors that involve first-party frames', () => {
+    expect(
+      isForeignScriptEvent(
+        withFrames('chrome-extension://abc/content.js', 'app:///_next/app.js')
+      )
+    ).toBe(false);
+    expect(isForeignScriptEvent(withFrames('<anonymous>'))).toBe(false);
+    expect(isForeignScriptEvent({ type: undefined, message: 'x' })).toBe(false);
   });
 });

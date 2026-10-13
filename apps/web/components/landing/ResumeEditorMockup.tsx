@@ -54,7 +54,7 @@ export const ResumeEditorMockup = () => {
                                 : "bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/25 ring-1 ring-purple-500"}`}
                     >
                         {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                        {isGenerating ? "Enhancing..." : displayText === afterText ? "AI Enhanced" : "Enhance with AI"}
+                        <span>{isGenerating ? "Enhancing..." : displayText === afterText ? "AI Enhanced" : "Enhance with AI"}</span>
                     </button>
                 </div>
                 <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-700/50 p-0.5 rounded-lg">
@@ -88,7 +88,7 @@ export const ResumeEditorMockup = () => {
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex justify-between">
-                                Description
+                                <span>Description</span>
                                 {displayText === afterText && (
                                     <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
                                         <Check className="w-3 h-3" /> Improved
@@ -104,7 +104,7 @@ export const ResumeEditorMockup = () => {
                                         color: displayText === afterText ? "var(--foreground)" : "var(--muted-foreground)"
                                     }}
                                 >
-                                    {displayText}
+                                    <span>{displayText}</span>
                                     {isGenerating && (
                                         <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-zinc-800/50 backdrop-blur-[1px]">
                                             <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
