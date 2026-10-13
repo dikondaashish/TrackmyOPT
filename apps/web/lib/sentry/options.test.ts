@@ -3,9 +3,12 @@ import { afterEach, describe, expect, it } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
 import {
+  isBrowserNetworkFailure,
   isForeignScriptEvent,
+  resetNetworkFailureReporting,
   sentryOptions,
   scrubSentryEvent,
+  shouldDropNetworkFailure,
 } from './options';
 
 afterEach(async () => {
@@ -241,5 +244,56 @@ describe('Sentry third-party script filtering', () => {
     ).toBe(false);
     expect(isForeignScriptEvent(withFrames('<anonymous>'))).toBe(false);
     expect(isForeignScriptEvent({ type: undefined, message: 'x' })).toBe(false);
+  });
+});
+
+describe('Sentry browser connectivity noise', () => {
+  const failure = (value: string, type = 'TypeError') =>
+    ({ exception: { values: [{ type, value }] } }) as ErrorEvent;
+  const online = { offline: false, hidden: false };
+  afterEach(() => resetNetworkFailureReporting());
+
+  it('recognises each browser network-failure wording only', () => {
+    expect(isBrowserNetworkFailure(failure('Failed to fetch'))).toBe(true);
+    expect(
+      isBrowserNetworkFailure(failure('Failed to fetch (www.trackmyopt.com)'))
+    ).toBe(true);
+    expect(isBrowserNetworkFailure(failure('Load failed'))).toBe(true);
+    expect(
+      isBrowserNetworkFailure(
+        failure('NetworkError when attempting to fetch resource.')
+      )
+    ).toBe(true);
+    expect(isBrowserNetworkFailure(failure('Failed to fetch', 'Error'))).toBe(
+      false
+    );
+    expect(
+      isBrowserNetworkFailure(
+        failure("Cannot read properties of null (reading 'x')")
+      )
+    ).toBe(false);
+  });
+  it('drops failures while offline or hidden', () => {
+    const e = failure('Failed to fetch');
+    expect(shouldDropNetworkFailure(e, { offline: true, hidden: false })).toBe(
+      true
+    );
+    expect(shouldDropNetworkFailure(e, { offline: false, hidden: true })).toBe(
+      true
+    );
+  });
+  it('keeps the first visible online failure per page load so outages still report', () => {
+    const e = failure('Failed to fetch');
+    expect(shouldDropNetworkFailure(e, online)).toBe(false);
+    expect(shouldDropNetworkFailure(e, online)).toBe(true);
+    expect(shouldDropNetworkFailure(failure('Load failed'), online)).toBe(true);
+  });
+  it('never drops other errors or server-side events', () => {
+    expect(shouldDropNetworkFailure(failure('Boom', 'Error'), online)).toBe(
+      false
+    );
+    expect(shouldDropNetworkFailure(failure('Failed to fetch'), null)).toBe(
+      false
+    );
   });
 });

@@ -121,6 +121,52 @@ export function isForeignScriptEvent(event: ErrorEvent): boolean {
   );
 }
 
+// The browser's own wording when a request never reached a server (Chrome, Safari,
+// Firefox). Sentry may append the host, e.g. "Failed to fetch (www.trackmyopt.com)".
+const NETWORK_FAILURE =
+  /^(?:failed to fetch|load failed|networkerror when attempting to fetch resource\.?)(?: \([^)]*\))?$/i;
+
+/** True when every exception is a request that failed before any HTTP response. */
+export function isBrowserNetworkFailure(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  return (
+    values.length > 0 &&
+    values.every(
+      (v) => v.type === 'TypeError' && NETWORK_FAILURE.test(v.value ?? '')
+    )
+  );
+}
+
+type BrowserState = { offline: boolean; hidden: boolean };
+const browserState = (): BrowserState | null =>
+  typeof navigator === 'undefined' || typeof document === 'undefined'
+    ? null
+    : {
+        offline: navigator.onLine === false,
+        hidden: document.visibilityState === 'hidden',
+      };
+let networkFailureReported = false;
+export function resetNetworkFailureReporting() {
+  networkFailureReported = false;
+}
+
+/**
+ * A visitor's lost connection is not a TrackMyOPT failure: drop it when the
+ * browser is offline or the page is hidden. Otherwise keep the first network
+ * failure per page load, so a real site outage still reports, but one dropped
+ * connection cannot fan out into an event for every widget on the page.
+ * Server 5xx responses are reported separately and are unaffected.
+ */
+export function shouldDropNetworkFailure(
+  event: ErrorEvent,
+  state: BrowserState | null = browserState()
+): boolean {
+  if (!state || !isBrowserNetworkFailure(event)) return false;
+  if (state.offline || state.hidden || networkFailureReported) return true;
+  networkFailureReported = true;
+  return false;
+}
+
 export function sentryOptions(
   dsn: string | undefined
 ): Parameters<typeof init>[0] {
@@ -147,7 +193,9 @@ export function sentryOptions(
       frameContextLines: 0,
     },
     beforeSend: (event, hint) =>
-      isForeignScriptEvent(event) ? null : scrubSentryEvent(event, hint),
+      isForeignScriptEvent(event) || shouldDropNetworkFailure(event)
+        ? null
+        : scrubSentryEvent(event, hint),
     beforeSendTransaction: () => null,
     beforeSendLog: () => null,
     beforeSendMetric: () => null,

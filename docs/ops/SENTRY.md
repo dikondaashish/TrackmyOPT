@@ -32,6 +32,14 @@ An HTTP 200 response containing an application error still requires explicit
 
 Existing PostHog instrumentation and server console redaction remain active.
 
+Browser requests that fail before any HTTP response arrives ("Failed to fetch",
+Safari "Load failed", Firefox "NetworkError…") are usually the visitor's
+connection. `shouldDropNetworkFailure` in `lib/sentry/options.ts` drops them
+while the browser is offline or the page is hidden, and keeps only the **first**
+one per page load. A real site outage still reports, but one dropped connection
+no longer creates an issue for every widget on the page. 5xx responses are
+reported separately and are unaffected.
+
 The OPT/STEM tools report unexpected saved-date, plan-status, employment-history,
 and date-save failures with fixed diagnostic messages, including malformed or
 failed HTTP 200 responses. Expected 4xx outcomes and requests canceled by
