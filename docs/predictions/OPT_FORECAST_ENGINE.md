@@ -1,6 +1,20 @@
 # Daily OPT forecast engine
 
-Implementation: `apps/web/lib/opt-forecast`. Version: `opt-aj-v1`.
+Implementation: `apps/web/lib/opt-forecast`. Version: `opt-aj-v2`.
+
+**v2 (October 13, 2026).** Daily curves and per-case forecasts are now fit from
+each enrolled case's dated USCIS history, rebuilt with
+`lib/opt-forecast/retrospective.ts`. The stored category is used even when the
+user hasn't confirmed it. This is the configuration that the
+[retrospective check](OPT_FORECAST_RETROSPECTIVE_2026-10-13.md) validated. The
+prospective archive below is still collected and backtested daily, to monitor
+live accuracy. The owner approved a staged rollout: serve **Initial OPT
+premium** first. Add regular Initial OPT and STEM only after the same check
+passes for them. The dashboard leads with the median date and the 80% range,
+because the 50% range was too narrow in validation. Daily forecast rows are
+stored only for pending cases.
+
+The v1 notes below still describe the data contract, privacy, and math.
 The existing community estimator remains in place. This release creates a
 prospective evidence and validation pipeline; it does not certify greater
 accuracy or activate an unvalidated prediction.

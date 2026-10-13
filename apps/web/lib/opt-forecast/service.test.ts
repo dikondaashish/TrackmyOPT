@@ -6,6 +6,8 @@ import {
   recordObservation,
   refreshForecasts,
 } from './service';
+import { fitCurve } from './survival';
+import { MODEL_VERSION } from './types';
 
 function database(results: Record<string, unknown[]>) {
   const calls: Array<{
@@ -128,4 +130,99 @@ it('sends only allowlisted provider fields and returns deletion races honestly',
     received: null,
     events: [],
   });
+});
+
+const premiumCase = (patch: Record<string, unknown> = {}) => ({
+  id: 'case',
+  case_type: 'I-765',
+  received_date: '2026-08-01',
+  current_status: 'Case Was Changed To A Premium Processing Case',
+  status_history: [
+    {
+      status:
+        'We received your Form I-765, Application for Employment Authorization, and sent you a receipt notice.',
+      date: '2026-08-01',
+    },
+    {
+      status:
+        'We started the premium-processing clock for your Form I-765, Application for Employment Authorization.',
+      date: '2026-09-20',
+    },
+  ],
+  last_checked_at: '2026-10-13T14:01:00.000Z',
+  filing_category: 'initial_opt',
+  filing_category_confirmed_at: null,
+  reported_filing_date: null,
+  reported_premium_start: null,
+  pp_start_date: null,
+  ...patch,
+});
+const promotedPolicy = {
+  uscis_training_authorized: true,
+  promoted_model: MODEL_VERSION,
+  validation: {
+    modelVersion: MODEL_VERSION,
+    approved: true,
+    reviewedAt: '2026-10-13',
+    reportReference: 'docs/predictions/OPT_FORECAST_RETROSPECTIVE_2026-10-13.md',
+    cohorts: ['initial_opt:premium'],
+  },
+};
+const curve = fitCurve(
+  Array.from({ length: 120 }, (_, i) => ({
+    id: `a${i}`,
+    entry: 0,
+    exit: 15 + Math.floor(i / 2),
+    event: 'approval' as const,
+  }))
+);
+it('serves a promoted cohort from the case USCIS history', async () => {
+  const m = database({
+    case_status: [{ data: premiumCase(), error: null }],
+    opt_forecast_policy: [{ data: promotedPolicy, error: null }],
+    opt_forecast_runs: [
+      {
+        data: {
+          id: 'run',
+          curves: { 'initial_opt:premium': curve },
+          completed_at: '2026-10-13T16:15:00.000Z',
+        },
+        error: null,
+      },
+    ],
+  });
+  const f = await getCaseForecast(
+    m.db,
+    'case',
+    'owner',
+    new Date('2026-10-13T18:00:00Z')
+  );
+  expect(f).toMatchObject({ state: 'estimate', modelVersion: MODEL_VERSION });
+  expect(f!.medianDate).not.toBeNull();
+  expect(m.calls.at(-1)).toMatchObject({
+    table: 'opt_case_forecasts',
+    operation: 'insert',
+  });
+});
+it('keeps unpromoted cohorts in validation', async () => {
+  const m = database({
+    case_status: [
+      {
+        data: premiumCase({
+          current_status: 'USCIS Is currently Processing the Case',
+          status_history: [premiumCase().status_history[0]],
+        }),
+        error: null,
+      },
+    ],
+    opt_forecast_policy: [{ data: promotedPolicy, error: null }],
+  });
+  const f = await getCaseForecast(
+    m.db,
+    'case',
+    'owner',
+    new Date('2026-10-13T18:00:00Z')
+  );
+  expect(f).toMatchObject({ state: 'shadow', medianDate: null });
+  expect(m.calls.map((c) => c.table)).not.toContain('opt_forecast_runs');
 });
