@@ -54,7 +54,8 @@ export function classify(status: string): Outcome {
   if (/\bwithdrawn\b|withdrawal.*(?:acknowledg|approved)/i.test(status))
     return 'withdrawal';
   if (
-    /\bapproved\b/i.test(status) &&
+    (/\bapproved\b/i.test(status) ||
+      /^approval case decision rendered$/i.test(status.trim())) &&
     !/not approved|approval.*revo/i.test(status)
   )
     return 'approval';
@@ -65,17 +66,21 @@ export function classify(status: string): Outcome {
   )
     return 'unknown';
   if (
-    /case.*receiv|application.*receiv|actively review|fingerprint|biometric|request.*evidence|response.*receiv|transferred|premium.*processing|interview|notice of intent/i.test(
+    /case.*receiv|application.*receiv|\breceived your\b|currently processing|actively review|fingerprint|biometric|request.*evidence|response.*receiv|transferred|premium.*processing|interview|notice of intent/i.test(
       status
     )
   )
     return 'pending';
   return 'unknown';
 }
+// USCIS history uses both short titles ("Case Was Received") and long sentences
+// ("We received your Form I-765, ... and sent you a receipt notice.").
 const received = (status: string) =>
-  /^(?:case|application)(?: was| is)? received(?:$| and| on)/i.test(
+  (/^(?:case|application)(?: was| is)? received(?:$| and| on)/i.test(
     status.trim()
-  ) && !/response|premium/i.test(status);
+  ) ||
+    /^we received your (?:form|application)\b/i.test(status.trim())) &&
+  !/response|premium/i.test(status);
 export const fatalFlags = new Set([
   'conflicting_category',
   'conflicting_receipt',
@@ -153,7 +158,9 @@ export function normalizeObservations(
     const providerPp =
       latest.provider.events
         .filter((e) =>
-          /premium[ -]processing clock (?:was )?started/i.test(e.status)
+          /premium[ -]processing clock (?:was )?started|started the premium[ -]processing clock/i.test(
+            e.status
+          )
         )
         .map((e) => validDate(e.date))
         .filter((d): d is string => !!d)
@@ -200,7 +207,7 @@ export function normalizeObservations(
     let outcome: Outcome = current;
     if (
       current === 'unknown' &&
-      /card.*(?:produc|mail|deliver)/i.test(latest.provider.status) &&
+      /\bcard\b/i.test(latest.provider.status) &&
       outcomeKinds.has('approval')
     )
       outcome = 'approval';
