@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   queries: [] as QueryRecord[],
   fetchCaseStatus: vi.fn(),
   removedAfterFetch: false,
+  profileMissing: false,
 }));
 
 vi.mock('@supabase/supabase-js', () => ({
@@ -39,17 +40,26 @@ vi.mock('@supabase/supabase-js', () => ({
           return query;
         },
         maybeSingle: async () => ({
-          data: { id: 'case-row-a', user_id: 'user-a', current_status: null },
+          data:
+            table === 'profiles'
+              ? mocks.profileMissing
+                ? null
+                : { premium_status: false }
+              : { id: 'case-row-a', user_id: 'user-a', current_status: null },
           error: null,
         }),
         single: async () => ({
           data:
-            mocks.removedAfterFetch && table === 'case_status'
+            (mocks.removedAfterFetch && table === 'case_status') ||
+            (mocks.profileMissing && table === 'profiles')
               ? null
               : table === 'profiles'
                 ? { premium_status: false }
                 : { id: 'case-row-a', user_id: 'user-a', current_status: null },
-          error: null,
+          error:
+            mocks.profileMissing && table === 'profiles'
+              ? { code: 'PGRST116' }
+              : null,
         }),
       };
 
@@ -86,6 +96,7 @@ describe('POST /api/case-status/check row scoping', () => {
     mocks.queries.length = 0;
     mocks.fetchCaseStatus.mockReset();
     mocks.removedAfterFetch = false;
+    mocks.profileMissing = false;
     vi.stubEnv('CRON_SECRET', 'test-secret');
     vi.stubEnv('USCIS_MOCK', 'true');
     vi.stubEnv('VERCEL_ENV', 'development');
@@ -128,6 +139,46 @@ describe('POST /api/case-status/check row scoping', () => {
       'receipt_number',
       'IOE9822487119',
     ]);
+  });
+
+  it('syncs an enrolled case without a profile using free behavior', async () => {
+    vi.stubEnv('USCIS_MOCK', 'false');
+    mocks.profileMissing = true;
+    mocks.fetchCaseStatus.mockResolvedValue({
+      success: true,
+      data: {
+        receiptNumber: 'IOE0000000001',
+        status: 'Case Was Received',
+        description: 'Case was received.',
+        caseType: 'I-765',
+        receivedDate: null,
+        histCaseStatus: [],
+      },
+    });
+    const response = await POST(
+      new NextRequest('https://example.test/api/case-status/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Secret': 'test-secret',
+          'X-Force-Refresh': 'true',
+          'X-Check-Trigger': 'daily',
+        },
+        body: JSON.stringify({
+          receipt_number: 'IOE0000000001',
+          user_id: 'user-a',
+        }),
+      })
+    );
+    expect(response.status).toBe(200);
+    const update = mocks.queries.find(
+      (q) => q.table === 'case_status' && q.operation === 'update'
+    );
+    expect(update?.payload).toMatchObject({
+      current_status: 'Case Was Received',
+    });
+    expect(update?.payload).not.toHaveProperty('free_visible_status');
+    expect(mocks.queries.some((q) => q.table === 'email_queue')).toBe(false);
   });
 
   it('scopes persisted USCIS failures to the same owned row', async () => {

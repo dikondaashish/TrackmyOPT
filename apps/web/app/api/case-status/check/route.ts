@@ -39,7 +39,7 @@ async function getUserIsPremium(
     .from('profiles')
     .select('premium_status, subscription_expires_at, plan_tier')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
   if (error) throw new Error('Case plan lookup failed');
   const profile = data as { premium_status?: boolean | null } | null;
   return resolveActivePlanTier(profile) !== 'free';
