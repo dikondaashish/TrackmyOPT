@@ -1,0 +1,7 @@
+**/.hyperframes/
+**/.hyperframes-history/
+**/.hf-tmp/
+**/snapshots/
+**/renders/
+**/node_modules/
+**/*.log

@@ -46,6 +46,9 @@ export type ResearchArticle = {
   cta: BlogProductCtaVariant;
   statusNote?: string;
   dataNote?: string;
+  /** Describe the evidence actually reviewed for developing news. */
+  reviewLabel?: string;
+  badgeLabel?: string;
   /** Explicit editorial approval for the short-lived Google News sitemap. */
   newsSitemapEligible?: boolean;
   /** ISO timestamp used to remove an approved news article after 48 hours. */

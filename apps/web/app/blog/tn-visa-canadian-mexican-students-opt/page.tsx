@@ -40,7 +40,7 @@ export default function TnVisaPage() {
                 title={metadata.title as string}
                 description={metadata.description as string}
                 publishedDate="2026-06-03"
-                modifiedDate="2026-06-03"
+                modifiedDate="2026-10-12"
                 author="Vinay Kumar"
                 canonicalUrl={metadata.alternates?.canonical as string}
             />
@@ -59,9 +59,14 @@ export default function TnVisaPage() {
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 7 min read</span>
                     <span>•</span>
-                    <span>Updated July 12, 2026</span>
+                    <span>Updated October 12, 2026</span>
                 </div>
             </header>
+
+            <aside className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+                <p className="font-semibold">October 12, 2026 update: online presence review expanded to TN and TD visa applicants on October 1. The announcement addresses consular visa applicants; verify the procedure for your nationality and application route.</p>
+                <Link href="/blog/tn-td-visa-social-media-screening-october-2026" className="mt-2 inline-block font-semibold underline">Read the TN/TD screening update</Link>
+            </aside>
 
             <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/tn-visa-canadian-mexican-students-opt.png" alt="Canadian and Mexican passports next to a USMCA Professional classification document" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />

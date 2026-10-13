@@ -1,0 +1,154 @@
+{
+  "phase": "final",
+  "category": "kinetic-type",
+  "duration_s": 9,
+  "fps": 30,
+  "canvas": {
+    "w": 1200,
+    "h": 600,
+    "aspect": "2:1"
+  },
+  "style": "TrackMyOPT editorial explainer: calm, clear, three always-visible cards; fixed camera and no text entrances.",
+  "palette": [
+    "#176b78",
+    "#152c49",
+    "#f6f8fc",
+    "#ffffff",
+    "#e5f2f4"
+  ],
+  "font": "system-ui, sans-serif; optional system serif headline",
+  "beats": [
+    0,
+    3,
+    6
+  ],
+  "export": "mp4",
+  "delivery_format": "gif",
+  "asset_needs": [],
+  "search_required": false,
+  "classification_reason": "Supplied verified copy; text and in-place stage emphasis carry the explanation.",
+  "shot_brief": "Viewers see the complete three-stage explanation from the first frame of this nine-second inline blog graphic. The title 'PERM review pause: know your case stage' anchors a quiet ivory layout, with navy text and teal accents. A pale teal card background and a left-to-right progress marker focus attention on each stage for three seconds without moving or hiding any words. The graphic distinguishes the checked October 12 facts from unknown future outcomes, remains readable while paused, and uses no audio or external assets.",
+  "content": {
+    "title": "PERM review pause: know your case stage",
+    "status": "REPORTED OCTOBER 8 \u00b7 CHECKED OCTOBER 12, 2026",
+    "footer": "The report does not cancel every H-1B, EAD, I-140 or I-485.",
+    "scenes": [
+      {
+        "id": "stage-1",
+        "start": 0,
+        "end": 3,
+        "text": "Eight named companies. Reported stop of new and pending PERM applications.",
+        "emphasis_words": [
+          "Eight named companies"
+        ],
+        "emotion": "calm and factual",
+        "motion": "All cards remain visible. This card receives a pale teal background highlight and a left-origin scaleX progress marker.",
+        "beats": [
+          0
+        ],
+        "label": "WHAT HAPPENED",
+        "heading": "Eight named companies",
+        "body": "Reported stop of new and pending PERM applications."
+      },
+      {
+        "id": "stage-2",
+        "start": 3,
+        "end": 6,
+        "text": "Check your case stage. Identify the PERM stage and current work authorization.",
+        "emphasis_words": [
+          "Check your case stage"
+        ],
+        "emotion": "calm and factual",
+        "motion": "All cards remain visible. This card receives a pale teal background highlight and a left-origin scaleX progress marker.",
+        "beats": [
+          3
+        ],
+        "label": "WHAT APPLIES NOW",
+        "heading": "Check your case stage",
+        "body": "Identify the PERM stage and current work authorization."
+      },
+      {
+        "id": "stage-3",
+        "start": 6,
+        "end": 9,
+        "text": "Watch for guidance. Reopening date and later instructions are unknown.",
+        "emphasis_words": [
+          "Watch for guidance"
+        ],
+        "emotion": "calm and factual",
+        "motion": "All cards remain visible. This card receives a pale teal background highlight and a left-origin scaleX progress marker.",
+        "beats": [
+          6
+        ],
+        "label": "WHAT COMES NEXT",
+        "heading": "Watch for guidance",
+        "body": "Reopening date and later instructions are unknown."
+      }
+    ]
+  },
+  "catalog_discovery": {
+    "queries": [
+      "sequential card background highlight",
+      "left to right progress bar fill scaleX"
+    ],
+    "cli_result": "Both catalog queries failed with exit 13: unsettled top-level await in HyperFrames 0.8.149. This is a CLI failure, not proof that the registry lacks the effect.",
+    "fallback_manifest": "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry/registry.json",
+    "fallback_candidates": [
+      "caption-highlight",
+      "caption-pill-karaoke",
+      "inline-highlight",
+      "marker-highlight",
+      "mk-progress-stat"
+    ],
+    "decision": "Adapt the supplied, already-validated three-card pattern rather than install a caption or statistic treatment. It already implements the exact requested always-visible layout, sequential pale-card emphasis and scaleX progress marker; no new motion effect is authored."
+  },
+  "reuse": {
+    "kind": "existing-validated-pattern",
+    "source": "docs/blog-media/october-2026/opt-fees/index.html",
+    "scope": "Copy only its static three-card layout and finite highlight/marker choreography; replace all topic copy and use system fonts or shipped local fonts."
+  },
+  "layout": {
+    "safe_margin_px": 40,
+    "header": "Status line and one-line headline, fixed from the first frame.",
+    "cards": {
+      "count": 3,
+      "x": [
+        40,
+        421,
+        802
+      ],
+      "y": 180,
+      "w": 358,
+      "h": 300,
+      "gap": 23,
+      "padding": 20
+    },
+    "typography_px": {
+      "headline": 40,
+      "status": 17,
+      "stage_label": 17,
+      "stage_number": 28,
+      "card_heading": 24,
+      "body": 22,
+      "footer": 17
+    },
+    "body_line_height": 1.4,
+    "footer_y": 514,
+    "fit_rule": "No ellipsis, clipping or body line breaks. Allow headings to wrap naturally to two lines; body copy stays short. If copy does not fit, shorten it without losing the supplied qualification."
+  },
+  "motion": {
+    "runtime": "One fully built paused GSAP timeline, registered once under the root composition ID.",
+    "visibility": "All three cards, labels, headings and body copy remain visible throughout 0\u20139 seconds.",
+    "active_card": "At 0, 3 and 6 seconds, that card changes from white to pale teal over 0.4 seconds; returns to white in the last 0.4 seconds of its three-second window.",
+    "progress_marker": "Full-width, seven-pixel teal bar; explicit scaleX 0 to 1 from left center over 2.5 seconds, starting at 0, 3 and 6. Markers stay at their filled state for the remainder of the shot.",
+    "seek_safety": "Use explicit fromTo states; immediateRender false when re-owning a target. Only paint properties and scaleX animate. No clocks, random values, network fetches, text swaps or autoplay.",
+    "camera": "Locked; no entrances, exits, transitions, audio or ambient movement."
+  },
+  "factual_guardrails": [
+    "Do not turn proposed, reported or court-dependent facts into guaranteed current legal outcomes.",
+    "Do not invent a final rule, reopening date or future approval.",
+    "The PERM report does not establish automatic cancellation of every H-1B, EAD, certified PERM, I-140 or I-485.",
+    "F-1 grace periods and OPT unemployment limits are distinct from the worker 60-day proposal."
+  ],
+  "validation_handoff": "Builder must run full HyperFrames check, inspect frames at 1.5, 4.5 and 7.5 seconds, confirm readable unclipped text, and render only within the authorization recorded in BRIEF.md."
+}

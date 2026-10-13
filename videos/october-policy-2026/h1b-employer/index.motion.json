@@ -1,0 +1,102 @@
+{
+  "duration": 9,
+  "assertions": [
+    {
+      "kind": "appearsBy",
+      "selector": "#flow-status",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#flow-title",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#flow-note",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#flow-brand",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-0-label",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-0-number",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-0-heading",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-0-body",
+      "bySec": 0.1
+    },
+    {
+      "kind": "staysInFrame",
+      "selector": "#step-0"
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-1-label",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-1-number",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-1-heading",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-1-body",
+      "bySec": 0.1
+    },
+    {
+      "kind": "staysInFrame",
+      "selector": "#step-1"
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-2-label",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-2-number",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-2-heading",
+      "bySec": 0.1
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#step-2-body",
+      "bySec": 0.1
+    },
+    {
+      "kind": "staysInFrame",
+      "selector": "#step-2"
+    },
+    {
+      "kind": "keepsMoving",
+      "withinSelector": "#flow-steps",
+      "maxStaticSec": 2.8
+    }
+  ]
+}

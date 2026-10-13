@@ -4,8 +4,11 @@ import {
 } from './editorial-refreshes';
 import { defineArticle, source, standardRelated } from './shared';
 import { octoberNewsArticles } from './october-news';
+import { octoberPolicyNewsArticles } from './october-policy-news';
+import { h1bFeeOctoberArticle } from './h1b-fees-october';
 
 export const currentUpdateArticles = [
+  ...octoberPolicyNewsArticles,
   ...octoberNewsArticles,
   defineArticle({
     slug: 'november-2026-visa-bulletin-predictions-opt-workers',
@@ -308,144 +311,7 @@ export const currentUpdateArticles = [
       },
     ],
   }),
-  defineArticle({
-    slug: 'dhs-proposes-103265-h1b-fee-2026',
-    title: 'DHS Proposes a $103,265 H-1B Fee: What OPT Students Should Know',
-    seoTitle: 'New $103,265 H-1B Fee Proposal: OPT Impact',
-    description:
-      'DHS published a proposed $103,265 additional fee for cap-subject H-1B petitions. It is not in effect today. See who may be affected, what has not changed for OPT, and what to watch next.',
-    category: 'H-1B Policy Update',
-    tags: [
-      'H-1B Fee Proposal',
-      'H-1B Cap',
-      'OPT to H-1B',
-      'USCIS',
-      'H-1B 2026',
-    ],
-    readTime: '8 min read',
-    publishedDate: '2026-08-27',
-    modifiedDate: '2026-08-27',
-    newsSitemapEligible: true,
-    newsPublishedAt: '2026-08-27T15:00:00Z',
-    cta: 'sponsors',
-    image: '/blog/uscis-hq-dhs-public-domain.jpg',
-    imageAlt:
-      'Officials at the 2017 groundbreaking ceremony for the USCIS headquarters in Camp Springs, Maryland',
-    imageCaption:
-      'USCIS headquarters groundbreaking, Camp Springs, Maryland (2017). Official DHS photograph by Jetta Disco; public-domain U.S. government work.',
-    statusNote:
-      'Status as of August 27, 2026: this is a notice of proposed rulemaking, not a fee currently due from OPT students or H-1B petitioners. The Federal Register notice says comments are due September 24, 2026. Do not make filing, job, or travel decisions based on a proposal alone.',
-    directAnswer:
-      'DHS has proposed an additional $103,265 fee for H-1B petitions that are subject to the annual cap, including the U.S. advanced-degree exemption. The proposal does not change OPT or STEM OPT today, and it is not a final rule. If it is finalized in its current form, it could materially affect an employer’s cost to file a future cap-subject H-1B petition; it would not apply to cap-exempt petitions described in the proposal.',
-    keyTakeaways: [
-      'The proposal was published in the Federal Register on August 25, 2026; it is not effective merely because it was proposed.',
-      'The proposed $103,265 amount would be additional to other applicable H-1B fees and payments.',
-      'The proposed scope is cap-subject H-1B petitions: the 65,000 regular cap and the 20,000 U.S. advanced-degree exemption.',
-      'The proposal says cap-exempt petitions, such as filings by certain institutions of higher education and research organizations, would not be subject to this additional fee.',
-    ],
-    sections: [
-      {
-        heading: 'What DHS Proposed—and What It Did Not Do',
-        paragraphs: [
-          'On August 25, 2026, DHS published a notice of proposed rulemaking for an additional $103,265 fee on H-1B petitions subject to the annual cap. The agency says the fee would be paid when the petition is filed and would be separate from other applicable fees or payments.',
-          'A proposal starts a rulemaking process; it is not the same thing as a final, effective requirement. The notice invites public comments through September 24, 2026. Until DHS completes the rulemaking process and establishes an effective rule, readers should not describe this as a fee that is currently payable.',
-        ],
-      },
-      {
-        heading: 'Does the Proposed H-1B Fee Change OPT or STEM OPT?',
-        paragraphs: [
-          'No. The proposed rule concerns a potential employer filing fee for cap-subject H-1B petitions. It does not change the eligibility rules, filing windows, employment requirements, unemployment limits, or EAD validity rules for OPT or STEM OPT.',
-          'For an F-1 student, the practical issue is future sponsorship: a cap-subject employer may reassess its hiring plans if the proposal becomes final. That does not mean every employer will make the same decision, and it does not alter your current authorization to work on OPT.',
-        ],
-        note: 'Separate two questions: “Am I authorized to work on OPT now?” and “Could an employer’s future H-1B filing cost change?” Your OPT documents and your employer’s petition strategy are not the same legal question.',
-      },
-      {
-        heading: 'Which H-1B Cases Would the Proposal Cover?',
-        paragraphs: [
-          'DHS states that the proposed fee would apply to all cap-subject petitions, including petitions counted against the U.S. advanced-degree exemption. Congress sets the annual numerical limits at 65,000 regular-cap visas plus 20,000 visas for certain beneficiaries with a U.S. master’s degree or higher.',
-          'The proposal states that it would not apply to H-1B petitions that are not subject to the cap. Its examples include certain nonprofit research organizations, governmental research organizations, and institutions of higher education. Whether a particular employer or petition is cap-exempt depends on the facts, so applicants should not self-classify from a job title or a company name alone.',
-        ],
-        bullets: [
-          'Potentially covered if finalized: regular-cap H-1B petitions',
-          'Potentially covered if finalized: advanced-degree-exemption H-1B petitions',
-          'Described as excluded: cap-exempt petitions, including the examples named in the proposal',
-        ],
-      },
-      {
-        heading: 'What an OPT Student Can Do Now',
-        paragraphs: [
-          'Do not tell an employer that a $103,265 charge is already required. Instead, keep your own work authorization and graduation records organized, ask a recruiter whether the role has a history of H-1B sponsorship, and let the employer’s immigration counsel assess any future petition.',
-          'If you are choosing between a cap-subject and a potentially cap-exempt employer, confirm the organization’s status with the employer—not an internet list. If your case involves a pending change of status, cap-gap, prior H-1B time, or a nonprofit affiliation, consult qualified immigration counsel before relying on a general article.',
-        ],
-        numbered: [
-          'Save your I-20s, EAD, I-94, and USCIS notices in one place.',
-          'Ask prospective employers factual questions about whether they sponsor H-1B petitions and who handles immigration filings.',
-          'Use public filing-history data as a research signal, not as a promise that an employer will sponsor you.',
-          'Watch the Federal Register docket for a final rule or other official agency update.',
-        ],
-      },
-      {
-        heading: 'Why the Date and Status Language Matters',
-        paragraphs: [
-          'A large dollar figure makes fast headlines, but immigration reporting is useful only when it separates a proposal, a final rule, and a fee that is actually due. The Federal Register identifies this action as a proposed rule and provides the docket number USCIS-2026-0298 for comments and updates.',
-          'TrackMyOPT will update this page if DHS publishes a final rule, changes the proposed scope or amount, or announces a different effective date. Until then, the safest conclusion is straightforward: monitor the proposal, but follow the current OPT and H-1B rules that apply to your own case.',
-        ],
-      },
-    ],
-    checklist: [
-      'Read the Federal Register notice, not only a social-media headline or repost.',
-      'Keep your OPT or STEM OPT dates and employment records current with your DSO and employer.',
-      'Ask the employer—not a public database—to confirm whether it sponsors and whether a role is cap-subject or cap-exempt.',
-      'Recheck the official docket before H-1B registration or petition-filing decisions.',
-    ],
-    mistakes: [
-      'Treating a notice of proposed rulemaking as a fee already in force.',
-      'Assuming the fee is paid by an OPT student rather than understanding the petition is employer-filed.',
-      'Assuming every university-affiliated or nonprofit role is cap-exempt without an employer and counsel review.',
-      'Making job, OPT, travel, or status decisions based on a single news headline.',
-    ],
-    faq: [
-      {
-        question: 'Is the $103,265 H-1B fee in effect now?',
-        answer:
-          'No. As of August 27, 2026, DHS has published a proposed rule. The proposal is open for comments through September 24, 2026; it is not itself a final fee requirement.',
-      },
-      {
-        question: 'Would an OPT student pay the proposed $103,265 fee?',
-        answer:
-          'The proposal describes a fee paid at the time the H-1B petition is filed. H-1B petitions are filed by employers, not by the student. Do not assume an employer may lawfully shift a particular immigration cost to you; ask qualified counsel about the specific filing and employment arrangement.',
-      },
-      {
-        question: 'Does this proposal change my OPT or STEM OPT EAD?',
-        answer:
-          'No. The proposed rule concerns an additional fee for cap-subject H-1B petitions. It does not revise current OPT or STEM OPT work-authorization rules.',
-      },
-      {
-        question: 'Are cap-exempt H-1B petitions included?',
-        answer:
-          'The proposal says the additional fee would not apply to H-1B petitions that are not subject to the cap, and names certain higher-education and research organizations as examples. Confirm the classification of a specific employer or petition with the employer and qualified counsel.',
-      },
-    ],
-    sources: [
-      source.h1bFeeProposal,
-      source.h1bFeeBulletin,
-      source.uscisHqPhoto,
-    ],
-    related: [
-      {
-        label: 'OPT to H-1B transition guide',
-        href: '/blog/opt-to-h1b-transition',
-      },
-      {
-        label: 'H-1B sponsor companies and how to research them',
-        href: '/blog/top-h1b-sponsor-companies-2026',
-      },
-      {
-        label: 'H-1B cap-gap extension guide',
-        href: '/blog/h1b-cap-gap-extension',
-      },
-    ],
-  }),
+  h1bFeeOctoberArticle,
   defineArticle({
     slug: 'opt-biometrics-appointment-2026',
     title:
