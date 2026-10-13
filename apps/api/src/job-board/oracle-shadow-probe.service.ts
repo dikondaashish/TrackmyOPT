@@ -2,6 +2,14 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OracleJobDataStore } from './oracle-job-data-store';
 
+/** Returns only a well-formed ORA-/NJS-/DPI- code; never the error message. */
+export function safeOracleErrorCode(error: unknown): string | undefined {
+  const code = (error as { code?: unknown } | null)?.code;
+  return typeof code === 'string' && /^(ORA|NJS|DPI)-\d{3,5}$/.test(code)
+    ? code
+    : undefined;
+}
+
 /**
  * Performs one optional, read-only Oracle connectivity check at API startup.
  * This service deliberately has no job-data responsibilities and never
@@ -27,6 +35,7 @@ export class OracleShadowProbeService implements OnModuleInit {
     this.logger.log('Oracle shadow probe started');
     let store: OracleJobDataStore | undefined;
     let succeeded = false;
+    let errorCode: string | undefined;
 
     try {
       const poolMax = this.config.get<number>('ORACLE_JOB_DB_POOL_MAX');
@@ -46,10 +55,12 @@ export class OracleShadowProbeService implements OnModuleInit {
       store = OracleJobDataStore.fromEnvironment(oracleEnvironment);
       await store.healthCheck();
       succeeded = true;
-    } catch {
-      // Deliberately suppress the underlying error: credentials, descriptors,
+    } catch (error) {
+      // Deliberately suppress the underlying message: credentials, descriptors,
       // SQL errors, and server metadata must never reach application logs.
+      // Only a bare driver code (e.g. ORA-01017, NJS-500) is kept to diagnose.
       succeeded = false;
+      errorCode = safeOracleErrorCode(error);
     } finally {
       if (store) {
         try {
@@ -65,7 +76,8 @@ export class OracleShadowProbeService implements OnModuleInit {
     if (succeeded) {
       this.logger.log(`Oracle shadow probe succeeded (${elapsedMs}ms)`);
     } else {
-      this.logger.error(`Oracle shadow probe failed (${elapsedMs}ms)`);
+      const code = errorCode ? `, ${errorCode}` : '';
+      this.logger.error(`Oracle shadow probe failed (${elapsedMs}ms${code})`);
     }
   }
 
