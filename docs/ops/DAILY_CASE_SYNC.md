@@ -36,7 +36,9 @@ Free dashboards do not subscribe to automatic status updates.
 
 ## Provider limits and recovery
 
-Render queues today's checks and tomorrow's visible schedule. Stable daily IDs
+Render queues the current daily run and the following 14:00 UTC schedule. A
+repair before 14:00 UTC belongs to the preceding run, so it cannot consume the
+identity of the next scheduled batch. Stable daily IDs
 and durable `case_check_jobs` outcomes prevent repeating a completed case after
 Redis removes its payload. Re-dispatch recovers unfinished schedules, including
 a Redis restart. The cron response reports **dispatch**, while job records report

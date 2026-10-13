@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bull';
 import * as Bull from 'bull';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { nextDailyCheck } from './check-schedule';
+import { dailyCheckDay, nextDailyCheck } from './check-schedule';
 
 export type CaseSyncOutcome = {
   status?: string;
@@ -68,16 +68,12 @@ export class UscisService {
     this.logger.log(`Queueing ${cases.length} enrolled cases for daily sync`);
     // Staggering spreads queue work; the shared provider gate enforces the limit.
     const now = new Date();
-    const todaySlot = new Date(now);
-    todaySlot.setUTCHours(14, 0, 0, 0);
-    const next = nextDailyCheck(
-      new Date(Math.max(now.getTime(), todaySlot.getTime())),
-    );
+    const next = nextDailyCheck(now);
     const scheduledCases = cases.flatMap((c, index) => [
       {
         c,
         scheduled: new Date(now.getTime() + index * 1000),
-        day: now.toISOString().slice(0, 10),
+        day: dailyCheckDay(now),
       },
       {
         c,

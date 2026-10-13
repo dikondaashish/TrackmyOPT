@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import type { Queue } from 'bull';
 import { createClient } from '@supabase/supabase-js';
 import { UscisService } from './uscis.service';
+import { dailyCheckDay } from './check-schedule';
 
 jest.mock('@supabase/supabase-js', () => ({ createClient: jest.fn() }));
 
@@ -67,7 +68,7 @@ describe('daily USCIS queue pagination', () => {
   });
 
   it('does not requeue completed daily checks, but recovers failures after repair', async () => {
-    const day = new Date().toISOString().slice(0, 10);
+    const day = dailyCheckDay();
     const done = `daily-case-0-${day}`;
     const failed = `daily-case-1-${day}`;
     const { service, addBulk } = setup(false, [

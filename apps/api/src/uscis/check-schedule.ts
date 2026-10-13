@@ -5,6 +5,15 @@ export function nextDailyCheck(now = new Date()) {
   return next;
 }
 
+/** Use the most recent scheduled run, so a repair before 14:00 UTC cannot
+ * consume the identity of the following daily run. */
+export function dailyCheckDay(now = new Date()) {
+  const slot = new Date(now);
+  slot.setUTCHours(14, 0, 0, 0);
+  if (slot.getTime() > now.getTime()) slot.setUTCDate(slot.getUTCDate() - 1);
+  return slot.toISOString().slice(0, 10);
+}
+
 export const isTerminalCase = (status: string | null | undefined) =>
   /card was delivered|case was denied|withdrawal acknowledged|case was withdrawn|termination notice sent|case was revoked/i.test(
     status ?? '',

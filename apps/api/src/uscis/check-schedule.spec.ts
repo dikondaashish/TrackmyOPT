@@ -2,6 +2,7 @@ import {
   isTerminalCase,
   nextDailyCheck,
   checkFailureCode,
+  dailyCheckDay,
 } from './check-schedule';
 it.each([
   ['2026-09-23T13:59:59Z', '2026-09-23T14:00:00.000Z'],
@@ -21,6 +22,13 @@ it.each([
 ])('maps failures to public-safe codes', (message, code) =>
   expect(checkFailureCode(message)).toBe(code),
 );
+it.each([
+  ['2026-09-23T13:59:59Z', '2026-09-22'],
+  ['2026-09-23T14:00:00Z', '2026-09-23'],
+  ['2027-01-01T00:01:00Z', '2026-12-31'],
+])('keeps early recovery separate from the next daily slot: %s', (now, day) => {
+  expect(dailyCheckDay(new Date(now))).toBe(day);
+});
 it('never treats a notice or approval awaiting card delivery as terminal', () => {
   for (const status of [
     'Notice Explaining USCIS Actions Was Mailed',
