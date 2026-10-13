@@ -31,16 +31,16 @@ export const appConfigValidationSchema = Joi.object({
   AWS_ACCESS_KEY_ID: Joi.string().required(),
   AWS_SECRET_ACCESS_KEY: Joi.string().required(),
   AWS_S3_BUCKET: Joi.string().required(),
-  USCIS_CLIENT_ID: Joi.string().required(),
-  USCIS_CLIENT_SECRET: Joi.string().required(),
-  // Defaults match uscis.service.ts so Render can omit them.
+  USCIS_CLIENT_ID: Joi.string().optional(),
+  USCIS_CLIENT_SECRET: Joi.string().optional(),
+  // Legacy config remains accepted; USCIS HTTP now uses the web client.
   USCIS_API_BASE_URL: Joi.string()
     .uri()
     .default('https://api.uscis.gov/case-status'),
   USCIS_TOKEN_URL: Joi.string()
     .uri()
     .default('https://api.uscis.gov/oauth/accesstoken'),
-  // Optional: notification fan-out skips when unset (uscis.processor).
+  // Worker callbacks use API_SECRET_KEY; site defaults to the production web app.
   NEXT_PUBLIC_SITE_URL: Joi.string().uri().optional(),
   CRON_SECRET: Joi.string().min(8).optional(),
   MALWARE_SCAN_TOKEN: Joi.string().min(16).optional(),

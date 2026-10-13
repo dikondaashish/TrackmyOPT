@@ -30,6 +30,7 @@ export class UscisController {
     return {
       status: dryRun === '1' ? 'dry-run' : 'queued',
       count: result.count,
+      queued: result.queued ?? 0,
       skippedFree: result.skippedFree,
       timestamp: new Date(),
     };

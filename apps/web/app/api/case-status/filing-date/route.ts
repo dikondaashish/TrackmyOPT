@@ -1,16 +1,16 @@
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { getUserId } from "@/lib/auth/get-user-id";
-import { normalizeFilingDateToIso } from "@/lib/case-status/filing-date";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { getUserId } from '@/lib/auth/get-user-id';
+import { normalizeFilingDateToIso } from '@/lib/case-status/filing-date';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "PATCH, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Cache-Control": "no-store",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'PATCH, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Cache-Control': 'no-store',
 };
 
 /**
@@ -23,7 +23,7 @@ async function handlePATCH(req: NextRequest) {
 
     if (!userId) {
       return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
+        { ok: false, error: 'Unauthorized' },
         { status: 401, headers: corsHeaders }
       );
     }
@@ -31,19 +31,19 @@ async function handlePATCH(req: NextRequest) {
     const body = await req.json();
     const { case_id, received_date } = body;
 
-    if (!case_id || typeof case_id !== "string") {
+    if (!case_id || typeof case_id !== 'string') {
       return NextResponse.json(
-        { ok: false, error: "case_id is required" },
+        { ok: false, error: 'case_id is required' },
         { status: 400, headers: corsHeaders }
       );
     }
 
     const isoDate = normalizeFilingDateToIso(
-      typeof received_date === "string" ? received_date : null
+      typeof received_date === 'string' ? received_date : null
     );
     if (!isoDate) {
       return NextResponse.json(
-        { ok: false, error: "received_date must be a valid date (yyyy-mm-dd)" },
+        { ok: false, error: 'received_date must be a valid date (yyyy-mm-dd)' },
         { status: 400, headers: corsHeaders }
       );
     }
@@ -53,34 +53,42 @@ async function handlePATCH(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { data: target } = await supabase
-      .from("case_status")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("id", case_id)
+    const { data: target, error: lookupError } = await supabase
+      .from('case_status')
+      .select('id, free_visible_status')
+      .eq('user_id', userId)
+      .eq('id', case_id)
       .maybeSingle();
 
+    if (lookupError) throw new Error('Filing date case lookup failed');
     if (!target) {
       return NextResponse.json(
-        { ok: false, error: "Case not found" },
+        { ok: false, error: 'Case not found' },
         { status: 404, headers: corsHeaders }
       );
     }
 
     const { data, error } = await supabase
-      .from("case_status")
+      .from('case_status')
       .update({
         received_date: isoDate,
+        free_visible_status: {
+          ...(target.free_visible_status &&
+          typeof target.free_visible_status === 'object'
+            ? target.free_visible_status
+            : {}),
+          received_date: isoDate,
+        },
         updated_at: new Date().toISOString(),
       })
-      .eq("id", case_id)
-      .eq("user_id", userId)
-      .select("id, received_date")
+      .eq('id', case_id)
+      .eq('user_id', userId)
+      .select('id, received_date')
       .single();
 
     if (error) {
       return NextResponse.json(
-        { ok: false, error: "Failed to save filing date" },
+        { ok: false, error: 'Failed to save filing date' },
         { status: 500, headers: corsHeaders }
       );
     }
@@ -90,9 +98,9 @@ async function handlePATCH(req: NextRequest) {
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {
-    console.error("Error in PATCH /api/case-status/filing-date:", error);
+    console.error('Error in PATCH /api/case-status/filing-date:', error);
     return NextResponse.json(
-      { ok: false, error: "Internal server error" },
+      { ok: false, error: 'Internal server error' },
       { status: 500, headers: corsHeaders }
     );
   }
@@ -102,5 +110,13 @@ async function handleOPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
 
-export const PATCH = withSentryApiErrors(handlePATCH, '/api/case-status/filing-date', 'PATCH');
-export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/case-status/filing-date', 'OPTIONS');
+export const PATCH = withSentryApiErrors(
+  handlePATCH,
+  '/api/case-status/filing-date',
+  'PATCH'
+);
+export const OPTIONS = withSentryApiErrors(
+  handleOPTIONS,
+  '/api/case-status/filing-date',
+  'OPTIONS'
+);
