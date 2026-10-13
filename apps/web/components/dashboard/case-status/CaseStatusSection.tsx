@@ -249,9 +249,13 @@ export function CaseStatusSection() {
 
           {/* ── 2. URGENT ACTION BANNER ── */}
           <UrgentActionBanner
-            caseState={caseState}
+            caseState={
+              isPremium === true
+                ? caseState
+                : deriveCaseState(caseStatus.current_status)
+            }
             premiumProcessing={
-              ppOverdueDays > 0 && ppDeadlineDate
+              isPremium === true && ppOverdueDays > 0 && ppDeadlineDate
                 ? {
                     overdueBusinessDays: ppOverdueDays,
                     deadlineDate: ppDeadlineDate,
@@ -333,6 +337,7 @@ export function CaseStatusSection() {
           ) : (
             <CaseStatusPanelErrorBoundary area="hero">
               <CaseHeroCard
+                isPremium={isPremium === true}
                 onBiometricsSaved={() => void loadCaseStatus()}
                 key={caseStatus.id}
                 caseStatus={{
@@ -380,27 +385,29 @@ export function CaseStatusSection() {
             )}
 
           {/* ── 4. MONITOR HEALTH STRIP ── */}
-          <CaseStatusPanelErrorBoundary area="monitor_health">
-            <MonitorHealthStrip
-              caseId={caseStatus.id}
-              monitorActive={isPremium === true}
-              lastCheckedAt={caseStatus.last_checked_at}
-              lastCheckFailedAt={caseStatus.last_check_failed_at}
-              lastCheckErrorCode={caseStatus.last_check_error_code}
-              emailAlertsEnabled={caseStatus.notifications_enabled}
-              emailAddress={notificationEmail}
-              onEditEmail={() => setIsEditingEmail(true)}
-              onUpgrade={
-                isPremium === false ? () => openProTrialModal() : undefined
-              }
-            />
-            <NotificationDelivery
-              key={caseStatus.id + (caseStatus.last_checked_at ?? '')}
-              caseId={caseStatus.id}
-              checkedAt={caseStatus.last_checked_at}
-            />
-            <WeeklyDigestSettings isPro={isPremium === true} />
-          </CaseStatusPanelErrorBoundary>
+          {isPremium === true && (
+            <CaseStatusPanelErrorBoundary area="monitor_health">
+              <MonitorHealthStrip
+                caseId={caseStatus.id}
+                monitorActive={isPremium === true}
+                lastCheckedAt={caseStatus.last_checked_at}
+                lastCheckFailedAt={caseStatus.last_check_failed_at}
+                lastCheckErrorCode={caseStatus.last_check_error_code}
+                emailAlertsEnabled={caseStatus.notifications_enabled}
+                emailAddress={notificationEmail}
+                onEditEmail={() => setIsEditingEmail(true)}
+                onUpgrade={
+                  isPremium === false ? () => openProTrialModal() : undefined
+                }
+              />
+              <NotificationDelivery
+                key={caseStatus.id + (caseStatus.last_checked_at ?? '')}
+                caseId={caseStatus.id}
+                checkedAt={caseStatus.last_checked_at}
+              />
+              <WeeklyDigestSettings isPro={isPremium === true} />
+            </CaseStatusPanelErrorBoundary>
+          )}
 
           {/* ── 4b. PP Countdown (keep existing component) ── */}
           {isPremium === true && isOptCase && !formTypeMismatch && (
