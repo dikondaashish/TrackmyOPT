@@ -86,6 +86,45 @@ describe('as-of timeline normalization', () => {
       'withdrawal'
     );
   });
+  it('reads USCIS long-form history sentences and current titles', () => {
+    expect(classify('USCIS Is currently Processing the Case')).toBe('pending');
+    expect(
+      classify(
+        'We received your Form I-765, Application for Employment Authorization, and sent you a receipt notice.'
+      )
+    ).toBe('pending');
+    expect(classify('Approval Case Decision Rendered')).toBe('approval');
+    expect(
+      classify(
+        'We produced your new card for your Form I-765, Application for Employment Authorization.'
+      )
+    ).toBe('unknown');
+    const r = obs(1, '2026-05-20', 'Card Was Picked Up By The United States Postal Service');
+    r.provider.received = null;
+    r.provider.events = [
+      {
+        status:
+          'We received your Form I-765, Application for Employment Authorization, and sent you a receipt notice.',
+        date: '2026-02-02',
+      },
+      {
+        status:
+          'We started the premium-processing clock for your Form I-765, Application for Employment Authorization.',
+        date: '2026-04-01',
+      },
+      {
+        status:
+          'Your Form I-765, Application for Employment Authorization, has been approved.',
+        date: '2026-04-20',
+      },
+    ];
+    const t = normalize([r])[0]!;
+    expect(t.receiptDate).toBe('2026-02-02');
+    expect(t.premiumStart).toBe('2026-04-01');
+    expect(t.flags).toContain('verified_premium_start');
+    expect(t.outcome).toBe('approval');
+    expect(t.eventDate).toBe('2026-04-20');
+  });
   it('uses an explicit approval history date after card delivery, never the card date', () => {
     const r = obs(2, '2026-04-15', 'Card Was Delivered To Me');
     r.provider.events = [
