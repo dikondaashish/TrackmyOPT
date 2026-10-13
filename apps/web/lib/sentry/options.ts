@@ -100,6 +100,27 @@ export function scrubSentryEvent(
   };
 }
 
+// Browser extensions and userscript managers inject code into our pages; their
+// crashes are not TrackMyOPT failures and would otherwise exhaust the quota.
+const FOREIGN_SCRIPT =
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$/i;
+const EXPLICIT_FOREIGN_SCRIPT =
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript/i;
+
+/** True when every stack frame belongs to injected third-party script. */
+export function isForeignScriptEvent(event: ErrorEvent): boolean {
+  const files = (event.exception?.values ?? []).flatMap((exception) =>
+    (exception.stacktrace?.frames ?? [])
+      .map((frame) => frame.filename ?? frame.abs_path)
+      .filter((file): file is string => Boolean(file))
+  );
+  return (
+    files.length > 0 &&
+    files.every((file) => FOREIGN_SCRIPT.test(file)) &&
+    files.some((file) => EXPLICIT_FOREIGN_SCRIPT.test(file))
+  );
+}
+
 export function sentryOptions(
   dsn: string | undefined
 ): Parameters<typeof init>[0] {
@@ -125,7 +146,8 @@ export function sentryOptions(
       stackFrameVariables: false,
       frameContextLines: 0,
     },
-    beforeSend: scrubSentryEvent,
+    beforeSend: (event, hint) =>
+      isForeignScriptEvent(event) ? null : scrubSentryEvent(event, hint),
     beforeSendTransaction: () => null,
     beforeSendLog: () => null,
     beforeSendMetric: () => null,

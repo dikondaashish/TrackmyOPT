@@ -10,6 +10,10 @@ function resolvePostHogApiKey(): string | undefined {
   );
 }
 
+// Events flush immediately (flushAt: 1); cap the shutdown wait so a slow
+// PostHog ingest can never hold a product request for the 30s SDK default.
+const SHUTDOWN_TIMEOUT_MS = 5_000;
+
 // Creates a fresh client per call — required because we always call shutdown()
 // after each event to ensure flush in serverless / edge environments.
 function getPostHogClient(): PostHog | null {
@@ -58,7 +62,7 @@ async function withPostHogClient(
 
   try {
     await fn(client);
-    await client.shutdown();
+    await client.shutdown(SHUTDOWN_TIMEOUT_MS);
   } catch (error) {
     console.error("[PostHog] Failed to run server capture:", error);
   }
