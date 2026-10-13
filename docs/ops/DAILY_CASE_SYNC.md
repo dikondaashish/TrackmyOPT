@@ -76,7 +76,9 @@ Unexpected worker failures send a fixed, authenticated, body-free signal to
 limits repeated outage signals to protect the free Sentry quota. API 5xx,
 provider/auth failures, persistence failures, notification failures, and partial
 failures use the existing web SDK. The next daily cron reports failed or overdue
-jobs in the preceding day even if the worker never reached completion. It is not
+jobs in the preceding day even if the worker never reached completion. Expected
+failed-case outcomes for unavailable cases, invalid receipts, and throttling are
+excluded from unexpected-failure alerts. It is not
 an immediate outage detector. Rate limits, transport failures, Sentry quota, and
 email-provider acceptance can affect reporting and notification delivery.
 See [Sentry operations](SENTRY.md).

@@ -47,7 +47,10 @@ async function run(req: NextRequest) {
         .select('job_id', { count: 'exact', head: true })
         .gte('scheduled_for', new Date(stamp - 26 * 3600_000).toISOString())
         .lt('scheduled_for', new Date(stamp - 2 * 3600_000).toISOString())
-        .in('state', ['scheduling', 'queued', 'running', 'failed']);
+        .in('state', ['scheduling', 'queued', 'running', 'failed'])
+        .or(
+          'state.neq.failed,error_code.is.null,error_code.not.in.(USCIS_RATE_LIMITED,USCIS_CASE_UNAVAILABLE,USCIS_INVALID_RECEIPT)'
+        );
       if (error) console.error('Daily case worker health lookup failed');
       else if (count)
         console.error(`Daily case checks overdue or failed: ${count}`);

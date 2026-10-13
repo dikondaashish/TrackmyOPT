@@ -12,6 +12,8 @@ export const isTerminalCase = (status: string | null | undefined) =>
 
 /** Public-safe categories only; never persist upstream bodies or credentials. */
 export function checkFailureCode(message: string) {
+  if (/UPSTREAM_404|HTTP 404/i.test(message)) return 'USCIS_CASE_UNAVAILABLE';
+  if (/UPSTREAM_422|HTTP 422/i.test(message)) return 'USCIS_INVALID_RECEIPT';
   if (/CIRCUIT_OPEN|503|502|504/i.test(message)) return 'USCIS_UNAVAILABLE';
   if (/429|rate.?limit/i.test(message)) return 'USCIS_RATE_LIMITED';
   if (/401|403|unauthorized|invalid.client/i.test(message))
