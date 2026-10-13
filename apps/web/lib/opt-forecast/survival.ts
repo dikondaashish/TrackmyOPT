@@ -190,6 +190,6 @@ export function predict(
     reliability:
       p50 != null && p25 != null && p75 != null ? null : 'Limited Data',
     explanation:
-      'Conditional estimate among comparable tracked applications still pending. Ranges represent the middle 50% and 80% of the modeled approval distribution; unavailable bounds are not extrapolated. This is an estimate, not a USCIS promise.',
+      'Based on USCIS case histories of comparable tracked applications that were still pending after waiting as long as yours. The range covers 80% of modeled outcomes where the data supports it; unsupported bounds are not shown. This is an estimate, not a USCIS promise.',
   };
 }

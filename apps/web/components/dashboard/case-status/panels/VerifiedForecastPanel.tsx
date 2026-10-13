@@ -29,17 +29,18 @@ export function ForecastDetails({ forecast: f }: { forecast: Forecast }) {
         </p>
       ) : f.state === 'estimate' ? (
         <>
-          <p className="mt-2 text-lg font-semibold">
-            {displayDate(f.interval50[0])} – {displayDate(f.interval50[1])}
-          </p>
-          <p className="mt-2 text-sm">
-            Most Likely Approval Date (median):{' '}
-            <strong>{displayDate(f.medianDate)}</strong>
-          </p>
-          {f.interval80.every(Boolean) && (
+          {/* Validation showed the 50% range was too narrow; lead with the median
+              and the wider 80% range instead. */}
+          <p className="mt-2 text-sm">Most likely approval date</p>
+          <p className="text-lg font-semibold">{displayDate(f.medianDate)}</p>
+          {f.interval80.every(Boolean) ? (
             <p className="mt-1 text-sm text-muted-foreground">
-              Wider 80% range: {displayDate(f.interval80[0])} –{' '}
+              Likely range: {displayDate(f.interval80[0])} –{' '}
               {displayDate(f.interval80[1])}
+            </p>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Not enough data yet for a reliable range.
             </p>
           )}
         </>

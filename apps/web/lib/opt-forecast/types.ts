@@ -1,5 +1,5 @@
 /** Private versioned evidence keyed by internal UUIDs. No USCIS receipt numbers. */
-export const MODEL_VERSION = 'opt-aj-v1';
+export const MODEL_VERSION = 'opt-aj-v2';
 export type CaseKind = 'initial_opt' | 'stem_extension';
 export type Outcome =
   | 'approval'

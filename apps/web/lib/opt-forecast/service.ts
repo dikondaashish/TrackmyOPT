@@ -1,8 +1,10 @@
+import { createHash } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { USCISStatus } from '@/lib/immigration/uscis-checker';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { backtest, type CommunityObservation } from './backtest';
 import { addDays, normalizeObservations, trainingRecords } from './normalize';
+import { reconstructObservations, type CaseHistoryRow } from './retrospective';
 import { emptyForecast, fitCurve, predict } from './survival';
 import {
   MODEL_VERSION,
@@ -106,6 +108,51 @@ export async function runBacktest(
     evaluationCutoff: cutoff,
   });
 }
+const CASE_COLUMNS =
+  'id,receipt_number,case_type,received_date,current_status,status_history,last_checked_at,filing_category,filing_category_confirmed_at,reported_filing_date,reported_premium_start,pp_start_date';
+type CaseRow = Omit<CaseHistoryRow, 'case_id' | 'application_id'> & {
+  id: string;
+  receipt_number?: string | null;
+};
+const toHistory = (
+  { id, receipt_number: _receipt, ...rest }: CaseRow,
+  applicationId: string
+): CaseHistoryRow => ({ ...rest, case_id: id, application_id: applicationId });
+
+/**
+ * v2 trains on each enrolled case's dated USCIS history (the method validated in
+ * docs/predictions/OPT_FORECAST_RETROSPECTIVE_2026-10-13.md). Receipts stay in
+ * memory and are only used, hashed, to count shared enrollments once.
+ */
+export async function loadCaseHistories(
+  db: SupabaseClient
+): Promise<CaseHistoryRow[]> {
+  const rows: CaseHistoryRow[] = [];
+  for (let page = 0; page < 100; page++) {
+    const batch = checked(
+      await db
+        .from('case_status')
+        .select(CASE_COLUMNS)
+        .order('id')
+        .range(page * 1000, page * 1000 + 999),
+      'case history read'
+    ) as CaseRow[] | null;
+    if (!Array.isArray(batch))
+      throw new Error('OPT forecast case history shape invalid');
+    for (const row of batch) {
+      const receipt = row.receipt_number?.trim().toUpperCase();
+      if (!receipt) continue;
+      rows.push(
+        toHistory(
+          row,
+          createHash('sha256').update(receipt).digest('hex').slice(0, 32)
+        )
+      );
+    }
+    if (batch.length < 1000) return rows;
+  }
+  throw new Error('OPT forecast case history capacity exceeded');
+}
 type Policy = {
   uscis_training_authorized: boolean;
   promoted_model: string | null;
@@ -182,10 +229,13 @@ export async function refreshForecasts(
         'USCIS agreement and privacy authorization for cross-case training must be recorded first.',
     };
   try {
-    const observations = await loadObservations(db, cutoff);
+    const histories = await loadCaseHistories(db);
+    // The stored (possibly unconfirmed) category is used, as in the validated run.
+    const observations = reconstructObservations(histories, {
+      landmarks: [],
+      assumeCategory: true,
+    });
     const timelines = normalizeObservations(observations, cutoff);
-    // An empty prospective archive is expected immediately after rollout. Fit empty
-    // curves and report zero availability; never invent evidence or label it an outage.
     const curves: Record<string, Curve> = {};
     for (const kind of ['initial_opt', 'stem_extension'] as const)
       for (const processing of ['regular_unconfirmed', 'premium'] as const) {
@@ -196,6 +246,7 @@ export async function refreshForecasts(
     const landmarks = [90, 60, 30, 14, 7].map(
       (n) => addDays(cutoff, -n) + 'T23:59:59.999Z'
     );
+    // Prospective archive check, kept to monitor live accuracy as outcomes arrive.
     const report = await runBacktest(db, landmarks, cutoff);
     const ids = [...new Set(observations.map((o) => o.case_id))];
     // Insert memberships BEFORE publishing curves. FK failure means deletion raced us:
@@ -208,8 +259,10 @@ export async function refreshForecasts(
         ),
         'membership write'
       );
-    for (let i = 0; i < timelines.length; i += 100) {
-      const batch = timelines.slice(i, i + 100).flatMap((t) =>
+    // Only pending cases need a stored daily forecast; this bounds storage growth.
+    const pending = timelines.filter((t) => t.outcome === 'pending');
+    for (let i = 0; i < pending.length; i += 100) {
+      const batch = pending.slice(i, i + 100).flatMap((t) =>
         t.caseIds.map((case_id) => ({
           case_id,
           run_id: run.id,
@@ -240,6 +293,7 @@ export async function refreshForecasts(
       ok: true,
       state: 'ready',
       applications: timelines.length,
+      pendingForecasts: pending.length,
       modelVersion: MODEL_VERSION,
       promotionEligible: report.promotionEligible,
     };
@@ -263,27 +317,21 @@ export async function getCaseForecast(
   const owned = checked(
     await db
       .from('case_status')
-      .select('id')
+      .select(CASE_COLUMNS)
       .eq('id', caseId)
       .eq('user_id', userId)
       .maybeSingle(),
     'ownership read'
-  );
+  ) as CaseRow | null;
   if (!owned) return null;
   const cutoff = now.toISOString();
-  const rows = checked(
-    await db
-      .from('opt_case_observations')
-      .select('*')
-      .eq('case_id', caseId)
-      .lte('observed_at', cutoff)
-      .order('id', { ascending: false })
-      .limit(1),
-    'case evidence read'
-  ) as Observation[];
+  // Same reconstruction as the daily fit, so the case is read the way it was trained.
   const t =
     normalizeObservations(
-      rows.map((r) => ({ ...r, application_id: caseId })),
+      reconstructObservations([toHistory(owned, caseId)], {
+        landmarks: [],
+        assumeCategory: true,
+      }),
       cutoff
     )[0] ?? null;
   let forecast = emptyForecast(
