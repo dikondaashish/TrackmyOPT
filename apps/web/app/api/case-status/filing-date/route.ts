@@ -72,6 +72,7 @@ async function handlePATCH(req: NextRequest) {
       .from('case_status')
       .update({
         received_date: isoDate,
+        reported_filing_date: isoDate,
         free_visible_status: {
           ...(target.free_visible_status &&
           typeof target.free_visible_status === 'object'
