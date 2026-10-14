@@ -12,6 +12,8 @@ export type OracleJobDataConfig = {
 };
 
 export const DEFAULT_ORACLE_CALL_TIMEOUT_MS = 1_800_000;
+const MIN_ORACLE_CALL_TIMEOUT_MS = 1_000;
+const MAX_ORACLE_CALL_TIMEOUT_MS = 2_147_483_647;
 
 /**
  * Resolve the store without ever falling back from an explicitly selected
@@ -57,9 +59,13 @@ export function readOracleJobDataConfig(
       ? Math.min(parsedPoolMax, 10)
       : 4;
 
+  // The driver passes callTimeout to setTimeout, which turns any delay above
+  // 2^31-1 ms into 1 ms; such a value would fail every Oracle call at once.
   const parsedCallTimeout = Number(env.ORACLE_JOB_DB_CALL_TIMEOUT_MS);
   const callTimeoutMs =
-    Number.isInteger(parsedCallTimeout) && parsedCallTimeout >= 1_000
+    Number.isInteger(parsedCallTimeout) &&
+    parsedCallTimeout >= MIN_ORACLE_CALL_TIMEOUT_MS &&
+    parsedCallTimeout <= MAX_ORACLE_CALL_TIMEOUT_MS
       ? parsedCallTimeout
       : DEFAULT_ORACLE_CALL_TIMEOUT_MS;
 
