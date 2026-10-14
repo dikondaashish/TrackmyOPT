@@ -48,6 +48,33 @@ describe('job data store configuration', () => {
       user: 'TRACKMYOPT_JOBS',
       password: 'not-logged',
       poolMax: 10,
+      callTimeoutMs: 1_800_000,
     });
   });
+
+  it.each([
+    [undefined, 1_800_000],
+    ['45000', 45_000],
+    ['0', 1_800_000],
+    ['abc', 1_800_000],
+    ['999', 1_800_000],
+    ['1000', 1_000],
+    ['-5000', 1_800_000],
+    ['1500.5', 1_800_000],
+    ['Infinity', 1_800_000],
+    ['2147483647', 2_147_483_647],
+    ['2147483648', 1_800_000],
+  ])(
+    'bounds every Oracle round trip (ORACLE_JOB_DB_CALL_TIMEOUT_MS=%s)',
+    (value, expected) => {
+      const config = readOracleJobDataConfig({
+        JOB_DATA_STORE: 'oracle',
+        ORACLE_JOB_DB_CONNECT_STRING: 'tcps://oracle.example/service',
+        ORACLE_JOB_DB_USER: 'TRACKMYOPT_JOBS',
+        ORACLE_JOB_DB_PASSWORD: 'not-logged',
+        ORACLE_JOB_DB_CALL_TIMEOUT_MS: value,
+      });
+      expect(config?.callTimeoutMs).toBe(expected);
+    },
+  );
 });

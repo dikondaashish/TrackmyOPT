@@ -62,6 +62,9 @@ import {
   type Reservation,
 } from './job-board.types';
 
+/** How often a still-pending ingestion stage logs a warning. */
+const STAGE_WATCHDOG_INTERVAL_MS = 60_000;
+
 @Injectable()
 export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(JobBoardService.name);
@@ -551,7 +554,9 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
           ? context.pacingGapMs
           : MIN_INTER_REQUEST_GAP_MS,
       );
-      const fetched = await fetchAuthorizedAtsJobs(source);
+      const fetched = await this.runStage(source.id, 'fetch', () =>
+        fetchAuthorizedAtsJobs(source),
+      );
       if (this.shuttingDown)
         throw new Error('instance restarting before persistence');
       const persistence = await this.persistSourceJobs(
@@ -562,11 +567,13 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       );
       // A completed persistence operation must retain its successful audit,
       // including when SIGTERM arrived while persistence was in flight.
-      await this.complete(
-        reservation.audit_log_id,
-        fetched.jobs.length,
-        persistence,
-        fetched.metadata.requests_made,
+      await this.runStage(source.id, 'audit-complete', () =>
+        this.complete(
+          reservation.audit_log_id,
+          fetched.jobs.length,
+          persistence,
+          fetched.metadata.requests_made,
+        ),
       );
       try {
         if (!this.shuttingDown)
@@ -607,6 +614,38 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       throw error;
     } finally {
       this.inFlightAuditIds.delete(reservation.audit_log_id);
+    }
+  }
+
+  /**
+   * Run one ingestion stage and warn while it is still pending, so a hang is
+   * attributable to a stage in the logs. Only the source ID, stage name and
+   * elapsed time are logged. The work itself is not cancelled here; callers
+   * rely on the fetch abort and the Oracle call timeout to bound it.
+   */
+  private async runStage<T>(
+    sourceId: string,
+    stage: string,
+    work: () => Promise<T>,
+  ): Promise<T> {
+    const startedAt = Date.now();
+    const watchdog = setInterval(() => {
+      const seconds = Math.round((Date.now() - startedAt) / 1000);
+      this.logger.warn(
+        `Job-board source ${sourceId} still in stage ${stage} after ${seconds}s`,
+      );
+    }, STAGE_WATCHDOG_INTERVAL_MS);
+    watchdog.unref?.();
+    try {
+      return await work();
+    } catch (error) {
+      const seconds = Math.round((Date.now() - startedAt) / 1000);
+      this.logger.warn(
+        `Job-board source ${sourceId} failed in stage ${stage} after ${seconds}s`,
+      );
+      throw error;
+    } finally {
+      clearInterval(watchdog);
     }
   }
 
@@ -716,8 +755,10 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     runStartedAt?: string,
   ) {
     const ids = [...new Set(scraped.map((job) => job.external_job_id))];
-    const persistedStoreJobs = await this.jobStore.listSourceJobsForIngestion(
+    const persistedStoreJobs = await this.runStage(
       source.id,
+      'store-read',
+      () => this.jobStore.listSourceJobsForIngestion(source.id),
     );
     const persistedJobs: PersistedJobListing[] = persistedStoreJobs.map(
       (job) => ({
@@ -744,13 +785,18 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     const fresh = records.filter(
       (job) => !existingByExternalId.has(job.externalJobId),
     );
-    await this.jobStore.upsertJobs(records);
+    await this.runStage(source.id, 'store-upsert', () =>
+      this.jobStore.upsertJobs(records),
+    );
     if (responseComplete) {
-      await this.jobStore.reconcileSource(source.id, ids, runStartedAt);
+      await this.runStage(source.id, 'store-reconcile', () =>
+        this.jobStore.reconcileSource(source.id, ids, runStartedAt),
+      );
     }
-    const employerMatchIds = await this.employerMatches.syncSource(
-      source,
-      records,
+    const employerMatchIds = await this.runStage(
+      source.id,
+      'employer-match',
+      () => this.employerMatches.syncSource(source, records),
     );
     const linkedRecords = records.map((record) => ({
       ...record,
@@ -759,9 +805,13 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         record.employerMatchId,
     }));
     if (employerMatchIds.size) {
-      await this.jobStore.upsertJobs(linkedRecords);
+      await this.runStage(source.id, 'store-upsert-linked', () =>
+        this.jobStore.upsertJobs(linkedRecords),
+      );
     }
-    await this.visaSignals.syncSource(source.id, linkedRecords);
+    await this.runStage(source.id, 'visa-signals', () =>
+      this.visaSignals.syncSource(source.id, linkedRecords),
+    );
     return {
       jobsNew: fresh.length,
       jobsDuplicate: records.length - fresh.length,
