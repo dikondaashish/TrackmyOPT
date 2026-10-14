@@ -51,3 +51,26 @@ paused or unavailable.
 The sponsor API now projects the 86 fields consumed by the profile, LCA table,
 filing modal, analytics, and its predicates/order. A 500-row sample payload
 fell from 1,520,019 bytes with all fields to 1,323,971 bytes (12.90% less).
+
+## Oracle copy (2026-10-14)
+
+`h1b_filings` is also copied to the Oracle Autonomous Database
+(`TRACKMYOPT_JOB_APP.H1B_FILINGS`, schema in
+`apps/api/sql/oracle/h1b-filings-schema.sql`). The 2026-10-13 copy verified
+233,575 / 233,575 rows with 0 missing, 0 extra, and 0 mismatched sampled rows
+(`apps/api/scripts/oracle-h1b-filings-backfill.ts --verify`).
+
+- Reads: with `H1B_FILINGS_STORE=oracle` on Vercel, the sponsor profile calls
+  the API service's `GET /sponsor-data/filings` (API-key guarded), which runs
+  the same sponsor-id / employer-name / case-insensitive-name lookup in Oracle.
+  Vercel cannot reach Oracle directly because of the database access list.
+- Fallback: while `SUPABASE_FILINGS_*` is still configured, an Oracle failure
+  is reported to Sentry and the request is served from this Supabase project.
+  Remove those variables only when this project is retired.
+- Health: `/api/cron/filings-health` probes Oracle through
+  `GET /sponsor-data/filings/health` when Oracle is selected (which also keeps
+  the Always Free database active) and still probes this project while it is
+  configured.
+- Parity: `apps/api/scripts/oracle-h1b-filings-parity.ts` compares the Oracle
+  and Supabase lookups for a sponsor sample (300 sponsors / 2,140 filings
+  matched exactly before cutover).

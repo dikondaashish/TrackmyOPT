@@ -5,6 +5,13 @@ import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseFilingsClient } from "@/lib/supabase/filings";
 import { FREE_H1B_SPONSOR_LIMIT } from "@/lib/career/h1b/constants";
 import {
+  hasSupabaseFilingsFallback,
+  isOracleFilingsStoreSelected,
+  listOracleFilings,
+  reportOracleFilingsFailure,
+  type FilingRecord,
+} from "@/lib/career/h1b/filings-store";
+import {
   isPremiumH1bProfile,
   isSponsorInFreeTier,
 } from "@/lib/career/h1b/free-tier-access";
@@ -50,6 +57,41 @@ const FILING_PROFILE_COLUMNS = [
   "preparer_business_name", "preparer_email",
 ].join(", ");
 
+/** Former (and fallback) lookup against the Supabase filings project. */
+async function listSupabaseFilings(
+  sponsorId: string,
+  sponsorName: string | null
+): Promise<FilingRecord[]> {
+  const filingsAdmin = getSupabaseFilingsClient();
+  const { data: byId } = await filingsAdmin
+    .from("h1b_filings")
+    .select(FILING_PROFILE_COLUMNS)
+    .eq("sponsor_id", sponsorId)
+    .order("received_date", { ascending: false })
+    .limit(500);
+
+  if (byId && byId.length > 0) return byId as unknown as FilingRecord[];
+  if (!sponsorName) return [];
+
+  const { data: byName } = await filingsAdmin
+    .from("h1b_filings")
+    .select(FILING_PROFILE_COLUMNS)
+    .eq("employer_name", sponsorName)
+    .order("received_date", { ascending: false })
+    .limit(500);
+
+  if (byName && byName.length > 0) return byName as unknown as FilingRecord[];
+
+  const { data: byNameLike } = await filingsAdmin
+    .from("h1b_filings")
+    .select(FILING_PROFILE_COLUMNS)
+    .ilike("employer_name", sponsorName)
+    .order("received_date", { ascending: false })
+    .limit(500);
+
+  return (byNameLike ?? []) as unknown as FilingRecord[];
+}
+
 async function handleGET(_req: NextRequest, context: RouteContext) {
   try {
     const { id: sponsorId } = await context.params;
@@ -70,7 +112,6 @@ async function handleGET(_req: NextRequest, context: RouteContext) {
 
     const isPremium = isPremiumH1bProfile(profile);
     const admin = getSupabaseAdminClient();
-    const filingsAdmin = getSupabaseFilingsClient();
 
     const { data: sponsor, error: sponsorError } = await admin
       .from("h1b_sponsors")
@@ -100,37 +141,18 @@ async function handleGET(_req: NextRequest, context: RouteContext) {
       }
     }
 
-    let filings: Record<string, unknown>[] = [];
-
-    const { data: byId } = await filingsAdmin
-      .from("h1b_filings")
-      .select(FILING_PROFILE_COLUMNS)
-      .eq("sponsor_id", sponsorId)
-      .order("received_date", { ascending: false })
-      .limit(500);
-
-    if (byId && byId.length > 0) {
-      filings = byId as unknown as Record<string, unknown>[];
-    } else if (sponsor.name) {
-      const { data: byName } = await filingsAdmin
-        .from("h1b_filings")
-        .select(FILING_PROFILE_COLUMNS)
-        .eq("employer_name", sponsor.name)
-        .order("received_date", { ascending: false })
-        .limit(500);
-
-      if (byName && byName.length > 0) {
-        filings = byName as unknown as Record<string, unknown>[];
-      } else {
-        const { data: byNameLike } = await filingsAdmin
-          .from("h1b_filings")
-          .select(FILING_PROFILE_COLUMNS)
-          .ilike("employer_name", sponsor.name)
-          .order("received_date", { ascending: false })
-          .limit(500);
-
-        if (byNameLike) filings = byNameLike as unknown as Record<string, unknown>[];
+    let filings: FilingRecord[];
+    if (isOracleFilingsStoreSelected()) {
+      try {
+        filings = await listOracleFilings(sponsorId, sponsor.name);
+      } catch {
+        const fallback = hasSupabaseFilingsFallback();
+        reportOracleFilingsFailure("profile", fallback);
+        if (!fallback) throw new Error("H-1B filings are unavailable");
+        filings = await listSupabaseFilings(sponsorId, sponsor.name);
       }
+    } else {
+      filings = await listSupabaseFilings(sponsorId, sponsor.name);
     }
 
     return NextResponse.json(

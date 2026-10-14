@@ -8,6 +8,7 @@ import { UscisModule } from './uscis/uscis.module';
 import { ResumeModule } from './resume/resume.module';
 import { JobBoardModule } from './job-board/job-board.module';
 import { OracleShadowProbeModule } from './job-board/oracle-shadow-probe.module';
+import { SponsorDataModule } from './sponsor-data/sponsor-data.module';
 import { DocumentSecurityModule } from './document-security/document-security.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -121,6 +122,7 @@ const runtimeImports =
         ResumeModule,
         JobBoardModule,
         OracleShadowProbeModule,
+        SponsorDataModule,
         DocumentSecurityModule,
       ];
 
