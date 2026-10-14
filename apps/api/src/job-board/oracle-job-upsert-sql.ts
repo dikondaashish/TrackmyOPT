@@ -58,6 +58,35 @@ export const ORACLE_JOB_MERGE_SQL = `MERGE INTO jobs target
            incoming.employer_match_id, incoming.missing_since_at, incoming.removed_at
          )`;
 
+/**
+ * Same MERGE plus content_hash, used only by incremental ingestion after the
+ * jobs-content-hash.sql migration. The original statement stays unchanged for
+ * JOB_INGEST_INCREMENTAL=false.
+ */
+export const ORACLE_JOB_MERGE_WITH_HASH_SQL = ORACLE_JOB_MERGE_SQL.replace(
+  'TO_TIMESTAMP_TZ(:removed_at, ',
+  ':content_hash content_hash, TO_TIMESTAMP_TZ(:removed_at, ',
+)
+  .replace(
+    'target.removed_at = incoming.removed_at',
+    'target.removed_at = incoming.removed_at,\n           target.content_hash = incoming.content_hash',
+  )
+  .replace(`INSERT (${JOB_COLUMNS})`, `INSERT (${JOB_COLUMNS}, content_hash)`)
+  .replace(
+    'incoming.employer_match_id, incoming.missing_since_at, incoming.removed_at\n',
+    'incoming.employer_match_id, incoming.missing_since_at, incoming.removed_at,\n           incoming.content_hash\n',
+  );
+
+/** Re-confirms an unchanged job; only rows that are still open qualify. */
+export const ORACLE_JOB_CONFIRM_SQL = `UPDATE jobs SET
+           last_confirmed_at = TO_TIMESTAMP_TZ(:confirmed_at, '${ORACLE_ISO_TZ_FORMAT}'),
+           updated_at = TO_TIMESTAMP_TZ(:confirmed_at, '${ORACLE_ISO_TZ_FORMAT}')
+         WHERE id = :id AND listing_status = 'open'`;
+
+export const ORACLE_JOB_EMPLOYER_MATCH_SQL = `UPDATE jobs SET
+           employer_match_id = :employer_match_id
+         WHERE id = :id`;
+
 export const ORACLE_JOB_SEARCH_MERGE_SQL = `MERGE INTO ${ORACLE_JOB_SEARCH_TABLE} target
          USING (SELECT :job_id job_id, :search_text search_text,
                        :search_text_index search_text_index,

@@ -10,6 +10,12 @@ import { SupabaseJobDataStore } from './supabase-job-data-store';
 /** Nest injection token for the job-record store only. */
 export const JOB_DATA_STORE = Symbol('JOB_DATA_STORE');
 
+function optionalString(value: unknown) {
+  return typeof value === 'string' || typeof value === 'number'
+    ? String(value).trim()
+    : undefined;
+}
+
 export function createJobDataStore(config: ConfigService): JobDataStore {
   const kind = resolveJobDataStore(config.get<string>('JOB_DATA_STORE'));
   if (kind === 'supabase') {
@@ -32,6 +38,14 @@ export function createJobDataStore(config: ConfigService): JobDataStore {
     ORACLE_JOB_DB_PASSWORD: config.get<string>('ORACLE_JOB_DB_PASSWORD'),
     ORACLE_JOB_DB_POOL_MAX: String(
       config.get<number>('ORACLE_JOB_DB_POOL_MAX') ?? 4,
+    ),
+    // Passed raw: invalid values fall back to safe defaults in
+    // readOracleJobDataConfig instead of failing boot validation.
+    ORACLE_JOB_DB_CALL_TIMEOUT_MS: optionalString(
+      config.get<unknown>('ORACLE_JOB_DB_CALL_TIMEOUT_MS'),
+    ),
+    JOB_INGEST_INCREMENTAL: optionalString(
+      config.get<unknown>('JOB_INGEST_INCREMENTAL'),
     ),
   });
   if (!oracle) throw new Error('Oracle job store configuration is unavailable');

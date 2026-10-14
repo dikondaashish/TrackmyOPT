@@ -49,8 +49,28 @@ describe('job data store configuration', () => {
       password: 'not-logged',
       poolMax: 10,
       callTimeoutMs: 1_800_000,
+      incrementalIngestion: false,
     });
   });
+
+  it.each([
+    [undefined, false],
+    ['false', false],
+    ['TRUE', false],
+    ['true', true],
+  ])(
+    'enables incremental ingestion only for JOB_INGEST_INCREMENTAL=%s',
+    (value, expected) => {
+      const config = readOracleJobDataConfig({
+        JOB_DATA_STORE: 'oracle',
+        ORACLE_JOB_DB_CONNECT_STRING: 'tcps://oracle.example/service',
+        ORACLE_JOB_DB_USER: 'TRACKMYOPT_JOBS',
+        ORACLE_JOB_DB_PASSWORD: 'not-logged',
+        JOB_INGEST_INCREMENTAL: value,
+      });
+      expect(config?.incrementalIngestion).toBe(expected);
+    },
+  );
 
   it.each([
     [undefined, 1_800_000],

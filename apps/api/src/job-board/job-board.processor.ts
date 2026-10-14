@@ -9,6 +9,24 @@ import * as Bull from 'bull';
 import { JobBoardService } from './job-board.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
 import type { SchedulerContext } from './scheduler-run-id';
+import { sourceRetryDecision } from './ingestion-retry-policy';
+
+/**
+ * Run a source job and stop Bull's remaining attempts when the failure is
+ * persistent (see ingestion-retry-policy.ts); the error is still rethrown.
+ */
+export async function runSourceJob<T>(
+  job: Pick<Bull.Job, 'failedReason' | 'discard'>,
+  work: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await work();
+  } catch (error) {
+    if (sourceRetryDecision(error, job.failedReason) === 'discard')
+      await job.discard();
+    throw error;
+  }
+}
 
 // Oracle's Always Free service has a small connection budget. Keep one normal
 // source and one slow source in flight per process; the shared Oracle pool and
@@ -73,7 +91,9 @@ export class JobBoardProcessor {
       { sourceId: string; pacingGapMs?: number } & SchedulerContext
     >,
   ) {
-    return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
+    return runSourceJob(job, () =>
+      this.jobBoard.ingestSourceById(job.data.sourceId, job.data),
+    );
   }
 
   @OnQueueStalled({ name: 'ingest-source' })
@@ -142,7 +162,9 @@ export class SlowJobBoardProcessor {
       { sourceId: string; pacingGapMs?: number } & SchedulerContext
     >,
   ) {
-    return this.jobBoard.ingestSourceById(job.data.sourceId, job.data);
+    return runSourceJob(job, () =>
+      this.jobBoard.ingestSourceById(job.data.sourceId, job.data),
+    );
   }
 
   @OnQueueStalled({ name: 'ingest-source' })
