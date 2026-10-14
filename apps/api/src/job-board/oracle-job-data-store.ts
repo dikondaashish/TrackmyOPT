@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import {
+  DEFAULT_ORACLE_CALL_TIMEOUT_MS,
   readOracleJobDataConfig,
   type OracleJobDataConfig,
 } from './job-data-store.config';
@@ -771,6 +772,12 @@ export class OracleJobDataStore implements JobDataStore {
   private async connection() {
     await this.initialize();
     if (!this.pool) throw new Error('Oracle job store pool is unavailable');
-    return this.pool.getConnection();
+    const connection = await this.pool.getConnection();
+    // Without a limit, a statement waiting on a row lock or a stalled network
+    // round trip blocks forever and holds the Bull job active. The driver
+    // aborts the call and the caller's catch rolls the transaction back.
+    connection.callTimeout =
+      this.config.callTimeoutMs ?? DEFAULT_ORACLE_CALL_TIMEOUT_MS;
+    return connection;
   }
 }

@@ -217,6 +217,66 @@ describe('ingestion store ownership and persistence', () => {
   });
 });
 
+describe('ingestion stage watchdog', () => {
+  afterEach(() => jest.useRealTimers());
+
+  function logger(service: JobBoardService) {
+    const internals = service as unknown as {
+      logger: { warn: jest.Mock; error: jest.Mock };
+    };
+    internals.logger = { warn: jest.fn(), error: jest.fn() };
+    return internals.logger;
+  }
+
+  it('names the stage a hanging write is stuck in, without job content', async () => {
+    jest.useFakeTimers();
+    const { internals, source, scraped, store } = setup();
+    const log = logger(internals as unknown as JobBoardService);
+    let release!: () => void;
+    store.upsertJobs.mockImplementationOnce(
+      () => new Promise<void>((resolve) => (release = resolve)),
+    );
+    const pending = internals.persistSourceJobs(source, [scraped], true);
+    await jest.advanceTimersByTimeAsync(125_000);
+    expect(log.warn).toHaveBeenCalledWith(
+      'Job-board source source still in stage store-upsert after 60s',
+    );
+    expect(log.warn).toHaveBeenCalledWith(
+      'Job-board source source still in stage store-upsert after 120s',
+    );
+    const messages = log.warn.mock.calls.map(([message]) => String(message));
+    expect(messages.join('\n')).not.toContain('Updated Engineer');
+    release();
+    await pending;
+    log.warn.mockClear();
+    await jest.advanceTimersByTimeAsync(120_000);
+    expect(log.warn).not.toHaveBeenCalled();
+  });
+
+  it('reports the failing stage and propagates the original error', async () => {
+    const { internals, source, scraped, store, visa } = setup();
+    const log = logger(internals as unknown as JobBoardService);
+    store.upsertJobs.mockRejectedValueOnce(
+      new Error('DPI-1067: call timeout of 120000 ms exceeded'),
+    );
+    await expect(
+      internals.persistSourceJobs(source, [scraped], true),
+    ).rejects.toThrow('DPI-1067');
+    expect(log.warn).toHaveBeenCalledWith(
+      'Job-board source source failed in stage store-upsert after 0s',
+    );
+    expect(store.reconcileSource).not.toHaveBeenCalled();
+    expect(visa.syncSource).not.toHaveBeenCalled();
+  });
+
+  it('does not log anything for a healthy source', async () => {
+    const { internals, source, scraped } = setup();
+    const log = logger(internals as unknown as JobBoardService);
+    await internals.persistSourceJobs(source, [scraped], true);
+    expect(log.warn).not.toHaveBeenCalled();
+  });
+});
+
 describe('bounded ingestion delta accounting', () => {
   it('compares natural identity and detects missing, UUID, lifecycle and content separately', () => {
     const source = row({

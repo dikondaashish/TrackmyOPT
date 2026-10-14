@@ -130,6 +130,61 @@ function setup() {
   return { connection, driver, executed };
 }
 
+describe('OracleJobDataStore call timeout', () => {
+  it('bounds every pooled connection with the configured call timeout', async () => {
+    const { connection, driver } = setup();
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'test',
+        user: 'APP',
+        password: 'test',
+        poolMax: 1,
+        callTimeoutMs: 45_000,
+      },
+      driver,
+    );
+    await store.healthCheck();
+    expect(connection.callTimeout).toBe(45_000);
+  });
+
+  it('defaults to a finite call timeout when none is configured', async () => {
+    const { connection, driver } = setup();
+    const store = new OracleJobDataStore(
+      { connectString: 'test', user: 'APP', password: 'test', poolMax: 1 },
+      driver,
+    );
+    await store.healthCheck();
+    expect(connection.callTimeout).toBe(120_000);
+  });
+
+  it('rolls back, releases the connection and fails when a write times out', async () => {
+    const { connection, driver } = setup();
+    // The driver rejects a round trip that exceeds callTimeout (for example a
+    // MERGE waiting on a row lock); the job must fail rather than hang.
+    connection.executeMany = () =>
+      Promise.reject(new Error('DPI-1067: call timeout of 45000 ms exceeded'));
+    const rollback = jest.spyOn(connection, 'rollback');
+    const close = jest.spyOn(connection, 'close');
+    const commit = jest.spyOn(connection, 'commit');
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'test',
+        user: 'APP',
+        password: 'test',
+        poolMax: 1,
+        callTimeoutMs: 45_000,
+      },
+      driver,
+    );
+    await expect(
+      store.reconcileSource('source-1', ['external-2']),
+    ).rejects.toThrow('DPI-1067');
+    expect(commit).not.toHaveBeenCalled();
+    expect(rollback).toHaveBeenCalledTimes(1);
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('OracleJobDataStore shadow adapter', () => {
   it('guards lifecycle promotion with the persisted run time in UTC', async () => {
     const { driver, executed } = setup();

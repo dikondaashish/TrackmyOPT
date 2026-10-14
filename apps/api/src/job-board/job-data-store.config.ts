@@ -7,7 +7,11 @@ export type OracleJobDataConfig = {
   user: string;
   password: string;
   poolMax: number;
+  /** Per-round-trip limit; a blocked statement errors instead of hanging. */
+  callTimeoutMs?: number;
 };
+
+export const DEFAULT_ORACLE_CALL_TIMEOUT_MS = 120_000;
 
 /**
  * Resolve the store without ever falling back from an explicitly selected
@@ -53,5 +57,11 @@ export function readOracleJobDataConfig(
       ? Math.min(parsedPoolMax, 10)
       : 4;
 
-  return { connectString, user, password, poolMax };
+  const parsedCallTimeout = Number(env.ORACLE_JOB_DB_CALL_TIMEOUT_MS);
+  const callTimeoutMs =
+    Number.isInteger(parsedCallTimeout) && parsedCallTimeout >= 1_000
+      ? parsedCallTimeout
+      : DEFAULT_ORACLE_CALL_TIMEOUT_MS;
+
+  return { connectString, user, password, poolMax, callTimeoutMs };
 }

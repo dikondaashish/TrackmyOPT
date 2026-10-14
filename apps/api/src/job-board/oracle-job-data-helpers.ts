@@ -19,6 +19,8 @@ export type OracleConnection = {
   commit(): Promise<void>;
   rollback(): Promise<void>;
   close(): Promise<void>;
+  /** node-oracledb round-trip limit in milliseconds (0 = unlimited). */
+  callTimeout?: number;
 };
 
 export type OraclePool = {
