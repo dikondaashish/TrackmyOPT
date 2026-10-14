@@ -257,11 +257,11 @@ describe('ingestion stage watchdog', () => {
     const { internals, source, scraped, store, visa } = setup();
     const log = logger(internals as unknown as JobBoardService);
     store.upsertJobs.mockRejectedValueOnce(
-      new Error('DPI-1067: call timeout of 120000 ms exceeded'),
+      new Error('NJS-123: call timeout of 1800000 ms exceeded'),
     );
     await expect(
       internals.persistSourceJobs(source, [scraped], true),
-    ).rejects.toThrow('DPI-1067');
+    ).rejects.toThrow('NJS-123');
     expect(log.warn).toHaveBeenCalledWith(
       'Job-board source source failed in stage store-upsert after 0s',
     );

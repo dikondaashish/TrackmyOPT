@@ -4,6 +4,8 @@ import {
   ORACLE_DESCRIPTION_FLAGS,
   descriptionFilterFlags,
   normalizeOracleTimestamp,
+  oracleErrorCode,
+  oracleOperationLabel,
   toOracleTimestamp,
   type OracleConnection,
   type OracleDriver,
@@ -154,7 +156,7 @@ describe('OracleJobDataStore call timeout', () => {
       driver,
     );
     await store.healthCheck();
-    expect(connection.callTimeout).toBe(120_000);
+    expect(connection.callTimeout).toBe(1_800_000);
   });
 
   it('rolls back, releases the connection and fails when a write times out', async () => {
@@ -162,7 +164,7 @@ describe('OracleJobDataStore call timeout', () => {
     // The driver rejects a round trip that exceeds callTimeout (for example a
     // MERGE waiting on a row lock); the job must fail rather than hang.
     connection.executeMany = () =>
-      Promise.reject(new Error('DPI-1067: call timeout of 45000 ms exceeded'));
+      Promise.reject(new Error('NJS-123: call timeout of 45000 ms exceeded'));
     const rollback = jest.spyOn(connection, 'rollback');
     const close = jest.spyOn(connection, 'close');
     const commit = jest.spyOn(connection, 'commit');
@@ -176,14 +178,82 @@ describe('OracleJobDataStore call timeout', () => {
       },
       driver,
     );
+    const log = quietLogger(store);
     await expect(
       store.reconcileSource('source-1', ['external-2']),
-    ).rejects.toThrow('DPI-1067');
+    ).rejects.toThrow('NJS-123');
     expect(commit).not.toHaveBeenCalled();
     expect(rollback).toHaveBeenCalledTimes(1);
     expect(close).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^Oracle UPDATE jobs rows=1 failed after \d+ms \(NJS-123\)$/,
+      ),
+    );
+  });
+
+  it('preserves the original error when the rollback also fails', async () => {
+    const { connection, driver } = setup();
+    connection.executeMany = () =>
+      Promise.reject(new Error('NJS-123: call timeout of 45000 ms exceeded'));
+    connection.rollback = () =>
+      Promise.reject(
+        new Error('NJS-500: connection to the Oracle Database was broken'),
+      );
+    const close = jest.spyOn(connection, 'close');
+    const store = new OracleJobDataStore(
+      { connectString: 'test', user: 'APP', password: 'test', poolMax: 1 },
+      driver,
+    );
+    const log = quietLogger(store);
+    await expect(
+      store.reconcileSource('source-1', ['external-2']),
+    ).rejects.toThrow('NJS-123');
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'Oracle rollback failed (NJS-500); the original error is preserved',
+    );
+  });
+
+  it('logs every write and commit duration with no SQL text or bind values', async () => {
+    const { driver } = setup();
+    const store = new OracleJobDataStore(
+      { connectString: 'test', user: 'APP', password: 'test', poolMax: 1 },
+      driver,
+    );
+    const log = quietLogger(store);
+    await store.reconcileSource('source-1', ['external-2']);
+    const lines = log.log.mock.calls.map(([line]) => String(line));
+    expect(lines).toEqual([
+      expect.stringMatching(/^Oracle UPDATE jobs rows=1 took \d+ms$/),
+      expect.stringMatching(/^Oracle COMMIT rows=0 took \d+ms$/),
+    ]);
+    expect(lines.join('\n')).not.toMatch(/external|source-1|listing_status/);
+  });
+
+  it('labels statements by kind and table only', () => {
+    expect(
+      oracleOperationLabel('  MERGE INTO jobs t USING (SELECT :id FROM dual)'),
+    ).toBe('MERGE INTO jobs');
+    expect(
+      oracleOperationLabel('DELETE FROM job_visa_signals WHERE x = 1'),
+    ).toBe('DELETE FROM job_visa_signals');
+    expect(
+      oracleOperationLabel('SELECT id FROM jobs WHERE source_id = :s'),
+    ).toBe('SELECT jobs');
+    expect(oracleOperationLabel('BEGIN secret(); END;')).toBe('OTHER');
+    expect(
+      oracleErrorCode(new Error('ORA-00060: deadlock detected while')),
+    ).toBe('ORA-00060');
+    expect(oracleErrorCode(new Error('password=hunter2'))).toBe('unknown');
   });
 });
+
+function quietLogger(store: OracleJobDataStore) {
+  const logger = { log: jest.fn(), warn: jest.fn() };
+  (store as unknown as { logger: typeof logger }).logger = logger;
+  return logger;
+}
 
 describe('OracleJobDataStore shadow adapter', () => {
   it('guards lifecycle promotion with the persisted run time in UTC', async () => {

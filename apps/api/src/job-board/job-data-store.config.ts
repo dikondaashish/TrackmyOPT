@@ -11,7 +11,7 @@ export type OracleJobDataConfig = {
   callTimeoutMs?: number;
 };
 
-export const DEFAULT_ORACLE_CALL_TIMEOUT_MS = 120_000;
+export const DEFAULT_ORACLE_CALL_TIMEOUT_MS = 1_800_000;
 
 /**
  * Resolve the store without ever falling back from an explicitly selected

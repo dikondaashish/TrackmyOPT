@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import {
   DEFAULT_ORACLE_CALL_TIMEOUT_MS,
@@ -77,6 +78,9 @@ function loadOracleDriver(): OracleDriver {
  * must still provision and validate the schema/user before cutover.
  */
 export class OracleJobDataStore implements JobDataStore {
+  private readonly logger: Pick<Logger, 'log' | 'warn'> = new Logger(
+    OracleJobDataStore.name,
+  );
   private pool: OraclePool | null = null;
   /**
    * Pool creation is asynchronous. Keep the in-flight promise so concurrent
@@ -403,7 +407,7 @@ export class OracleJobDataStore implements JobDataStore {
       await connection.commit();
       return entries.length;
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -456,7 +460,7 @@ export class OracleJobDataStore implements JobDataStore {
       await connection.commit();
       return entries.length;
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -498,7 +502,7 @@ export class OracleJobDataStore implements JobDataStore {
       );
       await connection.commit();
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -528,7 +532,7 @@ export class OracleJobDataStore implements JobDataStore {
       await connection.commit();
       return results;
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -593,7 +597,7 @@ export class OracleJobDataStore implements JobDataStore {
       );
       await connection.commit();
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -644,7 +648,7 @@ export class OracleJobDataStore implements JobDataStore {
       await this.mergeVisaSignals(connection, mappedSignals);
       await connection.commit();
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -662,7 +666,7 @@ export class OracleJobDataStore implements JobDataStore {
       await this.mergeVisaSignals(connection, signals);
       await connection.commit();
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -744,7 +748,7 @@ export class OracleJobDataStore implements JobDataStore {
       );
       await connection.commit();
     } catch (error) {
-      await connection.rollback();
+      await rollbackPreservingError(connection, this.logger);
       throw error;
     } finally {
       await connection.close();
@@ -775,9 +779,99 @@ export class OracleJobDataStore implements JobDataStore {
     const connection = await this.pool.getConnection();
     // Without a limit, a statement waiting on a row lock or a stalled network
     // round trip blocks forever and holds the Bull job active. The driver
-    // aborts the call and the caller's catch rolls the transaction back.
+    // breaks the call and the caller's catch rolls the transaction back.
     connection.callTimeout =
       this.config.callTimeoutMs ?? DEFAULT_ORACLE_CALL_TIMEOUT_MS;
-    return connection;
+    return timedOracleConnection(connection, this.logger);
+  }
+}
+
+const TIMED_READ_LOG_THRESHOLD_MS = 1_000;
+
+/** Statement kind and target table only; never SQL text or bind values. */
+export function oracleOperationLabel(sql: string) {
+  const text = sql.replace(/\s+/g, ' ').trim();
+  const write =
+    /^(MERGE INTO|UPDATE|DELETE FROM|INSERT INTO)\s+([A-Za-z_$#.]+)/i.exec(
+      text,
+    );
+  if (write) return `${write[1].toUpperCase()} ${write[2].toLowerCase()}`;
+  const read = /^SELECT\b.*?\bFROM\s+([A-Za-z_$#.]+)/i.exec(text);
+  return read ? `SELECT ${read[1].toLowerCase()}` : 'OTHER';
+}
+
+/** Bare driver/database code only, so messages carry no SQL or data. */
+export function oracleErrorCode(error: unknown) {
+  const message = error instanceof Error ? error.message : '';
+  return /^(ORA|NJS|DPI)-\d{3,5}/.exec(message)?.[0] || 'unknown';
+}
+
+/**
+ * Delegate that measures each round trip. Writes and commits are always
+ * logged with their duration and row count so statement times can be
+ * measured in production; reads are logged only when slow.
+ */
+function timedOracleConnection(
+  connection: OracleConnection,
+  logger: Pick<Logger, 'log' | 'warn'>,
+): OracleConnection {
+  async function timed<T>(
+    operation: string,
+    rows: number,
+    alwaysLog: boolean,
+    call: () => Promise<T>,
+  ): Promise<T> {
+    const startedAt = Date.now();
+    try {
+      const result = await call();
+      const ms = Date.now() - startedAt;
+      if (alwaysLog || ms >= TIMED_READ_LOG_THRESHOLD_MS)
+        logger.log(`Oracle ${operation} rows=${rows} took ${ms}ms`);
+      return result;
+    } catch (error) {
+      logger.warn(
+        `Oracle ${operation} rows=${rows} failed after ${Date.now() - startedAt}ms (${oracleErrorCode(error)})`,
+      );
+      throw error;
+    }
+  }
+  return {
+    execute: (sql, binds, options) => {
+      const label = oracleOperationLabel(sql);
+      return timed(label, 1, !label.startsWith('SELECT'), () =>
+        connection.execute(sql, binds, options),
+      );
+    },
+    executeMany: (sql, binds, options) =>
+      timed(oracleOperationLabel(sql), binds.length, true, () =>
+        connection.executeMany(sql, binds, options),
+      ),
+    commit: () => timed('COMMIT', 0, true, () => connection.commit()),
+    rollback: () => connection.rollback(),
+    close: () => connection.close(),
+    get callTimeout() {
+      return connection.callTimeout;
+    },
+    set callTimeout(value) {
+      connection.callTimeout = value;
+    },
+  };
+}
+
+/**
+ * Roll back after a failed operation without losing the original error. A
+ * rollback failure (for example on a broken connection) is reported by code
+ * only; the caller rethrows the error that caused the rollback.
+ */
+async function rollbackPreservingError(
+  connection: OracleConnection,
+  logger: Pick<Logger, 'warn'>,
+) {
+  try {
+    await connection.rollback();
+  } catch (rollbackError) {
+    logger.warn(
+      `Oracle rollback failed (${oracleErrorCode(rollbackError)}); the original error is preserved`,
+    );
   }
 }

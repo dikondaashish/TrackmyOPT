@@ -48,15 +48,15 @@ describe('job data store configuration', () => {
       user: 'TRACKMYOPT_JOBS',
       password: 'not-logged',
       poolMax: 10,
-      callTimeoutMs: 120_000,
+      callTimeoutMs: 1_800_000,
     });
   });
 
   it.each([
-    [undefined, 120_000],
+    [undefined, 1_800_000],
     ['45000', 45_000],
-    ['0', 120_000],
-    ['abc', 120_000],
+    ['0', 1_800_000],
+    ['abc', 1_800_000],
   ])(
     'bounds every Oracle round trip (ORACLE_JOB_DB_CALL_TIMEOUT_MS=%s)',
     (value, expected) => {
