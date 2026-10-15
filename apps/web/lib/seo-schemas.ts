@@ -7,8 +7,6 @@
 // is why `siteIdentityGraph` is rendered site-wide from `app/layout.tsx`.
 // `lib/seo-schemas.test.ts` fails the build if a reference is left dangling.
 
-import { safeSerializeJsonLd } from "./safe-json-ld";
-
 /** Canonical origin. Every `@id` and asset URL below is built from this. */
 export const SITE_URL = "https://www.trackmyopt.com";
 
@@ -671,19 +669,3 @@ export const landingPageSchemas = [
     articleSchema,
     knowledgeGraphSchema,
 ];
-
-/** Everything the site can emit — identity nodes plus every page-level schema. */
-export function getAllSchemas() {
-    return [...siteIdentityGraph["@graph"], ...landingPageSchemas];
-}
-
-/** Ready-to-render script payloads (try/catch + `@context` guard on each). */
-export function getSchemaScripts() {
-    return getAllSchemas()
-        .map((schema, index) => {
-            const content = safeSerializeJsonLd(schema);
-            if (!content) return null;
-            return { key: `schema-${index}`, type: "application/ld+json", content };
-        })
-        .filter(Boolean) as { key: string; type: string; content: string }[];
-}

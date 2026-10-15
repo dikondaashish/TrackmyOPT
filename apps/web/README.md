@@ -177,7 +177,6 @@ Make sure `web/.env.local` has all required variables:
 ```env
 # Site Configuration
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME=TrackMyOPT
 
 # Supabase Configuration (from your Supabase project)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -186,9 +185,6 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
 # JWT Signing Secret (generate with: openssl rand -hex 64)
 JWT_SIGNING_SECRET=your-generated-secret-here
-
-# Google OAuth (from Supabase dashboard)
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ```
 
 **Generate a strong JWT secret:**

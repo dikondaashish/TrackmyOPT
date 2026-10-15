@@ -87,7 +87,3 @@ export function calculateDiscountedPriceCents(
 ): number {
   return Math.round(listPriceCents * (1 - percentOff / 100));
 }
-
-export function formatPlanLimit(limit: number): string {
-  return limit.toLocaleString('en-US');
-}

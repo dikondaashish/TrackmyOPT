@@ -16,10 +16,6 @@ type AtRiskReengagementCandidate = {
   planTier: string | null;
 };
 
-function daysAgoIso(days: number): string {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-}
-
 const PROFILE_LOOKUP_CHUNK = 50;
 
 type ProfileRow = {
@@ -134,24 +130,4 @@ export async function findAtRiskReengagementCandidates(
 
   candidates.sort((a, b) => a.userId.localeCompare(b.userId));
   return candidates.slice(0, limit);
-}
-
-/** Dry-run helper for cron reporting without listing all auth users. */
-export async function countAtRiskReengagementEligible(
-  supabase: SupabaseClient
-): Promise<number> {
-  const rows = await findAtRiskReengagementCandidates(supabase, {
-    limit: AT_RISK_REENGAGEMENT_DEFAULT_BATCH,
-  });
-  return rows.length;
-}
-
-export function atRiskReengagementCutoffs(): {
-  signupSinceIso: string;
-  inactiveBeforeIso: string;
-} {
-  return {
-    signupSinceIso: daysAgoIso(AT_RISK_SIGNUP_WINDOW_DAYS),
-    inactiveBeforeIso: daysAgoIso(AT_RISK_INACTIVITY_DAYS),
-  };
 }

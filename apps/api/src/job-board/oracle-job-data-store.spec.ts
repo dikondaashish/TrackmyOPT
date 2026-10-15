@@ -413,111 +413,6 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(query?.sql).not.toContain('DESCRIPTION');
     expect(query?.sql).toContain('MISSING_SINCE_AT');
   });
-  it('upserts migration evidence without deleting, truncating, or losing the source identity', async () => {
-    const { driver, executed } = setup();
-    const store = new OracleJobDataStore(
-      {
-        connectString: 'test',
-        user: 'test',
-        password: 'test-only',
-        poolMax: 2,
-      },
-      driver,
-    );
-    await store.upsertVisaSignals([
-      {
-        id: 'signal-1',
-        jobId: 'job-1',
-        signalType: 'opt_accepted_stated',
-        evidenceSnippet: 'Original evidence',
-        sourceUrl: 'https://example.test/job',
-        observedDate: '2026-09-04',
-        confidence: 0.95,
-        source: 'employer_posting',
-      },
-    ]);
-    expect(executed.some((call) => /DELETE|TRUNCATE/.test(call.sql))).toBe(
-      false,
-    );
-    const merge = executed.find((call) =>
-      call.sql.includes('MERGE INTO job_visa_signals'),
-    );
-    expect(merge?.binds).toMatchObject({
-      id: 'signal-1',
-      evidence_snippet: 'Original evidence',
-      observed_date: '2026-09-04',
-      confidence: 0.95,
-    });
-  });
-
-  it('does not execute an empty evidence batch', async () => {
-    const { driver, executed } = setup();
-    const store = new OracleJobDataStore(
-      {
-        connectString: 'test',
-        user: 'test',
-        password: 'test-only',
-        poolMax: 2,
-      },
-      driver,
-    );
-    await store.upsertVisaSignals([]);
-    expect(executed).toHaveLength(0);
-  });
-
-  it('deletes only verified source/external identities and their signals', async () => {
-    const { driver, executed } = setup();
-    const store = new OracleJobDataStore(
-      {
-        connectString: 'test',
-        user: 'test',
-        password: 'test-only',
-        poolMax: 1,
-      },
-      driver,
-    );
-
-    await expect(
-      store.deleteVerifiedExtras([
-        {
-          id: 'job-1',
-          sourceId: 'source-1',
-          externalJobId: 'external-1',
-        },
-      ]),
-    ).resolves.toBe(1);
-
-    const signalDelete = executed.find((entry) =>
-      entry.sql.includes('DELETE FROM job_visa_signals'),
-    );
-    const jobDelete = executed.find((entry) =>
-      entry.sql.includes('DELETE FROM jobs'),
-    );
-    expect(signalDelete).toBeDefined();
-    expect(jobDelete?.sql).toContain('source_id = :sourceId');
-    expect(jobDelete?.sql).toContain('id IN (:extraId0)');
-  });
-
-  it('patches parity timestamps without rewriting job CLOB/search fields', async () => {
-    const { driver, executed } = setup();
-    const store = new OracleJobDataStore(
-      {
-        connectString: 'test',
-        user: 'test',
-        password: 'test-only',
-        poolMax: 1,
-      },
-      driver,
-    );
-
-    await store.patchJobTimestamps([record()]);
-
-    expect(executed).toHaveLength(1);
-    expect(executed[0]?.sql).toContain('UPDATE jobs SET');
-    expect(executed[0]?.sql).toContain('updated_at = TO_TIMESTAMP_TZ');
-    expect(executed[0]?.sql).not.toContain('description =');
-  });
-
   it('rejects oversized evidence instead of silently truncating it', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(
@@ -530,17 +425,20 @@ describe('OracleJobDataStore shadow adapter', () => {
       driver,
     );
     await expect(
-      store.upsertVisaSignals([
-        {
-          jobId: 'job-1',
-          signalType: 'opt_accepted_stated',
-          evidenceSnippet: 'x'.repeat(2001),
-          sourceUrl: 'https://example.test/job',
-          observedDate: '2026-09-04',
-          confidence: 0.95,
-          source: 'employer_posting',
-        },
-      ]),
+      store.replaceVisaSignals(
+        ['job-1'],
+        [
+          {
+            job_id: 'job-1',
+            signal_type: 'opt_accepted_stated',
+            evidence_snippet: 'x'.repeat(2001),
+            source_url: 'https://example.test/job',
+            observed_date: '2026-09-04',
+            confidence: 0.95,
+            source: 'employer_posting',
+          },
+        ],
+      ),
     ).rejects.toThrow('Evidence exceeds Oracle column limits');
     expect(executed).toHaveLength(0);
   });
@@ -1115,139 +1013,5 @@ describe('OracleJobDataStore shadow adapter', () => {
         entry.sql.includes('MERGE INTO job_visa_signals'),
       ),
     ).toBe(true);
-  });
-
-  it('repairs a canonical ID while preserving dependent visa signals transactionally', async () => {
-    const calls: string[] = [];
-    const connection: OracleConnection = {
-      execute: <T>(sql: string) => {
-        calls.push(sql);
-        if (sql.includes('user_constraints')) {
-          return Promise.resolve({
-            rows: [{ TABLE_NAME: 'JOB_VISA_SIGNALS', COLUMN_NAME: 'JOB_ID' }],
-          } as { rows: T[] });
-        }
-        if (sql.includes('source_ats = :sourceAts'))
-          return Promise.resolve({ rows: [{ ID: 'old-job' }] } as {
-            rows: T[];
-          });
-        if (sql.includes('WHERE id = :canonicalId'))
-          return Promise.resolve({ rows: [] } as { rows: T[] });
-        if (sql.includes('FROM job_visa_signals'))
-          return Promise.resolve({
-            rows: [
-              {
-                ID: 'signal-1',
-                SIGNAL_TYPE: 'sponsor',
-                EVIDENCE_SNIPPET: 'evidence',
-                SOURCE_URL: 'https://example.test/source',
-                OBSERVED_DATE: '2026-09-04',
-                CONFIDENCE: 0.9,
-                SOURCE: 'employer_posting',
-              },
-            ],
-          } as { rows: T[] });
-        return Promise.resolve({ rows: [] } as { rows: T[] });
-      },
-      executeMany: (sql) => {
-        calls.push(sql);
-        return Promise.resolve({ rowsAffected: 1 });
-      },
-      commit: () => Promise.resolve(),
-      rollback: () => Promise.resolve(),
-      close: () => Promise.resolve(),
-    };
-    const driver: OracleDriver = {
-      OUT_FORMAT_OBJECT: 4002,
-      STRING: 2001,
-      NUMBER: 2010,
-      createPool: () =>
-        Promise.resolve({
-          getConnection: () => Promise.resolve(connection),
-          close: () => Promise.resolve(),
-        }),
-    };
-    const store = new OracleJobDataStore(
-      {
-        connectString: 'tcps://oracle.example/service',
-        user: 'TRACKMYOPT_JOBS',
-        password: 'test-only',
-        poolMax: 4,
-      },
-      driver,
-    );
-
-    const result = await store.repairCanonicalIdentities([
-      {
-        sourceAts: 'ashby',
-        boardToken: 'angi',
-        externalJobId: 'external-1',
-        canonicalId: 'new-job',
-      },
-    ]);
-
-    expect(result).toEqual([
-      {
-        externalJobId: 'external-1',
-        previousId: 'old-job',
-        canonicalId: 'new-job',
-        dependentVisaSignals: 1,
-      },
-    ]);
-    expect(
-      calls.some((sql) => sql.startsWith('DELETE FROM job_visa_signals')),
-    ).toBe(true);
-    expect(calls.some((sql) => sql.startsWith('UPDATE jobs SET id'))).toBe(
-      true,
-    );
-    expect(
-      calls.some((sql) => sql.startsWith('INSERT INTO job_visa_signals')),
-    ).toBe(true);
-  });
-
-  it('rejects an unexpected JOBS foreign-key dependency before mutation', async () => {
-    const dependencyDriver: OracleDriver = {
-      OUT_FORMAT_OBJECT: 4002,
-      STRING: 2001,
-      NUMBER: 2010,
-      createPool: () =>
-        Promise.resolve({
-          getConnection: () =>
-            Promise.resolve({
-              execute: <T>(sql: string) =>
-                Promise.resolve(
-                  sql.includes('user_constraints')
-                    ? ({
-                        rows: [
-                          {
-                            TABLE_NAME: 'UNEXPECTED_TABLE',
-                            COLUMN_NAME: 'JOB_ID',
-                          },
-                        ],
-                      } as { rows: T[] })
-                    : ({ rows: [] } as { rows: T[] }),
-                ),
-              executeMany: () => Promise.resolve({ rowsAffected: 0 }),
-              commit: () => Promise.resolve(),
-              rollback: () => Promise.resolve(),
-              close: () => Promise.resolve(),
-            }),
-          close: () => Promise.resolve(),
-        }),
-    };
-    const store = new OracleJobDataStore(
-      { connectString: 'test', user: 'test', password: 'test', poolMax: 1 },
-      dependencyDriver,
-    );
-    await expect(
-      store.repairCanonicalIdentities([
-        {
-          sourceAts: 'ashby',
-          boardToken: 'angi',
-          externalJobId: 'external-1',
-          canonicalId: 'new-job',
-        },
-      ]),
-    ).rejects.toThrow('Unexpected Oracle JOBS foreign-key dependency');
   });
 });

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { GoogleGenAI } from '@google/genai';
 import { AI_MODEL_POLICIES, generateAiContent } from '@/lib/ai/google-ai';
-import { normalizeDomain, normalizeKey, normalizeLinkedInProfile, validateGroundedDiscovery, type GroundedSource, type ValidContact } from './validation';
+import { normalizeKey, normalizeLinkedInProfile, validateGroundedDiscovery, type GroundedSource, type ValidContact } from './validation';
 import { discoverContactsWithOpenAI } from './openai-discovery';
 import { parseWorkEmailResult, type EmailResult } from './email-result';
 export type { EmailResult } from './email-result';
@@ -172,8 +172,4 @@ export async function writeOutreach(input: {
     input_tokens: response.usageMetadata?.promptTokenCount ?? 0,
     output_tokens: (response.usageMetadata?.candidatesTokenCount ?? 0) + (response.usageMetadata?.thoughtsTokenCount ?? 0),
   } };
-}
-
-export function acceptedDomain(value: string | null | undefined): string | null {
-  return normalizeDomain(value);
 }

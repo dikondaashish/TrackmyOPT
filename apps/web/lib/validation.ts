@@ -37,14 +37,6 @@ export const passwordSchema = z
     .max(128, 'Password too long');
 
 /**
- * SECURITY: UUID validation for database IDs
- * Prevents injection via malformed IDs
- */
-export const uuidSchema = z
-    .string()
-    .uuid('Invalid ID format');
-
-/**
  * SECURITY: USCIS Receipt Number validation
  * Format: 3 letters + 10 digits (e.g., IOE1234567890)
  *
@@ -245,12 +237,4 @@ export function sanitizeString(input: string): string {
         .replace(/<[^>]*>/g, '') // Remove HTML tags
         .replace(/[<>]/g, '')    // Remove any remaining angle brackets
         .trim();
-}
-
-/**
- * SECURITY: Validate and sanitize query parameters
- */
-export function sanitizeQueryParam(param: string | null): string | null {
-    if (!param) return null;
-    return sanitizeString(param).substring(0, 1000); // Limit length
 }

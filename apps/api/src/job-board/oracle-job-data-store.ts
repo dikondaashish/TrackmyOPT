@@ -39,11 +39,6 @@ import {
 } from './oracle-job-data-helpers';
 import { buildOracleJobSearchFilter } from './oracle-job-search-query';
 import {
-  runOracleCanonicalIdentityRepair,
-  type OracleCanonicalIdentityRepair,
-  type OracleCanonicalIdentityRepairResult,
-} from './oracle-canonical-identity-repair';
-import {
   ORACLE_JOB_CONFIRM_SQL,
   ORACLE_JOB_EMPLOYER_MATCH_SQL,
   ORACLE_JOB_MERGE_SQL,
@@ -64,11 +59,6 @@ export {
   toOracleTimestamp,
   validateVisaSignals,
 } from './oracle-job-data-helpers';
-
-export type {
-  OracleCanonicalIdentityRepair,
-  OracleCanonicalIdentityRepairResult,
-} from './oracle-canonical-identity-repair';
 
 const nodeRequire = createRequire(__filename);
 
@@ -338,221 +328,6 @@ export class OracleJobDataStore implements JobDataStore {
     }
   }
 
-  /** Bounded natural-identity lookup for canonical source synchronization. */
-  async getJobsByExternalIds(sourceId: string, ids: readonly string[]) {
-    if (!ids.length) return [];
-    if (ids.length > 100)
-      throw new Error('External identity batch exceeds 100');
-    const binds = {
-      sourceId,
-      ...Object.fromEntries(ids.map((id, index) => [`external${index}`, id])),
-    };
-    const connection = await this.connection();
-    try {
-      const result = await connection.execute<OracleJobRow>(
-        `SELECT ${JOB_COLUMNS} FROM jobs WHERE source_id = :sourceId
-         AND external_job_id IN (${ids.map((_, index) => `:external${index}`).join(',')})`,
-        binds,
-        outputOptions(this.driver),
-      );
-      return (result.rows || []).map(mapJobRow);
-    } finally {
-      await connection.close();
-    }
-  }
-
-  /**
-   * Deletes only identities proven absent from the Supabase source during the
-   * bounded parity repair. The caller must provide the source/external key
-   * alongside each UUID; this is not part of the normal ingestion contract.
-   */
-  async deleteVerifiedExtras(
-    entries: readonly {
-      id: string;
-      sourceId: string;
-      externalJobId: string;
-    }[],
-  ) {
-    if (!entries.length) return 0;
-    if (entries.length > 100)
-      throw new Error('Verified extra batch exceeds 100');
-    if (entries.some((entry) => entry.sourceId !== entries[0].sourceId))
-      throw new Error('Verified extra batch spans multiple sources');
-    const connection = await this.connection();
-    const idBinds = Object.fromEntries(
-      entries.flatMap((entry, index) => [
-        [`extraId${index}`, entry.id],
-        [`extraExternal${index}`, entry.externalJobId],
-      ]),
-    );
-    const predicates = entries
-      .map(
-        (_, index) =>
-          `(id = :extraId${index} AND external_job_id = :extraExternal${index})`,
-      )
-      .join(' OR ');
-    const idOnlyBinds = Object.fromEntries(
-      entries.map((entry, index) => [`extraId${index}`, entry.id]),
-    );
-    try {
-      const verified = await connection.execute<{ ID: string }>(
-        `SELECT id AS "ID" FROM jobs
-         WHERE source_id = :sourceId AND (${predicates})`,
-        { sourceId: entries[0].sourceId, ...idBinds },
-        outputOptions(this.driver),
-      );
-      if ((verified.rows || []).length !== entries.length)
-        throw new Error('Verified extra identity changed');
-
-      const ids = entries.map((_, index) => `:extraId${index}`);
-      await connection.execute(
-        `DELETE FROM job_visa_signals WHERE job_id IN (${ids.join(', ')})`,
-        idOnlyBinds,
-        { autoCommit: false },
-      );
-      const deleted = await connection.execute(
-        `DELETE FROM jobs
-         WHERE source_id = :sourceId AND id IN (${ids.join(', ')})`,
-        { sourceId: entries[0].sourceId, ...idOnlyBinds },
-        { autoCommit: false },
-      );
-      if ((deleted.rowsAffected || 0) !== entries.length)
-        throw new Error('Verified extra delete count mismatch');
-      await connection.commit();
-      return entries.length;
-    } catch (error) {
-      await rollbackPreservingError(connection, this.logger);
-      throw error;
-    } finally {
-      await connection.close();
-    }
-  }
-
-  /** Deletes only Oracle signals proven absent from the Supabase source page. */
-  async deleteVerifiedEvidenceExtras(
-    entries: readonly {
-      jobId: string;
-      signalType: string;
-      source: string;
-      sourceUrl: string;
-    }[],
-  ) {
-    if (!entries.length) return 0;
-    if (entries.length > 100)
-      throw new Error('Verified evidence batch exceeds 100');
-    const binds = Object.fromEntries(
-      entries.flatMap((entry, index) => [
-        [`evidenceJob${index}`, entry.jobId],
-        [`evidenceSignal${index}`, entry.signalType],
-        [`evidenceSource${index}`, entry.source],
-        [`evidenceUrl${index}`, entry.sourceUrl],
-      ]),
-    );
-    const predicates = entries
-      .map(
-        (_, index) =>
-          `(job_id = :evidenceJob${index} AND signal_type = :evidenceSignal${index}
-            AND source = :evidenceSource${index} AND source_url = :evidenceUrl${index})`,
-      )
-      .join(' OR ');
-    const connection = await this.connection();
-    try {
-      const verified = await connection.execute(
-        `SELECT job_id FROM job_visa_signals WHERE ${predicates}`,
-        binds,
-        outputOptions(this.driver),
-      );
-      if ((verified.rows || []).length !== entries.length)
-        throw new Error('Verified evidence identity changed');
-      const deleted = await connection.execute(
-        `DELETE FROM job_visa_signals WHERE ${predicates}`,
-        binds,
-        { autoCommit: false },
-      );
-      if ((deleted.rowsAffected || 0) !== entries.length)
-        throw new Error('Verified evidence delete count mismatch');
-      await connection.commit();
-      return entries.length;
-    } catch (error) {
-      await rollbackPreservingError(connection, this.logger);
-      throw error;
-    } finally {
-      await connection.close();
-    }
-  }
-
-  /** Updates only timestamps for parity rows whose other fields already match. */
-  async patchJobTimestamps(rows: readonly JobStoreRecord[]) {
-    if (!rows.length) return;
-    const connection = await this.connection();
-    try {
-      await connection.executeMany(
-        `UPDATE jobs SET
-           posted_at = TO_TIMESTAMP_TZ(:posted_at, '${ORACLE_ISO_TZ_FORMAT}'),
-           updated_at = TO_TIMESTAMP_TZ(:updated_at, '${ORACLE_ISO_TZ_FORMAT}'),
-           created_at = TO_TIMESTAMP_TZ(:created_at, '${ORACLE_ISO_TZ_FORMAT}'),
-           first_seen_at = TO_TIMESTAMP_TZ(:first_seen_at, '${ORACLE_ISO_TZ_FORMAT}'),
-           last_confirmed_at = TO_TIMESTAMP_TZ(:last_confirmed_at, '${ORACLE_ISO_TZ_FORMAT}'),
-           missing_since_at = TO_TIMESTAMP_TZ(:missing_since_at, '${ORACLE_ISO_TZ_FORMAT}'),
-           removed_at = TO_TIMESTAMP_TZ(:removed_at, '${ORACLE_ISO_TZ_FORMAT}')
-         WHERE id = :id AND source_id = :source_id
-           AND source_ats = :source_ats AND board_token = :board_token
-           AND external_job_id = :external_job_id`,
-        rows.map((row) => ({
-          id: row.id,
-          source_id: row.sourceId,
-          source_ats: row.sourceAts,
-          board_token: row.boardToken,
-          external_job_id: row.externalJobId,
-          posted_at: toOracleTimestamp(row.postedAt),
-          updated_at: toOracleTimestamp(row.updatedAt),
-          created_at: toOracleTimestamp(row.createdAt),
-          first_seen_at: toOracleTimestamp(row.firstSeenAt),
-          last_confirmed_at: toOracleTimestamp(row.lastConfirmedAt),
-          missing_since_at: toOracleTimestamp(row.missingSinceAt),
-          removed_at: toOracleTimestamp(row.removedAt),
-        })),
-        { autoCommit: false },
-      );
-      await connection.commit();
-    } catch (error) {
-      await rollbackPreservingError(connection, this.logger);
-      throw error;
-    } finally {
-      await connection.close();
-    }
-  }
-
-  /**
-   * Repairs a source/external identity whose canonical Supabase UUID changed.
-   *
-   * This is intentionally separate from the normal MERGE contract: ordinary
-   * ingestion must never rewrite a primary key merely because a caller sent a
-   * different UUID. The migration-only path proves the natural identity,
-   * rejects unexpected JOBS foreign-key dependents, and preserves existing
-   * visa signals inside one transaction.
-   */
-  async repairCanonicalIdentities(
-    entries: readonly OracleCanonicalIdentityRepair[],
-  ): Promise<OracleCanonicalIdentityRepairResult[]> {
-    if (!entries.length) return [];
-    const connection = await this.connection();
-    try {
-      const results = await runOracleCanonicalIdentityRepair(
-        connection,
-        this.driver,
-        entries,
-      );
-      await connection.commit();
-      return results;
-    } catch (error) {
-      await rollbackPreservingError(connection, this.logger);
-      throw error;
-    } finally {
-      await connection.close();
-    }
-  }
-
   async listVisaSignals(
     jobIds: readonly string[],
   ): Promise<JobStoreVisaSignal[]> {
@@ -749,24 +524,6 @@ export class OracleJobDataStore implements JobDataStore {
         );
       }
       await this.mergeVisaSignals(connection, mappedSignals);
-      await connection.commit();
-    } catch (error) {
-      await rollbackPreservingError(connection, this.logger);
-      throw error;
-    } finally {
-      await connection.close();
-    }
-  }
-
-  /** Non-destructive, idempotent evidence migration; never reconciles or deletes. */
-  async upsertVisaSignals(
-    signals: readonly (JobStoreVisaSignal & { id?: string })[],
-  ) {
-    if (!signals.length) return;
-    validateVisaSignals(signals);
-    const connection = await this.connection();
-    try {
-      await this.mergeVisaSignals(connection, signals);
       await connection.commit();
     } catch (error) {
       await rollbackPreservingError(connection, this.logger);
