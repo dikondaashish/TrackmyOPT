@@ -1022,9 +1022,18 @@ describe('OracleJobDataStore shadow adapter', () => {
     // without a scheduler runStartedAt, so manual reruns cannot remove jobs.
     const sql = update?.sql.replace(/\s+/g, ' ') ?? '';
     expect(sql).toContain(
-      "listing_status = 'open' OR (listing_status = 'stale' AND missing_since_at IS NOT NULL AND missing_since_at <= SYSTIMESTAMP - NUMTODSINTERVAL(:minMissingSeconds, 'SECOND')",
+      "OR (listing_status = 'stale' AND missing_since_at IS NOT NULL AND missing_since_at <= SYSTIMESTAMP - NUMTODSINTERVAL(:minMissingSeconds, 'SECOND')",
     );
-    expect(sql).not.toMatch(/OR missing_since_at IS NULL/);
+    // A stale row lacking missing_since_at is only timestamped, never removed.
+    expect(sql).toContain(
+      "CASE WHEN listing_status = 'open' OR missing_since_at IS NULL THEN 'stale' ELSE 'removed' END",
+    );
+    expect(sql).toContain(
+      "removed_at = CASE WHEN listing_status = 'stale' AND missing_since_at IS NOT NULL THEN SYSTIMESTAMP",
+    );
+    expect(sql).not.toMatch(
+      /:runStartedAt IS NULL OR missing_since_at IS NULL/,
+    );
 
     const beforeEmpty = executed.length;
     await store.reconcileSource('source-1', []);

@@ -843,13 +843,19 @@ export class OracleJobDataStore implements JobDataStore {
              AND missing_since_at <= SYSTIMESTAMP - NUMTODSINTERVAL(:minMissingSeconds, 'SECOND')
              AND (:runStartedAt IS NULL
                OR missing_since_at < TO_TIMESTAMP_TZ(:runStartedAt, '${ORACLE_ISO_TZ_FORMAT}'))`;
+      // A legacy stale row without missing_since_at only gets the timestamp
+      // here; it starts its removal window instead of being removed at once.
       await connection.executeMany(
         `UPDATE jobs SET
-           listing_status = CASE WHEN listing_status = 'open' THEN 'stale' ELSE 'removed' END,
+           listing_status = CASE WHEN listing_status = 'open' OR missing_since_at IS NULL
+             THEN 'stale' ELSE 'removed' END,
            missing_since_at = COALESCE(missing_since_at, SYSTIMESTAMP),
-           removed_at = CASE WHEN listing_status = 'stale' THEN SYSTIMESTAMP ELSE removed_at END
+           removed_at = CASE WHEN listing_status = 'stale' AND missing_since_at IS NOT NULL
+             THEN SYSTIMESTAMP ELSE removed_at END
          WHERE id = :id
-           AND (listing_status = 'open' OR (${removable}))`,
+           AND (listing_status = 'open'
+             OR (listing_status = 'stale' AND missing_since_at IS NULL)
+             OR (${removable}))`,
         missingIds.map((id) => ({
           id,
           runStartedAt: runStartedAt ? toOracleTimestamp(runStartedAt) : null,
