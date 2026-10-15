@@ -10,6 +10,7 @@ import {
   type JobDataStore,
   type JobStorePersistenceRecord,
   type JobStorePage,
+  type JobStoreReconcileResult,
   type JobStoreRecord,
   type JobStoreEmployerMatchUpdate,
   type JobStoreSearch,
@@ -803,20 +804,26 @@ export class OracleJobDataStore implements JobDataStore {
   ) {
     // An empty authoritative response must be handled by the caller's
     // empty-feed protection. Never turn an empty list into mass removals.
-    if (!seenExternalJobIds.length) return;
+    const none: JobStoreReconcileResult = { staleCount: 0, removedCount: 0 };
+    if (!seenExternalJobIds.length) return none;
     const connection = await this.connection();
     try {
       const seen = new Set(seenExternalJobIds.map(String));
       const missingIds: string[] = [];
+      // Rows the UPDATE below always changes without removing them.
+      let missingOpen = 0;
+      let missingUntimestamped = 0;
       const pageSize = 500;
       for (let offset = 0; ; offset += pageSize) {
         const existing = await connection.execute<{
           ID: string;
           EXTERNAL_JOB_ID: string;
           LISTING_STATUS: string;
+          NO_MISSING_SINCE?: number;
         }>(
           `SELECT id AS "ID", external_job_id AS "EXTERNAL_JOB_ID",
-                  listing_status AS "LISTING_STATUS"
+                  listing_status AS "LISTING_STATUS",
+                  CASE WHEN missing_since_at IS NULL THEN 1 ELSE 0 END AS "NO_MISSING_SINCE"
            FROM jobs
            WHERE source_id = :sourceId AND listing_status <> 'removed'
            ORDER BY id
@@ -828,11 +835,13 @@ export class OracleJobDataStore implements JobDataStore {
         for (const row of page) {
           if (!seen.has(String(row.EXTERNAL_JOB_ID))) {
             missingIds.push(row.ID);
+            if (row.LISTING_STATUS === 'open') missingOpen++;
+            else if (Number(row.NO_MISSING_SINCE) === 1) missingUntimestamped++;
           }
         }
         if (page.length < pageSize) break;
       }
-      if (!missingIds.length) return;
+      if (!missingIds.length) return none;
       // open -> stale on the first complete-board miss. stale -> removed only
       // on a later complete-board miss that is at least
       // JOB_REMOVAL_MIN_MISSING_SECONDS after the first one, and (for
@@ -845,7 +854,7 @@ export class OracleJobDataStore implements JobDataStore {
                OR missing_since_at < TO_TIMESTAMP_TZ(:runStartedAt, '${ORACLE_ISO_TZ_FORMAT}'))`;
       // A legacy stale row without missing_since_at only gets the timestamp
       // here; it starts its removal window instead of being removed at once.
-      await connection.executeMany(
+      const updated = await connection.executeMany(
         `UPDATE jobs SET
            listing_status = CASE WHEN listing_status = 'open' OR missing_since_at IS NULL
              THEN 'stale' ELSE 'removed' END,
@@ -864,6 +873,13 @@ export class OracleJobDataStore implements JobDataStore {
         { autoCommit: false },
       );
       await connection.commit();
+      // Open and untimestamped stale rows always match the UPDATE; every
+      // other changed row was a stale row that passed the removal window.
+      const changed = Number(updated?.rowsAffected ?? 0);
+      return {
+        staleCount: missingOpen,
+        removedCount: Math.max(0, changed - missingOpen - missingUntimestamped),
+      };
     } catch (error) {
       await rollbackPreservingError(connection, this.logger);
       throw error;

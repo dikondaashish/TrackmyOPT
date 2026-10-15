@@ -44,6 +44,7 @@ import { SupabaseSchedulerRunStore } from './supabase-scheduler-run-store';
 import type {
   JobDataStore,
   JobStorePage,
+  JobStoreReconcileResult,
   JobStoreRecord,
   JobStoreSearch,
 } from './job-data-store.contract';
@@ -979,10 +980,12 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         this.jobStore.upsertJobs(records),
       );
     }
+    let committed: JobStoreReconcileResult | undefined;
     if (responseComplete) {
-      await this.runStage(source.id, 'store-reconcile', () =>
-        this.jobStore.reconcileSource(source.id, ids, runStartedAt),
-      );
+      committed =
+        (await this.runStage(source.id, 'store-reconcile', () =>
+          this.jobStore.reconcileSource(source.id, ids, runStartedAt),
+        )) || undefined;
     }
     const employerMatchIds = await this.runStage(
       source.id,
@@ -1020,8 +1023,11 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     return {
       jobsNew: fresh.length,
       jobsDuplicate: records.length - fresh.length,
-      jobsStale: reconciliation.staleJobIds.length,
-      jobsRemoved: reconciliation.removedJobIds.length,
+      // Prefer what the store committed: Oracle applies the 20-hour removal
+      // window, which the in-memory plan does not.
+      jobsStale: committed?.staleCount ?? reconciliation.staleJobIds.length,
+      jobsRemoved:
+        committed?.removedCount ?? reconciliation.removedJobIds.length,
       jobsReopened: reconciliation.reopenedJobIds.length,
     };
   }

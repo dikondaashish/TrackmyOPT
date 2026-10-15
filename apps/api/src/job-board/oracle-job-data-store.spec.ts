@@ -1040,6 +1040,44 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(executed).toHaveLength(beforeEmpty);
   });
 
+  it('returns the lifecycle transitions it actually committed', async () => {
+    const config = {
+      connectString: 'tcps://oracle.example/service',
+      user: 'TRACKMYOPT_JOBS',
+      password: 'test-only',
+      poolMax: 4,
+    };
+    // setup() lists job-1 (open, external-1) and job-2 (stale, external-2).
+    const removedByRule = setup();
+    const removingStore = new OracleJobDataStore(config, removedByRule.driver);
+    // job-2 missing and past the 20-hour window: the UPDATE changes 1 row.
+    await expect(
+      removingStore.reconcileSource('source-1', ['external-1']),
+    ).resolves.toEqual({ staleCount: 0, removedCount: 1 });
+
+    const blocked = setup();
+    blocked.connection.executeMany = () => Promise.resolve({ rowsAffected: 0 });
+    const blockedStore = new OracleJobDataStore(config, blocked.driver);
+    // Inside the window the UPDATE matches nothing, so nothing was removed.
+    await expect(
+      blockedStore.reconcileSource('source-1', ['external-1']),
+    ).resolves.toEqual({ staleCount: 0, removedCount: 0 });
+
+    const bothMissing = setup();
+    bothMissing.connection.executeMany = () =>
+      Promise.resolve({ rowsAffected: 1 });
+    const bothStore = new OracleJobDataStore(config, bothMissing.driver);
+    // job-1 open -> stale always applies; job-2 stayed stale (1 row changed).
+    await expect(
+      bothStore.reconcileSource('source-1', ['unrelated']),
+    ).resolves.toEqual({ staleCount: 1, removedCount: 0 });
+
+    await expect(bothStore.reconcileSource('source-1', [])).resolves.toEqual({
+      staleCount: 0,
+      removedCount: 0,
+    });
+  });
+
   it('writes composed visa signals in Oracle without creating a Supabase job FK', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(

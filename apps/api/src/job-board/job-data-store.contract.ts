@@ -54,6 +54,12 @@ export type JobStorePersistenceRecord = {
   contentHash?: string | null;
 };
 
+/** Lifecycle transitions committed by one reconcileSource call. */
+export type JobStoreReconcileResult = {
+  staleCount: number;
+  removedCount: number;
+};
+
 export type JobStoreUpsertOptions = {
   /** When set, only these job IDs are written to the search table. */
   searchJobIds?: ReadonlySet<string>;
@@ -149,9 +155,14 @@ export interface JobDataStore {
   updateEmployerMatches?(
     updates: readonly JobStoreEmployerMatchUpdate[],
   ): Promise<void>;
+  /**
+   * Stores that apply their own lifecycle rules (Oracle's 20-hour removal
+   * window) return the transitions they actually committed, so audits report
+   * those instead of the in-memory plan.
+   */
   reconcileSource(
     sourceId: string,
     seenExternalJobIds: readonly string[],
     runStartedAt?: string,
-  ): Promise<void>;
+  ): Promise<void | JobStoreReconcileResult>;
 }
