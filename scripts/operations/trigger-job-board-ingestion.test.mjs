@@ -151,13 +151,19 @@ test('fails closed when the API key is missing', async () => {
   );
 });
 
-test('keeps GitHub Actions as manual-dispatch-only fallback', async () => {
+test('keeps the schedule inert unless explicitly enabled', async () => {
   const workflow = await readFile(
     new URL('../../.github/workflows/job-board-ingestion.yml', import.meta.url),
     'utf8'
   );
 
-  assert.doesNotMatch(workflow, /schedule:/);
+  // Scheduled firings run only when the repository variable is "true";
+  // manual dispatch always works.
+  assert.match(workflow, /schedule:/);
+  assert.match(
+    workflow,
+    /if: github\.event_name == 'workflow_dispatch' \|\| vars\.JOB_BOARD_SCHEDULE_ENABLED == 'true'/
+  );
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /manual_run_id:/);
 });

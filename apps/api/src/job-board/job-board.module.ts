@@ -12,6 +12,18 @@ import { CompanyDiscoveryService } from './company-discovery.service';
 import { jobDataStoreProvider } from './job-data-store.provider';
 import { OracleIngestionRepairService } from './oracle-ingestion-repair.service';
 import { OracleIngestionRepairController } from './oracle-ingestion-repair.controller';
+import { isJobBoardWorkerEnabled } from './ingestion-automation-config';
+
+/**
+ * Bull consumers are registered only where JOB_BOARD_WORKER_ENABLED is not
+ * "false". The website API can then enqueue and serve jobs without running
+ * ingestion work, leaving one dedicated worker as the only consumer.
+ */
+export function jobBoardWorkerProviders(env: NodeJS.ProcessEnv = process.env) {
+  return isJobBoardWorkerEnabled(env.JOB_BOARD_WORKER_ENABLED)
+    ? [JobBoardProcessor, SlowJobBoardProcessor]
+    : [];
+}
 
 @Module({
   imports: [
@@ -37,8 +49,7 @@ import { OracleIngestionRepairController } from './oracle-ingestion-repair.contr
     OracleIngestionRepairService,
     jobDataStoreProvider,
     JobBoardService,
-    JobBoardProcessor,
-    SlowJobBoardProcessor,
+    ...jobBoardWorkerProviders(),
     EmployerMatchService,
     JobVisaSignalService,
     CompanyDiscoveryService,

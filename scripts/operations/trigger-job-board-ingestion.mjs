@@ -1,4 +1,7 @@
+import { appendFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+
+import { scheduledSlot } from './job-board-schedule.mjs';
 
 const sleep = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -132,11 +135,52 @@ export async function superviseIngestion({
       succeeded: result.succeeded, failed: result.failed, started: result.started,
       missing: result.missing, runnable: result.runnable });
     if (result.status === 'completed' && result.manifestAvailable && result.terminal === result.selected && result.failed === 0 && result.missing === 0 && result.started === 0 && result.runnable === 0) return result;
-    if (result.status !== 'running') throw new Error('Ingestion incomplete or failed; inspect existing run, do not redispatch');
+    if (result.status !== 'running') {
+      const error = new Error('Ingestion incomplete or failed; inspect existing run, do not redispatch');
+      error.result = result;
+      throw error;
+    }
     if (result.queuesPaused?.normal || result.queuesPaused?.slow) throw new Error('Ingestion queue is paused; no automatic resume permitted');
     await wait(pollMs);
   }
   throw new Error('Ingestion supervision deadline exceeded; do not redispatch');
+}
+
+/** True when every remaining problem is a failed source that can be retried. */
+export function onlyFailedSourcesRemain(result) {
+  return Boolean(
+    result && result.manifestAvailable && result.failed > 0 &&
+    result.started === 0 && result.runnable === 0 && result.missing === 0
+  );
+}
+
+/** Requeue only the run's failed sources (idempotent on the API side). */
+export async function recoverFailedSources({ apiUrl, apiKey, schedulerId, fetchImpl = fetch }) {
+  const url = new URL(`/job-board/ops/ingestion-runs/${encodeURIComponent(schedulerId)}/recover-failed`, apiUrl);
+  if (url.protocol !== 'https:') throw new Error('Recovery requires HTTPS');
+  const response = await fetchImpl(url, {
+    method: 'POST', headers: { 'x-api-key': apiKey }, redirect: 'error',
+    signal: AbortSignal.timeout(60_000),
+  });
+  if (!response.ok) throw new Error(`Failed-source recovery returned HTTP ${response.status}`);
+  return response.json();
+}
+
+export function runSummary(schedulerId, result, recovered) {
+  const lines = [
+    `### Job-board ingestion \`${schedulerId}\``,
+    '',
+    '| Selected | Succeeded | Failed | Still started | Missing |',
+    '|---|---|---|---|---|',
+    `| ${result?.selected ?? '?'} | ${result?.succeeded ?? '?'} | ${result?.failed ?? '?'} | ${result?.started ?? '?'} | ${result?.missing ?? '?'} |`,
+  ];
+  if (recovered) lines.push('', `Failed sources requeued once: ${recovered.sourcesRequeued}`);
+  return `${lines.join('\n')}\n`;
+}
+
+async function writeSummary(text) {
+  console.log(text);
+  if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, text);
 }
 
 async function main() {
@@ -146,11 +190,45 @@ async function main() {
     schedulerId: process.env.SCHEDULER_RUN_ID || schedulerRunId(),
     triggerOrigin: process.env.TRIGGER_ORIGIN || 'github_actions',
   };
+  if (process.env.SCHEDULED === 'true') {
+    // Scheduled firings outside a New York slot window exit without effect.
+    const slot = scheduledSlot();
+    if (!slot) {
+      console.log('Not inside a scheduled ingestion slot; nothing to do');
+      return;
+    }
+    config.schedulerId = slot.runId;
+    console.log(`Scheduled slot ${slot.localSlot} -> ${slot.runId}`);
+  }
   if (process.env.MONITOR_ONLY !== 'true') {
     const result = await triggerJobBoardIngestion(config);
     console.log(`Job-board dispatch ${result.status}`);
+    if (result.status === 'suppressed' && process.env.SCHEDULED === 'true') {
+      // Another firing of this slot already dispatched and supervises it.
+      console.log('Slot already dispatched; not supervising twice');
+      return;
+    }
   }
-  await superviseIngestion({ ...config, onProgress: (progress) => console.log(JSON.stringify(progress)) });
+  const onProgress = (progress) => console.log(JSON.stringify(progress));
+  try {
+    const result = await superviseIngestion({ ...config, onProgress });
+    await writeSummary(runSummary(config.schedulerId, result));
+  } catch (error) {
+    if (process.env.AUTO_RECOVER_FAILED !== 'true' || !onlyFailedSourcesRemain(error.result)) {
+      await writeSummary(runSummary(config.schedulerId, error.result));
+      throw error;
+    }
+    // One targeted recovery per run: only failed sources, never successful ones.
+    const recovered = await recoverFailedSources(config);
+    console.log(`Requeued ${recovered.sourcesRequeued} failed sources once`);
+    try {
+      const result = await superviseIngestion({ ...config, onProgress });
+      await writeSummary(runSummary(config.schedulerId, result, recovered));
+    } catch (retryError) {
+      await writeSummary(runSummary(config.schedulerId, retryError.result, recovered));
+      throw retryError;
+    }
+  }
   console.log('Job-board run has a terminal audit for every selected source');
 }
 

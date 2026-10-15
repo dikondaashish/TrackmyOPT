@@ -1,6 +1,13 @@
 name: Job Board Ingestion
 
 on:
+  # Daily schedule: Mon–Fri 14:00 and 21:00, Sat–Sun 21:00 America/New_York.
+  # These UTC times cover both EST and EDT; the script ignores firings outside
+  # a New York slot window, and later firings of the same slot are suppressed.
+  # Inert until the repository variable JOB_BOARD_SCHEDULE_ENABLED is "true".
+  schedule:
+    - cron: '7,37 18,19 * * 1-5'
+    - cron: '7,37 1,2 * * *'
   workflow_dispatch:
     inputs:
       manual_run_id:
@@ -22,8 +29,10 @@ concurrency:
 jobs:
   ingest:
     name: Wake API, queue and supervise authorized sources
+    if: github.event_name == 'workflow_dispatch' || vars.JOB_BOARD_SCHEDULE_ENABLED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 130
+    # Supervision (120 min) plus one optional failed-source recovery pass.
+    timeout-minutes: 250
 
     steps:
       - uses: actions/checkout@v6
@@ -34,10 +43,13 @@ jobs:
           API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
           SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
           TRIGGER_ORIGIN: github_actions
+          SCHEDULED: ${{ github.event_name == 'schedule' }}
         run: |
           test -n "$RENDER_API_URL" || { echo 'Missing RENDER_API_URL secret'; exit 1; }
           test -n "$API_SECRET_KEY" || { echo 'Missing API_SECRET_KEY secret'; exit 1; }
-          case "$SCHEDULER_RUN_ID" in job-board-manual-*|job-board-hour-*) ;; *) echo 'Invalid supervised run ID'; exit 1;; esac
+          if [ "$SCHEDULED" != 'true' ]; then
+            case "$SCHEDULER_RUN_ID" in job-board-manual-*|job-board-hour-*) ;; *) echo 'Invalid supervised run ID'; exit 1;; esac
+          fi
 
       - name: Wake Render and supervise ingestion to terminal audits
         env:
@@ -46,4 +58,7 @@ jobs:
           SCHEDULER_RUN_ID: ${{ inputs.manual_run_id }}
           TRIGGER_ORIGIN: github_actions
           MONITOR_ONLY: ${{ inputs.monitor_only }}
+          SCHEDULED: ${{ github.event_name == 'schedule' }}
+          # One targeted requeue of failed sources per run, when enabled.
+          AUTO_RECOVER_FAILED: ${{ vars.JOB_BOARD_AUTO_RECOVER_FAILED == 'true' }}
         run: node scripts/operations/trigger-job-board-ingestion.mjs

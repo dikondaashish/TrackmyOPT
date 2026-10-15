@@ -25,6 +25,7 @@ import {
   calculatePacingGapMs,
   MIN_INTER_REQUEST_GAP_MS,
   planSourceIngestionJobs,
+  selectFailedSourcesForRecovery,
   selectSlowSourceIds,
 } from './source-job-planning';
 import { shouldAttemptSource } from './source-health';
@@ -58,6 +59,13 @@ import {
   readIngestionRunStatus,
 } from './job-board-queue-inspection';
 import {
+  isJobBoardWorkerEnabled,
+  parseExcludedSourceIds,
+  parseProviderMinGaps,
+  readPacingWindowMs,
+  redisEvictionPolicy,
+} from './ingestion-automation-config';
+import {
   sleep,
   type AtsSource,
   type IngestionResult,
@@ -82,6 +90,11 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private readonly activeSourceWork = new Set<Promise<unknown>>();
   private pacingTail: Promise<void> = Promise.resolve();
   private nextRequestAt = 0;
+  private readonly nextProviderRequestAt = new Map<string, number>();
+  private readonly workerEnabled: boolean;
+  private readonly pacingWindowMs: number;
+  private readonly providerMinGaps: Map<string, number>;
+  private readonly excludedSourceIds: Set<string>;
 
   private storeContext(context: SchedulerContext): IngestionStoreContext {
     return {
@@ -116,16 +129,53 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     ) as unknown as SupabaseClient;
     this.schedulerRuns = new SupabaseSchedulerRunStore(this.supabase);
     this.sourceHealth = new SourceBoardHealthStore(this.supabase);
+    this.workerEnabled = isJobBoardWorkerEnabled(
+      this.config.get<unknown>('JOB_BOARD_WORKER_ENABLED'),
+    );
+    this.pacingWindowMs = readPacingWindowMs(
+      this.config.get<unknown>('JOB_BOARD_PACING_WINDOW_MS'),
+    );
+    this.providerMinGaps = parseProviderMinGaps(
+      this.config.get<unknown>('JOB_BOARD_PROVIDER_MIN_GAP_MS'),
+    );
+    this.excludedSourceIds = parseExcludedSourceIds(
+      this.config.get<unknown>('JOB_BOARD_EXCLUDED_SOURCE_IDS'),
+    );
   }
 
-  /** Emergency-only control for the two job-board Bull queues. */
+  /**
+   * Emergency-only control for the two job-board Bull queues. A process that
+   * does not consume ingestion work (the website API) never pauses them, so
+   * its deployments cannot stop the dedicated worker.
+   */
   async onModuleInit() {
+    if (!this.workerEnabled) return;
+    await this.warnOnEvictingRedis();
     if (this.config.get<boolean>('JOB_BOARD_QUEUE_PAUSE_ON_BOOT') !== true)
       return;
     // Pause globally so persisted Bull work cannot continue on another worker
     // or resume while this process is being inspected/restarted.
     await Promise.all([this.queue.pause(), this.slowQueue.pause()]);
     this.logger.warn('Job-board Bull queues paused by boot safety guard');
+  }
+
+  /** Bull job keys must never be evicted; report any other policy loudly. */
+  private async warnOnEvictingRedis() {
+    try {
+      const client = (this.queue as { client?: { info?: unknown } }).client;
+      if (typeof client?.info !== 'function') return;
+      const info = (await (
+        client.info as (section: string) => Promise<string>
+      ).call(client, 'memory')) as string;
+      const policy = redisEvictionPolicy(info);
+      if (policy && policy !== 'noeviction') {
+        this.logger.error(
+          `Redis maxmemory-policy is ${policy}; Bull jobs can be evicted. Use noeviction.`,
+        );
+      }
+    } catch {
+      this.logger.warn('Could not read the Redis eviction policy');
+    }
   }
 
   private assertQueueControlEnabled() {
@@ -221,7 +271,10 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       (id) => !accounted.has(id),
     );
     const slow = await this.getSlowSourceIds(missing);
-    const gap = calculatePacingGapMs(context.sourceIds.length);
+    const gap = calculatePacingGapMs(
+      context.sourceIds.length,
+      this.pacingWindowMs,
+    );
     await this.addSourceJobsInChunks(
       this.queue,
       planSourceIngestionJobs(
@@ -239,6 +292,91 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       ),
     );
     return { schedulerRunId: normalized, sourcesRequeued: missing.length };
+  }
+
+  /**
+   * Requeue only the manifest sources whose latest audit in this run failed
+   * and that have no queued or active Bull job. Succeeded, policy-terminal and
+   * still-started sources are never touched, so calling this repeatedly is
+   * safe. Each retry reuses the run ID: the reservation RPC reopens the failed
+   * audit instead of creating a second one, and the original runStartedAt
+   * keeps the removal guard tied to the original run.
+   */
+  async recoverFailedSources(schedulerRunId: string) {
+    this.assertQueueControlEnabled();
+    const normalized = normalizeSchedulerRunId(schedulerRunId);
+    if (!normalized) throw new Error('Invalid scheduler run ID');
+    if (this.shuttingDown) throw new Error('instance_restarting');
+    const [normalPaused, slowPaused, coordinator] = await Promise.all([
+      this.queue.isPaused(),
+      this.slowQueue.isPaused(),
+      this.queue.getJob(normalized),
+    ]);
+    if (normalPaused || slowPaused) throw new Error('ingestion_queue_paused');
+    const context = coordinator?.data as
+      | (IngestionStoreContext & { sourceIds?: string[] })
+      | undefined;
+    if (!context || !Array.isArray(context.sourceIds))
+      throw new Error('run_manifest_unavailable');
+    if (!this.acceptsStoreContext(context))
+      throw new Error('job_store_mismatch');
+    const audits = await fetchAllPages(async (from, to) => {
+      const result = await this.supabase
+        .from('ingestion_audit_log')
+        .select('source_id,status,run_at')
+        .eq('scheduler_run_id', normalized)
+        .order('run_at', { ascending: false })
+        .order('id')
+        .range(from, to);
+      return { data: result.data || [], error: result.error };
+    });
+    const pending = await this.queueJobsForRun(normalized, [
+      'waiting',
+      'active',
+      'delayed',
+      'paused',
+    ]);
+    const known = await this.queueJobsForRun(normalized, [
+      'waiting',
+      'active',
+      'delayed',
+      'paused',
+      'failed',
+      'completed',
+    ]);
+    const failed = selectFailedSourcesForRecovery(
+      context.sourceIds,
+      audits,
+      pending.map(({ job }) => (job.data as { sourceId?: string }).sourceId),
+    );
+    if (!failed.length)
+      return { schedulerRunId: normalized, sourcesRequeued: 0, sourceIds: [] };
+    const slow = await this.getSlowSourceIds(failed);
+    const gap = calculatePacingGapMs(failed.length, this.pacingWindowMs);
+    const attempt = known.length + 1;
+    const withRecoveryIds = (ids: string[]) =>
+      planSourceIngestionJobs(ids, context, gap).map((planned) => ({
+        ...planned,
+        // Bull ignores an add whose jobId already exists, and the original
+        // failed job is kept for diagnosis, so each recovery gets its own ID.
+        opts: {
+          ...planned.opts,
+          jobId: `${planned.opts.jobId}:recover-${attempt}`,
+        },
+      }));
+    await this.addSourceJobsInChunks(
+      this.queue,
+      withRecoveryIds(failed.filter((id) => !slow.has(id))),
+    );
+    await this.addSourceJobsInChunks(
+      this.slowQueue,
+      withRecoveryIds(failed.filter((id) => slow.has(id))),
+    );
+    return {
+      schedulerRunId: normalized,
+      sourcesRequeued: failed.length,
+      sourceIds: failed,
+    };
   }
 
   /** Remove only queued Bull wrappers for an explicitly aborted run. Source
@@ -344,35 +482,42 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         deferredReason: 'job_store_mismatch',
       };
     }
-    if (context.schedulerRunId.startsWith('job-board-hour-')) {
-      const priorRunActive = await this.hasActiveHourlySourceWork(context);
-      if (priorRunActive) {
-        this.logger.warn(
-          `Deferring ${context.schedulerRunId}: a prior hourly source run is still active`,
-        );
-        return {
-          sourcesQueued: 0,
-          slowSourcesQueued: 0,
-          deferred: true,
-          deferredReason:
-            'overlap guard: prior hourly source run is still active',
-        };
-      }
+    // Applies to scheduled and manual full runs alike. Liveness comes from
+    // Bull job state, not a lock TTL, so a long run can never "expire" into
+    // an overlap. Coordinators run one at a time on the single worker.
+    if (await this.hasActiveIngestionWork(context)) {
+      this.logger.warn(
+        `Deferring ${context.schedulerRunId}: another ingestion run still has queued or active work`,
+      );
+      return {
+        sourcesQueued: 0,
+        slowSourcesQueued: 0,
+        deferred: true,
+        deferredReason: 'overlap guard: another ingestion run is still active',
+      };
     }
     const { data, error } = await this.supabase
       .from('ats_sources')
       .select('id')
       .eq('enabled', true);
     if (error) throw new Error(error.message);
+    // Excluded sources stay enabled with their jobs untouched; a full run
+    // simply does not select them (for example while a hang is diagnosed).
     const sourceIds =
       context.sourceIds ??
-      (data || []).map((source) => String(source.id)).sort();
+      (data || [])
+        .map((source) => String(source.id))
+        .filter((id) => !this.excludedSourceIds.has(id))
+        .sort();
     // Persist the exact selection before either lane is enqueued. Retries reuse
     // this manifest, not a changed enabled-source set.
     if (saveManifest) await saveManifest(sourceIds);
     const slowSourceIds = await this.getSlowSourceIds(sourceIds);
     const fastSourceIds = sourceIds.filter((id) => !slowSourceIds.has(id));
-    const pacingGapMs = calculatePacingGapMs(sourceIds.length);
+    const pacingGapMs = calculatePacingGapMs(
+      sourceIds.length,
+      this.pacingWindowMs,
+    );
     const fastJobs = planSourceIngestionJobs(
       fastSourceIds,
       context,
@@ -410,17 +555,13 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     return selectSlowSourceIds(sourceIds, rows);
   }
 
-  private async hasActiveHourlySourceWork(context: SchedulerContext) {
-    const { data, error } = await this.supabase
-      .from('ingestion_audit_log')
-      .select('id')
-      .eq('status', 'started')
-      .like('scheduler_run_id', 'job-board-hour-%')
-      .neq('scheduler_run_id', context.schedulerRunId)
-      .limit(1);
-    if (error) throw new Error(error.message);
-    if (data?.length) return true;
-
+  /**
+   * True while any other run has Bull work waiting, delayed, paused or
+   * active, in either lane. Audits left "started" by a killed process are not
+   * live work: they are reported by the ingestion health check instead of
+   * blocking every later run.
+   */
+  private async hasActiveIngestionWork(context: SchedulerContext) {
     const pendingStates: Bull.JobStatus[] = [
       'waiting',
       'active',
@@ -433,11 +574,11 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     ]);
     return pendingJobs.some((jobs) =>
       jobs.some((job) => {
+        if (!job || job.name === 'discover-company-batch') return false;
         const schedulerRunId = (job.data as SchedulerContext | undefined)
           ?.schedulerRunId;
         return (
           typeof schedulerRunId === 'string' &&
-          schedulerRunId.startsWith('job-board-hour-') &&
           schedulerRunId !== context.schedulerRunId
         );
       }),
@@ -559,6 +700,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         'pacingGapMs' in context && typeof context.pacingGapMs === 'number'
           ? context.pacingGapMs
           : MIN_INTER_REQUEST_GAP_MS,
+        source.ats_type,
       );
       const fetched = await this.runStage(source.id, 'fetch', () =>
         fetchAuthorizedAtsJobs(source),
@@ -655,8 +797,12 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  /** Reserve a process-wide request slot without delaying jobs at enqueue time. */
-  private async waitForRequestSlot(gapMs: number) {
+  /**
+   * Reserve a process-wide request slot without delaying jobs at enqueue
+   * time. A provider listed in JOB_BOARD_PROVIDER_MIN_GAP_MS also waits for
+   * its own minimum spacing since that provider's previous fetch.
+   */
+  private async waitForRequestSlot(gapMs: number, provider?: string) {
     let release!: () => void;
     const previous = this.pacingTail;
     this.pacingTail = new Promise<void>((resolve) => {
@@ -664,10 +810,23 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     });
     await previous;
     try {
-      const waitMs = Math.max(0, this.nextRequestAt - Date.now());
+      const providerKey = provider?.toLowerCase();
+      const providerGap =
+        providerKey !== undefined
+          ? this.providerMinGaps.get(providerKey)
+          : undefined;
+      const waitUntil = Math.max(
+        this.nextRequestAt,
+        providerGap !== undefined
+          ? this.nextProviderRequestAt.get(providerKey!) || 0
+          : 0,
+      );
+      const waitMs = Math.max(0, waitUntil - Date.now());
       if (waitMs > 0) await sleep(waitMs);
       this.nextRequestAt =
         Date.now() + Math.max(MIN_INTER_REQUEST_GAP_MS, gapMs);
+      if (providerGap !== undefined)
+        this.nextProviderRequestAt.set(providerKey!, Date.now() + providerGap);
     } finally {
       release();
     }
