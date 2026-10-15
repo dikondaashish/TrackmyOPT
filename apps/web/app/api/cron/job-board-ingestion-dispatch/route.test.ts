@@ -34,7 +34,8 @@ beforeEach(() => {
   vi.stubGlobal('fetch', m.fetch);
   vi.stubEnv('JOB_BOARD_SCHEDULE_ENABLED', 'true');
   vi.stubEnv('JOB_BOARD_SCHEDULE_START', '');
-  vi.stubEnv('NEXT_PUBLIC_API_URL', 'https://api.example.test');
+  // Must be ignored: the run is queued on the worker service only.
+  vi.stubEnv('NEXT_PUBLIC_API_URL', 'https://website-api.example.test');
   vi.stubEnv('API_SECRET_KEY', 'test-key');
   vi.stubEnv('JOB_BOARD_WORKER_URL', 'https://worker.example.test');
 });
@@ -88,14 +89,15 @@ it('dispatches an EST slot with the slot-hour run ID and vercel_cron origin', as
   const body = await (await GET(request())).json();
   expect(body).toEqual({ ok: true, status: 'queued', schedulerRunId: 'job-board-hour-2026-12-15T19' });
   const post = m.fetch.mock.calls.find(([, init]) => init?.method === 'POST');
-  expect(String(post?.[0])).toBe('https://api.example.test/job-board/ingest-enabled-sources');
+  expect(String(post?.[0])).toBe('https://worker.example.test/job-board/ingest-enabled-sources');
   expect(post?.[1].headers).toMatchObject({
     'x-scheduler-run-id': 'job-board-hour-2026-12-15T19',
     'x-trigger-origin': 'vercel_cron',
   });
-  // Wakes both the enqueue API and the queue worker.
+  // Wakes and enqueues on the same worker host; never the website API.
   const woken = m.fetch.mock.calls.filter(([, init]) => init?.method === 'GET').map(([u]) => String(u));
-  expect(woken.sort()).toEqual(['https://api.example.test/', 'https://worker.example.test/']);
+  expect(woken).toEqual(['https://worker.example.test/']);
+  expect(m.fetch.mock.calls.some(([u]) => String(u).includes('website-api'))).toBe(false);
   expect(m.capture).not.toHaveBeenCalled();
 });
 
@@ -132,4 +134,15 @@ it('reports missing API configuration when enabled', async () => {
   expect(body).toMatchObject({ ok: false, reason: 'misconfigured' });
   expect(m.capture).toHaveBeenCalledTimes(1);
   expect(m.fetch).not.toHaveBeenCalled();
+});
+
+it('defaults to the trackmyopt-api worker when JOB_BOARD_WORKER_URL is unset', async () => {
+  vi.stubEnv('JOB_BOARD_WORKER_URL', '');
+  apiResponds(() => Response.json({ status: 'queued', jobId: 'j' }));
+  await GET(request());
+  const urls = m.fetch.mock.calls.map(([u]) => String(u));
+  expect(urls).toEqual([
+    'https://trackmyopt-api.onrender.com/',
+    'https://trackmyopt-api.onrender.com/job-board/ingest-enabled-sources',
+  ]);
 });

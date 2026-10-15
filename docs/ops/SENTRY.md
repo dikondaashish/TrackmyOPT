@@ -32,8 +32,9 @@ cron `/api/cron/job-board-ingestion-dispatch` (the daily scheduler, gated by
 `JOB_BOARD_SCHEDULE_ENABLED=true`) raises the fixed message
 `Scheduled job-board ingestion dispatch failed` (fingerprint
 `job-board-ingestion` / `dispatch-failed`, tags `job_board_dispatch_reason`
-and `job_board_dispatch_status`) when the API is unreachable, rejects the key,
-returns an error or malformed reply, or config is missing. It returns HTTP 200
+and `job_board_dispatch_status`) when the worker API (`JOB_BOARD_WORKER_URL`,
+default `trackmyopt-api`) is unreachable, rejects the key, returns an error or
+malformed reply, or `API_SECRET_KEY` is missing. It returns HTTP 200
 with `ok: false` so the API wrapper does not raise a second issue. A slot that
 was already dispatched (`suppressed`) is not an error. Failures
 inside the Render worker that never reach an audit row remain visible only in

@@ -29,15 +29,18 @@ merging the code changes nothing in production.
   `skipped: outside-slot`. The run ID comes from the slot start
   (`job-board-hour-<UTC hour>`), so in EDT the second firing of a slot is
   suppressed by the scheduler ledger, which the route treats as success.
-- **Dispatch only.** The route wakes the API (`NEXT_PUBLIC_API_URL`) and the
-  queue worker (`JOB_BOARD_WORKER_URL`, default
-  `https://trackmyopt-api.onrender.com`) with up to 3 health requests each,
-  then calls `POST /job-board/ingest-enabled-sources` with `API_SECRET_KEY`,
-  `x-scheduler-run-id` and `x-trigger-origin: vercel_cron`, and returns. It
-  does not supervise the run or retry failed sources; the health check and
-  the worker's Sentry bridge cover supervision. A failed dispatch (API
-  unreachable, rejected key, HTTP error, malformed reply, missing config)
-  raises the Sentry issue `Scheduled job-board ingestion dispatch failed`.
+- **Dispatch only.** The route wakes the queue worker service
+  (`JOB_BOARD_WORKER_URL`, default `https://trackmyopt-api.onrender.com`, the
+  same host the workflow uses) with up to 3 health requests, then calls
+  `POST /job-board/ingest-enabled-sources` on that same host with
+  `API_SECRET_KEY`, `x-scheduler-run-id` and `x-trigger-origin: vercel_cron`,
+  and returns. It never uses `NEXT_PUBLIC_API_URL`: that service may not
+  share the worker's Redis, so a run queued there might never be consumed.
+  It does not supervise the run or retry failed sources; the health check and
+  the worker's Sentry bridge cover supervision. A failed dispatch (worker
+  unreachable, rejected key, HTTP error, malformed reply, missing
+  `API_SECRET_KEY`) raises the Sentry issue
+  `Scheduled job-board ingestion dispatch failed`.
 - **Why not GitHub cron.** GitHub scheduled runs on this repository fired
   5–9 hours late (a `17 3 * * *` CI cron ran at 08:16–10:47 UTC; an `0 8`
   cron ran around 17:00 UTC). Such firings fall outside every 90-minute slot

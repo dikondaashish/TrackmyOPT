@@ -57,9 +57,13 @@ async function handleGET(request: NextRequest) {
     });
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  // Wake and enqueue on the worker service (trackmyopt-api), exactly as the
+  // GitHub workflow does: it owns the queue consumer and its Redis. Not
+  // NEXT_PUBLIC_API_URL, which may be a service that does not share that
+  // Redis, so a run queued there could never be consumed.
+  const apiUrl = process.env.JOB_BOARD_WORKER_URL || DEFAULT_JOB_BOARD_WORKER_URL;
   const apiKey = process.env.API_SECRET_KEY;
-  if (!apiUrl || !apiKey) {
+  if (!apiKey) {
     reportDispatchFailure('misconfigured');
     return NextResponse.json({
       ok: false,
@@ -74,7 +78,6 @@ async function handleGET(request: NextRequest) {
       apiUrl,
       apiKey,
       schedulerRunId: slot.runId,
-      wakeUrls: [process.env.JOB_BOARD_WORKER_URL || DEFAULT_JOB_BOARD_WORKER_URL],
     });
     // "suppressed": this slot was already dispatched (earlier firing or a
     // manual recovery). That is the ledger working, not a failure.
