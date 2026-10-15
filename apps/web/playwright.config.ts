@@ -23,6 +23,8 @@ export default defineConfig({
       JWT_SIGNING_SECRET: 'ci-placeholder-must-be-at-least-32-chars-long',
       SUPABASE_SERVICE_ROLE_KEY: 'ci-placeholder-service-role-key',
       NEXT_TELEMETRY_DISABLED: '1',
+      // Lets e2e/privacy-consent.spec.ts observe PostHog start only after consent.
+      NEXT_PUBLIC_POSTHOG_KEY: 'phc_e2e_placeholder',
     },
   },
   projects: [

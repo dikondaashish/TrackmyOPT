@@ -6,6 +6,9 @@ const resetMock = vi.fn();
 
 vi.mock("posthog-js", () => ({
   default: {
+    __loaded: true,
+    opt_in_capturing: vi.fn(),
+    opt_out_capturing: vi.fn(),
     capture: (...args: unknown[]) => captureMock(...args),
     identify: (...args: unknown[]) => identifyMock(...args),
     reset: (...args: unknown[]) => resetMock(...args),

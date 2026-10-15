@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { safeStorageGet, safeStorageSet } from "@/lib/safe-storage";
+import { useConsent } from "@/components/privacy/use-privacy";
 
 /**
  * Captures ?ref= query param from the URL, stores it in localStorage,
- * and fires a click-tracking event to the API.
+ * and fires a click-tracking event to the API. Storing the code is a
+ * "functional" use (lib/privacy/services.ts), so it waits for that permission;
+ * the anonymous click count does not store anything on the device.
  * 
  * Usage: Place this component inside any page that might receive referral traffic.
  * It renders nothing — purely side-effect based.
  */
 export function ReferralCapture() {
   const searchParams = useSearchParams();
+  const functionalAllowed = useConsent("functional");
+  const trackedCodeRef = useRef<string | null>(null);
 
   useEffect(() => {
     const ref = searchParams.get("ref");
@@ -26,8 +31,12 @@ export function ReferralCapture() {
     if (safeStorageGet("trackmyopt_ref")) return;
 
     // Store for later use during signup. Attribution is best-effort — when
-    // storage is unavailable the click below is still tracked.
-    safeStorageSet("trackmyopt_ref", sanitized);
+    // storage is unavailable or not permitted the click below is still tracked.
+    if (functionalAllowed) safeStorageSet("trackmyopt_ref", sanitized);
+
+    // Count each click once, even when permission arrives later on this page.
+    if (trackedCodeRef.current === sanitized) return;
+    trackedCodeRef.current = sanitized;
 
     // Track the click (fire-and-forget)
     fetch("/api/referral/track", {
@@ -37,7 +46,7 @@ export function ReferralCapture() {
     }).catch(() => {
       // Silently ignore tracking failures
     });
-  }, [searchParams]);
+  }, [searchParams, functionalAllowed]);
 
   return null;
 }

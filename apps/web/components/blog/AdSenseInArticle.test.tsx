@@ -1,10 +1,9 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  COOKIE_CONSENT_KEY,
-  COOKIE_CONSENT_TIMESTAMP_KEY,
-  setStoredCookieConsent,
-} from '@/lib/cookie-consent';
+  acceptAllOptional,
+  resetPrivacyManagerForTests,
+} from '@/lib/privacy/privacy-manager';
 import { ADSENSE_READY_EVENT } from '@/lib/adsense';
 import { AdSenseInArticle } from './AdSenseInArticle';
 
@@ -19,6 +18,8 @@ describe('AdSenseInArticle', () => {
       }
     );
     localStorage.clear();
+    document.cookie = 'tmo_consent=; Path=/; Max-Age=0';
+    resetPrivacyManagerForTests();
     delete window.adsbygoogle;
     document.getElementById('adsense-script')?.remove();
   });
@@ -29,7 +30,7 @@ describe('AdSenseInArticle', () => {
     vi.unstubAllGlobals();
   });
 
-  it('does not render an ad request without advertising consent', () => {
+  it('does not render an ad request before marketing permission', () => {
     render(<AdSenseInArticle />);
 
     expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
@@ -37,8 +38,7 @@ describe('AdSenseInArticle', () => {
   });
 
   it('renders and queues the unit after consent', () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
-    localStorage.setItem(COOKIE_CONSENT_TIMESTAMP_KEY, Date.now().toString());
+    acceptAllOptional();
 
     render(<AdSenseInArticle />);
 
@@ -59,7 +59,7 @@ describe('AdSenseInArticle', () => {
     expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
 
     act(() => {
-      setStoredCookieConsent('accepted');
+      acceptAllOptional();
     });
 
     expect(
@@ -68,7 +68,7 @@ describe('AdSenseInArticle', () => {
   });
 
   it('queues each element once while the SDK status attribute is still absent', () => {
-    setStoredCookieConsent('accepted');
+    acceptAllOptional();
     render(<AdSenseInArticle />);
     act(() => {
       window.dispatchEvent(new Event(ADSENSE_READY_EVENT));
@@ -83,13 +83,13 @@ describe('AdSenseInArticle', () => {
         return this.tagName === 'INS' ? 139 : 320;
       }
     );
-    setStoredCookieConsent('accepted');
+    acceptAllOptional();
     render(<AdSenseInArticle />);
     expect(window.adsbygoogle).toBeUndefined();
   });
 
   it('rechecks current width when the SDK becomes ready', () => {
-    setStoredCookieConsent('accepted');
+    acceptAllOptional();
     vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(0);
     render(<AdSenseInArticle />);
     vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(320);
@@ -110,7 +110,7 @@ describe('AdSenseInArticle', () => {
       }
     );
     vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(0);
-    setStoredCookieConsent('accepted');
+    acceptAllOptional();
     render(<AdSenseInArticle />);
     expect(window.adsbygoogle).toBeUndefined();
     vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(320);
@@ -127,7 +127,7 @@ describe('AdSenseInArticle', () => {
     vi.spyOn(window.adsbygoogle, 'push').mockImplementation(() => {
       throw new Error('private vendor payload');
     });
-    setStoredCookieConsent('accepted');
+    acceptAllOptional();
     render(<AdSenseInArticle />);
     act(() => window.dispatchEvent(new Event(ADSENSE_READY_EVENT)));
     expect(report).toHaveBeenCalledExactlyOnceWith(
@@ -137,7 +137,7 @@ describe('AdSenseInArticle', () => {
 
   it('does not queue a fluid ad in a container narrower than 250px', () => {
     vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(200);
-    setStoredCookieConsent('accepted');
+    acceptAllOptional();
     render(<AdSenseInArticle />);
     expect(screen.getByRole('complementary')).toBeInTheDocument();
     expect(window.adsbygoogle).toBeUndefined();

@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { PostHogProvider } from '@/components/analytics/PostHogProvider';
-import { CookieConsent } from '@/components/CookieConsent';
+import { PrivacyProvider } from '@/components/privacy/PrivacyProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
 import { siteIdentityGraph } from '@/lib/seo-schemas';
@@ -108,9 +106,8 @@ export default function RootLayout({
         >
           <PostHogProvider>
             {children}
-            <Analytics />
-            <SpeedInsights />
-            <CookieConsent />
+            {/* Consent UI + consent-gated Vercel Analytics / Speed Insights */}
+            <PrivacyProvider />
             <Toaster />
           </PostHogProvider>
         </ThemeProvider>

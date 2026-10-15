@@ -8,7 +8,7 @@ import {
   captureActivationCompleted,
   isBrowserPostHogReady,
 } from '@/lib/posthog-client';
-import { hasAnalyticsConsent } from '@/lib/cookie-consent';
+import { hasConsent } from '@/lib/privacy/privacy-manager';
 import {
   daysSinceSignupDate,
   hasSuccessfulCaseCheck,
@@ -61,7 +61,7 @@ export function ActivationCompletedTracker() {
         cancelled ||
         requestInFlight ||
         isOffline() ||
-        !hasAnalyticsConsent() ||
+        !hasConsent('analytics') ||
         !isBrowserPostHogReady()
       ) {
         return;
@@ -94,7 +94,7 @@ export function ActivationCompletedTracker() {
         }
         if (
           !user ||
-          !hasAnalyticsConsent() ||
+          !hasConsent('analytics') ||
           !isBrowserPostHogReady() ||
           cancelled ||
           trackedUserRef.current === user.id ||
@@ -131,7 +131,7 @@ export function ActivationCompletedTracker() {
 
         if (
           cancelled ||
-          !hasAnalyticsConsent() ||
+          !hasConsent('analytics') ||
           !isBrowserPostHogReady() ||
           trackedUserRef.current === user.id ||
           alreadyCaptured(user.id) ||

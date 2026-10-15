@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 import { sentryOptions } from '@/lib/sentry/options';
 import { apiHttpClientIntegration } from '@/lib/sentry/http-client';
-import { initPostHogBrowser } from '@/lib/posthog/posthog-browser';
 import { registerCrossOriginErrorHandler } from '@/lib/cross-origin-error-handler';
 
 registerCrossOriginErrorHandler();
@@ -20,8 +19,5 @@ try {
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
 
-try {
-  initPostHogBrowser();
-} catch (error) {
-  console.warn('Third-party init failed: PostHog', error);
-}
+// PostHog is not started here: lib/privacy/integrations.ts initializes it only
+// after analytics consent (components/privacy/PrivacyProvider.tsx).

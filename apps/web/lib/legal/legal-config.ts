@@ -12,10 +12,11 @@ import {
 
 export const LEGAL_EFFECTIVE_DATE = 'August 26, 2026';
 export const LEGAL_VERSION_ID = '2026-08-26';
-const PRIVACY_CHOICES_EFFECTIVE_DATE = 'July 26, 2026';
-export const PRIVACY_CHOICES_VERSION_ID = '2026-07-26';
+const PRIVACY_CHOICES_EFFECTIVE_DATE = 'October 15, 2026';
+export const PRIVACY_CHOICES_VERSION_ID = '2026-10-15';
 export const EXTENSION_PRIVACY_RELEASE_VERSION_ID = '2026-09-25';
-export const PRIVACY_POLICY_VERSION_ID = '2026-10-10';
+const PRIVACY_POLICY_EFFECTIVE_DATE = 'October 15, 2026';
+export const PRIVACY_POLICY_VERSION_ID = '2026-10-15';
 
 export const COMPANY = {
   legalName: 'Zyene, Inc.',
@@ -367,9 +368,9 @@ export const MATERIAL_CHANGE_NOTICE =
 export function formatPolicyVersionLabel(policyType: LegalPolicyType): string {
   const version = LEGAL_POLICY_VERSIONS[policyType];
   const effectiveDate =
-    version === PRIVACY_POLICY_VERSION_ID
-      ? 'October 10, 2026'
-      : version === PRIVACY_CHOICES_VERSION_ID
+    policyType === 'privacy_policy'
+      ? PRIVACY_POLICY_EFFECTIVE_DATE
+      : policyType === 'cookie_policy'
       ? PRIVACY_CHOICES_EFFECTIVE_DATE
       : LEGAL_EFFECTIVE_DATE;
   return `${effectiveDate} · Version ${version}`;

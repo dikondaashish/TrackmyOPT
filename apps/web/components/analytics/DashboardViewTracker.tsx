@@ -6,7 +6,7 @@ import {
   ANALYTICS_CONSENT_CHANGE_EVENT,
   isBrowserPostHogReady,
 } from "@/lib/posthog-client";
-import { hasAnalyticsConsent } from "@/lib/cookie-consent";
+import { hasConsent } from "@/lib/privacy/privacy-manager";
 import { isPendingStatus } from "@/lib/posthog/uscis-status-category";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { supabase } from "@/lib/supabase/client";
@@ -47,7 +47,7 @@ export function DashboardViewTracker() {
     if (premium.isLoading) return;
 
     const trackDashboardView = () => {
-      if (trackedRef.current || !hasAnalyticsConsent() || !isBrowserPostHogReady()) {
+      if (trackedRef.current || !hasConsent("analytics") || !isBrowserPostHogReady()) {
         return;
       }
       try {

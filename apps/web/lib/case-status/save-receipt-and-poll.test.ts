@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import { captureClientEvent } from '@/lib/posthog-client';
-import { hasAnalyticsConsent } from '@/lib/cookie-consent';
+import { hasConsent } from '@/lib/privacy/privacy-manager';
 import { resetNetworkFailureReporting } from '@/lib/sentry/options';
 import { saveReceiptAndPoll } from './save-receipt-and-poll';
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }));
 vi.mock('@/lib/posthog-client', () => ({ captureClientEvent: vi.fn() }));
-vi.mock('@/lib/cookie-consent', () => ({
-  hasAnalyticsConsent: vi.fn(() => true),
+vi.mock('@/lib/privacy/privacy-manager', () => ({
+  hasConsent: vi.fn(() => true),
 }));
 const receipt = 'IOE1234567890';
 const saved = {
@@ -29,7 +29,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   resetNetworkFailureReporting();
   vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
-  vi.mocked(hasAnalyticsConsent).mockReturnValue(true);
+  vi.mocked(hasConsent).mockReturnValue(true);
   vi.stubGlobal('fetch', fetchMock);
 });
 afterEach(() => {
@@ -149,7 +149,7 @@ describe('receipt enrollment and result measurement', () => {
   });
 
   it('works without analytics consent and emits no client funnel events', async () => {
-    vi.mocked(hasAnalyticsConsent).mockReturnValue(false);
+    vi.mocked(hasConsent).mockReturnValue(false);
     fetchMock
       .mockResolvedValueOnce(response({ ok: true, data: saved }))
       .mockResolvedValue(response({ ok: true, data: resolved }));

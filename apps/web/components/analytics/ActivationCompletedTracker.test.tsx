@@ -5,14 +5,14 @@ import {
   captureActivationCompleted,
   isBrowserPostHogReady,
 } from '@/lib/posthog-client';
-import { hasAnalyticsConsent } from '@/lib/cookie-consent';
+import { hasConsent } from '@/lib/privacy/privacy-manager';
 import { supabase } from '@/lib/supabase/client';
 
 vi.mock('@/lib/supabase/client', () => ({
   supabase: { auth: { getUser: vi.fn() } },
 }));
-vi.mock('@/lib/cookie-consent', () => ({
-  hasAnalyticsConsent: vi.fn(() => true),
+vi.mock('@/lib/privacy/privacy-manager', () => ({
+  hasConsent: vi.fn(() => true),
 }));
 vi.mock('@/lib/posthog-client', () => ({
   ANALYTICS_CONSENT_CHANGE_EVENT: 'trackmyopt:analytics-consent',
@@ -24,7 +24,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, 'error').mockImplementation(() => {});
   localStorage.clear();
-  vi.mocked(hasAnalyticsConsent).mockReturnValue(true);
+  vi.mocked(hasConsent).mockReturnValue(true);
   vi.mocked(isBrowserPostHogReady).mockReturnValue(true);
   vi.mocked(supabase.auth.getUser).mockResolvedValue({
     data: { user },
@@ -174,7 +174,7 @@ describe('activation consent and account scope', () => {
     );
     render(<ActivationCompletedTracker />);
     await waitFor(() => expect(fetch).toHaveBeenCalledOnce());
-    vi.mocked(hasAnalyticsConsent).mockReturnValue(false);
+    vi.mocked(hasConsent).mockReturnValue(false);
     await act(async () =>
       finish(
         new Response(
@@ -250,11 +250,11 @@ describe('activation consent and account scope', () => {
   });
 
   it('waits for consent before fetching or marking activation captured', async () => {
-    vi.mocked(hasAnalyticsConsent).mockReturnValue(false);
+    vi.mocked(hasConsent).mockReturnValue(false);
     render(<ActivationCompletedTracker />);
     expect(fetch).not.toHaveBeenCalled();
     expect(localStorage.length).toBe(0);
-    vi.mocked(hasAnalyticsConsent).mockReturnValue(true);
+    vi.mocked(hasConsent).mockReturnValue(true);
     act(() =>
       window.dispatchEvent(
         new CustomEvent('trackmyopt:analytics-consent', {

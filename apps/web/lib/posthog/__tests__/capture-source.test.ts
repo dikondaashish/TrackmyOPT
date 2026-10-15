@@ -15,6 +15,9 @@ vi.mock("posthog-node", () => ({
 
 vi.mock("posthog-js", () => ({
   default: {
+    __loaded: true,
+    opt_in_capturing: vi.fn(),
+    opt_out_capturing: vi.fn(),
     capture: vi.fn(),
     reset: vi.fn(),
   },

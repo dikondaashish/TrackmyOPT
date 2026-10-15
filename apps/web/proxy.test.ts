@@ -151,6 +151,8 @@ it.each([
     );
     const request = new NextRequest(`http://localhost:3000${path}`);
     request.cookies.set('unrelated-cookie', 'synthetic-value');
+    // Unchanged privacy region, so only auth cookies are written here.
+    request.cookies.set('tmo_privacy_region', 'UNKNOWN');
     const response = await proxy(request);
     expect(response.status).toBe(status);
     expect(response.cookies.getAll().map(({ name }) => name)).toEqual([

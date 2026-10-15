@@ -1,17 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   ADSENSE_BLOG_SLOT,
   ADSENSE_PUBLISHER_ID,
   ADSENSE_READY_EVENT,
   loadAdSense,
 } from '@/lib/adsense';
-import {
-  COOKIE_CONSENT_CHANGED_EVENT,
-  getStoredCookieConsent,
-  type CookieConsentStatus,
-} from '@/lib/cookie-consent';
+import { useConsent } from '@/components/privacy/use-privacy';
 
 declare global {
   interface Window {
@@ -24,26 +20,17 @@ const MIN_FLUID_AD_WIDTH_PX = 250;
 
 /**
  * A single responsive in-article unit for public, long-form content.
- * It renders only after optional advertising consent is present.
+ * It renders, and loads the AdSense script, only while the privacy manager
+ * permits the marketing category (lib/privacy).
  */
 export function AdSenseInArticle() {
-  const [consent, setConsent] = useState<CookieConsentStatus>(null);
+  const marketingAllowed = useConsent('marketing');
   const queuedAdRef = useRef<HTMLModElement | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
-    const syncConsent = () => setConsent(getStoredCookieConsent());
-    syncConsent();
-    window.addEventListener(COOKIE_CONSENT_CHANGED_EVENT, syncConsent);
-
-    return () => {
-      window.removeEventListener(COOKIE_CONSENT_CHANGED_EVENT, syncConsent);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (consent !== 'accepted') return;
+    if (!marketingAllowed) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -80,9 +67,9 @@ export function AdSenseInArticle() {
       observer.disconnect();
       window.removeEventListener(ADSENSE_READY_EVENT, renderAd);
     };
-  }, [consent]);
+  }, [marketingAllowed]);
 
-  if (consent !== 'accepted') return null;
+  if (!marketingAllowed) return null;
 
   return (
     <aside
