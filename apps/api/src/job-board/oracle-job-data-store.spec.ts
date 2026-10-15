@@ -1,4 +1,5 @@
 import {
+  JOB_REMOVAL_MIN_MISSING_SECONDS,
   OracleJobDataStore,
   ORACLE_ISO_TZ_FORMAT,
   ORACLE_DESCRIPTION_FLAGS,
@@ -385,6 +386,7 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(update?.binds).toEqual({
       id: 'job-2',
       runStartedAt: '2026-09-06T10:00:00.000+00:00',
+      minMissingSeconds: JOB_REMOVAL_MIN_MISSING_SECONDS,
     });
   });
 
@@ -1010,7 +1012,19 @@ describe('OracleJobDataStore shadow adapter', () => {
     const update = executed.find((entry) =>
       entry.sql.includes('UPDATE jobs SET'),
     );
-    expect(update?.binds).toEqual({ id: 'job-2', runStartedAt: null });
+    expect(update?.binds).toEqual({
+      id: 'job-2',
+      runStartedAt: null,
+      minMissingSeconds: JOB_REMOVAL_MIN_MISSING_SECONDS,
+    });
+    expect(JOB_REMOVAL_MIN_MISSING_SECONDS).toBe(72_000);
+    // stale -> removed needs an earlier miss older than the threshold even
+    // without a scheduler runStartedAt, so manual reruns cannot remove jobs.
+    const sql = update?.sql.replace(/\s+/g, ' ') ?? '';
+    expect(sql).toContain(
+      "listing_status = 'open' OR (listing_status = 'stale' AND missing_since_at IS NOT NULL AND missing_since_at <= SYSTIMESTAMP - NUMTODSINTERVAL(:minMissingSeconds, 'SECOND')",
+    );
+    expect(sql).not.toMatch(/OR missing_since_at IS NULL/);
 
     const beforeEmpty = executed.length;
     await store.reconcileSource('source-1', []);
