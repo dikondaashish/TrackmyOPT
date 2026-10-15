@@ -3,8 +3,10 @@ import { cleanPartnerCase } from './clean';
 import type { CleanedCommunityCase, PartnerCasePayload } from './types';
 
 const OPT_TRACKER_DEFAULT = 'https://opt-tracker.com';
+// The partner caps per_page at 50. 400 pages (20k cases) matches the Pulse
+// bound and leaves headroom: the feed passed the old 120-page cap in Oct 2026.
 const OPT_TRACKER_PER_PAGE = 50;
-const OPT_TRACKER_MAX_PAGES = 120;
+const OPT_TRACKER_MAX_PAGES = 400;
 
 const OPT_PULSE_DEFAULT_URL = 'https://agkagshxgeavfbbpmbcz.supabase.co';
 const OPT_PULSE_DEFAULT_KEY = 'sb_publishable_Xn9rnx_g2fOiKNjK0X3JHQ_bgB4vO7o';
@@ -32,8 +34,11 @@ type SourceFetch = {
   total: number | null;
 };
 
+/** Fixed, content-free partner feed failure, safe for audit rows and Sentry. */
+class PartnerFeedError extends Error {}
+
 /** opt-tracker.com — paginated JSON feed. Ids namespaced `optt_`. */
-async function fetchOptTrackerCases(): Promise<SourceFetch> {
+export async function fetchOptTrackerCases(): Promise<SourceFetch> {
   const base = optTrackerBase();
   const page1 = await fetchJson<PartnerListResponse>(
     `${base}/api/cases?page=1&per_page=${OPT_TRACKER_PER_PAGE}&sort_col=updated_at&sort_dir=desc`
@@ -42,10 +47,12 @@ async function fetchOptTrackerCases(): Promise<SourceFetch> {
   if (
     !Number.isInteger(totalPages) ||
     totalPages < 1 ||
-    totalPages > OPT_TRACKER_MAX_PAGES ||
     !Array.isArray(page1.cases)
   ) {
-    throw new Error('Incomplete partner case listing');
+    throw new PartnerFeedError('Incomplete partner case listing');
+  }
+  if (totalPages > OPT_TRACKER_MAX_PAGES) {
+    throw new PartnerFeedError('Partner case listing exceeds the page limit');
   }
   const raw: PartnerCasePayload[] = [...(page1.cases ?? [])];
   for (let page = 2; page <= totalPages; page++) {
@@ -53,7 +60,7 @@ async function fetchOptTrackerCases(): Promise<SourceFetch> {
       `${base}/api/cases?page=${page}&per_page=${OPT_TRACKER_PER_PAGE}&sort_col=updated_at&sort_dir=desc`
     );
     if (!Array.isArray(body.cases) || !body.cases.length) {
-      throw new Error('Incomplete partner case listing');
+      throw new PartnerFeedError('Incomplete partner case listing');
     }
     raw.push(...body.cases);
   }
@@ -61,7 +68,9 @@ async function fetchOptTrackerCases(): Promise<SourceFetch> {
     typeof page1.total === 'number' &&
     raw.length < page1.total - OPT_TRACKER_PER_PAGE
   ) {
-    throw new Error('Partner case count does not match the fetched pages');
+    throw new PartnerFeedError(
+      'Partner case count does not match the fetched pages'
+    );
   }
   return {
     cases: raw.map((r) => ({
@@ -138,7 +147,7 @@ async function fetchOptPulseCases(): Promise<SourceFetch> {
     }
     if (rows.length < OPT_PULSE_PAGE) break;
     if (offset + rows.length >= OPT_PULSE_MAX_ROWS) {
-      throw new Error('Partner case pagination limit reached');
+      throw new PartnerFeedError('Partner case pagination limit reached');
     }
   }
   return { cases: out, pages, total: out.length };
@@ -153,7 +162,7 @@ async function fetchJson<T>(
     cache: 'no-store',
   });
   if (!res.ok) {
-    throw new Error(`Partner API ${res.status} on ${url.split('?')[0]}`);
+    throw new PartnerFeedError(`Partner API returned HTTP ${res.status}`);
   }
   return (await res.json()) as T;
 }
@@ -268,9 +277,13 @@ export async function ingestCommunityOptTimelines(): Promise<IngestResult> {
           kept += 1;
         }
         bySource[src.name] = kept;
-      } catch {
-        sourceErrors.push(`${src.name}: import failed`);
-        console.error('Community OPT source import failed');
+      } catch (error) {
+        // Unknown errors (network, JSON) keep a generic label: their text
+        // can carry partner URLs or payload fragments.
+        const reason =
+          error instanceof PartnerFeedError ? error.message : 'import failed';
+        sourceErrors.push(`${src.name}: ${reason}`);
+        console.error(`Community OPT source import failed: ${src.name}: ${reason}`);
         bySource[src.name] = 0;
       }
     }

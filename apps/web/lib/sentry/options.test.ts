@@ -3,12 +3,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
 import {
+  isAnalyticsTransportFailure,
+  isBrowserNetworkError,
   isBrowserNetworkFailure,
   isForeignScriptEvent,
   resetNetworkFailureReporting,
   sentryOptions,
   scrubSentryEvent,
   shouldDropNetworkFailure,
+  shouldReportCaughtNetworkFailure,
 } from './options';
 
 afterEach(async () => {
@@ -295,5 +298,107 @@ describe('Sentry browser connectivity noise', () => {
     expect(shouldDropNetworkFailure(failure('Failed to fetch'), null)).toBe(
       false
     );
+  });
+});
+
+describe('caught browser network failures', () => {
+  const online = { offline: false, hidden: false };
+  afterEach(() => resetNetworkFailureReporting());
+
+  it('recognises only fetch rejections without an HTTP response', () => {
+    expect(isBrowserNetworkError(new TypeError('Load failed'))).toBe(true);
+    expect(isBrowserNetworkError(new TypeError('Failed to fetch'))).toBe(true);
+    expect(isBrowserNetworkError(new SyntaxError('Unexpected token <'))).toBe(
+      false
+    );
+    expect(
+      isBrowserNetworkError(new TypeError("Cannot read properties of null"))
+    ).toBe(false);
+  });
+
+  it('shares the once-per-page budget with uncaught network failures', () => {
+    expect(
+      shouldDropNetworkFailure(
+        { exception: { values: [{ type: 'TypeError', value: 'Load failed' }] } } as ErrorEvent,
+        online
+      )
+    ).toBe(false);
+    expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
+  });
+
+  it('skips offline or hidden pages and reports the first visible failure', () => {
+    expect(shouldReportCaughtNetworkFailure({ offline: true, hidden: false })).toBe(false);
+    expect(shouldReportCaughtNetworkFailure({ offline: false, hidden: true })).toBe(false);
+    expect(shouldReportCaughtNetworkFailure(online)).toBe(true);
+    expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
+    expect(shouldReportCaughtNetworkFailure(null)).toBe(true);
+  });
+});
+
+describe('server analytics transport noise', () => {
+  const timeout =
+    '[PostHog] Timeout while shutting down PostHog. Some events may not have been sent. [object Object]';
+
+  it('drops PostHog network failures and shutdown timeouts', () => {
+    expect(
+      isAnalyticsTransportFailure({
+        type: undefined,
+        exception: {
+          values: [
+            { type: 'AbortError', value: 'Request timed out after 10000ms' },
+            {
+              type: 'PostHogFetchNetworkError',
+              value: 'Network error while fetching PostHog',
+            },
+          ],
+        },
+      })
+    ).toBe(true);
+    expect(
+      isAnalyticsTransportFailure({
+        type: undefined,
+        message: timeout,
+        logentry: { message: timeout },
+        exception: { values: [{ type: 'Error', value: timeout }] },
+      })
+    ).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(
+      beforeSend?.(
+        { type: undefined, message: timeout, logentry: { message: timeout } },
+        {}
+      )
+    ).toBeNull();
+  });
+
+  it('keeps PostHog HTTP errors and product failures reportable', () => {
+    expect(
+      isAnalyticsTransportFailure({
+        type: undefined,
+        exception: {
+          values: [
+            { type: 'PostHogFetchHttpError', value: 'HTTP error while fetching PostHog: 401' },
+          ],
+        },
+      })
+    ).toBe(false);
+    expect(
+      isAnalyticsTransportFailure({
+        type: undefined,
+        exception: {
+          values: [
+            { type: 'PostHogFetchNetworkError', value: 'Network error while fetching PostHog' },
+            { type: 'Error', value: 'USCIS case persistence failed' },
+          ],
+        },
+      })
+    ).toBe(false);
+    expect(
+      isAnalyticsTransportFailure({
+        type: undefined,
+        message: 'USCIS case persistence failed',
+      })
+    ).toBe(false);
+    expect(isAnalyticsTransportFailure({ type: undefined })).toBe(false);
   });
 });
