@@ -5,7 +5,7 @@
 | Scheduler | Jobs |
 |-----------|------|
 | **Vercel Cron** (`apps/web/vercel.json`) | Case digests, case deadline reminders, case status, community OPT ingest, checkout recovery, D1 activation nudge, retry-pending emails, job-board ingestion schedule and health (among others; see the file) |
-| **cron-job.org** (external; configured outside the repo) | Daily reminders, document reminders, STEM OPT window alert, job-board ingest (hourly; ledger rows use `trigger_origin: cron_jobs_org`), plus optional backups and one-off campaigns (free-receipt reengagement, welcome-free resend, at-risk, PostHog syncs) |
+| **cron-job.org** (external; configured outside the repo) | Daily reminders, document reminders, STEM OPT window alert, plus optional backups and one-off campaigns (free-receipt reengagement, welcome-free resend, at-risk, PostHog syncs) |
 | **GitHub Actions** (`.github/workflows`) | No workflow calls `/api/cron/*`. `job-board-ingestion.yml` is `workflow_dispatch` only (manual supervised run against the Render API; the daily schedule is the Vercel cron `job-board-ingestion-dispatch`); `official-processing-freshness.yml` runs weekly (`0 8 * * 1`) and is not a cron-route trigger |
 | **Not defined in repo** | `filings-health` (comment says "daily keep-warm probe"; no scheduler found) |
 | **Disabled** | `scan-nearby-cases` (always returns 410) |
@@ -47,9 +47,10 @@ Entries in `apps/web/vercel.json` (not exhaustive; the file is authoritative):
 | `/api/cron/posthog-partner-groups-sync` | cron-job.org (per route header comment) | See below |
 | `/api/cron/free-receipt-reengagement` | cron-job.org, one-off | See below |
 | `/api/cron/welcome-free-resend` | cron-job.org, one-off (manual) | Resends `welcome_free` to users whose welcome failed with SMTP 535 auth errors. Needs `WELCOME_FREE_RESEND_ENABLED=true`; `limit` (default 25) and `dry_run=true` params; disable after `remaining=0` |
-| `/api/cron/ingest-job-board` | cron-job.org (ledger rows record `trigger_origin: cron_jobs_org`; the code comments describe an hourly trigger) | Wakes the Render API, then enqueues job-board ingestion and records a `scheduler_runs` row. `.github/workflows/job-board-ingestion.yml` is a separate manual (`workflow_dispatch`) supervisor, not a trigger for this route |
 | `/api/cron/filings-health` | Scheduler not defined in repo | Keep-warm probe: reads one row from `h1b_filings` on the secondary filings Supabase project; 503 on failure |
 | `/api/cron/scan-nearby-cases` | **Disabled — do not schedule** | Permanently disabled for USCIS API compliance; always returns **410** (`nearby_scan_disabled`) and has no auth check. Pause any cron-job.org job still pointing at it |
+
+The former cron-job.org route `/api/cron/ingest-job-board` was removed on 2026-10-15; job-board ingestion is scheduled only by the Vercel cron `job-board-ingestion-dispatch`. Delete any cron-job.org job still pointing at the old path (it now returns 404).
 
 ## cron-job.org jobs
 
