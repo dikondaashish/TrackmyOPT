@@ -3,6 +3,7 @@ import {
   evaluateIngestionHealth,
   newYorkTimeToUtc,
   parseScheduleStart,
+  scheduledSlot,
   scheduledSlotsBetween,
   slotRunId,
   type AuditRow,
@@ -94,5 +95,42 @@ describe('evaluateIngestionHealth', () => {
       errorCodes: ['NJS-123', 'ORA-00054'],
       stalledSources: 1,
     });
+  });
+});
+
+describe('scheduledSlot', () => {
+  const runId = (iso: string) => scheduledSlot(new Date(iso))?.runId ?? null;
+
+  it('maps weekday EDT firings to the 14:00 and 21:00 New York slots', () => {
+    // Thursday 2026-10-15, EDT (UTC-4): 14:00 NY = 18:00 UTC.
+    expect(runId('2026-10-15T18:07:00Z')).toBe('job-board-hour-2026-10-15T18');
+    // A later firing in the same slot window reuses the run ID.
+    expect(runId('2026-10-15T19:07:00Z')).toBe('job-board-hour-2026-10-15T18');
+    // 21:00 NY Thursday = 01:00 UTC Friday.
+    expect(runId('2026-10-16T01:07:00Z')).toBe('job-board-hour-2026-10-16T01');
+    expect(runId('2026-10-16T02:07:00Z')).toBe('job-board-hour-2026-10-16T01');
+  });
+
+  it('maps weekday EST firings using the standard-time offset', () => {
+    // Tuesday 2026-12-15, EST (UTC-5): 14:00 NY = 19:00 UTC.
+    expect(runId('2026-12-15T18:07:00Z')).toBeNull(); // 13:07 NY
+    expect(runId('2026-12-15T19:07:00Z')).toBe('job-board-hour-2026-12-15T19');
+    expect(runId('2026-12-16T01:07:00Z')).toBeNull(); // 20:07 NY
+    expect(runId('2026-12-16T02:07:00Z')).toBe('job-board-hour-2026-12-16T02');
+  });
+
+  it('has only the 21:00 slot at weekends', () => {
+    // Saturday 2026-10-17 14:07 EDT: no weekend afternoon slot.
+    expect(runId('2026-10-17T18:07:00Z')).toBeNull();
+    // Saturday 21:07 EDT = Sunday 01:07 UTC.
+    expect(runId('2026-10-18T01:07:00Z')).toBe('job-board-hour-2026-10-18T01');
+    // Friday 21:00 NY falls on Saturday UTC and is still a weekday slot.
+    expect(runId('2026-10-17T01:07:00Z')).toBe('job-board-hour-2026-10-17T01');
+  });
+
+  it('ignores firings before a slot or after its 90-minute window', () => {
+    expect(runId('2026-10-15T17:59:59Z')).toBeNull();
+    expect(runId('2026-10-15T19:29:59Z')).toBe('job-board-hour-2026-10-15T18');
+    expect(runId('2026-10-15T19:30:00Z')).toBeNull();
   });
 });

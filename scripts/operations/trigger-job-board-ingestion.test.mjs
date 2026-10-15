@@ -151,19 +151,30 @@ test('fails closed when the API key is missing', async () => {
   );
 });
 
-test('keeps the schedule inert unless explicitly enabled', async () => {
+test('runs the workflow only on manual dispatch (Vercel cron owns the schedule)', async () => {
   const workflow = await readFile(
     new URL('../../.github/workflows/job-board-ingestion.yml', import.meta.url),
     'utf8'
   );
 
-  // Scheduled firings run only when the repository variable is "true";
-  // manual dispatch always works.
-  assert.match(workflow, /schedule:/);
-  assert.match(
-    workflow,
-    /if: github\.event_name == 'workflow_dispatch' \|\| vars\.JOB_BOARD_SCHEDULE_ENABLED == 'true'/
-  );
+  // GitHub scheduled runs fired hours late on this repository, so the daily
+  // schedule moved to apps/web/vercel.json. The workflow must not regain a
+  // schedule trigger alongside it; manual and recovery dispatch still work.
+  assert.doesNotMatch(workflow, /^\s*schedule:/m);
+  assert.doesNotMatch(workflow, /^\s*- cron:/m);
+  assert.match(workflow, /if: github\.event_name == 'workflow_dispatch'\n/);
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /manual_run_id:/);
+  assert.match(workflow, /monitor_only:/);
+});
+
+test('Vercel cron fires in every UTC hour that can be a New York slot', async () => {
+  const vercel = JSON.parse(
+    await readFile(new URL('../../apps/web/vercel.json', import.meta.url), 'utf8')
+  );
+  const schedules = vercel.crons
+    .filter((cron) => cron.path === '/api/cron/job-board-ingestion-dispatch')
+    .map((cron) => cron.schedule)
+    .sort();
+  assert.deepEqual(schedules, ['7 1,2 * * *', '7 18,19 * * 1-5']);
 });
