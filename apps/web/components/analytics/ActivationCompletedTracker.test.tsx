@@ -61,7 +61,7 @@ describe('activation consent and account scope', () => {
     await act(async () => Promise.resolve());
     expect(captureActivationCompleted).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalledWith(
-      '[ActivationCompletedTracker] activation check failed'
+      '[ActivationCompletedTracker] activation check failed (stage=network, status=none)'
     );
   });
 
@@ -76,7 +76,7 @@ describe('activation consent and account scope', () => {
       render(<ActivationCompletedTracker />);
       await waitFor(() =>
         expect(console.error).toHaveBeenCalledWith(
-          '[ActivationCompletedTracker] activation check failed'
+          '[ActivationCompletedTracker] activation check failed (stage=payload, status=200)'
         )
       );
       expect(captureActivationCompleted).not.toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe('activation consent and account scope', () => {
       expect(captureActivationCompleted).toHaveBeenCalledOnce()
     );
     expect(console.error).toHaveBeenCalledWith(
-      '[ActivationCompletedTracker] activation check failed'
+      '[ActivationCompletedTracker] activation check failed (stage=network, status=none)'
     );
   });
 
@@ -125,10 +125,27 @@ describe('activation consent and account scope', () => {
       if (status === 401) expect(console.error).not.toHaveBeenCalled();
       else
         expect(console.error).toHaveBeenCalledWith(
-          '[ActivationCompletedTracker] activation check failed'
+          `[ActivationCompletedTracker] activation check failed (stage=auth, status=${status})`
         );
     }
   );
+
+  it('marks an auth request without a response as a network-stage failure', async () => {
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: null },
+      error: { status: 0, message: 'private network details' },
+    } as unknown as Awaited<ReturnType<typeof supabase.auth.getUser>>);
+    render(<ActivationCompletedTracker />);
+    await waitFor(() =>
+      expect(console.error).toHaveBeenCalledWith(
+        '[ActivationCompletedTracker] activation check failed (stage=network, status=none)'
+      )
+    );
+    expect(fetch).not.toHaveBeenCalled();
+    expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain(
+      'private'
+    );
+  });
 
   it('consumes an unmount abort without reporting a failure or activation', async () => {
     vi.mocked(fetch).mockImplementation(

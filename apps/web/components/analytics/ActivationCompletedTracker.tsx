@@ -70,6 +70,9 @@ export function ActivationCompletedTracker() {
       requestInFlight = true;
       const controller = new AbortController();
       activeController = controller;
+      // Only fixed stages and numeric HTTP statuses enter diagnostics.
+      let stage = 'auth';
+      let status: number | 'none' = 'none';
 
       try {
         const {
@@ -84,6 +87,9 @@ export function ActivationCompletedTracker() {
             authError.status < 500
           )
             return;
+          // The auth client reports a request that got no response as status 0.
+          if (authError.status === 0) stage = 'network';
+          else if (authError.status) status = authError.status;
           throw new Error('Activation authentication check failed');
         }
         if (
@@ -96,16 +102,22 @@ export function ActivationCompletedTracker() {
         )
           return;
 
+        stage = 'network';
         const caseRes = await fetch('/api/case-status', {
           credentials: 'include',
           cache: 'no-store',
           signal: controller.signal,
         });
+        status = caseRes.status;
+        stage = 'http';
 
         let hasReceipt = false;
         let hasSuccessfulCheck = false;
         if (caseRes.ok) {
-          const caseJson = caseResponseSchema.parse(await caseRes.json());
+          stage = 'json';
+          const body: unknown = await caseRes.json();
+          stage = 'payload';
+          const caseJson = caseResponseSchema.parse(body);
           const cases = caseJson.cases?.length
             ? caseJson.cases
             : caseJson.data
@@ -128,6 +140,7 @@ export function ActivationCompletedTracker() {
           return;
         }
 
+        stage = 'processing';
         captureActivationCompleted({
           days_since_signup: daysSinceSignupDate(user.created_at?.slice(0, 10)),
           within_24h: isWithinActivationWindow(user.created_at),
@@ -140,13 +153,12 @@ export function ActivationCompletedTracker() {
         }
       } catch {
         // Intentional teardown/offline transitions are expected. Other failures
-        // stay observable through the Sentry console integration without user data.
-        if (
-          !cancelled &&
-          !controller.signal.aborted &&
-          !isOffline()
-        ) {
-          console.error('[ActivationCompletedTracker] activation check failed');
+        // stay observable through the Sentry console integration without user data;
+        // `stage=network` lets Sentry apply its shared dropped-connection policy.
+        if (!cancelled && !controller.signal.aborted && !isOffline()) {
+          console.error(
+            `[ActivationCompletedTracker] activation check failed (stage=${stage}, status=${status})`
+          );
         }
       } finally {
         if (activeController === controller) activeController = null;

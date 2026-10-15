@@ -188,9 +188,13 @@ function PricingModalContent({
     setPromoError(null);
 
     const currentInterval = isYearly ? 'year' : 'month';
+    // Only fixed stages and the numeric HTTP status enter diagnostics.
+    let stage = 'processing';
+    let status: number | 'none' = 'none';
 
     try {
       const promoFields = buildPromoCheckoutBody(promoMode, customPromoInput);
+      stage = 'network';
       const response = await fetch('/api/premium/create-checkout', {
         method: 'POST',
         headers: {
@@ -209,6 +213,8 @@ function PricingModalContent({
         }),
       });
 
+      status = response.status;
+      stage = 'processing';
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok) {
@@ -306,10 +312,17 @@ function PricingModalContent({
         'Unexpected checkout response. Please try again or contact support.'
       );
     } catch {
-      Sentry.captureException(new Error('Pro checkout request failed'));
+      // `stage=network` means no response arrived; Sentry's shared policy drops
+      // it only when the visitor's connection, not the site, was at fault.
+      Sentry.captureException(
+        new Error(
+          `Pro checkout request failed (stage=${stage}, status=${status})`
+        )
+      );
       captureClientEvent('pro_checkout_failed', {
         source: checkoutSource,
         failure_kind: 'network_or_response',
+        stage,
         plan_tier: selectedPlan,
       });
       setPromoError(
