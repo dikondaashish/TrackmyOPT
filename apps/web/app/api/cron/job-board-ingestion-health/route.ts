@@ -6,6 +6,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   evaluateIngestionHealth,
   LOOKBACK_MS,
+  parseScheduleStart,
   type AuditRow,
   type IngestionHealth,
   type SchedulerRunRow,
@@ -88,7 +89,8 @@ async function handleGET(request: NextRequest) {
   const health = evaluateIngestionHealth(
     now,
     (runs.data ?? []) as SchedulerRunRow[],
-    (audits.data ?? []) as AuditRow[]
+    (audits.data ?? []) as AuditRow[],
+    parseScheduleStart(process.env.JOB_BOARD_SCHEDULE_START)
   );
   report(health);
   const ok =
