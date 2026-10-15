@@ -1,15 +1,17 @@
 import {
+  OnQueueError,
   OnQueueFailed,
   OnQueueStalled,
   Process,
   Processor,
 } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Logger, Optional } from '@nestjs/common';
 import * as Bull from 'bull';
 import { JobBoardService } from './job-board.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
 import type { SchedulerContext } from './scheduler-run-id';
 import { sourceRetryDecision } from './ingestion-retry-policy';
+import { JobBoardFailureReporter } from './job-board-failure-reporter';
 
 /**
  * Run a source job and stop Bull's remaining attempts when the failure is
@@ -41,7 +43,15 @@ export class JobBoardProcessor {
   constructor(
     private readonly jobBoard: JobBoardService,
     private readonly companyDiscovery: CompanyDiscoveryService,
+    @Optional() private readonly failureReporter?: JobBoardFailureReporter,
   ) {}
+
+  /** Redis/Bull connection or command errors; only a fixed signal is sent. */
+  @OnQueueError()
+  onQueueError() {
+    this.logger.error('Job-board queue error');
+    void this.failureReporter?.report('queue-error');
+  }
 
   // Bull adds concurrency across named registrations. One wildcard dispatcher
   // enforces the normal lane's limit across coordinator/source/discovery work.
@@ -105,6 +115,7 @@ export class JobBoardProcessor {
     this.logger.warn(
       `ATS source job ${job.id} stalled; Bull will allow one bounded replay`,
     );
+    void this.failureReporter?.report('source-stalled');
     if (job.attemptsMade >= (job.opts.attempts || 3)) {
       await this.jobBoard.markSourceAuditFailed(
         job.data.sourceId,
@@ -151,7 +162,16 @@ export class JobBoardProcessor {
 export class SlowJobBoardProcessor {
   private readonly logger = new Logger(SlowJobBoardProcessor.name);
 
-  constructor(private readonly jobBoard: JobBoardService) {}
+  constructor(
+    private readonly jobBoard: JobBoardService,
+    @Optional() private readonly failureReporter?: JobBoardFailureReporter,
+  ) {}
+
+  @OnQueueError()
+  onQueueError() {
+    this.logger.error('Slow job-board queue error');
+    void this.failureReporter?.report('queue-error');
+  }
 
   @Process({
     name: 'ingest-source',
@@ -174,6 +194,7 @@ export class SlowJobBoardProcessor {
     >,
   ) {
     this.logger.warn(`Slow ATS source job ${job.id} stalled`);
+    void this.failureReporter?.report('source-stalled');
     if (job.attemptsMade >= (job.opts.attempts || 3)) {
       await this.jobBoard.markSourceAuditFailed(
         job.data.sourceId,

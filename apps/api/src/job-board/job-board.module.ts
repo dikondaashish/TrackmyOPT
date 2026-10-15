@@ -13,6 +13,7 @@ import { jobDataStoreProvider } from './job-data-store.provider';
 import { OracleIngestionRepairService } from './oracle-ingestion-repair.service';
 import { OracleIngestionRepairController } from './oracle-ingestion-repair.controller';
 import { isJobBoardWorkerEnabled } from './ingestion-automation-config';
+import { JobBoardFailureReporter } from './job-board-failure-reporter';
 
 /**
  * Bull consumers are registered only where JOB_BOARD_WORKER_ENABLED is not
@@ -49,6 +50,7 @@ export function jobBoardWorkerProviders(env: NodeJS.ProcessEnv = process.env) {
     OracleIngestionRepairService,
     jobDataStoreProvider,
     JobBoardService,
+    JobBoardFailureReporter,
     ...jobBoardWorkerProviders(),
     EmployerMatchService,
     JobVisaSignalService,

@@ -31,6 +31,14 @@ Oracle error codes (`ORA-`/`NJS-`/`DPI-`), never raw error text. Failures
 inside the Render worker that never reach an audit row remain visible only in
 Render logs. See `docs/ops/ingestion-automation.md`.
 
+The Render job-board worker sends fixed, body-free signals to
+`/api/internal/job-board-worker-failure/[kind]` (authenticated with the API
+key, rate-limited per kind) for failures that never reach an audit row:
+`queue-error` (Bull/Redis error events), `source-stalled` (a source job lost
+its lock) and `redis-eviction` (Redis `maxmemory-policy` is not `noeviction`).
+The worker sends each kind at most once per 5 minutes. Process crashes and
+out-of-memory kills are still visible only in Render events and logs.
+
 When adding API handlers, export them through `withSentryApiErrors` with their
 static route pattern and HTTP method, as existing routes do. The wrapper never
 reads request or response bodies, preserves streaming responses, and lets
