@@ -50,6 +50,25 @@ one per page load. A real site outage still reports, but one dropped connection
 no longer creates an issue for every widget on the page. 5xx responses are
 reported separately and are unaffected.
 
+App code that catches such a failure and reports it with its own fixed message
+(for example the receipt-entry `network` diagnostics) applies the same policy
+through `shouldReportCaughtNetworkFailure`, sharing the once-per-page budget.
+
+posthog-node logs its own delivery problems through `console.error`.
+`isAnalyticsTransportFailure` drops only PostHog network errors/timeouts and
+the bounded shutdown-wait timeout; PostHog HTTP errors (such as a rejected key)
+and every product failure still report.
+
+Expected JWT outcomes (expired, malformed, or wrongly signed extension tokens)
+return `null` silently in `verifyToken`; only unexpected verification faults,
+such as a missing signing secret, are reported (error class only).
+
+The USCIS case check retries an idempotent `case_status` read/update once when
+supabase-js gets no HTTP response (`status: 0`), and labels persistence
+failures as `transport` or `http <status> <SQLSTATE>`. AI call failures are
+reported as a fixed `[ai-failed] task=… model=… error=… status=… reason=…`
+line; the JSON detail goes to logs at warn level only.
+
 The OPT/STEM tools report unexpected saved-date, plan-status, employment-history,
 and date-save failures with fixed diagnostic messages, including malformed or
 failed HTTP 200 responses. Expected 4xx outcomes and requests canceled by

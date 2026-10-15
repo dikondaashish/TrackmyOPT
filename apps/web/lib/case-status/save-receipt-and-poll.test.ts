@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import { captureClientEvent } from '@/lib/posthog-client';
 import { hasAnalyticsConsent } from '@/lib/cookie-consent';
+import { resetNetworkFailureReporting } from '@/lib/sentry/options';
 import { saveReceiptAndPoll } from './save-receipt-and-poll';
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }));
@@ -26,10 +27,15 @@ const response = (body: unknown, status = 200) =>
 const fetchMock = vi.fn();
 beforeEach(() => {
   vi.clearAllMocks();
+  resetNetworkFailureReporting();
+  vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
   vi.mocked(hasAnalyticsConsent).mockReturnValue(true);
   vi.stubGlobal('fetch', fetchMock);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 describe('receipt enrollment and result measurement', () => {
   it('resolves the newly saved receipt even when another case is primary', async () => {
@@ -126,6 +132,20 @@ describe('receipt enrollment and result measurement', () => {
     expect(vi.mocked(Sentry.captureException).mock.calls[0][0]).toEqual(
       new Error('Receipt entry onboarding_wizard: save network failure')
     );
+  });
+
+  it('follows the browser network policy for dropped connections', async () => {
+    fetchMock.mockRejectedValue(new TypeError('Load failed'));
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    expect((await saveReceiptAndPoll(receipt)).ok).toBe(false);
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+    await saveReceiptAndPoll(receipt);
+    await saveReceiptAndPoll(receipt);
+    // One report per page load: a real outage still surfaces, a flaky
+    // connection does not fan out into an issue per request.
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
   it('works without analytics consent and emits no client funnel events', async () => {

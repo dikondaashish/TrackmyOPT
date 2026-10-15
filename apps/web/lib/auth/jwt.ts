@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT, errors, jwtVerify } from 'jose';
 import { getServerSideEnv } from '../env';
 
 const JWT_ALGORITHM = 'HS256';
@@ -113,7 +113,15 @@ export async function verifyToken(token: string): Promise<DecodedToken | null> {
 
     return decoded;
   } catch (error) {
-    console.error('JWT verification failed:', error);
+    // Expired, malformed, wrongly signed or wrong-audience tokens are expected
+    // authentication outcomes (callers answer 401 or fall back to cookies).
+    if (error instanceof errors.JOSEError) return null;
+    // Anything else (e.g. missing signing secret) is a server fault. Report
+    // only the error class: token payloads must never reach diagnostics.
+    console.error(
+      'JWT verification failed unexpectedly',
+      error instanceof Error ? error.name : typeof error
+    );
     return null;
   }
 }

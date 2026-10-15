@@ -1,9 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cleanPartnerCase, daysBetweenDates } from "./clean";
 import { inferCaseKind, serviceCenterFromReceipt } from "./centers";
 import { fetchAllTimelines } from "./get-estimate";
-import { dedupeByExternalId, pulseCommunitySource } from "./ingest";
+import {
+  dedupeByExternalId,
+  fetchOptTrackerCases,
+  pulseCommunitySource,
+} from "./ingest";
 import { buildSimilarFilingPeers } from "./similar-filing";
 import {
   buildJourneyStages,
@@ -203,6 +207,50 @@ it("classifies Pulse reports only when their link points to Reddit", () => {
   expect(pulseCommunitySource("https://redd.it/example")).toBe("reddit");
   expect(pulseCommunitySource(null)).toBe("other");
   expect(pulseCommunitySource("https://reddit.com.evil.example/comment")).toBe("other");
+});
+
+describe("opt-tracker feed paging", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  /** Serves `totalPages` full pages of 50 cases, as the partner API does. */
+  function stubFeed(totalPages: number, status = 200) {
+    const fetchMock = vi.fn(async (url: string) => {
+      const page = Number(new URL(url).searchParams.get("page"));
+      const cases = Array.from({ length: 50 }, (_, i) => ({
+        id: `${page}-${i}`,
+      }));
+      return new Response(
+        JSON.stringify({ cases, total: totalPages * 50, total_pages: totalPages }),
+        { status }
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  it("imports a feed larger than the former 120-page cap", async () => {
+    const fetchMock = stubFeed(123);
+    const result = await fetchOptTrackerCases();
+    expect(result.pages).toBe(123);
+    expect(result.cases).toHaveLength(6150);
+    expect(result.cases[0].id).toBe("optt_1-0");
+    expect(fetchMock).toHaveBeenCalledTimes(123);
+  });
+
+  it("names the page limit without fetching an unbounded feed", async () => {
+    const fetchMock = stubFeed(401);
+    await expect(fetchOptTrackerCases()).rejects.toThrow(
+      "Partner case listing exceeds the page limit"
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports partner HTTP failures without the partner URL", async () => {
+    stubFeed(1, 503);
+    await expect(fetchOptTrackerCases()).rejects.toThrow(
+      /^Partner API returned HTTP 503$/
+    );
+  });
 });
 
 describe("timeline paging", () => {
