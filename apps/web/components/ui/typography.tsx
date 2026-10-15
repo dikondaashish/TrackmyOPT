@@ -116,26 +116,3 @@ export function Muted({ children, className, ...props }: TypographyProps) {
         </p>
     );
 }
-
-export function GradientText({ children, className, gradient = "blue", ...props }: TypographyProps & { gradient?: "blue" | "purple" | "amber" | "green" | "cyan" }) {
-    const gradients = {
-        blue: "from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400",
-        purple: "from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400",
-        amber: "from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400",
-        green: "from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400",
-        cyan: "from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400",
-    };
-
-    return (
-        <span
-            className={cn(
-                "bg-clip-text text-transparent bg-gradient-to-r",
-                gradients[gradient],
-                className
-            )}
-            {...props}
-        >
-            {children}
-        </span>
-    );
-}

@@ -2,16 +2,6 @@ import { calendarDateISO, employmentWindowStats, estimatedStemEndISO, localToday
 
 export type ISODateString = string;
 
-interface OPTDates {
-    program_end_date: ISODateString;
-    dso_recommendation_date?: ISODateString | null;
-    opt_ead_end_date: ISODateString;
-    opt_start_date: ISODateString;
-    stem_start_date?: ISODateString | null;
-    created_at?: ISODateString;
-    updated_at?: ISODateString;
-}
-
 export interface EmploymentSpan {
     id: string;
     employer_name: string;
@@ -27,19 +17,6 @@ type UnemploymentStatusLevel = "ok" | "warning" | "critical";
 interface UnemploymentStatus {
     level: UnemploymentStatusLevel;
     label: string;
-}
-
-interface CalculatedOPTDates {
-    earliestFileDate: string;
-    recommendedTarget: string;
-    mustArriveBy: string;
-    optStartEarliest: string;
-    optStartLatest: string;
-    nextDeadline?: {
-        daysLeft: number;
-        label: string;
-        date: string;
-    };
 }
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -86,55 +63,6 @@ export function formatDate(dateLike: string | Date): string {
         year: "numeric",
         ...(iso ? { timeZone: 'UTC' } : {}),
     });
-}
-
-export function formatDateRange(start: string | Date, end: string | Date): string {
-    return `${formatDate(start)} - ${formatDate(end)}`;
-}
-
-export function calculateOPTDates(optDates: OPTDates): CalculatedOPTDates {
-    const todayISO = new Date().toISOString().slice(0, 10);
-    const programEnd = optDates.program_end_date;
-
-    // Common OPT guideline defaults:
-    // - Earliest file: up to 90 days before program end.
-    // - Safe target: ~60 days before program end.
-    // - Hard receive deadline: if DSO recommendation exists, use +30 days; otherwise use +30 from program end.
-    const earliestFileDate = addDays(programEnd, -90);
-    const recommendedTarget = addDays(programEnd, -60);
-    const mustArriveBy = addDays(
-        optDates.dso_recommendation_date ?? programEnd,
-        30
-    );
-
-    // OPT start window:
-    // - Earliest start: day after program end.
-    // - Latest start: up to 60 days after program end.
-    const optStartEarliest = addDays(programEnd, 1);
-    const optStartLatest = addDays(programEnd, 60);
-
-    const candidates: Array<{ date: string; label: string }> = [
-        { date: earliestFileDate, label: "Earliest filing date" },
-        { date: recommendedTarget, label: "Recommended submission date" },
-        { date: mustArriveBy, label: "Hard deadline (must arrive by)" },
-    ];
-
-    const today = toUTCDate(todayISO);
-    const next = candidates
-        .map((c) => ({ ...c, diffDays: Math.ceil((toUTCDate(c.date).getTime() - today.getTime()) / MS_PER_DAY) }))
-        .filter((c) => c.diffDays >= 0)
-        .sort((a, b) => toUTCDate(a.date).getTime() - toUTCDate(b.date).getTime())[0];
-
-    return {
-        earliestFileDate,
-        recommendedTarget,
-        mustArriveBy,
-        optStartEarliest,
-        optStartLatest,
-        nextDeadline: next
-            ? { daysLeft: next.diffDays, label: next.label, date: next.date }
-            : undefined,
-    };
 }
 
 /**

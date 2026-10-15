@@ -127,15 +127,6 @@ export function formatDisplayDateNoon(
   });
 }
 
-/** Month + day only (invalid → empty string). */
-export function formatDisplayDateMonthDay(
-  value: string | null | undefined
-): string {
-  const date = parseValidDate(value);
-  if (!date) return "";
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
 /** Add calendar months; returns ISO or null. */
 export function addMonthsIso(
   value: string | null | undefined,
@@ -170,21 +161,6 @@ export function formatRelativePast(
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
   return formatDisplayDateShort(iso);
-}
-
-/** Countdown until a future instant: "2h 05m", "soon", etc. */
-export function formatUntilFuture(
-  iso: string | null | undefined,
-  nowMs: number = Date.now()
-): string {
-  const base = parseValidDate(iso);
-  if (!base || !Number.isFinite(nowMs)) return "—";
-  const diff = base.getTime() - nowMs;
-  if (diff <= 0) return "soon";
-  const hrs = Math.floor(diff / 3_600_000);
-  const mins = Math.floor((diff % 3_600_000) / 60_000);
-  if (hrs > 0) return `${hrs}h ${String(mins).padStart(2, "0")}m`;
-  return `${mins}m`;
 }
 
 /** Checked-at stamp for monitor strip. */

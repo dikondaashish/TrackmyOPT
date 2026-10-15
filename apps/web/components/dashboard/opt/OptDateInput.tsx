@@ -11,27 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { calendarDateISO } from '@/lib/immigration/calendar-days';
 
-/** Add days to an MM/DD/YYYY date string; returns '' on invalid input. */
-export function addDaysToDate(dateStr: string, days: number): string {
-  const parts = dateStr.split('/');
-  if (parts.length !== 3) return '';
-
-  const month = parseInt(parts[0]) - 1;
-  const day = parseInt(parts[1]);
-  const year = parseInt(parts[2]);
-
-  if (isNaN(month) || isNaN(day) || isNaN(year)) return '';
-
-  const date = new Date(year, month, day);
-  date.setDate(date.getDate() + days);
-
-  const newMonth = String(date.getMonth() + 1).padStart(2, '0');
-  const newDay = String(date.getDate()).padStart(2, '0');
-  const newYear = date.getFullYear();
-
-  return `${newMonth}/${newDay}/${newYear}`;
-}
-
 interface DateInputProps {
   id: string;
   label: React.ReactNode;

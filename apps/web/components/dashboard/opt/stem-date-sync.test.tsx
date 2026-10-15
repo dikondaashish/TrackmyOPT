@@ -44,12 +44,6 @@ vi.mock('../opt-tools/EmailReminder', () => ({ EmailReminder: () => null }));
 vi.mock('../opt-tools/LiveStatsWidget', () => ({
   LiveStatsWidget: () => null,
 }));
-vi.mock('../opt-tools/TickingClock', () => ({
-  TickingClock: ({ targetDate }: { targetDate: Date }) => (
-    <div data-testid="deadline">{targetDate.toLocaleDateString('en-US')}</div>
-  ),
-  TickingClockCompact: () => null,
-}));
 vi.mock('@/lib/immigration/opt-calculations', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('@/lib/immigration/opt-calculations')>();

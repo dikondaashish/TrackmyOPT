@@ -23,7 +23,3 @@ export const DOCUMENT_TYPE_ICONS: Record<string, LucideIcon> = {
   receipt_notice: Receipt,
   other: FolderOpen,
 };
-
-export function getDocumentTypeIcon(type: string): LucideIcon {
-  return DOCUMENT_TYPE_ICONS[type] ?? FolderOpen;
-}

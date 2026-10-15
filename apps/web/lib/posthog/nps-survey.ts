@@ -23,13 +23,6 @@ export function resolveNpsCategory(score: number): NpsCategory {
   return "promoter";
 }
 
-export function isAccountOldEnough(createdAt: string, minDays: number): boolean {
-  const created = new Date(createdAt);
-  if (Number.isNaN(created.getTime())) return false;
-  const ageMs = Date.now() - created.getTime();
-  return ageMs >= minDays * 24 * 60 * 60 * 1000;
-}
-
 export function isWithinNpsCooldown(
   lastShownIso: string | null | undefined,
   cooldownDays: number
