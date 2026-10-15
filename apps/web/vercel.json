@@ -17,7 +17,7 @@
     },
     {
       "path": "/api/cron/job-board-ingestion-health",
-      "schedule": "20 * * * *"
+      "schedule": "20 */3 * * *"
     },
     {
       "path": "/api/cron/check-case-status",

@@ -21,7 +21,7 @@ The daily cron reports failed/overdue jobs from the preceding day. These bridges
 do not cover all ingestion API errors; its transport failures remain visible in Render logs. It accepts no
 caller-supplied diagnostics or applicant data and limits repeated reports.
 
-Job-board ingestion is watched from the web app by the hourly
+Job-board ingestion is watched from the web app by the three-hourly
 `/api/cron/job-board-ingestion-health` cron, once
 `JOB_BOARD_INGESTION_HEALTH_ENABLED=true` is set in Vercel. It reads the
 Supabase audit tables for scheduled (`job-board-hour-*`) runs and raises one

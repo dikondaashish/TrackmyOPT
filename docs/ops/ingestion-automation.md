@@ -11,7 +11,7 @@ merging the code changes nothing in production.
 | Schedule (Mon–Fri 14:00 and 21:00, Sat–Sun 21:00 New York) | `.github/workflows/job-board-ingestion.yml` | Yes: repository variable `JOB_BOARD_SCHEDULE_ENABLED` |
 | Slot and daylight-saving logic | `scripts/operations/job-board-schedule.mjs` | n/a |
 | One failed-source retry per run | trigger script, `recover-failed` endpoint | Yes: repository variable `JOB_BOARD_AUTO_RECOVER_FAILED` |
-| Health alerts to Sentry | `apps/web/app/api/cron/job-board-ingestion-health` | Yes: Vercel env `JOB_BOARD_INGESTION_HEALTH_ENABLED` |
+| Health alerts to Sentry (every 3 hours) | `apps/web/app/api/cron/job-board-ingestion-health` | Yes: Vercel env `JOB_BOARD_INGESTION_HEALTH_ENABLED` |
 | Dedicated worker | `JOB_BOARD_WORKER_ENABLED` on each Render API service | Yes: unset means every process consumes |
 | Pacing window | `JOB_BOARD_PACING_WINDOW_MS` | Yes: 40 minutes |
 | Per-provider spacing | `JOB_BOARD_PROVIDER_MIN_GAP_MS` | Yes: no extra limit |
@@ -42,7 +42,9 @@ merging the code changes nothing in production.
   latest audit failed and that have no pending job. Succeeded and
   still-started sources are never requeued, so repeated calls are safe.
   The retry keeps the run ID and its original `runStartedAt`.
-- **Health check.** The hourly cron raises separate Sentry issues for:
+- **Health check.** The cron runs every 3 hours, which caps a persistent
+  problem at about 8 events a day per kind (Sentry free-plan quota). It raises
+  separate Sentry issues for:
   - a slot with no queued dispatch 3 hours after it was due;
   - a source still `started` after 90 minutes;
   - Oracle error codes;
