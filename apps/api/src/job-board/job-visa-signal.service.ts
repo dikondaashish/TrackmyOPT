@@ -11,7 +11,6 @@ import { JOB_DATA_STORE } from './job-data-store.provider';
 
 const DOL_H1B_DATA_URL =
   'https://www.dol.gov/agencies/eta/foreign-labor/performance';
-const SIGNAL_BATCH_SIZE = 250;
 
 type QueryError = { message: string };
 type EmployerMatchRow = {
@@ -36,14 +35,12 @@ type VisaSignalPayload = {
   source: string;
 };
 
-type OracleEvidenceWriter = {
+/** Visa evidence methods of the Oracle job store (the only job store). */
+type VisaEvidenceStore = JobDataStore & {
   replaceVisaSignals(
     jobIds: readonly string[],
     signals: readonly VisaSignalPayload[],
   ): Promise<void>;
-};
-
-type OracleEvidenceReader = {
   listVisaSignals(jobIds: readonly string[]): Promise<JobStoreVisaSignal[]>;
 };
 
@@ -53,7 +50,7 @@ export class JobVisaSignalService {
 
   constructor(
     config: ConfigService,
-    @Inject(JOB_DATA_STORE) private readonly jobStore: JobDataStore,
+    @Inject(JOB_DATA_STORE) private readonly jobStore: VisaEvidenceStore,
   ) {
     this.supabase = createClient(
       config.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
@@ -148,71 +145,19 @@ export class JobVisaSignalService {
         });
       }
     }
-    const allSignals = [...postingSignals, ...historicalSignals];
-    const oracleWriter = this.jobStore as JobDataStore &
-      Partial<OracleEvidenceWriter>;
-    if (oracleWriter.replaceVisaSignals) {
-      await oracleWriter.replaceVisaSignals(jobIds, allSignals);
-      return;
-    }
-
-    for (let offset = 0; offset < jobIds.length; offset += SIGNAL_BATCH_SIZE) {
-      const { error } = await this.supabase
-        .from('job_visa_signals')
-        .delete()
-        .in('job_id', jobIds.slice(offset, offset + SIGNAL_BATCH_SIZE))
-        .eq('source', 'employer_posting');
-      if (error) throw new Error(error.message);
-    }
-    for (
-      let offset = 0;
-      offset < postingSignals.length;
-      offset += SIGNAL_BATCH_SIZE
-    ) {
-      const { error } = await this.supabase
-        .from('job_visa_signals')
-        .insert(postingSignals.slice(offset, offset + SIGNAL_BATCH_SIZE));
-      if (error) throw new Error(error.message);
-    }
-    for (
-      let offset = 0;
-      offset < historicalSignals.length;
-      offset += SIGNAL_BATCH_SIZE
-    ) {
-      const { error } = await this.supabase
-        .from('job_visa_signals')
-        .upsert(historicalSignals.slice(offset, offset + SIGNAL_BATCH_SIZE), {
-          onConflict: 'job_id,signal_type,source,source_url',
-        });
-      if (error) throw new Error(error.message);
-    }
+    // Posting and historical evidence is stored with the job records in
+    // Oracle. Sponsor identity and H-1B history above stay in Supabase.
+    await this.jobStore.replaceVisaSignals(jobIds, [
+      ...postingSignals,
+      ...historicalSignals,
+    ]);
   }
 
-  /** Read evidence from the selected job store while keeping sponsor identity
-   * and H-1B history in Supabase. This is the composed read path used by the
-   * internal job API when Oracle owns job records. */
+  /** Read evidence from the Oracle job store; sponsor identity and H-1B
+   * history stay in Supabase. This is the composed read path used by the
+   * internal job API. */
   async listForJobs(jobIds: readonly string[]): Promise<JobStoreVisaSignal[]> {
     if (!jobIds.length) return [];
-    const oracleReader = this.jobStore as JobDataStore &
-      Partial<OracleEvidenceReader>;
-    if (oracleReader.listVisaSignals) {
-      return oracleReader.listVisaSignals(jobIds);
-    }
-    const result = await this.supabase
-      .from('job_visa_signals')
-      .select(
-        'job_id, signal_type, evidence_snippet, source_url, observed_date, confidence, source',
-      )
-      .in('job_id', [...jobIds]);
-    if (result.error) throw new Error(result.error.message);
-    return (result.data || []).map((row) => ({
-      jobId: String(row.job_id),
-      signalType: String(row.signal_type),
-      evidenceSnippet: String(row.evidence_snippet),
-      sourceUrl: String(row.source_url),
-      observedDate: String(row.observed_date),
-      confidence: Number(row.confidence),
-      source: String(row.source),
-    }));
+    return this.jobStore.listVisaSignals(jobIds);
   }
 }

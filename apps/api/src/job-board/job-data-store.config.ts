@@ -1,4 +1,5 @@
-export const JOB_DATA_STORE_VALUES = ['supabase', 'oracle'] as const;
+/** Oracle is the only job store. The legacy Supabase store has been removed. */
+export const JOB_DATA_STORE_VALUES = ['oracle'] as const;
 
 export type JobDataStoreKind = (typeof JOB_DATA_STORE_VALUES)[number];
 
@@ -21,26 +22,28 @@ const MIN_ORACLE_CALL_TIMEOUT_MS = 1_000;
 const MAX_ORACLE_CALL_TIMEOUT_MS = 2_147_483_647;
 
 /**
- * Resolve the store without ever falling back from an explicitly selected
- * provider. The default is intentionally Supabase until Oracle shadow
- * validation is complete.
+ * Oracle is the only job store. An unset value means Oracle; any other value,
+ * including the removed "supabase" store, fails boot instead of silently
+ * selecting a different database.
  */
 export function resolveJobDataStore(value: unknown): JobDataStoreKind {
-  if (value === undefined || value === null || value === '') return 'supabase';
-  if (value === 'supabase' || value === 'oracle') return value;
-  throw new Error('JOB_DATA_STORE must be either "supabase" or "oracle"');
+  if (value === undefined || value === null || value === '') return 'oracle';
+  if (value === 'oracle') return value;
+  throw new Error(
+    'JOB_DATA_STORE must be "oracle" or unset; the Supabase job store has been removed',
+  );
 }
 
 /**
- * Read Oracle credentials only when the Oracle store is explicitly selected.
- * The legacy DATABASE_URL/DB_PASSWORD pair is deliberately ignored: the
+ * Read the Oracle job-store credentials; missing values fail closed. The
+ * legacy DATABASE_URL/DB_PASSWORD pair is deliberately ignored: the
  * deployed DB_PASSWORD is an ADMIN credential and must never be used by the
  * application. No secret is included in errors or logs.
  */
 export function readOracleJobDataConfig(
   env: Record<string, string | undefined>,
-): OracleJobDataConfig | null {
-  if (resolveJobDataStore(env.JOB_DATA_STORE) !== 'oracle') return null;
+): OracleJobDataConfig {
+  resolveJobDataStore(env.JOB_DATA_STORE);
 
   const connectString = env.ORACLE_JOB_DB_CONNECT_STRING?.trim();
   const user = env.ORACLE_JOB_DB_USER?.trim();

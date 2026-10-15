@@ -1,5 +1,8 @@
 import 'server-only';
 
+// Job records live only in the Oracle job store and are always read through the
+// API's authenticated /job-board/jobs boundary; there is no Supabase fallback.
+
 export type ServerJobRecord = {
   id: string;
   sourceId: string;
@@ -44,11 +47,6 @@ export type ServerJobPage = {
   total: number;
   visaSignals?: ServerVisaSignal[];
 };
-
-/** True only when an explicit production opt-in selects the Oracle store. */
-export function isOracleJobStoreSelected() {
-  return process.env.JOB_DATA_STORE === 'oracle';
-}
 
 function apiConfiguration() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');

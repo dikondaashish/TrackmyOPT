@@ -73,15 +73,15 @@ export type {
 const nodeRequire = createRequire(__filename);
 
 function loadOracleDriver(): OracleDriver {
-  // The package is intentionally loaded lazily. Supabase remains the default,
-  // so a production boot does not need an Oracle client or credentials.
+  // The package is loaded lazily, only when a store is constructed without an
+  // injected driver, so unit tests with a fake driver never load oracledb.
   return nodeRequire('oracledb') as OracleDriver;
 }
 
 /**
- * Oracle implementation for the database-neutral job store. The Nest module
- * constructs it only for an explicit JOB_DATA_STORE=oracle selection; callers
- * must still provision and validate the schema/user before cutover.
+ * Oracle implementation of the job store, the only job store since the
+ * Supabase job tables were retired. The schema and least-privileged user must
+ * be provisioned before deploy (see apps/api/sql/oracle).
  */
 export class OracleJobDataStore implements JobDataStore {
   private readonly logger: Pick<Logger, 'log' | 'warn'> = new Logger(
@@ -108,7 +108,6 @@ export class OracleJobDataStore implements JobDataStore {
       ...env,
       JOB_DATA_STORE: 'oracle',
     });
-    if (!config) throw new Error('Oracle job store is not selected');
     return new OracleJobDataStore(config, driver);
   }
 
@@ -124,8 +123,8 @@ export class OracleJobDataStore implements JobDataStore {
         poolMax: this.config.poolMax,
         poolIncrement: 1,
         queueTimeout: 5_000,
-        // Bound a shadow probe's connection handshake without changing the
-        // database-neutral job-store contract or Supabase production path.
+        // Bound the connection handshake so an unreachable database fails
+        // fast instead of holding a request or Bull job.
         connectTimeout: 10,
         stmtCacheSize: 30,
       });
@@ -140,7 +139,9 @@ export class OracleJobDataStore implements JobDataStore {
   async healthCheck() {
     const connection = await this.connection();
     try {
-      await connection.execute('SELECT 1 AS "ok" FROM dual');
+      // Pass explicit binds and options: the timing wrapper forwards all three
+      // arguments, and node-oracledb rejects an explicit undefined (NJS-005).
+      await connection.execute('SELECT 1 AS "ok" FROM dual', {}, {});
     } finally {
       await connection.close();
     }
@@ -708,8 +709,7 @@ export class OracleJobDataStore implements JobDataStore {
   }
 
   /**
-   * Writes posting/sponsor signals next to Oracle jobs when the Oracle store is
-   * explicitly selected. Employer matches and H-1B sponsors remain in
+   * Writes posting/sponsor signals next to the Oracle jobs. Employer matches and H-1B sponsors remain in
    * Supabase; the caller supplies the already-composed signal payload.
    */
   async replaceVisaSignals(

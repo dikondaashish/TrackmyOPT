@@ -1,6 +1,7 @@
 import { withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { findActiveTrackerStatus, inferJobFacts } from '@/lib/job-board/filters';
 import { parseResumeJobProfile, scoreJobForResume, type ResumeJobMatch } from '@/lib/job-board/resume-match';
 import { listServerJobs, type ServerJobRecord } from '@/lib/job-board/server-job-store';
@@ -153,8 +154,11 @@ async function handleGET(request: Request) {
   const matchIds = [
     ...new Set(storePage.rows.map((row) => row.employerMatchId).filter(Boolean)),
   ] as string[];
+  // Match IDs come only from verified jobs the Oracle job API returned. The
+  // service-role read replaces an RLS policy that joined the retired Supabase
+  // jobs table, so it exposes the same match metadata for the same jobs.
   const matchesResult = matchIds.length
-    ? await supabase
+    ? await getSupabaseAdminClient()
         .from('employer_matches')
         .select('id, canonical_h1b_sponsor_id, confidence, review_status')
         .in('id', matchIds)

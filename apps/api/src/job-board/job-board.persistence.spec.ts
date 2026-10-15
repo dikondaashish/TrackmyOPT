@@ -1,7 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { JobBoardService } from './job-board.service';
 import type { JobStoreRecord } from './job-data-store.contract';
-import { compareIdentityRows, signalHash } from './oracle-ingestion-repair';
 
 const now = '2026-09-06T12:00:00.000Z';
 function row(overrides: Partial<JobStoreRecord> = {}): JobStoreRecord {
@@ -36,13 +35,13 @@ function row(overrides: Partial<JobStoreRecord> = {}): JobStoreRecord {
   };
 }
 
-function setup(kind = 'oracle') {
+function setup() {
   const config = {
     get: (key: string) =>
       ({
         NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
         SUPABASE_SERVICE_ROLE_KEY: 'test',
-        JOB_DATA_STORE: kind,
+        JOB_DATA_STORE: 'oracle',
       })[key],
   } as unknown as ConfigService;
   const store = {
@@ -107,35 +106,32 @@ function setup(kind = 'oracle') {
 }
 
 describe('ingestion store ownership and persistence', () => {
-  it.each(['oracle', 'supabase'])(
-    'sends creation, lifecycle and newly linked evidence through the selected %s store',
-    async (kind) => {
-      const { internals, source, scraped, store, visa } = setup(kind);
-      await internals.persistSourceJobs(source, [scraped], true);
-      expect(store.upsertJobs).toHaveBeenCalledTimes(2);
-      const created = store.upsertJobs.mock.calls[0][0][0];
-      expect(created).toMatchObject({
-        sourceId: 'source',
-        externalJobId: 'external',
-        listingStatus: 'open',
-        missingSinceAt: null,
-        removedAt: null,
-      });
-      expect(created.id).toBeTruthy();
-      expect(store.reconcileSource).toHaveBeenCalledWith(
-        'source',
-        ['external'],
-        undefined,
-      );
-      expect(visa.syncSource).toHaveBeenCalledWith('source', [
-        expect.objectContaining({
-          id: created.id,
-          employerMatchId: 'match-new',
-        }),
-      ]);
-      expect(internals.supabase.from).not.toHaveBeenCalled();
-    },
-  );
+  it('sends creation, lifecycle and newly linked evidence through the Oracle store', async () => {
+    const { internals, source, scraped, store, visa } = setup();
+    await internals.persistSourceJobs(source, [scraped], true);
+    expect(store.upsertJobs).toHaveBeenCalledTimes(2);
+    const created = store.upsertJobs.mock.calls[0][0][0];
+    expect(created).toMatchObject({
+      sourceId: 'source',
+      externalJobId: 'external',
+      listingStatus: 'open',
+      missingSinceAt: null,
+      removedAt: null,
+    });
+    expect(created.id).toBeTruthy();
+    expect(store.reconcileSource).toHaveBeenCalledWith(
+      'source',
+      ['external'],
+      undefined,
+    );
+    expect(visa.syncSource).toHaveBeenCalledWith('source', [
+      expect.objectContaining({
+        id: created.id,
+        employerMatchId: 'match-new',
+      }),
+    ]);
+    expect(internals.supabase.from).not.toHaveBeenCalled();
+  });
 
   it.each(['open', 'stale', 'removed'] as const)(
     'preserves identity and reopens a seen %s job with current lifecycle timestamps',
@@ -162,6 +158,8 @@ describe('ingestion store ownership and persistence', () => {
     },
   );
 
+  // Bull work persisted before the Supabase store was removed still carries
+  // jobStoreKind "supabase"; it must never run against the Oracle store.
   it.each([undefined, 'supabase'])(
     'rejects persisted work with missing/different store %s before source reservation or mutation',
     async (jobStoreKind) => {
@@ -169,7 +167,7 @@ describe('ingestion store ownership and persistence', () => {
       const context = {
         schedulerRunId: 'job-board-hour-2026-09-06T17',
         triggerOrigin: 'cron_jobs_org' as const,
-        jobStoreKind: jobStoreKind as 'supabase' | undefined,
+        jobStoreKind: jobStoreKind as never,
       };
       await expect(service.ingestSourceById('source', context)).rejects.toThrow(
         'job_store_mismatch',
@@ -277,65 +275,11 @@ describe('ingestion stage watchdog', () => {
   });
 });
 
-describe('bounded ingestion delta accounting', () => {
-  it('compares natural identity and detects missing, UUID, lifecycle and content separately', () => {
-    const source = row({
-      id: 'canonical',
-      listingStatus: 'removed',
-      removedAt: now,
-    });
-    const delta = compareIdentityRows([source], [row()])[0];
-    expect(delta).toMatchObject({
-      missing: false,
-      uuid: true,
-      oracleId: 'job',
-      lifecycle: { supabase: 'removed', oracle: 'open' },
-    });
-    expect(delta.fields).toEqual(
-      expect.arrayContaining(['id', 'listingStatus', 'removedAt']),
-    );
-    expect(compareIdentityRows([source], [])[0].missing).toBe(true);
-  });
-  it('is idempotent and canonicalizes every timestamp without hiding descriptions', () => {
-    expect(
-      compareIdentityRows(
-        [row()],
-        [row({ postedAt: '2026-09-06T08:00:00.000-04:00' })],
-      ),
-    ).toEqual([]);
-    const delta = compareIdentityRows(
-      [row()],
-      [row({ description: 'different private contents' })],
-    );
-    expect(delta[0].fields).toContain('description');
-    expect(JSON.stringify(delta)).not.toContain('different private contents');
-  });
-  it('rejects duplicate natural identity rather than choosing an arbitrary target', () => {
-    expect(() =>
-      compareIdentityRows([row()], [row(), row({ id: 'duplicate' })]),
-    ).toThrow('Duplicate target');
-  });
-  it('hashes all evidence content, including observation date', () => {
-    const signal = {
-      jobId: 'job',
-      signalType: 'historical_h1b_sponsor',
-      evidenceSnippet: 'history',
-      sourceUrl: 'https://example.com',
-      observedDate: '2026-09-06',
-      confidence: 0.95,
-      source: 'sponsor_history_db',
-    };
-    expect(signalHash(signal)).not.toBe(
-      signalHash({ ...signal, observedDate: '2026-09-05' }),
-    );
-  });
-});
-
 describe('audit lifecycle counts', () => {
   // One open job and one stale job are missing from the board. The in-memory
   // plan predicts 1 stale and 1 removed; Oracle only removes after 20 hours.
   function withMissingJobs() {
-    const ctx = setup('oracle');
+    const ctx = setup();
     ctx.store.listSourceJobsForIngestion.mockResolvedValue([
       row({ id: 'kept', externalJobId: 'external' }),
       row({ id: 'gone-open', externalJobId: 'gone-open' }),

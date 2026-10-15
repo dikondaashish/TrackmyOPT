@@ -20,10 +20,10 @@ This is the current, code-backed system shape as of 2026-10-10.
 - **AWS Textract:** OCR for uploaded resumes/documents.
 - **Redis + Bull:** durable OCR, USCIS, and job-board ingestion background jobs in
   `apps/api`.
-- **Oracle Database (optional job store):** an alternative backing store for
-  job-board records, selected only when `JOB_DATA_STORE=oracle`; the default is
-  Supabase. See [Oracle shadow sync](oracle-shadow-sync.md) and the
-  [cutover runbook](oracle-cutover-runbook.md).
+- **Oracle Database (job store):** the only store for job-board records and
+  their visa evidence since 2026-09-07. `JOB_DATA_STORE` must be `oracle` or
+  unset; there is no Supabase fallback. The historical
+  [cutover runbook](oracle-cutover-runbook.md) records the migration.
 - **Upstash Redis:** selected web rate limits and short-lived resume handoff
   state.
 - **Google Gemini:** resume, screening-answer, and cover-letter generation.
@@ -85,11 +85,10 @@ cases retain manual refresh. Sequential/neighbor scanning is disabled.
 5. Employer matching, visa-signal, and company-discovery services enrich the
    results.
 6. Records are persisted through the `JobDataStore` contract.
-   `job-data-store.provider.ts` selects `SupabaseJobDataStore` (default) or
-   `OracleJobDataStore` from `JOB_DATA_STORE`, with no fallback from an
-   explicitly selected store. Oracle backfill, shadow-sync, parity, and
-   ingestion-repair code lives alongside it; the shadow probe is a separate
-   `OracleShadowProbeModule`.
+   `job-data-store.provider.ts` always constructs `OracleJobDataStore`; any
+   `JOB_DATA_STORE` other than `oracle` (or unset) fails boot. Source
+   authorization, audits, employer matches, and H-1B sponsor history remain
+   in Supabase.
 
 The web side of the job board (filters, resume matching, server job store) is in
 `apps/web/lib/job-board/`.

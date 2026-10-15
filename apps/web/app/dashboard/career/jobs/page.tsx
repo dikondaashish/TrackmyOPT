@@ -100,8 +100,11 @@ export default async function VerifiedJobsPage() {
   const trackerEntries = trackerResult.data || [];
   const rows = serverPage.rows;
   const matchIds = [...new Set(rows.map((row) => row.employerMatchId).filter(Boolean))] as string[];
+  // Match IDs come only from verified jobs the Oracle job API returned; the
+  // service-role read replaces an RLS policy that joined the retired Supabase
+  // jobs table.
   const matchesResult = matchIds.length
-    ? await supabase.from('employer_matches').select('id, canonical_h1b_sponsor_id, confidence, review_status').in('id', matchIds)
+    ? await getSupabaseAdminClient().from('employer_matches').select('id, canonical_h1b_sponsor_id, confidence, review_status').in('id', matchIds)
     : { data: [], error: null };
   if (matchesResult.error) throw new Error('Unable to load verified job evidence');
   const matchesById = new Map((matchesResult.data || []).map((match) => [String(match.id), {

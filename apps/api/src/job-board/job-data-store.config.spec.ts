@@ -4,22 +4,37 @@ import {
 } from './job-data-store.config';
 
 describe('job data store configuration', () => {
-  it('defaults to Supabase', () => {
-    expect(resolveJobDataStore(undefined)).toBe('supabase');
-    expect(resolveJobDataStore('')).toBe('supabase');
-  });
-
-  it('accepts only the supported providers', () => {
-    expect(resolveJobDataStore('supabase')).toBe('supabase');
+  it('treats an unset JOB_DATA_STORE as Oracle', () => {
+    expect(resolveJobDataStore(undefined)).toBe('oracle');
+    expect(resolveJobDataStore(null)).toBe('oracle');
+    expect(resolveJobDataStore('')).toBe('oracle');
     expect(resolveJobDataStore('oracle')).toBe('oracle');
-    expect(() => resolveJobDataStore('postgres')).toThrow(
-      'JOB_DATA_STORE must be either "supabase" or "oracle"',
-    );
   });
 
-  it('does not require Oracle credentials while Supabase is selected', () => {
-    expect(readOracleJobDataConfig({ JOB_DATA_STORE: 'supabase' })).toBeNull();
-    expect(readOracleJobDataConfig({})).toBeNull();
+  it.each(['supabase', 'postgres', 'ORACLE', ' oracle'])(
+    'rejects JOB_DATA_STORE=%s instead of falling back to another store',
+    (value) => {
+      expect(() => resolveJobDataStore(value)).toThrow(
+        'JOB_DATA_STORE must be "oracle" or unset; the Supabase job store has been removed',
+      );
+    },
+  );
+
+  it('rejects the removed Supabase store even when Oracle credentials exist', () => {
+    expect(() =>
+      readOracleJobDataConfig({
+        JOB_DATA_STORE: 'supabase',
+        ORACLE_JOB_DB_CONNECT_STRING: 'tcps://oracle.example/service',
+        ORACLE_JOB_DB_USER: 'TRACKMYOPT_JOBS',
+        ORACLE_JOB_DB_PASSWORD: 'not-logged',
+      }),
+    ).toThrow('the Supabase job store has been removed');
+  });
+
+  it('requires Oracle credentials when JOB_DATA_STORE is unset', () => {
+    expect(() => readOracleJobDataConfig({})).toThrow(
+      'Oracle job store requires: ORACLE_JOB_DB_CONNECT_STRING, ORACLE_JOB_DB_USER, ORACLE_JOB_DB_PASSWORD',
+    );
   });
 
   it('requires dedicated Oracle credentials and never falls back to ADMIN envs', () => {

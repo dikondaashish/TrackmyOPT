@@ -1,7 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { OracleJobDataStore } from './oracle-job-data-store';
 import { JOB_DATA_STORE, createJobDataStore } from './job-data-store.provider';
-import { SupabaseJobDataStore } from './supabase-job-data-store';
 
 function config(values: Record<string, unknown>) {
   return {
@@ -10,32 +9,34 @@ function config(values: Record<string, unknown>) {
 }
 
 describe('job data store provider', () => {
-  it('selects Supabase by default and when explicitly configured', () => {
-    const values = {
-      NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
-      SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',
-    };
+  const oracleEnvironment = {
+    ORACLE_JOB_DB_CONNECT_STRING: 'tcps://example/service',
+    ORACLE_JOB_DB_USER: 'TRACKMYOPT_JOB_APP',
+    ORACLE_JOB_DB_PASSWORD: 'test-only',
+    ORACLE_JOB_DB_POOL_MAX: 2,
+  };
 
-    expect(createJobDataStore(config(values))).toBeInstanceOf(
-      SupabaseJobDataStore,
-    );
-    expect(
-      createJobDataStore(config({ ...values, JOB_DATA_STORE: 'supabase' })),
-    ).toBeInstanceOf(SupabaseJobDataStore);
-  });
+  it.each([undefined, '', 'oracle'])(
+    'selects Oracle when JOB_DATA_STORE is %p',
+    (value) => {
+      const store = createJobDataStore(
+        config({ ...oracleEnvironment, JOB_DATA_STORE: value }),
+      );
+      expect(store).toBeInstanceOf(OracleJobDataStore);
+    },
+  );
 
-  it('selects Oracle only for an explicit oracle setting', () => {
-    const store = createJobDataStore(
-      config({
-        JOB_DATA_STORE: 'oracle',
-        ORACLE_JOB_DB_CONNECT_STRING: 'tcps://example/service',
-        ORACLE_JOB_DB_USER: 'TRACKMYOPT_JOB_APP',
-        ORACLE_JOB_DB_PASSWORD: 'test-only',
-        ORACLE_JOB_DB_POOL_MAX: 2,
-      }),
-    );
-
-    expect(store).toBeInstanceOf(OracleJobDataStore);
+  it('fails boot for the removed Supabase store instead of falling back', () => {
+    expect(() =>
+      createJobDataStore(
+        config({
+          ...oracleEnvironment,
+          JOB_DATA_STORE: 'supabase',
+          NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+          SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',
+        }),
+      ),
+    ).toThrow('the Supabase job store has been removed');
   });
 
   it('passes the call timeout and incremental flag through to the Oracle store', () => {
