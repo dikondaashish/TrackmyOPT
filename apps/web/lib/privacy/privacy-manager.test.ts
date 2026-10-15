@@ -15,7 +15,7 @@ import {
   saveConsent,
   startPrivacyManager,
 } from '@/lib/privacy/privacy-manager';
-import { GA_MEASUREMENT_ID, resetIntegrationsForTests } from '@/lib/privacy/integrations';
+import { gaMeasurementId, resetIntegrationsForTests } from '@/lib/privacy/integrations';
 
 type TestWindow = Window & { dataLayer?: IArguments[]; gtag?: unknown } & Record<string, unknown>;
 const testWindow = () => window as unknown as TestWindow;
@@ -53,7 +53,7 @@ beforeEach(() => {
   document.head.innerHTML = '';
   delete testWindow().dataLayer;
   delete testWindow().gtag;
-  delete testWindow()[`ga-disable-${GA_MEASUREMENT_ID}`];
+  delete testWindow()[`ga-disable-${gaMeasurementId()}`];
   setGpc(undefined);
   postHogConsent.mockReset();
   reload.mockReset();
@@ -96,7 +96,7 @@ describe('privacy manager', () => {
     startPrivacyManager();
     acceptAllOptional();
     expect(postHogConsent).toHaveBeenLastCalledWith(true);
-    expect(gaScript()?.getAttribute('src')).toContain(GA_MEASUREMENT_ID);
+    expect(gaScript()?.getAttribute('src')).toContain(gaMeasurementId());
     expect(lastConsentUpdate()).toMatchObject({ analytics_storage: 'granted', ad_storage: 'granted' });
     expect(getPrivacySnapshot().needsBanner).toBe(false);
   });
@@ -162,7 +162,7 @@ describe('privacy manager', () => {
     acceptAllOptional();
     document.cookie = '_ga=GA1.1.123; Path=/';
     saveConsent({ functional: true, analytics: false, marketing: true }, 'custom');
-    expect(testWindow()[`ga-disable-${GA_MEASUREMENT_ID}`]).toBe(true);
+    expect(testWindow()[`ga-disable-${gaMeasurementId()}`]).toBe(true);
     expect(document.cookie).not.toContain('_ga=');
     expect(postHogConsent).toHaveBeenLastCalledWith(false);
     expect(reload).not.toHaveBeenCalled();

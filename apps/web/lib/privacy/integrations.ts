@@ -12,9 +12,14 @@ import { setPostHogAnalyticsConsent } from '@/lib/posthog/posthog-browser';
 import { deleteCookiesWithPrefix } from '@/lib/privacy/consent-storage';
 import type { ConsentChoices } from '@/lib/privacy/types';
 
-/** Public measurement ID; set NEXT_PUBLIC_GA_MEASUREMENT_ID to override. */
-export const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || 'G-SC3M6PN10V';
+/**
+ * Public measurement ID; set NEXT_PUBLIC_GA_MEASUREMENT_ID to override.
+ * Read lazily: this module is imported widely and must not touch `process`
+ * at load time outside Next.js bundles.
+ */
+export function gaMeasurementId(): string {
+  return process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || 'G-SC3M6PN10V';
+}
 
 const GA_SCRIPT_ID = 'ga4-script';
 const ADSENSE_SCRIPT_ID = 'adsense-script';
@@ -63,7 +68,7 @@ function updateGoogleConsent(choices: ConsentChoices): void {
 
 function setGoogleAnalyticsDisabled(disabled: boolean): void {
   // Google's documented per-property opt-out flag; stops gtag hits immediately.
-  (window as unknown as Record<string, unknown>)[`ga-disable-${GA_MEASUREMENT_ID}`] =
+  (window as unknown as Record<string, unknown>)[`ga-disable-${gaMeasurementId()}`] =
     disabled;
 }
 
@@ -72,11 +77,11 @@ function loadGoogleAnalytics(): void {
   if (document.getElementById(GA_SCRIPT_ID)) return;
   try {
     gtag('js', new Date());
-    gtag('config', GA_MEASUREMENT_ID);
+    gtag('config', gaMeasurementId());
     const script = document.createElement('script');
     script.id = GA_SCRIPT_ID;
     script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId()}`;
     script.crossOrigin = 'anonymous';
     document.head.appendChild(script);
   } catch (error) {
