@@ -330,3 +330,38 @@ describe('bounded ingestion delta accounting', () => {
     );
   });
 });
+
+describe('audit lifecycle counts', () => {
+  // One open job and one stale job are missing from the board. The in-memory
+  // plan predicts 1 stale and 1 removed; Oracle only removes after 20 hours.
+  function withMissingJobs() {
+    const ctx = setup('oracle');
+    ctx.store.listSourceJobsForIngestion.mockResolvedValue([
+      row({ id: 'kept', externalJobId: 'external' }),
+      row({ id: 'gone-open', externalJobId: 'gone-open' }),
+      row({
+        id: 'gone-stale',
+        externalJobId: 'gone-stale',
+        listingStatus: 'stale',
+        missingSinceAt: '2026-09-06T08:00:00.000Z',
+      }),
+    ]);
+    return ctx;
+  }
+
+  it('reports the transitions the store committed, not the in-memory plan', async () => {
+    const { internals, source, scraped, store } = withMissingJobs();
+    // Inside the 20-hour window: the stale job stays stale.
+    store.reconcileSource.mockResolvedValue({ staleCount: 1, removedCount: 0 });
+    await expect(
+      internals.persistSourceJobs(source, [scraped], true),
+    ).resolves.toMatchObject({ jobsStale: 1, jobsRemoved: 0 });
+  });
+
+  it('keeps plan counts for stores that do not report committed transitions', async () => {
+    const { internals, source, scraped } = withMissingJobs();
+    await expect(
+      internals.persistSourceJobs(source, [scraped], true),
+    ).resolves.toMatchObject({ jobsStale: 1, jobsRemoved: 1 });
+  });
+});
