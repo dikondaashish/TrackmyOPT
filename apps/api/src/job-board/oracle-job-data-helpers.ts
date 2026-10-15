@@ -279,8 +279,23 @@ export function oracleDescriptionSourceText(value: string | null): string {
   return (value || '').toLowerCase();
 }
 
+/** Oracle Text's maximum token length in bytes. */
+export const ORACLE_TEXT_MAX_TOKEN_LENGTH = 64;
+
+// A lexer token is a run of letters, digits and the `+` printjoin. Runs longer
+// than Oracle Text's token limit are never words: they are embedded data such
+// as base64 images. With prefix and wildcard indexing on, every commit of a
+// source whose descriptions carried base64 blobs (amboss, 2026-10-15) spent
+// from 45 minutes to 14 hours of CPU in the commit-time sync, so the index
+// column drops them. The exact-match search_text column keeps the full
+// description.
+const OVERLONG_TOKEN = new RegExp(
+  `[\\p{L}\\p{N}+]{${ORACLE_TEXT_MAX_TOKEN_LENGTH + 1},}`,
+  'gu',
+);
+
 export function oracleDescriptionText(value: string | null): string {
-  return normalizeOracleSearchText(value || '');
+  return normalizeOracleSearchText(value || '').replace(OVERLONG_TOKEN, ' ');
 }
 
 export function oracleTextWildcard(value: string): string | null {
