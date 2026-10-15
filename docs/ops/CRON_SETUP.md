@@ -4,9 +4,9 @@
 
 | Scheduler | Jobs |
 |-----------|------|
-| **Vercel Cron** (`apps/web/vercel.json`, 7 jobs) | Case digests, case deadline reminders, case status, community OPT ingest, checkout recovery, D1 activation nudge, retry-pending emails |
+| **Vercel Cron** (`apps/web/vercel.json`) | Case digests, case deadline reminders, case status, community OPT ingest, checkout recovery, D1 activation nudge, retry-pending emails, job-board ingestion schedule and health (among others; see the file) |
 | **cron-job.org** (external; configured outside the repo) | Daily reminders, document reminders, STEM OPT window alert, job-board ingest (hourly; ledger rows use `trigger_origin: cron_jobs_org`), plus optional backups and one-off campaigns (free-receipt reengagement, welcome-free resend, at-risk, PostHog syncs) |
-| **GitHub Actions** (`.github/workflows`) | No workflow calls `/api/cron/*`. `job-board-ingestion.yml` is `workflow_dispatch` only (manual supervised run against the Render API); `official-processing-freshness.yml` runs weekly (`0 8 * * 1`) and is not a cron-route trigger |
+| **GitHub Actions** (`.github/workflows`) | No workflow calls `/api/cron/*`. `job-board-ingestion.yml` is `workflow_dispatch` only (manual supervised run against the Render API; the daily schedule is the Vercel cron `job-board-ingestion-dispatch`); `official-processing-freshness.yml` runs weekly (`0 8 * * 1`) and is not a cron-route trigger |
 | **Not defined in repo** | `filings-health` (comment says "daily keep-warm probe"; no scheduler found) |
 | **Disabled** | `scan-nearby-cases` (always returns 410) |
 
@@ -16,7 +16,7 @@ All routes except `scan-nearby-cases` use **`Authorization: Bearer <CRON_SECRET>
 
 ## Vercel Cron
 
-All 7 entries in `apps/web/vercel.json`:
+Entries in `apps/web/vercel.json` (not exhaustive; the file is authoritative):
 
 | Path | Schedule | Notes |
 |------|----------|-------|
@@ -27,6 +27,8 @@ All 7 entries in `apps/web/vercel.json`:
 | `/api/cron/checkout-recovery-emails` | Every **4 hours** (`0 */4 * * *`) | Abandoned checkout resume (Phase 5) |
 | `/api/cron/d1-activation-nudge` | Hourly (`0 * * * *`) | Free signups ≥24h with no dashboard view (Phase 4) |
 | `/api/cron/retry-pending-emails` | Hourly at :15 (`15 * * * *`) | Re-send stuck `email_queue` pending rows |
+| `/api/cron/job-board-ingestion-dispatch` | `7 18,19 * * 1-5` and `7 1,2 * * *` | Daily job-board ingestion scheduler (Mon–Fri 14:00 and 21:00, Sat–Sun 21:00 New York); no-op outside a slot or unless `JOB_BOARD_SCHEDULE_ENABLED=true`. See `docs/ops/ingestion-automation.md` |
+| `/api/cron/job-board-ingestion-health` | `20 */3 * * *` | Job-board ingestion health alerts; needs `JOB_BOARD_INGESTION_HEALTH_ENABLED=true` |
 
 **Auth:** Vercel invokes with `CRON_SECRET` automatically when configured in project env.  
 **Plan note:** Hourly/`*/4` schedules require **Vercel Pro** (Hobby is once-per-day only).

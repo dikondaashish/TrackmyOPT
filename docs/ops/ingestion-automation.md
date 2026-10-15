@@ -8,9 +8,10 @@ merging the code changes nothing in production.
 
 | Piece | Where | Off by default? |
 |---|---|---|
-| Schedule (Mon–Fri 14:00 and 21:00, Sat–Sun 21:00 New York) | `.github/workflows/job-board-ingestion.yml` | Yes: repository variable `JOB_BOARD_SCHEDULE_ENABLED` |
-| Slot and daylight-saving logic | `scripts/operations/job-board-schedule.mjs` | n/a |
-| One failed-source retry per run | trigger script, `recover-failed` endpoint | Yes: repository variable `JOB_BOARD_AUTO_RECOVER_FAILED` |
+| Schedule (Mon–Fri 14:00 and 21:00, Sat–Sun 21:00 New York) | Vercel cron `apps/web/app/api/cron/job-board-ingestion-dispatch` (`apps/web/vercel.json`) | Yes: Vercel env `JOB_BOARD_SCHEDULE_ENABLED` |
+| Slot and daylight-saving logic | `apps/web/lib/job-board/ingestion-health.ts` (cron and health check); `scripts/operations/job-board-schedule.mjs` (scripts) | n/a |
+| Manual, recovery and supervised runs | `.github/workflows/job-board-ingestion.yml` (`workflow_dispatch` only) | n/a |
+| One failed-source retry per run (manual workflow runs only) | trigger script, `recover-failed` endpoint | Yes: repository variable `JOB_BOARD_AUTO_RECOVER_FAILED` |
 | Health alerts to Sentry (every 3 hours) | `apps/web/app/api/cron/job-board-ingestion-health` | Yes: Vercel env `JOB_BOARD_INGESTION_HEALTH_ENABLED` |
 | Dedicated worker | `JOB_BOARD_WORKER_ENABLED` on each Render API service | Yes: unset means every process consumes |
 | Pacing window | `JOB_BOARD_PACING_WINDOW_MS` | Yes: 40 minutes |
@@ -19,12 +20,32 @@ merging the code changes nothing in production.
 
 ## Behaviour
 
-- **Schedule.** GitHub cron runs in UTC, so the workflow fires at
-  `:07` and `:37` in every UTC hour that can be a slot in EST or EDT. The
-  script dispatches only when New York time is within 90 minutes after a slot.
-  The run ID comes from the slot start (`job-board-hour-<UTC hour>`), so later
-  firings of the same slot are suppressed by the scheduler ledger and exit
-  without supervising twice.
+- **Schedule.** Vercel cron runs in UTC, so
+  `/api/cron/job-board-ingestion-dispatch` fires at `7 18,19 * * 1-5`
+  (weekday 14:00) and `7 1,2 * * *` (daily 21:00): every UTC hour that can be
+  a slot in EST or EDT. The route dispatches only when New York time is within
+  90 minutes after a slot and the slot starts at or after
+  `JOB_BOARD_SCHEDULE_START` (when set); other firings return
+  `skipped: outside-slot`. The run ID comes from the slot start
+  (`job-board-hour-<UTC hour>`), so in EDT the second firing of a slot is
+  suppressed by the scheduler ledger, which the route treats as success.
+- **Dispatch only.** The route wakes the queue worker service
+  (`JOB_BOARD_WORKER_URL`, default `https://trackmyopt-api.onrender.com`, the
+  same host the workflow uses) with up to 3 health requests, then calls
+  `POST /job-board/ingest-enabled-sources` on that same host with
+  `API_SECRET_KEY`, `x-scheduler-run-id` and `x-trigger-origin: vercel_cron`,
+  and returns. It never uses `NEXT_PUBLIC_API_URL`: that service may not
+  share the worker's Redis, so a run queued there might never be consumed.
+  It does not supervise the run or retry failed sources; the health check and
+  the worker's Sentry bridge cover supervision. A failed dispatch (worker
+  unreachable, rejected key, HTTP error, malformed reply, missing
+  `API_SECRET_KEY`) raises the Sentry issue
+  `Scheduled job-board ingestion dispatch failed`.
+- **Why not GitHub cron.** GitHub scheduled runs on this repository fired
+  5–9 hours late (a `17 3 * * *` CI cron ran at 08:16–10:47 UTC; an `0 8`
+  cron ran around 17:00 UTC). Such firings fall outside every 90-minute slot
+  window and were correctly ignored, so the 14:00 slot on 2026-10-15 never
+  ran. Vercel crons on this project fire on time.
 - **No overlap.** A full run (scheduled or manual) is deferred while any other
   run still has a waiting, delayed, paused or active Bull job in either lane.
   This is Bull state, not a lock with a TTL: an active job keeps its lock for
@@ -51,6 +72,22 @@ merging the code changes nothing in production.
   - Oracle error codes;
   - failed sources (latest audit per source only).
 
+## Pausing the schedule
+
+- Stop new scheduled runs: set Vercel env `JOB_BOARD_SCHEDULE_ENABLED=false`
+  (or remove it) for Production and redeploy; env changes only apply to new
+  deployments. The cron then returns `skipped: disabled`.
+- Stop work already queued: use the existing queue pause controls
+  (`JOB_BOARD_QUEUE_CONTROL_ENABLED` endpoints, or
+  `JOB_BOARD_QUEUE_PAUSE_ON_BOOT` on the worker).
+- While the schedule is paused, also set
+  `JOB_BOARD_INGESTION_HEALTH_ENABLED=false` or move
+  `JOB_BOARD_SCHEDULE_START` forward; otherwise skipped slots are reported as
+  `missing-run`.
+- Recover a missed slot by dispatching the workflow with `manual_run_id`
+  `job-board-hour-<UTC hour of the slot>` (the ledger still suppresses a
+  duplicate if the slot did run).
+
 ## Infrastructure to change (owner approval)
 
 | Change | Why | Cost per month |
@@ -59,7 +96,8 @@ merging the code changes nothing in production.
 | Render `trackmyopt-api` (worker): Free → Starter | Free web services sleep after 15 minutes without inbound requests; this killed the amboss run mid-commit | about $7 |
 | `TrackmyOPT`: set `JOB_BOARD_WORKER_ENABLED=false` | Makes `trackmyopt-api` the only consumer | $0 (already Starter) |
 | `trackmyopt-api`: set `JOB_BOARD_QUEUE_PAUSE_ON_BOOT=false` | Steady state; keep it as an emergency switch | $0 |
-| GitHub Actions minutes | Public repository | $0 |
+| GitHub Actions minutes (manual runs only) | Public repository | $0 |
+| Vercel cron (two entries) | Project is on Pro | $0 extra |
 
 Check current prices in the Render dashboard before upgrading.
 
@@ -74,9 +112,15 @@ Check current prices in the Render dashboard before upgrading.
 4. Run the hash backfill (below) as one supervised manual run.
 5. Set Vercel `JOB_BOARD_INGESTION_HEALTH_ENABLED=true` and
    `JOB_BOARD_SCHEDULE_START` (ISO time the schedule is switched on; slots
-   before it are never reported missing, and unset disables that check), then the repository
-   variable `JOB_BOARD_SCHEDULE_ENABLED=true`. Optionally set
-   `JOB_BOARD_AUTO_RECOVER_FAILED=true` after a week of clean runs.
+   before it are never reported missing or dispatched, and unset disables the
+   missing-run check), then apply migration
+   `20261015194933_job_board_vercel_cron_trigger_origin.sql` (allows
+   `trigger_origin = 'vercel_cron'`) before the API that accepts it is
+   deployed, and set the Vercel env `JOB_BOARD_SCHEDULE_ENABLED=true` and
+   redeploy. The old repository variable `JOB_BOARD_SCHEDULE_ENABLED` no
+   longer has any effect. Optionally set the repository variable
+   `JOB_BOARD_AUTO_RECOVER_FAILED=true` (manual workflow runs) after a week of
+   clean runs.
 
 ## Hash backfill (first full run)
 

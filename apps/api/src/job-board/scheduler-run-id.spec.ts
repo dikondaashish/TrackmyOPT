@@ -51,6 +51,7 @@ describe('job-board scheduler idempotency', () => {
     expect(normalizeTriggerOrigin(undefined)).toBe('unknown');
     expect(normalizeTriggerOrigin('some_scheduler')).toBe('unknown');
     expect(normalizeTriggerOrigin('cron_jobs_org')).toBe('cron_jobs_org');
+    expect(normalizeTriggerOrigin('vercel_cron')).toBe('vercel_cron');
     expect(
       ingestionReservationParams('source-a', {
         schedulerRunId: 'job-board-hour-2026-08-31T18',

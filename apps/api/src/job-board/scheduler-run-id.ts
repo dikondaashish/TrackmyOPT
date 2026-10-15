@@ -8,6 +8,9 @@ export const TRIGGER_ORIGINS = [
   'github_actions',
   'manual',
   'unknown',
+  // Vercel cron /api/cron/job-board-ingestion-dispatch. Requires migration
+  // 20261015194933_job_board_vercel_cron_trigger_origin in the database.
+  'vercel_cron',
 ] as const;
 
 export type TriggerOrigin = (typeof TRIGGER_ORIGINS)[number];

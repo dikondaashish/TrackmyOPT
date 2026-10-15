@@ -57,16 +57,18 @@ export function newYorkTimeToUtc(
   return new Date(guess - zoneOffsetMs(new Date(first)));
 }
 
+function slotHoursFor(weekday: string) {
+  return weekday === 'Sat' || weekday === 'Sun'
+    ? WEEKEND_SLOT_HOURS
+    : WEEKDAY_SLOT_HOURS;
+}
+
 /** Slot starts within [from, to], oldest first. */
 export function scheduledSlotsBetween(from: Date, to: Date) {
   const slots: Date[] = [];
   for (let t = from.getTime() - DAY_MS; t <= to.getTime() + DAY_MS; t += DAY_MS) {
     const local = localParts(new Date(t));
-    const hours =
-      local.weekday === 'Sat' || local.weekday === 'Sun'
-        ? WEEKEND_SLOT_HOURS
-        : WEEKDAY_SLOT_HOURS;
-    for (const hour of hours) {
+    for (const hour of slotHoursFor(local.weekday)) {
       const start = newYorkTimeToUtc(local.year, local.month, local.day, hour);
       if (
         start >= from &&
@@ -81,6 +83,28 @@ export function scheduledSlotsBetween(from: Date, to: Date) {
 
 export function slotRunId(slotStart: Date) {
   return `job-board-hour-${slotStart.toISOString().slice(0, 13)}`;
+}
+
+/** A firing up to this long after a slot start still dispatches that slot. */
+export const SLOT_GRACE_MS = 90 * 60_000;
+
+/**
+ * The slot `now` belongs to (start <= now < start + grace), or null. Mirrors
+ * `scheduledSlot` in scripts/operations/job-board-schedule.mjs. The run ID is
+ * derived from the slot start, so every firing inside one slot maps to the
+ * same `job-board-hour-*` ID and the API's scheduler ledger suppresses the
+ * duplicates.
+ */
+export function scheduledSlot(now: Date, graceMs = SLOT_GRACE_MS) {
+  const local = localParts(now);
+  for (const hour of slotHoursFor(local.weekday)) {
+    const slotStart = newYorkTimeToUtc(local.year, local.month, local.day, hour);
+    const elapsed = now.getTime() - slotStart.getTime();
+    if (elapsed >= 0 && elapsed < graceMs) {
+      return { slotStart, runId: slotRunId(slotStart) };
+    }
+  }
+  return null;
 }
 
 export type SchedulerRunRow = {

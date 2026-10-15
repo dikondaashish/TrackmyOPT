@@ -27,7 +27,16 @@ Job-board ingestion is watched from the web app by the three-hourly
 Supabase audit tables for scheduled (`job-board-hour-*`) runs and raises one
 fingerprinted Sentry issue per kind: `missing-run`, `stalled-source`,
 `oracle-error` and `failed-source`. Messages carry only run IDs, counts and
-Oracle error codes (`ORA-`/`NJS-`/`DPI-`), never raw error text. Failures
+Oracle error codes (`ORA-`/`NJS-`/`DPI-`), never raw error text. The Vercel
+cron `/api/cron/job-board-ingestion-dispatch` (the daily scheduler, gated by
+`JOB_BOARD_SCHEDULE_ENABLED=true`) raises the fixed message
+`Scheduled job-board ingestion dispatch failed` (fingerprint
+`job-board-ingestion` / `dispatch-failed`, tags `job_board_dispatch_reason`
+and `job_board_dispatch_status`) when the worker API (`JOB_BOARD_WORKER_URL`,
+default `trackmyopt-api`) is unreachable, rejects the key, returns an error or
+malformed reply, or `API_SECRET_KEY` is missing. It returns HTTP 200
+with `ok: false` so the API wrapper does not raise a second issue. A slot that
+was already dispatched (`suppressed`) is not an error. Failures
 inside the Render worker that never reach an audit row remain visible only in
 Render logs. See `docs/ops/ingestion-automation.md`.
 

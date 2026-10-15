@@ -66,7 +66,10 @@ cases retain manual refresh. Sequential/neighbor scanning is disabled.
 
 `apps/api/src/job-board/` ingests jobs from authorized ATS sources.
 
-1. `.github/workflows/job-board-ingestion.yml` is a manual
+1. The Vercel cron `/api/cron/job-board-ingestion-dispatch` dispatches the
+   daily scheduled runs (`job-board-hour-*`, Mon–Fri 14:00 and 21:00, Sat–Sun
+   21:00 New York) once `JOB_BOARD_SCHEDULE_ENABLED=true`.
+   `.github/workflows/job-board-ingestion.yml` is a manual
    (`workflow_dispatch`) workflow that runs
    `scripts/operations/trigger-job-board-ingestion.mjs`. It wakes the Render API
    and supervises a run identified by `job-board-manual-*` or `job-board-hour-*`.
