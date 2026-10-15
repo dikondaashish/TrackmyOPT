@@ -27,6 +27,10 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { CRAWLER_NOINDEX_HEADERS, isSearchCrawler } from '@/lib/is-search-crawler';
 import { DEFAULT_POST_AUTH_PATH } from '@/lib/auth/post-auth-landing';
+import {
+  applyPrivacyRegionCookie,
+  detectPrivacyRegion,
+} from '@/lib/privacy/region-detection';
 
 // Routes that require authentication (redirect to login if not logged in)
 const protectedRoutes = ['/dashboard', '/admin'];
@@ -147,6 +151,9 @@ export async function proxy(request: NextRequest) {
 
   // Security headers (CSP, X-Frame-Options, etc.) are set site-wide in next.config.js
   // so marketing pages and the app share the same policy without duplicating headers.
+
+  // Privacy jurisdiction group for the consent manager (lib/privacy).
+  applyPrivacyRegionCookie(request, response, detectPrivacyRegion(request));
 
   return response;
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LogOut, Settings, HelpCircle, ChevronDown, ShieldCheck } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { signOutWithAnalytics } from "@/lib/auth/sign-out-with-analytics";
-import { requestOpenPrivacyChoices } from "@/lib/cookie-consent";
+import { openPrivacySettings } from "@/lib/privacy/privacy-manager";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -170,11 +170,11 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                                 className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                                 onClick={() => {
                                     setShowProfileMenu(false);
-                                    requestOpenPrivacyChoices();
+                                    openPrivacySettings();
                                 }}
                             >
                                 <ShieldCheck className="w-4 h-4" />
-                                Privacy choices
+                                Your Privacy Choices
                             </button>
                         </div>
 

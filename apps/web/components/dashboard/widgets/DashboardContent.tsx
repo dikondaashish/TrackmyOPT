@@ -3,7 +3,7 @@
 import { useState, useEffect, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { useClientYear } from "@/hooks/useClientDate";
-import { requestOpenPrivacyChoices } from "@/lib/cookie-consent";
+import { PrivacySettingsLink } from "@/components/privacy/PrivacySettingsLink";
 import { User } from "@supabase/supabase-js";
 import { MetricCards } from "./MetricCards";
 import { OnboardingCard } from "./OnboardingCard";
@@ -442,13 +442,7 @@ export function DashboardContent({ user }: DashboardContentProps) {
           <span>·</span>
           <a href="/cookie-policy" className="hover:text-foreground transition-colors">Cookie Policy</a>
           <span>·</span>
-          <button
-            type="button"
-            onClick={requestOpenPrivacyChoices}
-            className="hover:text-foreground transition-colors"
-          >
-            Privacy choices
-          </button>
+          <PrivacySettingsLink className="hover:text-foreground transition-colors" />
           <span>·</span>
           <a href="/help" className="hover:text-foreground transition-colors">Help</a>
         </div>

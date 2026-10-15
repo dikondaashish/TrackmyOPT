@@ -6,7 +6,7 @@ import {
   captureClientEvent,
   captureOnboardingStepCompleted,
 } from '@/lib/posthog-client';
-import { hasAnalyticsConsent } from '@/lib/cookie-consent';
+import { hasConsent } from '@/lib/privacy/privacy-manager';
 
 vi.mock('next/link', () => ({
   default: ({
@@ -31,8 +31,8 @@ vi.mock('@/hooks/useToast', () => ({ useToast: () => ({ toast: vi.fn() }) }));
 vi.mock('@/hooks/useOnboardingReceiptVariant', () => ({
   useOnboardingReceiptVariant: () => ({ variant: 'control' }),
 }));
-vi.mock('@/lib/cookie-consent', () => ({
-  hasAnalyticsConsent: vi.fn(() => true),
+vi.mock('@/lib/privacy/privacy-manager', () => ({
+  hasConsent: vi.fn(() => true),
 }));
 vi.mock('@/lib/posthog-client', () => ({
   captureClientEvent: vi.fn(),
@@ -46,7 +46,7 @@ vi.mock('@/lib/posthog-client', () => ({
 }));
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(hasAnalyticsConsent).mockReturnValue(true);
+  vi.mocked(hasConsent).mockReturnValue(true);
   vi.stubGlobal('fetch', vi.fn());
 });
 afterEach(() => {
@@ -88,7 +88,7 @@ describe('onboarding starting choices', () => {
     expect(onSkip).not.toHaveBeenCalled();
   });
   it('does not capture intent without consent or dismiss for a new-tab click', () => {
-    vi.mocked(hasAnalyticsConsent).mockReturnValue(false);
+    vi.mocked(hasConsent).mockReturnValue(false);
     const onSkip = vi.fn();
     render(<OnboardingWizard isOpen onSkip={onSkip} onComplete={vi.fn()} />);
     fireEvent.click(screen.getByRole('link', { name: /track my case/i }), {

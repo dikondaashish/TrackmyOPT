@@ -1,4 +1,4 @@
-import { hasAnalyticsConsent } from "@/lib/cookie-consent";
+import { hasConsent } from "@/lib/privacy/privacy-manager";
 import {
   ANALYTICS_CONSENT_CHANGE_EVENT,
   isBrowserPostHogReady,
@@ -22,7 +22,7 @@ export function captureOnceWhenConsented(capture: CaptureFn): () => void {
 
   const tryCapture = (): boolean => {
     if (done) return true;
-    if (!hasAnalyticsConsent()) return false;
+    if (!hasConsent("analytics")) return false;
     if (!isBrowserPostHogReady()) return false;
     done = true;
     capture();

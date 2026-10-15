@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
-import { hasAnalyticsConsent } from "@/lib/cookie-consent";
+import { hasConsent } from "@/lib/privacy/privacy-manager";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/useToast";
 import {
@@ -96,7 +96,7 @@ export function OnboardingWizard({
 
   const handleNext = () => {
     if (step === "welcome") {
-      if (hasAnalyticsConsent())
+      if (hasConsent("analytics"))
         captureClientEvent("onboarding_intent_selected", {
           intent: "opt_dates",
           source: "onboarding_wizard",
@@ -519,7 +519,7 @@ export function OnboardingWizard({
             <WelcomeStep
               onNext={handleNext}
               onTrackCase={() => {
-                if (hasAnalyticsConsent())
+                if (hasConsent("analytics"))
                   captureClientEvent("onboarding_intent_selected", {
                     intent: "case_tracking",
                     source: "onboarding_wizard",

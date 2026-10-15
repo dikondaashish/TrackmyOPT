@@ -12,6 +12,7 @@ import {
   identifyLoginSessionUser,
 } from '@/lib/posthog-client';
 import { loginRedirectTarget } from '@/lib/auth/safe-oauth-redirect';
+import { hasConsent } from '@/lib/privacy/privacy-manager';
 import {
   safeStorageGet,
   safeStorageRemove,
@@ -167,7 +168,8 @@ function LoginPageContent() {
     }, 60000);
 
     // Save last used method
-    safeStorageSet('trackmyopt_last_method', 'google');
+    // Sign-in hint is a functional preference (lib/privacy/services.ts).
+    if (hasConsent('functional')) safeStorageSet('trackmyopt_last_method', 'google');
 
     try {
       // Include referral code in the callback URL so the server-side callback can attribute it
@@ -247,7 +249,7 @@ function LoginPageContent() {
       }
 
       // Save last used method
-      safeStorageSet('trackmyopt_last_method', 'email');
+      if (hasConsent('functional')) safeStorageSet('trackmyopt_last_method', 'email');
 
       // Redirect to intended page or dashboard - session is now in cookies
       window.location.href = redirectTo;

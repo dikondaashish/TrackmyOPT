@@ -44,7 +44,7 @@ for (const path of [
       exact: true,
     });
     await privacyChoices
-      .getByRole('button', { name: 'Essential Only', exact: true })
+      .getByRole('button', { name: 'Reject non-essential', exact: true })
       .click();
     await expect(privacyChoices).toBeHidden();
     if (path === '/login') {
@@ -67,7 +67,7 @@ test('translated landing controls update without DOM mutation failures', async (
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   const privacyChoices = page.getByRole('region', { name: 'Privacy choices', exact: true });
-  await privacyChoices.getByRole('button', { name: 'Essential Only', exact: true }).click();
+  await privacyChoices.getByRole('button', { name: 'Reject non-essential', exact: true }).click();
   await expect(privacyChoices).toBeHidden();
 
   // The resume mockup is shown only at the desktop breakpoint.
@@ -133,7 +133,7 @@ test('translated decision-window submission and cached date limit stay usable', 
     exact: true,
   });
   await privacyChoices
-    .getByRole('button', { name: 'Essential Only', exact: true })
+    .getByRole('button', { name: 'Reject non-essential', exact: true })
     .click();
   await expect(privacyChoices).toBeHidden();
   const date = page.getByLabel('USCIS received / receipt date');

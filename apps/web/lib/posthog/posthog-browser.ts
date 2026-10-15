@@ -1,7 +1,6 @@
 import posthog from "posthog-js";
 import { isMonitoringCapabilityPage, redactMonitoringAnalytics } from "./monitoring-link-privacy";
-import { getStoredCookieConsent } from "@/lib/cookie-consent";
-import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/posthog-client";
+import { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/privacy/events";
 import { POSTHOG_SESSION_RECORDING } from "@/lib/posthog/session-replay-privacy";
 
 // React DOM removeChild/insertBefore failures remain observable. A message
@@ -308,8 +307,11 @@ function resolvePostHogToken(): string | undefined {
   );
 }
 
-function isPostHogReady(): boolean {
-  return typeof window !== "undefined" && typeof posthog?.capture === "function";
+export function isPostHogLoaded(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    Boolean((posthog as { __loaded?: boolean }).__loaded)
+  );
 }
 
 function dispatchAnalyticsConsentChange(accepted: boolean): void {
@@ -319,43 +321,42 @@ function dispatchAnalyticsConsentChange(accepted: boolean): void {
   );
 }
 
-/** Apply stored banner choice to PostHog (client-only). */
-function applyPostHogConsentFromStorage(): void {
-  if (!isPostHogReady()) return;
-  const consent = getStoredCookieConsent();
-  if (consent === "accepted") {
+/** Last analytics permission from the privacy manager (lib/privacy). */
+let analyticsConsent = false;
+
+/** Re-apply consent after anything that resets PostHog state (e.g. reset()). */
+export function reapplyPostHogConsent(): void {
+  if (!isPostHogLoaded()) return;
+  if (analyticsConsent) {
     posthog.opt_in_capturing();
   } else {
     posthog.opt_out_capturing();
   }
 }
 
+/**
+ * Called only by lib/privacy/integrations.ts. PostHog is initialized on the
+ * first grant, so no PostHog request, cookie, or storage exists before
+ * analytics permission. A later refusal opts the loaded instance out.
+ */
 export function setPostHogAnalyticsConsent(accepted: boolean): void {
-  if (!isPostHogReady()) return;
-  if (accepted) {
-    posthog.opt_in_capturing();
-  } else {
-    posthog.opt_out_capturing();
-  }
+  analyticsConsent = accepted;
+  if (accepted && !isPostHogLoaded()) initPostHogBrowser();
+  reapplyPostHogConsent();
   dispatchAnalyticsConsentChange(accepted);
 }
 
 /**
- * Initialize PostHog in the browser.
- * - Opted out until user chooses Accept All (product analytics consent).
+ * Initialize PostHog in the browser. Do not call directly: use
+ * setPostHogAnalyticsConsent so initialization stays behind consent.
+ * - Starts opted out and is opted in only while analytics consent holds.
  * - Session replay uses input/text masking for immigration-sensitive UI.
  * - Server-side PostHog (API routes) is unaffected.
  */
-export function initPostHogBrowser(): void {
+function initPostHogBrowser(): void {
   try {
     const posthogToken = resolvePostHogToken();
-    if (!posthogToken || typeof window === "undefined") return;
-
-    const alreadyLoaded = Boolean((posthog as { __loaded?: boolean }).__loaded);
-    if (alreadyLoaded) {
-      applyPostHogConsentFromStorage();
-      return;
-    }
+    if (!posthogToken || typeof window === "undefined" || isPostHogLoaded()) return;
 
     posthog.init(posthogToken, {
       api_host: "/ingest",
@@ -383,7 +384,7 @@ export function initPostHogBrowser(): void {
         return event;
       },
       loaded: () => {
-        applyPostHogConsentFromStorage();
+        reapplyPostHogConsent();
       },
     });
   } catch (error) {

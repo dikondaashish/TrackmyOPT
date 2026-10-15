@@ -111,8 +111,17 @@ export default function PrivacyPage() {
           <Link href="/cookie-policy">Cookie Policy</Link>)
         </li>
         <li>
-          <strong>PostHog browser analytics</strong> — when you choose Accept
-          All, browser analytics may collect product events such as feature
+          <strong>Optional browser analytics and advertising</strong> — which
+          tools run by default depends on your approximate region, as explained
+          in our <Link href="/cookie-policy">Cookie Policy</Link>. In the
+          United States they run unless you turn them off in Your Privacy
+          Choices; elsewhere, or when we cannot determine your region, they run
+          only after you allow them. A Global Privacy Control signal turns
+          advertising off.
+        </li>
+        <li>
+          <strong>PostHog browser analytics</strong> — when analytics is
+          allowed, browser analytics may collect product events such as feature
           interactions and page visits. PostHog is not used by TrackMyOPT for
           advertising targeting.
         </li>
@@ -128,11 +137,11 @@ export default function PrivacyPage() {
           by account and API activity may be processed for security, billing,
           reliability, error diagnosis, and operation of core features. These
           events do not depend on optional browser cookies and are not
-          controlled by the cookie choice.
+          controlled by Your Privacy Choices.
         </li>
         <li>
-          <strong>Google Analytics (GA4)</strong> — when you accept cookies in
-          our banner, we load GA4 to collect aggregated website traffic and
+          <strong>Google Analytics (GA4)</strong> — when analytics is allowed,
+          we load GA4 to collect aggregated website traffic and
           usage data (e.g. pages visited, session duration). See{' '}
           <a
             href="https://policies.google.com/privacy"
@@ -144,8 +153,8 @@ export default function PrivacyPage() {
           .
         </li>
         <li>
-          <strong>Google AdSense</strong> — when you accept cookies in our
-          banner, we may display ads via AdSense on free content pages. AdSense
+          <strong>Google AdSense</strong> — when marketing is allowed, we may
+          display ads via AdSense on free content pages. AdSense
           may use cookies for ad delivery and measurement. See{' '}
           <a
             href="https://policies.google.com/privacy"
@@ -157,8 +166,8 @@ export default function PrivacyPage() {
           .
         </li>
         <li>
-          Aggregated performance metrics (Vercel Analytics / Speed Insights) on
-          our website
+          Cookieless, aggregated page-view and performance metrics (Vercel
+          Analytics / Speed Insights) on our website when analytics is allowed
         </li>
         <li>
           Chrome extension: version and content-free usage diagnostics.
@@ -230,9 +239,9 @@ export default function PrivacyPage() {
         disclose information to service providers and other parties only as
         described below. Some U.S. privacy laws may define disclosures for
         personalized advertising as &quot;sharing&quot; even when no money
-        changes hands. You can prevent AdSense from loading by choosing
-        Essential Only and use Google&apos;s U.S. state privacy control where it
-        is available.
+        changes hands. You can prevent AdSense from loading by turning off
+        Marketing in Your Privacy Choices or by sending a Global Privacy
+        Control signal from your browser.
       </p>
       <ul>
         {THIRD_PARTY_SERVICES.map((s) => (
@@ -314,9 +323,10 @@ export default function PrivacyPage() {
       <h2>8. Your choices and rights</h2>
       <ul>
         <li>
-          <strong>Browser analytics and advertising:</strong> Use Privacy
-          choices in the site footer, your dashboard profile menu, or the shield
-          button on public pages to choose Accept All or Essential Only
+          <strong>Browser analytics and advertising:</strong> Use Your Privacy
+          Choices in the site footer, your dashboard profile menu, or the shield
+          button on public pages to turn functional, analytics, and marketing
+          technologies on or off
         </li>
         <li>
           <strong>Access / correction:</strong> Update profile and OPT data in

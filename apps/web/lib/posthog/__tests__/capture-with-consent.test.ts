@@ -2,8 +2,8 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 const consentState = vi.hoisted(() => ({ accepted: false, posthogReady: false }));
 
-vi.mock("@/lib/cookie-consent", () => ({
-  hasAnalyticsConsent: () => consentState.accepted,
+vi.mock("@/lib/privacy/privacy-manager", () => ({
+  hasConsent: () => consentState.accepted,
 }));
 
 vi.mock("@/lib/posthog-client", async (importOriginal) => {

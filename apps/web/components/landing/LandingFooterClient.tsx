@@ -1,7 +1,7 @@
 "use client";
 
 import { Heart } from "lucide-react";
-import { requestOpenPrivacyChoices } from "@/lib/cookie-consent";
+import { PrivacySettingsLink } from "@/components/privacy/PrivacySettingsLink";
 import { useClientYear } from "@/hooks/useClientDate";
 
 const linkClass =
@@ -9,9 +9,7 @@ const linkClass =
 
 export function PrivacyChoicesButton() {
   return (
-    <button type="button" onClick={requestOpenPrivacyChoices} className={linkClass}>
-      Privacy choices
-    </button>
+    <PrivacySettingsLink className={linkClass} />
   );
 }
 

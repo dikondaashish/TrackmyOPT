@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
-import { hasAnalyticsConsent } from '@/lib/cookie-consent';
+import { hasConsent } from '@/lib/privacy/privacy-manager';
 import { captureClientEvent } from '@/lib/posthog-client';
 import { shouldReportCaughtNetworkFailure } from '@/lib/sentry/options';
 
@@ -19,7 +19,7 @@ export function trackReceiptEntry(
 ) {
   // Actions before consent are not replayed later. Never include receipt input,
   // response bodies, case IDs, or exception text in analytics or diagnostics.
-  if (!hasAnalyticsConsent()) return;
+  if (!hasConsent('analytics')) return;
   captureClientEvent(event, { source, ...(reason ? { reason } : {}) });
 }
 

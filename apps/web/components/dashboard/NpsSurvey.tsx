@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { hasAnalyticsConsent } from "@/lib/cookie-consent";
+import { hasConsent } from "@/lib/privacy/privacy-manager";
 import { usePremiumStatus } from "@/lib/premium/usePremiumStatus";
 import { supabase } from "@/lib/supabase/client";
 import {
@@ -64,7 +64,7 @@ export function NpsSurvey() {
   const handleRequest = useCallback(async (request: NpsRequest) => {
     if (
       shownThisMount.current ||
-      !hasAnalyticsConsent() ||
+      !hasConsent("analytics") ||
       isWithinNpsCooldown(readNpsLastShown(), NPS_COOLDOWN_DAYS)
     ) {
       return;

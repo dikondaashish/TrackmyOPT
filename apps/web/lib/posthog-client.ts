@@ -3,9 +3,10 @@ import { captureOnceWhenConsented } from "@/lib/posthog/capture-with-consent";
 import { isNonFatalBoundaryError } from "@/lib/posthog/error-boundary-report";
 import { billingInsertId } from "@/lib/posthog/billing-analytics";
 import type { NpsCategory, NpsPlanTier, NpsTrigger } from "@/lib/posthog/nps-survey";
+import { isPostHogLoaded, reapplyPostHogConsent } from "@/lib/posthog/posthog-browser";
 
-/** Dispatched when the user accepts/declines analytics cookies (see posthog-browser). */
-export const ANALYTICS_CONSENT_CHANGE_EVENT = "trackmyopt:analytics-consent";
+/** Dispatched when analytics permission is applied (see lib/privacy/integrations). */
+export { ANALYTICS_CONSENT_CHANGE_EVENT } from "@/lib/privacy/events";
 
 type TrackMyOptPersonProperties = {
   plan_tier?: string | null;
@@ -24,8 +25,9 @@ type TrackMyOptPersonProperties = {
   referred_by?: string | null;
 };
 
+/** PostHog is initialized only after analytics consent (lib/privacy). */
 function isBrowserPostHogReady(): boolean {
-  return typeof window !== "undefined" && typeof posthog?.capture === "function";
+  return isPostHogLoaded() && typeof posthog?.capture === "function";
 }
 
 export { isBrowserPostHogReady };
@@ -376,9 +378,12 @@ export async function captureSignOut(source: SignOutSource): Promise<void> {
       window.setTimeout(resolve, SIGN_OUT_FLUSH_MS);
     });
     posthog.reset();
+    // reset() restores PostHog's opted-out default; keep the visitor's choice.
+    reapplyPostHogConsent();
   } catch {
     try {
       posthog.reset();
+      reapplyPostHogConsent();
     } catch {
       /* analytics must not break sign-out */
     }

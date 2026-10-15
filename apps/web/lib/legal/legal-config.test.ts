@@ -38,10 +38,10 @@ describe('legal-config', () => {
       PRIVACY_CHOICES_VERSION_ID
     );
     expect(formatPolicyVersionLabel('cookie_policy')).toContain(
-      'July 26, 2026'
+      'October 15, 2026'
     );
     expect(formatPolicyVersionLabel('privacy_policy')).toContain(
-      'October 10, 2026'
+      'October 15, 2026'
     );
   });
 
