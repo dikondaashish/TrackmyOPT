@@ -155,6 +155,44 @@ export function isBraveWalletInjectionError(
   );
 }
 
+const INJECTED_MIN_LINE = 50;
+const isPageDocumentSource = (source: string) =>
+  /^(?:https?:\/\/|app:\/\/|\/)/i.test(source) &&
+  !/\/_next\/|turbopack:|\.[cm]?js(?:$|[?#])/i.test(source);
+
+/**
+ * Script the browser or host app evaluates against the page URL (e.g. the iOS
+ * Google app's in-app browser) reports frames on the page document itself. Our
+ * served HTML is at most 22 lines and only inlines JSON-LD/one-liners, so drop
+ * an exception only when every located frame is a page document past line 50.
+ * Frameless errors and anything touching a bundle frame still report.
+ */
+export function isInjectedPageScriptError(
+  properties: Record<string, unknown> | undefined
+): boolean {
+  if (!properties || !Array.isArray(properties.$exception_list)) return false;
+  let pageFrames = 0;
+  for (const item of properties.$exception_list) {
+    const frames = (
+      item as { stacktrace?: { frames?: unknown } } | null | undefined
+    )?.stacktrace?.frames;
+    if (!Array.isArray(frames)) continue;
+    for (const frame of frames) {
+      if (!frame || typeof frame !== 'object') return false;
+      const row = frame as Record<string, unknown>;
+      const source = String(row.filename ?? row.abs_path ?? row.source ?? '');
+      if (source === '[native code]' || source === '<anonymous>') continue;
+      if (
+        !isPageDocumentSource(source) ||
+        !(typeof row.lineno === 'number' && row.lineno > INJECTED_MIN_LINE)
+      )
+        return false;
+      pageFrames++;
+    }
+  }
+  return pageFrames > 0;
+}
+
 /**
  * Instagram / Facebook / iOS in-app browsers inject native bridges that call
  * `window.webkit.messageHandlers` on pagehide. Missing handlers throw TypeError
@@ -242,6 +280,7 @@ export function shouldDropExceptionEvent(
   return (
     isBenignExceptionMessage(text) ||
     isBraveWalletInjectionError(properties) ||
+    isInjectedPageScriptError(properties) ||
     isBenignAdSenseNetworkError(properties) ||
     isOpaqueCrossOriginScriptError(properties)
   );

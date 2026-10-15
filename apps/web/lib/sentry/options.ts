@@ -121,43 +121,35 @@ export function isForeignScriptEvent(event: ErrorEvent): boolean {
   );
 }
 
-// Our code always runs from bundled `/_next/` script files. A stack made only of
-// page-document frames comes from script the browser or host app evaluated
-// against the page URL (e.g. iOS in-app browsers), not from TrackMyOPT.
-const SCRIPT_FILE = /\/_next\/|\.[cm]?js(?:[?#]|$)/i;
-const STACK_OVERFLOW = /^maximum call stack size exceeded\.?$/i;
+// Our code always runs from bundled `/_next/` script files. The served HTML is
+// at most 22 lines (`/`) and our only inline scripts are JSON-LD/one-liners, so
+// a frame on a page document beyond line 50 is script the browser or host app
+// evaluated against the page URL (e.g. the iOS Google app), not TrackMyOPT.
+const SCRIPT_FILE = /\/_next\/|turbopack:|\.[cm]?js(?:[?#]|$)/i;
+const INJECTED_MIN_LINE = 50;
 const isPageDocumentFrame = (file: string) =>
   /^(?:app|https?):\/\//i.test(file) && !SCRIPT_FILE.test(file);
 
 /**
- * True for a stack overflow whose every frame is attributed to the page
- * document. TrackMyOPT ships no multi-line inline scripts, so such frames
- * (e.g. `app:///login:200`) cannot be ours; recursion in our bundles keeps
- * `/_next/` frames and is still reported.
+ * True when every located stack frame is on a page document past line 50.
+ * Frameless errors and any error touching a bundle frame still report.
  */
-export function isInjectedStackOverflow(event: ErrorEvent): boolean {
-  const values = event.exception?.values ?? [];
-  if (
-    values.length === 0 ||
-    !values.every(
-      (v) => v.type === 'RangeError' && STACK_OVERFLOW.test(v.value ?? '')
-    )
-  )
-    return false;
-  const files = values.flatMap((v) =>
-    (v.stacktrace?.frames ?? []).map(
-      (frame) => frame.filename ?? frame.abs_path ?? ''
-    )
+export function isInjectedPageScriptEvent(event: ErrorEvent): boolean {
+  const frames = (event.exception?.values ?? []).flatMap(
+    (v) => v.stacktrace?.frames ?? []
   );
-  return (
-    files.some(isPageDocumentFrame) &&
-    files.every(
-      (file) =>
-        isPageDocumentFrame(file) ||
-        file === '[native code]' ||
-        file === '<anonymous>'
+  let pageFrames = 0;
+  for (const frame of frames) {
+    const file = frame.filename ?? frame.abs_path ?? '';
+    if (file === '[native code]' || file === '<anonymous>') continue;
+    if (
+      !isPageDocumentFrame(file) ||
+      !((frame.lineno ?? 0) > INJECTED_MIN_LINE)
     )
-  );
+      return false;
+    pageFrames++;
+  }
+  return pageFrames > 0;
 }
 
 // The browser's own wording when a request never reached a server (Chrome, Safari,
@@ -220,7 +212,12 @@ export async function isOriginReachable(origin: string): Promise<boolean> {
   return probeOnce(origin);
 }
 
-type BrowserState = { offline: boolean; hidden: boolean; origin: string };
+/** True for a caught fetch rejection that never received an HTTP response. */
+export function isBrowserNetworkError(error: unknown): boolean {
+  return error instanceof TypeError && NETWORK_FAILURE.test(error.message);
+}
+
+type BrowserState = { offline: boolean; hidden: boolean; origin?: string };
 const browserState = (): BrowserState | null =>
   typeof navigator === 'undefined' ||
   typeof document === 'undefined' ||
@@ -262,7 +259,7 @@ export function shouldDropNetworkFailure(
   if (!state || !isBrowserNetworkFailure(event)) return false;
   if (state.offline || state.hidden || networkFailureReported || networkProbe)
     return true;
-  const probe = isReachable(networkFailureOrigin(event, state.origin))
+  const probe = isReachable(networkFailureOrigin(event, state.origin ?? ''))
     .catch(() => false)
     .then((reachable) => {
       const transient =
@@ -276,6 +273,50 @@ export function shouldDropNetworkFailure(
     });
   networkProbe = probe;
   return probe;
+}
+
+/**
+ * The same policy for app code that catches a network failure and reports it
+ * with its own fixed message (which `isBrowserNetworkFailure` cannot match).
+ * Shares the once-per-page-load budget with uncaught network failures.
+ */
+export function shouldReportCaughtNetworkFailure(
+  state: BrowserState | null = browserState()
+): boolean {
+  if (!state) return true;
+  if (state.offline || state.hidden || networkFailureReported || networkProbe)
+    return false;
+  networkFailureReported = true;
+  return true;
+}
+
+// posthog-node reports its own delivery problems through console.error, which
+// captureConsole turns into issues. A batch lost to a network error/timeout or
+// to the bounded shutdown wait is third-party analytics transport, not a
+// TrackMyOPT failure. PostHog HTTP errors (e.g. a rejected key) still report.
+const POSTHOG_SHUTDOWN_TIMEOUT =
+  /^\[PostHog\] Timeout while shutting down PostHog\b/;
+const POSTHOG_NETWORK_TYPES = new Set([
+  'PostHogFetchNetworkError',
+  'AbortError',
+  'TimeoutError',
+  'TypeError',
+]);
+
+export function isAnalyticsTransportFailure(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  if (values.some((v) => v.type === 'PostHogFetchNetworkError')) {
+    return values.every((v) => POSTHOG_NETWORK_TYPES.has(v.type ?? ''));
+  }
+  const messages = [
+    event.message,
+    event.logentry?.message,
+    ...values.map((v) => v.value),
+  ].filter((m): m is string => Boolean(m));
+  return (
+    messages.length > 0 &&
+    messages.every((m) => POSTHOG_SHUTDOWN_TIMEOUT.test(m))
+  );
 }
 
 export function sentryOptions(
@@ -304,7 +345,11 @@ export function sentryOptions(
       frameContextLines: 0,
     },
     beforeSend: (event, hint) => {
-      if (isForeignScriptEvent(event) || isInjectedStackOverflow(event))
+      if (
+        isForeignScriptEvent(event) ||
+        isInjectedPageScriptEvent(event) ||
+        isAnalyticsTransportFailure(event)
+      )
         return null;
       const drop = shouldDropNetworkFailure(event);
       if (typeof drop === 'boolean')

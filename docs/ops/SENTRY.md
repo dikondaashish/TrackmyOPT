@@ -58,6 +58,28 @@ cannot create an issue for every widget. Events wait for the probe (up to about
 12 seconds); a page closed during that wait loses that event. 5xx responses are
 reported separately and are unaffected.
 
+App code that catches such a failure and reports it with its own fixed message
+(for example the receipt-entry `network` diagnostics) applies the same policy
+through `shouldReportCaughtNetworkFailure`, sharing the once-per-page budget
+(without the reachability probe; it is also skipped while a probe is running).
+Fixed messages ending in `(stage=network, status=none)` get the full probe
+policy instead.
+
+posthog-node logs its own delivery problems through `console.error`.
+`isAnalyticsTransportFailure` drops only PostHog network errors/timeouts and
+the bounded shutdown-wait timeout; PostHog HTTP errors (such as a rejected key)
+and every product failure still report.
+
+Expected JWT outcomes (expired, malformed, or wrongly signed extension tokens)
+return `null` silently in `verifyToken`; only unexpected verification faults,
+such as a missing signing secret, are reported (error class only).
+
+The USCIS case check retries an idempotent `case_status` read/update once when
+supabase-js gets no HTTP response (`status: 0`), and labels persistence
+failures as `transport` or `http <status> <SQLSTATE>`. AI call failures are
+reported as a fixed `[ai-failed] task=… model=… error=… status=… reason=…`
+line; the JSON detail goes to logs at warn level only.
+
 The OPT/STEM tools report unexpected saved-date, plan-status, employment-history,
 and date-save failures with fixed diagnostic messages, including malformed or
 failed HTTP 200 responses. Expected 4xx outcomes and requests canceled by
@@ -121,10 +143,15 @@ check its release, last occurrence, and post-deployment evidence first.
 WebKit wording, and every frame pointed at a page document (`app:///login:200`,
 `app:///:228`). The production `/login` HTML is a single line and `/` has 22
 lines, and the app ships no multi-line inline scripts, so those frames are
-script evaluated against the page URL by the browser or host app (in-app
-browsers inject this way), not TrackMyOPT code. `isInjectedStackOverflow` drops
-only stack overflows whose frames are all page documents; recursion involving
-any `/_next/` bundle frame still reports.
+script evaluated against the page URL by the browser or host app, not
+TrackMyOPT code. The matching PostHog RangeError groups are iOS, almost all the
+Google app's in-app browser (`GSA/`) plus Chrome iOS, with frames at page lines
+~188–415. Sentry `isInjectedPageScriptEvent` and PostHog
+`isInjectedPageScriptError` drop an exception only when every located frame is
+the page document itself (not `/_next/`, `turbopack:` or a `.js` file) beyond
+line 50. Frameless errors, early page lines, and anything touching a bundle
+frame still report. If the served HTML ever grows past 50 lines or gains a
+multi-line inline script, revisit this threshold.
 
 Pro checkout's "request failed" event (TRACKMYOPT-19) had no matching
 `/api/premium/create-checkout` log or server error, so the request never reached
