@@ -75,8 +75,9 @@ describe('source replay audit safety', () => {
         order.push('enqueue');
         return Promise.resolve();
       });
-    internal.queue = { addBulk };
-    internal.slowQueue = { addBulk };
+    const getJobs = () => Promise.resolve([]);
+    internal.queue = { addBulk, getJobs };
+    internal.slowQueue = { addBulk, getJobs };
     await service.enqueueEnabledSourceJobs(
       { ...context, sourceIds: ['original-source'] },
       (ids) => {
@@ -105,7 +106,9 @@ describe('source replay audit safety', () => {
       }),
     };
     const addBulk = jest.fn();
-    internal.queue = { addBulk };
+    const getJobs = () => Promise.resolve([]);
+    internal.queue = { addBulk, getJobs };
+    (internal as { slowQueue?: unknown }).slowQueue = { getJobs };
     await expect(
       service.enqueueEnabledSourceJobs(context, () =>
         Promise.reject(new Error('Valkey unavailable')),

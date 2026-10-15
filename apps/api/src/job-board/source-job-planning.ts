@@ -4,11 +4,14 @@ import type { SchedulerContext } from './scheduler-run-id';
 export const PACING_TARGET_WINDOW_MS = 40 * 60 * 1000;
 export const MIN_INTER_REQUEST_GAP_MS = 3_500;
 
-export function calculatePacingGapMs(sourceCount: number) {
+export function calculatePacingGapMs(
+  sourceCount: number,
+  windowMs = PACING_TARGET_WINDOW_MS,
+) {
   if (sourceCount <= 1) return MIN_INTER_REQUEST_GAP_MS;
   return Math.max(
     MIN_INTER_REQUEST_GAP_MS,
-    Math.floor(PACING_TARGET_WINDOW_MS / (sourceCount - 1)),
+    Math.floor(windowMs / (sourceCount - 1)),
   );
 }
 
@@ -67,4 +70,26 @@ export function planSourceIngestionJobs(
       removeOnFail: false,
     },
   }));
+}
+
+/**
+ * Manifest sources whose latest audit in the run is "failed" and which have
+ * no queued or active job. Audits must be ordered newest first. Sources that
+ * succeeded, were skipped by policy, are still "started", or have no audit at
+ * all (see recoverIngestionRun) are excluded.
+ */
+export function selectFailedSourcesForRecovery(
+  manifest: readonly string[],
+  auditsNewestFirst: readonly { source_id: unknown; status: unknown }[],
+  pendingSourceIds: readonly (string | undefined)[],
+) {
+  const latest = new Map<string, string>();
+  for (const row of auditsNewestFirst) {
+    const id = String(row.source_id);
+    if (!latest.has(id)) latest.set(id, String(row.status));
+  }
+  const pending = new Set(pendingSourceIds.filter(Boolean).map(String));
+  return [...new Set(manifest)]
+    .filter((id) => latest.get(id) === 'failed' && !pending.has(id))
+    .sort();
 }

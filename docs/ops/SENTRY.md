@@ -21,6 +21,16 @@ The daily cron reports failed/overdue jobs from the preceding day. These bridges
 do not cover all ingestion API errors; its transport failures remain visible in Render logs. It accepts no
 caller-supplied diagnostics or applicant data and limits repeated reports.
 
+Job-board ingestion is watched from the web app by the hourly
+`/api/cron/job-board-ingestion-health` cron, once
+`JOB_BOARD_INGESTION_HEALTH_ENABLED=true` is set in Vercel. It reads the
+Supabase audit tables for scheduled (`job-board-hour-*`) runs and raises one
+fingerprinted Sentry issue per kind: `missing-run`, `stalled-source`,
+`oracle-error` and `failed-source`. Messages carry only run IDs, counts and
+Oracle error codes (`ORA-`/`NJS-`/`DPI-`), never raw error text. Failures
+inside the Render worker that never reach an audit row remain visible only in
+Render logs. See `docs/ops/ingestion-automation.md`.
+
 When adding API handlers, export them through `withSentryApiErrors` with their
 static route pattern and HTTP method, as existing routes do. The wrapper never
 reads request or response bodies, preserves streaming responses, and lets

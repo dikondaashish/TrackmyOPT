@@ -59,6 +59,15 @@ export const appConfigValidationSchema = Joi.object({
   JOB_BOARD_QUEUE_CONTROL_ENABLED: Joi.boolean().default(false),
   ORACLE_INGESTION_REPAIR_ENABLED: Joi.boolean().default(false),
   JOB_BOARD_QUEUE_PAUSE_ON_BOOT: Joi.boolean().default(false),
+  // Unattended ingestion. Defaults keep today's behaviour: every API process
+  // consumes Bull jobs, a 40-minute pacing window and no per-provider limit.
+  JOB_BOARD_WORKER_ENABLED: Joi.boolean().default(true),
+  JOB_BOARD_PACING_WINDOW_MS: Joi.number()
+    .integer()
+    .min(60_000)
+    .max(6 * 60 * 60_000)
+    .optional(),
+  JOB_BOARD_PROVIDER_MIN_GAP_MS: Joi.string().optional(),
 });
 
 /** Fail fast on bad Redis instead of hanging Render health checks for ~15m. */

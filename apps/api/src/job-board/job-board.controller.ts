@@ -153,6 +153,12 @@ export class JobBoardController {
     return this.jobBoard.recoverIngestionRun(runId);
   }
 
+  /** Requeue only this run's failed sources; safe to call repeatedly. */
+  @Post('ops/ingestion-runs/:runId/recover-failed')
+  recoverFailedSources(@Param('runId') runId: string) {
+    return this.jobBoard.recoverFailedSources(runId);
+  }
+
   @Post('ops/ingestion-runs/:runId/cancel')
   cancelIngestionRun(@Param('runId') runId: string) {
     return this.jobBoard.cancelIngestionRun(runId);
