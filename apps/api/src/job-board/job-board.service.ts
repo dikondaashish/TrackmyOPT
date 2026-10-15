@@ -60,6 +60,7 @@ import {
 } from './job-board-queue-inspection';
 import {
   isJobBoardWorkerEnabled,
+  parseExcludedSourceIds,
   parseProviderMinGaps,
   readPacingWindowMs,
   redisEvictionPolicy,
@@ -93,6 +94,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private readonly workerEnabled: boolean;
   private readonly pacingWindowMs: number;
   private readonly providerMinGaps: Map<string, number>;
+  private readonly excludedSourceIds: Set<string>;
 
   private storeContext(context: SchedulerContext): IngestionStoreContext {
     return {
@@ -135,6 +137,9 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     );
     this.providerMinGaps = parseProviderMinGaps(
       this.config.get<unknown>('JOB_BOARD_PROVIDER_MIN_GAP_MS'),
+    );
+    this.excludedSourceIds = parseExcludedSourceIds(
+      this.config.get<unknown>('JOB_BOARD_EXCLUDED_SOURCE_IDS'),
     );
   }
 
@@ -496,9 +501,14 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       .select('id')
       .eq('enabled', true);
     if (error) throw new Error(error.message);
+    // Excluded sources stay enabled with their jobs untouched; a full run
+    // simply does not select them (for example while a hang is diagnosed).
     const sourceIds =
       context.sourceIds ??
-      (data || []).map((source) => String(source.id)).sort();
+      (data || [])
+        .map((source) => String(source.id))
+        .filter((id) => !this.excludedSourceIds.has(id))
+        .sort();
     // Persist the exact selection before either lane is enqueued. Retries reuse
     // this manifest, not a changed enabled-source set.
     if (saveManifest) await saveManifest(sourceIds);

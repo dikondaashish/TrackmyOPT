@@ -50,6 +50,21 @@ export function parseProviderMinGaps(raw: unknown) {
   return gaps;
 }
 
+/**
+ * JOB_BOARD_EXCLUDED_SOURCE_IDS: comma-separated ats_sources IDs that full
+ * runs skip. The sources stay enabled and their jobs are not changed;
+ * single-source runs are unaffected. Unset means nothing is excluded.
+ */
+export function parseExcludedSourceIds(raw: unknown) {
+  if (typeof raw !== 'string') return new Set<string>();
+  return new Set(
+    raw
+      .split(',')
+      .map((id) => id.trim().toLowerCase())
+      .filter((id) => /^[0-9a-f-]{36}$/.test(id)),
+  );
+}
+
 /** Bull keeps jobs as plain Redis keys; any eviction policy can drop them. */
 export function redisEvictionPolicy(info: string) {
   return /^maxmemory_policy:(\S+)/m.exec(info)?.[1] ?? null;

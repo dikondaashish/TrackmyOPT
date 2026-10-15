@@ -7,6 +7,7 @@ import {
 import { jobBoardWorkerProviders } from './job-board.module';
 import {
   isJobBoardWorkerEnabled,
+  parseExcludedSourceIds,
   parseProviderMinGaps,
   readPacingWindowMs,
   redisEvictionPolicy,
@@ -311,5 +312,36 @@ describe('targeted recovery', () => {
     await expect(
       paused.instance.recoverFailedSources(context.schedulerRunId),
     ).rejects.toThrow('ingestion_queue_paused');
+  });
+});
+
+describe('excluded sources', () => {
+  const amboss = '21b6d1cf-de4c-42b7-8a6f-5f2de2fd641d';
+
+  it('parses only well-formed source IDs', () => {
+    expect([
+      ...parseExcludedSourceIds(` ${amboss.toUpperCase()} ,bad-id,, `),
+    ]).toEqual([amboss]);
+    expect(parseExcludedSourceIds(undefined).size).toBe(0);
+  });
+
+  it('leaves an excluded source out of the full-run manifest only', async () => {
+    const { instance, normal } = service({
+      JOB_BOARD_EXCLUDED_SOURCE_IDS: amboss,
+    });
+    const internal = instance as unknown as {
+      supabase: unknown;
+      getSlowSourceIds: () => Promise<Set<string>>;
+    };
+    internal.supabase = enabledSources([amboss, 'other-source']);
+    internal.getSlowSourceIds = () => Promise.resolve(new Set());
+    const saved: string[][] = [];
+    const result = await instance.enqueueEnabledSourceJobs(context, (ids) => {
+      saved.push(ids);
+      return Promise.resolve();
+    });
+    expect(saved).toEqual([['other-source']]);
+    expect(result).toMatchObject({ sourcesQueued: 1 });
+    expect(normal.addBulk).toHaveBeenCalledTimes(1);
   });
 });

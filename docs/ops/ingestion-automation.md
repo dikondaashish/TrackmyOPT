@@ -15,6 +15,7 @@ merging the code changes nothing in production.
 | Dedicated worker | `JOB_BOARD_WORKER_ENABLED` on each Render API service | Yes: unset means every process consumes |
 | Pacing window | `JOB_BOARD_PACING_WINDOW_MS` | Yes: 40 minutes |
 | Per-provider spacing | `JOB_BOARD_PROVIDER_MIN_GAP_MS` | Yes: no extra limit |
+| Skip sources in full runs (jobs untouched, source stays enabled) | `JOB_BOARD_EXCLUDED_SOURCE_IDS` | Yes: none excluded |
 
 ## Behaviour
 

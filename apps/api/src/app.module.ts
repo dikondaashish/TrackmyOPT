@@ -68,6 +68,7 @@ export const appConfigValidationSchema = Joi.object({
     .max(6 * 60 * 60_000)
     .optional(),
   JOB_BOARD_PROVIDER_MIN_GAP_MS: Joi.string().optional(),
+  JOB_BOARD_EXCLUDED_SOURCE_IDS: Joi.string().allow('').optional(),
 });
 
 /** Fail fast on bad Redis instead of hanging Render health checks for ~15m. */
