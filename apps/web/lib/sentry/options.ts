@@ -121,20 +121,95 @@ export function isForeignScriptEvent(event: ErrorEvent): boolean {
   );
 }
 
+// Our code always runs from bundled `/_next/` script files. The served HTML is
+// at most 22 lines (`/`) and our only inline scripts are JSON-LD/one-liners, so
+// a frame on a page document beyond line 50 is script the browser or host app
+// evaluated against the page URL (e.g. the iOS Google app), not TrackMyOPT.
+const SCRIPT_FILE = /\/_next\/|turbopack:|\.[cm]?js(?:[?#]|$)/i;
+const INJECTED_MIN_LINE = 50;
+const isPageDocumentFrame = (file: string) =>
+  /^(?:app|https?):\/\//i.test(file) && !SCRIPT_FILE.test(file);
+
+/**
+ * True when every located stack frame is on a page document past line 50.
+ * Frameless errors and any error touching a bundle frame still report.
+ */
+export function isInjectedPageScriptEvent(event: ErrorEvent): boolean {
+  const frames = (event.exception?.values ?? []).flatMap(
+    (v) => v.stacktrace?.frames ?? []
+  );
+  let pageFrames = 0;
+  for (const frame of frames) {
+    const file = frame.filename ?? frame.abs_path ?? '';
+    if (file === '[native code]' || file === '<anonymous>') continue;
+    if (
+      !isPageDocumentFrame(file) ||
+      !((frame.lineno ?? 0) > INJECTED_MIN_LINE)
+    )
+      return false;
+    pageFrames++;
+  }
+  return pageFrames > 0;
+}
+
 // The browser's own wording when a request never reached a server (Chrome, Safari,
 // Firefox). Sentry may append the host, e.g. "Failed to fetch (www.trackmyopt.com)".
 const NETWORK_FAILURE =
-  /^(?:failed to fetch|load failed|networkerror when attempting to fetch resource\.?)(?: \([^)]*\))?$/i;
+  /^(?:failed to fetch|load failed|networkerror when attempting to fetch resource\.?)(?: \(([^)]*)\))?$/i;
+// Fixed TrackMyOPT diagnostics for a request that received no HTTP response,
+// e.g. "OPT tools: failed to load plan status (stage=network, status=none)".
+const NETWORK_DIAGNOSTIC = /\(stage=network, status=none\)$/;
 
 /** True when every exception is a request that failed before any HTTP response. */
 export function isBrowserNetworkFailure(event: ErrorEvent): boolean {
   const values = event.exception?.values ?? [];
-  return (
-    values.length > 0 &&
-    values.every(
-      (v) => v.type === 'TypeError' && NETWORK_FAILURE.test(v.value ?? '')
-    )
+  if (values.length === 0) return NETWORK_DIAGNOSTIC.test(event.message ?? '');
+  return values.every(
+    (v) =>
+      (v.type === 'TypeError' && NETWORK_FAILURE.test(v.value ?? '')) ||
+      NETWORK_DIAGNOSTIC.test(v.value ?? '')
   );
+}
+
+/** Origin of the failed request: Sentry names cross-origin hosts in the message. */
+export function networkFailureOrigin(
+  event: ErrorEvent,
+  pageOrigin: string
+): string {
+  for (const v of event.exception?.values ?? []) {
+    const host = NETWORK_FAILURE.exec(v.value ?? '')?.[1];
+    if (host && /^[a-z0-9.-]+(?::\d+)?$/i.test(host)) return `https://${host}`;
+  }
+  return pageOrigin;
+}
+
+const PROBE_TIMEOUT_MS = 5_000;
+const PROBE_RETRY_DELAY_MS = 2_000;
+const probeOnce = async (origin: string) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+  try {
+    // An opaque response proves the host answered; no data is read or sent.
+    await fetch(`${origin}/`, {
+      method: 'HEAD',
+      mode: 'no-cors',
+      cache: 'no-store',
+      credentials: 'omit',
+      signal: controller.signal,
+    });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+/** True when the host answers now or after one short retry. */
+export async function isOriginReachable(origin: string): Promise<boolean> {
+  if (await probeOnce(origin)) return true;
+  await new Promise((resolve) => setTimeout(resolve, PROBE_RETRY_DELAY_MS));
+  return probeOnce(origin);
 }
 
 /** True for a caught fetch rejection that never received an HTTP response. */
@@ -142,32 +217,62 @@ export function isBrowserNetworkError(error: unknown): boolean {
   return error instanceof TypeError && NETWORK_FAILURE.test(error.message);
 }
 
-type BrowserState = { offline: boolean; hidden: boolean };
+type BrowserState = { offline: boolean; hidden: boolean; origin?: string };
 const browserState = (): BrowserState | null =>
-  typeof navigator === 'undefined' || typeof document === 'undefined'
+  typeof navigator === 'undefined' ||
+  typeof document === 'undefined' ||
+  typeof window === 'undefined'
     ? null
     : {
         offline: navigator.onLine === false,
         hidden: document.visibilityState === 'hidden',
+        origin: window.location.origin,
       };
+// Repeated failures against a reachable host are persistent (e.g. blocked or
+// misconfigured requests), not a dropped connection, so they still report.
+const MAX_TRANSIENT_NETWORK_FAILURES = 2;
 let networkFailureReported = false;
+let transientNetworkFailures = 0;
+let networkProbe: Promise<boolean> | null = null;
 export function resetNetworkFailureReporting() {
   networkFailureReported = false;
+  transientNetworkFailures = 0;
+  networkProbe = null;
 }
 
 /**
  * A visitor's lost connection is not a TrackMyOPT failure: drop it when the
- * browser is offline or the page is hidden. Otherwise keep the first network
- * failure per page load, so a real site outage still reports, but one dropped
- * connection cannot fan out into an event for every widget on the page.
+ * browser is offline or the page is hidden. Otherwise probe the failed host:
+ * if it answers, the request was lost on the visitor's connection and is
+ * dropped; if it stays unreachable (an outage) or keeps failing while
+ * reachable, report it. At most one network failure is reported per page load,
+ * so one outage cannot fan out into an event for every widget on the page.
  * Server 5xx responses are reported separately and are unaffected.
+ *
+ * Returns `true` to drop, or a promise of that decision while probing.
  */
 export function shouldDropNetworkFailure(
   event: ErrorEvent,
-  state: BrowserState | null = browserState()
-): boolean {
-  if (!isBrowserNetworkFailure(event)) return false;
-  return !shouldReportCaughtNetworkFailure(state);
+  state: BrowserState | null = browserState(),
+  isReachable: (origin: string) => Promise<boolean> = isOriginReachable
+): boolean | Promise<boolean> {
+  if (!state || !isBrowserNetworkFailure(event)) return false;
+  if (state.offline || state.hidden || networkFailureReported || networkProbe)
+    return true;
+  const probe = isReachable(networkFailureOrigin(event, state.origin ?? ''))
+    .catch(() => false)
+    .then((reachable) => {
+      const transient =
+        reachable &&
+        ++transientNetworkFailures <= MAX_TRANSIENT_NETWORK_FAILURES;
+      if (!transient) networkFailureReported = true;
+      return transient;
+    })
+    .finally(() => {
+      if (networkProbe === probe) networkProbe = null;
+    });
+  networkProbe = probe;
+  return probe;
 }
 
 /**
@@ -179,7 +284,8 @@ export function shouldReportCaughtNetworkFailure(
   state: BrowserState | null = browserState()
 ): boolean {
   if (!state) return true;
-  if (state.offline || state.hidden || networkFailureReported) return false;
+  if (state.offline || state.hidden || networkFailureReported || networkProbe)
+    return false;
   networkFailureReported = true;
   return true;
 }
@@ -188,7 +294,8 @@ export function shouldReportCaughtNetworkFailure(
 // captureConsole turns into issues. A batch lost to a network error/timeout or
 // to the bounded shutdown wait is third-party analytics transport, not a
 // TrackMyOPT failure. PostHog HTTP errors (e.g. a rejected key) still report.
-const POSTHOG_SHUTDOWN_TIMEOUT = /^\[PostHog\] Timeout while shutting down PostHog\b/;
+const POSTHOG_SHUTDOWN_TIMEOUT =
+  /^\[PostHog\] Timeout while shutting down PostHog\b/;
 const POSTHOG_NETWORK_TYPES = new Set([
   'PostHogFetchNetworkError',
   'AbortError',
@@ -237,12 +344,20 @@ export function sentryOptions(
       stackFrameVariables: false,
       frameContextLines: 0,
     },
-    beforeSend: (event, hint) =>
-      isForeignScriptEvent(event) ||
-      isAnalyticsTransportFailure(event) ||
-      shouldDropNetworkFailure(event)
-        ? null
-        : scrubSentryEvent(event, hint),
+    beforeSend: (event, hint) => {
+      if (
+        isForeignScriptEvent(event) ||
+        isInjectedPageScriptEvent(event) ||
+        isAnalyticsTransportFailure(event)
+      )
+        return null;
+      const drop = shouldDropNetworkFailure(event);
+      if (typeof drop === 'boolean')
+        return drop ? null : scrubSentryEvent(event, hint);
+      return drop.then((dropped) =>
+        dropped ? null : scrubSentryEvent(event, hint)
+      );
+    },
     beforeSendTransaction: () => null,
     beforeSendLog: () => null,
     beforeSendMetric: () => null,

@@ -7,6 +7,7 @@ import {
   isBenignInjectedOpenGraphProbeError,
   isBenignNavigationAbortError,
   isBenignWebkitMessageHandlersError,
+  isInjectedPageScriptError,
   isBenignWebSocketUnavailableError,
   isOpaqueCrossOriginScriptError,
   shouldDropExceptionEvent,
@@ -342,5 +343,57 @@ describe('shouldDropExceptionEvent', () => {
         $exception_values: ['RangeError: Maximum call stack size exceeded.'],
       })
     ).toBe(false);
+  });
+});
+
+describe('injected page-script recursion (iOS in-app browsers)', () => {
+  const recursion = (...frames: Record<string, unknown>[]) => ({
+    $exception_list: [
+      {
+        type: 'RangeError',
+        value: 'Maximum call stack size exceeded.',
+        stacktrace: { frames },
+      },
+    ],
+  });
+
+  it('drops frames that sit deep inside the page document', () => {
+    const properties = recursion(
+      { filename: 'https://www.trackmyopt.com/login', lineno: 192, colno: 41 },
+      { filename: 'https://www.trackmyopt.com/login', lineno: 199, colno: 363 },
+      { source: '/login', lineno: 415 },
+      { filename: '[native code]' }
+    );
+    expect(isInjectedPageScriptError(properties)).toBe(true);
+    expect(shouldDropExceptionEvent(properties)).toBe(true);
+  });
+
+  it.each([
+    [
+      'a bundle frame',
+      recursion(
+        { filename: 'https://www.trackmyopt.com/login', lineno: 192 },
+        {
+          filename: 'https://www.trackmyopt.com/_next/static/chunks/app.js',
+          lineno: 1,
+        }
+      ),
+    ],
+    [
+      'a turbopack frame',
+      recursion({ filename: 'turbopack:///app/page.tsx', lineno: 400 }),
+    ],
+    [
+      'an early page line',
+      recursion({ filename: 'https://www.trackmyopt.com/login', lineno: 1 }),
+    ],
+    [
+      'a frame without a line',
+      recursion({ filename: 'https://www.trackmyopt.com/login' }),
+    ],
+    ['no frames', recursion()],
+  ])('keeps errors with %s', (_label, properties) => {
+    expect(isInjectedPageScriptError(properties)).toBe(false);
+    expect(shouldDropExceptionEvent(properties)).toBe(false);
   });
 });

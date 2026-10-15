@@ -52,15 +52,26 @@ Existing PostHog instrumentation and server console redaction remain active.
 
 Browser requests that fail before any HTTP response arrives ("Failed to fetch",
 Safari "Load failed", Firefox "NetworkError…") are usually the visitor's
-connection. `shouldDropNetworkFailure` in `lib/sentry/options.ts` drops them
-while the browser is offline or the page is hidden, and keeps only the **first**
-one per page load. A real site outage still reports, but one dropped connection
-no longer creates an issue for every widget on the page. 5xx responses are
+connection. Fixed TrackMyOPT diagnostics ending in `(stage=network, status=none)`
+mean the same thing. `shouldDropNetworkFailure` in `lib/sentry/options.ts` drops
+them while the browser is offline or the page is hidden. Otherwise it sends one
+body-free, credential-free `HEAD` probe (with one retry two seconds later) to the
+host that failed — this site, or the host Sentry names, such as the Supabase
+project. If that host answers, the request was lost on the visitor's connection
+and the event is dropped; if it stays unreachable, the event reports as a
+possible outage. A third failure on the same page against a reachable host is
+treated as persistent (for example, a blocked or misconfigured request) and
+reports. At most one network failure reports per page load, so one outage
+cannot create an issue for every widget. Events wait for the probe (up to about
+12 seconds); a page closed during that wait loses that event. 5xx responses are
 reported separately and are unaffected.
 
 App code that catches such a failure and reports it with its own fixed message
 (for example the receipt-entry `network` diagnostics) applies the same policy
-through `shouldReportCaughtNetworkFailure`, sharing the once-per-page budget.
+through `shouldReportCaughtNetworkFailure`, sharing the once-per-page budget
+(without the reachability probe; it is also skipped while a probe is running).
+Fixed messages ending in `(stage=network, status=none)` get the full probe
+policy instead.
 
 posthog-node logs its own delivery problems through `console.error`.
 `isAnalyticsTransportFailure` drops only PostHog network errors/timeouts and
@@ -134,6 +145,36 @@ does not change Sentry capture, alerts, sampling, or privacy settings, and does
 not remove historical events. Do not resolve an issue solely to clear the list;
 check its release, last occurrence, and post-deployment evidence first.
 
+### October 15, 2026 browser review
+
+`RangeError: Maximum call stack size exceeded.` on `/login` (TRACKMYOPT-Z) used
+WebKit wording, and every frame pointed at a page document (`app:///login:200`,
+`app:///:228`). The production `/login` HTML is a single line and `/` has 22
+lines, and the app ships no multi-line inline scripts, so those frames are
+script evaluated against the page URL by the browser or host app, not
+TrackMyOPT code. The matching PostHog RangeError groups are iOS, almost all the
+Google app's in-app browser (`GSA/`) plus Chrome iOS, with frames at page lines
+~188–415. Sentry `isInjectedPageScriptEvent` and PostHog
+`isInjectedPageScriptError` drop an exception only when every located frame is
+the page document itself (not `/_next/`, `turbopack:` or a `.js` file) beyond
+line 50. Frameless errors, early page lines, and anything touching a bundle
+frame still report. If the served HTML ever grows past 50 lines or gains a
+multi-line inline script, revisit this threshold.
+
+Pro checkout's "request failed" event (TRACKMYOPT-19) had no matching
+`/api/premium/create-checkout` log or server error, so the request never reached
+the function. Checkout, the activation probe and the OPT tools now label such
+failures `stage=network, status=none`, so they follow the network policy above;
+checkout keeps its PostHog `pro_checkout_failed` event with the same stage. Auth
+provider errors (other than missing sessions), HTTP failures, malformed bodies
+and processing failures still report with their stage and status.
+
+Promise rejections without a stack — `undefined` (TRACKMYOPT-1C), a synthetic
+`CustomEvent` of type `unhandledrejection`, and an empty object (TRACKMYOPT-X/Y,
+one page view) — cannot be attributed. TrackMyOPT's own source never dispatches
+such events, but bundled dependencies could not be ruled out without frames, so
+no filter was added; they remain reportable.
+
 The organization also contains `zyene-reviews` for Zyene Reviews. Keep the
 products' DSNs and Vercel upload credentials separate. TrackMyOPT's numeric
 project ID is `4512234317938688`; renaming its slug does not change the DSN.
@@ -154,9 +195,19 @@ Retryable refresh-network failures keep the existing session and remain
 reportable. The SDK already retries transient fetch failures; do not convert
 provider outages into successful authentication or suppress their reports.
 
-Blog covers report optimizer failures, retry the original static image, then
+Blog covers retry the original static image after an optimizer failure, then
 use a static fallback. If both originals and fallback fail, the layout retains
-an accessible placeholder and reports each failure with a fixed message.
+an accessible placeholder and sends a `HEAD` request for the original cover.
+Only a broken asset reports (`Blog cover image failed to load (stage=http|payload,
+status=…)`: a non-2xx or non-image response); a probe without any response uses
+the shared network policy. A cover the server does serve but the browser would
+not show — images blocked by crawlers, data saver, or extensions — is not a
+TrackMyOPT failure and is not reported; after the first such confirmation the
+page stops probing. Before October 15, 2026, every such page reported; the
+33 events then were all in same-second bursts from data-centre locations
+(Ashburn, San Jose, Singapore, China, Seongnam) while every cover file was
+present and served with HTTP 200. `components/blog/blog-cover-assets.test.ts`
+fails the test suite if a blog index or research cover file is missing.
 Dashboard extension messaging consumes callback errors and rejected promises;
 expected missing/closed contexts are normal detection outcomes. Unexpected
 bridge failures and open-tool timeouts use fixed error reports. The extension's

@@ -6,6 +6,45 @@ import * as Sentry from '@sentry/nextjs';
 
 const FALLBACK = '/blog/international-student-guidance-library-2026.png';
 
+// Set once this browser has failed to show a cover the server does serve (images
+// blocked by the client, crawlers, data saver) or has no connection, so a page
+// of covers does not probe every image again.
+let skipCoverProbes = false;
+export function resetCoverFailureProbe() {
+  skipCoverProbes = false;
+}
+
+/**
+ * Every source failed in the browser. Ask the server whether the original cover
+ * exists: only a broken asset (non-OK or non-image response) is a TrackMyOPT
+ * failure. `stage=network` follows Sentry's shared dropped-connection policy.
+ */
+export async function reportUnavailableCover(src: string) {
+  if (skipCoverProbes) return;
+  let stage = 'network';
+  let status: number | 'none' = 'none';
+  try {
+    const res = await fetch(src, { method: 'HEAD', cache: 'no-store' });
+    status = res.status;
+    stage = 'http';
+    if (res.ok) {
+      stage = 'payload';
+      if (res.headers.get('content-type')?.startsWith('image/')) {
+        skipCoverProbes = true;
+        return;
+      }
+    }
+  } catch {
+    skipCoverProbes = true;
+  }
+  Sentry.captureException(
+    new Error(
+      `Blog cover image failed to load (stage=${stage}, status=${status})`
+    ),
+    { tags: { feature: 'blog-cover-image' } }
+  );
+}
+
 type BlogPostImageProps = {
   src: string;
   alt: string;
@@ -61,12 +100,8 @@ export function BlogPostImage({
               ? 'fallback'
               : 'unavailable';
         // A single dropped request recovers through the next stage; report
-        // only when every source failed and the reader sees no cover.
-        if (next === 'unavailable')
-          Sentry.captureException(
-            new Error('Blog cover image failed to load'),
-            { tags: { feature: 'blog-cover-image' } }
-          );
+        // only when every source failed and the server confirms the cause.
+        if (next === 'unavailable') void reportUnavailableCover(src);
         setFailure({ src, stage: next });
       }}
     />

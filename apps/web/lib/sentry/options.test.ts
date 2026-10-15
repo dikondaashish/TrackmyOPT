@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
 import {
@@ -7,6 +7,9 @@ import {
   isBrowserNetworkError,
   isBrowserNetworkFailure,
   isForeignScriptEvent,
+  isInjectedPageScriptEvent,
+  isOriginReachable,
+  networkFailureOrigin,
   resetNetworkFailureReporting,
   sentryOptions,
   scrubSentryEvent,
@@ -250,10 +253,74 @@ describe('Sentry third-party script filtering', () => {
   });
 });
 
+describe('Sentry injected page-script filtering', () => {
+  type Frame = { filename: string; lineno?: number };
+  const overflow = (...frames: Frame[]): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'RangeError',
+          value: 'Maximum call stack size exceeded.',
+          stacktrace: { frames },
+        },
+      ],
+    },
+  });
+
+  it('drops errors whose frames sit deep inside page documents', () => {
+    // Shape of TRACKMYOPT-Z: lines 228/200 of HTML that has at most 22 lines.
+    const event = overflow(
+      { filename: 'app:///login', lineno: 188 },
+      { filename: 'app:///login', lineno: 200 },
+      { filename: 'app:///', lineno: 228 },
+      { filename: '[native code]' }
+    );
+    expect(isInjectedPageScriptEvent(event)).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(event, {})).toBeNull();
+  });
+
+  it('keeps errors that involve bundled code, early page lines, or no frames', () => {
+    expect(
+      isInjectedPageScriptEvent(
+        overflow(
+          { filename: 'app:///login', lineno: 200 },
+          { filename: 'app:///_next/static/chunks/app.js', lineno: 1 }
+        )
+      )
+    ).toBe(false);
+    expect(
+      isInjectedPageScriptEvent(
+        overflow({ filename: 'https://www.trackmyopt.com/x.js', lineno: 900 })
+      )
+    ).toBe(false);
+    // Our own inline one-liners can only fail within the served HTML lines.
+    expect(
+      isInjectedPageScriptEvent(
+        overflow({ filename: 'app:///login', lineno: 1 })
+      )
+    ).toBe(false);
+    expect(
+      isInjectedPageScriptEvent(overflow({ filename: 'app:///login' }))
+    ).toBe(false);
+    expect(
+      isInjectedPageScriptEvent(overflow({ filename: '<anonymous>' }))
+    ).toBe(false);
+    expect(isInjectedPageScriptEvent(overflow())).toBe(false);
+  });
+});
+
 describe('Sentry browser connectivity noise', () => {
-  const failure = (value: string, type = 'TypeError') =>
+  const failure = (value: string, type: string | undefined = 'TypeError') =>
     ({ exception: { values: [{ type, value }] } }) as ErrorEvent;
-  const online = { offline: false, hidden: false };
+  const online = {
+    offline: false,
+    hidden: false,
+    origin: 'https://www.trackmyopt.com',
+  };
+  const reachable = () => Promise.resolve(true);
+  const unreachable = () => Promise.resolve(false);
   afterEach(() => resetNetworkFailureReporting());
 
   it('recognises each browser network-failure wording only', () => {
@@ -276,21 +343,141 @@ describe('Sentry browser connectivity noise', () => {
       )
     ).toBe(false);
   });
-  it('drops failures while offline or hidden', () => {
-    const e = failure('Failed to fetch');
-    expect(shouldDropNetworkFailure(e, { offline: true, hidden: false })).toBe(
-      true
-    );
-    expect(shouldDropNetworkFailure(e, { offline: false, hidden: true })).toBe(
-      true
+
+  it('recognises fixed TrackMyOPT diagnostics for requests without a response', () => {
+    const plan =
+      'OPT tools: failed to load plan status (stage=network, status=none)';
+    expect(isBrowserNetworkFailure(failure(plan, undefined))).toBe(true);
+    expect(
+      isBrowserNetworkFailure({ type: undefined, message: plan } as ErrorEvent)
+    ).toBe(true);
+    expect(
+      isBrowserNetworkFailure(
+        failure(
+          'Pro checkout request failed (stage=network, status=none)',
+          'Error'
+        )
+      )
+    ).toBe(true);
+    expect(
+      isBrowserNetworkFailure(
+        failure(
+          'OPT tools: failed to load plan status (stage=http, status=503)'
+        )
+      )
+    ).toBe(false);
+    expect(
+      isBrowserNetworkFailure(
+        failure('Activation check failed (stage=payload, status=200)', 'Error')
+      )
+    ).toBe(false);
+  });
+
+  it('probes the host that failed', () => {
+    expect(
+      networkFailureOrigin(
+        failure('Failed to fetch (deknauqkqqzwuvopqott.supabase.co)'),
+        online.origin
+      )
+    ).toBe('https://deknauqkqqzwuvopqott.supabase.co');
+    expect(networkFailureOrigin(failure('Load failed'), online.origin)).toBe(
+      online.origin
     );
   });
-  it('keeps the first visible online failure per page load so outages still report', () => {
-    const e = failure('Failed to fetch');
-    expect(shouldDropNetworkFailure(e, online)).toBe(false);
-    expect(shouldDropNetworkFailure(e, online)).toBe(true);
-    expect(shouldDropNetworkFailure(failure('Load failed'), online)).toBe(true);
+
+  it('probes with a body-free, credential-free request and one retry', async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(new Response(null, { status: 404 }));
+    vi.stubGlobal('fetch', fetchMock);
+    try {
+      const result = isOriginReachable('https://www.trackmyopt.com');
+      await vi.advanceTimersByTimeAsync(2_000);
+      await expect(result).resolves.toBe(true);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://www.trackmyopt.com/',
+        expect.objectContaining({
+          method: 'HEAD',
+          mode: 'no-cors',
+          credentials: 'omit',
+        })
+      );
+      fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+      const down = isOriginReachable('https://www.trackmyopt.com');
+      await vi.advanceTimersByTimeAsync(2_000);
+      await expect(down).resolves.toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
   });
+
+  it('drops failures while offline or hidden without probing', () => {
+    const e = failure('Failed to fetch');
+    const probe = vi.fn(reachable);
+    expect(
+      shouldDropNetworkFailure(e, { ...online, offline: true }, probe)
+    ).toBe(true);
+    expect(
+      shouldDropNetworkFailure(e, { ...online, hidden: true }, probe)
+    ).toBe(true);
+    expect(probe).not.toHaveBeenCalled();
+  });
+
+  it('drops a dropped connection when the failed host answers a probe', async () => {
+    const probe = vi.fn(reachable);
+    await expect(
+      shouldDropNetworkFailure(failure('Failed to fetch'), online, probe)
+    ).resolves.toBe(true);
+    expect(probe).toHaveBeenCalledWith(online.origin);
+  });
+
+  it('reports an unreachable host once per page load so outages still report', async () => {
+    await expect(
+      shouldDropNetworkFailure(failure('Failed to fetch'), online, unreachable)
+    ).resolves.toBe(false);
+    expect(
+      shouldDropNetworkFailure(failure('Load failed'), online, unreachable)
+    ).toBe(true);
+  });
+
+  it('reports repeated failures against a reachable host as persistent', async () => {
+    const e = failure('Failed to fetch');
+    await expect(shouldDropNetworkFailure(e, online, reachable)).resolves.toBe(
+      true
+    );
+    await expect(shouldDropNetworkFailure(e, online, reachable)).resolves.toBe(
+      true
+    );
+    await expect(shouldDropNetworkFailure(e, online, reachable)).resolves.toBe(
+      false
+    );
+  });
+
+  it('coalesces failures that arrive while a probe is running', async () => {
+    let finish!: (reachable: boolean) => void;
+    const probe = vi.fn(
+      () =>
+        new Promise<boolean>((resolve) => {
+          finish = resolve;
+        })
+    );
+    const first = shouldDropNetworkFailure(
+      failure('Failed to fetch'),
+      online,
+      probe
+    );
+    expect(
+      shouldDropNetworkFailure(failure('Load failed'), online, probe)
+    ).toBe(true);
+    finish(false);
+    await expect(first).resolves.toBe(false);
+    expect(probe).toHaveBeenCalledOnce();
+  });
+
   it('never drops other errors or server-side events', () => {
     expect(shouldDropNetworkFailure(failure('Boom', 'Error'), online)).toBe(
       false
@@ -312,23 +499,30 @@ describe('caught browser network failures', () => {
       false
     );
     expect(
-      isBrowserNetworkError(new TypeError("Cannot read properties of null"))
+      isBrowserNetworkError(new TypeError('Cannot read properties of null'))
     ).toBe(false);
   });
 
-  it('shares the once-per-page budget with uncaught network failures', () => {
-    expect(
-      shouldDropNetworkFailure(
-        { exception: { values: [{ type: 'TypeError', value: 'Load failed' }] } } as ErrorEvent,
-        online
-      )
-    ).toBe(false);
+  it('shares the once-per-page budget with uncaught network failures', async () => {
+    const event = {
+      exception: { values: [{ type: 'TypeError', value: 'Load failed' }] },
+    } as ErrorEvent;
+    const pending = shouldDropNetworkFailure(event, online, () =>
+      Promise.resolve(false)
+    );
+    // A caught failure during the probe is coalesced with it.
+    expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
+    await expect(pending).resolves.toBe(false);
     expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
   });
 
   it('skips offline or hidden pages and reports the first visible failure', () => {
-    expect(shouldReportCaughtNetworkFailure({ offline: true, hidden: false })).toBe(false);
-    expect(shouldReportCaughtNetworkFailure({ offline: false, hidden: true })).toBe(false);
+    expect(
+      shouldReportCaughtNetworkFailure({ offline: true, hidden: false })
+    ).toBe(false);
+    expect(
+      shouldReportCaughtNetworkFailure({ offline: false, hidden: true })
+    ).toBe(false);
     expect(shouldReportCaughtNetworkFailure(online)).toBe(true);
     expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
     expect(shouldReportCaughtNetworkFailure(null)).toBe(true);
@@ -377,7 +571,10 @@ describe('server analytics transport noise', () => {
         type: undefined,
         exception: {
           values: [
-            { type: 'PostHogFetchHttpError', value: 'HTTP error while fetching PostHog: 401' },
+            {
+              type: 'PostHogFetchHttpError',
+              value: 'HTTP error while fetching PostHog: 401',
+            },
           ],
         },
       })
@@ -387,7 +584,10 @@ describe('server analytics transport noise', () => {
         type: undefined,
         exception: {
           values: [
-            { type: 'PostHogFetchNetworkError', value: 'Network error while fetching PostHog' },
+            {
+              type: 'PostHogFetchNetworkError',
+              value: 'Network error while fetching PostHog',
+            },
             { type: 'Error', value: 'USCIS case persistence failed' },
           ],
         },
