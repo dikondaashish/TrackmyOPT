@@ -8,7 +8,7 @@ import {
 const context = {
   schedulerRunId: 'job-board-manual-replay',
   triggerOrigin: 'manual' as const,
-  jobStoreKind: 'supabase' as const,
+  jobStoreKind: 'oracle' as const,
   runStartedAt: '2026-09-06T00:00:00Z',
 };
 function serviceWithAudit(status: string | null) {
@@ -17,7 +17,7 @@ function serviceWithAudit(status: string | null) {
       ({
         NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
         SUPABASE_SERVICE_ROLE_KEY: 'test',
-        JOB_DATA_STORE: 'supabase',
+        JOB_DATA_STORE: 'oracle',
       })[key],
   };
   const service = new JobBoardService(
@@ -89,7 +89,7 @@ describe('source replay audit safety', () => {
     expect(order).toEqual(['manifest', 'enqueue']);
     expect(addBulk.mock.calls[0][0][0].data).toMatchObject({
       sourceId: 'original-source',
-      jobStoreKind: 'supabase',
+      jobStoreKind: 'oracle',
     });
   });
   it('does not enqueue if durable selection persistence fails', async () => {

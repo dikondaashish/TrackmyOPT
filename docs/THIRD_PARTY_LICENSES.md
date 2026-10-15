@@ -14,8 +14,7 @@ content, trademarks, or hosted services.
 - License: Apache-2.0 OR UPL-1.0
 - Use: server-only Oracle job-store adapter (`oracle-job-data-store.ts`),
   loaded lazily. It is wired into the job-board module through
-  `job-data-store.provider.ts`, but only constructed when `JOB_DATA_STORE=oracle`
-  is explicitly set; the default store is Supabase.
+  `job-data-store.provider.ts` and is the only job store.
 - Notice obligation: retain the upstream Apache/UPL notices when distributing
   the adapter and driver.
 

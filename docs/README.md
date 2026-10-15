@@ -14,7 +14,7 @@ ordered backlog and the audit disposition.
 |----------|---------|
 | [ARCHITECTURAL_OVERVIEW.md](./architecture/ARCHITECTURAL_OVERVIEW.md) | Current system and data flows |
 | [DIRECTORY_DEEP_DIVE.md](./architecture/DIRECTORY_DEEP_DIVE.md) | Current monorepo map |
-| [oracle-shadow-sync.md](./architecture/oracle-shadow-sync.md), [oracle-cutover-runbook.md](./architecture/oracle-cutover-runbook.md) | Oracle job-data shadow sync and cutover |
+| [oracle-cutover-runbook.md](./architecture/oracle-cutover-runbook.md) | Historical: Oracle job-store cutover (completed 2026-09-07) |
 
 ## Features
 

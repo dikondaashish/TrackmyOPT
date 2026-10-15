@@ -7,7 +7,6 @@ import { OcrModule } from './ocr/ocr.module';
 import { UscisModule } from './uscis/uscis.module';
 import { ResumeModule } from './resume/resume.module';
 import { JobBoardModule } from './job-board/job-board.module';
-import { OracleShadowProbeModule } from './job-board/oracle-shadow-probe.module';
 import { SponsorDataModule } from './sponsor-data/sponsor-data.module';
 import { DocumentSecurityModule } from './document-security/document-security.module';
 import { AppController } from './app.controller';
@@ -46,10 +45,16 @@ export const appConfigValidationSchema = Joi.object({
   CRON_SECRET: Joi.string().min(8).optional(),
   MALWARE_SCAN_TOKEN: Joi.string().min(16).optional(),
   LATEX_COMPILER_TOKEN: Joi.string().min(16).optional(),
-  // Supabase remains the production default. Oracle is intentionally only a
-  // validated opt-in until its shadow adapter has passed production checks.
-  JOB_DATA_STORE: Joi.string().valid('supabase', 'oracle').default('supabase'),
-  ORACLE_SHADOW_PROBE_ON_BOOT: Joi.boolean().default(false),
+  // Oracle is the only job store; unset means Oracle. The legacy "supabase"
+  // value is rejected at boot rather than silently selecting another store.
+  JOB_DATA_STORE: Joi.string()
+    .valid('oracle')
+    .empty('')
+    .default('oracle')
+    .messages({
+      'any.only':
+        'JOB_DATA_STORE must be "oracle" or unset; the Supabase job store has been removed',
+    }),
   ORACLE_JOB_DB_CONNECT_STRING: Joi.string().min(1).optional(),
   ORACLE_JOB_DB_USER: Joi.string().min(1).optional(),
   ORACLE_JOB_DB_PASSWORD: Joi.string().min(1).optional(),
@@ -57,7 +62,6 @@ export const appConfigValidationSchema = Joi.object({
   // Emergency-only operational guard for draining Bull safely after a
   // restart. Disabled by default and scoped to the two job-board queues.
   JOB_BOARD_QUEUE_CONTROL_ENABLED: Joi.boolean().default(false),
-  ORACLE_INGESTION_REPAIR_ENABLED: Joi.boolean().default(false),
   JOB_BOARD_QUEUE_PAUSE_ON_BOOT: Joi.boolean().default(false),
   // Unattended ingestion. Defaults keep today's behaviour: every API process
   // consumes Bull jobs, a 40-minute pacing window and no per-provider limit.
@@ -131,7 +135,6 @@ const runtimeImports =
         UscisModule,
         ResumeModule,
         JobBoardModule,
-        OracleShadowProbeModule,
         SponsorDataModule,
         DocumentSecurityModule,
       ];

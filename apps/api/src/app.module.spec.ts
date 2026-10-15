@@ -46,13 +46,32 @@ describe('AppModule environment validation', () => {
     expect(appConfigValidationSchema.validate(config).error).toBeUndefined();
   });
 
-  it('defaults job data storage to Supabase', () => {
-    const result = appConfigValidationSchema.validate(completeConfig);
-    expect(result.error).toBeUndefined();
-    expect((result.value as { JOB_DATA_STORE?: string }).JOB_DATA_STORE).toBe(
-      'supabase',
-    );
-  });
+  it.each([undefined, '', 'oracle'])(
+    'resolves JOB_DATA_STORE=%p to the Oracle job store',
+    (value) => {
+      const result = appConfigValidationSchema.validate({
+        ...completeConfig,
+        JOB_DATA_STORE: value,
+      });
+      expect(result.error).toBeUndefined();
+      expect((result.value as { JOB_DATA_STORE?: string }).JOB_DATA_STORE).toBe(
+        'oracle',
+      );
+    },
+  );
+
+  it.each(['supabase', 'postgres'])(
+    'fails startup for JOB_DATA_STORE=%s with a clear message',
+    (value) => {
+      const result = appConfigValidationSchema.validate({
+        ...completeConfig,
+        JOB_DATA_STORE: value,
+      });
+      expect(result.error?.message).toContain(
+        'JOB_DATA_STORE must be "oracle" or unset; the Supabase job store has been removed',
+      );
+    },
+  );
 
   it.each([
     'NEXT_PUBLIC_SUPABASE_URL',

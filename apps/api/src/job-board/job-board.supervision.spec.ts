@@ -104,7 +104,7 @@ describe('ingestion supervision incident regressions', () => {
     expect(queue.addBulk).not.toHaveBeenCalled();
   });
 
-  it('rejects recovery into a different store after a rollback', async () => {
+  it('rejects recovery of work stamped for the removed Supabase store', async () => {
     const { service, queue, job } = setup();
     queue.getJob.mockResolvedValue({
       ...job,

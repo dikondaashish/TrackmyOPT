@@ -1,8 +1,16 @@
 # Oracle job-store cutover runbook
 
-Status: preparation only. Production currently uses `JOB_DATA_STORE=supabase`;
-the ingestion schedules remain paused. This runbook does not authorize a
-cutover, backfill, deployment, or production write.
+> **Historical.** The cutover completed on 2026-09-07: Oracle is the only job
+> store. The Supabase job store, backfill, shadow-sync, parity, repair, and
+> shadow-probe code described below has been removed, `JOB_DATA_STORE` accepts
+> only `oracle` (or unset), and the rollback to Supabase below is no longer
+> possible. The legacy `public.jobs`, `public.job_visa_signals`, and
+> `public.job_sponsorship_summary` objects are dropped by migration
+> `20261015155131_drop_legacy_supabase_job_tables.sql`. Kept for the record
+> only; do not follow these steps.
+
+Original status: preparation only. Production then used
+`JOB_DATA_STORE=supabase`; the ingestion schedules remained paused.
 
 ## Boundaries
 

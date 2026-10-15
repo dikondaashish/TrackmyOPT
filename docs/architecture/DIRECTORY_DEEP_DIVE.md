@@ -63,16 +63,15 @@ Current monorepo map, verified against the filesystem and `git ls-files` on 2026
 - `src/job-board/` — ATS job ingestion: controller, Bull processors, ATS
   platform registry and Python scraper runner, scheduler run ledger and run
   supervision status, employer matching, visa signals, company discovery, and
-  the `JobDataStore` contract with Supabase and Oracle implementations selected
-  by `job-data-store.provider.ts`; Oracle backfill, shadow-sync, parity, and
-  ingestion-repair code; colocated specs.
+  the `JobDataStore` contract with its Oracle implementation (the only job
+  store) wired by `job-data-store.provider.ts`; colocated specs.
 - `src/document-security/` — LaTeX-to-PDF compile and upload virus/type scan
   controllers, bearer-token check, and tests.
 - `src/common/` — `guards/` (API-key protection) and `decorators/`
   (`@Public()`).
 - `src/app.module.ts` — configuration, Redis/Bull registration, and modules.
-- `scripts/oracle-*.ts` — manual Oracle job backfill, shadow-sync, and store
-  smoke commands (see [Oracle shadow sync](oracle-shadow-sync.md)).
+- `scripts/oracle-*.ts` — manual Oracle job-store smoke check and H-1B filings
+  backfill/parity commands.
 - `sql/oracle/` — Oracle schema and bootstrap SQL for the job store.
 - `requirements.job-board.txt` — Python dependencies for the ATS fetcher.
 - `test/` — API end-to-end tests.

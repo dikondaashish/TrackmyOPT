@@ -107,3 +107,34 @@ runs only confirm them.
 Later runs take a few minutes of database work. With
 `JOB_BOARD_PACING_WINDOW_MS=900000` (15 minutes) a full run is about 15–20
 minutes end to end.
+
+## Oracle Text search index maintenance
+
+The CONTEXT index `ADMIN.TRACKMYOPT_JOB_SEARCH_CTX_IDX` syncs `ON COMMIT`, so
+every ingestion commit also updates it, and it fragments over time.
+
+- **Incident (2026-10-15):** the index had grown to 12.1M `$I` rows (against
+  about 366k distinct tokens) with 45,779 deleted docids. One source's
+  commit-time sync (amboss) ran on CPU for more than 14 hours; the session was
+  killed at 15:42 UTC.
+- **Fix:** a one-off `CTX_DDL.OPTIMIZE_INDEX` `FULL` took 13 minutes and
+  reduced the index to 417,841 rows and 0 deleted docids.
+- **Ongoing:** the ADMIN `DBMS_SCHEDULER` job `TRACKMYOPT_SEARCH_IDX_OPTIMIZE`
+  runs `OPTIMIZE_INDEX` `FULL` (maxtime 30 minutes) daily at 09:00 UTC,
+  outside the ingestion slots.
+
+Check the job:
+
+```sql
+select state, last_start_date, last_run_duration
+from dba_scheduler_jobs
+where job_name = 'TRACKMYOPT_SEARCH_IDX_OPTIMIZE';
+```
+
+Check fragmentation (a row count far above the distinct-token count means the
+index needs optimizing):
+
+```sql
+select count(*), count(distinct token_text)
+from ADMIN."DR$TRACKMYOPT_JOB_SEARCH_CTX_IDX$I";
+```
