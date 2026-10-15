@@ -132,6 +132,115 @@ function setup() {
   return { connection, driver, executed };
 }
 
+describe('OracleJobDataStore incremental ingestion', () => {
+  const config = (incrementalIngestion: boolean) => ({
+    connectString: 'test',
+    user: 'APP',
+    password: 'test',
+    poolMax: 1,
+    incrementalIngestion,
+  });
+
+  it('keeps the original MERGE, binds and read when the flag is off', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(config(false), driver);
+    quietLogger(store);
+    expect(store.supportsIncrementalIngestion).toBe(false);
+    await store.upsertJobs([record({ contentHash: 'v1.x.y' })]);
+    await store.listSourceJobsForIngestion('source-1');
+    expect(executed.map((call) => call.sql).join('\n')).not.toContain(
+      'content_hash',
+    );
+    expect(executed[0].binds).not.toHaveProperty('content_hash');
+    expect(executed.some((call) => /JOB_SEARCH/i.test(call.sql))).toBe(true);
+  });
+
+  it('writes content_hash and only the requested search rows when enabled', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(config(true), driver);
+    quietLogger(store);
+    await store.upsertJobs(
+      [
+        record({ id: 'a', contentHash: 'hash-a' }),
+        record({ id: 'b', externalJobId: 'b' }),
+      ],
+      { searchJobIds: new Set(['b']) },
+    );
+    const merge = executed.find((call) =>
+      call.sql.startsWith('MERGE INTO jobs'),
+    );
+    expect(merge?.sql).toContain('target.content_hash = incoming.content_hash');
+    expect(merge?.sql).toContain('content_hash)');
+    expect(merge?.binds).toMatchObject({ id: 'a', content_hash: 'hash-a' });
+    expect(
+      (merge?.options?.bindDefs as Record<string, unknown>).content_hash,
+    ).toEqual({ type: driver.STRING, maxSize: 140 });
+    const search = executed.find((call) => /JOB_SEARCH/i.test(call.sql));
+    expect(search?.binds).toMatchObject({ job_id: 'b' });
+  });
+
+  it('skips the search write entirely when no description changed', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(config(true), driver);
+    quietLogger(store);
+    await store.upsertJobs([record()], { searchJobIds: new Set() });
+    expect(executed.some((call) => /JOB_SEARCH/i.test(call.sql))).toBe(false);
+    expect(
+      executed.some((call) => call.sql.startsWith('MERGE INTO jobs')),
+    ).toBe(true);
+  });
+
+  it('reads content_hash for change detection when enabled', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(config(true), driver);
+    quietLogger(store);
+    await store.listSourceJobsForIngestion('source-1');
+    expect(executed[0].sql).toContain('content_hash AS "CONTENT_HASH"');
+  });
+
+  it('confirms only open rows and commits only when every row matched', async () => {
+    const { connection, driver, executed } = setup();
+    const store = new OracleJobDataStore(config(true), driver);
+    quietLogger(store);
+    const commit = jest.spyOn(connection, 'commit');
+    await store.confirmJobs(['a', 'b'], '2026-10-14T23:00:00.000Z');
+    const confirm = executed.find((call) => call.sql.startsWith('UPDATE jobs'));
+    expect(confirm?.sql).toContain("listing_status = 'open'");
+    expect(confirm?.sql).not.toMatch(/description|search/i);
+    expect(commit).toHaveBeenCalledTimes(1);
+
+    connection.executeMany = () => Promise.resolve({ rowsAffected: 1 });
+    const rollback = jest.spyOn(connection, 'rollback');
+    commit.mockClear();
+    await expect(
+      store.confirmJobs(['a', 'b'], '2026-10-14T23:00:00.000Z'),
+    ).rejects.toThrow('confirmation count changed');
+    expect(commit).not.toHaveBeenCalled();
+    expect(rollback).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates only employer_match_id, including clearing a link', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(config(true), driver);
+    quietLogger(store);
+    await store.updateEmployerMatches([{ id: 'a', employerMatchId: null }]);
+    const update = executed.find((call) => call.sql.startsWith('UPDATE jobs'));
+    expect(update?.sql).toMatch(
+      /SET\s+employer_match_id = :employer_match_id\s+WHERE id = :id/,
+    );
+    expect(update?.binds).toEqual({ id: 'a', employer_match_id: null });
+  });
+
+  it('does nothing for empty confirm or link batches', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(config(true), driver);
+    await store.confirmJobs([], '2026-10-14T23:00:00.000Z');
+    await store.updateEmployerMatches([]);
+    await store.upsertJobs([]);
+    expect(executed).toHaveLength(0);
+  });
+});
+
 describe('OracleJobDataStore call timeout', () => {
   it('bounds every pooled connection with the configured call timeout', async () => {
     const { connection, driver } = setup();

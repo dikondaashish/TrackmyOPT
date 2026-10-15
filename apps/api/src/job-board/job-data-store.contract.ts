@@ -32,6 +32,8 @@ export type JobStoreRecord = {
   employerMatchId: string | null;
   missingSinceAt: string | null;
   removedAt: string | null;
+  /** `v1.<description>.<metadata>` digests; written only by incremental ingestion. */
+  contentHash?: string | null;
 };
 
 /** Minimal projection needed while persisting a fresh source response. */
@@ -48,6 +50,18 @@ export type JobStorePersistenceRecord = {
   employerMatchId: string | null;
   listingStatus: JobStoreRecord['listingStatus'];
   missingSinceAt: string | null;
+  /** Present only when the store supports incremental ingestion. */
+  contentHash?: string | null;
+};
+
+export type JobStoreUpsertOptions = {
+  /** When set, only these job IDs are written to the search table. */
+  searchJobIds?: ReadonlySet<string>;
+};
+
+export type JobStoreEmployerMatchUpdate = {
+  id: string;
+  employerMatchId: string | null;
 };
 
 export type JobStoreSearch = {
@@ -120,7 +134,21 @@ export interface JobDataStore {
     pageSize: number,
   ): Promise<JobStorePage>;
   getJob(id: string): Promise<JobStoreRecord | null>;
-  upsertJobs(rows: readonly JobStoreRecord[]): Promise<void>;
+  upsertJobs(
+    rows: readonly JobStoreRecord[],
+    options?: JobStoreUpsertOptions,
+  ): Promise<void>;
+  /**
+   * Incremental ingestion (JOB_INGEST_INCREMENTAL=true with the content_hash
+   * column applied). Stores without it keep the full-upsert path.
+   */
+  readonly supportsIncrementalIngestion?: boolean;
+  /** Re-confirm unchanged open jobs without rewriting content or search rows. */
+  confirmJobs?(ids: readonly string[], confirmedAt: string): Promise<void>;
+  /** Update only the employer link of jobs whose match changed. */
+  updateEmployerMatches?(
+    updates: readonly JobStoreEmployerMatchUpdate[],
+  ): Promise<void>;
   reconcileSource(
     sourceId: string,
     seenExternalJobIds: readonly string[],

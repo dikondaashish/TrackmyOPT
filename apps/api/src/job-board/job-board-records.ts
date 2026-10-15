@@ -5,6 +5,7 @@ import type {
   JobStoreRecord,
 } from './job-data-store.contract';
 import type { AtsSource } from './job-board.types';
+import { jobContentHash, parseContentHash } from './job-content-hash';
 
 /** Maps scraped ATS jobs onto store records, preserving existing identities. */
 export function buildJobStoreRecords(
@@ -48,4 +49,43 @@ export function buildJobStoreRecords(
       removedAt: null,
     };
   });
+}
+
+export type IncrementalWritePlan = {
+  /** New, changed, reopened or not-yet-hashed jobs: full job-row upsert. */
+  writeRows: JobStoreRecord[];
+  /** Subset of writeRows whose description changed (search reindex). */
+  searchJobIds: Set<string>;
+  /** Open, unchanged jobs: last_confirmed_at only. */
+  confirmIds: string[];
+};
+
+/**
+ * Splits a source response into full writes and lightweight confirmations.
+ * Anything not provably unchanged and open is written in full, so lifecycle
+ * transitions (reopening stale/removed jobs) keep the existing upsert path.
+ */
+export function planIncrementalWrites(
+  records: readonly JobStoreRecord[],
+  existingByExternalId: ReadonlyMap<string, JobStorePersistenceRecord>,
+): IncrementalWritePlan {
+  const writeRows: JobStoreRecord[] = [];
+  const searchJobIds = new Set<string>();
+  const confirmIds: string[] = [];
+  for (const record of records) {
+    const contentHash = jobContentHash(record);
+    const existing = existingByExternalId.get(record.externalJobId);
+    const previous = parseContentHash(existing?.contentHash);
+    const next = parseContentHash(contentHash);
+    const isOpen =
+      existing?.listingStatus === 'open' && existing.missingSinceAt == null;
+    if (existing && isOpen && existing.contentHash === contentHash) {
+      confirmIds.push(record.id);
+      continue;
+    }
+    writeRows.push({ ...record, contentHash });
+    if (!previous || previous.description !== next?.description)
+      searchJobIds.add(record.id);
+  }
+  return { writeRows, searchJobIds, confirmIds };
 }

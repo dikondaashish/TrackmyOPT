@@ -9,6 +9,11 @@ export type OracleJobDataConfig = {
   poolMax: number;
   /** Per-round-trip limit; a blocked statement errors instead of hanging. */
   callTimeoutMs?: number;
+  /**
+   * JOB_INGEST_INCREMENTAL=true. Requires sql/oracle/jobs-content-hash.sql to
+   * be applied first; off by default so a deploy before the migration is safe.
+   */
+  incrementalIngestion?: boolean;
 };
 
 export const DEFAULT_ORACLE_CALL_TIMEOUT_MS = 1_800_000;
@@ -69,5 +74,14 @@ export function readOracleJobDataConfig(
       ? parsedCallTimeout
       : DEFAULT_ORACLE_CALL_TIMEOUT_MS;
 
-  return { connectString, user, password, poolMax, callTimeoutMs };
+  const incrementalIngestion = env.JOB_INGEST_INCREMENTAL === 'true';
+
+  return {
+    connectString,
+    user,
+    password,
+    poolMax,
+    callTimeoutMs,
+    incrementalIngestion,
+  };
 }

@@ -48,7 +48,10 @@ import type {
 } from './job-data-store.contract';
 import { JOB_DATA_STORE } from './job-data-store.provider';
 import { SourceBoardHealthStore } from './job-board-source-health.store';
-import { buildJobStoreRecords } from './job-board-records';
+import {
+  buildJobStoreRecords,
+  planIncrementalWrites,
+} from './job-board-records';
 import {
   queueJobsForRun,
   readIngestionQueueState,
@@ -61,6 +64,9 @@ import {
   type PersistenceResult,
   type Reservation,
 } from './job-board.types';
+
+type IncrementalJobStore = JobDataStore &
+  Required<Pick<JobDataStore, 'confirmJobs' | 'updateEmployerMatches'>>;
 
 /** How often a still-pending ingestion stage logs a warning. */
 const STAGE_WATCHDOG_INTERVAL_MS = 60_000;
@@ -748,6 +754,16 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  /** The store's incremental methods, only when it is enabled and complete. */
+  private incrementalStore(): IncrementalJobStore | null {
+    const store = this.jobStore;
+    return store.supportsIncrementalIngestion === true &&
+      typeof store.confirmJobs === 'function' &&
+      typeof store.updateEmployerMatches === 'function'
+      ? (store as IncrementalJobStore)
+      : null;
+  }
+
   private async persistSourceJobs(
     source: AtsSource,
     scraped: ScrapedAtsJob[],
@@ -785,9 +801,25 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     const fresh = records.filter(
       (job) => !existingByExternalId.has(job.externalJobId),
     );
-    await this.runStage(source.id, 'store-upsert', () =>
-      this.jobStore.upsertJobs(records),
-    );
+    const incremental = this.incrementalStore();
+    if (incremental) {
+      const plan = planIncrementalWrites(records, existingByExternalId);
+      this.logger.log(
+        `Job-board source ${source.id} incremental plan: write=${plan.writeRows.length} search=${plan.searchJobIds.size} confirm=${plan.confirmIds.length}`,
+      );
+      await this.runStage(source.id, 'store-upsert', () =>
+        incremental.upsertJobs(plan.writeRows, {
+          searchJobIds: plan.searchJobIds,
+        }),
+      );
+      await this.runStage(source.id, 'store-confirm', () =>
+        incremental.confirmJobs(plan.confirmIds, now),
+      );
+    } else {
+      await this.runStage(source.id, 'store-upsert', () =>
+        this.jobStore.upsertJobs(records),
+      );
+    }
     if (responseComplete) {
       await this.runStage(source.id, 'store-reconcile', () =>
         this.jobStore.reconcileSource(source.id, ids, runStartedAt),
@@ -804,7 +836,21 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         employerMatchIds.get(record.companyName.trim()) ||
         record.employerMatchId,
     }));
-    if (employerMatchIds.size) {
+    if (incremental) {
+      // Same resolution as before; only links that actually differ are written.
+      const linkChanges = linkedRecords
+        .filter(
+          (record, index) =>
+            record.employerMatchId !== records[index].employerMatchId,
+        )
+        .map((record) => ({
+          id: record.id,
+          employerMatchId: record.employerMatchId,
+        }));
+      await this.runStage(source.id, 'store-employer-link', () =>
+        incremental.updateEmployerMatches(linkChanges),
+      );
+    } else if (employerMatchIds.size) {
       await this.runStage(source.id, 'store-upsert-linked', () =>
         this.jobStore.upsertJobs(linkedRecords),
       );

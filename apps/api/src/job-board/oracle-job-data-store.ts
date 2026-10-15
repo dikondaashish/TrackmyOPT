@@ -11,7 +11,9 @@ import {
   type JobStorePersistenceRecord,
   type JobStorePage,
   type JobStoreRecord,
+  type JobStoreEmployerMatchUpdate,
   type JobStoreSearch,
+  type JobStoreUpsertOptions,
   type JobStoreVisaSignal,
 } from './job-data-store.contract';
 import {
@@ -41,7 +43,10 @@ import {
   type OracleCanonicalIdentityRepairResult,
 } from './oracle-canonical-identity-repair';
 import {
+  ORACLE_JOB_CONFIRM_SQL,
+  ORACLE_JOB_EMPLOYER_MATCH_SQL,
   ORACLE_JOB_MERGE_SQL,
+  ORACLE_JOB_MERGE_WITH_HASH_SQL,
   ORACLE_JOB_SEARCH_MERGE_SQL,
   ORACLE_VISA_SIGNAL_MERGE_SQL,
 } from './oracle-job-upsert-sql';
@@ -217,8 +222,9 @@ export class OracleJobDataStore implements JobDataStore {
           EMPLOYER_MATCH_ID: string | null;
           LISTING_STATUS: string;
           MISSING_SINCE_AT: string | Date | null;
+          CONTENT_HASH?: string | null;
         }>(
-          `SELECT id AS "ID", external_job_id AS "EXTERNAL_JOB_ID",
+          `SELECT ${this.supportsIncrementalIngestion ? 'content_hash AS "CONTENT_HASH", ' : ''}id AS "ID", external_job_id AS "EXTERNAL_JOB_ID",
                   company_name AS "COMPANY_NAME",
                   opt_eligible AS "OPT_ELIGIBLE",
                   stem_opt_eligible AS "STEM_OPT_ELIGIBLE",
@@ -267,6 +273,12 @@ export class OracleJobDataStore implements JobDataStore {
               row.MISSING_SINCE_AT == null
                 ? null
                 : normalizeOracleTimestamp(row.MISSING_SINCE_AT),
+            ...(this.supportsIncrementalIngestion
+              ? {
+                  contentHash:
+                    row.CONTENT_HASH == null ? null : String(row.CONTENT_HASH),
+                }
+              : {}),
           })),
         );
         if (page.length < pageSize) break;
@@ -573,28 +585,118 @@ export class OracleJobDataStore implements JobDataStore {
     }
   }
 
-  async upsertJobs(rows: readonly JobStoreRecord[]) {
+  get supportsIncrementalIngestion() {
+    return this.config.incrementalIngestion === true;
+  }
+
+  async upsertJobs(
+    rows: readonly JobStoreRecord[],
+    options: JobStoreUpsertOptions = {},
+  ) {
     if (!rows.length) return;
+    const withHash = this.supportsIncrementalIngestion;
+    // Job and search rows commit in one transaction, so they never diverge.
+    const searchRows = options.searchJobIds
+      ? rows.filter((row) => options.searchJobIds?.has(row.id))
+      : rows;
     const connection = await this.connection();
     try {
       const bindDefs = jobBindDefinitions(this.driver);
       await connection.executeMany(
-        ORACLE_JOB_MERGE_SQL,
-        rows.map(toJobUpsertBinds),
+        withHash ? ORACLE_JOB_MERGE_WITH_HASH_SQL : ORACLE_JOB_MERGE_SQL,
+        rows.map((row) =>
+          withHash
+            ? {
+                ...toJobUpsertBinds(row),
+                content_hash: row.contentHash ?? null,
+              }
+            : toJobUpsertBinds(row),
+        ),
         {
           autoCommit: false,
-          ...(bindDefs ? { bindDefs } : {}),
+          ...(bindDefs
+            ? {
+                bindDefs: withHash
+                  ? {
+                      ...bindDefs,
+                      content_hash: contentHashBindDefinition(this.driver),
+                    }
+                  : bindDefs,
+              }
+            : {}),
         },
       );
-      const searchBindDefs = searchBindDefinitions(this.driver);
-      await connection.executeMany(
-        ORACLE_JOB_SEARCH_MERGE_SQL,
-        rows.map(toJobSearchUpsertBinds),
-        {
-          autoCommit: false,
-          ...(searchBindDefs ? { bindDefs: searchBindDefs } : {}),
-        },
-      );
+      if (searchRows.length) {
+        const searchBindDefs = searchBindDefinitions(this.driver);
+        await connection.executeMany(
+          ORACLE_JOB_SEARCH_MERGE_SQL,
+          searchRows.map(toJobSearchUpsertBinds),
+          {
+            autoCommit: false,
+            ...(searchBindDefs ? { bindDefs: searchBindDefs } : {}),
+          },
+        );
+      }
+      await connection.commit();
+    } catch (error) {
+      await rollbackPreservingError(connection, this.logger);
+      throw error;
+    } finally {
+      await connection.close();
+    }
+  }
+
+  /**
+   * Re-confirms unchanged open jobs: last_confirmed_at and updated_at only, no
+   * description or search write. If any row is no longer open (a concurrent
+   * lifecycle change), nothing commits and the source fails for a retry.
+   */
+  async confirmJobs(ids: readonly string[], confirmedAt: string) {
+    if (!ids.length) return;
+    const connection = await this.connection();
+    try {
+      const at = toOracleTimestamp(confirmedAt);
+      let confirmed = 0;
+      for (let offset = 0; offset < ids.length; offset += WRITE_BATCH_SIZE) {
+        const result = await connection.executeMany(
+          ORACLE_JOB_CONFIRM_SQL,
+          ids
+            .slice(offset, offset + WRITE_BATCH_SIZE)
+            .map((id) => ({ id, confirmed_at: at })),
+          { autoCommit: false },
+        );
+        confirmed += result.rowsAffected || 0;
+      }
+      if (confirmed !== ids.length)
+        throw new Error('Job confirmation count changed during ingestion');
+      await connection.commit();
+    } catch (error) {
+      await rollbackPreservingError(connection, this.logger);
+      throw error;
+    } finally {
+      await connection.close();
+    }
+  }
+
+  /** Changes only employer_match_id; content and search rows are untouched. */
+  async updateEmployerMatches(updates: readonly JobStoreEmployerMatchUpdate[]) {
+    if (!updates.length) return;
+    const connection = await this.connection();
+    try {
+      for (
+        let offset = 0;
+        offset < updates.length;
+        offset += WRITE_BATCH_SIZE
+      ) {
+        await connection.executeMany(
+          ORACLE_JOB_EMPLOYER_MATCH_SQL,
+          updates.slice(offset, offset + WRITE_BATCH_SIZE).map((update) => ({
+            id: update.id,
+            employer_match_id: update.employerMatchId,
+          })),
+          { autoCommit: false },
+        );
+      }
       await connection.commit();
     } catch (error) {
       await rollbackPreservingError(connection, this.logger);
@@ -787,6 +889,12 @@ export class OracleJobDataStore implements JobDataStore {
 }
 
 const TIMED_READ_LOG_THRESHOLD_MS = 1_000;
+/** Bounds each lightweight executeMany round trip. */
+const WRITE_BATCH_SIZE = 500;
+
+function contentHashBindDefinition(driver: OracleDriver) {
+  return { type: driver.STRING || 2001, maxSize: 140 };
+}
 
 /** Statement kind and target table only; never SQL text or bind values. */
 export function oracleOperationLabel(sql: string) {
