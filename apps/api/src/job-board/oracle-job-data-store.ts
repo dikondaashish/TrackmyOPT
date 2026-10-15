@@ -833,18 +833,33 @@ export class OracleJobDataStore implements JobDataStore {
         if (page.length < pageSize) break;
       }
       if (!missingIds.length) return;
+      // open -> stale on the first complete-board miss. stale -> removed only
+      // on a later complete-board miss that is at least
+      // JOB_REMOVAL_MIN_MISSING_SECONDS after the first one, and (for
+      // scheduled runs) recorded before this run started. Back-to-back manual
+      // runs therefore leave the job stale instead of removing it.
+      const removable = `listing_status = 'stale'
+             AND missing_since_at IS NOT NULL
+             AND missing_since_at <= SYSTIMESTAMP - NUMTODSINTERVAL(:minMissingSeconds, 'SECOND')
+             AND (:runStartedAt IS NULL
+               OR missing_since_at < TO_TIMESTAMP_TZ(:runStartedAt, '${ORACLE_ISO_TZ_FORMAT}'))`;
+      // A legacy stale row without missing_since_at only gets the timestamp
+      // here; it starts its removal window instead of being removed at once.
       await connection.executeMany(
         `UPDATE jobs SET
-           listing_status = CASE WHEN listing_status = 'open' THEN 'stale' ELSE 'removed' END,
+           listing_status = CASE WHEN listing_status = 'open' OR missing_since_at IS NULL
+             THEN 'stale' ELSE 'removed' END,
            missing_since_at = COALESCE(missing_since_at, SYSTIMESTAMP),
-           removed_at = CASE WHEN listing_status = 'stale' THEN SYSTIMESTAMP ELSE removed_at END
+           removed_at = CASE WHEN listing_status = 'stale' AND missing_since_at IS NOT NULL
+             THEN SYSTIMESTAMP ELSE removed_at END
          WHERE id = :id
-           AND (listing_status = 'open' OR :runStartedAt IS NULL
-             OR missing_since_at IS NULL
-             OR missing_since_at < TO_TIMESTAMP_TZ(:runStartedAt, '${ORACLE_ISO_TZ_FORMAT}'))`,
+           AND (listing_status = 'open'
+             OR (listing_status = 'stale' AND missing_since_at IS NULL)
+             OR (${removable}))`,
         missingIds.map((id) => ({
           id,
           runStartedAt: runStartedAt ? toOracleTimestamp(runStartedAt) : null,
+          minMissingSeconds: JOB_REMOVAL_MIN_MISSING_SECONDS,
         })),
         { autoCommit: false },
       );
@@ -891,6 +906,12 @@ export class OracleJobDataStore implements JobDataStore {
 const TIMED_READ_LOG_THRESHOLD_MS = 1_000;
 /** Bounds each lightweight executeMany round trip. */
 const WRITE_BATCH_SIZE = 500;
+/**
+ * Minimum time between the first complete-board miss (open -> stale) and the
+ * miss that removes the job. 20 hours spans one daily cycle even when runs
+ * happen twice a day, and keeps manual reruns from removing jobs.
+ */
+export const JOB_REMOVAL_MIN_MISSING_SECONDS = 20 * 60 * 60;
 
 function contentHashBindDefinition(driver: OracleDriver) {
   return { type: driver.STRING || 2001, maxSize: 140 };
