@@ -112,22 +112,37 @@ export const STALLED_AFTER_MS = 90 * 60_000;
 
 const ORACLE_CODE = /\b(ORA-\d{5}|NJS-\d{3}|DPI-\d{4})\b/;
 
+/**
+ * JOB_BOARD_SCHEDULE_START: ISO instant the schedule was switched on. Slots
+ * before it were never meant to run, so they are not reported as missing.
+ * Unset or invalid disables the missing-run check entirely.
+ */
+export function parseScheduleStart(raw: string | undefined): Date | null {
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 export function evaluateIngestionHealth(
   now: Date,
   runs: readonly SchedulerRunRow[],
-  recentAudits: readonly AuditRow[]
+  recentAudits: readonly AuditRow[],
+  scheduleStart: Date | null = null
 ): IngestionHealth {
   const dispatched = new Set(
     runs
       .filter((run) => run.dispatch_status === 'queued')
       .map((run) => run.scheduler_run_id)
   );
-  const missingRuns = scheduledSlotsBetween(
-    new Date(now.getTime() - LOOKBACK_MS),
-    new Date(now.getTime() - MISSING_RUN_GRACE_MS)
-  )
-    .map(slotRunId)
-    .filter((id) => !dispatched.has(id));
+  const lookbackStart = new Date(now.getTime() - LOOKBACK_MS);
+  const missingRuns = scheduleStart
+    ? scheduledSlotsBetween(
+        scheduleStart > lookbackStart ? scheduleStart : lookbackStart,
+        new Date(now.getTime() - MISSING_RUN_GRACE_MS)
+      )
+        .map(slotRunId)
+        .filter((id) => !dispatched.has(id))
+    : [];
 
   // Only the latest audit per (run, source) counts: a recovered source that
   // later succeeded is not a failure.

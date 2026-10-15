@@ -50,6 +50,7 @@ it('does nothing until explicitly enabled', async () => {
 
 it('reports missing runs and Oracle failures as separate Sentry issues without raw error text', async () => {
   vi.stubEnv('JOB_BOARD_INGESTION_HEALTH_ENABLED', 'true');
+  vi.stubEnv('JOB_BOARD_SCHEDULE_START', '2026-10-15T00:00:00Z');
   m.tables.scheduler_runs = {
     data: [{ scheduler_run_id: 'job-board-hour-2026-10-15T18', dispatch_status: 'queued' }],
     error: null,

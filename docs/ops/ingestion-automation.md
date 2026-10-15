@@ -72,7 +72,9 @@ Check current prices in the Render dashboard before upgrading.
    redeploy the worker.
 3. Verify via `GET /job-board/ops/ingestion-queue`: queues empty and not paused.
 4. Run the hash backfill (below) as one supervised manual run.
-5. Set Vercel `JOB_BOARD_INGESTION_HEALTH_ENABLED=true`, then the repository
+5. Set Vercel `JOB_BOARD_INGESTION_HEALTH_ENABLED=true` and
+   `JOB_BOARD_SCHEDULE_START` (ISO time the schedule is switched on; slots
+   before it are never reported missing, and unset disables that check), then the repository
    variable `JOB_BOARD_SCHEDULE_ENABLED=true`. Optionally set
    `JOB_BOARD_AUTO_RECOVER_FAILED=true` after a week of clean runs.
 

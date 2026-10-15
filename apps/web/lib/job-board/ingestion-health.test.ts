@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   evaluateIngestionHealth,
   newYorkTimeToUtc,
+  parseScheduleStart,
   scheduledSlotsBetween,
   slotRunId,
   type AuditRow,
@@ -43,16 +44,33 @@ describe('evaluateIngestionHealth', () => {
     ...over,
   });
 
-  it('flags slots with no queued dispatch', () => {
+  const runs = [
+    { scheduler_run_id: 'job-board-hour-2026-10-15T18', dispatch_status: 'queued' },
+    { scheduler_run_id: 'job-board-hour-2026-10-16T01', dispatch_status: 'failed' },
+  ];
+
+  it('flags slots with no queued dispatch after the schedule start', () => {
     const health = evaluateIngestionHealth(
       now,
-      [
-        { scheduler_run_id: 'job-board-hour-2026-10-15T18', dispatch_status: 'queued' },
-        { scheduler_run_id: 'job-board-hour-2026-10-16T01', dispatch_status: 'failed' },
-      ],
-      []
+      runs,
+      [],
+      parseScheduleStart('2026-10-15T00:00:00Z')
     );
     expect(health.missingRuns).toEqual(['job-board-hour-2026-10-16T01']);
+  });
+
+  it('ignores slots before the schedule start, and all slots when it is unset', () => {
+    // Started after Thursday 2 PM: only the 9 PM slot is expected.
+    expect(
+      evaluateIngestionHealth(now, [], [], parseScheduleStart('2026-10-15T19:00:00Z'))
+        .missingRuns
+    ).toEqual(['job-board-hour-2026-10-16T01']);
+    expect(
+      evaluateIngestionHealth(now, [], [], parseScheduleStart('2026-10-16T02:00:00Z'))
+        .missingRuns
+    ).toEqual([]);
+    expect(evaluateIngestionHealth(now, [], []).missingRuns).toEqual([]);
+    expect(parseScheduleStart('not-a-date')).toBeNull();
   });
 
   it('counts failed, Oracle and stalled sources from the latest audit only', () => {
