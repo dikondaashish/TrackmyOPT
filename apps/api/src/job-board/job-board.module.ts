@@ -11,6 +11,7 @@ import { JobVisaSignalService } from './job-visa-signal.service';
 import { CompanyDiscoveryService } from './company-discovery.service';
 import { jobDataStoreProvider } from './job-data-store.provider';
 import { isJobBoardWorkerEnabled } from './ingestion-automation-config';
+import { JobBoardFailureReporter } from './job-board-failure-reporter';
 
 /**
  * Bull consumers are registered only where JOB_BOARD_WORKER_ENABLED is not
@@ -46,6 +47,7 @@ export function jobBoardWorkerProviders(env: NodeJS.ProcessEnv = process.env) {
   providers: [
     jobDataStoreProvider,
     JobBoardService,
+    JobBoardFailureReporter,
     ...jobBoardWorkerProviders(),
     EmployerMatchService,
     JobVisaSignalService,

@@ -21,6 +21,10 @@ import { applyFreeUserChangeWedgeToUpdate } from '@/lib/case-status/free-change-
 import { resolveReceivedDate } from '@/lib/case-status/filing-date';
 import { resolvePpStartDateForStorage } from '@/lib/case-status/premium-processing';
 import { recordPendingCaseEmailSequence } from '@/lib/notifications/pending-case-email';
+import {
+  dbFailureKind,
+  retryOnDbTransportFailure,
+} from '@/lib/case-status/db-transport-retry';
 
 export const maxDuration = 180;
 
@@ -459,15 +463,20 @@ async function handlePOST(req: NextRequest) {
     const uscisStatus = uscisResult.data;
 
     // Get current case status from database
-    const { data: currentCase, error: fetchError } = await supabase
-      .from('case_status')
-      .select('*')
-      .eq('id', caseId)
-      .eq('user_id', bodyUserId)
-      .single();
+    const currentCaseResult = await retryOnDbTransportFailure(() =>
+      supabase
+        .from('case_status')
+        .select('*')
+        .eq('id', caseId)
+        .eq('user_id', bodyUserId)
+        .single()
+    );
+    const { data: currentCase, error: fetchError } = currentCaseResult;
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('USCIS current case lookup failed');
+      console.error(
+        `USCIS current case lookup failed (${dbFailureKind(currentCaseResult)})`
+      );
       await finishFailed(500, 'db_fetch_error');
       return NextResponse.json(
         { ok: false, error: 'Database error' },
@@ -560,17 +569,23 @@ async function handlePOST(req: NextRequest) {
       });
     }
 
-    // Update database — reset failure counters on success (ISS-012)
-    const { data: updatedCase, error: updateError } = await supabase
-      .from('case_status')
-      .update(updateData)
-      .eq('id', caseId)
-      .eq('user_id', bodyUserId)
-      .select('id')
-      .maybeSingle();
+    // Update database — reset failure counters on success (ISS-012). The
+    // payload is fixed before the call, so a transport retry is idempotent.
+    const updateResult = await retryOnDbTransportFailure(() =>
+      supabase
+        .from('case_status')
+        .update(updateData)
+        .eq('id', caseId)
+        .eq('user_id', bodyUserId)
+        .select('id')
+        .maybeSingle()
+    );
+    const { data: updatedCase, error: updateError } = updateResult;
 
     if (updateError) {
-      console.error('USCIS case persistence failed');
+      console.error(
+        `USCIS case persistence failed (${dbFailureKind(updateResult)})`
+      );
       await finishFailed(500, 'db_update_error');
       return NextResponse.json(
         { ok: false, error: 'Failed to update database' },

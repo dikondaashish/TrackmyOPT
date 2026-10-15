@@ -31,6 +31,14 @@ Oracle error codes (`ORA-`/`NJS-`/`DPI-`), never raw error text. Failures
 inside the Render worker that never reach an audit row remain visible only in
 Render logs. See `docs/ops/ingestion-automation.md`.
 
+The Render job-board worker sends fixed, body-free signals to
+`/api/internal/job-board-worker-failure/[kind]` (authenticated with the API
+key, rate-limited per kind) for failures that never reach an audit row:
+`queue-error` (Bull/Redis error events), `source-stalled` (a source job lost
+its lock) and `redis-eviction` (Redis `maxmemory-policy` is not `noeviction`).
+The worker sends each kind at most once per 5 minutes. Process crashes and
+out-of-memory kills are still visible only in Render events and logs.
+
 When adding API handlers, export them through `withSentryApiErrors` with their
 static route pattern and HTTP method, as existing routes do. The wrapper never
 reads request or response bodies, preserves streaming responses, and lets
@@ -49,6 +57,25 @@ while the browser is offline or the page is hidden, and keeps only the **first**
 one per page load. A real site outage still reports, but one dropped connection
 no longer creates an issue for every widget on the page. 5xx responses are
 reported separately and are unaffected.
+
+App code that catches such a failure and reports it with its own fixed message
+(for example the receipt-entry `network` diagnostics) applies the same policy
+through `shouldReportCaughtNetworkFailure`, sharing the once-per-page budget.
+
+posthog-node logs its own delivery problems through `console.error`.
+`isAnalyticsTransportFailure` drops only PostHog network errors/timeouts and
+the bounded shutdown-wait timeout; PostHog HTTP errors (such as a rejected key)
+and every product failure still report.
+
+Expected JWT outcomes (expired, malformed, or wrongly signed extension tokens)
+return `null` silently in `verifyToken`; only unexpected verification faults,
+such as a missing signing secret, are reported (error class only).
+
+The USCIS case check retries an idempotent `case_status` read/update once when
+supabase-js gets no HTTP response (`status: 0`), and labels persistence
+failures as `transport` or `http <status> <SQLSTATE>`. AI call failures are
+reported as a fixed `[ai-failed] task=… model=… error=… status=… reason=…`
+line; the JSON detail goes to logs at warn level only.
 
 The OPT/STEM tools report unexpected saved-date, plan-status, employment-history,
 and date-save failures with fixed diagnostic messages, including malformed or

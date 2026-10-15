@@ -13,8 +13,10 @@ vi.mock('@google/genai', () => ({
 
 vi.mock('@/lib/posthog-server', () => ({ captureServerEvent: vi.fn() }));
 
+import { scrubSentryEvent } from '@/lib/sentry/options';
 import {
   AI_MODEL_POLICIES,
+  aiFailureDiagnostic,
   generateAiContent,
   estimateAiCostUsd,
   resolveAiBackendConfig,
@@ -162,5 +164,37 @@ describe('resume model deadlines', () => {
     await expect(generateAiContent({ task: 'resume_generate', contents: 'synthetic' })).rejects.toThrow('Unauthorized');
     expect(generateContent).toHaveBeenCalledOnce();
     expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
+describe('AI failure diagnostics', () => {
+  beforeEach(() => {
+    vi.stubEnv('GOOGLE_CLOUD_PROJECT', 'test-project');
+    generateContent.mockReset();
+  });
+  afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
+
+  it('reports a stable, payload-free line that survives the Sentry privacy filter', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const providerBody = JSON.stringify({
+      error: { code: 400, message: 'Synthetic applicant resume text', status: 'INVALID_ARGUMENT' },
+    });
+    generateContent.mockRejectedValueOnce(
+      Object.assign(new Error(providerBody), { name: 'ApiError', status: 400 })
+    );
+    await expect(
+      generateAiContent({ task: 'autofill_extract', contents: 'synthetic' })
+    ).rejects.toThrow();
+    const line =
+      '[ai-failed] task=autofill_extract model=gemini-3.5-flash-lite fallback=false error=ApiError status=400 reason=INVALID_ARGUMENT';
+    expect(error).toHaveBeenCalledWith(line);
+    expect(JSON.stringify(error.mock.calls)).not.toContain('Synthetic applicant');
+    expect(scrubSentryEvent({ type: undefined, message: line }, {}).message).toBe(line);
+  });
+
+  it('labels failures without provider bodies', () => {
+    expect(aiFailureDiagnostic(new Error('timeout'))).toEqual({ errorName: 'Error' });
+    expect(aiFailureDiagnostic('boom')).toEqual({ errorName: 'UnknownError' });
   });
 });

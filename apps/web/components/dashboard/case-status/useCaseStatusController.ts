@@ -37,6 +37,7 @@ import {
   reportReceiptEntryFailure,
   trackReceiptEntry,
 } from '@/lib/case-status/receipt-entry-observability';
+import { isBrowserNetworkError } from '@/lib/sentry/options';
 import {
   normalizeStatusHistory,
   withNormalizedStatusHistory,
@@ -343,8 +344,14 @@ export function useCaseStatusController() {
         // ISS-030: differentiate "no case" from "couldn't load"
         setLoadError('Could not load your case status.');
         return null;
-      } catch {
-        reportReceiptEntryFailure('case_status', 'load', 'network');
+      } catch (error) {
+        // Only a fetch rejection is a connection failure; a body that cannot
+        // be parsed or processed stays a reportable response failure.
+        reportReceiptEntryFailure(
+          'case_status',
+          'load',
+          isBrowserNetworkError(error) ? 'network' : 'response'
+        );
         setLoadError(
           'Could not load your case status. Check your connection and try again.'
         );

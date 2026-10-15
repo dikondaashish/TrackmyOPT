@@ -298,6 +298,35 @@ export function estimateAiCostUsd(
   );
 }
 
+/**
+ * Provider failure fields that cannot echo prompts or output: the error class,
+ * numeric HTTP status, and Google's upper-case status enum (e.g.
+ * INVALID_ARGUMENT) parsed from the provider body. Never the message text.
+ */
+export function aiFailureDiagnostic(error: unknown): {
+  errorName: string;
+  status?: number;
+  reason?: string;
+} {
+  const errorName =
+    error instanceof Error && /^[A-Za-z]{1,64}$/.test(error.name)
+      ? error.name
+      : 'UnknownError';
+  const rawStatus =
+    typeof error === 'object' && error !== null && 'status' in error
+      ? Number((error as { status?: unknown }).status)
+      : NaN;
+  const reason =
+    error instanceof Error
+      ? /"status"\s*:\s*"([A-Z_]{3,40})"/.exec(error.message)?.[1]
+      : undefined;
+  return {
+    errorName,
+    ...(Number.isInteger(rawStatus) ? { status: rawStatus } : {}),
+    ...(reason ? { reason } : {}),
+  };
+}
+
 function isRetryableProviderError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
   const candidate = error as { status?: unknown; code?: unknown; name?: unknown };
@@ -419,11 +448,18 @@ async function callModel(input: {
       deadline,
     ]);
   } catch (error) {
-    console.error('[ai-failed]', JSON.stringify({
-      ...context, latencyMs: Date.now() - startedAt,
-      errorName: error instanceof Error ? error.name : 'UnknownError',
-      status: typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined,
+    const failure = aiFailureDiagnostic(error);
+    // Full context for log search (warn is not sent to Sentry)...
+    console.warn('[ai-failed-detail]', JSON.stringify({
+      ...context, latencyMs: Date.now() - startedAt, ...failure,
     }));
+    // ...and a stable, payload-free line for Sentry. A JSON argument would be
+    // redacted wholesale by the privacy filter, hiding task, model and status.
+    console.error(
+      `[ai-failed] task=${input.task} model=${input.choice.model} ` +
+        `fallback=${input.fallbackUsed} error=${failure.errorName} ` +
+        `status=${failure.status ?? 'none'} reason=${failure.reason ?? 'none'}`
+    );
     throw error;
   } finally {
     clearTimeout(timer);

@@ -137,6 +137,11 @@ export function isBrowserNetworkFailure(event: ErrorEvent): boolean {
   );
 }
 
+/** True for a caught fetch rejection that never received an HTTP response. */
+export function isBrowserNetworkError(error: unknown): boolean {
+  return error instanceof TypeError && NETWORK_FAILURE.test(error.message);
+}
+
 type BrowserState = { offline: boolean; hidden: boolean };
 const browserState = (): BrowserState | null =>
   typeof navigator === 'undefined' || typeof document === 'undefined'
@@ -161,10 +166,50 @@ export function shouldDropNetworkFailure(
   event: ErrorEvent,
   state: BrowserState | null = browserState()
 ): boolean {
-  if (!state || !isBrowserNetworkFailure(event)) return false;
-  if (state.offline || state.hidden || networkFailureReported) return true;
+  if (!isBrowserNetworkFailure(event)) return false;
+  return !shouldReportCaughtNetworkFailure(state);
+}
+
+/**
+ * The same policy for app code that catches a network failure and reports it
+ * with its own fixed message (which `isBrowserNetworkFailure` cannot match).
+ * Shares the once-per-page-load budget with uncaught network failures.
+ */
+export function shouldReportCaughtNetworkFailure(
+  state: BrowserState | null = browserState()
+): boolean {
+  if (!state) return true;
+  if (state.offline || state.hidden || networkFailureReported) return false;
   networkFailureReported = true;
-  return false;
+  return true;
+}
+
+// posthog-node reports its own delivery problems through console.error, which
+// captureConsole turns into issues. A batch lost to a network error/timeout or
+// to the bounded shutdown wait is third-party analytics transport, not a
+// TrackMyOPT failure. PostHog HTTP errors (e.g. a rejected key) still report.
+const POSTHOG_SHUTDOWN_TIMEOUT = /^\[PostHog\] Timeout while shutting down PostHog\b/;
+const POSTHOG_NETWORK_TYPES = new Set([
+  'PostHogFetchNetworkError',
+  'AbortError',
+  'TimeoutError',
+  'TypeError',
+]);
+
+export function isAnalyticsTransportFailure(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  if (values.some((v) => v.type === 'PostHogFetchNetworkError')) {
+    return values.every((v) => POSTHOG_NETWORK_TYPES.has(v.type ?? ''));
+  }
+  const messages = [
+    event.message,
+    event.logentry?.message,
+    ...values.map((v) => v.value),
+  ].filter((m): m is string => Boolean(m));
+  return (
+    messages.length > 0 &&
+    messages.every((m) => POSTHOG_SHUTDOWN_TIMEOUT.test(m))
+  );
 }
 
 export function sentryOptions(
@@ -193,7 +238,9 @@ export function sentryOptions(
       frameContextLines: 0,
     },
     beforeSend: (event, hint) =>
-      isForeignScriptEvent(event) || shouldDropNetworkFailure(event)
+      isForeignScriptEvent(event) ||
+      isAnalyticsTransportFailure(event) ||
+      shouldDropNetworkFailure(event)
         ? null
         : scrubSentryEvent(event, hint),
     beforeSendTransaction: () => null,

@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  Optional,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
@@ -59,6 +60,7 @@ import {
   readIngestionQueueState,
   readIngestionRunStatus,
 } from './job-board-queue-inspection';
+import { JobBoardFailureReporter } from './job-board-failure-reporter';
 import {
   isJobBoardWorkerEnabled,
   parseExcludedSourceIds,
@@ -123,6 +125,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     private readonly employerMatches: EmployerMatchService,
     private readonly visaSignals: JobVisaSignalService,
     @Inject(JOB_DATA_STORE) private readonly jobStore: JobDataStore,
+    @Optional() private readonly failureReporter?: JobBoardFailureReporter,
   ) {
     this.supabase = createClient(
       this.config.get<string>('NEXT_PUBLIC_SUPABASE_URL') || '',
@@ -173,6 +176,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         this.logger.error(
           `Redis maxmemory-policy is ${policy}; Bull jobs can be evicted. Use noeviction.`,
         );
+        await this.failureReporter?.report('redis-eviction');
       }
     } catch {
       this.logger.warn('Could not read the Redis eviction policy');
