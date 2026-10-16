@@ -388,11 +388,11 @@ export function JobBoardExplorer({
             <FilterSelect label="Role" value={draft.role} onChange={(value) => updateDraft('role', value as JobFilters['role'])}>
               <option value="all">Role</option><option value="engineering">Engineering</option><option value="data">Data & analytics</option><option value="product">Product</option><option value="design">Design</option><option value="operations">Operations</option><option value="sales">Sales</option><option value="other">Other</option>
             </FilterSelect>
-            <details className="group relative w-full sm:w-auto" data-advanced-filters>
+            <details className="group w-full sm:w-auto sm:open:w-full" data-advanced-filters>
               <summary className="inline-flex min-h-11 w-full cursor-pointer list-none items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900">
                 <SlidersHorizontal className="size-4" aria-hidden="true" /> More filters <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
               </summary>
-              <div className="absolute left-0 z-20 mt-2 w-[min(40rem,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white p-3 shadow-xl sm:right-0 sm:left-auto dark:border-slate-700 dark:bg-slate-950">
+              <div className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/60">
                 <label className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm dark:border-slate-700">
                   <span className="font-medium text-slate-500">Exclude</span>
                   <input
