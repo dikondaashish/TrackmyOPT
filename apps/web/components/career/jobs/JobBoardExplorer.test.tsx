@@ -220,6 +220,70 @@ describe('JobBoardExplorer', () => {
     expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
   });
 
+  it('offers every feed location and company in server mode and sends exact values', async () => {
+    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ jobs: [], total: 0, page: 1 }), { status: 200, headers: { 'content-type': 'application/json' } }),
+    );
+    render(
+      <JobBoardExplorer
+        jobs={jobs}
+        totalJobs={120}
+        serverMode
+        runway={null}
+        asOf="2026-08-29T12:00:00.000Z"
+        locationOptions={['San Francisco, CA', 'Austin, TX']}
+        companyOptions={['Notion', 'Anthropic', 'Anyscale, Inc.']}
+      />,
+    );
+
+    const companyOptions = [...screen.getByRole('combobox', { name: 'Company' }).querySelectorAll('option')].map((option) => option.value);
+    expect(companyOptions).toEqual(['all', 'Anthropic', 'Anyscale, Inc.', 'Notion']);
+    const locationOptions = [...screen.getByRole('combobox', { name: 'Location' }).querySelectorAll('option')].map((option) => option.value);
+    expect(locationOptions).toEqual(['all', 'Austin, TX', 'San Francisco, CA']);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Company' }), { target: { value: 'Anyscale, Inc.' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Location' }), { target: { value: 'San Francisco, CA' } });
+    applyFilters();
+
+    expect(await screen.findByText('No verified jobs match these filters')).toBeInTheDocument();
+    const params = new URL(String(fetchMock.mock.calls[0][0]), 'https://example.test').searchParams;
+    expect(params.get('company')).toBe('Anyscale, Inc.');
+    expect(params.get('location')).toBe('San Francisco, CA');
+    expect(params.get('page')).toBe('1');
+    expect(params.has('resumeId')).toBe(false);
+    fetchMock.mockRestore();
+  });
+
+  it('keeps the newest server results when an earlier request finishes last', async () => {
+    let resolveFirst: (response: Response) => void = () => {};
+    const first = new Promise<Response>((resolve) => { resolveFirst = resolve; });
+    const respond = (title: string, total: number) => new Response(
+      JSON.stringify({ jobs: [job({ id: title, title, tracker_status: null })], total, page: 1 }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+    const fetchMock = vi.spyOn(global, 'fetch')
+      .mockImplementationOnce(() => first)
+      .mockImplementationOnce(() => Promise.resolve(respond('Newest filter result', 1)));
+    render(<JobBoardExplorer jobs={jobs} totalJobs={2} serverMode runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search verified jobs' }), { target: { value: 'old' } });
+    applyFilters();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search verified jobs' }), { target: { value: 'new' } });
+    applyFilters();
+    expect(await screen.findByText('Newest filter result')).toBeInTheDocument();
+
+    resolveFirst(respond('Stale filter result', 40));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(screen.queryByText('Stale filter result')).not.toBeInTheDocument();
+    expect(screen.getByText('1 job')).toBeInTheDocument();
+    fetchMock.mockRestore();
+  });
+
+  it('labels a missing posting date with the first-seen date', () => {
+    render(<JobBoardExplorer jobs={[job({ posted_at: null, first_seen_at: '2026-08-27T12:00:00.000Z' })]} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+    expect(screen.getByText(/First seen Aug 27, 2026/)).toBeInTheDocument();
+  });
+
   it('keeps title-and-description search separate from title-only search', () => {
     render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Bookmark, ChevronDown, FileText, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
 import { EmployerEvidencePanel } from '@/components/career/jobs/EmployerEvidencePanel';
 import { AtsSourceLogo, JobCompanyLogo } from '@/components/career/jobs/JobBrandLogo';
@@ -65,6 +65,16 @@ function formatDate(value: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Date not provided';
   return `${shortMonthNames[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
+}
+
+/** Posting date, or when the listing was first seen for a source without one. */
+function postedLabel(job: Pick<ExplorerJob, 'posted_at' | 'first_seen_at'>) {
+  if (!job.posted_at && job.first_seen_at) return `First seen ${formatDate(job.first_seen_at)}`;
+  return formatDate(job.posted_at);
+}
+
+function uniqueSorted(values: Array<string | null | undefined>) {
+  return [...new Set(values.filter((value): value is string => Boolean(value)))].sort((left, right) => left.localeCompare(right, 'en', { sensitivity: 'base' }));
 }
 
 function initialSavedJobIds(jobs: ExplorerJob[]) {
@@ -167,7 +177,7 @@ function JobListItem({
               <h2 className="text-base font-semibold leading-5 tracking-[-0.01em] text-slate-950 group-hover:text-blue-800 sm:text-[1.05rem] dark:text-white dark:group-hover:text-blue-200">{job.title}</h2>
               <ChevronDown className={`size-4 shrink-0 text-slate-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
             </button>
-            <p className="text-sm leading-5 text-slate-600 dark:text-slate-300">{companyName} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {formatDate(job.posted_at)}</p>
+            <p className="text-sm leading-5 text-slate-600 dark:text-slate-300">{companyName} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {job.location || 'Location not provided'} <span className="px-0.5 text-slate-300 dark:text-slate-600">·</span> {postedLabel(job)}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {resumeMatch && <span className={`rounded-md px-2 py-0.5 text-xs font-semibold leading-5 ${resumeMatch.score >= 75 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200' : resumeMatch.score >= 50 ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-200' : 'bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300'}`}>{resumeMatch.score}% match</span>}
               {requirements.map((label) => <span key={label} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium leading-5 text-slate-600 dark:bg-slate-900 dark:text-slate-300">{label}</span>)}
@@ -202,7 +212,7 @@ function JobListItem({
               <h3 className="text-sm font-semibold text-slate-950 dark:text-white">Details</h3>
               <dl className="space-y-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Source:</dt> <dd className="inline">{atsSourceName(job.source_ats)} verified employer board</dd></div>
-                <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Posted:</dt> <dd className="inline">{formatDate(job.posted_at)}</dd></div>
+                <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Posted:</dt> <dd className="inline">{postedLabel(job)}</dd></div>
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Confirmed:</dt> <dd className="inline">{formatDate(job.last_confirmed_at)}</dd></div>
                 <div><dt className="inline font-semibold text-slate-800 dark:text-slate-100">Role:</dt> <dd className="inline">{facts.roles.join(', ').replaceAll('_', ' ')}</dd></div>
               </dl>
@@ -235,6 +245,8 @@ export function JobBoardExplorer({
   asOf,
   savedResumes = EMPTY_SAVED_RESUMES,
   initialResumeMatch = null,
+  locationOptions,
+  companyOptions,
 }: {
   jobs: ExplorerJob[];
   totalJobs?: number;
@@ -243,12 +255,18 @@ export function JobBoardExplorer({
   asOf: string;
   savedResumes?: SavedResumeOption[];
   initialResumeMatch?: ActiveResumeMatch | null;
+  /** Every location of the open feed; otherwise derived from the loaded jobs. */
+  locationOptions?: string[];
+  /** Every company of the open feed; otherwise derived from the loaded jobs. */
+  companyOptions?: string[];
 }) {
   const [displayJobs, setDisplayJobs] = useState(jobs);
   const [totalCount, setTotalCount] = useState(totalJobs);
   const [currentPage, setCurrentPage] = useState(1);
   const [serverError, setServerError] = useState<string | null>(null);
-  const locations = useMemo(() => [...new Set(displayJobs.map((job) => job.location).filter((value): value is string => Boolean(value)))].sort(), [displayJobs]);
+  // Server mode loads one page at a time, so options derived from the loaded
+  // jobs would only list that page's values.
+  const locations = useMemo(() => locationOptions ? uniqueSorted(locationOptions) : uniqueSorted(displayJobs.map((job) => job.location)), [displayJobs, locationOptions]);
   const initialFilters = useMemo(
     () => initialResumeMatch ? deriveResumeJobFilters(initialResumeMatch.profile, locations) : EMPTY_JOB_FILTERS,
     [initialResumeMatch, locations],
@@ -261,7 +279,7 @@ export function JobBoardExplorer({
   const asOfDate = useMemo(() => new Date(asOf), [asOf]);
 
   const factsByJob = useMemo(() => new Map(displayJobs.map((job) => [job.id, inferJobFacts(job)])), [displayJobs]);
-  const companies = useMemo(() => [...new Set(displayJobs.map((job) => job.company_name || job.employer_board_name).filter((value): value is string => Boolean(value)))].sort(), [displayJobs]);
+  const companies = useMemo(() => companyOptions ? uniqueSorted(companyOptions) : uniqueSorted(displayJobs.map((job) => job.company_name || job.employer_board_name)), [companyOptions, displayJobs]);
   const resumeMatches = useMemo(() => new Map(displayJobs.map((job) => [
     job.id,
     activeResumeMatch ? job.resume_match || scoreJobForResume(activeResumeMatch.profile, job, factsByJob.get(job.id)!) : null,
@@ -273,7 +291,10 @@ export function JobBoardExplorer({
       .sort((left, right) => activeResumeMatch ? (resumeMatches.get(right.id)?.score || 0) - (resumeMatches.get(left.id)?.score || 0) : 0),
   [activeResumeMatch, asOfDate, displayJobs, factsByJob, filters, resumeMatches, savedJobIds, serverMode]);
 
-  const loadServerPage = async (page: number, nextFilters: JobFilters, resumeIdOverride?: string) => {
+  const latestRequest = useRef(0);
+  // `resumeIdOverride` null loads without resume ranking; undefined keeps the active match.
+  const loadServerPage = async (page: number, nextFilters: JobFilters, resumeIdOverride?: string | null) => {
+    const requestId = ++latestRequest.current;
     const params = new URLSearchParams({
       page: String(page),
       searchScope: nextFilters.searchScope,
@@ -291,17 +312,21 @@ export function JobBoardExplorer({
       employmentType: nextFilters.employmentType,
       tracker: nextFilters.tracker,
     });
-    if (resumeIdOverride || activeResumeMatch?.resumeId) params.set('resumeId', resumeIdOverride || activeResumeMatch!.resumeId);
+    const resumeId = resumeIdOverride === undefined ? activeResumeMatch?.resumeId : resumeIdOverride;
+    if (resumeId) params.set('resumeId', resumeId);
     try {
       const response = await fetch(`/api/job-board/jobs?${params.toString()}`, { cache: 'no-store' });
       const body = await response.json().catch(() => ({}));
+      // A slower response for earlier filters must not replace newer results.
+      if (requestId !== latestRequest.current) return;
       if (!response.ok) throw new Error(body.error || 'Unable to load verified jobs');
-    setDisplayJobs((body.jobs || []).map((job: ExplorerJob) => ({ ...job, description: null })));
+      setDisplayJobs((body.jobs || []).map((job: ExplorerJob) => ({ ...job, description: null })));
       setTotalCount(Number(body.total || 0));
       setCurrentPage(Number(body.page || page));
       setSavedJobIds(initialSavedJobIds(body.jobs || []));
       setServerError(null);
     } catch (error) {
+      if (requestId !== latestRequest.current) return;
       setServerError(error instanceof Error ? error.message : 'Unable to load verified jobs');
     }
   };
@@ -321,10 +346,10 @@ export function JobBoardExplorer({
     setDraft((current) => ({ ...current, [key]: value }));
   };
 
-  const clearFilters = () => {
+  const clearFilters = (resumeIdOverride?: null) => {
     setDraft(EMPTY_JOB_FILTERS);
     setFilters(EMPTY_JOB_FILTERS);
-    if (serverMode) void loadServerPage(1, EMPTY_JOB_FILTERS);
+    if (serverMode) void loadServerPage(1, EMPTY_JOB_FILTERS, resumeIdOverride);
   };
 
   const applyResumeMatch = (match: ActiveResumeMatch) => {
@@ -337,7 +362,7 @@ export function JobBoardExplorer({
 
   const clearResumeMatch = () => {
     setActiveResumeMatch(null);
-    clearFilters();
+    clearFilters(null);
   };
 
   return (
@@ -426,7 +451,7 @@ export function JobBoardExplorer({
               </div>
             </details>
             <div className="ml-auto flex items-center gap-1">
-              <button type="button" onClick={clearFilters} className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"><RotateCcw className="size-4" aria-hidden="true" /> Clear</button>
+              <button type="button" onClick={() => clearFilters()} className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"><RotateCcw className="size-4" aria-hidden="true" /> Clear</button>
               <button type="submit" aria-label="Apply filters" className="inline-flex min-h-11 items-center rounded-lg bg-slate-950 px-3.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">Apply</button>
             </div>
           </div>
@@ -442,7 +467,7 @@ export function JobBoardExplorer({
         <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900/50">
           <h2 className="font-semibold text-slate-950 dark:text-white">No verified jobs match these filters</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Try removing a filter or searching with a broader term. Only authorized employer-board listings appear here.</p>
-          <button type="button" onClick={clearFilters} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Clear filters</button>
+          <button type="button" onClick={() => clearFilters()} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Clear filters</button>
         </div>
       ) : (
         <div className="space-y-2.5">

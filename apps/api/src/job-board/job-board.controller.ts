@@ -64,6 +64,12 @@ export class JobBoardController {
     return { ...result, visaSignals: signals };
   }
 
+  /** Complete Location/Company filter options; declared before jobs/:id. */
+  @Get('jobs/facets')
+  listJobFacets() {
+    return this.jobBoard.listJobFacets();
+  }
+
   @Get('jobs/:id')
   async getJob(@Param('id') id: string) {
     const job = await this.jobBoard.getJob(id);

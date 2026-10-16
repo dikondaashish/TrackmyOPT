@@ -113,6 +113,15 @@ export type JobStorePage = {
   total: number;
 };
 
+/**
+ * Filter option values. `companies` holds the value the company filter
+ * matches (company_name, else employer_board_name).
+ */
+export type JobStoreFacets = {
+  locations: string[];
+  companies: string[];
+};
+
 export type JobStoreVisaSignal = {
   jobId: string;
   signalType: string;
@@ -128,6 +137,8 @@ export interface JobDataStore {
   close?(): Promise<void>;
   healthCheck(): Promise<void>;
   listJobs(query: JobStoreSearch): Promise<JobStorePage>;
+  /** Every location and company of open verified jobs, for filter options. */
+  listJobFacets(): Promise<JobStoreFacets>;
   /** Full lifecycle read used by reconciliation; callers must paginate inside the store. */
   listSourceJobs(sourceId: string): Promise<JobStoreRecord[]>;
   /** Avoids loading CLOB descriptions during live ingestion reconciliation. */

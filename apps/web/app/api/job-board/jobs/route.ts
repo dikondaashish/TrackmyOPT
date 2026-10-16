@@ -5,6 +5,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { findActiveTrackerStatus, inferJobFacts } from '@/lib/job-board/filters';
 import { parseResumeJobProfile, scoreJobForResume, type ResumeJobMatch } from '@/lib/job-board/resume-match';
 import { listServerJobs, type ServerJobRecord } from '@/lib/job-board/server-job-store';
+import { cleanSearchTerm, exactFilterValue } from '@/lib/job-board/request-filters';
 
 const PAGE_SIZE = 50;
 
@@ -17,10 +18,6 @@ const DATE_WINDOWS: Record<string, number> = {
   '7d': 24 * 7,
   '30d': 24 * 30,
 };
-
-function safeTerm(value: string) {
-  return value.replace(/[(),]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
-}
 
 function mapOracleJob(row: ServerJobRecord, employerMatch: FeedEmployerMatch | null, visaSignals: FeedVisaSignal[], trackerEntries: TrackerEntry[]) {
   return {
@@ -82,10 +79,10 @@ async function handleGET(request: Request) {
   const params = new URL(request.url).searchParams;
   const page = Math.max(1, Number(params.get('page') || '1') || 1);
   const scope = params.get('searchScope') || 'title_description';
-  const queryText = safeTerm(params.get('query') || '');
-  const exclude = safeTerm(params.get('exclude') || '');
-  const location = safeTerm(params.get('location') || '');
-  const company = safeTerm(params.get('company') || '');
+  const queryText = cleanSearchTerm(params.get('query') || '');
+  const exclude = cleanSearchTerm(params.get('exclude') || '');
+  const location = exactFilterValue(params.get('location') || '');
+  const company = exactFilterValue(params.get('company') || '');
   const date = params.get('date') || 'any';
   const workplace = params.get('workplace') || 'all';
   const degree = params.get('degree') || 'all';
