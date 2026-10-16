@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Pause, Play } from 'lucide-react';
-import * as Sentry from '@sentry/nextjs';
+import { reportUnavailableBlogImage } from './BlogPostImage';
 import type { ArticleSection } from '@/data/blog-series/types';
 
 export function BlogFlowFigure({
@@ -28,11 +28,12 @@ export function BlogFlowFigure({
           onError={() => {
             setFailed(true);
             setPlaying(false);
-            Sentry.captureException(
-              new Error('Blog process illustration failed to load'),
-              {
-                tags: { feature: 'blog-flow-figure' },
-              }
+            // Report only when the server confirms the asset is broken;
+            // blocked images and dropped connections are visitor-side.
+            void reportUnavailableBlogImage(
+              playing ? visual.src : visual.poster,
+              'Blog process illustration',
+              'blog-flow-figure'
             );
           }}
         />

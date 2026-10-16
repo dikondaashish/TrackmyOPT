@@ -9,6 +9,7 @@ import {
   isForeignScriptEvent,
   isInjectedPageScriptEvent,
   isOriginReachable,
+  isThirdPartyScriptEvent,
   networkFailureOrigin,
   resetNetworkFailureReporting,
   sentryOptions,
@@ -250,6 +251,40 @@ describe('Sentry third-party script filtering', () => {
     ).toBe(false);
     expect(isForeignScriptEvent(withFrames('<anonymous>'))).toBe(false);
     expect(isForeignScriptEvent({ type: undefined, message: 'x' })).toBe(false);
+  });
+});
+
+describe('Sentry ad and third-party script filtering', () => {
+  const withFrames = (...filenames: string[]): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        { type: 'Error', value: 'int64', stacktrace: { frames: filenames.map((filename) => ({ filename })) } },
+      ],
+    },
+  });
+  const sdk =
+    'node_modules/.pnpm/@sentry+core@11.6.0/node_modules/@sentry/core/src/integration.ts';
+
+  it('drops AdSense and executors script errors wrapped by the SDK', () => {
+    expect(
+      isThirdPartyScriptEvent(
+        withFrames(sdk, 'app:///pagead/js/r20261015/r20190131/rum_fy2021.js')
+      )
+    ).toBe(true);
+    expect(isThirdPartyScriptEvent(withFrames('app:///executors/200.js'))).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(withFrames('app:///executors/200.js'), {})).toBeNull();
+  });
+
+  it('keeps errors with any first-party frame, and SDK-only stacks', () => {
+    expect(
+      isThirdPartyScriptEvent(
+        withFrames('app:///pagead/js/x.js', 'app:///_next/static/chunks/app.js')
+      )
+    ).toBe(false);
+    expect(isThirdPartyScriptEvent(withFrames(sdk))).toBe(false);
+    expect(isThirdPartyScriptEvent(withFrames('app:///_next/executors/200.js.map'))).toBe(false);
   });
 });
 

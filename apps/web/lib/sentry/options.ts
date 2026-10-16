@@ -121,6 +121,25 @@ export function isForeignScriptEvent(event: ErrorEvent): boolean {
   );
 }
 
+// Google AdSense (blog pages only) and similar ad/measurement scripts throw on
+// their own inside our pages, and an `executors/<n>.js` script that is not one
+// of our files (TrackMyOPT bundles are served from /_next/). Sentry's global
+// handlers wrap them, so the SDK's own frames appear beside theirs; ignore those.
+const THIRD_PARTY_SCRIPT =
+  /\/pagead\/|googlesyndication\.com|doubleclick\.net|adtrafficquality\.google|\/executors\/\d+\.js(?:[?#]|$)/i;
+const SENTRY_SDK_FRAME = /[/+]@?sentry[+/]|\/@sentry\//i;
+
+/** True when every non-SDK frame belongs to an ad or other third-party script. */
+export function isThirdPartyScriptEvent(event: ErrorEvent): boolean {
+  const files = (event.exception?.values ?? []).flatMap((exception) =>
+    (exception.stacktrace?.frames ?? [])
+      .map((frame) => frame.filename ?? frame.abs_path)
+      .filter((file): file is string => Boolean(file))
+      .filter((file) => !SENTRY_SDK_FRAME.test(file))
+  );
+  return files.length > 0 && files.every((file) => THIRD_PARTY_SCRIPT.test(file));
+}
+
 // Our code always runs from bundled `/_next/` script files. The served HTML is
 // at most 22 lines (`/`) and our only inline scripts are JSON-LD/one-liners, so
 // a frame on a page document beyond line 50 is script the browser or host app
@@ -347,6 +366,7 @@ export function sentryOptions(
     beforeSend: (event, hint) => {
       if (
         isForeignScriptEvent(event) ||
+        isThirdPartyScriptEvent(event) ||
         isInjectedPageScriptEvent(event) ||
         isAnalyticsTransportFailure(event)
       )

@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import {
   BlogPostImage,
+  reportUnavailableBlogImage,
   reportUnavailableCover,
   resetCoverFailureProbe,
 } from './BlogPostImage';
@@ -129,6 +130,21 @@ describe('blog cover failures', () => {
     expect(screen.getByRole('img')).toHaveAttribute(
       'data-unoptimized',
       'false'
+    );
+  });
+});
+
+describe('reportUnavailableBlogImage', () => {
+  it('names the image kind and feature in the report', async () => {
+    fetchMock.mockResolvedValue(served(404, 'text/html'));
+    await reportUnavailableBlogImage(
+      '/blog/flow.webp',
+      'Blog process illustration',
+      'blog-flow-figure'
+    );
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      new Error('Blog process illustration failed to load (stage=http, status=404)'),
+      { tags: { feature: 'blog-flow-figure' } }
     );
   });
 });

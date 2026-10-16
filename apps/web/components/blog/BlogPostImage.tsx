@@ -20,6 +20,15 @@ export function resetCoverFailureProbe() {
  * failure. `stage=network` follows Sentry's shared dropped-connection policy.
  */
 export async function reportUnavailableCover(src: string) {
+  return reportUnavailableBlogImage(src, 'Blog cover image', 'blog-cover-image');
+}
+
+/** Same server check for any blog image; `label` and `feature` name it in Sentry. */
+export async function reportUnavailableBlogImage(
+  src: string,
+  label: string,
+  feature: string
+) {
   if (skipCoverProbes) return;
   let stage = 'network';
   let status: number | 'none' = 'none';
@@ -39,9 +48,9 @@ export async function reportUnavailableCover(src: string) {
   }
   Sentry.captureException(
     new Error(
-      `Blog cover image failed to load (stage=${stage}, status=${status})`
+      `${label} failed to load (stage=${stage}, status=${status})`
     ),
-    { tags: { feature: 'blog-cover-image' } }
+    { tags: { feature } }
   );
 }
 
