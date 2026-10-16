@@ -91,14 +91,16 @@ function FilterSelect({ label, value, onChange, children }: {
   onChange: (value: string) => void;
   children: ReactNode;
 }) {
+  // Location and Company list every open value, and a native select grows to
+  // its longest option, so cap the width and truncate the shown value.
   return (
-    <label className="relative">
+    <label className="relative min-w-0 max-w-full">
       <span className="sr-only">{label}</span>
       <select
         aria-label={label}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-11 max-w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="min-h-11 max-w-56 cursor-pointer appearance-none truncate rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm font-medium text-slate-700 outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
       >
         {children}
       </select>
