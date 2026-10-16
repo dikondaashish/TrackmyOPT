@@ -8,6 +8,7 @@ describe('JobBoardController scheduler contract', () => {
   const queueSingleSource = jest.fn();
   const listJobs = jest.fn();
   const getJob = jest.fn();
+  const listJobFacets = jest.fn();
   const getIngestionRunStatus = jest.fn();
   const recoverIngestionRun = jest.fn();
   const cancelIngestionRun = jest.fn();
@@ -17,6 +18,7 @@ describe('JobBoardController scheduler contract', () => {
       queueEnabledSources,
       queueSingleSource,
       listJobs,
+      listJobFacets,
       getJob,
       getIngestionRunStatus,
       recoverIngestionRun,
@@ -121,6 +123,21 @@ describe('JobBoardController scheduler contract', () => {
       }),
     );
     expect(listForJobs).toHaveBeenCalledWith([]);
+  });
+
+  it('serves complete filter options before the jobs/:id route', async () => {
+    const facets = { locations: ['Remote'], companies: ['Anthropic'] };
+    listJobFacets.mockResolvedValue(facets);
+    await expect(controller.listJobFacets()).resolves.toBe(facets);
+    const handler = Object.getOwnPropertyDescriptor(
+      JobBoardController.prototype,
+      'listJobFacets',
+    )?.value as object;
+    expect(Reflect.getMetadata('path', handler)).toBe('jobs/facets');
+    const methods = Object.getOwnPropertyNames(JobBoardController.prototype);
+    expect(methods.indexOf('listJobFacets')).toBeLessThan(
+      methods.indexOf('getJob'),
+    );
   });
 
   it('exposes only the sanitized run status and recovery controls', async () => {

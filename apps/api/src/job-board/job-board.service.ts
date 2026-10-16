@@ -44,6 +44,7 @@ import { queueSchedulerRun } from './scheduler-run-ledger';
 import { SupabaseSchedulerRunStore } from './supabase-scheduler-run-store';
 import type {
   JobDataStore,
+  JobStoreFacets,
   JobStorePage,
   JobStoreReconcileResult,
   JobStoreRecord,
@@ -425,6 +426,10 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
    * or Oracle. */
   listJobs(query: JobStoreSearch): Promise<JobStorePage> {
     return this.jobStore.listJobs(query);
+  }
+
+  listJobFacets(): Promise<JobStoreFacets> {
+    return this.jobStore.listJobFacets();
   }
 
   getJob(id: string): Promise<JobStoreRecord | null> {

@@ -90,6 +90,29 @@ export async function listServerJobs(
   };
 }
 
+export type ServerJobFacets = {
+  locations: string[];
+  companies: string[];
+};
+
+function stringList(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.length > 0)
+    : [];
+}
+
+/** Every location and company of open verified jobs, for the filter options. */
+export async function listServerJobFacets(): Promise<ServerJobFacets> {
+  const { apiUrl, apiKey } = apiConfiguration();
+  const response = await fetch(`${apiUrl}/job-board/jobs/facets`, {
+    headers: { 'x-api-key': apiKey },
+    cache: 'no-store',
+  });
+  if (!response.ok) throw new Error('Unable to load job filter options from the job data service');
+  const payload = (await response.json()) as { locations?: unknown; companies?: unknown };
+  return { locations: stringList(payload.locations), companies: stringList(payload.companies) };
+}
+
 export async function getServerJob(id: string): Promise<ServerJobRecord | null> {
   const { apiUrl, apiKey } = apiConfiguration();
   const response = await fetch(`${apiUrl}/job-board/jobs/${encodeURIComponent(id)}`, {

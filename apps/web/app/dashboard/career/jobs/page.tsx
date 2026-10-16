@@ -7,7 +7,7 @@ import { JobBoardExplorer } from '@/components/career/jobs/JobBoardExplorer';
 import type { ActiveResumeMatch } from '@/components/career/jobs/ResumeJobMatcher';
 import { findActiveTrackerStatus } from '@/lib/job-board/filters';
 import { parseResumeJobProfile } from '@/lib/job-board/resume-match';
-import { listServerJobs } from '@/lib/job-board/server-job-store';
+import { listServerJobFacets, listServerJobs, type ServerJobFacets } from '@/lib/job-board/server-job-store';
 import { getRunwayContext, type StoredOptStatus } from '@/lib/job-board/runway';
 import type { EmploymentSpan } from '@/lib/immigration/opt-calculations';
 
@@ -64,8 +64,14 @@ export default async function VerifiedJobsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [serverPage, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
+  const [serverPage, facets, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
     listServerJobs({ page: 1, pageSize: 50 }),
+    // The Location and Company options must cover every open job, not only
+    // the first page. Without them the explorer falls back to page values.
+    listServerJobFacets().catch((): ServerJobFacets | null => {
+      console.error('[job-board] Filter options unavailable; falling back to first-page values');
+      return null;
+    }),
     supabase
       .from('opt_status')
       .select('opt_start_date, opt_ead_end_date, stem_start_date')
@@ -174,7 +180,7 @@ export default async function VerifiedJobsPage() {
           </span>
         </div>
         <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-          Browse jobs and add them to your resume queue. {serverPage.total} results.
+          Browse jobs and add them to your resume queue.
         </p>
       </header>
 
@@ -184,6 +190,8 @@ export default async function VerifiedJobsPage() {
         jobs={jobs}
         totalJobs={serverPage.total}
         serverMode
+        locationOptions={facets?.locations}
+        companyOptions={facets?.companies}
         runway={runway}
         asOf={now.toISOString()}
         savedResumes={savedResumeRows.map((resume) => ({

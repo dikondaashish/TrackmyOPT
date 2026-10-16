@@ -8,6 +8,7 @@ import {
 } from './job-data-store.config';
 import {
   type JobDataStore,
+  type JobStoreFacets,
   type JobStorePersistenceRecord,
   type JobStorePage,
   type JobStoreReconcileResult,
@@ -37,7 +38,10 @@ import {
   type OracleJobRow,
   type OraclePool,
 } from './oracle-job-data-helpers';
-import { buildOracleJobSearchFilter } from './oracle-job-search-query';
+import {
+  buildOracleJobSearchFilter,
+  oracleJobOrderBy,
+} from './oracle-job-search-query';
 import {
   ORACLE_JOB_CONFIRM_SQL,
   ORACLE_JOB_EMPLOYER_MATCH_SQL,
@@ -150,7 +154,7 @@ export class OracleJobDataStore implements JobDataStore {
     try {
       const rowsResult = await connection.execute<OracleJobRow>(
         `SELECT ${JOB_COLUMNS} FROM jobs WHERE ${where}
-         ORDER BY ${query.sortBy === 'last_confirmed_at' ? 'last_confirmed_at' : 'posted_at'} DESC NULLS LAST, id ASC
+         ORDER BY ${oracleJobOrderBy(query.sortBy)}
          OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY`,
         pageBinds,
         outputOptions(this.driver),
@@ -164,6 +168,35 @@ export class OracleJobDataStore implements JobDataStore {
         rows: (rowsResult.rows || []).map(mapJobRow),
         total: Number(countResult.rows?.[0]?.TOTAL || 0),
       };
+    } finally {
+      await connection.close();
+    }
+  }
+
+  async listJobFacets(): Promise<JobStoreFacets> {
+    const { where, filterBinds } = buildOracleJobSearchFilter({
+      page: 1,
+      pageSize: 1,
+    });
+    const connection = await this.connection();
+    try {
+      const distinct = async (expression: string) => {
+        const result = await connection.execute<{ VALUE: unknown }>(
+          `SELECT DISTINCT ${expression} AS "VALUE" FROM jobs WHERE ${where} AND ${expression} IS NOT NULL`,
+          filterBinds,
+          outputOptions(this.driver),
+        );
+        return (result.rows || [])
+          .map((row) => String(row.VALUE))
+          .sort((left, right) =>
+            left.localeCompare(right, 'en', { sensitivity: 'base' }),
+          );
+      };
+      const locations = await distinct('location');
+      const companies = await distinct(
+        'COALESCE(company_name, employer_board_name)',
+      );
+      return { locations, companies };
     } finally {
       await connection.close();
     }

@@ -2,6 +2,7 @@ import {
   JOB_REMOVAL_MIN_MISSING_SECONDS,
   OracleJobDataStore,
   ORACLE_ISO_TZ_FORMAT,
+  ORACLE_DESCRIPTION_FLAG_MASKS,
   ORACLE_DESCRIPTION_FLAGS,
   descriptionFilterFlags,
   normalizeOracleTimestamp,
@@ -709,6 +710,55 @@ describe('OracleJobDataStore shadow adapter', () => {
     });
   });
 
+  it('orders newest posting first with a stable id tiebreak', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+
+    await store.listJobs({ page: 1, pageSize: 10 });
+
+    expect(executed[0]?.sql).toContain(
+      'ORDER BY COALESCE(posted_at, first_seen_at) DESC NULLS LAST, id ASC',
+    );
+  });
+
+  it('lists every open location and company for the filter options', async () => {
+    const { driver, executed, connection } = setup();
+    connection.execute = (<T>(sql: string, binds?: Record<string, unknown>) => {
+      executed.push({ sql, binds });
+      const rows = sql.includes('COALESCE(company_name')
+        ? [{ VALUE: 'figma' }, { VALUE: 'Anthropic' }, { VALUE: 'Cursor' }]
+        : [{ VALUE: 'San Francisco, CA' }, { VALUE: 'Remote - US' }];
+      return Promise.resolve({ rows } as { rows: T[] });
+    }) as OracleConnection['execute'];
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+
+    await expect(store.listJobFacets()).resolves.toEqual({
+      locations: ['Remote - US', 'San Francisco, CA'],
+      companies: ['Anthropic', 'Cursor', 'figma'],
+    });
+    for (const call of executed) {
+      expect(call.sql).toContain("listing_status = 'open'");
+      expect(call.sql).toContain("source_trust_tier = 'verified_ats'");
+      expect(call.sql).not.toMatch(/FETCH NEXT|OFFSET/);
+    }
+  });
+
   it('uses Oracle Text for description predicates while keeping substring verification', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(
@@ -738,8 +788,10 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(executed[0]?.binds).toMatchObject({
       queryToken: '%data engineer%',
       queryTokenExact: 'data engineer',
-      workplaceRemoteFlag: ORACLE_DESCRIPTION_FLAGS.remote,
     });
+    expect(executed[0]?.sql).toContain(
+      `BITAND((SELECT NVL(MAX(s.description_filter_flags), 0)`,
+    );
   });
 
   it('keeps punctuation-sensitive description searches on the source CLOB', async () => {
@@ -819,8 +871,12 @@ describe('OracleJobDataStore shadow adapter', () => {
     ['workplace', { workplace: 'remote' }, 'description_filter_flags'],
     ['degree', { degree: 'master' }, 'description_filter_flags'],
     ['experience', { experience: 'senior' }, 'description_filter_flags'],
-    ['role', { role: 'engineering' }, 'role0'],
-    ['job type', { jobType: 'internship' }, "LOWER(title) LIKE '%intern%'"],
+    ['role', { role: 'engineering' }, 'REGEXP_LIKE(LOWER(title), :role)'],
+    [
+      'job type',
+      { jobType: 'internship' },
+      'REGEXP_LIKE(LOWER(title), :jobType_internship)',
+    ],
     [
       'employment type',
       { employmentType: 'full_time' },
@@ -854,7 +910,7 @@ describe('OracleJobDataStore shadow adapter', () => {
     },
   );
 
-  it('keeps unspecified degree semantics aligned with Supabase', async () => {
+  it('treats unspecified degree as no degree evidence at all', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(
       {
@@ -866,11 +922,13 @@ describe('OracleJobDataStore shadow adapter', () => {
       driver,
     );
     await store.listJobs({ page: 1, pageSize: 10, degree: 'unspecified' });
-    expect(executed[0]?.sql).toContain(':degreeUnspecifiedFlags');
+    expect(executed[0]?.sql).toContain(
+      `, ${ORACLE_DESCRIPTION_FLAG_MASKS.degrees}) = 0`,
+    );
     expect(executed[0]?.sql).not.toContain('DBMS_LOB.INSTR');
   });
 
-  it('does not infer unspecified job type from title text', async () => {
+  it('excludes title evidence from the unspecified job type', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(
       {
@@ -882,8 +940,9 @@ describe('OracleJobDataStore shadow adapter', () => {
       driver,
     );
     await store.listJobs({ page: 1, pageSize: 10, jobType: 'unspecified' });
-    expect(executed[0]?.sql).toContain(':jobTypeUnspecifiedFlags');
-    expect(executed[0]?.sql).not.toContain("LOWER(title) LIKE '%intern%'");
+    expect(executed[0]?.sql).toContain(
+      'NOT (REGEXP_LIKE(LOWER(title), :jobType_internship)',
+    );
   });
 
   it('reconciles missing IDs with stale then removed lifecycle and never mass-removes an empty feed', async () => {
