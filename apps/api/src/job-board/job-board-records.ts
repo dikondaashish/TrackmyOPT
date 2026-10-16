@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { normalizeAtsJobFacts } from './ats-job-facts';
 import type { ScrapedAtsJob } from './ats-scrapers.runner';
 import type {
   JobStorePersistenceRecord,
@@ -47,6 +48,7 @@ export function buildJobStoreRecords(
       employerMatchId: existing?.employerMatchId ?? null,
       missingSinceAt: null,
       removedAt: null,
+      atsFacts: normalizeAtsJobFacts(job.workplace_type, job.employment_types),
     };
   });
 }

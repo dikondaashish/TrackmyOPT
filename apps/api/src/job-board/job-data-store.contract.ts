@@ -1,3 +1,5 @@
+import type { AtsJobFacts } from './ats-job-facts';
+
 /**
  * Database-neutral contract for the job-board records only.
  *
@@ -34,6 +36,11 @@ export type JobStoreRecord = {
   removedAt: string | null;
   /** `v1.<description>.<metadata>` digests; written only by incremental ingestion. */
   contentHash?: string | null;
+  /**
+   * Workplace and employment type from the ATS's structured fields. Not a
+   * JOBS column: it is stored in the search table's filter flags.
+   */
+  atsFacts?: AtsJobFacts | null;
 };
 
 /** Minimal projection needed while persisting a fresh source response. */

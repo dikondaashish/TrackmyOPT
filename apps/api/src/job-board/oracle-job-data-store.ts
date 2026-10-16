@@ -26,6 +26,8 @@ import {
   mapVisaSignalRow,
   outputOptions,
   searchBindDefinitions,
+  searchFlagsBindDefinitions,
+  toJobSearchFlagsBinds,
   toJobSearchUpsertBinds,
   toJobUpsertBinds,
   toOracleTimestamp,
@@ -47,6 +49,7 @@ import {
   ORACLE_JOB_EMPLOYER_MATCH_SQL,
   ORACLE_JOB_MERGE_SQL,
   ORACLE_JOB_MERGE_WITH_HASH_SQL,
+  ORACLE_JOB_SEARCH_FLAGS_SQL,
   ORACLE_JOB_SEARCH_MERGE_SQL,
   ORACLE_VISA_SIGNAL_MERGE_SQL,
 } from './oracle-job-upsert-sql';
@@ -409,6 +412,12 @@ export class OracleJobDataStore implements JobDataStore {
     const searchRows = options.searchJobIds
       ? rows.filter((row) => options.searchJobIds?.has(row.id))
       : rows;
+    // Rewritten jobs whose description is unchanged keep their search text;
+    // only their filter flags are refreshed (structured ATS facts can change
+    // without the description changing).
+    const flagRows = options.searchJobIds
+      ? rows.filter((row) => !options.searchJobIds?.has(row.id))
+      : [];
     const connection = await this.connection();
     try {
       const bindDefs = jobBindDefinitions(this.driver);
@@ -444,6 +453,17 @@ export class OracleJobDataStore implements JobDataStore {
           {
             autoCommit: false,
             ...(searchBindDefs ? { bindDefs: searchBindDefs } : {}),
+          },
+        );
+      }
+      if (flagRows.length) {
+        const flagBindDefs = searchFlagsBindDefinitions(this.driver);
+        await connection.executeMany(
+          ORACLE_JOB_SEARCH_FLAGS_SQL,
+          flagRows.map(toJobSearchFlagsBinds),
+          {
+            autoCommit: false,
+            ...(flagBindDefs ? { bindDefs: flagBindDefs } : {}),
           },
         );
       }

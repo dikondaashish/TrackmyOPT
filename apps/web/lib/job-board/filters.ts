@@ -1,3 +1,5 @@
+import { experienceBucket, inferTextJobFacts, type JobDegreeLevel, type JobTypeKind } from './job-facts';
+
 export type VisaSignalSummary = {
   signal_type: string;
 };
@@ -30,7 +32,7 @@ export type TrackerEntrySummary = {
   is_archived: boolean | null;
 };
 
-export type DegreeLevel = 'bachelor' | 'master' | 'doctorate';
+export type DegreeLevel = JobDegreeLevel;
 export type RoleFamily = 'engineering' | 'data' | 'product' | 'design' | 'operations' | 'sales' | 'other';
 export type JobDateWindow = 'any' | '1h' | '6h' | '12h' | '24h' | '48h' | '7d' | '30d';
 
@@ -112,24 +114,6 @@ export function findActiveTrackerStatus(job: TrackerMatchJob, entries: TrackerEn
   })?.status || null;
 }
 
-function inferMinimumExperienceYears(text: string) {
-  const contextualNumericYears = [...text.matchAll(/\b(\d{1,2})\s*(?:\+|[-–]\s*\d{1,2}|to\s+\d{1,2})?\s*(?:years?|yrs?)(?:\s+of)?(?:\s+[a-z-]+){0,3}\s+experience\b/g)]
-    .map((match) => Number(match[1]));
-  const wordNumbers: Record<string, number> = {
-    zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5,
-    six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-  };
-  const contextualWrittenYears = [...text.matchAll(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:\+|to\s+(?:one|two|three|four|five|six|seven|eight|nine|ten))?\s*years?(?:\s+of)?(?:\s+[a-z-]+){0,3}\s+experience\b/g)]
-    .map((match) => wordNumbers[match[1]]);
-  const contextualValues = [...contextualNumericYears, ...contextualWrittenYears];
-  if (contextualValues.length) return Math.max(...contextualValues);
-
-  const numericFallback = text.match(/\b(\d{1,2})\s*(?:\+|[-–]\s*\d{1,2}|to\s+\d{1,2})?\s*(?:years?|yrs?)\b/);
-  if (numericFallback) return Number(numericFallback[1]);
-  const writtenFallback = text.match(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:\+|to\s+(?:one|two|three|four|five|six|seven|eight|nine|ten))?\s*years?\b/);
-  return writtenFallback ? wordNumbers[writtenFallback[1]] : null;
-}
-
 function inferRoles(title: string): RoleFamily[] {
   const roles: RoleFamily[] = [];
   if (/\b(data|analyst|analytics|scientist|machine learning|ml|artificial intelligence|ai)\b/.test(title)) roles.push('data');
@@ -141,55 +125,60 @@ function inferRoles(title: string): RoleFamily[] {
   return roles.length ? roles : ['other'];
 }
 
+/** Whole-word title terms, matching the API's job-board filters. */
+const TITLE_JOB_TYPES: [JobTypeKind, RegExp][] = [
+  ['internship', /\b(intern|interns|internship|internships)\b/],
+  ['contract', /\b(contract|contractor|freelance)\b/],
+  ['temporary', /\b(temporary|temp|fixed[ -]term)\b/],
+  ['permanent', /\bpermanent\b/],
+];
+
+function statedWorkplace(value: string): JobFacts['workplace'] | null {
+  if (/\bhybrid\b/.test(value)) return 'hybrid';
+  if (/\bremote\b/.test(value)) return 'remote';
+  if (/\b(on[ -]?site|in[ -]?office)\b/.test(value)) return 'on_site';
+  return null;
+}
+
+/**
+ * Facts shown on a job card and used by resume matching. Description evidence
+ * comes from the module the API uses for its stored filter flags, so a card
+ * and the server-side filters read a posting the same way. A stated location
+ * wins over the title, which wins over the description; within each,
+ * hybrid > remote > on-site.
+ */
 export function inferJobFacts(job: FilterableJob): JobFacts {
   const title = normalizeJobText(job.title);
   const location = normalizeJobText(job.location);
-  const text = `${title} ${normalizeJobText(job.description)} ${location}`;
-  const degreeLevels: DegreeLevel[] = [];
-  if (/\bbachelor(?:['’]s|s)?\b|\bb\.?\s*s\.?(?=\s|$)|\bb\.?\s*a\.?(?=\s|$)/.test(text)) degreeLevels.push('bachelor');
-  if (/\bmaster(?:['’]s|s)?\b|\bmba\b|\bm\.?\s*s\.?(?=\s|$)/.test(text)) degreeLevels.push('master');
-  if (/\bph\.?\s*d\.?(?=\s|$)|\bdoctorate\b|\bdoctoral\b/.test(text)) degreeLevels.push('doctorate');
+  const text = inferTextJobFacts(job.description);
 
-  const minimumExperienceYears = inferMinimumExperienceYears(text);
-  const experience = minimumExperienceYears === null
-    ? 'unspecified'
-    : minimumExperienceYears <= 2
-      ? 'entry'
-      : minimumExperienceYears <= 5
-        ? 'mid'
-        : 'senior';
-
-  const remoteDenied = /\b(?:not|no)\s+(?:a\s+)?remote\b|\bremote (?:work|option|arrangement) (?:is )?not available\b/.test(text);
-  const workplace = /\bhybrid\b/.test(location)
+  const descriptionWorkplace = text.workplaces.includes('hybrid')
     ? 'hybrid'
-    : /\bremote\b/.test(location)
+    : text.workplaces.includes('remote')
       ? 'remote'
-      : /\b(on[ -]?site|in[ -]?office)\b/.test(location)
+      : text.workplaces.includes('on_site')
         ? 'on_site'
-        : /\bhybrid\b/.test(text)
-          ? 'hybrid'
-          : /\bremote\b/.test(text) && !remoteDenied
-            ? 'remote'
-            : /\b(on[ -]?site|in[ -]?office)\b/.test(text) || remoteDenied
-              ? 'on_site'
-              : 'unspecified';
+        : 'unspecified';
+  const workplace = statedWorkplace(location)
+    ?? statedWorkplace(title)
+    ?? descriptionWorkplace;
+
+  const jobTypes = new Set<JobTypeKind>(text.jobTypes);
+  for (const [type, pattern] of TITLE_JOB_TYPES) if (pattern.test(title)) jobTypes.add(type);
+  const jobType = TITLE_JOB_TYPES.map(([type]) => type).find((type) => jobTypes.has(type)) || 'unspecified';
+
+  const partTime = /\bpart[ -]?time\b/.test(title) || text.employmentTypes.includes('part_time');
+  const fullTime = /\b(full[ -]?time|fte)\b/.test(title) || text.employmentTypes.includes('full_time');
+  const minimumExperienceYears = text.minimumExperienceYears;
 
   return {
     workplace,
-    degreeLevels,
+    degreeLevels: text.degreeLevels,
     minimumExperienceYears,
-    experience,
+    experience: experienceBucket(minimumExperienceYears) || 'unspecified',
     roles: inferRoles(title),
-    jobType: /\b(intern|internship)\b/.test(text)
-      ? 'internship'
-      : /\b(contract|contractor|freelance)\b/.test(text)
-        ? 'contract'
-        : /\b(temporary|temp|fixed[ -]term)\b/.test(text)
-          ? 'temporary'
-          : /\b(permanent|regular employee|regular position)\b/.test(text)
-            ? 'permanent'
-            : 'unspecified',
-    employmentType: /\bpart[ -]?time\b/.test(text) ? 'part_time' : /\b(full[ -]?time|fte)\b/.test(text) ? 'full_time' : 'unspecified',
+    jobType,
+    employmentType: partTime ? 'part_time' : fullTime ? 'full_time' : 'unspecified',
   };
 }
 

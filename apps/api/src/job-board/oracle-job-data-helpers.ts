@@ -1,7 +1,9 @@
+import type { AtsJobFacts } from './ats-job-facts';
 import {
   type JobStoreRecord,
   type JobStoreVisaSignal,
 } from './job-data-store.contract';
+import { experienceBucket, inferTextJobFacts } from './job-facts';
 
 type OracleRowsResult<T> = { rows?: T[]; rowsAffected?: number };
 
@@ -116,10 +118,19 @@ export const ORACLE_ISO_TZ_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.FF3TZH:TZM';
 export const ORACLE_JOB_SEARCH_TABLE = 'ADMIN.TRACKMYOPT_JOB_SEARCH';
 
 /**
- * Exact, case-insensitive description predicates used by the existing
- * Supabase filters. Keeping these as materialized flags avoids re-scanning
- * every CLOB for fixed filter vocabularies while preserving ILIKE substring
- * semantics (the flags are computed with String.includes()).
+ * Filter evidence materialized in TRACKMYOPT_JOB_SEARCH.description_filter_flags
+ * so filters never re-scan description CLOBs. Bits 1-16384 hold evidence the
+ * description states (see job-facts.ts: whole words and phrases, never
+ * substrings). Bits from 262144 up hold the ATS's own structured fields
+ * (Ashby workplaceType/employmentType, Greenhouse metadata), which the query
+ * prefers over description wording.
+ *
+ * Experience: exactly one bucket bit, from the minimum years the posting
+ * requires (entry: up to 2, mid: 3 to 5, senior: more than 5), or none when
+ * no requirement is stated.
+ *
+ * Bits 32768-131072 held plain-word degree evidence in an earlier version and
+ * are no longer set or read.
  */
 export const ORACLE_DESCRIPTION_FLAGS = {
   remote: 1,
@@ -137,71 +148,102 @@ export const ORACLE_DESCRIPTION_FLAGS = {
   typePermanent: 4096,
   employmentFullTime: 8192,
   employmentPartTime: 16384,
-  plainBachelor: 32768,
-  plainMaster: 65536,
-  plainDoctorate: 131072,
+  atsRemote: 262144,
+  atsHybrid: 524288,
+  atsOnSite: 1048576,
+  atsFullTime: 2097152,
+  atsPartTime: 4194304,
+  atsInternship: 8388608,
+  atsContract: 16777216,
+  atsTemporary: 33554432,
+  atsPermanent: 67108864,
 } as const;
+
+const FLAGS = ORACLE_DESCRIPTION_FLAGS;
 
 export const ORACLE_DESCRIPTION_FLAG_MASKS = {
-  degrees:
-    ORACLE_DESCRIPTION_FLAGS.degreeBachelor |
-    ORACLE_DESCRIPTION_FLAGS.degreeMaster |
-    ORACLE_DESCRIPTION_FLAGS.degreeDoctorate,
+  degrees: FLAGS.degreeBachelor | FLAGS.degreeMaster | FLAGS.degreeDoctorate,
   experiences:
-    ORACLE_DESCRIPTION_FLAGS.experienceEntry |
-    ORACLE_DESCRIPTION_FLAGS.experienceMid |
-    ORACLE_DESCRIPTION_FLAGS.experienceSenior,
+    FLAGS.experienceEntry | FLAGS.experienceMid | FLAGS.experienceSenior,
   jobTypes:
-    ORACLE_DESCRIPTION_FLAGS.typeInternship |
-    ORACLE_DESCRIPTION_FLAGS.typeContract |
-    ORACLE_DESCRIPTION_FLAGS.typeTemporary |
-    ORACLE_DESCRIPTION_FLAGS.typePermanent,
-  employmentTypes:
-    ORACLE_DESCRIPTION_FLAGS.employmentFullTime |
-    ORACLE_DESCRIPTION_FLAGS.employmentPartTime,
+    FLAGS.typeInternship |
+    FLAGS.typeContract |
+    FLAGS.typeTemporary |
+    FLAGS.typePermanent,
+  employmentTypes: FLAGS.employmentFullTime | FLAGS.employmentPartTime,
+  atsWorkplace: FLAGS.atsRemote | FLAGS.atsHybrid | FLAGS.atsOnSite,
+  atsEmployment: FLAGS.atsFullTime | FLAGS.atsPartTime,
+  /** Every bit that only ingestion can set (from ATS fields, not text). */
+  ats:
+    FLAGS.atsRemote |
+    FLAGS.atsHybrid |
+    FLAGS.atsOnSite |
+    FLAGS.atsFullTime |
+    FLAGS.atsPartTime |
+    FLAGS.atsInternship |
+    FLAGS.atsContract |
+    FLAGS.atsTemporary |
+    FLAGS.atsPermanent,
 } as const;
 
-function includesAny(value: string, patterns: readonly string[]) {
-  return patterns.some((pattern) => value.includes(pattern));
+const EXPERIENCE_FLAG = {
+  entry: FLAGS.experienceEntry,
+  mid: FLAGS.experienceMid,
+  senior: FLAGS.experienceSenior,
+} as const;
+
+/** Flags for what the description itself states. */
+export function textFilterFlags(description: string | null): number {
+  const facts = inferTextJobFacts(description);
+  let flags = 0;
+  const set = (condition: boolean, flag: number) => {
+    if (condition) flags |= flag;
+  };
+  set(facts.workplaces.includes('remote'), FLAGS.remote);
+  set(facts.workplaces.includes('hybrid'), FLAGS.hybrid);
+  set(facts.workplaces.includes('on_site'), FLAGS.onSite);
+  set(facts.degreeLevels.includes('bachelor'), FLAGS.degreeBachelor);
+  set(facts.degreeLevels.includes('master'), FLAGS.degreeMaster);
+  set(facts.degreeLevels.includes('doctorate'), FLAGS.degreeDoctorate);
+  const bucket = experienceBucket(facts.minimumExperienceYears);
+  if (bucket) flags |= EXPERIENCE_FLAG[bucket];
+  set(facts.jobTypes.includes('internship'), FLAGS.typeInternship);
+  set(facts.jobTypes.includes('contract'), FLAGS.typeContract);
+  set(facts.jobTypes.includes('temporary'), FLAGS.typeTemporary);
+  set(facts.jobTypes.includes('permanent'), FLAGS.typePermanent);
+  set(facts.employmentTypes.includes('full_time'), FLAGS.employmentFullTime);
+  set(facts.employmentTypes.includes('part_time'), FLAGS.employmentPartTime);
+  return flags;
 }
 
-export function descriptionFilterFlags(value: string | null): number {
-  const text = (value || '').toLowerCase();
-  let flags = 0;
-  if (text.includes('remote')) flags |= ORACLE_DESCRIPTION_FLAGS.remote;
-  if (text.includes('hybrid')) flags |= ORACLE_DESCRIPTION_FLAGS.hybrid;
-  if (includesAny(text, ['on-site', 'onsite']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.onSite;
-  if (includesAny(text, ['bachelor', 'b.s.', 'b.a.']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.degreeBachelor;
-  if (includesAny(text, ['master', 'm.s.', 'mba']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.degreeMaster;
-  if (includesAny(text, ['ph.d.', 'doctorate', 'doctoral']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.degreeDoctorate;
-  if (text.includes('bachelor'))
-    flags |= ORACLE_DESCRIPTION_FLAGS.plainBachelor;
-  if (text.includes('master')) flags |= ORACLE_DESCRIPTION_FLAGS.plainMaster;
-  if (text.includes('doctorate'))
-    flags |= ORACLE_DESCRIPTION_FLAGS.plainDoctorate;
-  if (includesAny(text, ['0 year', '1 year', '2 year']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.experienceEntry;
-  if (includesAny(text, ['3 year', '4 year', '5 year']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.experienceMid;
-  if (includesAny(text, ['6 year', '7 year', '8 year', '9 year', '10 year']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.experienceSenior;
-  if (text.includes('internship'))
-    flags |= ORACLE_DESCRIPTION_FLAGS.typeInternship;
-  if (text.includes('contractor'))
-    flags |= ORACLE_DESCRIPTION_FLAGS.typeContract;
-  if (includesAny(text, ['temporary', 'fixed-term']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.typeTemporary;
-  if (includesAny(text, ['permanent', 'regular employee']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.typePermanent;
-  if (includesAny(text, ['full-time', 'full time', 'fte']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.employmentFullTime;
-  if (includesAny(text, ['part-time', 'part time']))
-    flags |= ORACLE_DESCRIPTION_FLAGS.employmentPartTime;
+const ATS_WORKPLACE_FLAG = {
+  remote: FLAGS.atsRemote,
+  hybrid: FLAGS.atsHybrid,
+  on_site: FLAGS.atsOnSite,
+} as const;
+
+const ATS_EMPLOYMENT_FLAG = {
+  full_time: FLAGS.atsFullTime,
+  part_time: FLAGS.atsPartTime,
+  internship: FLAGS.atsInternship,
+  contract: FLAGS.atsContract,
+  temporary: FLAGS.atsTemporary,
+  permanent: FLAGS.atsPermanent,
+} as const;
+
+/** Flags for the ATS's structured workplace and employment fields. */
+export function atsFilterFlags(facts: AtsJobFacts | null | undefined): number {
+  if (!facts) return 0;
+  let flags = facts.workplace ? ATS_WORKPLACE_FLAG[facts.workplace] : 0;
+  for (const type of facts.employmentTypes) flags |= ATS_EMPLOYMENT_FLAG[type];
   return flags;
+}
+
+export function descriptionFilterFlags(
+  description: string | null,
+  ats?: AtsJobFacts | null,
+): number {
+  return textFilterFlags(description) | atsFilterFlags(ats);
 }
 
 type OracleBindDefinition = {
@@ -350,7 +392,32 @@ export function toJobSearchUpsertBinds(row: JobStoreRecord) {
     job_id: row.id,
     search_text: oracleDescriptionSourceText(row.description),
     search_text_index: oracleDescriptionText(row.description),
-    description_filter_flags: descriptionFilterFlags(row.description),
+    description_filter_flags: descriptionFilterFlags(
+      row.description,
+      row.atsFacts,
+    ),
+  };
+}
+
+export function toJobSearchFlagsBinds(row: JobStoreRecord) {
+  return {
+    job_id: row.id,
+    description_filter_flags: descriptionFilterFlags(
+      row.description,
+      row.atsFacts,
+    ),
+  };
+}
+
+export function searchFlagsBindDefinitions(
+  driver: OracleDriver,
+): Record<string, OracleBindDefinition> | undefined {
+  if (!driver.STRING) return undefined;
+  return {
+    job_id: { type: driver.STRING, maxSize: 36 },
+    description_filter_flags: driver.NUMBER
+      ? { type: driver.NUMBER }
+      : { type: driver.STRING, maxSize: 12 },
   };
 }
 

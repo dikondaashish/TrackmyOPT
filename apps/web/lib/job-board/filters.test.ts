@@ -98,3 +98,46 @@ describe('inferJobFacts', () => {
     });
   });
 });
+
+describe('inferJobFacts whole-word evidence', () => {
+  const job = (overrides: Partial<Parameters<typeof inferJobFacts>[0]>) => inferJobFacts({
+    title: 'Product Manager',
+    company_name: 'Example, Inc.',
+    employer_board_name: 'Example',
+    location: 'San Francisco, CA',
+    department: null,
+    description: null,
+    posted_at: null,
+    tracker_status: null,
+    employer_match: null,
+    visa_signals: [],
+    ...overrides,
+  });
+
+  it('does not read substrings as facts', () => {
+    expect(job({
+      description: '<p>Act as Scrum Master. Own master data. Proficient in MS Office. 12 years in business. Collaborate with remote teams on hybrid cloud. As a federal contractor we welcome permanent residents.</p>',
+    })).toMatchObject({
+      workplace: 'unspecified',
+      degreeLevels: [],
+      minimumExperienceYears: null,
+      experience: 'unspecified',
+      jobType: 'unspecified',
+      employmentType: 'unspecified',
+    });
+  });
+
+  it('reads 12 years as 12, not 2', () => {
+    expect(job({ description: '12+ years of experience' })).toMatchObject({
+      minimumExperienceYears: 12,
+      experience: 'senior',
+    });
+  });
+
+  it('uses title evidence before description evidence', () => {
+    expect(job({ title: 'Software Engineering Intern (Remote)', location: null, description: 'This is a hybrid role.' })).toMatchObject({
+      workplace: 'remote',
+      jobType: 'internship',
+    });
+  });
+});
