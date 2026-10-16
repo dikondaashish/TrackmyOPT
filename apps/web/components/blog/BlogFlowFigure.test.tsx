@@ -1,7 +1,8 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import { BlogFlowFigure } from './BlogFlowFigure';
+import { resetCoverFailureProbe } from './BlogPostImage';
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }));
 vi.mock('next/image', () => ({
@@ -26,9 +27,19 @@ const visual = {
   steps: ['Save receipt', 'Check status', 'Read notice', 'Choose action'],
 };
 
+const fetchMock = vi.fn();
+const served = (status: number, type: string) =>
+  new Response(null, { status, headers: { 'content-type': type } });
+
+beforeEach(() => {
+  resetCoverFailureProbe();
+  vi.stubGlobal('fetch', fetchMock);
+});
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('blog process animation', () => {
@@ -45,7 +56,8 @@ describe('blog process animation', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(4);
   });
 
-  it('keeps readable instructions and reports a load failure without applicant data', () => {
+  it('keeps readable instructions and reports a broken asset without applicant data', async () => {
+    fetchMock.mockResolvedValue(served(404, 'text/html'));
     render(<BlogFlowFigure visual={visual} />);
     fireEvent.error(screen.getByRole('img'));
     expect(screen.getByRole('status')).toHaveTextContent(
@@ -53,9 +65,19 @@ describe('blog process animation', () => {
     );
     expect(screen.getAllByRole('listitem')).toHaveLength(4);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    expect(Sentry.captureException).toHaveBeenCalledOnce();
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
-      tags: { feature: 'blog-flow-figure' },
-    });
+    await waitFor(() => expect(Sentry.captureException).toHaveBeenCalledOnce());
+    expect(fetchMock).toHaveBeenCalledWith(visual.poster, expect.objectContaining({ method: 'HEAD' }));
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      new Error('Blog process illustration failed to load (stage=http, status=404)'),
+      { tags: { feature: 'blog-flow-figure' } }
+    );
+  });
+
+  it('does not report an illustration the server serves but the browser did not show', async () => {
+    fetchMock.mockResolvedValue(served(200, 'image/png'));
+    render(<BlogFlowFigure visual={visual} />);
+    fireEvent.error(screen.getByRole('img'));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 });

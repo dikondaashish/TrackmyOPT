@@ -170,6 +170,16 @@ line 50. Frameless errors, early page lines, and anything touching a bundle
 frame still report. If the served HTML ever grows past 50 lines or gains a
 multi-line inline script, revisit this threshold.
 
+Ad and third-party scripts (TRACKMYOPT-1K, TRACKMYOPT-1M, 2026-10-16): Google
+AdSense on blog pages (`pagead/js/...rum_fy2021.js`, "int64") and an
+`executors/<n>.js` script that is not a TrackMyOPT file both threw inside our
+pages. `isThirdPartyScriptEvent` drops an exception only when every frame,
+ignoring the Sentry SDK's own wrapper frames, is an ad/measurement host
+(`pagead`, googlesyndication, doubleclick, adtrafficquality) or `executors/<n>.js`.
+Any `/_next/` frame keeps it reported. Blog process illustrations
+(`BlogFlowFigure`, TRACKMYOPT-1N) now use the cover check: report only when the
+server returns a non-OK or non-image response for the asset.
+
 Pro checkout's "request failed" event (TRACKMYOPT-19) had no matching
 `/api/premium/create-checkout` log or server error, so the request never reached
 the function. Checkout, the activation probe and the OPT tools now label such
