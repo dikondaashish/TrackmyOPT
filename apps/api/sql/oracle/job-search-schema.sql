@@ -98,8 +98,12 @@ GRANT SELECT, INSERT, UPDATE ON ADMIN.TRACKMYOPT_JOB_SEARCH TO TRACKMYOPT_JOB_AP
 -- which periods and hyphens are normalized to the configured PRINTJOINS
 -- character. Title/company matching is kept on JOBS so this derived table
 -- cannot broaden general-search semantics. DESCRIPTION_FILTER_FLAGS stores
--- exact lower-case substring flags for the fixed workplace/degree/experience/
--- job-type vocabularies; it is maintained by the adapter and does not alter
--- arbitrary free-text search semantics.
+-- workplace/degree/experience/job-type evidence as bits: whole-word facts
+-- inferred from the description, plus the ATS's structured workplace and
+-- employment fields (see ORACLE_DESCRIPTION_FLAGS in
+-- apps/api/src/job-board/oracle-job-data-helpers.ts). It is maintained by the
+-- adapter, is not part of the Oracle Text index, and does not alter arbitrary
+-- free-text search semantics. scripts/oracle-job-filter-flags-backfill.ts
+-- recomputes it for existing rows.
 -- The application adapter maintains it with an idempotent MERGE; do not
 -- delete JOBS rows here.

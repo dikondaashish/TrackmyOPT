@@ -13,6 +13,7 @@ import {
   type OracleDriver,
 } from './oracle-job-data-store';
 import type { JobStoreRecord, JobStoreSearch } from './job-data-store.contract';
+import { buildOracleJobSearchFilter } from './oracle-job-search-query';
 
 const now = '2026-09-03T12:00:00.000Z';
 
@@ -181,12 +182,38 @@ describe('OracleJobDataStore incremental ingestion', () => {
     expect(search?.binds).toMatchObject({ job_id: 'b' });
   });
 
-  it('skips the search write entirely when no description changed', async () => {
+  it('refreshes only the filter flags when no description changed', async () => {
     const { driver, executed } = setup();
     const store = new OracleJobDataStore(config(true), driver);
     quietLogger(store);
-    await store.upsertJobs([record()], { searchJobIds: new Set() });
-    expect(executed.some((call) => /JOB_SEARCH/i.test(call.sql))).toBe(false);
+    await store.upsertJobs(
+      [
+        record({
+          description: 'Build reliable systems.',
+          atsFacts: { workplace: 'remote', employmentTypes: ['full_time'] },
+        }),
+      ],
+      { searchJobIds: new Set() },
+    );
+    const searchWrites = executed.filter((call) =>
+      /JOB_SEARCH/i.test(call.sql),
+    );
+    expect(searchWrites).toHaveLength(1);
+    // The text columns behind the Oracle Text index are never touched.
+    expect(searchWrites[0].sql).toMatch(
+      /^UPDATE ADMIN\.TRACKMYOPT_JOB_SEARCH\s+SET description_filter_flags = :description_filter_flags\s+WHERE job_id = :job_id/,
+    );
+    expect(searchWrites[0].sql).not.toMatch(/search_text/);
+    expect(searchWrites[0].binds).toEqual({
+      job_id: 'job-1',
+      description_filter_flags:
+        ORACLE_DESCRIPTION_FLAGS.atsRemote |
+        ORACLE_DESCRIPTION_FLAGS.atsFullTime,
+    });
+    expect(searchWrites[0].options?.bindDefs).toMatchObject({
+      job_id: { type: 2001 },
+      description_filter_flags: { type: 2010 },
+    });
     expect(
       executed.some((call) => call.sql.startsWith('MERGE INTO jobs')),
     ).toBe(true);
@@ -560,16 +587,40 @@ describe('OracleJobDataStore shadow adapter', () => {
     });
   });
 
-  it('materializes exact Supabase-compatible description filter flags', () => {
+  it('materializes whole-word description filter flags', () => {
     const flags = descriptionFilterFlags(
-      'Remote role. Master degree. 6 years. Full-time contractor.',
+      '<p>This is a remote role.</p><p>Master’s degree and 6+ years of experience. Full-time contract position.</p>',
     );
     expect(flags & ORACLE_DESCRIPTION_FLAGS.remote).toBeTruthy();
     expect(flags & ORACLE_DESCRIPTION_FLAGS.degreeMaster).toBeTruthy();
     expect(flags & ORACLE_DESCRIPTION_FLAGS.experienceSenior).toBeTruthy();
+    expect(flags & ORACLE_DESCRIPTION_FLAGS.experienceEntry).toBeFalsy();
     expect(flags & ORACLE_DESCRIPTION_FLAGS.employmentFullTime).toBeTruthy();
     expect(flags & ORACLE_DESCRIPTION_FLAGS.typeContract).toBeTruthy();
     expect(flags & ORACLE_DESCRIPTION_FLAGS.hybrid).toBeFalsy();
+    expect(flags & ORACLE_DESCRIPTION_FLAG_MASKS.ats).toBe(0);
+  });
+
+  it('drops the substring matches the old flags produced', () => {
+    const flags = descriptionFilterFlags(
+      'Act as Scrum Master. 12 years in business. Collaborate with remote teams on hybrid cloud. As a federal contractor we welcome permanent residents.',
+    );
+    expect(flags).toBe(0);
+  });
+
+  it('adds structured ATS facts as separate bits', () => {
+    const flags = descriptionFilterFlags('Hybrid work model.', {
+      workplace: 'on_site',
+      employmentTypes: ['internship'],
+    });
+    expect(flags & ORACLE_DESCRIPTION_FLAGS.hybrid).toBeTruthy();
+    expect(flags & ORACLE_DESCRIPTION_FLAGS.atsOnSite).toBeTruthy();
+    expect(flags & ORACLE_DESCRIPTION_FLAGS.atsInternship).toBeTruthy();
+    expect(flags & ORACLE_DESCRIPTION_FLAG_MASKS.atsEmployment).toBe(0);
+    // NUMBER(10) holds every combination.
+    expect(ORACLE_DESCRIPTION_FLAG_MASKS.ats | 0x7fff).toBeLessThan(
+      10_000_000_000,
+    );
   });
 
   it('binds UTC timestamps with an explicit offset and preserves the instant on read-back', async () => {
@@ -926,6 +977,52 @@ describe('OracleJobDataStore shadow adapter', () => {
       `, ${ORACLE_DESCRIPTION_FLAG_MASKS.degrees}) = 0`,
     );
     expect(executed[0]?.sql).not.toContain('DBMS_LOB.INSTR');
+  });
+
+  it('lets the structured ATS workplace decide before location and text', () => {
+    const flags = `(SELECT NVL(MAX(s.description_filter_flags), 0) FROM ADMIN.TRACKMYOPT_JOB_SEARCH s WHERE s.job_id = jobs.id)`;
+    const { atsWorkplace } = ORACLE_DESCRIPTION_FLAG_MASKS;
+    const noAts = `BITAND(${flags}, ${atsWorkplace}) = 0`;
+    const where = (workplace: JobStoreSearch['workplace']) =>
+      buildOracleJobSearchFilter({ page: 1, pageSize: 10, workplace }).where;
+    expect(where('hybrid')).toContain(
+      `(BITAND(${flags}, ${ORACLE_DESCRIPTION_FLAGS.atsHybrid}) != 0 OR (${noAts} AND`,
+    );
+    expect(where('remote')).toContain(
+      `(BITAND(${flags}, ${ORACLE_DESCRIPTION_FLAGS.atsRemote}) != 0 OR (${noAts} AND`,
+    );
+    expect(where('on_site')).toContain(
+      `(BITAND(${flags}, ${ORACLE_DESCRIPTION_FLAGS.atsOnSite}) != 0 OR (${noAts} AND`,
+    );
+    expect(where('unspecified')).toContain(`(${noAts} AND`);
+  });
+
+  it('prefers the ATS full/part-time field over description wording', () => {
+    const { where } = buildOracleJobSearchFilter({
+      page: 1,
+      pageSize: 10,
+      employmentType: 'part_time',
+    });
+    expect(where).toContain(
+      `, ${ORACLE_DESCRIPTION_FLAGS.atsPartTime}) != 0 OR (BITAND(`,
+    );
+    expect(where).toContain(
+      `, ${ORACLE_DESCRIPTION_FLAG_MASKS.atsEmployment}) = 0 AND BITAND(`,
+    );
+  });
+
+  it('counts ATS internships alongside title and description evidence', () => {
+    const { where } = buildOracleJobSearchFilter({
+      page: 1,
+      pageSize: 10,
+      jobType: 'internship',
+    });
+    expect(where).toContain(
+      `, ${
+        ORACLE_DESCRIPTION_FLAGS.typeInternship |
+        ORACLE_DESCRIPTION_FLAGS.atsInternship
+      }) != 0`,
+    );
   });
 
   it('excludes title evidence from the unspecified job type', async () => {

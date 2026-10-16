@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
+import { ashbyJobFacts, greenhouseJobFacts } from './ats-job-facts';
 
 export interface ScrapedAtsJob {
   external_job_id: string;
@@ -11,6 +12,10 @@ export interface ScrapedAtsJob {
   description: string | null;
   job_url: string | null;
   posted_at: string | null;
+  /** Structured workplace from the ATS ("remote" | "hybrid" | "on_site"). */
+  workplace_type?: string | null;
+  /** Structured employment types from the ATS (see AtsEmploymentType). */
+  employment_types?: string[];
 }
 
 export interface AuthorizedAtsSourceInput {
@@ -97,6 +102,7 @@ function normalizeNativeJobs(
     ids.add(externalId);
 
     if (atsType === 'greenhouse') {
+      const facts = greenhouseJobFacts(item.metadata);
       jobs.push({
         external_job_id: externalId,
         title,
@@ -107,8 +113,11 @@ function normalizeNativeJobs(
         description: stringValue(item.content),
         job_url: stringValue(item.absolute_url ?? item.url),
         posted_at: stringValue(item.first_published ?? item.updated_at),
+        workplace_type: facts.workplace,
+        employment_types: facts.employmentTypes,
       });
     } else {
+      const facts = ashbyJobFacts(item);
       jobs.push({
         external_job_id: externalId,
         title,
@@ -125,6 +134,8 @@ function normalizeNativeJobs(
           stringValue(item.description),
         job_url: stringValue(item.applyUrl ?? item.jobUrl ?? item.url),
         posted_at: stringValue(item.publishedAt ?? item.updatedAt),
+        workplace_type: facts.workplace,
+        employment_types: facts.employmentTypes,
       });
     }
   }

@@ -227,6 +227,65 @@ describe('ats-scrapers process runner', () => {
     });
   });
 
+  it('keeps Ashby and Greenhouse structured workplace and employment fields', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(
+      Response.json({
+        jobs: [
+          {
+            id: 'a1',
+            title: 'Engineer',
+            workplaceType: 'Hybrid',
+            isRemote: true,
+            employmentType: 'FullTime',
+          },
+          {
+            id: 'a2',
+            title: 'Designer',
+            workplaceType: null,
+            isRemote: null,
+            employmentType: 'Intern',
+          },
+        ],
+      }),
+    );
+    const ashby = await fetchAuthorizedAtsJobs({
+      ats_type: 'ashby',
+      board_token: 'example',
+      base_url: 'https://jobs.ashbyhq.com/example',
+    });
+    expect(ashby.jobs).toEqual([
+      expect.objectContaining({
+        workplace_type: 'hybrid',
+        employment_types: ['full_time'],
+      }),
+      expect.objectContaining({
+        workplace_type: null,
+        employment_types: ['internship'],
+      }),
+    ]);
+
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(
+      Response.json({
+        jobs: [
+          {
+            id: 7,
+            title: 'Analyst',
+            metadata: [
+              { name: 'Location Type', value: 'On-Site' },
+              { name: 'Employment Type', value: 'Part Time Employees' },
+              { name: 'Job Family', value: 'Remote Support' },
+            ],
+          },
+        ],
+      }),
+    );
+    const greenhouse = await fetchAuthorizedAtsJobs(SOURCE);
+    expect(greenhouse.jobs[0]).toMatchObject({
+      workplace_type: 'on_site',
+      employment_types: ['part_time'],
+    });
+  });
+
   it('reports native HTTP, malformed, duplicate, and timeout failures safely', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: false,

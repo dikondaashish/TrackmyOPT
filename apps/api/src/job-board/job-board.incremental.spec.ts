@@ -250,6 +250,50 @@ describe('incremental ingestion', () => {
     expect(options?.searchJobIds?.size).toBe(0);
   });
 
+  it('4b. rewrites a job whose structured ATS facts changed without reindexing its text', async () => {
+    const { store, persist } = setup();
+    await persist([
+      {
+        ...scraped(),
+        workplace_type: 'hybrid',
+        employment_types: ['full_time'],
+      } as Scraped,
+    ]);
+    const [rows, options] = store.upsertJobs.mock.calls[0];
+    expect(rows[0]).toMatchObject({
+      id: 'job-1',
+      atsFacts: { workplace: 'hybrid', employmentTypes: ['full_time'] },
+    });
+    // The store refreshes only the flags of rows outside searchJobIds.
+    expect(options?.searchJobIds?.size).toBe(0);
+    expect(store.confirmJobs).toHaveBeenCalledWith([], expect.any(String));
+  });
+
+  it('4c. keeps hashes of jobs without structured ATS facts unchanged', () => {
+    const fields = {
+      title: 'Engineer',
+      companyName: 'Example',
+      location: null,
+      department: null,
+      description: 'Build things.',
+      jobUrl: null,
+      postedAt: null,
+      employerBoardName: null,
+    };
+    expect(
+      metadataDigest({
+        ...fields,
+        atsFacts: { workplace: null, employmentTypes: [] },
+      }),
+    ).toBe(metadataDigest(fields));
+    expect(
+      metadataDigest({
+        ...fields,
+        atsFacts: { workplace: 'remote', employmentTypes: [] },
+      }),
+    ).not.toBe(metadataDigest(fields));
+  });
+
   it.each(['stale', 'removed'] as const)(
     '5. reopens a %s job through the full write path even when unchanged',
     async (listingStatus) => {

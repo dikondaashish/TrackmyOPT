@@ -99,6 +99,17 @@ export const ORACLE_JOB_SEARCH_MERGE_SQL = `MERGE INTO ${ORACLE_JOB_SEARCH_TABLE
          WHEN NOT MATCHED THEN INSERT (job_id, search_text, search_text_index, description_filter_flags)
            VALUES (incoming.job_id, incoming.search_text, incoming.search_text_index, incoming.description_filter_flags)`;
 
+/**
+ * Refreshes only the filter flags of an existing search row (a job whose
+ * description did not change but whose structured ATS facts did). It sets
+ * only the non-indexed NUMBER column, so the Oracle Text index on
+ * search_text_index has nothing to resynchronize.
+ */
+export const ORACLE_JOB_SEARCH_FLAGS_SQL = `UPDATE ${ORACLE_JOB_SEARCH_TABLE}
+           SET description_filter_flags = :description_filter_flags
+         WHERE job_id = :job_id
+           AND description_filter_flags != :description_filter_flags`;
+
 export const ORACLE_VISA_SIGNAL_MERGE_SQL = `MERGE INTO job_visa_signals target
          USING (SELECT :id id, :job_id job_id, :signal_type signal_type,
                        :evidence_snippet evidence_snippet, :source_url source_url,

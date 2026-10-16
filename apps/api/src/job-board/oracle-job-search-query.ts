@@ -202,9 +202,12 @@ export function buildOracleJobSearchFilter(query: JobStoreSearch): {
   }
 
   if (query.workplace && query.workplace !== 'all') {
-    // One arrangement per job, in the web app's precedence: a stated location
-    // wins over title/description wording, and hybrid > remote > on-site at
-    // each level. The four options therefore partition the open jobs.
+    // One arrangement per job. The ATS's structured workplace field wins;
+    // without it, the web app's precedence applies: a stated location wins
+    // over title/description wording, and hybrid > remote > on-site at each
+    // level. The four options therefore partition the open jobs.
+    const { atsHybrid, atsRemote, atsOnSite } = ORACLE_DESCRIPTION_FLAGS;
+    const noAts = flagsNone(ORACLE_DESCRIPTION_FLAG_MASKS.atsWorkplace);
     const location = "NVL(LOWER(location), ' ')";
     const locationHybrid = `${location} LIKE '%hybrid%'`;
     const locationRemote = `${location} LIKE '%remote%'`;
@@ -215,19 +218,19 @@ export function buildOracleJobSearchFilter(query: JobStoreSearch): {
     const noLocation = `NOT ${locationHybrid} AND NOT ${locationRemote} AND NOT ${locationOnSite}`;
     if (query.workplace === 'hybrid') {
       conditions.push(
-        `(${locationHybrid} OR (${noLocation} AND ${textHybrid}))`,
+        `(${flagsAny(atsHybrid)} OR (${noAts} AND (${locationHybrid} OR (${noLocation} AND ${textHybrid}))))`,
       );
     } else if (query.workplace === 'remote') {
       conditions.push(
-        `(NOT ${locationHybrid} AND (${locationRemote} OR (${noLocation} AND NOT ${textHybrid} AND ${textRemote})))`,
+        `(${flagsAny(atsRemote)} OR (${noAts} AND NOT ${locationHybrid} AND (${locationRemote} OR (${noLocation} AND NOT ${textHybrid} AND ${textRemote}))))`,
       );
     } else if (query.workplace === 'on_site') {
       conditions.push(
-        `(NOT ${locationHybrid} AND NOT ${locationRemote} AND (${locationOnSite} OR (NOT ${textHybrid} AND NOT ${textRemote} AND ${textOnSite})))`,
+        `(${flagsAny(atsOnSite)} OR (${noAts} AND NOT ${locationHybrid} AND NOT ${locationRemote} AND (${locationOnSite} OR (NOT ${textHybrid} AND NOT ${textRemote} AND ${textOnSite}))))`,
       );
     } else {
       conditions.push(
-        `(${noLocation} AND NOT ${textHybrid} AND NOT ${textRemote} AND NOT ${textOnSite})`,
+        `(${noAts} AND ${noLocation} AND NOT ${textHybrid} AND NOT ${textRemote} AND NOT ${textOnSite})`,
       );
     }
   }
@@ -246,8 +249,11 @@ export function buildOracleJobSearchFilter(query: JobStoreSearch): {
   }
 
   if (query.experience && query.experience !== 'all') {
-    // "Max experience": the most experience a posting asks for must fit the
-    // option, so a posting that also asks for 6+ years is not "up to 2".
+    // "Max experience": a posting has at most one bucket, from the minimum
+    // years it requires (see descriptionFilterFlags); the options are
+    // ceilings, so "up to 5" includes 0-2 and 3-5. Rows written before the
+    // flags were exact can still carry several buckets; requiring that no
+    // higher bucket is set keeps those correct too.
     const { experienceEntry, experienceSenior } = ORACLE_DESCRIPTION_FLAGS;
     const experiences = ORACLE_DESCRIPTION_FLAG_MASKS.experiences;
     if (query.experience === 'entry') {
@@ -274,12 +280,22 @@ export function buildOracleJobSearchFilter(query: JobStoreSearch): {
     }
   }
 
+  // Title, ATS employment type and description evidence all count: Ashby
+  // marks many internships "FullTime", so no source excludes another.
   const jobTypeEvidence = (type: keyof typeof JOB_TYPE_TITLE_TERMS) => {
     const flag = {
-      internship: ORACLE_DESCRIPTION_FLAGS.typeInternship,
-      contract: ORACLE_DESCRIPTION_FLAGS.typeContract,
-      temporary: ORACLE_DESCRIPTION_FLAGS.typeTemporary,
-      permanent: ORACLE_DESCRIPTION_FLAGS.typePermanent,
+      internship:
+        ORACLE_DESCRIPTION_FLAGS.typeInternship |
+        ORACLE_DESCRIPTION_FLAGS.atsInternship,
+      contract:
+        ORACLE_DESCRIPTION_FLAGS.typeContract |
+        ORACLE_DESCRIPTION_FLAGS.atsContract,
+      temporary:
+        ORACLE_DESCRIPTION_FLAGS.typeTemporary |
+        ORACLE_DESCRIPTION_FLAGS.atsTemporary,
+      permanent:
+        ORACLE_DESCRIPTION_FLAGS.typePermanent |
+        ORACLE_DESCRIPTION_FLAGS.atsPermanent,
     }[type];
     return `(${titleHasWord(`jobType_${type}`, JOB_TYPE_TITLE_TERMS[type])} OR ${flagsAny(flag)})`;
   };
@@ -294,12 +310,17 @@ export function buildOracleJobSearchFilter(query: JobStoreSearch): {
     }
   }
 
-  const employmentEvidence = (type: keyof typeof EMPLOYMENT_TYPE_TITLE_TERMS) =>
-    `(${titleHasWord(`employment_${type}`, EMPLOYMENT_TYPE_TITLE_TERMS[type])} OR ${flagsAny(
-      type === 'full_time'
-        ? ORACLE_DESCRIPTION_FLAGS.employmentFullTime
-        : ORACLE_DESCRIPTION_FLAGS.employmentPartTime,
-    )})`;
+  // A full/part-time value in the ATS's structured field replaces description
+  // wording (benefits boilerplate often names both); the title still counts.
+  const employmentEvidence = (
+    type: keyof typeof EMPLOYMENT_TYPE_TITLE_TERMS,
+  ) => {
+    const { atsFullTime, atsPartTime, employmentFullTime, employmentPartTime } =
+      ORACLE_DESCRIPTION_FLAGS;
+    const ats = type === 'full_time' ? atsFullTime : atsPartTime;
+    const text = type === 'full_time' ? employmentFullTime : employmentPartTime;
+    return `(${titleHasWord(`employment_${type}`, EMPLOYMENT_TYPE_TITLE_TERMS[type])} OR ${flagsAny(ats)} OR (${flagsNone(ORACLE_DESCRIPTION_FLAG_MASKS.atsEmployment)} AND ${flagsAny(text)}))`;
+  };
   if (query.employmentType && query.employmentType !== 'all') {
     if (query.employmentType === 'unspecified') {
       conditions.push(

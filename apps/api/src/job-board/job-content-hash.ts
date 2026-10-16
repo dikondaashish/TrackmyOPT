@@ -8,7 +8,10 @@ import type { JobStoreRecord } from './job-data-store.contract';
  * search table (built only from the description) is rewritten only when the
  * description changes, and the job row only when any displayed field does.
  * Salary, workplace, employment type and similar filters are derived from the
- * description and location at query time, so these fields cover them.
+ * description and location, so these fields cover them. Structured ATS facts
+ * (workplace, employment type) are part of the metadata digest only when the
+ * ATS states them, so hashes of jobs without them are unchanged; a change
+ * rewrites the job row and refreshes the search row's filter flags.
  */
 export const CONTENT_HASH_VERSION = 'v1';
 
@@ -22,7 +25,8 @@ type HashedFields = Pick<
   | 'jobUrl'
   | 'postedAt'
   | 'employerBoardName'
->;
+> &
+  Partial<Pick<JobStoreRecord, 'atsFacts'>>;
 
 /** Trim, normalize line endings and Unicode form; empty text becomes null. */
 function canonicalText(value: string | null | undefined) {
@@ -50,17 +54,19 @@ export function descriptionDigest(description: string | null | undefined) {
 
 /** Fixed field order (an array, not an object) keeps serialization stable. */
 export function metadataDigest(row: HashedFields) {
-  return sha256(
-    JSON.stringify([
-      canonicalText(row.title),
-      canonicalText(row.companyName),
-      canonicalText(row.location),
-      canonicalText(row.department),
-      canonicalText(row.jobUrl),
-      canonicalInstant(row.postedAt),
-      canonicalText(row.employerBoardName),
-    ]),
-  );
+  const fields: unknown[] = [
+    canonicalText(row.title),
+    canonicalText(row.companyName),
+    canonicalText(row.location),
+    canonicalText(row.department),
+    canonicalText(row.jobUrl),
+    canonicalInstant(row.postedAt),
+    canonicalText(row.employerBoardName),
+  ];
+  const ats = row.atsFacts;
+  if (ats && (ats.workplace || ats.employmentTypes.length))
+    fields.push({ ats: [ats.workplace, ...ats.employmentTypes] });
+  return sha256(JSON.stringify(fields));
 }
 
 export function jobContentHash(row: HashedFields) {
