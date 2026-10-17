@@ -184,14 +184,17 @@ export function isBrowserFeatureConsoleEvent(event: ErrorEvent): boolean {
 // at most 22 lines (`/`) and our only inline scripts are JSON-LD/one-liners, so
 // a frame on a page document beyond line 50 is script the browser or host app
 // evaluated against the page URL (e.g. the iOS Google app), not TrackMyOPT.
+// Safari can also report such script with no URL at all ("undefined:194:70",
+// TRACKMYOPT-1Q); a frame without a script URL cannot be one of our bundles.
 const SCRIPT_FILE = /\/_next\/|turbopack:|\.[cm]?js(?:[?#]|$)/i;
 const INJECTED_MIN_LINE = 50;
 const isPageDocumentFrame = (file: string) =>
   /^(?:app|https?):\/\//i.test(file) && !SCRIPT_FILE.test(file);
 
 /**
- * True when every located stack frame is on a page document past line 50.
- * Frameless errors and any error touching a bundle frame still report.
+ * True when every stack frame is on a page document, or has no script URL,
+ * past line 50. Frameless errors and any error touching a bundle frame still
+ * report.
  */
 export function isInjectedPageScriptEvent(event: ErrorEvent): boolean {
   const frames = (event.exception?.values ?? []).flatMap(
@@ -201,8 +204,9 @@ export function isInjectedPageScriptEvent(event: ErrorEvent): boolean {
   for (const frame of frames) {
     const file = frame.filename ?? frame.abs_path ?? '';
     if (file === '[native code]' || file === '<anonymous>') continue;
+    const unlocated = !file || file === 'undefined';
     if (
-      !isPageDocumentFrame(file) ||
+      !(unlocated || isPageDocumentFrame(file)) ||
       !((frame.lineno ?? 0) > INJECTED_MIN_LINE)
     )
       return false;
