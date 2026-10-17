@@ -181,6 +181,11 @@ export interface JobDataStore {
    * column applied). Stores without it keep the full-upsert path.
    */
   readonly supportsIncrementalIngestion?: boolean;
+  /**
+   * Permanently delete jobs (with their search rows and visa signals). Used
+   * for jobs outside the United States, which the board does not list.
+   */
+  deleteJobs?(ids: readonly string[]): Promise<number>;
   /** Re-confirm unchanged open jobs without rewriting content or search rows. */
   confirmJobs?(ids: readonly string[], confirmedAt: string): Promise<void>;
   /** Update only the employer link of jobs whose match changed. */

@@ -72,6 +72,8 @@ function setup() {
       source: unknown,
       jobs: unknown[],
       complete: boolean,
+      runStartedAt?: string,
+      outsideUsExternalIds?: readonly string[],
     ): Promise<unknown>;
     storeContext(context: unknown): unknown;
     activeSourceWork: Set<Promise<unknown>>;
@@ -307,5 +309,40 @@ describe('audit lifecycle counts', () => {
     await expect(
       internals.persistSourceJobs(source, [scraped], true),
     ).resolves.toMatchObject({ jobsStale: 1, jobsRemoved: 1 });
+  });
+});
+
+describe('ingestion of jobs outside the United States', () => {
+  it('deletes stored jobs that the ATS now lists outside the US', async () => {
+    const { internals, source, scraped, store } = setup();
+    store.listSourceJobsForIngestion.mockResolvedValue([
+      { id: 'job', externalJobId: 'external', listingStatus: 'open' },
+      { id: 'job-london', externalJobId: 'london', listingStatus: 'open' },
+    ]);
+    const deleteJobs = jest.fn().mockResolvedValue(1);
+    Object.assign(store, { deleteJobs });
+
+    await internals.persistSourceJobs(source, [scraped], true, undefined, [
+      'london',
+      'never-stored',
+    ]);
+
+    expect(deleteJobs).toHaveBeenCalledWith(['job-london']);
+    // The deleted job is not reconciled (it would otherwise go stale).
+    expect(store.reconcileSource).toHaveBeenCalledWith(
+      'source',
+      ['external'],
+      undefined,
+    );
+  });
+
+  it('does not fail a board whose jobs are all outside the US', async () => {
+    const { internals, source, store } = setup();
+    store.listSourceJobsForIngestion.mockResolvedValue([
+      { id: 'job-old', externalJobId: 'old-us', listingStatus: 'removed' },
+    ]);
+    await expect(
+      internals.persistSourceJobs(source, [], true, undefined, ['paris']),
+    ).resolves.toMatchObject({ jobsNew: 0 });
   });
 });

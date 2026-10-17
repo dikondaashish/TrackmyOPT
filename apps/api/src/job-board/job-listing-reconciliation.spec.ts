@@ -145,4 +145,19 @@ describe('job listing reconciliation', () => {
       reopenedJobIds: [],
     });
   });
+
+  it('treats a response with only non-US jobs as authoritative, not ambiguous', () => {
+    const stored = [
+      { id: 'a', external_job_id: 'a', listing_status: 'open' as const },
+    ];
+    expect(() =>
+      planListingReconciliation(stored, [], { complete: true }),
+    ).toThrow('Ambiguous empty ATS response');
+    expect(
+      planListingReconciliation(stored, [], {
+        complete: true,
+        nonEmptyResponse: true,
+      }).staleJobIds,
+    ).toEqual(['a']);
+  });
 });

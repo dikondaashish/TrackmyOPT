@@ -22,6 +22,7 @@ import {
   type PersistedJobListing,
 } from './job-listing-reconciliation';
 import { fetchAllPages } from './paginate';
+import { isUsEligibleJob } from './us-job-eligibility';
 import {
   calculatePacingGapMs,
   MIN_INTER_REQUEST_GAP_MS,
@@ -717,18 +718,25 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       );
       if (this.shuttingDown)
         throw new Error('instance restarting before persistence');
+      // Eligibility first: only US jobs, and jobs that name no country, are
+      // stored. Stored jobs that are now outside the US are deleted.
+      const eligible = fetched.jobs.filter(isUsEligibleJob);
+      const outsideUsIds = fetched.jobs
+        .filter((job) => !eligible.includes(job))
+        .map((job) => job.external_job_id);
       const persistence = await this.persistSourceJobs(
         source,
-        fetched.jobs,
+        eligible,
         fetched.metadata.complete,
         (context as IngestionStoreContext).runStartedAt,
+        outsideUsIds,
       );
       // A completed persistence operation must retain its successful audit,
       // including when SIGTERM arrived while persistence was in flight.
       await this.runStage(source.id, 'audit-complete', () =>
         this.complete(
           reservation.audit_log_id,
-          fetched.jobs.length,
+          eligible.length,
           persistence,
           fetched.metadata.requests_made,
         ),
@@ -747,7 +755,8 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       }
       return {
         sourceId: source.id,
-        jobsFound: fetched.jobs.length,
+        jobsFound: eligible.length,
+        jobsOutsideUs: outsideUsIds.length,
         ...persistence,
       };
     } catch (error) {
@@ -938,13 +947,33 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     scraped: ScrapedAtsJob[],
     responseComplete: boolean,
     runStartedAt?: string,
+    outsideUsExternalIds: readonly string[] = [],
   ) {
     const ids = [...new Set(scraped.map((job) => job.external_job_id))];
-    const persistedStoreJobs = await this.runStage(
-      source.id,
-      'store-read',
-      () => this.jobStore.listSourceJobsForIngestion(source.id),
+    let persistedStoreJobs = await this.runStage(source.id, 'store-read', () =>
+      this.jobStore.listSourceJobsForIngestion(source.id),
     );
+    const outsideUs = new Set(outsideUsExternalIds);
+    const deleteIds = persistedStoreJobs
+      .filter((job) => outsideUs.has(job.externalJobId))
+      .map((job) => job.id);
+    let jobsDeletedOutsideUs = 0;
+    const jobStore = this.jobStore;
+    if (deleteIds.length && jobStore.deleteJobs) {
+      jobsDeletedOutsideUs = await this.runStage(
+        source.id,
+        'store-delete-outside-us',
+        async () => (await jobStore.deleteJobs?.(deleteIds)) ?? 0,
+      );
+      const deleted = new Set(deleteIds);
+      persistedStoreJobs = persistedStoreJobs.filter(
+        (job) => !deleted.has(job.id),
+      );
+    }
+    if (outsideUs.size)
+      this.logger.log(
+        `Job-board source ${source.id}: ${outsideUs.size} jobs outside the US skipped, ${jobsDeletedOutsideUs} stored ones deleted`,
+      );
     const persistedJobs: PersistedJobListing[] = persistedStoreJobs.map(
       (job) => ({
         id: job.id,
@@ -959,6 +988,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     const reconciliation = planListingReconciliation(persistedJobs, ids, {
       complete: responseComplete,
       runStartedAt,
+      nonEmptyResponse: outsideUs.size > 0,
     });
     const now = new Date().toISOString();
     const records = buildJobStoreRecords(

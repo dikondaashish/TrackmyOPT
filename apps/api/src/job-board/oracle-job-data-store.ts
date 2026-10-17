@@ -20,6 +20,7 @@ import {
 } from './job-data-store.contract';
 import {
   ORACLE_ISO_TZ_FORMAT,
+  ORACLE_JOB_SEARCH_TABLE,
   JOB_COLUMNS,
   jobBindDefinitions,
   mapJobRow,
@@ -493,6 +494,47 @@ export class OracleJobDataStore implements JobDataStore {
    * description or search write. If any row is no longer open (a concurrent
    * lifecycle change), nothing commits and the source fails for a retry.
    */
+  /**
+   * Deletes jobs with their visa signals and search rows in one transaction,
+   * children first (job_visa_signals references jobs). Returns jobs deleted.
+   */
+  async deleteJobs(ids: readonly string[]): Promise<number> {
+    const unique = [...new Set(ids)];
+    if (!unique.length) return 0;
+    const connection = await this.connection();
+    let deleted = 0;
+    try {
+      for (let offset = 0; offset < unique.length; offset += WRITE_BATCH_SIZE) {
+        const binds = unique
+          .slice(offset, offset + WRITE_BATCH_SIZE)
+          .map((id) => ({ id }));
+        await connection.executeMany(
+          'DELETE FROM job_visa_signals WHERE job_id = :id',
+          binds,
+          { autoCommit: false },
+        );
+        await connection.executeMany(
+          `DELETE FROM ${ORACLE_JOB_SEARCH_TABLE} WHERE job_id = :id`,
+          binds,
+          { autoCommit: false },
+        );
+        const result = await connection.executeMany(
+          'DELETE FROM jobs WHERE id = :id',
+          binds,
+          { autoCommit: false },
+        );
+        deleted += Number(result?.rowsAffected ?? 0);
+      }
+      await connection.commit();
+      return deleted;
+    } catch (error) {
+      await rollbackPreservingError(connection, this.logger);
+      throw error;
+    } finally {
+      await connection.close();
+    }
+  }
+
   async confirmJobs(ids: readonly string[], confirmedAt: string) {
     if (!ids.length) return;
     const connection = await this.connection();
