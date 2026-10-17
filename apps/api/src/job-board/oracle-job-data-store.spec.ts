@@ -784,9 +784,15 @@ describe('OracleJobDataStore shadow adapter', () => {
     const { driver, executed, connection } = setup();
     connection.execute = (<T>(sql: string, binds?: Record<string, unknown>) => {
       executed.push({ sql, binds });
-      const rows = sql.includes('COALESCE(company_name')
-        ? [{ VALUE: 'figma' }, { VALUE: 'Anthropic' }, { VALUE: 'Cursor' }]
-        : [{ VALUE: 'San Francisco, CA' }, { VALUE: 'Remote - US' }];
+      const rows = sql.includes('GROUP BY location')
+        ? [
+            { LOCATION: 'San Francisco, CA', N: 3 },
+            { LOCATION: 'Remote - US', N: 2 },
+            { LOCATION: 'London', N: 4 },
+          ]
+        : sql.includes('COALESCE(company_name')
+          ? [{ VALUE: 'figma' }, { VALUE: 'Anthropic' }, { VALUE: 'Cursor' }]
+          : [{ VALUE: 'San Francisco, CA' }, { VALUE: 'Remote - US' }];
       return Promise.resolve({ rows } as { rows: T[] });
     }) as OracleConnection['execute'];
     const store = new OracleJobDataStore(
@@ -802,12 +808,70 @@ describe('OracleJobDataStore shadow adapter', () => {
     await expect(store.listJobFacets()).resolves.toEqual({
       locations: ['Remote - US', 'San Francisco, CA'],
       companies: ['Anthropic', 'Cursor', 'figma'],
+      places: [
+        { key: 'state:CA', kind: 'state', label: 'California', count: 3 },
+        {
+          key: 'city:San Francisco, CA',
+          kind: 'city',
+          label: 'San Francisco, CA',
+          count: 3,
+        },
+        { key: 'remote:us', kind: 'remote', label: 'Remote (US)', count: 2 },
+      ],
     });
     for (const call of executed) {
       expect(call.sql).toContain("listing_status = 'open'");
       expect(call.sql).toContain("source_trust_tier = 'verified_ats'");
       expect(call.sql).not.toMatch(/FETCH NEXT|OFFSET/);
     }
+    // Company options cover the US board only.
+    const companies = executed.find((call) =>
+      call.sql.includes('COALESCE(company_name'),
+    );
+    expect(companies?.binds).toMatchObject({ nonUsLocation0: 'London' });
+  });
+
+  it('reads the location index once and reuses it across searches', async () => {
+    const { driver, executed, connection } = setup();
+    const base = connection.execute.bind(
+      connection,
+    ) as OracleConnection['execute'];
+    connection.execute = (<T>(sql: string, binds?: Record<string, unknown>) => {
+      if (sql.includes('GROUP BY location')) {
+        executed.push({ sql, binds });
+        return Promise.resolve({
+          rows: [
+            { LOCATION: 'Boston, MA', N: 5 },
+            { LOCATION: 'Paris, France', N: 2 },
+          ],
+        } as { rows: T[] });
+      }
+      return base(sql, binds);
+    }) as OracleConnection['execute'];
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+
+    await store.listJobs({ page: 1, pageSize: 10, country: 'us' });
+    await store.listJobs({ page: 1, pageSize: 10, places: ['state:MA'] });
+    await store.listJobs({ page: 1, pageSize: 10 });
+
+    expect(
+      executed.filter((call) => call.sql.includes('GROUP BY location')),
+    ).toHaveLength(1);
+    const searches = executed.filter((call) => call.sql.includes('ORDER BY'));
+    expect(searches[0].binds).toMatchObject({
+      nonUsLocation0: 'Paris, France',
+    });
+    expect(searches[1].binds).toMatchObject({ placeLocation0: 'Boston, MA' });
+    expect(searches[2].sql).not.toContain('location IN');
+    expect(searches[2].sql).not.toContain('location NOT IN');
   });
 
   it('uses Oracle Text for description predicates while keeping substring verification', async () => {

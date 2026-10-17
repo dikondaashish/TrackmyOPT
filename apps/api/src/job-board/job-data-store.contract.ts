@@ -86,6 +86,10 @@ export type JobStoreSearch = {
   sourceAts?: string;
   companyName?: string;
   location?: string;
+  /** 'us' hides jobs whose location names only places outside the US. */
+  country?: 'us' | 'all';
+  /** US place keys (see us-location.ts); a job matches any of them. */
+  places?: readonly string[];
   workplace?: 'all' | 'remote' | 'hybrid' | 'on_site' | 'unspecified';
   degree?: 'all' | 'bachelor' | 'master' | 'doctorate' | 'unspecified';
   experience?: 'all' | 'entry' | 'mid' | 'senior' | 'unspecified';
@@ -127,6 +131,16 @@ export type JobStorePage = {
 export type JobStoreFacets = {
   locations: string[];
   companies: string[];
+  /** US states, cities and remote, most jobs first. */
+  places: JobStorePlaceFacet[];
+};
+
+export type JobStorePlaceFacet = {
+  /** `state:CA`, `city:San Francisco, CA` or `remote:us`. */
+  key: string;
+  kind: 'state' | 'city' | 'remote';
+  label: string;
+  count: number;
 };
 
 export type JobStoreVisaSignal = {

@@ -12,13 +12,13 @@ describe('deriveResumeJobFilters', () => {
       yearsExperience: 4,
       preferredLocations: ['Remote'],
       workplacePreferences: ['remote'],
-    }, ['Palo Alto, CA', 'Remote, United States']);
+    }, ['state:CA', 'city:Palo Alto, CA', 'remote:us']);
 
     expect(filters).toMatchObject({
       searchScope: 'title_description',
       query: 'engineer',
       date: '30d',
-      location: 'Remote, United States',
+      places: ['remote:us'],
       workplace: 'remote',
       role: 'engineering',
       experience: 'mid',
@@ -36,12 +36,27 @@ describe('deriveResumeJobFilters', () => {
       certifications: [],
       education: [],
       yearsExperience: null,
-    }, ['New York, NY']);
+    }, ['state:NY', 'city:New York, NY']);
 
-    expect(filters.location).toBe('all');
+    expect(filters.places).toEqual([]);
     expect(filters.workplace).toBe('all');
     expect(filters.query).toBe('analyst');
     expect(filters.role).toBe('data');
     expect(filters.experience).toBe('all');
+  });
+
+  it('maps a resume location to its city, else its state, among open places', () => {
+    const profile = {
+      schemaVersion: 1 as const,
+      roleTitles: ['Data Analyst'],
+      skills: [],
+      certifications: [],
+      education: [],
+      yearsExperience: null,
+    };
+    expect(deriveResumeJobFilters({ ...profile, preferredLocations: ['Boston, MA'] }, ['state:MA', 'city:Boston, MA']).places).toEqual(['city:Boston, MA']);
+    expect(deriveResumeJobFilters({ ...profile, preferredLocations: ['Cambridge, Massachusetts'] }, ['state:MA']).places).toEqual(['state:MA']);
+    expect(deriveResumeJobFilters({ ...profile, preferredLocations: ['London', 'Austin, TX'] }, ['state:TX']).places).toEqual(['state:TX']);
+    expect(deriveResumeJobFilters({ ...profile, preferredLocations: ['London'] }, ['state:TX']).places).toEqual([]);
   });
 });

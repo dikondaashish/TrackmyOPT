@@ -171,4 +171,22 @@ describe('JobBoardController scheduler contract', () => {
       'job-board-manual-supervised-1',
     );
   });
+
+  it('passes the US scope and valid place keys to the job search', async () => {
+    listJobs.mockResolvedValue({ rows: [], total: 0 });
+    await controller.listJobs({
+      country: 'us',
+      places: 'state:MA|city:Boston, MA|state:ZZ|remote:us',
+    });
+    expect(listJobs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        country: 'us',
+        places: ['state:MA', 'city:Boston, MA', 'remote:us'],
+      }),
+    );
+    await controller.listJobs({});
+    expect(listJobs).toHaveBeenLastCalledWith(
+      expect.objectContaining({ country: 'all', places: [] }),
+    );
+  });
 });

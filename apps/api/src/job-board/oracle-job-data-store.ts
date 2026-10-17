@@ -45,6 +45,11 @@ import {
   oracleJobOrderBy,
 } from './oracle-job-search-query';
 import {
+  buildJobLocationIndex,
+  jobLocationFilter,
+  type JobLocationIndex,
+} from './job-location-index';
+import {
   ORACLE_JOB_CONFIRM_SQL,
   ORACLE_JOB_EMPLOYER_MATCH_SQL,
   ORACLE_JOB_MERGE_SQL,
@@ -91,6 +96,10 @@ export class OracleJobDataStore implements JobDataStore {
    */
   private poolInitialization: Promise<OraclePool> | null = null;
   private closed = false;
+  private locationIndex: {
+    expiresAt: number;
+    value: Promise<JobLocationIndex>;
+  } | null = null;
 
   constructor(
     private readonly config: OracleJobDataConfig,
@@ -147,7 +156,7 @@ export class OracleJobDataStore implements JobDataStore {
   async listJobs(query: JobStoreSearch): Promise<JobStorePage> {
     const page = Math.max(1, Math.floor(query.page));
     const pageSize = Math.min(100, Math.max(1, Math.floor(query.pageSize)));
-    const { where, filterBinds } = buildOracleJobSearchFilter(query);
+    const { where, filterBinds } = await this.searchFilter(query);
     const pageBinds = {
       ...filterBinds,
       offset: (page - 1) * pageSize,
@@ -177,9 +186,12 @@ export class OracleJobDataStore implements JobDataStore {
   }
 
   async listJobFacets(): Promise<JobStoreFacets> {
-    const { where, filterBinds } = buildOracleJobSearchFilter({
+    const index = await this.jobLocationIndex();
+    // Options cover the US board: companies with only non-US jobs are left out.
+    const { where, filterBinds } = await this.searchFilter({
       page: 1,
       pageSize: 1,
+      country: 'us',
     });
     const connection = await this.connection();
     try {
@@ -199,7 +211,7 @@ export class OracleJobDataStore implements JobDataStore {
       const companies = await distinct(
         'COALESCE(company_name, employer_board_name)',
       );
-      return { locations, companies };
+      return { locations, companies, places: index.places };
     } finally {
       await connection.close();
     }
@@ -716,6 +728,60 @@ export class OracleJobDataStore implements JobDataStore {
     if (pool) await pool.close(5);
   }
 
+  /** Search WHERE clause with country/place filters resolved to locations. */
+  private async searchFilter(query: JobStoreSearch) {
+    const needsIndex = query.country === 'us' || Boolean(query.places?.length);
+    const locations = needsIndex
+      ? jobLocationFilter(await this.jobLocationIndex(), query)
+      : undefined;
+    return buildOracleJobSearchFilter(query, locations);
+  }
+
+  /**
+   * Distinct open-job locations, read at most every few minutes. Ingestion
+   * runs hours apart, and a location first seen in between is shown (not
+   * hidden) until the next refresh.
+   */
+  private jobLocationIndex(): Promise<JobLocationIndex> {
+    const now = Date.now();
+    if (this.locationIndex && this.locationIndex.expiresAt > now) {
+      return this.locationIndex.value;
+    }
+    const value = this.readJobLocationIndex();
+    const entry = { expiresAt: now + LOCATION_INDEX_TTL_MS, value };
+    this.locationIndex = entry;
+    value.catch(() => {
+      if (this.locationIndex === entry) this.locationIndex = null;
+    });
+    return value;
+  }
+
+  private async readJobLocationIndex(): Promise<JobLocationIndex> {
+    const { where, filterBinds } = buildOracleJobSearchFilter({
+      page: 1,
+      pageSize: 1,
+    });
+    const connection = await this.connection();
+    try {
+      const result = await connection.execute<{
+        LOCATION: unknown;
+        N: unknown;
+      }>(
+        `SELECT location AS "LOCATION", COUNT(*) AS "N" FROM jobs WHERE ${where} AND location IS NOT NULL GROUP BY location`,
+        filterBinds,
+        outputOptions(this.driver),
+      );
+      return buildJobLocationIndex(
+        (result.rows || []).map((row) => ({
+          location: String(row.LOCATION),
+          count: Number(row.N) || 0,
+        })),
+      );
+    } finally {
+      await connection.close();
+    }
+  }
+
   private async connection() {
     await this.initialize();
     if (!this.pool) throw new Error('Oracle job store pool is unavailable');
@@ -730,6 +796,8 @@ export class OracleJobDataStore implements JobDataStore {
 }
 
 const TIMED_READ_LOG_THRESHOLD_MS = 1_000;
+/** How long the distinct-location index is reused. */
+export const LOCATION_INDEX_TTL_MS = 10 * 60_000;
 /** Bounds each lightweight executeMany round trip. */
 const WRITE_BATCH_SIZE = 500;
 /**

@@ -1,5 +1,6 @@
 import { EMPTY_JOB_FILTERS, normalizeJobText, type JobFilters, type RoleFamily } from './filters';
 import type { ResumeJobProfile } from './resume-match';
+import { jobPlaceKeys, readJobLocation } from './us-location';
 
 const SEARCH_KEYWORDS = [
   'engineer', 'developer', 'analyst', 'scientist', 'manager', 'designer',
@@ -22,19 +23,25 @@ function searchKeyword(roleTitles: string[]) {
   return SEARCH_KEYWORDS.find((keyword) => titles.includes(keyword)) || '';
 }
 
-function matchingLocation(preferredLocations: string[] | undefined, availableLocations: string[]) {
+/**
+ * The first resume location preference that names a US place with open jobs:
+ * its city when listed, otherwise its state ("Boston, MA" -> Boston, then
+ * Massachusetts; "Remote" -> Remote (US)).
+ */
+function matchingPlaces(preferredLocations: string[] | undefined, availablePlaces: readonly string[]) {
+  const available = new Set(availablePlaces);
   for (const preference of preferredLocations || []) {
-    const normalizedPreference = normalizeJobText(preference);
-    if (!normalizedPreference) continue;
-    const match = availableLocations.find((location) => {
-      const normalizedLocation = normalizeJobText(location);
-      return normalizedLocation === normalizedPreference
-        || normalizedLocation.includes(normalizedPreference)
-        || normalizedPreference.includes(normalizedLocation);
-    });
-    if (match) return match;
+    const info = readJobLocation(preference);
+    const keys = jobPlaceKeys(info);
+    const ordered = [
+      ...keys.filter((key) => key.startsWith('city:')),
+      ...keys.filter((key) => key.startsWith('state:')),
+      ...keys.filter((key) => key.startsWith('remote:')),
+    ];
+    const match = ordered.find((key) => available.has(key));
+    if (match) return [match];
   }
-  return 'all';
+  return [];
 }
 
 function experienceCeiling(yearsExperience: number | null): JobFilters['experience'] {
@@ -44,12 +51,12 @@ function experienceCeiling(yearsExperience: number | null): JobFilters['experien
   return 'senior';
 }
 
-export function deriveResumeJobFilters(profile: ResumeJobProfile, availableLocations: string[]): JobFilters {
+export function deriveResumeJobFilters(profile: ResumeJobProfile, availablePlaces: readonly string[]): JobFilters {
   return {
     ...EMPTY_JOB_FILTERS,
     query: searchKeyword(profile.roleTitles),
     date: '30d',
-    location: matchingLocation(profile.preferredLocations, availableLocations),
+    places: matchingPlaces(profile.preferredLocations, availablePlaces),
     workplace: profile.workplacePreferences?.[0] || 'all',
     role: roleFamily(profile.roleTitles),
     experience: experienceCeiling(profile.yearsExperience),

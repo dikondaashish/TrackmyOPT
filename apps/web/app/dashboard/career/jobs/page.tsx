@@ -65,7 +65,7 @@ export default async function VerifiedJobsPage() {
   if (!user) redirect('/login');
 
   const [serverPage, facets, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
-    listServerJobs({ page: 1, pageSize: 50 }),
+    listServerJobs({ page: 1, pageSize: 50, country: 'us' }),
     // The Location and Company options must cover every open job, not only
     // the first page. Without them the explorer falls back to page values.
     listServerJobFacets().catch((): ServerJobFacets | null => {
@@ -190,7 +190,7 @@ export default async function VerifiedJobsPage() {
         jobs={jobs}
         totalJobs={serverPage.total}
         serverMode
-        locationOptions={facets?.locations}
+        placeOptions={facets?.places}
         companyOptions={facets?.companies}
         runway={runway}
         asOf={now.toISOString()}
