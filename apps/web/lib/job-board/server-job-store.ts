@@ -90,10 +90,30 @@ export async function listServerJobs(
   };
 }
 
+export type ServerPlaceOption = {
+  key: string;
+  kind: 'state' | 'city' | 'remote';
+  label: string;
+  count: number;
+};
+
 export type ServerJobFacets = {
   locations: string[];
   companies: string[];
+  /** US states, cities and remote with open-job counts. */
+  places: ServerPlaceOption[];
 };
+
+function placeList(value: unknown): ServerPlaceOption[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const { key, kind, label, count } = item as Record<string, unknown>;
+    if (typeof key !== 'string' || typeof label !== 'string') return [];
+    if (kind !== 'state' && kind !== 'city' && kind !== 'remote') return [];
+    return [{ key, kind, label, count: Number(count) || 0 }];
+  });
+}
 
 function stringList(value: unknown): string[] {
   return Array.isArray(value)
@@ -109,8 +129,12 @@ export async function listServerJobFacets(): Promise<ServerJobFacets> {
     cache: 'no-store',
   });
   if (!response.ok) throw new Error('Unable to load job filter options from the job data service');
-  const payload = (await response.json()) as { locations?: unknown; companies?: unknown };
-  return { locations: stringList(payload.locations), companies: stringList(payload.companies) };
+  const payload = (await response.json()) as { locations?: unknown; companies?: unknown; places?: unknown };
+  return {
+    locations: stringList(payload.locations),
+    companies: stringList(payload.companies),
+    places: placeList(payload.places),
+  };
 }
 
 export async function getServerJob(id: string): Promise<ServerJobRecord | null> {

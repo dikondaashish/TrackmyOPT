@@ -16,3 +16,18 @@ describe('shared job-facts module', () => {
     expect(web).toBe(api);
   });
 });
+
+/**
+ * apps/web filters loaded jobs and maps resume locations to places with the
+ * same reading the API uses to hide non-US jobs and match places.
+ */
+describe('shared us-location module', () => {
+  it('is identical in apps/api and apps/web', () => {
+    const api = readFileSync(path.join(__dirname, 'us-location.ts'), 'utf8');
+    const web = readFileSync(
+      path.resolve(__dirname, '../../../web/lib/job-board/us-location.ts'),
+      'utf8',
+    );
+    expect(web).toBe(api);
+  });
+});

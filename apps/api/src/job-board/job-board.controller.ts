@@ -11,6 +11,7 @@ import {
 import { JobBoardService } from './job-board.service';
 import { JobVisaSignalService } from './job-visa-signal.service';
 import type { JobStoreSearch } from './job-data-store.contract';
+import { parsePlaceKeys } from './us-location';
 import {
   normalizeSchedulerRunId,
   normalizeTriggerOrigin,
@@ -41,6 +42,8 @@ export class JobBoardController {
       sourceAts: query.sourceAts,
       companyName: query.companyName,
       location: query.location,
+      country: query.country === 'us' ? 'us' : 'all',
+      places: parsePlaceKeys(query.places?.split('|') ?? []),
       workplace: asWorkplace(query.workplace),
       degree: asDegree(query.degree),
       experience: asExperience(query.experience),

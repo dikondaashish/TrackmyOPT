@@ -36,6 +36,41 @@ describe('oracleJobOrderBy', () => {
 });
 
 describe('buildOracleJobSearchFilter', () => {
+  it('excludes non-US locations and matches places through bound strings', () => {
+    const { where, filterBinds } = buildOracleJobSearchFilter(
+      { page: 1, pageSize: 50 },
+      { excluded: ['London', "O'Hare; DROP"], included: ['Boston, MA'] },
+    );
+    expect(where).toContain(
+      '(location IS NULL OR (location NOT IN (:nonUsLocation0, :nonUsLocation1)))',
+    );
+    expect(where).toContain('(location IN (:placeLocation0))');
+    expect(where).not.toContain('London');
+    expect(filterBinds).toMatchObject({
+      nonUsLocation0: 'London',
+      nonUsLocation1: "O'Hare; DROP",
+      placeLocation0: 'Boston, MA',
+    });
+  });
+
+  it("splits location lists at Oracle's 1,000-item IN limit", () => {
+    const excluded = Array.from({ length: 1001 }, (_, i) => `City ${i}`);
+    const { where } = buildOracleJobSearchFilter(
+      { page: 1, pageSize: 50 },
+      { excluded },
+    );
+    expect(where.match(/NOT IN \(/g)).toHaveLength(2);
+    expect(where).toContain(':nonUsLocation1000)');
+  });
+
+  it('matches no job when the selected places name no location', () => {
+    const { where } = buildOracleJobSearchFilter(
+      { page: 1, pageSize: 50 },
+      { included: [] },
+    );
+    expect(where).toContain('1 = 0');
+  });
+
   it('filters dates on the same posting timestamp the feed sorts by', () => {
     const { where, filterBinds } = build({
       postedAfter: '2026-10-15T02:00:00.000Z',

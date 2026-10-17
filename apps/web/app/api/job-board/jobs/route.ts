@@ -6,6 +6,7 @@ import { findActiveTrackerStatus, inferJobFacts } from '@/lib/job-board/filters'
 import { parseResumeJobProfile, scoreJobForResume, type ResumeJobMatch } from '@/lib/job-board/resume-match';
 import { listServerJobs, type ServerJobRecord } from '@/lib/job-board/server-job-store';
 import { cleanSearchTerm, exactFilterValue } from '@/lib/job-board/request-filters';
+import { parsePlaceKeys } from '@/lib/job-board/us-location';
 
 const PAGE_SIZE = 50;
 
@@ -82,6 +83,7 @@ async function handleGET(request: Request) {
   const queryText = cleanSearchTerm(params.get('query') || '');
   const exclude = cleanSearchTerm(params.get('exclude') || '');
   const location = exactFilterValue(params.get('location') || '');
+  const places = parsePlaceKeys(params.getAll('place'));
   const company = exactFilterValue(params.get('company') || '');
   const date = params.get('date') || 'any';
   const workplace = params.get('workplace') || 'all';
@@ -121,6 +123,9 @@ async function handleGET(request: Request) {
     searchScope: scope,
     exclude: exclude || undefined,
     location: location && location !== 'all' ? location : undefined,
+    places: places.length ? places.join('|') : undefined,
+    // The board lists US jobs; saved and applied jobs show wherever they are.
+    country: tracker === 'saved' || tracker === 'applied' ? undefined : 'us',
     companyName: company && company !== 'all' ? company : undefined,
     workplace: workplace !== 'all' ? workplace : undefined,
     degree: degree !== 'all' ? degree : undefined,

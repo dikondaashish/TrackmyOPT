@@ -103,7 +103,7 @@ describe('JobBoardExplorer', () => {
     render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
 
     expect(screen.getByRole('combobox', { name: 'Date' })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Location' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Location' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Workplace' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Company' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Role' })).toBeInTheDocument();
@@ -203,24 +203,40 @@ describe('JobBoardExplorer', () => {
     expect(screen.queryByText('Brand Designer')).not.toBeInTheDocument();
   });
 
-  it('applies exact company and location choices and clears both draft and active filters', () => {
+  it('applies company and location choices and clears both draft and active filters', () => {
     render(<JobBoardExplorer jobs={jobs} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
 
     fireEvent.change(screen.getByRole('combobox', { name: 'Company' }), { target: { value: 'Also, Inc.' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Location' }), { target: { value: 'Palo Alto, CA' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Location' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Palo Alto, CA/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
     applyFilters();
     expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
     expect(screen.queryByText('Software Engineer')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Palo Alto, CA' })).toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('combobox', { name: 'Company' }), { target: { value: 'North Beam, Inc.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
     expect(screen.getByRole('combobox', { name: 'Company' })).toHaveValue('all');
-    expect(screen.getByRole('combobox', { name: 'Location' })).toHaveValue('all');
+    expect(screen.getByRole('button', { name: 'Location' })).toBeInTheDocument();
     expect(screen.getByText('Software Engineer')).toBeInTheDocument();
     expect(screen.getByText('Data Product Analyst')).toBeInTheDocument();
   });
 
-  it('offers every feed location and company in server mode and sends exact values', async () => {
+  it('hides jobs located only outside the US, unless they are saved', () => {
+    const londonJob = job({ id: 'job-london', title: 'London Analyst', location: 'London, UK', tracker_status: 'Wishlist' });
+    render(<JobBoardExplorer jobs={[...jobs, londonJob]} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    expect(screen.queryByText('London Analyst')).not.toBeInTheDocument();
+    expect(screen.getByText('Software Engineer')).toBeInTheDocument();
+
+    openMoreFilters();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Tracker status' }), { target: { value: 'saved' } });
+    applyFilters();
+    expect(screen.getByText('London Analyst')).toBeInTheDocument();
+  });
+
+  it('searches US places, shows popular ones first, and sends every selected place', async () => {
     const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ jobs: [], total: 0, page: 1 }), { status: 200, headers: { 'content-type': 'application/json' } }),
     );
@@ -231,24 +247,45 @@ describe('JobBoardExplorer', () => {
         serverMode
         runway={null}
         asOf="2026-08-29T12:00:00.000Z"
-        locationOptions={['San Francisco, CA', 'Austin, TX']}
+        placeOptions={[
+          { key: 'state:CA', kind: 'state', label: 'California', count: 2969 },
+          { key: 'city:San Francisco, CA', kind: 'city', label: 'San Francisco, CA', count: 1755 },
+          { key: 'remote:us', kind: 'remote', label: 'Remote (US)', count: 801 },
+          { key: 'state:MA', kind: 'state', label: 'Massachusetts', count: 243 },
+          { key: 'city:Boston, MA', kind: 'city', label: 'Boston, MA', count: 129 },
+          { key: 'city:Austin, TX', kind: 'city', label: 'Austin, TX', count: 206 },
+        ]}
         companyOptions={['Notion', 'Anthropic', 'Anyscale, Inc.']}
       />,
     );
 
     const companyOptions = [...screen.getByRole('combobox', { name: 'Company' }).querySelectorAll('option')].map((option) => option.value);
     expect(companyOptions).toEqual(['all', 'Anthropic', 'Anyscale, Inc.', 'Notion']);
-    const locationOptions = [...screen.getByRole('combobox', { name: 'Location' }).querySelectorAll('option')].map((option) => option.value);
-    expect(locationOptions).toEqual(['all', 'Austin, TX', 'San Francisco, CA']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Location' }));
+    const dialog = screen.getByRole('dialog', { name: 'Choose US locations' });
+    const popular = [...dialog.querySelectorAll('ul')[0].querySelectorAll('li')].map((item) => item.textContent);
+    expect(popular[0]).toContain('Remote (US)');
+    expect(popular[1]).toContain('California');
+
+    fireEvent.change(screen.getByPlaceholderText('Search states and cities…'), { target: { value: 'mass' } });
+    expect(screen.getByRole('checkbox', { name: /Massachusetts/ })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /Boston, MA/ })).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: /Austin, TX/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('checkbox', { name: /Massachusetts/ }));
+    fireEvent.change(screen.getByPlaceholderText('Search states and cities…'), { target: { value: 'san f' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: /San Francisco, CA/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    expect(screen.getByRole('button', { name: 'Massachusetts +1' })).toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('combobox', { name: 'Company' }), { target: { value: 'Anyscale, Inc.' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Location' }), { target: { value: 'San Francisco, CA' } });
     applyFilters();
 
     expect(await screen.findByText('No verified jobs match these filters')).toBeInTheDocument();
     const params = new URL(String(fetchMock.mock.calls[0][0]), 'https://example.test').searchParams;
     expect(params.get('company')).toBe('Anyscale, Inc.');
-    expect(params.get('location')).toBe('San Francisco, CA');
+    expect(params.getAll('place')).toEqual(['state:MA', 'city:San Francisco, CA']);
+    expect(params.has('location')).toBe(false);
     expect(params.get('page')).toBe('1');
     expect(params.has('resumeId')).toBe(false);
     fetchMock.mockRestore();
@@ -415,7 +452,7 @@ describe('JobBoardExplorer', () => {
     expect(screen.getAllByText(/% match/).length).toBeGreaterThan(0);
     expect(screen.getByRole('textbox', { name: 'Search verified jobs' })).toHaveValue('engineer');
     expect(screen.getByRole('combobox', { name: 'Date' })).toHaveValue('30d');
-    expect(screen.getByRole('combobox', { name: 'Location' })).toHaveValue('Remote, United States');
+    expect(screen.getByRole('button', { name: 'Remote (US)' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Workplace' })).toHaveValue('remote');
     expect(screen.getByRole('combobox', { name: 'Role' })).toHaveValue('engineering');
 

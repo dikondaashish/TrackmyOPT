@@ -1,4 +1,5 @@
 import { experienceBucket, inferTextJobFacts, type JobDegreeLevel, type JobTypeKind } from './job-facts';
+import { matchesPlaceKeys, readJobLocation } from './us-location';
 
 export type VisaSignalSummary = {
   signal_type: string;
@@ -51,7 +52,8 @@ export type JobFilters = {
   query: string;
   exclude: string;
   date: JobDateWindow;
-  location: string;
+  /** US place keys (`state:CA`, `city:Boston, MA`, `remote:us`); any matches. */
+  places: string[];
   workplace: 'all' | JobFacts['workplace'];
   company: string;
   degree: 'all' | DegreeLevel | 'unspecified';
@@ -68,7 +70,7 @@ export const EMPTY_JOB_FILTERS: JobFilters = {
   query: '',
   exclude: '',
   date: 'any',
-  location: 'all',
+  places: [],
   workplace: 'all',
   company: 'all',
   degree: 'all',
@@ -243,13 +245,16 @@ export function matchesJobFilters(job: FilterableJob, facts: JobFacts, filters: 
       ? normalizeJobText(company)
       : `${normalizeJobText(job.title)} ${normalizeJobText(job.description)}`;
   const allJobContent = [job.title, company, job.description, job.location, job.department].map(normalizeJobText).join(' ');
+  const place = readJobLocation(job.location);
   const degreeMatches = filters.degree === 'all'
     || (filters.degree === 'unspecified' ? facts.degreeLevels.length === 0 : facts.degreeLevels.includes(filters.degree));
 
   return (!query || searchable.includes(query))
     && (!excluded || !allJobContent.includes(excluded))
     && isWithinDateRange(job.posted_at, filters.date, asOf)
-    && (filters.location === 'all' || normalizeJobText(job.location) === normalizeJobText(filters.location))
+    // The board is for US jobs; saved and applied jobs stay visible wherever they are.
+    && (filters.tracker === 'saved' || filters.tracker === 'applied' || place.scope !== 'non_us')
+    && matchesPlaceKeys(place, filters.places)
     && (filters.company === 'all' || normalizeJobText(company) === normalizeJobText(filters.company))
     && (filters.workplace === 'all' || facts.workplace === filters.workplace)
     && degreeMatches

@@ -8,6 +8,7 @@ import { atsSourceName } from '@/components/career/jobs/JobBrandLogo.utils';
 import { JobCardActions } from '@/components/career/jobs/JobCardActions';
 import { JobDescriptionContent } from '@/components/career/jobs/JobDescriptionContent';
 import { JobUrgencyLabels } from '@/components/career/jobs/JobRunwayPersonalization';
+import { LocationPicker, type PlaceOption } from '@/components/career/jobs/LocationPicker';
 import { ResumeJobMatcher, type ActiveResumeMatch, type SavedResumeOption } from '@/components/career/jobs/ResumeJobMatcher';
 import {
   EMPTY_JOB_FILTERS,
@@ -22,6 +23,7 @@ import {
 import { scoreJobForResume, type ResumeJobMatch } from '@/lib/job-board/resume-match';
 import { deriveResumeJobFilters } from '@/lib/job-board/resume-filter-defaults';
 import { isRecentlyPosted, type RunwayContext } from '@/lib/job-board/runway';
+import { jobPlaceKeys, placeLabel, readJobLocation } from '@/lib/job-board/us-location';
 
 type VisaSignal = {
   signal_type: string;
@@ -77,6 +79,18 @@ function uniqueSorted(values: Array<string | null | undefined>) {
   return [...new Set(values.filter((value): value is string => Boolean(value)))].sort((left, right) => left.localeCompare(right, 'en', { sensitivity: 'base' }));
 }
 
+/** Place options from loaded jobs, when the feed's options are not provided. */
+function placeOptionsFromJobs(jobs: ExplorerJob[]): PlaceOption[] {
+  const counts = new Map<string, number>();
+  for (const job of jobs) {
+    for (const key of jobPlaceKeys(readJobLocation(job.location))) counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return [...counts].flatMap(([key, count]) => {
+    const label = placeLabel(key);
+    return label ? [{ key, ...label, count }] : [];
+  });
+}
+
 function initialSavedJobIds(jobs: ExplorerJob[]) {
   const ids = new Set<string>();
   for (const job of jobs) {
@@ -91,8 +105,8 @@ function FilterSelect({ label, value, onChange, children }: {
   onChange: (value: string) => void;
   children: ReactNode;
 }) {
-  // Location and Company list every open value, and a native select grows to
-  // its longest option, so cap the width and truncate the shown value.
+  // Company lists every open value, and a native select grows to its longest
+  // option, so cap the width and truncate the shown value.
   return (
     <label className="relative min-w-0 max-w-full">
       <span className="sr-only">{label}</span>
@@ -247,7 +261,7 @@ export function JobBoardExplorer({
   asOf,
   savedResumes = EMPTY_SAVED_RESUMES,
   initialResumeMatch = null,
-  locationOptions,
+  placeOptions,
   companyOptions,
 }: {
   jobs: ExplorerJob[];
@@ -257,8 +271,8 @@ export function JobBoardExplorer({
   asOf: string;
   savedResumes?: SavedResumeOption[];
   initialResumeMatch?: ActiveResumeMatch | null;
-  /** Every location of the open feed; otherwise derived from the loaded jobs. */
-  locationOptions?: string[];
+  /** US states, cities and remote of the open feed; otherwise derived from the loaded jobs. */
+  placeOptions?: PlaceOption[];
   /** Every company of the open feed; otherwise derived from the loaded jobs. */
   companyOptions?: string[];
 }) {
@@ -268,10 +282,11 @@ export function JobBoardExplorer({
   const [serverError, setServerError] = useState<string | null>(null);
   // Server mode loads one page at a time, so options derived from the loaded
   // jobs would only list that page's values.
-  const locations = useMemo(() => locationOptions ? uniqueSorted(locationOptions) : uniqueSorted(displayJobs.map((job) => job.location)), [displayJobs, locationOptions]);
+  const places = useMemo(() => placeOptions ?? placeOptionsFromJobs(displayJobs), [displayJobs, placeOptions]);
+  const placeKeys = useMemo(() => places.map((place) => place.key), [places]);
   const initialFilters = useMemo(
-    () => initialResumeMatch ? deriveResumeJobFilters(initialResumeMatch.profile, locations) : EMPTY_JOB_FILTERS,
-    [initialResumeMatch, locations],
+    () => initialResumeMatch ? deriveResumeJobFilters(initialResumeMatch.profile, placeKeys) : EMPTY_JOB_FILTERS,
+    [initialResumeMatch, placeKeys],
   );
   const [draft, setDraft] = useState<JobFilters>(initialFilters);
   const [filters, setFilters] = useState<JobFilters>(initialFilters);
@@ -303,7 +318,6 @@ export function JobBoardExplorer({
       query: nextFilters.query,
       exclude: nextFilters.exclude,
       date: nextFilters.date,
-      location: nextFilters.location,
       workplace: nextFilters.workplace,
       company: nextFilters.company,
       degree: nextFilters.degree,
@@ -314,6 +328,7 @@ export function JobBoardExplorer({
       employmentType: nextFilters.employmentType,
       tracker: nextFilters.tracker,
     });
+    for (const key of nextFilters.places) params.append('place', key);
     const resumeId = resumeIdOverride === undefined ? activeResumeMatch?.resumeId : resumeIdOverride;
     if (resumeId) params.set('resumeId', resumeId);
     try {
@@ -335,7 +350,7 @@ export function JobBoardExplorer({
 
   useEffect(() => {
     if (!serverMode || !initialResumeMatch) return;
-    const resumeFilters = deriveResumeJobFilters(initialResumeMatch.profile, locations);
+    const resumeFilters = deriveResumeJobFilters(initialResumeMatch.profile, placeKeys);
     // The initial profile is stable for the lifetime of this explorer.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(resumeFilters);
@@ -355,7 +370,7 @@ export function JobBoardExplorer({
   };
 
   const applyResumeMatch = (match: ActiveResumeMatch) => {
-    const resumeFilters = deriveResumeJobFilters(match.profile, locations);
+    const resumeFilters = deriveResumeJobFilters(match.profile, placeKeys);
     setActiveResumeMatch(match);
     setDraft(resumeFilters);
     setFilters(resumeFilters);
@@ -403,9 +418,7 @@ export function JobBoardExplorer({
             <FilterSelect label="Date" value={draft.date} onChange={(value) => updateDraft('date', value as JobFilters['date'])}>
               <option value="any">Date</option><option value="1h">Past hour</option><option value="6h">Past 6 hours</option><option value="12h">Past 12 hours</option><option value="24h">Past 24 hours</option><option value="48h">Past 48 hours</option><option value="7d">Past week</option><option value="30d">Past month</option>
             </FilterSelect>
-            <FilterSelect label="Location" value={draft.location} onChange={(value) => updateDraft('location', value)}>
-              <option value="all">Location</option>{locations.map((location) => <option key={location} value={location}>{location}</option>)}
-            </FilterSelect>
+            <LocationPicker options={places} value={draft.places} onChange={(value) => updateDraft('places', value)} />
             <FilterSelect label="Workplace" value={draft.workplace} onChange={(value) => updateDraft('workplace', value as JobFilters['workplace'])}>
               <option value="all">Workplace</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="on_site">On-site</option><option value="unspecified">Not specified</option>
             </FilterSelect>
