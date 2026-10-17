@@ -16,7 +16,7 @@ export const healthInsuranceGapAfterGraduationOptArticle = platformGap({
   readTime: '8 min read',
   cta: 'opt-timeline',
   imageAlt:
-    'Illustrated health shield with a heart beside a phone and an insurance card',
+    'Illustration of a graduate holding a phone beside a heart shield and a calendar with a gap',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Most university health plans end soon after your last enrolled term, often before your OPT job starts or before employer coverage begins. OPT itself does not require health insurance (J-1 rules are different), but going without coverage exposes you to very high U.S. medical bills. To avoid a gap, check your student plan’s end date, compare OPT or international-graduate plans, check whether you qualify for a state program or Marketplace coverage as a lawfully present immigrant, and plan for the waiting period before employer coverage begins.',

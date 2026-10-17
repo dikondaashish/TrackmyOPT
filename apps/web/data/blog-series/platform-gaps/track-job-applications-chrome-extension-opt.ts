@@ -17,7 +17,7 @@ export const trackJobApplicationsChromeExtensionOptArticle = platformGap({
   readTime: '7 min read',
   cta: 'extension',
   imageAlt:
-    'Illustrated laptop showing a job posting and a saved card, with a browser extension puzzle piece',
+    'Illustration of a job seeker moving a posting from a laptop browser onto a pinned board of saved jobs',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'OPT job seekers often apply across LinkedIn, Indeed, Handshake, and dozens of employer ATS portals, then lose track of where they applied and what each posting said about sponsorship. The free TrackMyOPT Chrome extension saves a posting (company, role, location, link, salary text, and description) to your TrackMyOPT job tracker as Wishlist or Applied. It flags whether the posting explicitly mentions or rules out sponsorship, and it never submits an application for you. Saving requires a free account.',

@@ -16,7 +16,8 @@ export const coverLetterF1OptInternationalStudentsArticle = platformGap({
   ],
   readTime: '8 min read',
   cta: 'resume',
-  imageAlt: 'Illustrated one-page cover letter with a pen',
+  imageAlt:
+    'Illustration of a student writing a letter by hand at a desk beside an open laptop',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'A U.S. cover letter should fit on one page, be written for the specific role, and focus on two or three results that match the job. You do not need to mention your visa by default. Mention OPT or STEM OPT when it helps your case, for example when a posting asks about work authorization or you want to make clear you can start on a specific date. Keep it to one positive sentence, such as “I am authorized to work on OPT from June 2027, with STEM OPT eligibility.” Never misstate future sponsorship needs.',

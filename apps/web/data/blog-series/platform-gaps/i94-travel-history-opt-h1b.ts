@@ -12,7 +12,8 @@ export const i94TravelHistoryOptH1bArticle = platformGap({
   tags: ['I-94', 'travel history', 'F-1 D/S', 'H-1B change of status'],
   readTime: '7 min read',
   cta: 'opt-timeline',
-  imageAlt: 'Illustrated passport, boarding pass, and airplane',
+  imageAlt:
+    'Illustration of a traveler holding a passport in an airport lounge with a plane outside the window',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Your I-94 is your official U.S. arrival record. For F-1 students it should show class of admission “F1” and “D/S” (duration of status) as the admit-until date. Download your most recent I-94 and your travel history free from the CBP I-94 website, using your passport details exactly as they appear in your passport. Check them after every entry. An H-1B change of status, a STEM OPT application, and future green card or citizenship forms can all depend on accurate entry records. If something is wrong, fix it quickly through CBP deferred inspection.',

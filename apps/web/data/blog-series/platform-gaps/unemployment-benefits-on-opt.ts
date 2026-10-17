@@ -15,7 +15,8 @@ export const unemploymentBenefitsOnOptArticle = platformGap({
   ],
   readTime: '8 min read',
   cta: 'unemployment',
-  imageAlt: 'Illustrated benefits form beside an open umbrella',
+  imageAlt:
+    'Illustration of a worker reviewing a form at a table, with an umbrella and a box of desk items nearby',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Unemployment insurance is run by each state, and eligibility depends on that state’s rules, your work authorization, and whether your job was covered. Many F-1 students on OPT find that their wages were not covered, because work by nonresident-alien F-1 students is generally exempt from federal unemployment tax and several states exclude it as well. Some OPT workers are eligible, especially resident aliens for tax purposes. Either way, unemployment benefits do not stop your OPT unemployment clock. Ask your state agency directly and answer every work-authorization question accurately.',

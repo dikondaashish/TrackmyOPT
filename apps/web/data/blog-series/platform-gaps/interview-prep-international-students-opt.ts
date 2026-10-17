@@ -16,7 +16,8 @@ export const interviewPrepInternationalStudentsOptArticle = platformGap({
   ],
   readTime: '10 min read',
   cta: 'resume',
-  imageAlt: 'Illustrated video interview on a laptop with speech bubbles',
+  imageAlt:
+    'Illustration of a smiling candidate on a laptop video call with notes and speech bubbles',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Prepare for interviews as an international student in three layers. First, a clear, accurate 20-second answer about work authorization: you are authorized on OPT from a given date, may be eligible for a 24-month STEM extension, and will or will not need future sponsorship. Second, five or six STAR stories (Situation, Task, Action, Result) with measurable results. Third, questions that show you understand the team. Employers may lawfully ask whether you are authorized to work and whether you will need sponsorship. Answer those directly, then steer back to your skills.',

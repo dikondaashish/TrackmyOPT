@@ -17,7 +17,7 @@ export const staffingConsultingCompaniesOptStemOptArticle = platformGap({
   readTime: '10 min read',
   cta: 'sponsors',
   imageAlt:
-    'Illustrated staffing firm building connected by a dotted path to a client office, with a briefcase',
+    'Illustration of a professional with a briefcase walking a dotted path between two office buildings',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'On post-completion OPT, you can work for a staffing or consulting company if the job is related to your degree and at least 20 hours a week. STEM OPT is stricter. The company that signs your Form I-983 must be your real employer, enrolled in E-Verify. It must pay you, supervise and train you under the plan, and stay responsible for you even when you work at a client site. Avoid any firm that asks for money for training or placement, offers “benching” without pay, or reports employment that is not real.',

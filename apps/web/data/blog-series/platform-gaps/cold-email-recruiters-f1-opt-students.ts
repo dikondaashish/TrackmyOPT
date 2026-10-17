@@ -16,7 +16,8 @@ export const coldEmailRecruitersF1OptStudentsArticle = platformGap({
   ],
   readTime: '9 min read',
   cta: 'resume',
-  imageAlt: 'Illustrated laptop showing an email envelope with a paper plane',
+  imageAlt:
+    'Illustration of a student at a laptop sending an envelope paper airplane toward a waving contact',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'A good cold email to a recruiter or hiring manager is short: one line on who you are, one line linking you to a specific role or team, one concrete proof point, and one clear ask, such as a 15-minute chat or a referral. Find the person who actually works on the team or recruits for it, not a generic inbox. Mention OPT or STEM OPT only if it helps, and frame it as authorization to work now. Never invent sponsorship expectations. Send from your own account, follow up once after about a week, then move on.',
