@@ -353,4 +353,51 @@ describe('ats-scrapers process runner', () => {
       fetchAuthorizedAtsJobs(SOURCE, { timeoutMs: 5 }),
     ).rejects.toThrow('request failed: body aborted');
   });
+
+  it('reads Workday boards natively, never through the Python bridge', async () => {
+    const board = 'https://acme.wd5.myworkdayjobs.com/External';
+    const request = jest
+      .spyOn(global, 'fetch')
+      .mockImplementation((input) =>
+        Promise.resolve(
+          (typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url
+          ).endsWith('/jobs')
+            ? new Response(
+                JSON.stringify({ total: 0, jobPostings: [], facets: [] }),
+              )
+            : new Response('{}', { status: 404 }),
+        ),
+      );
+    await expect(
+      fetchAuthorizedAtsJobs({
+        ats_type: 'workday',
+        board_token: board,
+        base_url: board,
+      }),
+    ).resolves.toMatchObject({
+      jobs: [],
+      metadata: { adapter: 'workday', complete: true },
+    });
+    expect(request.mock.calls[0][0]).toBe(
+      'https://acme.wd5.myworkdayjobs.com/wday/cxs/acme/External/jobs',
+    );
+  });
+
+  it('reports a Workday failure as a runner error', async () => {
+    const board = 'https://acme.wd5.myworkdayjobs.com/External';
+    jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(new Response('{}', { status: 404 }));
+    await expect(
+      fetchAuthorizedAtsJobs({
+        ats_type: 'workday',
+        board_token: board,
+        base_url: board,
+      }),
+    ).rejects.toBeInstanceOf(AtsScraperRunnerError);
+  });
 });

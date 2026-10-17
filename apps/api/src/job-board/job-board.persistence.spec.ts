@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { JobBoardService } from './job-board.service';
+import { JobBoardService, stableBucket } from './job-board.service';
 import type { JobStoreRecord } from './job-data-store.contract';
 
 const now = '2026-09-06T12:00:00.000Z';
@@ -344,5 +344,15 @@ describe('ingestion of jobs outside the United States', () => {
     await expect(
       internals.persistSourceJobs(source, [], true, undefined, ['paris']),
     ).resolves.toMatchObject({ jobsNew: 0 });
+  });
+});
+
+describe('Workday detail refresh bucketing', () => {
+  it('re-reads about 1 in 14 stored postings per day, stably', () => {
+    const ids = Array.from({ length: 7000 }, (_, i) => `R${i}:20380`);
+    const hits = ids.filter((id) => stableBucket(id, 14) === 0).length;
+    expect(hits).toBeGreaterThan(400);
+    expect(hits).toBeLessThan(600);
+    expect(stableBucket('R1:20380', 14)).toBe(stableBucket('R1:20380', 14));
   });
 });
