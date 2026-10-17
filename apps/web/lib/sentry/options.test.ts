@@ -342,7 +342,7 @@ describe('Sentry browser-bundled SDK frames', () => {
 });
 
 describe('Sentry injected page-script filtering', () => {
-  type Frame = { filename: string; lineno?: number };
+  type Frame = { filename?: string; lineno?: number; colno?: number };
   const overflow = (...frames: Frame[]): ErrorEvent => ({
     type: undefined,
     exception: {
@@ -367,6 +367,22 @@ describe('Sentry injected page-script filtering', () => {
     expect(isInjectedPageScriptEvent(event)).toBe(true);
     const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
     expect(beforeSend?.(event, {})).toBeNull();
+  });
+
+  it('drops overflows whose only frames have no script URL (Safari, TRACKMYOPT-1Q)', () => {
+    const event = overflow({ lineno: 194, colno: 70 });
+    expect(isInjectedPageScriptEvent(event)).toBe(true);
+    expect(isInjectedPageScriptEvent(overflow({ filename: '', lineno: 194 }))).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(event, {})).toBeNull();
+    // Still reported: an unlocated frame next to our bundle, or without a line.
+    expect(
+      isInjectedPageScriptEvent(
+        overflow({ lineno: 194 }, { filename: 'app:///_next/static/chunks/app.js', lineno: 3 })
+      )
+    ).toBe(false);
+    expect(isInjectedPageScriptEvent(overflow({}))).toBe(false);
+    expect(isInjectedPageScriptEvent(overflow({ lineno: 12 }))).toBe(false);
   });
 
   it('keeps errors that involve bundled code, early page lines, or no frames', () => {

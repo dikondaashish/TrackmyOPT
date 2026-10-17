@@ -169,6 +169,10 @@ the page document itself (not `/_next/`, `turbopack:` or a `.js` file) beyond
 line 50. Frameless errors, early page lines, and anything touching a bundle
 frame still report. If the served HTML ever grows past 50 lines or gains a
 multi-line inline script, revisit this threshold.
+The same WebKit overflow also arrives with no script URL at all
+(`undefined:194:70`, TRACKMYOPT-1Q, 2026-10-17). A frame without a script URL
+cannot be a TrackMyOPT bundle, so it counts like a deep page-document frame:
+dropped only when every frame is such a frame past line 50.
 
 Ad and third-party scripts (TRACKMYOPT-1K, TRACKMYOPT-1M, 2026-10-16): Google
 AdSense on blog pages (`pagead/js/...rum_fy2021.js`, "int64") and an
