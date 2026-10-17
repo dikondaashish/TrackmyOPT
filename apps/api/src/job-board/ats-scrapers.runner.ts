@@ -8,6 +8,7 @@ import {
 } from './ats-job-facts';
 import { ashbyLocations } from './us-job-eligibility';
 import { fetchWorkdayJobs, type WorkdayFetchOptions } from './workday-fetcher';
+import { fetchSmartRecruitersJobs } from './smartrecruiters-fetcher';
 
 export interface ScrapedAtsJob {
   external_job_id: string;
@@ -46,7 +47,10 @@ export interface AtsScraperFetchResult {
 
 export interface AtsScraperRunnerOptions {
   scriptPath?: string;
-  /** Stored postings and limits for the native Workday reader. */
+  /**
+   * Stored postings and limits for the native Workday and SmartRecruiters
+   * readers, which read a posting's detail page only when it is new.
+   */
   workday?: WorkdayFetchOptions;
   pythonCommand?: string;
   timeoutMs?: number;
@@ -333,6 +337,18 @@ export function fetchAuthorizedAtsJobs(
       source.ats_type === 'lever')
   ) {
     return fetchNativeAtsJobs(source, timeoutMs, maxOutputBytes);
+  }
+  if (!options.scriptPath && source.ats_type === 'smartrecruiters') {
+    return fetchSmartRecruitersJobs(source, options.workday).catch(
+      (error: unknown) => {
+        throw new AtsScraperRunnerError(
+          error instanceof Error
+            ? error.message
+            : 'SmartRecruiters fetch failed',
+          0,
+        );
+      },
+    );
   }
   if (!options.scriptPath && source.ats_type === 'workday') {
     return fetchWorkdayJobs(source, options.workday).catch((error: unknown) => {

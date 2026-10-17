@@ -714,7 +714,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         source.ats_type,
       );
       const fetched = await this.runStage(source.id, 'fetch', async () =>
-        source.ats_type === 'workday'
+        source.ats_type === 'workday' || source.ats_type === 'smartrecruiters'
           ? fetchAuthorizedAtsJobs(source, {
               workday: await this.workdayFetchOptions(source.id),
             })
@@ -937,7 +937,7 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Workday lists postings without descriptions, so stored postings reuse
+   * Workday and SmartRecruiters list postings without descriptions, so stored postings reuse
    * their saved details; about 1/14 of them are re-read each day (a week at
    * two runs a day), which picks up edits without a request per posting.
    */

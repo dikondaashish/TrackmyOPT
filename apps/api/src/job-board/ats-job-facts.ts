@@ -159,6 +159,29 @@ export function leverJobFacts(item: Record<string, unknown>): AtsJobFacts {
   };
 }
 
+/**
+ * SmartRecruiters' posting list: `location.remote` / `location.hybrid` flags
+ * and `typeOfEmployment.label` ("Full-time", "Part-time", "Intern", ...).
+ * A posting with neither flag is not assumed to be on-site.
+ */
+export function smartRecruitersJobFacts(item: {
+  location?: { remote?: boolean; hybrid?: boolean };
+  typeOfEmployment?: { label?: string };
+}): AtsJobFacts {
+  const workplace = item.location?.hybrid
+    ? 'hybrid'
+    : item.location?.remote
+      ? 'remote'
+      : null;
+  const label = item.typeOfEmployment?.label;
+  return {
+    workplace,
+    employmentTypes: sortedEmploymentTypes(
+      typeof label === 'string' ? greenhouseEmployment(label) : [],
+    ),
+  };
+}
+
 /** Normalizes facts read back from a scraper payload or a stored record. */
 export function normalizeAtsJobFacts(
   workplace: unknown,
