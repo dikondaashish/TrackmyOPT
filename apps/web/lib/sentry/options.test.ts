@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
 import {
   isAnalyticsTransportFailure,
+  isBrowserFeatureConsoleEvent,
   isBrowserNetworkError,
   isBrowserNetworkFailure,
   isForeignScriptEvent,
@@ -285,6 +286,58 @@ describe('Sentry ad and third-party script filtering', () => {
     ).toBe(false);
     expect(isThirdPartyScriptEvent(withFrames(sdk))).toBe(false);
     expect(isThirdPartyScriptEvent(withFrames('app:///_next/executors/200.js.map'))).toBe(false);
+  });
+});
+
+describe('Sentry browser-bundled SDK frames', () => {
+  const event = (mechanism: string, value: string, ...files: string[]): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'Error',
+          value,
+          mechanism: { type: mechanism, handled: false },
+          stacktrace: { frames: files.map((filename) => ({ filename })) },
+        },
+      ],
+    },
+  });
+  const chunk = 'https://www.trackmyopt.com/_next/static/chunks/4821-abc.js';
+  const ad = 'https://pagead2.googlesyndication.com/pagead/js/r20261015/r20190131/rum_fy2021.js';
+  const listener = 'auto.browser.browserapierrors.addEventListener';
+
+  it('drops ad-script errors behind the minified SDK listener wrapper', () => {
+    expect(isThirdPartyScriptEvent(event(listener, 'int64', chunk, ad, ad))).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(event(listener, 'int64', chunk, ad), {})).toBeNull();
+  });
+
+  it('keeps errors where our bundle code is called by, or throws inside, the ad script', () => {
+    expect(isThirdPartyScriptEvent(event(listener, 'x', chunk, ad, chunk))).toBe(false);
+    expect(isThirdPartyScriptEvent(event('generic', 'x', chunk, ad))).toBe(false);
+    expect(isThirdPartyScriptEvent(event(listener, 'x', chunk, chunk))).toBe(false);
+  });
+
+  it("drops Chrome page-translate console errors from injected script only", () => {
+    const translate = 'Web translate error: received error callback from translatePage';
+    const consoleMechanism = 'auto.core.capture_console';
+    expect(
+      isBrowserFeatureConsoleEvent(
+        event(consoleMechanism, translate, chunk, '<anonymous>', chunk, chunk)
+      )
+    ).toBe(true);
+    expect(
+      isBrowserFeatureConsoleEvent(event(consoleMechanism, translate, chunk, chunk))
+    ).toBe(false);
+    expect(
+      isBrowserFeatureConsoleEvent(
+        event(consoleMechanism, 'Profile save failed', chunk, '<anonymous>')
+      )
+    ).toBe(false);
+    expect(
+      isBrowserFeatureConsoleEvent(event('generic', translate, '<anonymous>'))
+    ).toBe(false);
   });
 });
 
