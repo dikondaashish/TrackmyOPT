@@ -475,4 +475,25 @@ describe('ats-scrapers process runner', () => {
       }),
     ).rejects.toThrow('lever HTTP 404');
   });
+
+  it('reads SmartRecruiters companies natively with the US filter', async () => {
+    const request = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(
+        new Response(JSON.stringify({ totalFound: 0, content: [] })),
+      );
+    await expect(
+      fetchAuthorizedAtsJobs({
+        ats_type: 'smartrecruiters',
+        board_token: 'Acme',
+        base_url: 'https://jobs.smartrecruiters.com/Acme',
+      }),
+    ).resolves.toMatchObject({
+      jobs: [],
+      metadata: { adapter: 'smartrecruiters' },
+    });
+    expect(request.mock.calls[0][0]).toBe(
+      'https://api.smartrecruiters.com/v1/companies/Acme/postings?country=us&limit=100&offset=0',
+    );
+  });
 });

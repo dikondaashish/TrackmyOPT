@@ -1,4 +1,5 @@
 import {
+  smartRecruitersJobFacts,
   leverJobFacts,
   ashbyJobFacts,
   greenhouseJobFacts,
@@ -125,5 +126,27 @@ describe('leverJobFacts', () => {
     [{}, { workplace: null, employmentTypes: [] }],
   ])('maps %j', (item, facts) => {
     expect(leverJobFacts(item)).toEqual(facts);
+  });
+});
+
+describe('smartRecruitersJobFacts', () => {
+  it('reads remote/hybrid flags and the employment label', () => {
+    expect(
+      smartRecruitersJobFacts({
+        location: { hybrid: true },
+        typeOfEmployment: { label: 'Full-time' },
+      }),
+    ).toEqual({ workplace: 'hybrid', employmentTypes: ['full_time'] });
+    expect(
+      smartRecruitersJobFacts({
+        location: { remote: true },
+        typeOfEmployment: { label: 'Intern' },
+      }),
+    ).toEqual({ workplace: 'remote', employmentTypes: ['internship'] });
+    // No flag is not evidence of an on-site job.
+    expect(smartRecruitersJobFacts({ location: {} })).toEqual({
+      workplace: null,
+      employmentTypes: [],
+    });
   });
 });
