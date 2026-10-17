@@ -169,6 +169,6 @@ export const h1bEmployerScrutinyArticle = defineArticle({
       href: '/blog/dhs-proposes-103265-h1b-fee-2026',
     },
     { label: 'OPT to H-1B transition', href: '/blog/opt-to-h1b-transition' },
-    { label: 'Search H-1B sponsors', href: '/dashboard/h1b-sponsors' },
+    { label: 'Search H-1B sponsors', href: '/dashboard/career/h1b-sponsors' },
   ],
 });
