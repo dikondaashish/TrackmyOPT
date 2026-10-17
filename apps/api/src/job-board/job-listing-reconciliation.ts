@@ -19,13 +19,25 @@ export type ListingReconciliationPlan = {
 export function planListingReconciliation(
   persistedJobs: PersistedJobListing[],
   currentExternalJobIds: Iterable<string>,
-  response: { complete: boolean; runStartedAt?: string },
+  response: {
+    complete: boolean;
+    runStartedAt?: string;
+    /**
+     * The ATS returned jobs, but none are eligible (all outside the US). The
+     * response is not ambiguous, so it must not fail the source.
+     */
+    nonEmptyResponse?: boolean;
+  },
 ): ListingReconciliationPlan {
   if (!response.complete) {
     throw new Error('ATS response is not complete; reconciliation is unsafe');
   }
   const currentIds = new Set(currentExternalJobIds);
-  if (persistedJobs.length > 0 && currentIds.size === 0) {
+  if (
+    persistedJobs.length > 0 &&
+    currentIds.size === 0 &&
+    !response.nonEmptyResponse
+  ) {
     throw new Error(
       'Ambiguous empty ATS response; existing listings were left unchanged',
     );

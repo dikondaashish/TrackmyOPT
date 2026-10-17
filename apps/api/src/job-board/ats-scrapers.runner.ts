@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 import { ashbyJobFacts, greenhouseJobFacts } from './ats-job-facts';
+import { ashbyLocations } from './us-job-eligibility';
 
 export interface ScrapedAtsJob {
   external_job_id: string;
@@ -16,6 +17,8 @@ export interface ScrapedAtsJob {
   workplace_type?: string | null;
   /** Structured employment types from the ATS (see AtsEmploymentType). */
   employment_types?: string[];
+  /** Countries the ATS states for the job's locations (Ashby addresses). */
+  location_countries?: string[];
 }
 
 export interface AuthorizedAtsSourceInput {
@@ -118,6 +121,7 @@ function normalizeNativeJobs(
       });
     } else {
       const facts = ashbyJobFacts(item);
+      const places = ashbyLocations(item);
       jobs.push({
         external_job_id: externalId,
         title,
@@ -126,7 +130,8 @@ function normalizeNativeJobs(
           stringValue(item.company_name) ||
           stringValue(employerBoardName) ||
           '',
-        location: stringValue(item.location),
+        location: places.location,
+        location_countries: places.countries,
         department: stringValue(item.department) || stringValue(item.team),
         description:
           stringValue(item.descriptionHtml) ||
