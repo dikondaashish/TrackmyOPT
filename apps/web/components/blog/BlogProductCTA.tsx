@@ -6,6 +6,7 @@ import {
   Bell,
   BriefcaseBusiness,
   Clock,
+  Puzzle,
   FileText,
   Shield,
   Users,
@@ -19,7 +20,8 @@ export type BlogProductCtaVariant =
   | 'unemployment'
   | 'sponsors'
   | 'resume'
-  | 'community';
+  | 'community'
+  | 'extension';
 
 const VARIANTS: Record<
   BlogProductCtaVariant,
@@ -68,7 +70,7 @@ const VARIANTS: Record<
     title: 'Research employers with real filing history',
     description:
       'Compare H-1B filing history, entry-level signals, common roles, and verified career links before spending hours on an application.',
-    href: '/dashboard/h1b-sponsors',
+    href: '/dashboard/career/h1b-sponsors',
     cta: 'Search H-1B sponsors',
   },
   resume: {
@@ -76,15 +78,23 @@ const VARIANTS: Record<
     title: 'Turn this guidance into a stronger application',
     description:
       'Build an ATS-friendly U.S. resume, tailor it to a job description, and keep your search organized alongside your OPT timeline.',
-    href: '/dashboard/resume-builder',
+    href: '/dashboard/career/resume-generator',
     cta: 'Build my resume',
+  },
+  extension: {
+    icon: Puzzle,
+    title: 'Save jobs to your tracker while you browse',
+    description:
+      'The free TrackMyOPT Chrome extension saves postings from LinkedIn, Indeed, and many ATS portals to your job tracker, flags explicit sponsorship wording, and never submits an application for you.',
+    href: '/features/extension',
+    cta: 'Get the extension',
   },
   community: {
     icon: Users,
     title: 'Plan with community timelines—not rumors',
     description:
       'Compare anonymized OPT milestones, record your own case, and keep official USCIS status separate from community planning estimates.',
-    href: '/dashboard/community',
+    href: '/tools/opt-decision-window',
     cta: 'Explore community data',
   },
 };

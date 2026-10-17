@@ -5,6 +5,7 @@ import { dataResearchArticles } from './data-research';
 import { statusAndEmploymentArticles } from './status-and-employment';
 import { taxArticles } from './tax';
 import { topicGapGuidesOctober2026 } from './topic-gaps';
+import { platformGapGuidesOctober2026 } from './platform-gaps';
 import type { ResearchArticle } from './types';
 
 /** Served by `app/blog/[slug]` — exclude articles that have their own static page.tsx */
@@ -21,10 +22,12 @@ export const researchArticleBySlug = new Map(
     ...researchArticles,
     ...editorialRefreshes,
     ...topicGapGuidesOctober2026,
+    ...platformGapGuidesOctober2026,
   ].map((article) => [article.slug, article])
 );
 
 export const researchBlogCards = [
+  ...platformGapGuidesOctober2026,
   ...topicGapGuidesOctober2026,
   ...researchArticles,
   ...editorialRefreshes,
@@ -48,3 +51,4 @@ export const researchBlogCards = [
 
 export type { ResearchArticle } from './types';
 export { topicGapGuidesOctober2026 } from './topic-gaps';
+export { platformGapGuidesOctober2026 } from './platform-gaps';

@@ -189,7 +189,7 @@ export default function NotGettingInterviewsPage() {
           Resume tools
         </Link>
         <Link
-          href="/dashboard/h1b-sponsors"
+          href="/dashboard/career/h1b-sponsors"
           className="inline-flex items-center rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-800"
         >
           H-1B sponsor search
