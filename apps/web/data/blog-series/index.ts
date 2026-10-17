@@ -4,11 +4,11 @@ import { currentUpdateArticles } from './current-updates';
 import { dataResearchArticles } from './data-research';
 import { statusAndEmploymentArticles } from './status-and-employment';
 import { taxArticles } from './tax';
-import { topicGapGuidesOctober2026 } from './topic-gap-guides-2026-10';
+import { topicGapGuidesOctober2026 } from './topic-gaps';
 import type { ResearchArticle } from './types';
 
+/** Served by `app/blog/[slug]` — exclude articles that have their own static page.tsx */
 export const researchArticles: ResearchArticle[] = [
-  ...topicGapGuidesOctober2026,
   ...trackingGuides,
   ...currentUpdateArticles,
   ...statusAndEmploymentArticles,
@@ -17,13 +17,15 @@ export const researchArticles: ResearchArticle[] = [
 ];
 
 export const researchArticleBySlug = new Map(
-  [...researchArticles, ...editorialRefreshes].map((article) => [
-    article.slug,
-    article,
-  ])
+  [
+    ...researchArticles,
+    ...editorialRefreshes,
+    ...topicGapGuidesOctober2026,
+  ].map((article) => [article.slug, article])
 );
 
 export const researchBlogCards = [
+  ...topicGapGuidesOctober2026,
   ...researchArticles,
   ...editorialRefreshes,
 ].map((article, index) => ({
@@ -45,3 +47,4 @@ export const researchBlogCards = [
 }));
 
 export type { ResearchArticle } from './types';
+export { topicGapGuidesOctober2026 } from './topic-gaps';

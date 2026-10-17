@@ -5,7 +5,7 @@ import { blogPosts } from '@/app/blog/blog-index-data';
 import { getPublicBlogRoutes } from '@/lib/blog-routes';
 import { createResearchArticleMetadata } from '@/lib/seo/research-article-metadata';
 import { researchArticleBySlug } from './index';
-import { topicGapGuidesOctober2026 } from './topic-gap-guides-2026-10';
+import { topicGapGuidesOctober2026 } from './topic-gaps';
 
 describe('October 2026 topic-gap guides', () => {
   it('publishes ten unique guides with working routes, cards, and internal links', () => {
@@ -26,6 +26,7 @@ describe('October 2026 topic-gap guides', () => {
       expect(metadata.alternates?.canonical).toBe(
         `https://www.trackmyopt.com/blog/${article.slug}`
       );
+      expect(article.image).toMatch(/\/blog\/topic-gaps-2026-10\/.+\.webp$/);
       expect(
         fs.existsSync(path.join(process.cwd(), 'public', article.image!))
       ).toBe(true);
