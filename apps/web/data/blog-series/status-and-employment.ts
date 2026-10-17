@@ -433,6 +433,10 @@ export const statusAndEmploymentArticles = [
     sources: [source.reinstatement, source.sevpEmployment],
     related: [
       {
+        label: 'Red flags at staffing and consulting employers',
+        href: '/blog/staffing-consulting-companies-opt-stem-opt',
+      },
+      {
         label: 'F-1 reinstatement options',
         href: '/blog/f1-reinstatement-i539-vs-reentry',
       },
@@ -695,6 +699,10 @@ export const statusAndEmploymentArticles = [
     sources: [source.sevpEmployment, source.opt],
     related: [
       {
+        label: 'Cover letters for F-1 and OPT applicants',
+        href: '/blog/cover-letter-f1-opt-international-students',
+      },
+      {
         label: '90-day unemployment rule',
         href: '/blog/90-day-unemployment-rule-opt',
       },
@@ -783,6 +791,10 @@ export const statusAndEmploymentArticles = [
     ],
     sources: [source.ev, source.i765, source.i983],
     related: [
+      {
+        label: 'Check if an employer is enrolled in E-Verify',
+        href: '/blog/check-employer-e-verify-stem-opt-offer',
+      },
       {
         label: 'I-983 training plan guide',
         href: '/blog/stem-opt-employer-requirements',
@@ -874,6 +886,10 @@ export const statusAndEmploymentArticles = [
     ],
     sources: [source.i983, source.stem],
     related: [
+      {
+        label: 'Staffing and consulting companies on STEM OPT',
+        href: '/blog/staffing-consulting-companies-opt-stem-opt',
+      },
       {
         label: 'I-983 complete guide',
         href: '/blog/stem-opt-employer-requirements',
@@ -1053,6 +1069,10 @@ export const statusAndEmploymentArticles = [
     ],
     sources: [source.capgap, source.opt],
     related: [
+      {
+        label: 'Unemployment benefits after an OPT layoff',
+        href: '/blog/unemployment-benefits-on-opt',
+      },
       { label: 'OPT to H-1B transition', href: '/blog/opt-to-h1b-transition' },
       { label: 'H-1B alternatives', href: '/blog/h1b-alternatives-work-visas' },
       {

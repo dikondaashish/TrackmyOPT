@@ -91,6 +91,10 @@ export const dataResearchArticles = [
     sources: communitySources,
     related: [
       {
+        label: 'When will USCIS decide my OPT?',
+        href: '/blog/when-will-uscis-decide-my-opt-decision-window',
+      },
+      {
         label: 'OPT premium-processing timeline data',
         href: '/blog/opt-premium-processing-real-case-timelines-2026',
       },
@@ -186,6 +190,10 @@ export const dataResearchArticles = [
       'Snapshot cutoff: August 11, 2026. The query returned the first 1,000 completed 2026 premium-tagged records; 992 had usable premium-request and approval dates after excluding malformed and out-of-range stage values. Downstream stage sample sizes are smaller because many records do not report production or delivery. These results are descriptive, not causal or official.',
     sources: communitySources,
     related: [
+      {
+        label: 'How the OPT Decision Window estimate works',
+        href: '/blog/when-will-uscis-decide-my-opt-decision-window',
+      },
       {
         label: 'Monthly OPT EAD community data',
         href: '/blog/monthly-opt-ead-processing-times-receipt-date',
@@ -394,6 +402,10 @@ export const dataResearchArticles = [
     ],
     related: [
       {
+        label: 'How to read H-1B sponsor and LCA data',
+        href: '/blog/how-to-read-h1b-sponsor-data-lca',
+      },
+      {
         label: 'How to find H-1B sponsors',
         href: '/blog/top-h1b-sponsor-companies-2026',
       },
@@ -490,6 +502,10 @@ export const dataResearchArticles = [
       'No personal user data was analyzed for the published version. Before adding measured prevalence, TrackMyOPT should document purpose and lawful basis, exclude direct identifiers, aggregate only sufficiently large cohorts, set a retention period, and obtain privacy/legal review.',
     sources: [source.i765, source.opt],
     related: [
+      {
+        label: 'Track OPT job applications in one place',
+        href: '/blog/track-job-applications-chrome-extension-opt',
+      },
       {
         label: 'OPT I-20 30-day rule',
         href: '/blog/opt-i20-30-day-rule-i765-deadline',
@@ -593,6 +609,10 @@ export const dataResearchArticles = [
       },
     ],
     related: [
+      {
+        label: 'Organize your OPT job search and unemployment days',
+        href: '/blog/organize-opt-job-search-tracker-unemployment-days',
+      },
       {
         label: 'OPT job-search strategy',
         href: '/blog/leverage-job-search-trackmyopt-resume-generator',

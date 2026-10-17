@@ -436,6 +436,10 @@ export const trackingGuides: ResearchArticle[] = [
     ],
     related: [
       {
+        label: 'Change your address on OPT: SEVP Portal and AR-11',
+        href: '/blog/change-address-on-opt-sevp-portal-uscis',
+      },
+      {
         label: 'Relocating for an OPT job',
         href: '/blog/relocating-for-opt-job-moving-states',
       },
@@ -587,6 +591,10 @@ export const trackingGuides: ResearchArticle[] = [
     ],
     sources: [s.cap, s.hub, source.opt, source.stem],
     related: [
+      {
+        label: 'Postdocs and cap-exempt H-1B employers',
+        href: '/blog/postdoc-research-jobs-opt-stem-opt',
+      },
       {
         label: 'H-1B alternatives for OPT students',
         href: '/blog/h1b-alternatives-work-visas',
@@ -883,6 +891,10 @@ export const trackingGuides: ResearchArticle[] = [
       source.opt,
     ],
     related: [
+      {
+        label: 'Estimate your OPT decision window',
+        href: '/blog/when-will-uscis-decide-my-opt-decision-window',
+      },
       {
         label: 'OPT processing time guide',
         href: '/blog/opt-processing-time-2026',

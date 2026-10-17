@@ -120,6 +120,10 @@ export const phdDissertationOptEligibilityTimingArticle = gap({
     ],
     related: [
       {
+        label: 'Postdocs and research jobs on OPT and STEM OPT',
+        href: '/blog/postdoc-research-jobs-opt-stem-opt',
+      },
+      {
         label: 'OPT application checklist 2026',
         href: '/blog/opt-application-checklist-2026',
       },
