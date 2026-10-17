@@ -4,9 +4,11 @@ import { currentUpdateArticles } from './current-updates';
 import { dataResearchArticles } from './data-research';
 import { statusAndEmploymentArticles } from './status-and-employment';
 import { taxArticles } from './tax';
+import { topicGapGuidesOctober2026 } from './topic-gap-guides-2026-10';
 import type { ResearchArticle } from './types';
 
 export const researchArticles: ResearchArticle[] = [
+  ...topicGapGuidesOctober2026,
   ...trackingGuides,
   ...currentUpdateArticles,
   ...statusAndEmploymentArticles,
