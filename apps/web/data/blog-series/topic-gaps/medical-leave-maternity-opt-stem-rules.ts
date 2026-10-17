@@ -116,6 +116,10 @@ export const medicalLeaveMaternityOptStemRulesArticle = gap({
     sources: [source.opt, source.stem, source.i983, gapSources.practicalTraining],
     related: [
       {
+        label: 'Health insurance between graduation and your first OPT job',
+        href: '/blog/health-insurance-gap-after-graduation-opt',
+      },
+      {
         label: 'OPT anxiety and mental health',
         href: '/blog/opt-anxiety-mental-health-international-students',
       },

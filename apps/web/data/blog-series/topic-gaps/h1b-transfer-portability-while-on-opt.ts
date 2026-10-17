@@ -111,6 +111,10 @@ export const h1bTransferPortabilityWhileOnOptArticle = gap({
     ],
     sources: [gapSources.h1bPortability, source.capgap, source.opt, source.stem],
     related: [
+      {
+        label: 'H-1B wage levels I–IV explained',
+        href: '/blog/h1b-wage-levels-explained-opt',
+      },
       { label: 'OPT to H-1B transition', href: '/blog/opt-to-h1b-transition' },
       {
         label: 'H-1B COS vs consular processing from OPT',

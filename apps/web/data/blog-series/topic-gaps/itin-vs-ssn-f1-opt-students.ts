@@ -92,6 +92,10 @@ export const itinVsSsnF1OptStudentsArticle = gap({
     ],
     related: [
       {
+        label: 'Background checks and offer letters for OPT hires',
+        href: '/blog/background-check-offer-letter-international-students',
+      },
+      {
         label: 'F-1 student tax filing guide 2026',
         href: '/blog/f1-student-tax-filing-guide-2026',
       },

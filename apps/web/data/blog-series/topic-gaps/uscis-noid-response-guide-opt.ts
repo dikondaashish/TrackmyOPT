@@ -103,6 +103,10 @@ export const uscisNoidResponseGuideOptArticle = gap({
     sources: [gapSources.noidRfe, source.i765, source.opt],
     related: [
       {
+        label: 'Which immigration documents to keep on OPT',
+        href: '/blog/immigration-documents-to-keep-on-opt',
+      },
+      {
         label: 'USCIS unsolicited evidence on OPT',
         href: '/blog/uscis-unsolicited-evidence-opt',
       },

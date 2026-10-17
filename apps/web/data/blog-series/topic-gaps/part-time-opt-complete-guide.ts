@@ -100,6 +100,10 @@ export const partTimeOptCompleteGuideArticle = gap({
     sources: [gapSources.practicalTraining, gapSources.optHub, source.opt],
     related: [
       {
+        label: 'Unpaid internships on OPT vs STEM OPT',
+        href: '/blog/unpaid-internship-on-opt',
+      },
+      {
         label: 'Volunteer work and OPT unemployment',
         href: '/blog/volunteer-work-opt-employment-rules',
       },

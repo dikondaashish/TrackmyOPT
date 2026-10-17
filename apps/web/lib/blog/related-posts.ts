@@ -61,6 +61,26 @@ const CATALOG: Record<string, RelatedPostLink> = {
     title: "E-Verify Employer Search",
     description: "Confirm STEM OPT employer enrollment in E-Verify.",
   },
+  "unemployment-benefits-on-opt": {
+    href: "/blog/unemployment-benefits-on-opt",
+    title: "Unemployment Benefits on OPT",
+    description: "How state benefits treat F-1 workers after a layoff.",
+  },
+  "h1b-wage-levels-explained-opt": {
+    href: "/blog/h1b-wage-levels-explained-opt",
+    title: "H-1B Wage Levels Explained",
+    description: "Levels I–IV, prevailing wages, and weighted selection.",
+  },
+  "check-employer-e-verify-stem-opt-offer": {
+    href: "/blog/check-employer-e-verify-stem-opt-offer",
+    title: "Check an Employer's E-Verify Status",
+    description: "Confirm E-Verify enrollment before a STEM OPT offer.",
+  },
+  "i94-travel-history-opt-h1b": {
+    href: "/blog/i94-travel-history-opt-h1b",
+    title: "I-94 and Travel History",
+    description: "Download, check, and correct your arrival record.",
+  },
 };
 
 type ClusterKey = "stem" | "unemployment" | "travel" | "h1b" | "filing" | "default";
@@ -69,6 +89,7 @@ const CLUSTERS: Record<ClusterKey, string[]> = {
   stem: [
     "stem-opt-extension-guide",
     "i-983-training-plan-guide",
+    "check-employer-e-verify-stem-opt-offer",
     "laid-off-on-stem-opt",
     "e-verify-employer-search",
   ],
@@ -76,17 +97,20 @@ const CLUSTERS: Record<ClusterKey, string[]> = {
     "90-day-unemployment-rule-opt",
     "laid-off-on-opt",
     "laid-off-on-stem-opt",
+    "unemployment-benefits-on-opt",
     "opt-to-h1b-transition",
   ],
   travel: [
     "can-you-travel-on-opt-complete-guide",
     "uscis-case-status-tracking-guide",
     "opt-processing-time-2026",
+    "i94-travel-history-opt-h1b",
   ],
   h1b: [
     "opt-to-h1b-transition",
     "h1b-cap-gap-extension",
     "uscis-case-status-tracking-guide",
+    "h1b-wage-levels-explained-opt",
   ],
   filing: [
     "opt-application-checklist-2026",

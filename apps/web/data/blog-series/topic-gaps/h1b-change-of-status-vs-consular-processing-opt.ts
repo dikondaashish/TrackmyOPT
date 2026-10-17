@@ -110,6 +110,10 @@ export const h1bChangeOfStatusVsConsularProcessingOptArticle = gap({
     ],
     sources: [source.capgap, source.opt, gapSources.practicalTraining],
     related: [
+      {
+        label: 'How to get your I-94 and travel history',
+        href: '/blog/i94-travel-history-opt-h1b',
+      },
       { label: 'OPT to H-1B transition', href: '/blog/opt-to-h1b-transition' },
       {
         label: 'FY2027 H-1B no second lottery backup plan',

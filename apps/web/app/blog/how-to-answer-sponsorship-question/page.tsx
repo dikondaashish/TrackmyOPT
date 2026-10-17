@@ -282,6 +282,10 @@ export default function SponsorshipQuestionGuide() {
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/h1b-alternatives-work-visas" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Top H-1B Alternatives</Link>
                     <Link href="/blog/opt-to-h1b-transition" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT to H-1B Step-by-Step Transition</Link>
+                    <Link href="/blog/interview-prep-international-students-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Interview Prep for International Students</Link>
+                    <Link href="/blog/cold-email-recruiters-f1-opt-students" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Cold Emailing Recruiters on F-1 OPT</Link>
+                    <Link href="/blog/cover-letter-f1-opt-international-students" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Cover Letters for F-1 and OPT Applicants</Link>
+                    <Link href="/blog/h1b-wage-levels-explained-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Wage Levels I–IV Explained</Link>
                 </div>
             </div>
 

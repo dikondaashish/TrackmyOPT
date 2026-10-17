@@ -1162,6 +1162,10 @@ export const currentUpdateArticles = [
     sources: [source.i94, source.cbpDeferred],
     related: [
       {
+        label: 'Download your I-94 and travel history',
+        href: '/blog/i94-travel-history-opt-h1b',
+      },
+      {
         label: 'CBP secondary inspection',
         href: '/blog/cbp-secondary-inspection-f1-students',
       },
