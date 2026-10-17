@@ -1,4 +1,5 @@
 import {
+  leverJobFacts,
   ashbyJobFacts,
   greenhouseJobFacts,
   normalizeAtsJobFacts,
@@ -104,5 +105,25 @@ describe('normalizeAtsJobFacts', () => {
       workplace: null,
       employmentTypes: [],
     });
+  });
+});
+
+describe('leverJobFacts', () => {
+  it.each([
+    [
+      { workplaceType: 'onsite', categories: { commitment: 'Intern' } },
+      { workplace: 'on_site', employmentTypes: ['internship'] },
+    ],
+    [
+      { workplaceType: 'remote', categories: { commitment: 'Full-time' } },
+      { workplace: 'remote', employmentTypes: ['full_time'] },
+    ],
+    [
+      { workplaceType: 'unspecified', categories: { commitment: 'Contract' } },
+      { workplace: null, employmentTypes: ['contract'] },
+    ],
+    [{}, { workplace: null, employmentTypes: [] }],
+  ])('maps %j', (item, facts) => {
+    expect(leverJobFacts(item)).toEqual(facts);
   });
 });

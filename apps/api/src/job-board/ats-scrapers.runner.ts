@@ -1,7 +1,11 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
-import { ashbyJobFacts, greenhouseJobFacts } from './ats-job-facts';
+import {
+  ashbyJobFacts,
+  greenhouseJobFacts,
+  leverJobFacts,
+} from './ats-job-facts';
 import { ashbyLocations } from './us-job-eligibility';
 import { fetchWorkdayJobs, type WorkdayFetchOptions } from './workday-fetcher';
 
@@ -83,12 +87,56 @@ function joinNames(value: unknown): string | null {
   return names.length ? names.join(', ') : null;
 }
 
+/** ISO 3166 alpha-2 codes Lever uses, for the few countries we name. */
+const LEVER_COUNTRY_NAMES: Record<string, string> = {
+  US: 'United States',
+};
+
+/**
+ * Lever splits a posting into the description, titled lists (requirements,
+ * responsibilities, ...) and closing text; the stored description joins them
+ * in the order the posting page shows.
+ */
+function leverDescription(item: Record<string, unknown>): string | null {
+  const parts: string[] = [];
+  const description = stringValue(item.description);
+  if (description) parts.push(description);
+  if (Array.isArray(item.lists)) {
+    for (const list of item.lists) {
+      if (!list || typeof list !== 'object') continue;
+      const { text, content } = list as { text?: unknown; content?: unknown };
+      const heading = stringValue(text);
+      const body = stringValue(content);
+      if (!body) continue;
+      parts.push(`${heading ? `<h3>${heading}</h3>` : ''}<ul>${body}</ul>`);
+    }
+  }
+  const additional = stringValue(item.additional);
+  if (additional) parts.push(additional);
+  return parts.length ? parts.join('\n') : null;
+}
+
+function leverLocation(item: Record<string, unknown>): string | null {
+  const categories = (item.categories ?? {}) as {
+    location?: unknown;
+    allLocations?: unknown;
+  };
+  const all = Array.isArray(categories.allLocations)
+    ? categories.allLocations.map(stringValue).filter((v): v is string => !!v)
+    : [];
+  const locations = all.length ? all : [stringValue(categories.location)];
+  const joined = [...new Set(locations.filter((v): v is string => !!v))].join(
+    ' | ',
+  );
+  return joined ? joined.slice(0, 1000) : null;
+}
+
 function normalizeNativeJobs(
-  atsType: 'greenhouse' | 'ashby',
+  atsType: 'greenhouse' | 'ashby' | 'lever',
   payload: NativeAtsPayload,
   employerBoardName?: string | null,
 ): ScrapedAtsJob[] {
-  const rawJobs = payload.jobs;
+  const rawJobs = Array.isArray(payload) ? payload : payload.jobs;
   if (!Array.isArray(rawJobs)) {
     throw new Error(`Invalid ${atsType} response: jobs array missing`);
   }
@@ -100,14 +148,43 @@ function normalizeNativeJobs(
     }
     const item = raw as Record<string, unknown>;
     const externalId = stringValue(item.id ?? item.jobId ?? item.externalJobId);
-    const title = stringValue(item.title);
+    // Lever names the title `text`.
+    const title = stringValue(atsType === 'lever' ? item.text : item.title);
     if (!externalId || !title) throw new Error('Invalid normalized job schema');
     if (ids.has(externalId)) {
       throw new Error(`Duplicate external_job_id ${externalId}`);
     }
     ids.add(externalId);
 
-    if (atsType === 'greenhouse') {
+    if (atsType === 'lever') {
+      const facts = leverJobFacts(item);
+      const categories = (item.categories ?? {}) as {
+        team?: unknown;
+        department?: unknown;
+      };
+      const country = stringValue(item.country)?.toUpperCase();
+      const createdAt =
+        typeof item.createdAt === 'number' && Number.isFinite(item.createdAt)
+          ? new Date(item.createdAt).toISOString()
+          : null;
+      jobs.push({
+        external_job_id: externalId,
+        title: title.slice(0, 1000),
+        company_name: stringValue(employerBoardName) || '',
+        location: leverLocation(item),
+        department:
+          stringValue(categories.department) || stringValue(categories.team),
+        description: leverDescription(item),
+        job_url: stringValue(item.hostedUrl ?? item.applyUrl),
+        // Lever publishes no separate posting date; creation is the closest.
+        posted_at: createdAt,
+        workplace_type: facts.workplace,
+        employment_types: facts.employmentTypes,
+        location_countries: country
+          ? [LEVER_COUNTRY_NAMES[country] ?? country]
+          : [],
+      });
+    } else if (atsType === 'greenhouse') {
       const facts = greenhouseJobFacts(item.metadata);
       jobs.push({
         external_job_id: externalId,
@@ -159,7 +236,9 @@ async function fetchNativeAtsJobs(
   const url =
     source.ats_type === 'greenhouse'
       ? `https://boards-api.greenhouse.io/v1/boards/${encodedToken}/jobs?content=true`
-      : `https://api.ashbyhq.com/posting-api/job-board/${encodedToken}`;
+      : source.ats_type === 'lever'
+        ? `https://api.lever.co/v0/postings/${encodedToken}?mode=json`
+        : `https://api.ashbyhq.com/posting-api/job-board/${encodedToken}`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let response: Response;
@@ -208,7 +287,7 @@ async function fetchNativeAtsJobs(
   try {
     return {
       jobs: normalizeNativeJobs(
-        source.ats_type as 'greenhouse' | 'ashby',
+        source.ats_type as 'greenhouse' | 'ashby' | 'lever',
         payload,
         source.employer_board_name,
       ),
@@ -249,7 +328,9 @@ export function fetchAuthorizedAtsJobs(
     );
   if (
     !options.scriptPath &&
-    (source.ats_type === 'greenhouse' || source.ats_type === 'ashby')
+    (source.ats_type === 'greenhouse' ||
+      source.ats_type === 'ashby' ||
+      source.ats_type === 'lever')
   ) {
     return fetchNativeAtsJobs(source, timeoutMs, maxOutputBytes);
   }
