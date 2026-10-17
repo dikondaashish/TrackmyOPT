@@ -400,4 +400,79 @@ describe('ats-scrapers process runner', () => {
       }),
     ).rejects.toBeInstanceOf(AtsScraperRunnerError);
   });
+
+  it('reads Lever postings natively: title, every location, country and full description', async () => {
+    const request = jest.spyOn(global, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          {
+            id: 'abc-123',
+            text: 'Backend Engineer',
+            categories: {
+              commitment: 'Full-time',
+              location: 'New York, NY',
+              allLocations: ['New York, NY', 'London, UK'],
+              team: 'Engineering',
+              department: 'Product Development',
+            },
+            country: 'US',
+            workplaceType: 'hybrid',
+            createdAt: Date.UTC(2026, 9, 10),
+            description: '<div>About the role</div>',
+            lists: [
+              { text: 'Requirements', content: '<li>Go</li>' },
+              { text: 'Empty', content: '' },
+            ],
+            additional: '<div>Benefits</div>',
+            hostedUrl: 'https://jobs.lever.co/acme/abc-123',
+          },
+        ]),
+      ),
+    );
+    const result = await fetchAuthorizedAtsJobs({
+      ats_type: 'lever',
+      board_token: 'acme',
+      base_url: 'https://jobs.lever.co/acme',
+      employer_board_name: 'Acme',
+    });
+    expect(request.mock.calls[0][0]).toBe(
+      'https://api.lever.co/v0/postings/acme?mode=json',
+    );
+    expect(result.metadata).toMatchObject({
+      adapter: 'lever',
+      complete: true,
+      requests_made: 1,
+    });
+    expect(result.jobs).toEqual([
+      {
+        external_job_id: 'abc-123',
+        title: 'Backend Engineer',
+        company_name: 'Acme',
+        location: 'New York, NY | London, UK',
+        department: 'Product Development',
+        description:
+          '<div>About the role</div>\n<h3>Requirements</h3><ul><li>Go</li></ul>\n<div>Benefits</div>',
+        job_url: 'https://jobs.lever.co/acme/abc-123',
+        posted_at: '2026-10-10T00:00:00.000Z',
+        workplace_type: 'hybrid',
+        employment_types: ['full_time'],
+        location_countries: ['United States'],
+      },
+    ]);
+  });
+
+  it('fails a Lever board that does not exist', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue(
+      new Response('{"ok":false,"error":"Document not found"}', {
+        status: 404,
+      }),
+    );
+    await expect(
+      fetchAuthorizedAtsJobs({
+        ats_type: 'lever',
+        board_token: 'nope',
+        base_url: 'https://jobs.lever.co/nope',
+      }),
+    ).rejects.toThrow('lever HTTP 404');
+  });
 });

@@ -144,6 +144,21 @@ export function greenhouseJobFacts(metadata: unknown): AtsJobFacts {
   };
 }
 
+/**
+ * Lever's posting API: `workplaceType` is "onsite" | "remote" | "hybrid" |
+ * "unspecified", and `categories.commitment` is the employer's own job-type
+ * label ("Full-time", "Intern", "Contract", "Permanent", ...).
+ */
+export function leverJobFacts(item: Record<string, unknown>): AtsJobFacts {
+  const categories = (item.categories ?? {}) as { commitment?: unknown };
+  const commitment =
+    typeof categories.commitment === 'string' ? categories.commitment : '';
+  return {
+    workplace: ASHBY_WORKPLACE[token(item.workplaceType)] ?? null,
+    employmentTypes: sortedEmploymentTypes(greenhouseEmployment(commitment)),
+  };
+}
+
 /** Normalizes facts read back from a scraper payload or a stored record. */
 export function normalizeAtsJobFacts(
   workplace: unknown,
