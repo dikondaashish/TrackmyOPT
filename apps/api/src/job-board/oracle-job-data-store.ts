@@ -97,6 +97,8 @@ export class OracleJobDataStore implements JobDataStore {
    */
   private poolInitialization: Promise<OraclePool> | null = null;
   private closed = false;
+  /** False once Oracle reports DELETE on the ADMIN search table is not granted. */
+  private searchDeleteAllowed = true;
   private locationIndex: {
     expiresAt: number;
     value: Promise<JobLocationIndex>;
@@ -497,6 +499,12 @@ export class OracleJobDataStore implements JobDataStore {
   /**
    * Deletes jobs with their visa signals and search rows in one transaction,
    * children first (job_visa_signals references jobs). Returns jobs deleted.
+   *
+   * The search table belongs to ADMIN, and DELETE on it is a separate grant
+   * (job-search-schema.sql). Without it the search rows stay behind: they
+   * have no foreign key and searches join them only through existing jobs,
+   * so they are inert until an ADMIN cleanup. A failed statement rolls back
+   * only itself, so the transaction continues.
    */
   async deleteJobs(ids: readonly string[]): Promise<number> {
     const unique = [...new Set(ids)];
@@ -513,11 +521,21 @@ export class OracleJobDataStore implements JobDataStore {
           binds,
           { autoCommit: false },
         );
-        await connection.executeMany(
-          `DELETE FROM ${ORACLE_JOB_SEARCH_TABLE} WHERE job_id = :id`,
-          binds,
-          { autoCommit: false },
-        );
+        if (this.searchDeleteAllowed) {
+          try {
+            await connection.executeMany(
+              `DELETE FROM ${ORACLE_JOB_SEARCH_TABLE} WHERE job_id = :id`,
+              binds,
+              { autoCommit: false },
+            );
+          } catch (error) {
+            if (!isMissingPrivilegeError(error)) throw error;
+            this.searchDeleteAllowed = false;
+            this.logger.warn(
+              'Job search rows were not deleted: grant DELETE on the search table (job-search-schema.sql)',
+            );
+          }
+        }
         const result = await connection.executeMany(
           'DELETE FROM jobs WHERE id = :id',
           binds,
@@ -863,6 +881,12 @@ export function oracleOperationLabel(sql: string) {
   if (write) return `${write[1].toUpperCase()} ${write[2].toLowerCase()}`;
   const read = /^SELECT\b.*?\bFROM\s+([A-Za-z_$#.]+)/i.exec(text);
   return read ? `SELECT ${read[1].toLowerCase()}` : 'OTHER';
+}
+
+/** ORA-41900/ORA-01031: the user lacks a privilege on the object. */
+export function isMissingPrivilegeError(error: unknown) {
+  const message = error instanceof Error ? error.message : '';
+  return /\bORA-(?:41900|01031)\b/.test(message);
 }
 
 /** Bare driver/database code only, so messages carry no SQL or data. */

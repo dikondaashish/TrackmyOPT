@@ -1234,4 +1234,64 @@ describe('OracleJobDataStore shadow adapter', () => {
       ),
     ).toBe(true);
   });
+
+  it('deletes jobs even when DELETE on the ADMIN search table is not granted', async () => {
+    const { driver, connection } = setup();
+    const statements: string[] = [];
+    let commits = 0;
+    connection.executeMany = ((sql: string, binds: readonly unknown[]) => {
+      statements.push(sql.split(' WHERE')[0]);
+      if (sql.includes('TRACKMYOPT_JOB_SEARCH'))
+        return Promise.reject(
+          new Error(
+            'ORA-41900: missing DELETE privilege on "ADMIN"."TRACKMYOPT_JOB_SEARCH"',
+          ),
+        );
+      return Promise.resolve({ rowsAffected: binds.length });
+    }) as OracleConnection['executeMany'];
+    connection.commit = () => {
+      commits++;
+      return Promise.resolve();
+    };
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+
+    await expect(store.deleteJobs(['a', 'b', 'a'])).resolves.toBe(2);
+    await expect(store.deleteJobs(['c'])).resolves.toBe(1);
+
+    expect(commits).toBe(2);
+    // The search delete is tried once, then skipped.
+    expect(statements).toEqual([
+      'DELETE FROM job_visa_signals',
+      'DELETE FROM ADMIN.TRACKMYOPT_JOB_SEARCH',
+      'DELETE FROM jobs',
+      'DELETE FROM job_visa_signals',
+      'DELETE FROM jobs',
+    ]);
+  });
+
+  it('still fails a delete on any other error', async () => {
+    const { driver, connection } = setup();
+    connection.executeMany = (() =>
+      Promise.reject(
+        new Error('ORA-00060: deadlock detected'),
+      )) as OracleConnection['executeMany'];
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+    await expect(store.deleteJobs(['a'])).rejects.toThrow('ORA-00060');
+  });
 });
