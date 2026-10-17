@@ -16,7 +16,7 @@ export const h1bWageLevelsExplainedOptArticle = platformGap({
   readTime: '9 min read',
   cta: 'sponsors',
   imageAlt:
-    'Illustrated four-step bar chart where each taller bar has one more dot',
+    'Illustration of a person pointing up a four-step staircase of bars topped with stacked coins',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Every H-1B petition is tied to a prevailing wage level, from Level I (entry) to Level IV (fully competent), for your occupation and work location. The employer picks the level based on the job’s requirements, such as education, experience, and responsibility, and must pay at least that wage. Under the weighted H-1B selection process used from FY2027, a registration gets more lottery entries the higher the wage level it qualifies for: one entry at Level I, up to four at Level IV. So the offered salary, not just the job title, affects your odds.',

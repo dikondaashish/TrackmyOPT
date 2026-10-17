@@ -18,7 +18,7 @@ export const whenWillUscisDecideMyOptDecisionWindowArticle = platformGap({
   readTime: '8 min read',
   cta: 'case-status',
   imageAlt:
-    'Illustrated calendar with a highlighted range of days beside a clock',
+    'Illustration of a graduate checking a highlighted calendar range on a laptop beneath a wall clock',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Nobody outside USCIS can tell you the exact day your OPT will be decided. What you can do is compare your receipt date with completed cases like yours. The TrackMyOPT Decision Window does this for free: it uses completed community-reported OPT or STEM OPT cases on regular processing, shows the typical (median) wait and the middle 50% range, and tells you how many cases it used. Treat the result as a planning range, and check your official status on USCIS Case Status Online.',

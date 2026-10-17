@@ -16,7 +16,8 @@ export const howToReadH1bSponsorDataLcaArticle = platformGap({
   ],
   readTime: '10 min read',
   cta: 'sponsors',
-  imageAlt: 'Illustrated laptop with a rising bar chart and a magnifying glass',
+  imageAlt:
+    'Illustration of a graduate examining bar charts on a wide monitor with a magnifying glass',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'H-1B sponsor data comes mainly from Labor Condition Applications (LCAs) that employers file with the Department of Labor, plus approval summaries. An LCA shows the job title, occupation code, offered wage, prevailing wage level, worksite, and dates. Use this data to answer three questions. Does the employer file for roles like mine? At what wage level? Is filing growing or shrinking? LCAs are filed before petitions, so they show intent to hire, not approvals, and past filing is never a promise that an employer will sponsor you.',

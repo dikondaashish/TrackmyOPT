@@ -18,7 +18,7 @@ export const organizeOptJobSearchTrackerUnemploymentDaysArticle = platformGap({
   readTime: '9 min read',
   cta: 'unemployment',
   imageAlt:
-    'Illustrated three-column job tracker board beside a day-counter dial',
+    'Illustration of a job seeker arranging sticky notes in columns on a board beside a day-counter dial',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Run your OPT job search with two separate records. The first is a job tracker that shows every application by stage, with follow-up dates. The second is an unemployment record that counts days from your OPT start date, minus periods of qualifying employment. Applications, interviews, and offers do not stop the unemployment clock. Only qualifying employment of 20 or more hours a week, related to your degree, does. Keep the two records separate and update the employment record whenever a job actually starts or ends.',

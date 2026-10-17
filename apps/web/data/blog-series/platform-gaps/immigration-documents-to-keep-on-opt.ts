@@ -12,7 +12,8 @@ export const immigrationDocumentsToKeepOnOptArticle = platformGap({
   tags: ['OPT documents', 'immigration records', 'EAD card', 'I-20 copies'],
   readTime: '8 min read',
   cta: 'opt-timeline',
-  imageAlt: 'Illustrated folder of documents beside a padlock',
+  imageAlt:
+    'Illustration of a person filing documents into folders beside a laptop showing a padlock',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'Keep every I-20 your school issued, your EAD cards, all USCIS receipt and approval notices (I-797), your I-94 records, every signed I-983 if you are on STEM OPT, offer letters, and pay stubs or other proof of employment. These records come up again for STEM OPT, H-1B, and green card filings, sometimes years later. Keep the originals in a safe place and secure digital copies you can reach from anywhere, and check expiry dates regularly.',

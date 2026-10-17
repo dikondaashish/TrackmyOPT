@@ -18,7 +18,7 @@ export const backgroundCheckOfferLetterInternationalStudentsArticle =
     readTime: '9 min read',
     cta: 'resume',
     imageAlt:
-      'Illustrated signed offer letter with a magnifying glass and checkmark',
+      'Illustration of a new hire reviewing an offer letter beside a large magnifying glass',
     imageCaption: 'Conceptual illustration for educational context.',
     directAnswer:
       'Many U.S. employers run pre-employment background checks with your written consent. For international hires, these can take longer: foreign degree and employment verification often takes weeks, and some vendors struggle without an SSN. Expect to complete Form I-9 by your third day of work using your EAD, with E-Verify if the employer uses it. Before you sign, check that the offer letter states your title, start date, weekly hours, salary, worksite, and duties. You will need those details for OPT reporting and, on STEM OPT, for Form I-983.',

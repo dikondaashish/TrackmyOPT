@@ -17,7 +17,8 @@ export const checkEmployerEVerifyStemOptOfferArticle = platformGap({
   ],
   readTime: '7 min read',
   cta: 'opt-timeline',
-  imageAlt: 'Illustrated document beside a green shield with a checkmark',
+  imageAlt:
+    'Illustration of a graduate comparing an offer letter with a laptop showing a shield and check mark',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'To qualify for the STEM OPT extension, your employer must be enrolled in E-Verify and in good standing. Before you accept a STEM OPT offer, or before you plan to stay with your current employer into STEM OPT, search the public E-Verify employer list by company name. Then ask HR for the E-Verify Company ID you will need on Form I-765. A missing search result is not proof that the employer is not enrolled, because the public list has limits. A written confirmation from HR is what matters.',

@@ -17,7 +17,8 @@ export const changeAddressOnOptSevpPortalUscisArticle = platformGap({
   ],
   readTime: '7 min read',
   cta: 'uscis-tracking',
-  imageAlt: 'Illustrated house, moving boxes, and a map pin',
+  imageAlt:
+    'Illustration of a person carrying a moving box toward a house under a large map pin',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'When you move on OPT, make three separate updates. First, report your new address to SEVP within 10 days, through the SEVP Portal on post-completion OPT or through your DSO if your school requires it. Second, notify USCIS within 10 days with Form AR-11, which you can file online. Third, if your I-765 is still pending, update the address on that case too, because AR-11 alone may not redirect a card that is already being produced. Add USPS mail forwarding as a backup.',

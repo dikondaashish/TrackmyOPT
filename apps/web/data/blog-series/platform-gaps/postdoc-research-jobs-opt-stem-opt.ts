@@ -17,7 +17,8 @@ export const postdocResearchJobsOptStemOptArticle = platformGap({
   ],
   readTime: '9 min read',
   cta: 'opt-timeline',
-  imageAlt: 'Illustrated lab flask beside a research notes page with a chart',
+  imageAlt:
+    'Illustration of a researcher taking notes at a lab bench with flasks and a microscope',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'A postdoc or research position can be qualifying employment on post-completion OPT when it is directly related to your degree and at least 20 hours a week. For STEM OPT, the university or institute must be enrolled in E-Verify, pay you as an employee, and sign Form I-983. Fellowships paid as stipends without an employer-employee relationship may not qualify. Many universities and affiliated nonprofit research organizations are cap-exempt H-1B employers, so they can file H-1B petitions at any time of year, without the lottery.',

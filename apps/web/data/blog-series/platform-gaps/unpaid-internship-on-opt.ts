@@ -17,7 +17,7 @@ export const unpaidInternshipOnOptArticle = platformGap({
   readTime: '8 min read',
   cta: 'unemployment',
   imageAlt:
-    'Illustrated clipboard timesheet with checked rows beside an hourglass',
+    'Illustration of an intern filling in a clipboard timesheet beside an hourglass in a small office',
   imageCaption: 'Conceptual illustration for educational context.',
   directAnswer:
     'On post-completion OPT, an unpaid internship can count as employment if it is directly related to your degree, averages at least 20 hours a week, and does not violate U.S. labor laws. Many for-profit unpaid internships fail that last test. STEM OPT is different. It requires a paid, bona fide employer-employee relationship with an E-Verify employer under a Form I-983 training plan, so unpaid roles do not qualify. Whatever the role, keep written evidence of your duties, hours, and supervisor.',
