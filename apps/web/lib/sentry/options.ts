@@ -128,16 +128,56 @@ export function isForeignScriptEvent(event: ErrorEvent): boolean {
 const THIRD_PARTY_SCRIPT =
   /\/pagead\/|googlesyndication\.com|doubleclick\.net|adtrafficquality\.google|\/executors\/\d+\.js(?:[?#]|$)/i;
 const SENTRY_SDK_FRAME = /[/+]@?sentry[+/]|\/@sentry\//i;
+const BUNDLE_FRAME = /\/_next\//i;
+// In the browser the SDK is part of our minified bundle, so its frames are
+// `/_next/` chunks until Sentry applies source maps. When the SDK wrapped a
+// browser callback (addEventListener, setTimeout, ...) its wrapper is the
+// outermost frame, so a leading run of bundle frames is the SDK, not our code.
+const SDK_WRAPPED_CALLBACK = /^auto\.browser\.browserapierrors\./;
 
-/** True when every non-SDK frame belongs to an ad or other third-party script. */
-export function isThirdPartyScriptEvent(event: ErrorEvent): boolean {
-  const files = (event.exception?.values ?? []).flatMap((exception) =>
+const frameFiles = (event: ErrorEvent) =>
+  (event.exception?.values ?? []).flatMap((exception) =>
     (exception.stacktrace?.frames ?? [])
       .map((frame) => frame.filename ?? frame.abs_path)
       .filter((file): file is string => Boolean(file))
       .filter((file) => !SENTRY_SDK_FRAME.test(file))
   );
+
+/** True when every non-SDK frame belongs to an ad or other third-party script. */
+export function isThirdPartyScriptEvent(event: ErrorEvent): boolean {
+  let files = frameFiles(event);
+  const wrapped = (event.exception?.values ?? []).some((exception) =>
+    SDK_WRAPPED_CALLBACK.test(exception.mechanism?.type ?? '')
+  );
+  if (wrapped) {
+    const firstForeign = files.findIndex((file) => !BUNDLE_FRAME.test(file));
+    files = firstForeign < 0 ? [] : files.slice(firstForeign);
+  }
   return files.length > 0 && files.every((file) => THIRD_PARTY_SCRIPT.test(file));
+}
+
+// Chrome's built-in page translator runs as script evaluated in the page
+// (`<anonymous>` frames) and logs its own failures with console.error, which
+// captureConsole would report as a TrackMyOPT issue.
+const BROWSER_FEATURE_CONSOLE = /^Web translate error\b/;
+
+/** True for a browser feature's own console.error logged from injected script. */
+export function isBrowserFeatureConsoleEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  const fromConsole = values.some(
+    (v) => v.mechanism?.type === 'auto.core.capture_console'
+  );
+  const messages = [
+    event.message,
+    event.logentry?.message,
+    ...values.map((v) => v.value),
+  ].filter((m): m is string => Boolean(m));
+  return (
+    fromConsole &&
+    messages.length > 0 &&
+    messages.every((m) => BROWSER_FEATURE_CONSOLE.test(m)) &&
+    frameFiles(event).some((file) => file === '<anonymous>')
+  );
 }
 
 // Our code always runs from bundled `/_next/` script files. The served HTML is
@@ -367,6 +407,7 @@ export function sentryOptions(
       if (
         isForeignScriptEvent(event) ||
         isThirdPartyScriptEvent(event) ||
+        isBrowserFeatureConsoleEvent(event) ||
         isInjectedPageScriptEvent(event) ||
         isAnalyticsTransportFailure(event)
       )

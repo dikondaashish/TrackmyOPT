@@ -176,7 +176,14 @@ AdSense on blog pages (`pagead/js/...rum_fy2021.js`, "int64") and an
 pages. `isThirdPartyScriptEvent` drops an exception only when every frame,
 ignoring the Sentry SDK's own wrapper frames, is an ad/measurement host
 (`pagead`, googlesyndication, doubleclick, adtrafficquality) or `executors/<n>.js`.
-Any `/_next/` frame keeps it reported. Blog process illustrations
+Any `/_next/` frame keeps it reported, with one exception: in the browser the
+SDK is minified into our `/_next/` bundle until source maps are applied, so when
+the mechanism is `auto.browser.browserapierrors.*` (the SDK wrapped a browser
+callback) a leading run of `/_next/` frames is treated as that wrapper
+(TRACKMYOPT-1K regressed on 2026-10-16 before this). Chrome's built-in page
+translator logs "Web translate error: ..." through console.error from
+`<anonymous>` script (TRACKMYOPT-1P); `isBrowserFeatureConsoleEvent` drops only
+that captureConsole message with an `<anonymous>` frame. Blog process illustrations
 (`BlogFlowFigure`, TRACKMYOPT-1N) now use the cover check: report only when the
 server returns a non-OK or non-image response for the asset.
 
