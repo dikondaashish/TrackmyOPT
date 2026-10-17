@@ -69,6 +69,7 @@ const buildOptions = {
     'src/job-tracker-review-entry.ts',
     'src/feedback-modal-entry.ts',
     'src/tour.ts',
+    { in: 'src/submission/page-monitor-workday-entry.ts', out: 'submission-monitor-workday' },
   ],
   bundle: true,
   outdir: 'dist',

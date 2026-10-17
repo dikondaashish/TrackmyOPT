@@ -56,6 +56,37 @@ import {
   checkJobSaved,
   handleAddJobToTracker,
 } from './background/background-job-tracker';
+import {
+  REMOTE_CONFIG_ALARM,
+  createChromeRemoteConfigController,
+  ensureRemoteConfigAlarm,
+} from './background/background-remote-config';
+import {
+  SUBMISSION_ALARM,
+  createChromeSubmissionLifecycle,
+  ensureSubmissionAlarm,
+  handleSubmissionMessage,
+} from './background/background-submission';
+import { reportExtensionDiagnostic } from './background/background-diagnostics';
+import { normalizeDiagnosticSignal } from './shared/diagnostics-protocol';
+
+const remoteConfig = createChromeRemoteConfigController();
+const submissions = createChromeSubmissionLifecycle();
+
+/** Runs on every worker start: alarms and the derived config must exist. */
+function startBackgroundServices(): void {
+  void ensureRemoteConfigAlarm().catch(() => {});
+  void ensureSubmissionAlarm().catch(() => {});
+  void remoteConfig.recompute().then(() => remoteConfig.refresh()).catch(() => {});
+  void submissions.sweep().catch(() => {});
+}
+startBackgroundServices();
+
+chrome.alarms?.onAlarm?.addListener((alarm) => {
+  if (alarm.name === REMOTE_CONFIG_ALARM) void remoteConfig.refresh().catch(() => {});
+  if (alarm.name === SUBMISSION_ALARM) void submissions.sweep().catch(() => {});
+});
+chrome.tabs?.onRemoved?.addListener((tabId) => { void submissions.tabClosed(tabId).catch(() => {}); });
 
 // One-time migration: older builds stored the JWT in chrome.storage.sync.
 // Purge any leftover so no credential material remains in synced storage.
@@ -106,6 +137,16 @@ chrome.runtime.setUninstallURL(`${WEBSITE_URL}/extension/uninstall`);
 
 // Internal message listener (from popup and content scripts)
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (handleSubmissionMessage(submissions, msg ?? {}, _sender, sendResponse)) return true;
+  if (msg?.type === 'REPORT_DIAGNOSTIC') {
+    // Content scripts relay closed-enum signals only; the version is ours.
+    const signal = normalizeDiagnosticSignal({ ...msg.signal, extensionVersion: chrome.runtime.getManifest().version });
+    if (signal && _sender.id === chrome.runtime.id) {
+      void reportExtensionDiagnostic({ code: signal.code, stage: signal.stage, platform: signal.platform, status: signal.status });
+    }
+    sendResponse({ ok: Boolean(signal) });
+    return false;
+  }
   if (msg?.type === 'GET_PREFILL_FRAME_CONTEXT') {
     sendResponse({ frameId: Number.isInteger(_sender.frameId) ? _sender.frameId : null });
     return false;

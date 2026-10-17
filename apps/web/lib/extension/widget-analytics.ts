@@ -7,6 +7,7 @@ const EXTENSION_WIDGET_EVENTS = [
   'extension_widget_job_analyzed',
   'extension_widget_resume_generated',
   'extension_widget_guided_navigation',
+  'extension_submission_outcome',
 ] as const;
 
 type ExtensionWidgetEvent = (typeof EXTENSION_WIDGET_EVENTS)[number];
@@ -76,6 +77,14 @@ const EVENT_KEYS: Record<ExtensionWidgetEvent, readonly string[]> = {
   extension_widget_guided_navigation: [
     'site_family',
     'navigation_outcome',
+  ],
+  extension_submission_outcome: [
+    'site_family',
+    'submission_outcome',
+    'confirmation_source',
+    'evidence_kind',
+    'network_detector_mode',
+    'network_verdict',
   ],
 };
 const SAFE_STRING_VALUES: Record<string, readonly string[]> = {
@@ -153,6 +162,14 @@ const SAFE_STRING_VALUES: Record<string, readonly string[]> = {
     'blocked_required_fields',
     'no_safe_control',
     'stopped',
+  ],
+  submission_outcome: ['confirmed', 'failed', 'not_confirmed'],
+  confirmation_source: ['automatic', 'manual', 'none'],
+  evidence_kind: ['network', 'page', 'manual', 'none'],
+  network_detector_mode: ['off', 'shadow', 'active'],
+  network_verdict: [
+    'success', 'application_error', 'http_error', 'redirected', 'unexpected_status',
+    'malformed', 'unreadable', 'oversize', 'timeout', 'network_error', 'none',
   ],
 };
 const SAFE_NUMBER_KEYS = new Set([

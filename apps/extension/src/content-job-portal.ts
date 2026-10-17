@@ -118,8 +118,14 @@ import {
   trackerApplicationIdFor,
   markPostSaveSuggestionSeen,
   saveJobContext,
-  tryAutoAddOnSuccess,
 } from './job-portal/content-runtime/tracker-session';
+import {
+  checkSubmissionConfirmationPage,
+  handleSubmissionStatusMessage,
+  remountSubmissionStatus,
+  startSubmissionTracking,
+  stopSubmissionTracking,
+} from './job-portal/content-runtime/submission-session';
 import { mountScreeningQuestionReviewsWith } from './job-portal/content-runtime/screening-reviews';
 import { runChildFramePrefillRelay } from './job-portal/content-runtime/child-frame-relay';
 
@@ -856,6 +862,7 @@ async function injectOrRefreshButton() {
     // hidden default state and continue with the z-index fallback.
     widget.removeAttribute('popover');
   }
+  remountSubmissionStatus();
   syncLinkedInEasyApplyAction();
 }
 
@@ -883,7 +890,7 @@ function runSuccessCheckDebounced() {
   if (successCheckTimeout) clearTimeout(successCheckTimeout);
   successCheckTimeout = setTimeout(() => {
     successCheckTimeout = null;
-    tryAutoAddOnSuccess();
+    checkSubmissionConfirmationPage();
   }, SUCCESS_CHECK_DEBOUNCE_MS);
 }
 
@@ -1278,6 +1285,7 @@ function teardownWidgetRuntime() {
   hiddenForLinkedInDialog = null;
   document.querySelectorAll('[data-tmo-linkedin-prefill]').forEach((action) => action.remove());
   stopContinuousPrefill();
+  stopSubmissionTracking();
   clearPrivateApplicationApproval();
   disconnectWidgetViewportObserver();
   if (_spaObserver) {
@@ -1381,10 +1389,9 @@ window.addEventListener('pagehide', () => {
 }, { once: true });
 
 function startSuccessDetection() {
-  tryAutoAddOnSuccess();
-  setTimeout(tryAutoAddOnSuccess, 2000);
-  setTimeout(tryAutoAddOnSuccess, 5000);
-  setTimeout(tryAutoAddOnSuccess, 8000);
+  startSubmissionTracking();
+  checkSubmissionConfirmationPage();
+  for (const delay of [2000, 5000, 8000]) setTimeout(checkSubmissionConfirmationPage, delay);
 }
 
 /** Sparse retries on unknown sites (JSON-LD / title-only) without a full DOM observer. */
@@ -1529,6 +1536,12 @@ export function handlePortalMessage(message: any, _sender: chrome.runtime.Messag
       artifactExpiryTimer = null;
     }
     syncArtifactStaleBannerVisibility();
+    sendResponse({ ok: true });
+    return false;
+  }
+  if (message?.type === 'TMO_SUBMISSION_STATUS') {
+    if (window.top !== window.self || _sender.id !== chrome.runtime.id || _sender.tab) return false;
+    handleSubmissionStatusMessage(message.attempt);
     sendResponse({ ok: true });
     return false;
   }

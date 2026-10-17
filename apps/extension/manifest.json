@@ -9,7 +9,8 @@
     "notifications",
     "scripting",
     "activeTab",
-    "sidePanel"
+    "sidePanel",
+    "alarms"
   ],
   "host_permissions": [
     "https://www.trackmyopt.com/*",
@@ -47,6 +48,19 @@
     "service_worker": "background.js"
   },
   "content_scripts": [
+    {
+      "matches": [
+        "https://*.myworkdayjobs.com/*",
+        "https://*.myworkdaysite.com/*",
+        "https://*.myworkday.com/*"
+      ],
+      "js": [
+        "submission-monitor-workday.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start",
+      "all_frames": false
+    },
     {
       "matches": [
         "https://www.trackmyopt.com/*",

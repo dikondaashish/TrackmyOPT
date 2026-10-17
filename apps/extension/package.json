@@ -14,7 +14,9 @@
     "test:autofill-browser": "node scripts/test-autofill-browser.mjs",
     "audit:live-portals": "node scripts/audit-live-portals.mjs",
     "package:store": "node scripts/package-store.mjs",
-    "test:release-browser": "node scripts/test-release-browser.mjs"
+    "test:release-browser": "node scripts/test-release-browser.mjs",
+    "test:submission-browser": "node scripts/test-submission-browser.mjs",
+    "measure:activation": "node scripts/measure-activation.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
