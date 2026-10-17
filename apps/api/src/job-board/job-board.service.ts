@@ -713,8 +713,12 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
           : MIN_INTER_REQUEST_GAP_MS,
         source.ats_type,
       );
-      const fetched = await this.runStage(source.id, 'fetch', () =>
-        fetchAuthorizedAtsJobs(source),
+      const fetched = await this.runStage(source.id, 'fetch', async () =>
+        source.ats_type === 'workday'
+          ? fetchAuthorizedAtsJobs(source, {
+              workday: await this.workdayFetchOptions(source.id),
+            })
+          : fetchAuthorizedAtsJobs(source),
       );
       if (this.shuttingDown)
         throw new Error('instance restarting before persistence');
@@ -932,6 +936,32 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  /**
+   * Workday lists postings without descriptions, so stored postings reuse
+   * their saved details; about 1/14 of them are re-read each day (a week at
+   * two runs a day), which picks up edits without a request per posting.
+   */
+  private async workdayFetchOptions(sourceId: string) {
+    const stored = await this.jobStore.listSourceJobs(sourceId);
+    const day = Math.floor(Date.now() / 86_400_000);
+    return {
+      stored: new Map(
+        stored.map((job) => [
+          job.externalJobId,
+          {
+            location: job.location,
+            description: job.description,
+            postedAt: job.postedAt,
+            jobUrl: job.jobUrl,
+            department: job.department,
+          },
+        ]),
+      ),
+      refresh: (externalJobId: string) =>
+        stableBucket(`${externalJobId}:${day}`, 14) === 0,
+    };
+  }
+
   /** The store's incremental methods, only when it is enabled and complete. */
   private incrementalStore(): IncrementalJobStore | null {
     const store = this.jobStore;
@@ -1095,4 +1125,14 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   async markSchedulerRunDeferred(schedulerRunId: string, reason: string) {
     await this.schedulerRuns.markDeferred(schedulerRunId, reason);
   }
+}
+
+/** Deterministic bucket in [0, buckets) for a string (FNV-1a). */
+export function stableBucket(value: string, buckets: number) {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; index++) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0) % buckets;
 }

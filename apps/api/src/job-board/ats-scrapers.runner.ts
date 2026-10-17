@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 import { ashbyJobFacts, greenhouseJobFacts } from './ats-job-facts';
 import { ashbyLocations } from './us-job-eligibility';
+import { fetchWorkdayJobs, type WorkdayFetchOptions } from './workday-fetcher';
 
 export interface ScrapedAtsJob {
   external_job_id: string;
@@ -41,6 +42,8 @@ export interface AtsScraperFetchResult {
 
 export interface AtsScraperRunnerOptions {
   scriptPath?: string;
+  /** Stored postings and limits for the native Workday reader. */
+  workday?: WorkdayFetchOptions;
   pythonCommand?: string;
   timeoutMs?: number;
   maxOutputBytes?: number;
@@ -249,6 +252,14 @@ export function fetchAuthorizedAtsJobs(
     (source.ats_type === 'greenhouse' || source.ats_type === 'ashby')
   ) {
     return fetchNativeAtsJobs(source, timeoutMs, maxOutputBytes);
+  }
+  if (!options.scriptPath && source.ats_type === 'workday') {
+    return fetchWorkdayJobs(source, options.workday).catch((error: unknown) => {
+      throw new AtsScraperRunnerError(
+        error instanceof Error ? error.message : 'Workday fetch failed',
+        0,
+      );
+    });
   }
   return new Promise((resolve, reject) => {
     const scriptPath =
