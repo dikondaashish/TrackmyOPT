@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, AlertTriangle, Lightbulb, CheckCircle2, CirclePause } from "lucide-react";
+import { ArrowLeft, Shield, Check, ExternalLink, Star, Clock, CreditCard, Building2, X, ChevronDown, Users, Globe, AlertTriangle, Lightbulb, CheckCircle2 } from "lucide-react";
 import { calculateEligibility } from "@/lib/immigration/state-eligibility";
 import {
   getInsuranceResultsPayload,
@@ -11,8 +11,13 @@ import {
 } from "@/lib/insurance/insurance-results-session";
 import { captureInsurancePlanClicked } from "@/lib/posthog-client";
 
-// Age-based pricing for insurance partners
-function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number; isiPrice: number; kimberPrice: number } {
+// Partner pricing, checked October 18, 2026.
+// ISO publishes age-banded OPTima Basic rates (2026-27 brochure, ages 18-64).
+// ISI and Kimber only publish starting prices; their quotes vary by age.
+const ISI_FROM_PRICE = 30; // ISI Protect Economy, "as low as $30/month"
+const KIMBER_FROM_PRICE = 38; // Kimber OPT Plan, quoted at age 21
+
+function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: number | null } {
   const birthDate = new Date(dob);
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -21,16 +26,16 @@ function getAgeBracket(dob: string): { bracket: string; age: number; isoPrice: n
     age--;
   }
 
-  if (age < 25) {
-    return { bracket: "Under 25", age, isoPrice: 38, isiPrice: 35, kimberPrice: 42 };
+  if (age < 18) {
+    return { bracket: "Under 18", age, isoPrice: null };
+  } else if (age < 25) {
+    return { bracket: "18-24", age, isoPrice: 41 };
   } else if (age < 30) {
-    return { bracket: "25-29", age, isoPrice: 52, isiPrice: 48, kimberPrice: 56 };
-  } else if (age < 35) {
-    return { bracket: "30-34", age, isoPrice: 68, isiPrice: 62, kimberPrice: 72 };
-  } else if (age < 40) {
-    return { bracket: "35-39", age, isoPrice: 85, isiPrice: 78, kimberPrice: 89 };
+    return { bracket: "25-29", age, isoPrice: 72 };
+  } else if (age < 65) {
+    return { bracket: "30-64", age, isoPrice: 123 };
   } else {
-    return { bracket: "40+", age, isoPrice: 105, isiPrice: 98, kimberPrice: 115 };
+    return { bracket: "65+", age, isoPrice: null };
   }
 }
 
@@ -80,12 +85,11 @@ function ResultsContent() {
   // Determine if state program should be highlighted
   const showEligibleCard = eligibility.showStateProgram && eligibility.status === 'ELIGIBLE';
   const showPossibleCard = eligibility.showStateProgram && eligibility.status === 'POSSIBLY_ELIGIBLE';
-  const showWaitlistCard = eligibility.showStateProgram && eligibility.status === 'WAITLIST';
   const showProgramEndingCard = eligibility.showStateProgram && eligibility.status === 'PROGRAM_ENDING';
 
-  // NY Essential Plan special case - now F-1 students CAN qualify with residency
-  const isNYEssentialPlan = state === "NY" && showEligibleCard;
-  const kimberPriceForNY = isNYEssentialPlan ? 0 : pricing.kimberPrice;
+  // NY Essential Plan special case - adult visa holders can enroll with NY residency
+  const isNYEssentialPlan = state === "NY" && showEligibleCard && eligibility.stateConfig.programName === "Essential Plan";
+  const kimberPriceForNY = isNYEssentialPlan ? 0 : KIMBER_FROM_PRICE;
 
   const handleApply = (url: string, partnerName: string) => {
     captureInsurancePlanClicked({
@@ -221,44 +225,8 @@ function ResultsContent() {
                 </button>
               </div>
             </div>
-          ) : showWaitlistCard ? (
-            /* Waitlist Card */
-            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 rounded-2xl border-2 border-amber-200 dark:border-amber-700 p-5 relative">
-              <div className="absolute top-3 right-3">
-                <span className="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <CirclePause className="w-3.5 h-3.5" /> WAITLIST
-                </span>
-              </div>
-              <div className="w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center mb-3">
-                <Clock className="w-5 h-5 text-amber-600" />
-              </div>
-              <h3 className="font-bold text-slate-900 dark:text-foreground">{eligibility.stateConfig.programName}</h3>
-              <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{eligibility.stateName}</p>
-
-              <div className="mt-3">
-                <span className="text-lg font-semibold text-amber-700 dark:text-amber-400">Enrollment Frozen</span>
-              </div>
-
-              <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
-                {eligibility.eligibilityReason}
-              </p>
-
-              <div className="mt-3 p-2.5 bg-amber-100/50 dark:bg-amber-900/30 rounded-lg">
-                <p className="text-xs text-amber-800 dark:text-amber-200 flex items-start gap-1.5">
-                  <Lightbulb className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" /> {eligibility.recommendedAction}
-                </p>
-              </div>
-
-              <button
-                onClick={() => handleApply(eligibility.stateConfig.programLink, eligibility.stateConfig.programName)}
-                className="w-full mt-4 h-11 border-2 border-amber-400 text-amber-700 dark:text-amber-400 font-semibold text-sm rounded-xl transition-all hover:bg-amber-50 dark:hover:bg-amber-900/30 flex items-center justify-center gap-2"
-              >
-                Join Waitlist
-                <ExternalLink className="w-4 h-4" />
-              </button>
-            </div>
           ) : showProgramEndingCard ? (
-            /* Program Ending Card (Vermont - Oct 2026) */
+            /* Program Ending Card (Massachusetts ConnectorCare - Dec 31, 2026) */
             <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-900/30 rounded-2xl border-2 border-orange-200 dark:border-orange-700 p-5 relative">
               <div className="absolute top-3 right-3">
                 <span className="bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -272,7 +240,7 @@ function ResultsContent() {
               <p className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">{eligibility.stateName}</p>
 
               <div className="mt-3">
-                <span className="text-lg font-semibold text-orange-600 dark:text-orange-400">Ending Oct 2026</span>
+                <span className="text-lg font-semibold text-orange-600 dark:text-orange-400">{eligibility.stateConfig.endingLabel ?? "Ending soon"}</span>
               </div>
 
               <p className="mt-3 text-xs text-slate-600 dark:text-muted-foreground leading-relaxed">
@@ -310,7 +278,7 @@ function ResultsContent() {
               <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                 <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-1.5">
                   <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  <span>Consider University SHIP ($1,400-$4,500/yr) or International Student Insurance ($372-$2,000/yr)</span>
+                  <span>Consider University SHIP (often $1,500-$5,000+/yr) or a private OPT plan (about $360-$1,500/yr)</span>
                 </p>
               </div>
             </div>
@@ -332,12 +300,18 @@ function ResultsContent() {
                   className="h-8 w-auto object-contain dark:brightness-110"
                 />
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISO OPTima Plan</h3>
-              <p className="text-sm text-[#8B1538] dark:text-rose-400 font-medium mt-0.5">International Student Insurance</p>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISO OPTima Basic</h3>
+              <p className="text-sm text-[#8B1538] dark:text-rose-400 font-medium mt-0.5">OPT Health Insurance</p>
 
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${pricing.isoPrice}</span>
-                <span className="text-slate-500 dark:text-slate-400">/mo</span>
+                {pricing.isoPrice === null ? (
+                  <span className="text-lg font-semibold text-slate-500 dark:text-slate-400">Ages 18-64 only</span>
+                ) : (
+                  <>
+                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${pricing.isoPrice}</span>
+                    <span className="text-slate-500 dark:text-slate-400">/mo</span>
+                  </>
+                )}
               </div>
 
               <div className="mt-4 space-y-2">
@@ -345,7 +319,7 @@ function ResultsContent() {
                   <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-700/60 flex items-center justify-center flex-shrink-0">
                     <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-300" />
                   </div>
-                  OPT, CPT & F-1 eligible
+                  F-1 OPT & STEM OPT (with EAD)
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
                   <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-700/60 flex items-center justify-center flex-shrink-0">
@@ -357,7 +331,7 @@ function ResultsContent() {
                   <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-700/60 flex items-center justify-center flex-shrink-0">
                     <Check className="w-3 h-3 text-[#8B1538] dark:text-rose-300" />
                   </div>
-                  University waiver approved
+                  $400 deductible, $125K per illness
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
                   <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-700/60 flex items-center justify-center flex-shrink-0">
@@ -393,11 +367,12 @@ function ResultsContent() {
                   className="h-8 w-auto object-contain dark:brightness-110"
                 />
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISI Student Health</h3>
-              <p className="text-sm text-[#3D4F8F] dark:text-indigo-400 font-medium mt-0.5">Student Health Insurance</p>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">ISI Protect</h3>
+              <p className="text-sm text-[#3D4F8F] dark:text-indigo-400 font-medium mt-0.5">Student & OPT Health Insurance</p>
 
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${pricing.isiPrice}</span>
+                <span className="text-slate-500 dark:text-slate-400">from</span>
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${ISI_FROM_PRICE}</span>
                 <span className="text-slate-500 dark:text-slate-400">/mo</span>
               </div>
 
@@ -406,25 +381,25 @@ function ResultsContent() {
                   <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-700/60 flex items-center justify-center flex-shrink-0">
                     <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-300" />
                   </div>
-                  United Healthcare network
+                  F-1, J-1 & OPT eligible
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
                   <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-700/60 flex items-center justify-center flex-shrink-0">
                     <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-300" />
                   </div>
-                  Mental health included
+                  UnitedHealthcare PPO network
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
                   <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-700/60 flex items-center justify-center flex-shrink-0">
                     <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-300" />
                   </div>
-                  Telemedicine 24/7
+                  Teladoc virtual visits
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
                   <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-700/60 flex items-center justify-center flex-shrink-0">
                     <Check className="w-3 h-3 text-[#3D4F8F] dark:text-indigo-300" />
                   </div>
-                  Emergency coverage
+                  $0 deductible
                 </div>
               </div>
 
@@ -454,39 +429,27 @@ function ResultsContent() {
                   className="h-9 w-auto object-contain dark:brightness-110"
                 />
               </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber Essential"}</h3>
-              <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by NYWPG"}</p>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">{isNYEssentialPlan ? "Essential Plan (NY)" : "Kimber OPT Plan"}</h3>
+              <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium mt-0.5">{isNYEssentialPlan ? "Free via Kimber Health" : "by Kimber Health"}</p>
 
               <div className="mt-4 flex items-baseline gap-1">
+                {!isNYEssentialPlan && <span className="text-slate-500 dark:text-slate-400">from</span>}
                 <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${kimberPriceForNY}</span>
                 <span className="text-slate-500 dark:text-slate-400">/mo</span>
               </div>
 
               <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-700/60 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-300" />
+                {(isNYEssentialPlan
+                  ? ["$0 premium and $0 deductible", "Dental and vision included", "Income up to 200% FPL", "Visa holders ages 21-64"]
+                  : ["Built for OPT graduates", "$500 deductible", "$100K maximum benefit", "5-month minimum coverage"]
+                ).map((feature) => (
+                  <div key={feature} className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-700/60 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-300" />
+                    </div>
+                    {feature}
                   </div>
-                  No waiting period
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-700/60 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-300" />
-                  </div>
-                  Preventive care covered
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-700/60 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-300" />
-                  </div>
-                  24/7 customer support
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-                  <div className="w-5 h-5 rounded-full bg-cyan-100 dark:bg-cyan-700/60 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-cyan-600 dark:text-cyan-300" />
-                  </div>
-                  Vision & dental options
-                </div>
+                ))}
               </div>
 
               <button
@@ -500,10 +463,19 @@ function ResultsContent() {
           </div>
         </div>
 
+        {eligibility.deadlineWarning && (
+          <div className="mt-6 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
+            <p className="text-xs text-amber-800 dark:text-amber-200 flex items-start gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+              <span>{eligibility.deadlineWarning}</span>
+            </p>
+          </div>
+        )}
+
         {/* Pricing Disclaimer */}
         <div className="mt-6 text-center">
           <p className="text-xs text-slate-400 dark:text-muted-foreground">
-            * Prices are estimates for age {pricing.age} ({pricing.bracket}). Actual prices may vary based on your specific details and our partners' latest rates.
+            * Prices checked October 2026. ISO shows its 2026-27 OPTima Basic rate for your age band ({pricing.bracket}). ISI and Kimber prices are starting rates and vary by age. Confirm the final price on the partner&apos;s site.
           </p>
         </div>
       </div>
@@ -545,7 +517,7 @@ function ResultsContent() {
             <div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-foreground">Protect Yourself & Your Loved Ones</h3>
               <p className="text-slate-600 dark:text-muted-foreground mt-2 leading-relaxed">
-                Don't risk your OPT status or financial future. A single ER visit in the US can cost <span className="font-semibold text-red-600">$3,000 - $10,000+</span>.
+                Don't risk your OPT status or financial future. A single ER visit in the US can cost <span className="font-semibold text-red-600">$1,500 - $10,000+</span>.
                 Health insurance is not just a safety net—it's essential for your peace of mind while you focus on your career.
               </p>
             </div>
@@ -560,7 +532,7 @@ function ResultsContent() {
           {[
             {
               title: "Healthcare costs are extremely high",
-              content: "Healthcare costs in the United States are not to be underestimated – services for even the simplest of reasons can result in medical bills from hundreds to thousands of dollars. A routine doctor visit can cost $150-300, while an emergency room visit averages $1,500-3,000. Without insurance, a hospital stay can easily exceed $10,000 per night."
+              content: "Healthcare costs in the United States are not to be underestimated – services for even the simplest of reasons can result in medical bills from hundreds to thousands of dollars. A routine doctor visit can cost $150-300, while an emergency room visit often costs $1,500-3,000 or more. Without insurance, a hospital stay averages over $3,000 per day."
             },
             {
               title: "No national health plan like other countries",
@@ -572,7 +544,7 @@ function ResultsContent() {
             },
             {
               title: "University requirements & job compliance",
-              content: "Many universities require health insurance for enrollment. Additionally, some employers expect OPT workers to have coverage. Our partner plans are designed to meet university waiver requirements and provide the documentation you need for employment."
+              content: "Many universities require health insurance while you are enrolled, and J-1 exchange visitors must keep insurance that meets State Department minimums. F-1 OPT has no federal insurance requirement, but your school plan usually ends with your last term. If you are still enrolled, check your school's waiver rules before buying a plan, because OPT plans are built for graduates and are not ACA-compliant."
             }
           ].map((item, i) => (
             <div
@@ -653,7 +625,7 @@ function ResultsContent() {
               <Globe className="w-3 h-3" />
               <span>1M+ Students Insured</span>
             </div>
-            <p className="text-xs text-slate-600 dark:text-muted-foreground">United Healthcare network with 24/7 telemedicine and mental health coverage included.</p>
+            <p className="text-xs text-slate-600 dark:text-muted-foreground">UnitedHealthcare PPO network with Teladoc virtual visits. Plans for F-1, J-1 and OPT.</p>
           </div>
         </div>
       </div>
