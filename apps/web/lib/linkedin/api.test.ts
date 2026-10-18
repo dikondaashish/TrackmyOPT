@@ -11,7 +11,13 @@ import {
 } from './api';
 import { decryptLinkedInToken, encryptLinkedInToken } from './token-crypto';
 
-const APP: LinkedInAppConfig = { clientId: 'client', clientSecret: 'secret', apiVersion: '202609', organizationId: null };
+const APP: LinkedInAppConfig = {
+  clientId: 'client',
+  clientSecret: 'secret',
+  apiVersion: '202609',
+  organizationId: null,
+  scopes: ['rw_organization_admin', 'w_organization_social'],
+};
 
 function json(body: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' }, ...init });
@@ -25,7 +31,7 @@ describe('LinkedIn OAuth', () => {
   it('requests the company page scopes', () => {
     const url = new URL(linkedInAuthorizeUrl(APP, 'https://www.trackmyopt.com/api/admin/linkedin/callback', 'state1'));
     expect(url.origin + url.pathname).toBe('https://www.linkedin.com/oauth/v2/authorization');
-    expect(url.searchParams.get('scope')).toBe('r_organization_admin w_organization_social');
+    expect(url.searchParams.get('scope')).toBe('rw_organization_admin w_organization_social');
     expect(url.searchParams.get('state')).toBe('state1');
   });
 

@@ -23,7 +23,7 @@ const CANDIDATE_WINDOW_HOURS = 72;
 const CANDIDATE_PAGES_PER_ROLE = 6;
 const REFRESH_AHEAD_MS = 24 * 3_600_000;
 /** A publish attempt that never finished may be retried after this long. */
-const STALE_PUBLISHING_MS = 10 * 60_000;
+export const STALE_PUBLISHING_MS = 10 * 60_000;
 
 export class LinkedInPostError extends Error {
   constructor(readonly code: string) {
@@ -230,18 +230,29 @@ export async function listRecentPosts(limit: number): Promise<DailyPost[]> {
   return ((data as PostRow[] | null) ?? []).map(toPost);
 }
 
-/** Recent open US engineering and data jobs from the Oracle job API. */
+// The API's engineering and data role filters miss titles such as "Network
+// Administrator" or "Penetration Tester", so a few title searches add them.
+const CANDIDATE_QUERIES: ReadonlyArray<{ query: Record<string, string>; pages: number }> = [
+  { query: { role: 'engineering' }, pages: CANDIDATE_PAGES_PER_ROLE },
+  { query: { role: 'data' }, pages: CANDIDATE_PAGES_PER_ROLE },
+  ...['network', 'administrator', 'cyber', 'infrastructure', 'cloud', 'penetration', 'programmer'].map((term) => ({
+    query: { query: term, searchScope: 'title' },
+    pages: 1,
+  })),
+];
+
+/** Recent open US tech jobs from the Oracle job API (may repeat a job). */
 async function loadCandidateJobs(now: Date): Promise<CandidateJob[]> {
   const postedAfter = new Date(now.getTime() - CANDIDATE_WINDOW_HOURS * 3_600_000).toISOString();
   const candidates: CandidateJob[] = [];
-  for (const role of ['engineering', 'data'] as const) {
-    for (let page = 1; page <= CANDIDATE_PAGES_PER_ROLE; page += 1) {
+  for (const { query, pages } of CANDIDATE_QUERIES) {
+    for (let page = 1; page <= pages; page += 1) {
       const result = await listServerJobs({
+        ...query,
         page,
         pageSize: 100,
         country: 'us',
         listingStatus: 'open',
-        role,
         postedAfter,
         sortBy: 'posted_at',
       });
@@ -312,31 +323,46 @@ export async function buildDailyDraft(postDate: string, now = new Date()): Promi
         posted_at: item.postedAt,
         first_featured_on: postDate,
       })),
-      { onConflict: 'job_id', ignoreDuplicates: true },
+      // A job from an unpublished draft can be picked again on a later day;
+      // its page then links back to that later day's list.
+      { onConflict: 'job_id' },
     );
   if (linkError) throw new LinkedInPostError('link_save_failed');
 
   const post = composeDailyPost(items, { postDate, siteOrigin: LINKEDIN_SITE_ORIGIN });
+  const draft = {
+    status: 'draft' as const,
+    commentary: post.commentary,
+    items,
+    shown_count: post.shownCount,
+    linkedin_post_urn: null,
+    error_code: null,
+    published_at: null,
+    published_by: null,
+  };
+  if (!existing) {
+    const { data, error } = await db()
+      .from('linkedin_daily_posts')
+      .insert({ post_date: postDate, ...draft })
+      .select(POST_COLUMNS)
+      .single();
+    if (!error && data) return toPost(data as PostRow);
+    // Another request created the day first; fall through to the update.
+    if (error?.code !== '23505') throw new LinkedInPostError('draft_save_failed');
+  }
+  // Only a draft or failed day is rewritten, never one being published.
   const { data, error } = await db()
     .from('linkedin_daily_posts')
-    .upsert(
-      {
-        post_date: postDate,
-        status: 'draft',
-        commentary: post.commentary,
-        items,
-        shown_count: post.shownCount,
-        linkedin_post_urn: null,
-        error_code: null,
-        published_at: null,
-        published_by: null,
-      },
-      { onConflict: 'post_date' },
-    )
-    .select(POST_COLUMNS)
-    .single();
-  if (error || !data) throw new LinkedInPostError('draft_save_failed');
-  return toPost(data as PostRow);
+    .update(draft)
+    .eq('post_date', postDate)
+    .in('status', ['draft', 'failed'])
+    .select(POST_COLUMNS);
+  if (error) throw new LinkedInPostError('draft_save_failed');
+  const rows = (data as PostRow[] | null) ?? [];
+  if (rows.length > 0) return toPost(rows[0]);
+  const current = await loadDailyPost(postDate);
+  if (!current) throw new LinkedInPostError('draft_save_failed');
+  return current;
 }
 
 /**
@@ -362,9 +388,12 @@ export async function publishDailyPost(
     .update({ status: 'publishing', error_code: null })
     .eq('post_date', postDate)
     .or(`status.in.(draft,failed),and(status.eq.publishing,updated_at.lt.${staleBefore})`)
-    .select('post_date');
+    .select(POST_COLUMNS);
   if (claimError) throw new LinkedInPostError('publish_claim_failed');
-  if (!claimed?.length) throw new LinkedInPostError('already_publishing');
+  const claimedRow = (claimed as PostRow[] | null)?.[0];
+  if (!claimedRow) throw new LinkedInPostError('already_publishing');
+  // Post the text as claimed, even if a preview refresh raced the read above.
+  post = toPost(claimedRow);
 
   try {
     const accessToken = await validAccessToken(app, connection, now);
@@ -384,8 +413,10 @@ export async function publishDailyPost(
     if (error || !data) throw new LinkedInPostError('published_save_failed');
     return toPost(data as PostRow);
   } catch (error) {
-    const code =
+    let code =
       error instanceof LinkedInApiError || error instanceof LinkedInPostError ? error.code : 'publish_failed';
+    // LinkedIn may have created the post before the connection dropped.
+    if (code === 'post_create_failed_network') code = 'post_uncertain';
     if (code !== 'published_save_failed') {
       await db().from('linkedin_daily_posts').update({ status: 'failed', error_code: code }).eq('post_date', postDate);
     }

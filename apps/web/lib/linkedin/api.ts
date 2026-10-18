@@ -2,14 +2,19 @@
 // Thin LinkedIn REST client: OAuth, the member's administered pages, and
 // text posts as the organization. Errors carry a code, never token values.
 
-/** Posting as a company page needs the Community Management API scopes. */
-export const LINKEDIN_SCOPES = ['r_organization_admin', 'w_organization_social'] as const;
+/**
+ * Community Management API scopes: read the member's page roles and post as
+ * the page. LinkedIn rejects the whole sign-in if any scope is not enabled
+ * on the app, so LINKEDIN_SCOPES (space-separated) can override them.
+ */
+export const DEFAULT_LINKEDIN_SCOPES = ['rw_organization_admin', 'w_organization_social'] as const;
 
 export type LinkedInAppConfig = {
   clientId: string;
   clientSecret: string;
   apiVersion: string;
   organizationId: string | null;
+  scopes: readonly string[];
 };
 
 const OAUTH_BASE = 'https://www.linkedin.com/oauth/v2';
@@ -52,7 +57,7 @@ export function linkedInAuthorizeUrl(app: LinkedInAppConfig, redirectUri: string
     client_id: app.clientId,
     redirect_uri: redirectUri,
     state,
-    scope: LINKEDIN_SCOPES.join(' '),
+    scope: app.scopes.join(' '),
   });
   return `${OAUTH_BASE}/authorization?${params.toString()}`;
 }

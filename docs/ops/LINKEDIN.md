@@ -27,6 +27,7 @@ email.
    | `LINKEDIN_ORGANIZATION_ID` | Optional. Only if the LinkedIn account administers several pages |
    | `LINKEDIN_API_VERSION` | Optional. `YYYYMM`; defaults to `202609` |
    | `LINKEDIN_REDIRECT_URI` | Optional. Defaults to `<site origin>/api/admin/linkedin/callback` |
+   | `LINKEDIN_SCOPES` | Optional. Space-separated; defaults to `rw_organization_admin w_organization_social`. LinkedIn rejects the whole sign-in (`unauthorized_scope_error`) if any scope is not enabled on the app |
 
    Redeploy after adding them.
 4. Apply `supabase/migrations/20261018120000_linkedin_daily_job_posts.sql`.
@@ -38,7 +39,9 @@ email.
 - `vercel.json` fires `/api/cron/linkedin-daily-post` at 18:30 and 19:30 UTC;
   only the firing that is 14:xx in New York acts (EDT and EST).
 - It builds today's draft (unless one exists, so a reviewed preview is kept)
-  from open US engineering and data jobs posted in the last 72 hours.
+  from open US engineering and data jobs posted in the last 72 hours, plus
+  title searches for network, administrator, cyber, infrastructure, cloud,
+  penetration and programmer roles.
 - Selection skips jobs that state no sponsorship, require US citizenship, a
   green card, "U.S. person" status or a clearance, federal and defense
   contractors, leadership titles, talent pools, repeat titles, and jobs
@@ -47,7 +50,11 @@ email.
 - Up to 10 jobs per domain are picked. LinkedIn allows 3,000 characters, so
   the post shows as many as fit (usually about 20–25) and links the full list.
 - **Publish automatically** off (default): the draft waits for **Publish now**.
-  On: the cron publishes it. A day publishes at most once (`publishing` claim).
+  On: the cron publishes it. A day publishes at most once (`publishing` claim),
+  and a preview refresh never rewrites a day that is being published.
+- If LinkedIn does not answer while posting, the day is marked
+  `post_uncertain`: check the page before clicking Publish again. A publish
+  that never finished can be retried from the card after 10 minutes.
 
 ## Tokens
 

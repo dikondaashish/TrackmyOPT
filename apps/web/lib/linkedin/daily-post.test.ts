@@ -36,6 +36,8 @@ describe('classifyPostDomain', () => {
     ['SOC Analyst', 'cybersecurity'],
     ['Network Engineer', 'networking'],
     ['Site Reliability Engineer', 'networking'],
+    ['Systems Administrator', 'networking'],
+    ['IT & Network Intern', 'networking'],
   ])('%s → %s', (title, domain) => {
     expect(classifyPostDomain(title)).toBe(domain);
   });
@@ -47,6 +49,8 @@ describe('classifyPostDomain', () => {
     'Director, Data Center Engineering',
     'Mechanical Engineer',
     'Security Officer',
+    'GIS Solution Engineer – Electric, Gas, Telecommunications, Rail',
+    'Salesforce Business Systems Administrator',
   ])('skips %s', (title) => {
     expect(classifyPostDomain(title)).toBeNull();
   });

@@ -39,6 +39,7 @@ type RecentPost = {
 type Status = {
   configured: boolean;
   reconnectSoon: boolean;
+  publishStalled: boolean;
   today: string;
   connection: Connection | null;
   draft: Draft | null;
@@ -56,6 +57,10 @@ const OUTCOME_MESSAGES: Record<string, { ok: boolean; text: string }> = {
     text: "You administer several pages. Set LINKEDIN_ORGANIZATION_ID in Vercel to the TrackMyOPT page ID, then connect again.",
   },
   connect_failed: { ok: false, text: "LinkedIn did not accept the connection. Please try again." },
+  scope_not_authorized: {
+    ok: false,
+    text: "LinkedIn says the app is missing a permission. Check that the Community Management API product is approved on the app.",
+  },
 };
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -65,6 +70,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   no_jobs_found: "No new matching jobs were found in the last 3 days.",
   not_configured: "LinkedIn app keys are not set in Vercel yet.",
   post_unauthorized: "LinkedIn refused the post. Reconnect the page and try again.",
+  post_uncertain:
+    "LinkedIn did not answer in time. Check the company page first: if the post is there, do not publish again.",
 };
 
 function errorText(code: string | null | undefined): string {
@@ -76,13 +83,14 @@ function shortDate(value: string | null): string {
   return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-/** Null for non-admins (403) and on any failure, which hides the card. */
-async function fetchStatus(): Promise<Status | null> {
+/** "hidden" for non-admins (401/403); "error" when the admin's status fails to load. */
+async function fetchStatus(): Promise<Status | "hidden" | "error"> {
   try {
     const res = await fetch("/api/admin/linkedin", { credentials: "include", cache: "no-store" });
-    return res.ok ? ((await res.json()) as Status) : null;
+    if (res.status === 401 || res.status === 403) return "hidden";
+    return res.ok ? ((await res.json()) as Status) : "error";
   } catch {
-    return null;
+    return "error";
   }
 }
 
@@ -99,7 +107,7 @@ const STATUS_STYLES: Record<Draft["status"], string> = {
  */
 export function LinkedInAutoPostCard() {
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<Status | null>(null);
+  const [status, setStatus] = useState<Status | "hidden" | "error" | null>(null);
   const [busy, setBusy] = useState<"draft" | "publish" | "settings" | "disconnect" | null>(null);
   // The connect callback returns here with ?linkedin=<outcome>.
   const outcome = searchParams.get("linkedin");
@@ -145,11 +153,27 @@ export function LinkedInAutoPostCard() {
     }
   };
 
-  if (!status) return null;
+  if (!status || status === "hidden") return null;
+  if (status === "error") {
+    return (
+      <div id="linkedin" className="pt-8 border-t border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">LinkedIn daily jobs post</h3>
+        <div className="p-4 bg-red-50 dark:bg-red-900/30 rounded-xl text-sm text-red-800 dark:text-red-200 flex items-center justify-between gap-3">
+          Could not load the LinkedIn settings.
+          <Button variant="outline" className="h-9" onClick={() => void load()}>
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const { connection, draft } = status;
   const reconnectSoon = status.reconnectSoon;
-  const canPublish = Boolean(connection) && draft?.status !== "published" && draft?.status !== "publishing";
+  const canPublish =
+    Boolean(connection) &&
+    draft?.status !== "published" &&
+    (draft?.status !== "publishing" || status.publishStalled);
 
   return (
     <div id="linkedin" className="pt-8 border-t border-gray-200 dark:border-gray-700">
@@ -289,6 +313,11 @@ export function LinkedInAutoPostCard() {
               <>
                 {draft.status === "failed" && (
                   <p className="mb-2 text-sm text-red-600 dark:text-red-400">{errorText(draft.errorCode)}</p>
+                )}
+                {status.publishStalled && (
+                  <p className="mb-2 text-sm text-red-600 dark:text-red-400">
+                    Publishing did not finish. Check the company page first: if the post is there, do not publish again.
+                  </p>
                 )}
                 <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200">
                   {draft.commentary.replace(/\\([\\|{}@[\]()<>#*_~])/g, "$1")}
