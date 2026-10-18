@@ -98,13 +98,13 @@ describe('source replay audit safety', () => {
       supabase: unknown;
       queue: unknown;
     };
-    internal.supabase = {
-      from: () => ({
-        select: () => ({
-          eq: () => Promise.resolve({ data: [{ id: 'source' }], error: null }),
-        }),
-      }),
+    const sources = {
+      select: () => sources,
+      eq: () => sources,
+      order: () => sources,
+      range: () => Promise.resolve({ data: [{ id: 'source' }], error: null }),
     };
+    internal.supabase = { from: () => sources };
     const addBulk = jest.fn();
     const getJobs = () => Promise.resolve([]);
     internal.queue = { addBulk, getJobs };

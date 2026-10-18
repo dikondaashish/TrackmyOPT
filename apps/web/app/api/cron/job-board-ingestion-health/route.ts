@@ -12,6 +12,10 @@ import {
   type SchedulerRunRow,
 } from '@/lib/job-board/ingestion-health';
 
+const AUDIT_PAGE_SIZE = 1_000;
+/** A bound on paging: about eight full runs of 1,261 sources in the lookback. */
+const MAX_AUDIT_ROWS = 10_000;
+
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
@@ -65,6 +69,26 @@ async function handleGET(request: NextRequest) {
   const now = new Date();
   const since = new Date(now.getTime() - LOOKBACK_MS).toISOString();
   const supabase = getSupabaseAdminClient();
+  // Supabase returns at most 1,000 rows per request; with more than 1,000
+  // sources one run alone exceeds that, so read the audits page by page.
+  const readAudits = async () => {
+    const rows: AuditRow[] = [];
+    for (let from = 0; from < MAX_AUDIT_ROWS; from += AUDIT_PAGE_SIZE) {
+      const page = await supabase
+        .from('ingestion_audit_log')
+        .select('source_id,scheduler_run_id,status,error_message,run_at')
+        .like('scheduler_run_id', 'job-board-hour-%')
+        .gte('run_at', since)
+        .order('run_at', { ascending: true })
+        .order('id', { ascending: true })
+        .range(from, from + AUDIT_PAGE_SIZE - 1);
+      if (page.error) return { data: null, error: page.error };
+      const values = (page.data ?? []) as AuditRow[];
+      rows.push(...values);
+      if (values.length < AUDIT_PAGE_SIZE) break;
+    }
+    return { data: rows, error: null };
+  };
   const [runs, audits] = await Promise.all([
     supabase
       .from('scheduler_runs')
@@ -72,12 +96,7 @@ async function handleGET(request: NextRequest) {
       .like('scheduler_run_id', 'job-board-hour-%')
       .gte('created_at', since)
       .limit(500),
-    supabase
-      .from('ingestion_audit_log')
-      .select('source_id,scheduler_run_id,status,error_message,run_at')
-      .like('scheduler_run_id', 'job-board-hour-%')
-      .gte('run_at', since)
-      .limit(5000),
+    readAudits(),
   ]);
   if (runs.error || audits.error) {
     return NextResponse.json(
