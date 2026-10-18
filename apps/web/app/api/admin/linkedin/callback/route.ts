@@ -49,11 +49,24 @@ async function handleGET(req: NextRequest) {
   if (admin.status !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const params = new URL(req.url).searchParams;
+  const oauthError = params.get('error');
+  if (oauthError) {
+    // The admin pressed Cancel on LinkedIn's consent screen.
+    if (oauthError === 'user_cancelled_login' || oauthError === 'user_cancelled_authorize') {
+      return settingsRedirect(req, 'cancelled');
+    }
+    // A requested scope is not enabled on the LinkedIn app (product setup).
+    if (oauthError === 'unauthorized_scope_error') {
+      reportFailure('unauthorized_scope', null);
+      return settingsRedirect(req, 'scope_not_authorized');
+    }
+    reportFailure(`oauth_${oauthError.replace(/[^a-z_]/gi, '').slice(0, 40)}`, null);
+    return settingsRedirect(req, 'connect_failed');
+  }
+  // Error redirects change nothing, so only a code needs the state check.
   const expectedState = req.cookies.get(LINKEDIN_STATE_COOKIE)?.value ?? '';
   const state = params.get('state') ?? '';
   if (!expectedState || !state || !safeEqual(state, expectedState)) return settingsRedirect(req, 'state_mismatch');
-  // The admin pressed Cancel on LinkedIn's consent screen.
-  if (params.get('error')) return settingsRedirect(req, 'cancelled');
   const code = params.get('code');
   if (!code) return settingsRedirect(req, 'cancelled');
 

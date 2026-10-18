@@ -12,6 +12,7 @@ import {
   loadDailyPost,
   loadPageConnection,
   publishDailyPost,
+  STALE_PUBLISHING_MS,
   updatePageSettings,
 } from '@/lib/linkedin/daily-post-service';
 
@@ -81,6 +82,11 @@ async function handleGET() {
           Date.parse(connection.accessTokenExpiresAt) - now.getTime() < RECONNECT_WARNING_MS,
       ),
       draft: today,
+      // A publish that never finished (e.g. a timeout) may be retried after
+      // the admin checks the page.
+      publishStalled: Boolean(
+        today?.status === 'publishing' && Date.parse(today.updatedAt) < now.getTime() - STALE_PUBLISHING_MS,
+      ),
       recent: recent.map((post) => ({
         postDate: post.postDate,
         status: post.status,

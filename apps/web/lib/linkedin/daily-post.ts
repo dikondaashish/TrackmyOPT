@@ -52,7 +52,7 @@ const DOMAIN_TITLE_PATTERNS: ReadonlyArray<[PostDomain, RegExp]> = [
   ],
   [
     'networking',
-    /\b(?:network(?:ing)?|noc|wireless|telecom(?:munications)?|sd-?wan|data cent(?:er|re)|infrastructure engineer|cloud (?:engineer|architect|infrastructure|operations|platform)|systems? administrator|sysadmin|devops|dev ops|site reliability|sre)\b/i,
+    /\b(?:network(?:ing)?|noc|wireless|telecom(?:munications)? (?:engineer|technician|analyst)|sd-?wan|data cent(?:er|re)|infrastructure engineer|cloud (?:engineer|architect|infrastructure|operations|platform)|(?<!business )systems? administrator|sysadmin|devops|dev ops|site reliability|sre)\b/i,
   ],
   [
     'software',

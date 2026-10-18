@@ -1,7 +1,7 @@
 import 'server-only';
 import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
-import type { LinkedInAppConfig } from './api';
+import { DEFAULT_LINKEDIN_SCOPES, type LinkedInAppConfig } from './api';
 
 /** Public origin used in post links, whatever host served the request. */
 export const LINKEDIN_SITE_ORIGIN = 'https://www.trackmyopt.com';
@@ -15,11 +15,13 @@ export function linkedInAppConfig(): LinkedInAppConfig | null {
   if (!clientId || !clientSecret) return null;
   const apiVersion = process.env.LINKEDIN_API_VERSION?.trim();
   const organizationId = process.env.LINKEDIN_ORGANIZATION_ID?.trim();
+  const scopes = (process.env.LINKEDIN_SCOPES ?? '').split(/[\s,]+/).filter((scope) => /^[a-z_]+$/.test(scope));
   return {
     clientId,
     clientSecret,
     apiVersion: apiVersion && /^\d{6}$/.test(apiVersion) ? apiVersion : '202609',
     organizationId: organizationId && /^\d+$/.test(organizationId) ? organizationId : null,
+    scopes: scopes.length > 0 ? scopes : DEFAULT_LINKEDIN_SCOPES,
   };
 }
 

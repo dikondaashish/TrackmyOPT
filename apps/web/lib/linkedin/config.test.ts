@@ -33,7 +33,20 @@ describe('linkedInAppConfig', () => {
     vi.stubEnv('LINKEDIN_CLIENT_SECRET', 'secret');
     vi.stubEnv('LINKEDIN_API_VERSION', 'latest');
     vi.stubEnv('LINKEDIN_ORGANIZATION_ID', '12345');
-    expect(linkedInAppConfig()).toEqual({ clientId: 'id', clientSecret: 'secret', apiVersion: '202609', organizationId: '12345' });
+    expect(linkedInAppConfig()).toEqual({
+      clientId: 'id',
+      clientSecret: 'secret',
+      apiVersion: '202609',
+      organizationId: '12345',
+      scopes: ['rw_organization_admin', 'w_organization_social'],
+    });
+  });
+
+  it('lets LINKEDIN_SCOPES override the requested scopes', () => {
+    vi.stubEnv('LINKEDIN_CLIENT_ID', 'id');
+    vi.stubEnv('LINKEDIN_CLIENT_SECRET', 'secret');
+    vi.stubEnv('LINKEDIN_SCOPES', 'r_organization_admin w_organization_social');
+    expect(linkedInAppConfig()?.scopes).toEqual(['r_organization_admin', 'w_organization_social']);
   });
 });
 
