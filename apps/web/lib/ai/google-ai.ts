@@ -26,7 +26,8 @@ export type AiTask =
   | 'resume_job_profile'
   | 'networking_draft'
   | 'networking_discovery'
-  | 'networking_bundle_draft';
+  | 'networking_bundle_draft'
+  | 'policy_news_article';
 
 type ModelChoice = {
   model: string;
@@ -107,6 +108,10 @@ export const AI_MODEL_POLICIES: Readonly<Record<AiTask, AiModelPolicy>> = {
   networking_draft: { primary: FLASH_LITE_35, fallback: FLASH_LITE_31 },
   networking_discovery: { primary: FLASH_38_MEDIUM },
   networking_bundle_draft: { primary: FLASH_38_MEDIUM },
+  policy_news_article: {
+    primary: { ...FLASH_38_MEDIUM, timeoutMs: 120_000 },
+    fallback: { ...FLASH_37_MEDIUM, timeoutMs: 100_000 },
+  },
 };
 
 type AiBackendConfig =

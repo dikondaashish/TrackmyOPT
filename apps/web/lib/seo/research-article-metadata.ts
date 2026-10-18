@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ResearchArticle } from '@/data/blog-series/types';
+import { AUTOMATED_BYLINE } from '@/components/blog/AuthorBio';
 
 const SITE = 'https://www.trackmyopt.com';
 
@@ -12,12 +13,13 @@ export function createResearchArticleMetadata(
   const imageUrl = image.startsWith('http') ? image : `${SITE}${image}`;
   const seoTitle = article.seoTitle ?? buildSeoTitle(article.title);
   const metaDescription = trimAtWord(article.description, 158);
+  const author = article.byline === 'automated' ? AUTOMATED_BYLINE : 'Vinay Kumar';
 
   return {
     title: { absolute: seoTitle },
     description: metaDescription,
     keywords: article.tags,
-    authors: [{ name: 'Vinay Kumar', url: `${SITE}/about` }],
+    authors: [{ name: author, url: `${SITE}/about` }],
     alternates: { canonical },
     openGraph: {
       type: 'article',
@@ -26,7 +28,7 @@ export function createResearchArticleMetadata(
       url: canonical,
       publishedTime: article.publishedDate,
       modifiedTime: article.modifiedDate,
-      authors: ['Vinay Kumar'],
+      authors: [author],
       images: [{ url: imageUrl, width: 1200, height: 630, alt: article.imageAlt ?? article.title }],
     },
     twitter: {

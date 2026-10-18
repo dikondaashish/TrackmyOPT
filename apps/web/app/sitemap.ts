@@ -5,6 +5,7 @@ import { getAllAnswers } from '@/lib/answers';
 import { ANSWER_CANONICAL_OVERRIDES } from '@/lib/answers/canonical-overrides';
 import { researchArticleBySlug } from '@/data/blog-series';
 import { getPublicBlogRoutes } from '@/lib/blog-routes';
+import { loadPublishedAutoPosts } from '@/lib/policy-news/store';
 
 export const revalidate = 3600;
 
@@ -28,7 +29,7 @@ function blogLastModified(route: string): Date {
   }
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://www.trackmyopt.com';
     const now = new Date();
 
@@ -100,6 +101,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // Blog content — auto-discovered from app/blog (excludes 301 redirect sources)
     const blogPages = ['/blog', ...getPublicBlogRoutes()];
+    // Automatic policy-news posts live in the database, not app/blog.
+    const autoPosts = await loadPublishedAutoPosts();
 
     return [
         ...corePages.map(({ route, changeFrequency, priority }) => ({
@@ -131,6 +134,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: blogLastModified(route),
             changeFrequency: 'weekly' as const,
             priority: 0.9,
+        })),
+        ...autoPosts.map((article) => ({
+            url: `${baseUrl}/blog/${article.slug}`,
+            lastModified: new Date(article.modifiedDate + 'T00:00:00Z'),
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
         })),
         ...answerPages.map((route) => ({
             url: `${baseUrl}${route}`,
