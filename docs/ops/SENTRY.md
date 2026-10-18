@@ -42,6 +42,16 @@ was already dispatched (`suppressed`) is not an error. Failures
 inside the Render worker that never reach an audit row remain visible only in
 Render logs. See `docs/ops/ingestion-automation.md`.
 
+The daily LinkedIn jobs post (`/api/cron/linkedin-daily-post`, 2:30 PM New
+York time) raises `LinkedIn daily jobs post: <code>` with fingerprint
+`linkedin-daily-post` / `cron` / `<code>` when building or publishing fails
+(for example `post_create_failed`, `token_refresh_failed`,
+`reconnect_required`), a `no_jobs_found` warning, and a `reconnect_soon`
+warning a week before access expires when LinkedIn issued no refresh token.
+Admin actions and the connect callback use the `admin` and `connect`
+fingerprints. Reports carry only the error code and LinkedIn's HTTP status,
+never tokens or post text. See `docs/ops/LINKEDIN.md`.
+
 The Render job-board worker sends fixed, body-free signals to
 `/api/internal/job-board-worker-failure/[kind]` (authenticated with the API
 key, rate-limited per kind) for failures that never reach an audit row:

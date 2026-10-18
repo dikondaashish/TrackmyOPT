@@ -13,6 +13,7 @@ import {
 import type { Dispatch, SetStateAction } from "react";
 import type { UserProfile } from "../settings-types";
 import { Toggle } from "../SettingsToggle";
+import { LinkedInAutoPostCard } from "../LinkedInAutoPostCard";
 import { COMMON_MAJORS, STEM_KEYWORDS } from "../settings-constants";
 
 interface ProfileTabProps {
@@ -295,6 +296,9 @@ export function ProfileTab({
                   </div>
                 </div>
               )}
+
+              {/* LinkedIn company page posting (renders only for the LinkedIn admin) */}
+              <LinkedInAutoPostCard />
 
             </div>
           </div>
