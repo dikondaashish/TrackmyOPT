@@ -1,38 +1,45 @@
 /**
  * State Insurance Eligibility Data for F-1/OPT/STEM OPT Students
- * 
- * UPDATED: January 2026 - RESIDENCY-BASED ACCESS
- * 
- * KEY FINDING: F-1 students who establish residency in certain states
- * CAN access state health insurance programs if they:
- * 1. Establish legal residency in that state
- * 2. Have lawful status (F-1 visa = lawfully present)
- * 3. Meet income requirements (vary by state)
- * 
- * IMPORTANT DEADLINES:
- * - Oct 1, 2026: Medicaid for non-citizen adults severely restricted (H.R.1)
- * - Jan 1, 2027: Premium Tax Credits eliminated for most lawfully present immigrants
+ *
+ * VERIFIED: October 18, 2026 against state agency and federal sources.
+ *
+ * F-1/OPT holders are "lawfully present" nonimmigrants. They have never been
+ * eligible for federally funded adult Medicaid, so adult coverage only exists
+ * where a state pays for it (NY Essential Plan, Oregon Health Plan) or through
+ * subsidized marketplace plans.
+ *
+ * KEY DATES (H.R.1, Public Law 119-21):
+ * - Jan 1, 2026: No premium tax credits for lawfully present immigrants under 100% FPL
+ * - Jul 1, 2026: NY Essential Plan income limit cut from 250% to 200% FPL
+ * - Oct 1, 2026: Federal Medicaid limited to green card holders, Cuban/Haitian
+ *   entrants and COFA migrants (children and pregnant people at state option)
+ * - Jan 1, 2027: Premium tax credits (and NY Essential Plan / MA ConnectorCare
+ *   federal funding) end for F-1, OPT, and other nonimmigrant visa holders
  */
 
-// 2026 Federal Poverty Level thresholds (single person)
+// 2026 HHS poverty guidelines (single person, 48 states + DC), effective Jan 13, 2026
 export const FPL_2026 = {
     single: {
-        fpl100: 15650,
-        fpl138: 21597,
-        fpl200: 31300,
-        fpl250: 39125,
-        fpl300: 46950,
-        fpl400: 62600,
+        fpl100: 15960,
+        fpl138: 22025,
+        fpl200: 31920,
+        fpl250: 39900,
+        fpl300: 47880,
+        fpl400: 63840,
     }
 };
+
+// Children and pregnancy coverage limits vary by state; 200% FPL is a conservative guide.
+const CHILD_PREGNANT_INCOME_LIMIT_FPL = 200;
+
+function fplDollars(percent: number): number {
+    return Math.round((FPL_2026.single.fpl100 * percent) / 100);
+}
 
 type EligibilityStatus =
     | 'ELIGIBLE'           // Eligible for state program with residency
     | 'POSSIBLY_ELIGIBLE'  // May qualify - worth applying
-    | 'UNDER_19_ONLY'      // Only if under 19
-    | 'PREGNANCY_ONLY'     // Only if pregnant
-    | 'WAITLIST'           // Enrollment frozen (WA adults)
-    | 'PROGRAM_ENDING'     // Program ending soon (VT Oct 2026)
+    | 'PROGRAM_ENDING'     // Coverage or subsidies ending soon (MA Dec 31, 2026)
     | 'EMERGENCY_ONLY'     // Emergency Medicaid only
     | 'NOT_ELIGIBLE';      // No state coverage available
 
@@ -43,143 +50,148 @@ interface StateEligibilityConfig {
     programLink: string;
     tier: StateTier;
     phone?: string;
+    // Program shown to children under 19 and pregnant people, when it differs
+    childPregnantProgramName?: string;
     // Eligibility by category
     eligibleWithResidency: boolean;  // Can F-1 students access with residency?
     eligibleUnder19: boolean;
     eligiblePregnant: boolean;
-    eligibleAdult19Plus: 'yes' | 'possible' | 'waitlist' | 'ending' | 'no';
-    // Income limits
-    incomeLimitFPL: number;          // Max FPL percentage (e.g., 250 for 250% FPL)
+    eligibleAdult19Plus: 'yes' | 'possible' | 'ending' | 'no';
+    // Income limits for adults 19+
+    incomeLimitFPL: number;          // Max FPL percentage (e.g., 200 for 200% FPL)
     incomeLimitDollars: number;      // Max annual income in dollars
     // Coverage details
     premiumCost: string;             // e.g., "$0", "$0-$50/mo", "$0-$200/mo"
     benefits: string[];
     // Status
     status2026: string;
-    enrollmentStatus: 'active' | 'waitlist' | 'ending' | 'frozen' | 'limited';
+    enrollmentStatus: 'active' | 'ending' | 'closed' | 'limited';
+    endingLabel?: string;            // Shown on the PROGRAM_ENDING card
+    adultReason?: string;            // Why adults 19+ are (or are not) eligible
     // Warnings
     importantNotes: string[];
     deadlineWarning?: string;
 }
 
-// TIER 1: Best options - F-1 students CAN access with residency
+// TIER 1: Best options - adult F-1/OPT holders CAN enroll with state residency
 const TIER_1_STATES: Record<string, StateEligibilityConfig> = {
     NY: {
         programName: "Essential Plan",
         programLink: "https://nystateofhealth.ny.gov/",
         phone: "1-855-355-5777",
         tier: 'TIER_1',
+        childPregnantProgramName: "Medicaid / Child Health Plus",
         eligibleWithResidency: true,
         eligibleUnder19: true,
         eligiblePregnant: true,
         eligibleAdult19Plus: 'yes',
-        incomeLimitFPL: 250,
-        incomeLimitDollars: 39125,
-        premiumCost: "$0-$50/mo",
+        incomeLimitFPL: 200,
+        incomeLimitDollars: fplDollars(200),
+        premiumCost: "$0",
         benefits: [
-            "$0 or low monthly premiums",
+            "$0 monthly premium",
             "No deductible",
-            "Doctor visits covered",
-            "Prescriptions included",
+            "Doctor visits and prescriptions",
             "Mental health services",
+            "Dental and vision included",
             "Emergency care"
         ],
-        status2026: "ACTIVE [YES] - Best option for F-1 students",
+        status2026: "ACTIVE - income limit cut to 200% FPL on Jul 1, 2026",
         enrollmentStatus: 'active',
+        adultReason: "Visa holders aged 21-64 who live in New York can enroll in the Essential Plan with income up to 200% FPL. Ages 19-20 apply for Medicaid instead.",
         importantNotes: [
-            "[YES] F-1 students with NY residency CAN enroll",
-            "Establish residency: lease, utility bill, employment letter",
-            "F-1 visa = 'Lawfully Present' status",
-            "Income up to $39,125/year qualifies",
-            "May not need University SHIP if approved"
+            "[YES] F-1/OPT holders who live in NY can enroll (ages 21-64)",
+            "Income limit dropped from 250% to 200% FPL on Jul 1, 2026",
+            "Show NY residency: lease, utility bill, employment letter",
+            "Enrollment is open all year"
         ],
+        deadlineWarning: "Federal funding for visa holders in the Essential Plan ends Jan 1, 2027 under H.R.1. New York has not confirmed 2027 eligibility for visa holders, so check NY State of Health before renewing.",
     },
-    MA: {
-        programName: "MassHealth / ConnectorCare",
-        programLink: "https://www.mass.gov/masshealth",
-        phone: "1-800-841-2900",
+    OR: {
+        programName: "Oregon Health Plan (Healthier Oregon)",
+        programLink: "https://www.oregon.gov/oha/hsd/ohp/pages/healthier-oregon.aspx",
         tier: 'TIER_1',
+        childPregnantProgramName: "Oregon Health Plan",
         eligibleWithResidency: true,
         eligibleUnder19: true,
         eligiblePregnant: true,
         eligibleAdult19Plus: 'yes',
-        incomeLimitFPL: 400,
-        incomeLimitDollars: 62600,
-        premiumCost: "$0-$200/mo",
-        benefits: [
-            "MassHealth Standard: FREE (if eligible)",
-            "ConnectorCare: $0-$200/mo subsidized plans",
-            "Medical, mental health, prescriptions",
-            "Dental and vision coverage",
-            "Health Safety Net for emergencies"
-        ],
-        status2026: "ACTIVE [YES] (changes Oct 1, 2026)",
-        enrollmentStatus: 'active',
-        importantNotes: [
-            "[YES] F-1 with MA residency CAN enroll",
-            "Income < $21,750: Likely MassHealth (FREE)",
-            "Income $21,750 - $62,600: ConnectorCare (Subsidized)",
-            "F-1 visa = 'Lawfully Present' status"
-        ],
-        deadlineWarning: "[!] DEADLINE: Oct 1, 2026 - Medicaid changes under H.R.1 may affect F-1 eligibility",
-    },
-    CO: {
-        programName: "Health First Colorado",
-        programLink: "https://peak.colorado.gov/",
-        phone: "1-800-221-3943",
-        tier: 'TIER_1',
-        eligibleWithResidency: true,
-        eligibleUnder19: true,
-        eligiblePregnant: true,
-        eligibleAdult19Plus: 'possible',
         incomeLimitFPL: 138,
-        incomeLimitDollars: 21597,
-        premiumCost: "FREE",
+        incomeLimitDollars: fplDollars(138),
+        premiumCost: "$0",
         benefits: [
-            "FREE - no premiums, copays, deductibles",
-            "All medical services",
-            "Mental health coverage",
-            "Prescriptions",
-            "Dental care",
-            "Emergency Medicaid for all ages"
+            "$0 premium",
+            "Medical care",
+            "Dental services",
+            "Mental health",
+            "Vision care"
         ],
-        status2026: "ACTIVE",
+        status2026: "ACTIVE - covers people with student visas regardless of immigration status",
         enrollmentStatus: 'active',
+        adultReason: "Oregon covers residents regardless of immigration status, including people with student visas, with income up to 138% FPL.",
         importantNotes: [
-            "[YES] Under 19: Full coverage eligible",
-            "[YES] Pregnant: Full coverage eligible (all ages)",
-            "[YES] All ages: Emergency Medicaid available",
-            "F-1 = 'Lawfully Present' status",
-            "No 183-day residency minimum required"
+            "[YES] Healthier Oregon covers people with student visas",
+            "Must live in Oregon and meet income limits",
+            "Jan 2027: visa holders move to OHP Open Card with the same benefits"
         ],
+        deadlineWarning: "In January 2027, Oregon moves visa holders from Healthier Oregon to OHP Open Card. Benefits stay the same, but check that your doctors accept Open Card.",
     },
 };
 
-// TIER 2: Limited access states
+// TIER 2: Children and pregnant coverage, with limited or ending adult options
 const TIER_2_STATES: Record<string, StateEligibilityConfig> = {
+    MA: {
+        programName: "ConnectorCare",
+        programLink: "https://www.mahealthconnector.org/",
+        tier: 'TIER_2',
+        childPregnantProgramName: "MassHealth",
+        eligibleWithResidency: true,
+        eligibleUnder19: true,
+        eligiblePregnant: true,
+        eligibleAdult19Plus: 'ending',
+        incomeLimitFPL: CHILD_PREGNANT_INCOME_LIMIT_FPL,
+        incomeLimitDollars: fplDollars(CHILD_PREGNANT_INCOME_LIMIT_FPL),
+        premiumCost: "$0-$200/mo",
+        benefits: [
+            "MassHealth for children and pregnant people",
+            "ConnectorCare subsidized plans through Dec 31, 2026",
+            "Health Safety Net for hospital care"
+        ],
+        status2026: "ConnectorCare subsidies for visa holders end Dec 31, 2026",
+        enrollmentStatus: 'ending',
+        endingLabel: "Subsidies end Dec 31, 2026",
+        adultReason: "Adult F-1/OPT holders get MassHealth Limited (emergencies only). ConnectorCare subsidies for visa holders with income at least 100% FPL end Dec 31, 2026. From Jan 1, 2027, only green card holders, Cuban/Haitian entrants and COFA migrants keep premium help.",
+        importantNotes: [
+            "[YES] Under 19 and pregnant: full MassHealth",
+            "Ages 19-20 with income up to 150% FPL: MassHealth Standard",
+            "[NO] Adults 21+: MassHealth Limited (emergency only)",
+            "ConnectorCare for visa holders ends Dec 31, 2026"
+        ],
+        deadlineWarning: "Massachusetts Health Connector open enrollment for 2027 runs Oct 23 - Dec 23, 2026. Visa holders can still buy a plan, but without ConnectorCare or tax credit help.",
+    },
     CA: {
         programName: "Medi-Cal",
-        programLink: "https://www.coveredca.com/",
+        programLink: "https://benefitscal.com/",
         tier: 'TIER_2',
         eligibleWithResidency: true,
         eligibleUnder19: true,
         eligiblePregnant: true,
         eligibleAdult19Plus: 'no',
-        incomeLimitFPL: 138,
-        incomeLimitDollars: 21597,
+        incomeLimitFPL: CHILD_PREGNANT_INCOME_LIMIT_FPL,
+        incomeLimitDollars: fplDollars(CHILD_PREGNANT_INCOME_LIMIT_FPL),
         premiumCost: "FREE",
         benefits: [
             "Full coverage for under 19",
-            "Pregnancy/emergency coverage",
-            "Dental and vision (under 19)",
+            "Full pregnancy and postpartum coverage",
             "Mental health services"
         ],
-        status2026: "[!] FROZEN for adults 19+ (Jan 1, 2026)",
-        enrollmentStatus: 'frozen',
+        status2026: "FROZEN for new adults 19+ with unsatisfactory immigration status (Jan 1, 2026)",
+        enrollmentStatus: 'closed',
+        adultReason: "Medi-Cal stopped enrolling new adults 19+ with unsatisfactory immigration status on Jan 1, 2026. Adults can still get restricted (emergency and pregnancy) Medi-Cal.",
         importantNotes: [
-            "[NO] Adults 19+ NOT eligible (enrollment frozen Jan 2026)",
+            "[NO] New adults 19+: enrollment frozen since Jan 1, 2026",
             "[YES] Under 19: Full eligibility",
-            "[YES] Pregnant: Emergency/pregnancy services only",
+            "[YES] Pregnant: Full coverage through 12 months postpartum",
             "Consider private insurance for adults 19+"
         ],
     },
@@ -190,82 +202,30 @@ const TIER_2_STATES: Record<string, StateEligibilityConfig> = {
         eligibleWithResidency: true,
         eligibleUnder19: true,
         eligiblePregnant: true,
-        eligibleAdult19Plus: 'waitlist',
-        incomeLimitFPL: 138,
-        incomeLimitDollars: 21597,
+        eligibleAdult19Plus: 'no',
+        incomeLimitFPL: CHILD_PREGNANT_INCOME_LIMIT_FPL,
+        incomeLimitDollars: fplDollars(CHILD_PREGNANT_INCOME_LIMIT_FPL),
         premiumCost: "FREE",
         benefits: [
-            "$0 monthly cost",
+            "Apple Health for Kids regardless of status",
+            "Pregnancy coverage regardless of status",
             "Doctor & hospital care",
-            "Prescriptions covered",
-            "Mental health services"
+            "Prescriptions covered"
         ],
-        status2026: "[!] WAITLIST for adults (cap reached July 2024)",
-        enrollmentStatus: 'waitlist',
+        status2026: "Apple Health Expansion CLOSED to new adult enrollees",
+        enrollmentStatus: 'closed',
+        adultReason: "Apple Health Expansion, the adult program for immigrants, is closed to new enrollees and has no open waitlist.",
         importantNotes: [
-            "[!] Adults 19+: WAITLIST only (enrollment cap reached)",
-            "[YES] Under 19: NO CAP - still available",
-            "[YES] Pregnant: NO CAP - still available",
-            "Get private insurance while waiting"
+            "[NO] Adults 19+: Apple Health Expansion closed to new enrollees",
+            "[YES] Under 19: Apple Health for Kids",
+            "[YES] Pregnant: covered regardless of status",
+            "Get private insurance for adults"
         ],
-    },
-    OR: {
-        programName: "Oregon Health Plan",
-        programLink: "https://healthcare.oregon.gov/",
-        tier: 'TIER_2',
-        eligibleWithResidency: true,
-        eligibleUnder19: true,
-        eligiblePregnant: true,
-        eligibleAdult19Plus: 'possible',
-        incomeLimitFPL: 138,
-        incomeLimitDollars: 21597,
-        premiumCost: "FREE",
-        benefits: [
-            "$0 premium",
-            "Medical care",
-            "Dental services",
-            "Mental health",
-            "Vision care"
-        ],
-        status2026: "ACTIVE but F-1 eligibility unclear",
-        enrollmentStatus: 'active',
-        importantNotes: [
-            "[!] F-1 eligibility NOT confirmed",
-            "Program designed for undocumented immigrants",
-            "Worth applying - have backup insurance ready",
-            "Under 19: More likely to qualify"
-        ],
-    },
-    VT: {
-        programName: "Vermont Medicaid",
-        programLink: "https://portal.healthconnect.vermont.gov/",
-        tier: 'TIER_2',
-        eligibleWithResidency: true,
-        eligibleUnder19: true,
-        eligiblePregnant: true,
-        eligibleAdult19Plus: 'ending',
-        incomeLimitFPL: 138,
-        incomeLimitDollars: 21597,
-        premiumCost: "FREE",
-        benefits: [
-            "Full Medicaid coverage",
-            "Medical, mental health",
-            "Prescriptions",
-            "Preventive care"
-        ],
-        status2026: "[!] ENDING Oct 1, 2026 for adult F-1 students",
-        enrollmentStatus: 'ending',
-        importantNotes: [
-            "[NO] ENDING: Adult F-1 coverage ends Oct 1, 2026",
-            "[YES] Under 19: Coverage continues (not affected)",
-            "Get private insurance before Oct 2026"
-        ],
-        deadlineWarning: "[!] DEADLINE: Oct 1, 2026 - Adult F-1 coverage ends",
     },
 };
 
-// Children/Pregnant only states (expansion states without F-1 adult programs)
-const CHILDREN_PREGNANT_STATES = ['IL', 'CT', 'NJ', 'ME', 'RI', 'UT', 'MD', 'DC', 'MN'];
+// Children/pregnant only states (lawfully present or regardless of status)
+const CHILDREN_PREGNANT_STATES = ['CO', 'VT', 'IL', 'CT', 'NJ', 'ME', 'RI', 'UT', 'MD', 'DC', 'MN'];
 
 // Default config for children/pregnant states
 const CHILDREN_PREGNANT_CONFIG: StateEligibilityConfig = {
@@ -276,12 +236,12 @@ const CHILDREN_PREGNANT_CONFIG: StateEligibilityConfig = {
     eligibleUnder19: true,
     eligiblePregnant: true,
     eligibleAdult19Plus: 'no',
-    incomeLimitFPL: 138,
-    incomeLimitDollars: 21597,
+    incomeLimitFPL: CHILD_PREGNANT_INCOME_LIMIT_FPL,
+    incomeLimitDollars: fplDollars(CHILD_PREGNANT_INCOME_LIMIT_FPL),
     premiumCost: "FREE",
     benefits: [
         "Coverage for children under 19",
-        "Pregnancy coverage regardless of status",
+        "Pregnancy coverage",
         "Preventive care for children"
     ],
     status2026: "Limited - children & pregnant only",
@@ -311,12 +271,11 @@ const NO_COVERAGE_CONFIG: StateEligibilityConfig = {
         "Emergency labor and delivery",
         "Severe injury or illness"
     ],
-    status2026: "[NO] No state programs for F-1 students",
+    status2026: "[NO] No state-funded programs for adult F-1/OPT holders",
     enrollmentStatus: 'limited',
     importantNotes: [
-        "[NO] This is a non-expansion state",
-        "No Medicaid expansion for F-1 students",
-        "ACA Marketplace expensive ($400-$800/mo)",
+        "[NO] No state-funded coverage for adult visa holders",
+        "Marketplace plans have no tax credits for visa holders from Jan 1, 2027",
         "Use University SHIP or private insurance"
     ],
 };
@@ -336,20 +295,22 @@ const STATE_NAMES: Record<string, string> = {
     DC: "Washington D.C."
 };
 
-// Get Medicaid link by state
-function getStateMedicaidLink(stateCode: string): string {
-    const links: Record<string, string> = {
-        IL: "https://abe.illinois.gov/",
-        CT: "https://www.accesshealthct.com/",
-        NJ: "https://www.njfamilycare.org/",
-        ME: "https://www.maine.gov/dhhs/ofi/programs-services/mainecare",
-        RI: "https://healthyrhode.ri.gov/",
-        UT: "https://medicaid.utah.gov/",
-        MD: "https://www.marylandhealthconnection.gov/",
-        DC: "https://dchealthlink.com/",
-        MN: "https://www.mnsure.org/",
+// Get Medicaid program name and link by state
+function getStateMedicaidProgram(stateCode: string): { name?: string; link: string } {
+    const programs: Record<string, { name?: string; link: string }> = {
+        CO: { name: "Health First Colorado / CHP+", link: "https://www.healthfirstcolorado.gov/" },
+        VT: { name: "Dr. Dynasaur", link: "https://portal.healthconnect.vermont.gov/" },
+        IL: { link: "https://abe.illinois.gov/" },
+        CT: { link: "https://www.accesshealthct.com/" },
+        NJ: { link: "https://www.njfamilycare.org/" },
+        ME: { link: "https://www.maine.gov/dhhs/ofi/programs-services/mainecare" },
+        RI: { link: "https://healthyrhode.ri.gov/" },
+        UT: { link: "https://medicaid.utah.gov/" },
+        MD: { link: "https://www.marylandhealthconnection.gov/" },
+        DC: { link: "https://dchealthlink.com/" },
+        MN: { link: "https://www.mnsure.org/" },
     };
-    return links[stateCode] || "";
+    return programs[stateCode] || { link: "" };
 }
 
 // Get state configuration
@@ -366,13 +327,15 @@ function getStateConfig(stateCode: string): StateEligibilityConfig {
 
     // Check children/pregnant states
     if (CHILDREN_PREGNANT_STATES.includes(stateCode)) {
+        const program = getStateMedicaidProgram(stateCode);
         return {
             ...CHILDREN_PREGNANT_CONFIG,
-            programLink: getStateMedicaidLink(stateCode),
+            programName: program.name ?? CHILDREN_PREGNANT_CONFIG.programName,
+            programLink: program.link,
         };
     }
 
-    // Non-expansion states
+    // States without state-funded coverage for adult visa holders
     return NO_COVERAGE_CONFIG;
 }
 
@@ -404,6 +367,12 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
 
     // Check if income qualifies
     const incomeQualifies = annualIncome <= config.incomeLimitDollars || config.incomeLimitDollars === 0;
+    const childPregnantLimit = fplDollars(CHILD_PREGNANT_INCOME_LIMIT_FPL);
+    const childPregnantIncomeQualifies = annualIncome <= childPregnantLimit;
+    const childPregnantConfig: StateEligibilityConfig = {
+        ...config,
+        programName: config.childPregnantProgramName ?? config.programName,
+    };
 
     // Base result
     const baseResult: EligibilityResult = {
@@ -418,35 +387,37 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
         deadlineWarning: config.deadlineWarning,
     };
 
-    // Non-expansion states (Tier 3)
+    // States without state-funded coverage for adult visa holders (Tier 3)
     if (config.tier === 'TIER_3') {
         return {
             ...baseResult,
             status: 'EMERGENCY_ONLY',
-            eligibilityReason: `${stateName} does not offer state health programs for F-1 students. This is a non-expansion state.`,
-            recommendedAction: "Use University SHIP ($1,400-$4,500/yr) or private insurance (ISO: $31-$118/mo).",
+            eligibilityReason: `${stateName} does not offer a state-funded health program for adult F-1/OPT holders. Children and pregnant people with lawful status may still qualify for Medicaid or CHIP.`,
+            recommendedAction: "Use University SHIP or a private OPT plan (ISO OPTima: $41-$123/mo).",
             showStateProgram: false,
         };
     }
 
     // Check pregnancy first (highest priority, all tiers)
-    if (isPregnant && config.eligiblePregnant && incomeQualifies) {
+    if (isPregnant && config.eligiblePregnant && childPregnantIncomeQualifies) {
         return {
             ...baseResult,
             status: 'ELIGIBLE',
-            eligibilityReason: `Pregnant individuals with ${stateName} residency qualify for ${config.programName}.`,
-            recommendedAction: `Apply for ${config.programName}. Cost: ${config.premiumCost}. Includes pregnancy care + postpartum.`,
+            stateConfig: childPregnantConfig,
+            eligibilityReason: `Pregnant people with ${stateName} residency and lawful status can qualify for ${childPregnantConfig.programName}. Income limits vary.`,
+            recommendedAction: `Apply for ${childPregnantConfig.programName}. Includes pregnancy care + postpartum.`,
             showStateProgram: true,
         };
     }
 
     // Check under 19
-    if (age < 19 && config.eligibleUnder19 && incomeQualifies) {
+    if (age < 19 && config.eligibleUnder19 && childPregnantIncomeQualifies) {
         return {
             ...baseResult,
             status: 'ELIGIBLE',
-            eligibilityReason: `Children under 19 with ${stateName} residency qualify for ${config.programName}.`,
-            recommendedAction: `Apply for ${config.programName}. Cost: ${config.premiumCost}. Full coverage available.`,
+            stateConfig: childPregnantConfig,
+            eligibilityReason: `Children under 19 with ${stateName} residency and lawful status can qualify for ${childPregnantConfig.programName}. Income limits vary.`,
+            recommendedAction: `Apply for ${childPregnantConfig.programName}. Full coverage available.`,
             showStateProgram: true,
         };
     }
@@ -459,8 +430,8 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
                 return {
                     ...baseResult,
                     status: 'ELIGIBLE',
-                    eligibilityReason: `F-1 students with ${stateName} residency CAN enroll in ${config.programName}. Income limit: $${config.incomeLimitDollars.toLocaleString()}/year.`,
-                    recommendedAction: `Establish ${stateName} residency (lease/utility bill), then apply. Cost: ${config.premiumCost}.`,
+                    eligibilityReason: `${config.adultReason ?? `F-1/OPT holders with ${stateName} residency can enroll in ${config.programName}.`} Income limit: $${config.incomeLimitDollars.toLocaleString()}/year.`,
+                    recommendedAction: `Show ${stateName} residency (lease/utility bill), then apply. Cost: ${config.premiumCost}.`,
                     showStateProgram: true,
                 };
             }
@@ -477,21 +448,12 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
 
         // Tier 2 states with limited access
         if (config.tier === 'TIER_2') {
-            if (config.eligibleAdult19Plus === 'waitlist') {
-                return {
-                    ...baseResult,
-                    status: 'WAITLIST',
-                    eligibilityReason: `${config.programName} adult enrollment is frozen since July 2024. Only waitlist available.`,
-                    recommendedAction: `Join waitlist if desired, but get private insurance NOW. Waitlist may take months.`,
-                    showStateProgram: true,
-                };
-            }
             if (config.eligibleAdult19Plus === 'ending') {
                 return {
                     ...baseResult,
                     status: 'PROGRAM_ENDING',
-                    eligibilityReason: `${config.programName} adult coverage is ENDING Oct 1, 2026 for F-1 students.`,
-                    recommendedAction: `Current enrollees: Get private insurance before Oct 2026. New applicants: Use private insurance.`,
+                    eligibilityReason: config.adultReason ?? `${config.programName} coverage for adult F-1/OPT holders is ending.`,
+                    recommendedAction: "Line up private OPT insurance or employer coverage that starts by Jan 1, 2027.",
                     showStateProgram: true,
                 };
             }
@@ -508,8 +470,8 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
                 return {
                     ...baseResult,
                     status: 'NOT_ELIGIBLE',
-                    eligibilityReason: `${config.programName} adult enrollment is NOT available for F-1 students 19+.`,
-                    recommendedAction: `Use University SHIP or private insurance (ISO: $31-$118/mo, Compass: similar).`,
+                    eligibilityReason: config.adultReason ?? `${config.programName} is not available to adult F-1/OPT holders 19+ unless pregnant.`,
+                    recommendedAction: "Use University SHIP or a private OPT plan (ISO OPTima: $41-$123/mo).",
                     showStateProgram: false,
                 };
             }
@@ -521,7 +483,7 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
         return {
             ...baseResult,
             status: 'NOT_ELIGIBLE',
-            eligibilityReason: `Your income exceeds ${config.programName} limit of $${config.incomeLimitDollars.toLocaleString()}/year (${config.incomeLimitFPL}% FPL).`,
+            eligibilityReason: `Your income exceeds the ${config.programName} limit of $${config.incomeLimitDollars.toLocaleString()}/year (${config.incomeLimitFPL}% FPL).`,
             recommendedAction: "Consider employer coverage if available, or private insurance plans.",
             showStateProgram: false,
         };
@@ -533,7 +495,7 @@ export function calculateEligibility(params: EligibilityParams): EligibilityResu
         status: 'NOT_ELIGIBLE',
         eligibilityReason: `F-1 students in your situation are not eligible for ${stateName} state programs.`,
         recommendedAction: visaType === 'F-1'
-            ? "Enroll in University SHIP (required by most schools) or purchase private insurance (ISO, Compass)."
+            ? "Enroll in University SHIP (required by most schools) or purchase private insurance."
             : "Use employer coverage if available, or purchase private insurance.",
         showStateProgram: false,
     };

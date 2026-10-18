@@ -42,7 +42,7 @@ const VISA_TYPES = [
 const FAQ_ITEMS = [
   {
     q: "Why should I buy health insurance?",
-    a: "Healthcare in the US is extremely expensive. A single ER visit can cost $3,000-$10,000+. Insurance protects you from unexpected medical bills and ensures you can access quality healthcare when needed."
+    a: "Healthcare in the US is extremely expensive. A single ER visit can cost $1,500-$10,000+. Insurance protects you from unexpected medical bills and ensures you can access quality healthcare when needed."
   },
   {
     q: "Can I get a plan without SSN?",
@@ -54,23 +54,23 @@ const FAQ_ITEMS = [
   },
   {
     q: "What is a university waiver?",
-    a: "Many universities require health insurance. If you purchase a qualifying plan, you can waive the school's expensive insurance. Our partner plans are designed to meet most university requirements."
+    a: "Many universities require health insurance while you are enrolled. If you buy a plan that meets your school's waiver criteria, you can waive the school plan. Waiver rules differ by school, so check them before you buy. Most OPT plans are built for graduates and do not meet ACA-style waiver requirements."
   },
   {
     q: "What if my university doesn't accept my plan?",
-    a: "Contact your school's health center with your plan details. Most plans from our partners meet university requirements. If not accepted, many partners offer full refunds."
+    a: "Contact your school's health center with your plan details before your coverage starts. Partners usually allow cancellation before the effective date. After coverage starts, cancellation fees or partial refunds may apply, so check each partner's refund policy."
   },
   {
     q: "Does OPT require health insurance?",
-    a: "While not legally required, it's strongly recommended. Without insurance, a medical emergency could result in thousands of dollars in debt. Many employers also expect you to have coverage."
+    a: "There is no federal insurance requirement for F-1 OPT or STEM OPT, but coverage is strongly recommended. J-1 exchange visitors are different: they must keep insurance that meets State Department minimums. Without insurance, a medical emergency could leave you with thousands of dollars in debt."
   },
   {
     q: "When does my school insurance end?",
-    a: "Typically 30-60 days after graduation. Plan ahead to avoid coverage gaps—apply for new insurance before your school plan expires."
+    a: "Usually at the end of the coverage period for your last enrolled term, often in mid-August or at semester end. Check your plan's end date, and buy new insurance before it expires to avoid a gap."
   },
   {
     q: "Can I get free insurance in my state?",
-    a: "Some states like NY, CA, WA, OR offer free or low-cost plans for low-income residents regardless of immigration status. Use our checker above to see if you qualify!"
+    a: "As of October 2026, New York (Essential Plan, ages 21-64, income up to 200% FPL) and Oregon (Oregon Health Plan, income up to 138% FPL) still cover eligible adults on student visas. California and Washington have closed their immigrant adult programs to new enrollees. Several states cover children and pregnant people. From January 1, 2027, F-1 and OPT holders no longer qualify for federal marketplace subsidies. Use our checker above to see your options."
   }
 ];
 
