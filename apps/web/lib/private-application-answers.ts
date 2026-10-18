@@ -4,6 +4,10 @@ import {
   randomBytes,
 } from "node:crypto";
 import { z } from "zod";
+import {
+  normalizeVerifiedAuthorization,
+  type VerifiedAuthorizationAnswers,
+} from "../../extension/src/prefill/verified-authorization";
 
 const ENCRYPTION_VERSION = "v1";
 export const PRIVATE_APPLICATION_ANSWERS_PAYLOAD_VERSION = 2;
@@ -165,11 +169,20 @@ export const PrivateApplicationAnswersSchema = z
       z.literal("prefer_not_to_answer").optional()
     ),
     defaultJobPortalLogin: DefaultJobPortalLoginSchema.optional(),
+    // Applicant-confirmed authorization/sponsorship answers, validated by the
+    // same strict normalizer the extension uses (verified-authorization.ts).
+    verifiedAuthorization: z
+      .custom<VerifiedAuthorizationAnswers>(
+        (value) => normalizeVerifiedAuthorization(value) !== null,
+        "Check your work authorization answers"
+      )
+      .transform((value) => normalizeVerifiedAuthorization(value)!)
+      .optional(),
   })
   .strict();
 
 const LegacyPrivateApplicationAnswersSchema = PrivateApplicationAnswersSchema
-  .omit({ defaultJobPortalLogin: true })
+  .omit({ defaultJobPortalLogin: true, verifiedAuthorization: true })
   .extend({
     jobPortalLogins: z
       .array(LegacyJobPortalLoginSchema)

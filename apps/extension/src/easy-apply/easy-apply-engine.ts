@@ -39,6 +39,10 @@ import { createUploadProbe, waitForUploadEvidence, UPLOAD_STATUS_COPY, type Uplo
  */
 
 import { classifyField, isResumeOnlyFieldKind, type FieldKind } from './easy-apply-matchers';
+import { classifyFieldWithRules } from '../prefill/field-rules';
+import { markAnswerSource, type FieldOutcome } from '../review/field-outcomes';
+import { withPrefillUndo } from '../prefill/prefill-undo';
+import type { CapabilityId, PlatformFieldRules } from '../platform-config/remote-config';
 import { resumeOnlyFieldValue } from '../prefill/resume-history-fields';
 import { hasSeparateCountryCode, phoneValueAccepted, phoneValueForControl } from '../prefill/phone-prefill';
 import {
@@ -90,6 +94,8 @@ import {
   APPLICATION_CONTROL_SELECTOR,
   dropdownMatchKind,
   getLabelText,
+  isComboboxLike,
+  isControlVisible,
   isFillable,
   isFillableSelect,
   isPlainSkillsControl,
@@ -148,6 +154,24 @@ export interface PrefillOptions {
   featureFlags?: Partial<AutofillFeatureFlags>;
   /** Row creation requires an explicit Prefill click, never continuous mode. */
   allowRowCreation?: boolean;
+  /** Capabilities paused by server config for this run. Never page-supplied. */
+  blockedCapabilities?: ReadonlySet<CapabilityId>;
+  /** Declarative label phrases for this platform from server config. */
+  fieldRules?: PlatformFieldRules;
+}
+
+/** Text the applicant (or site) already entered that differs from ours. */
+function differingExistingText(el: HTMLElement, proposed: string, kind: FieldKind): boolean {
+  if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return false;
+  const control = el as HTMLInputElement | HTMLTextAreaElement;
+  if (control.disabled || control.readOnly || isComboboxLike(control) || !isControlVisible(control)) return false;
+  if (control.tagName === 'INPUT' && !['text', 'email', 'tel', 'url', 'number', 'search', ''].includes((control as HTMLInputElement).type)) return false;
+  const existing = control.value.trim();
+  if (!existing) return false;
+  const same = kind === 'phone'
+    ? existing.replace(/\D/g, '').endsWith(proposed.replace(/\D/g, '').slice(-10))
+    : existing.replace(/\s+/g, ' ').toLowerCase() === proposed.trim().replace(/\s+/g, ' ').toLowerCase();
+  return !same;
 }
 
 const TOAST_ID = 'tmo-easy-apply-toast';
@@ -234,17 +258,23 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
   visual = options.visualFeedback ?? createAutofillVisualFeedback(container.ownerDocument, { animateFields: options.animateFields });
 
+  const blocked: ReadonlySet<CapabilityId> = options.blockedCapabilities ?? new Set();
+  const outcomeByControl = new Map<HTMLElement, FieldOutcome>();
+  const record = (control: HTMLElement, outcome: Omit<FieldOutcome, 'control'>) => {
+    outcomeByControl.set(control, { control, ...outcome });
+    if (outcome.status === 'filled' && outcome.source) markAnswerSource(control, outcome.source);
+  };
   const fieldSources: NonNullable<PrefillCoverageResult['fieldSources']> = [];
   const retryOperations: PrefillRetryOperation[] = [];
   const pendingUploads: Array<{ input: HTMLInputElement; group: 'resume' | 'cover_letter' }> = [];
   const resumeResult = attachGeneratedResume(
     container,
-    featureFlags.artifactPrefill ? options.resume : undefined,
+    featureFlags.artifactPrefill && !blocked.has('resumeUpload') ? options.resume : undefined,
     (input) => pendingUploads.push({ input, group: 'resume' }),
     (input) => pendingUploads.push({ input, group: 'resume' })
   );
   const coverLetterResult =
-    featureFlags.artifactPrefill && featureFlags.coverLetter
+    featureFlags.artifactPrefill && featureFlags.coverLetter && !blocked.has('coverLetterUpload')
       ? attachGeneratedCoverLetter(
           container,
           options.coverLetter,
@@ -297,8 +327,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
   const snapshot = featureFlags.artifactPrefill ? options.snapshot : undefined;
   if (snapshot && featureFlags.historyFields) {
     for (const section of ['experience', 'education'] as const) {
-      if (!adapter.capabilities[section]) continue;
-      if (options.allowRowCreation) {
+      if (!adapter.capabilities[section] || blocked.has(section)) continue;
+      if (options.allowRowCreation && !blocked.has('rowCreation')) {
         await expandRepeatableRows(adapter, container, section, snapshot[section].length, current, snapshot);
         if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
       }
@@ -318,6 +348,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       for (const [index, entry] of written.entries()) {
         if (accepted[index]) {
           fieldSources.push({ control: entry.element, source: 'resume' });
+          record(entry.element, { status: 'filled', source: 'resume' });
           visual.markFieldFilled(entry.element, section);
           const recordIndex = historyControls.find(item => item.element === entry.element)?.recordIndex;
           if (recordIndex !== undefined) recordsTouched[section].add(recordIndex);
@@ -326,6 +357,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
           outcome.filledFields--;
           outcome.skippedFields++;
           visual.markNeedsUser(entry.element);
+          record(entry.element, { status: 'failed', reason: 'value_not_accepted' });
           const original = entry.element;
           retryOperations.push({
             id: `history:${section}:${index}`,
@@ -350,7 +382,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       }
       // ATS dropdowns in history rows (Workday degree/month, React Select).
       // Each selects only one exact option and is verified by smart-dropdown.
-      if (adapter.capabilities.searchableDropdown) {
+      if (adapter.capabilities.searchableDropdown && !blocked.has('searchableDropdown')) {
         const dropdowns = planRepeatableDropdownFills(section, adapter.classifyRepeatableSections(container), snapshot);
         for (const target of dropdowns) {
           if (stopped() || !container.isConnected) return { ...emptyCoverage, paused: true };
@@ -366,12 +398,15 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
             dropdownsSelected += 1;
             if (target.control.recordIndex !== undefined) recordsTouched[section].add(target.control.recordIndex);
             fieldSources.push({ control: element, source: 'resume' });
+            record(element, { status: 'filled', source: 'resume' });
             visual.markFieldFilled(element, section);
           } else {
             visual.clearActiveField();
             if (selection.outcome !== 'already_filled') {
               outcome.skippedFields++;
               visual.markNeedsUser(element);
+              record(element, { status: selection.outcome === 'unsupported' ? 'unsupported' : 'skipped',
+                reason: selection.outcome === 'unsupported' ? 'unsupported_control' : 'no_matching_option' });
             }
           }
         }
@@ -409,6 +444,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       uploadVerification,
       fieldSources,
       retryOperations,
+      fieldOutcomes: [...outcomeByControl.values()],
+      ...(options.resume?.filename ? { resumeFilename: options.resume.filename } : {}),
     };
     result.progress = snapshotPrefillProgress({ runId: sessionCurrent.runId,
       navigationGeneration: sessionCurrent.generation, frameId, adapterId: adapter.id }, result);
@@ -485,13 +522,15 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     if (stopped()) return 'stopped';
     recoverPrefillControl(el);
     const labelText = getLabelText(el);
-    const classified = classifyField(labelText);
+    const classified = classifyFieldWithRules(labelText, options.fieldRules);
     if (!classified) return 'skipped'; // no confident match, or a sensitive field -> leave it
     // "Where are you located?" over a list of countries asks for the country.
     const kind: FieldKind = (classified === 'location' || classified === 'city') && selectListsCountries(el)
       ? 'country'
       : classified;
-    if (!adapter.capabilities[kind === 'skills' ? 'skills' : 'contact']) return 'skipped';
+    const capability = kind === 'skills' ? 'skills' : 'contact';
+    if (!adapter.capabilities[capability]) return 'skipped';
+    if (blocked.has(capability)) { record(el, { status: 'unsupported', reason: 'feature_paused' }); return 'skipped'; }
     const group = visualGroupForKind(kind);
     // A dependent list (state after country) may still be loading or disabled.
     if (isDependentLocationKind(kind) && dependentControlNotReady(el)) return 'deferred';
@@ -514,11 +553,33 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     if (isResumeOnlyFieldKind(kind) && 'maxLength' in el &&
         (el as HTMLInputElement).maxLength > 0 && value.length > (el as HTMLInputElement).maxLength) return 'skipped';
     const writeValue = value;
+    const valueSource = contactValueSource(snapshot, kind);
+    // Never overwrite: a different existing answer is kept and offered for review.
+    if (differingExistingText(el, writeValue, kind)) {
+      record(el, {
+        status: 'kept_existing', source: valueSource,
+        replace: async () => {
+          const target = recoverPrefillControl(el);
+          if (!target || document.location.href !== runUrl || !target.isConnected ||
+              (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) return false;
+          const control = target as HTMLInputElement | HTMLTextAreaElement;
+          let accepted = false;
+          await withPrefillUndo(async () => {
+            setNativeValue(control, writeValue);
+            accepted = await verifyNativeCommit(control, writeValue, () => document.location.href === runUrl, accepts);
+          });
+          if (accepted) markAnswerSource(control, valueSource);
+          return accepted;
+        },
+      });
+      return 'skipped';
+    }
 
     let changed = false;
     let isDropdown = false;
     let retryWrite: PrefillRetryOperation['retry'] | undefined;
     if (kind === 'skills' && (!isPlainSkillsControl(el) || !isFillable(el))) {
+      if (!isPlainSkillsControl(el)) record(el, { status: 'unsupported', reason: 'unsupported_control' });
       return 'skipped'; // tag editors/custom widgets require a tested ATS adapter
     } else if (isFillable(el)) {
       await visual.prepareField(el, group);
@@ -540,7 +601,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
       const select = el as HTMLSelectElement;
       isDropdown = true;
       const selectValue = matchingSelectValue(select, kind, writeValue, dropdownContext);
-      if (!selectValue) return 'skipped'; // never guess a dropdown option
+      if (!selectValue) { record(select, { status: 'skipped', reason: 'no_matching_option' }); return 'skipped'; } // never guess
       if (select.value === selectValue) return 'skipped';
       await visual.prepareField(select, group);
       if (stopped()) return 'stopped';
@@ -557,7 +618,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
         return await verifyNativeCommit(target, selectValue, current) ? { control: target, root } : null;
       };
     } else if (isCustomDropdownControl(el)) {
-      if (!adapter.capabilities.searchableDropdown) return 'skipped';
+      if (!adapter.capabilities.searchableDropdown) { record(el, { status: 'unsupported', reason: 'unsupported_control' }); return 'skipped'; }
+      if (blocked.has('searchableDropdown')) { record(el, { status: 'unsupported', reason: 'feature_paused' }); return 'skipped'; }
       if (customDropdownHasValue(el)) return 'skipped';
       isDropdown = true;
       await visual.prepareField(el, group);
@@ -590,6 +652,7 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     }
     if (stopped()) return 'stopped';
     if (!changed) {
+      if (retryWrite) record(el, { status: 'failed', reason: 'value_not_accepted', source: valueSource });
       if (retryWrite) retryOperations.push({
         id: `contact:${retryOperations.length}`,
         fieldGroup: group,
@@ -603,7 +666,8 @@ export async function runPrefill(options: PrefillOptions = {}): Promise<PrefillC
     }
     filled += 1;
     if (isDropdown) dropdownsSelected += 1;
-    fieldSources.push({ control: el, source: contactValueSource(snapshot, kind) });
+    fieldSources.push({ control: el, source: valueSource });
+    record(el, { status: 'filled', source: valueSource });
     filledOutcomes.push({
       filled: true,
       fieldGroup: group,

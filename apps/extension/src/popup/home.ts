@@ -413,8 +413,11 @@ export async function renderHome(root: HTMLElement, onNavigate: (page: string) =
     try {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id, allFrames: true },
-        files: ['easy-apply-fill.js', ...(autofillPreferences.guidedAutopilot ? ['content-job-portal.js'] : [])],
+        files: ['easy-apply-fill.js', 'content-job-portal.js'],
       });
+      // Also open the on-page assistant (review panel and submission status)
+      // when automatic detection missed this application page.
+      await chrome.tabs.sendMessage(tab.id, { type: 'TMO_OPEN_ASSISTANT' }, { frameId: 0 }).catch(() => {});
       window.close();
     } catch {
       if (prefillLabel) showTransientLabel(prefillLabel, 'Cannot prefill on this page', prefillLabelText);

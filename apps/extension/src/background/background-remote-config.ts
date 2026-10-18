@@ -1,12 +1,13 @@
 import { WEBSITE_URL } from '../shared/config';
 import {
   REMOTE_CONFIG_MAX_BYTES,
+  normalizeEffectiveConfig,
   resolveEffectiveConfig,
   validateRemoteConfig,
   type EffectiveExtensionConfig,
   type RemoteConfigV1,
 } from '../platform-config/remote-config';
-import { BASELINE_CONFIG } from '../platform-config/remote-config-baseline';
+import { BASELINE_CONFIG, baselineEffectiveConfig } from '../platform-config/remote-config-baseline';
 import { getExtensionBearerToken } from './background-auth';
 import { reportExtensionDiagnostic } from './background-diagnostics';
 
@@ -183,5 +184,15 @@ export async function ensureRemoteConfigAlarm(): Promise<void> {
     await chrome.alarms.create(REMOTE_CONFIG_ALARM, {
       delayInMinutes: 1, periodInMinutes: REMOTE_CONFIG_ALARM_PERIOD_MINUTES,
     });
+  }
+}
+
+/** The worker's view of the derived config, for enforcing switches at message boundaries. */
+export async function readEffectiveConfigInWorker(): Promise<EffectiveExtensionConfig> {
+  try {
+    const stored = (await chrome.storage.local.get(EFFECTIVE_CONFIG_KEY))[EFFECTIVE_CONFIG_KEY];
+    return normalizeEffectiveConfig(stored, baselineEffectiveConfig());
+  } catch {
+    return baselineEffectiveConfig();
   }
 }

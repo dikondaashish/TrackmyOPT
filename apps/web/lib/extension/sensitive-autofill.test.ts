@@ -111,10 +111,18 @@ describe('review-confirmed private answer filling', () => {
       </form>`;
   });
 
+  const confirmedAt = new Date(Date.now() - 86_400_000).toISOString();
   const answers: SensitiveAnswerSession = {
     confirmed: true,
     workAuthorization: 'yes',
     requiresSponsorship: 'no',
+    // Authorization questions use only applicant-confirmed answers for the
+    // same meaning; these two wordings were confirmed by the applicant.
+    verifiedAuthorization: {
+      meaningVersion: 1,
+      currentWorkAuthorization: { answer: 'yes', confirmedAt, scope: 'united_states', confirmedWordings: ['are you authorized to work'] },
+      currentSponsorship: { answer: 'no', confirmedAt, scope: 'united_states', confirmedWordings: ['will you require sponsorship'] },
+    },
     citizenship: 'India',
     visaType: 'h1b',
     salaryExpectation: '$100,000',
@@ -182,6 +190,14 @@ describe('review-confirmed private answer filling', () => {
     expect(selects[10].value).toBe('not-veteran');
     expect(selects[11].value).toBe('decline');
     expect(result.filled).toBe(18);
+  });
+
+  it('never answers authorization questions from legacy answers alone', async () => {
+    const { verifiedAuthorization: _verified, ...legacyOnly } = answers;
+    const result = await fillConfirmedSensitiveAnswers(document, legacyOnly);
+    expect(document.querySelector('select')!.value).toBe('');
+    expect(document.querySelector<HTMLInputElement>('input[name="sponsor"]:checked')).toBeNull();
+    expect(result.outcomes.filter((outcome) => outcome.status === 'needs_confirmation')).toHaveLength(2);
   });
 
   it('strictly bounds the ephemeral child-frame payload', () => {

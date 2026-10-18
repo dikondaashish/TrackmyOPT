@@ -3,6 +3,7 @@ import {
   isControlVisible,
   setNativeValue,
 } from '../easy-apply/easy-apply-dom';
+import { markAnswerSource } from '../review/field-outcomes';
 import { classifyField, SENSITIVE_FIELD_RE } from '../easy-apply/easy-apply-matchers';
 import { isSensitiveApplicationQuestion } from './sensitive-question-policy';
 import {
@@ -275,6 +276,8 @@ export async function runSmartAnswers(
       note.dataset.reviewState = 'needs-input';
       if (answer && stillEmpty()) {
         setNativeValue(field, answer.trim());
+        // Shown in review as a suggestion until the applicant edits or confirms it.
+        markAnswerSource(field, generated ? 'generated' : 'saved_answer');
         filled++;
         flashAutofillField(field, 'filled');
         status.textContent = generated

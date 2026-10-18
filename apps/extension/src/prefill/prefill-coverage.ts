@@ -41,6 +41,12 @@ export interface PrefillCoverageResult {
   retryOperations?: PrefillRetryOperation[];
   /** Versioned, value-free operation state. Ephemeral to the current document. */
   progress?: PrefillProgressSnapshotV1;
+  /** An emergency switch paused autofill on this page (bundled copy is shown). */
+  featurePaused?: import('../platform-config/remote-config').KillSwitchReason;
+  /** Filename of the job's generated resume offered to this run (display only). */
+  resumeFilename?: string;
+  /** Per-field outcomes for review. Ephemeral; never serialized or sent anywhere. */
+  fieldOutcomes?: import('../review/field-outcomes').FieldOutcome[];
 }
 
 export interface PrefillRetryOperation {

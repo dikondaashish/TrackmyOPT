@@ -17,6 +17,11 @@ import {
   PORTAL_LOGIN_PREFILL_NOTICE,
 } from '@/lib/legal/legal-config';
 import { DefaultJobPortalLoginPanel } from './DefaultJobPortalLoginPanel';
+import { VerifiedAuthorizationPanel } from './VerifiedAuthorizationPanel';
+import {
+  normalizeVerifiedAuthorization,
+  type VerifiedAuthorizationAnswers,
+} from '../../../../extension/src/prefill/verified-authorization';
 import {
   PrivateAnswersField,
   PrivateAnswersSelectField,
@@ -46,6 +51,7 @@ export function PrivateApplicationAnswersSection() {
   const [legacyLoginDecisionMade, setLegacyLoginDecisionMade] = useState(true);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [verified, setVerified] = useState<VerifiedAuthorizationAnswers | null>(null);
   const reviewAbortRef = useRef<AbortController | null>(null);
   const decryptedFormRef = useRef<PrivateAnswersForm>(
     EMPTY_PRIVATE_ANSWERS_FORM
@@ -74,6 +80,7 @@ export function PrivateApplicationAnswersSection() {
     decryptedLegacyLoginsRef.current = [];
     plaintextAllowedRef.current = false;
     setForm(EMPTY_PRIVATE_ANSWERS_FORM);
+    setVerified(null);
     setLegacyJobPortalLogins([]);
     setLegacyLoginDecisionMade(true);
     setConsent(false);
@@ -111,6 +118,7 @@ export function PrivateApplicationAnswersSection() {
       decryptedFormRef.current = nextForm;
       decryptedLegacyLoginsRef.current = legacyLogins;
       setForm(nextForm);
+      setVerified(normalizeVerifiedAuthorization(body?.data?.verifiedAuthorization));
       setLegacyJobPortalLogins(legacyLogins);
       setLegacyLoginDecisionMade(legacyLogins.length === 0);
       setHasSavedAnswers(Boolean(body?.data));
@@ -424,6 +432,8 @@ export function PrivateApplicationAnswersSection() {
               />
             </PrivateAnswersField>
           </fieldset>
+
+          <VerifiedAuthorizationPanel verified={verified} onChange={setVerified} />
           <fieldset className="grid grid-cols-1 gap-4 border-t border-border pt-5 sm:grid-cols-2">
             <legend className="pr-3 text-sm font-semibold">
               Pay &amp; work preferences

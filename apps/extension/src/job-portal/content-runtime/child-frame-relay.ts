@@ -4,6 +4,8 @@ import { type BasicContactProfile, type ResumeAutofillSnapshotV1 } from '../../r
 import { withPrefillModeGuard } from '../../prefill/prefill-mode-guard';
 import { acceptPrefillRelay, waitForPrefillRelayTurn } from '../../prefill/prefill-relay-guard';
 import { fillConfirmedSensitiveAnswers, normalizeSensitiveAnswerSession } from '../../prefill/sensitive-autofill';
+import { loadEffectiveConfig } from '../../platform-config/effective-config-client';
+import { autofillBlocked, autofillGates } from '../../platform-config/feature-gates';
 /** Cross-origin ATS frames receive prefill through the background relay and fill here. */
 
 export function runChildFramePrefillRelay(
@@ -26,8 +28,15 @@ export function runChildFramePrefillRelay(
   const sensitiveAnswers = normalizeSensitiveAnswerSession(
     prefill.sensitiveAnswers
   );
-  void waitForPrefillRelayTurn(relayCurrent, () => getPrefillUndoState().busy).then(ready => ready ? withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
+  void waitForPrefillRelayTurn(relayCurrent, () => getPrefillUndoState().busy).then(ready => ready ? withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async guard => {
+    // Each frame enforces the same emergency switches as the top frame.
+    await loadEffectiveConfig();
+    const gates = autofillGates();
+    if (gates.block.blocked) return;
+    const shouldContinue = () => guard() && !autofillBlocked().blocked;
     const result = await runPrefill({
+      blockedCapabilities: gates.blockedCapabilities,
+      fieldRules: gates.fieldRules,
       resume: prefill.resume,
       coverLetter: prefill.coverLetter,
       generatedContentHash: prefill.generatedContentHash,
@@ -45,6 +54,8 @@ export function runChildFramePrefillRelay(
         findApplicationForm() ?? document,
         sensitiveAnswers,
         () => shouldContinue() && relayCurrent(),
+        undefined,
+        { blockedCapabilities: gates.blockedCapabilities },
       );
     }
   }), message.undoRunId).then(() => true) : false).then(completed => sendResponse({ ok: completed && relayCurrent() }))

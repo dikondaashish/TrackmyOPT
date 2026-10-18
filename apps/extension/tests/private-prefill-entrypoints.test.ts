@@ -31,9 +31,12 @@ function harness(){
     prefillSavedPortalLogin:async()=>({status:'skipped',totalFilled:0}),
     runPrefill:async()=>emptyPrefillCoverage(),emptyPrefillCoverage,
     createAutofillVisualFeedback:()=>({finish:()=>visualEvents.push('finish'),fail:()=>visualEvents.push('fail')}),
-    fillConfirmedSensitiveAnswers:async(_root:any,answers:any,allowed:()=>boolean)=>{if(allowed())fills.push(answers);visualEvents.push('private');return {filled:0,unresolved:[]};},
+    fillConfirmedSensitiveAnswers:async(_root:any,answers:any,allowed:()=>boolean)=>{if(allowed())fills.push(answers);visualEvents.push('private');return {filled:0,unresolved:[],outcomes:[]};},
     findApplicationForm:()=>dom.window.document.querySelector('form'),scanApplicationFields:()=>({}),
     AUTOFILL_FEATURE_FLAGS:{skills:false},markCurrentArtifactInvalid:()=>{},
+    // No emergency switches are active in these scenarios (feature-gates.ts).
+    autofillBlocked:()=>({blocked:false}),autofillGates:()=>({block:{blocked:false},blockedCapabilities:new Set(),fieldRules:undefined}),
+    loadEffectiveConfig:async()=>({}),KILL_SWITCH_COPY:{},
     chrome:{runtime:{sendMessage:async(m:any)=>{if(m.type==='PREFILL_CHILD_FRAMES'){relays.push(m);return {}; }return {ok:true,source:'profile_only',reason:'missing',profileFallback:{}};}}},
   };
   vm.runInNewContext(widgetCode,ctx);

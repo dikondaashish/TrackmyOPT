@@ -11,6 +11,19 @@ import {
   normalizeDefaultJobPortalLogin,
   type JobPortalLoginCredential,
 } from '../job-portal/job-portal-login';
+import { setNativeValue } from '../easy-apply/easy-apply-dom';
+import { verifyNativeCommit } from './prefill-commit';
+import {
+  VERIFIED_MEANING_QUESTION,
+  classifyAuthorizationQuestion,
+  normalizeVerifiedAuthorization,
+  resolveAuthorizationQuestion,
+  type QuestionMeaning,
+  type VerifiedAuthorizationAnswers,
+  type VerifiedAuthorizationChange,
+} from './verified-authorization';
+import { markAnswerSource, type FieldOutcome } from '../review/field-outcomes';
+import type { CapabilityId } from '../platform-config/remote-config';
 
 export interface SensitiveAnswerSession {
   confirmed: boolean;
@@ -58,6 +71,8 @@ export interface SensitiveAnswerSession {
     | 'prefer_not_to_answer';
   disabilityStatus?: 'yes' | 'no' | 'prefer_not_to_answer';
   eeoPreference?: 'prefer_not_to_answer';
+  /** Applicant-confirmed authorization/sponsorship answers (verified-authorization.ts). */
+  verifiedAuthorization?: VerifiedAuthorizationAnswers;
 }
 
 export type SensitiveAnswerKind =
@@ -174,8 +189,10 @@ export function normalizeSensitiveAnswerSession(
   )
     ? (candidate.disabilityStatus as SensitiveAnswerSession['disabilityStatus'])
     : undefined;
+  const verifiedAuthorization = normalizeVerifiedAuthorization(candidate.verifiedAuthorization);
   return {
     confirmed: true,
+    ...(verifiedAuthorization ? { verifiedAuthorization } : {}),
     ...(workAuthorization ? { workAuthorization } : {}),
     ...(requiresSponsorship ? { requiresSponsorship } : {}),
     ...(visaType ? { visaType } : {}),
@@ -307,6 +324,31 @@ function labelFor(element: HTMLElement): string {
   }
   return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 }
+
+/** The human-readable question, without machine names or ids, for meaning checks. */
+function questionTextFor(element: HTMLElement): string {
+  const strip = (node: Element | null | undefined) => {
+    if (!node) return '';
+    const copy = node.cloneNode(true) as Element;
+    for (const child of Array.from(copy.querySelectorAll('input,textarea,select,option,button,script,style'))) child.remove();
+    return (copy.textContent || '').replace(/\s+/g, ' ').trim();
+  };
+  const candidates = [
+    ashbyQuestion(element)?.textContent,
+    element.getAttribute('type') === 'radio' || element.getAttribute('type') === 'checkbox'
+      ? strip(element.closest('fieldset')?.querySelector('legend')) : '',
+    element.id ? strip(element.ownerDocument.querySelector(`label[for="${typeof CSS !== 'undefined' && CSS.escape
+      ? CSS.escape(element.id) : element.id.replace(/["\\]/g, '\\$&')}"]`)) : '',
+    strip(element.closest('label')),
+    ...(element.getAttribute('aria-labelledby')?.split(/\s+/) || []).map(id => element.ownerDocument.getElementById(id)?.textContent),
+    element.getAttribute('aria-label'),
+    strip(element.closest('fieldset')?.querySelector('legend')),
+  ];
+  return (candidates.find(text => text && text.replace(/\s+/g, ' ').trim()) || '').replace(/\s+/g, ' ').trim().slice(0, 1000);
+}
+
+/** Declarations and consent the applicant must give themselves. */
+const ATTESTATION_RE = /\b(?:i (?:certify|attest|declare|acknowledge|agree|consent)|under penalty|true and (?:complete|correct)|signature|sign here|e-?sign)\b/i;
 
 function answerFor(
   kind: SensitiveAnswerKind,
@@ -455,16 +497,18 @@ function fillInput(
     input instanceof HTMLInputElement &&
     (input.type === 'radio' || input.type === 'checkbox')
   ) {
-    if (input.checked) return false;
     if (input.type === 'radio') {
       if (!input.name) return false;
       const group = Array.from((input.form || input.ownerDocument).querySelectorAll<HTMLInputElement>('input[type="radio"]'))
         .filter(other => other.name === input.name && other.getRootNode() === input.getRootNode());
       if (group.some(other => other.checked)) return false;
+      // The group is handled once; choose its single matching option.
       const matches = group.filter(other => !other.disabled && candidateMatches(radioOptionText(other), answer));
-      if (matches.length !== 1 || matches[0] !== input) return false;
-      return trackPrefillChange(input, () => { input.click(); return input.checked; });
+      if (matches.length !== 1) return false;
+      const choice = matches[0];
+      return trackPrefillChange(choice, () => { choice.click(); return choice.checked; });
     }
+    if (input.checked) return false;
     const matches = candidateMatches(
       `${labelFor(input)} ${input.value}`,
       answer
@@ -480,28 +524,68 @@ function fillInput(
   ) {
     return false;
   }
-  return trackPrefillChange(input, () => {
-    input.value = answer;
-    if (!input.value) return false;
-    dispatchValueEvents(input);
-    return true;
-  });
+  // Framework-safe write (native setter + events); acceptance is verified by the caller.
+  setNativeValue(input, answer);
+  return input.value === answer;
 }
+
+export interface SensitiveFillOptions {
+  now?: number;
+  blockedCapabilities?: ReadonlySet<CapabilityId>;
+  /** Persists an applicant confirmation; resolves with the updated answers. */
+  saveVerified?: (change: VerifiedAuthorizationChange) => Promise<VerifiedAuthorizationAnswers | null>;
+}
+
+async function defaultSaveVerified(change: VerifiedAuthorizationChange): Promise<VerifiedAuthorizationAnswers | null> {
+  if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) return null;
+  const response = await chrome.runtime.sendMessage({ type: 'SAVE_VERIFIED_AUTHORIZATION', change }).catch(() => null) as
+    { ok?: boolean; verifiedAuthorization?: unknown } | null;
+  return response?.ok ? normalizeVerifiedAuthorization(response.verifiedAuthorization) : null;
+}
+
+async function writeAnswer(control: HTMLElement, answer: string, shouldContinue: () => boolean): Promise<boolean> {
+  if (isCustomDropdownControl(control)) {
+    const selection = await selectSmartDropdown(control, answer, 'generic', candidateMatches, undefined, { shouldContinue });
+    return selection.outcome === 'selected';
+  }
+  if (control instanceof HTMLSelectElement) return fillSelect(control, answer);
+  if (control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement) {
+    if (!fillInput(control, answer)) return false;
+    if (control instanceof HTMLInputElement && (control.type === 'radio' || control.type === 'checkbox')) return true;
+    return verifyNativeCommit(control, answer, shouldContinue);
+  }
+  return false;
+}
+
+const MEANING_LABEL: Record<QuestionMeaning, string> = {
+  currentWorkAuthorization: 'current work authorization',
+  currentSponsorship: 'current sponsorship need',
+  futureSponsorship: 'future sponsorship need',
+  nowOrFutureSponsorship: 'current or future sponsorship need',
+};
 
 /**
  * Fill native controls and exact-match accessible dropdowns from answers
  * explicitly reviewed and confirmed for this application session. The
- * function never guesses values.
+ * function never guesses values. Work-authorization and sponsorship questions
+ * use only applicant-confirmed answers for an equivalent question; anything
+ * else is returned for the applicant to confirm. Declarations are never filled.
  */
 export async function fillConfirmedSensitiveAnswers(
   root: ParentNode,
   answers: SensitiveAnswerSession,
   shouldContinue: () => boolean = () => true,
   visual?: AutofillVisualFeedback,
-): Promise<{ filled: number; unresolved: SensitiveAnswerKind[] }> {
-  if (!answers.confirmed) return { filled: 0, unresolved: [] };
+  options: SensitiveFillOptions = {},
+): Promise<{ filled: number; unresolved: SensitiveAnswerKind[]; outcomes: FieldOutcome[] }> {
+  const outcomes: FieldOutcome[] = [];
+  if (!answers.confirmed) return { filled: 0, unresolved: [], outcomes };
+  const blocked = options.blockedCapabilities ?? new Set<CapabilityId>();
+  if (blocked.has('privateAnswers')) return { filled: 0, unresolved: [], outcomes };
+  const saveVerified = options.saveVerified ?? defaultSaveVerified;
   let filled = 0;
   const unresolved = new Set<SensitiveAnswerKind>();
+  const handledRadioGroups = new Set<string>();
   const controls = Array.from(
     root.querySelectorAll<HTMLElement>(
       `input,textarea,select,${CUSTOM_DROPDOWN_SELECTOR}`
@@ -518,6 +602,15 @@ export async function fillConfirmedSensitiveAnswers(
     }
     const kind = classifySensitiveAnswer(labelFor(control));
     if (!kind) continue;
+    const question = questionTextFor(control) || labelFor(control);
+    if (control instanceof HTMLInputElement && control.type === 'radio' && control.name) {
+      if (handledRadioGroups.has(control.name)) continue;
+      handledRadioGroups.add(control.name);
+    }
+    if (ATTESTATION_RE.test(question)) {
+      outcomes.push({ control, status: 'user_only', reason: 'attestation', question });
+      continue;
+    }
     // A value the user already chose needs no action or unresolved warning.
     if (isCustomDropdownControl(control) && customDropdownHasValue(control)) continue;
     if (control instanceof HTMLSelectElement && control.value) continue;
@@ -526,6 +619,67 @@ export async function fillConfirmedSensitiveAnswers(
     const isRequired =
       control.hasAttribute('required') ||
       control.getAttribute('aria-required') === 'true';
+    if (kind === 'workAuthorization' || kind === 'requiresSponsorship') {
+      if (blocked.has('verifiedAuthorization')) {
+        outcomes.push({ control, status: 'unsupported', reason: 'feature_paused', question });
+        if (isRequired) unresolved.add(kind);
+        continue;
+      }
+      const resolution = resolveAuthorizationQuestion(answers.verifiedAuthorization ?? null, question, options.now ?? Date.now(), {
+        workAuthorization: answers.workAuthorization, requiresSponsorship: answers.requiresSponsorship,
+      });
+      if (resolution.kind === 'none') continue;
+      if (resolution.kind === 'ask' && resolution.meaning === null) {
+        outcomes.push({ control, status: 'user_only', reason: resolution.reason === 'attestation' ? 'attestation' : 'compound_question', question });
+        if (isRequired) unresolved.add(kind);
+        continue;
+      }
+      if (resolution.kind === 'fill') {
+        await visual?.prepareField(control, 'private_answers');
+        if (!shouldContinue()) { visual?.clearActiveField(); break; }
+        const ok = control.isConnected && await writeAnswer(control, resolution.answer, shouldContinue);
+        if (ok) {
+          filled += 1;
+          markAnswerSource(control, 'confirmed_answer');
+          outcomes.push({ control, status: 'filled', source: 'confirmed_answer', question });
+          if (visual) visual.markFieldFilled(control, 'private_answers'); else flashAutofillField(control, 'filled');
+        } else {
+          visual?.clearActiveField();
+          outcomes.push({ control, status: 'failed', reason: 'value_not_accepted', question });
+          if (isRequired) unresolved.add(kind);
+        }
+        continue;
+      }
+      // Needs the applicant: show the exact question; confirming saves and fills.
+      const meaning = resolution.meaning!;
+      const proposed = resolution.kind === 'confirm' ? resolution.proposed : undefined;
+      const target = control;
+      outcomes.push({
+        control, status: 'needs_confirmation', question,
+        reason: resolution.reason === 'no_saved_answer' ? 'no_saved_answer' : resolution.reason,
+        proposedAnswer: proposed ? `${proposed === 'yes' ? 'Yes' : 'No'} (${MEANING_LABEL[meaning]})` : undefined,
+        answerWith: async (choice: 'yes' | 'no') => {
+          let change: VerifiedAuthorizationChange;
+          if (meaning === 'nowOrFutureSponsorship') {
+            // The combined question is answered only from both separate answers.
+            if (!proposed || choice !== proposed) return false;
+            change = { action: 'confirm_wording', meaning, question };
+          } else {
+            change = { action: 'confirm', meaning, answer: choice, question,
+              ...(resolution.kind === 'confirm' && resolution.reason === 'answer_due_for_review' ? { reviewBy: null } : {}) };
+          }
+          const saved = await saveVerified(change);
+          if (!saved) return false;
+          answers.verifiedAuthorization = saved;
+          if (!target.isConnected) return false;
+          const ok = await writeAnswer(target, choice, () => target.isConnected);
+          if (ok) markAnswerSource(target, 'confirmed_answer');
+          return ok;
+        },
+      });
+      if (isRequired) unresolved.add(kind);
+      continue;
+    }
     const answer = answerFor(kind, answers);
     if (!answer) {
       if (isRequired) unresolved.add(kind);
@@ -534,40 +688,27 @@ export async function fillConfirmedSensitiveAnswers(
     if (kind === 'eeoPreference' && answer !== 'prefer_not_to_answer') {
       continue;
     }
-    let changed = false;
     await visual?.prepareField(control, 'private_answers');
     if (!shouldContinue()) { visual?.clearActiveField(); break; }
     if (!control.isConnected || !visiblyAvailable(control) || ('disabled' in control && Boolean(control.disabled))) {
       visual?.clearActiveField(); continue;
     }
-    if (isCustomDropdownControl(control)) {
-      const selection = await selectSmartDropdown(
-        control,
-        answer,
-        'generic',
-        candidateMatches,
-        undefined,
-        { shouldContinue },
-      );
-      changed = selection.outcome === 'selected';
-    } else if (control instanceof HTMLSelectElement) {
-      changed = fillSelect(control, answer);
-    } else if (
-      control instanceof HTMLInputElement ||
-      control instanceof HTMLTextAreaElement
-    ) {
-      changed = fillInput(control, answer);
-    }
+    const changed = await writeAnswer(control, answer, shouldContinue);
     if (changed) {
+      markAnswerSource(control, 'confirmed_answer');
+      outcomes.push({ control, status: 'filled', source: 'confirmed_answer' });
       filled += 1;
       if (visual) visual.markFieldFilled(control, 'private_answers');
       else flashAutofillField(control, 'filled');
     } else if (isRequired) {
       visual?.clearActiveField();
+      outcomes.push({ control, status: 'skipped', reason: 'no_matching_option' });
       unresolved.add(kind);
     } else {
       visual?.clearActiveField();
     }
   }
-  return { filled, unresolved: Array.from(unresolved) };
+  return { filled, unresolved: Array.from(unresolved), outcomes };
 }
+
+export { VERIFIED_MEANING_QUESTION, classifyAuthorizationQuestion };

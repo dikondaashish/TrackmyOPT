@@ -11,6 +11,11 @@ import {
   encryptPrivateApplicationAnswers,
 } from "@/lib/private-application-answers";
 import { secureLog } from "@/lib/secure-logger";
+import rateLimit from "@/lib/auth/rate-limit";
+import {
+  applyVerifiedAuthorizationChange,
+  parseVerifiedAuthorizationChange,
+} from "../../../../extension/src/prefill/verified-authorization";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -19,6 +24,8 @@ const MAX_BODY_CHARACTERS = 12_000;
 const SaveSchema = PrivateApplicationAnswersSchema.extend({
   consent: z.literal(true),
 }).strict();
+const verifiedLimiter = rateLimit({ interval: 60_000, name: "private-answers-verified" });
+const MAX_PATCH_CHARACTERS = 2_000;
 
 function responseHeaders(req: NextRequest): Record<string, string> {
   return {
@@ -117,6 +124,10 @@ async function handlePUT(req: NextRequest) {
       );
     }
 
+    const clearVerified =
+      !!value && typeof value === "object" &&
+      (value as Record<string, unknown>).verifiedAuthorization === null;
+    if (clearVerified) delete (value as Record<string, unknown>).verifiedAuthorization;
     const parsed = SaveSchema.safeParse(value);
     if (!parsed.success) {
       const consentInvalid = parsed.error.issues.some(
@@ -140,6 +151,27 @@ async function handlePUT(req: NextRequest) {
     }
 
     const { consent: _consent, ...answers } = parsed.data;
+    // Full-form saves from older clients do not carry verified authorization
+    // answers; keep the stored ones unless this request explicitly clears them.
+    if (clearVerified) {
+      delete answers.verifiedAuthorization;
+    } else if (answers.verifiedAuthorization === undefined) {
+      const { data: existing, error: existingError } = await adminClient()
+        .from("private_application_answers")
+        .select("encrypted_payload")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (existingError) {
+        return NextResponse.json(
+          { error: "Could not save private answers" },
+          { status: 500, headers }
+        );
+      }
+      const stored = existing
+        ? decryptPrivateApplicationAnswers(existing.encrypted_payload).verifiedAuthorization
+        : undefined;
+      if (stored) answers.verifiedAuthorization = stored;
+    }
     const now = new Date().toISOString();
     const encryptedPayload = encryptPrivateApplicationAnswers(answers);
     const { error } = await adminClient()
@@ -171,6 +203,91 @@ async function handlePUT(req: NextRequest) {
       { error: "Private answers are temporarily unavailable" },
       { status: 503, headers }
     );
+  }
+}
+
+/**
+ * PATCH /api/private-application-answers
+ * { consent: true, change: VerifiedAuthorizationChange }
+ * Applies one applicant confirmation of a work-authorization or sponsorship
+ * answer. The confirmation time is the server's; other answers are untouched.
+ */
+async function handlePATCH(req: NextRequest) {
+  const headers = responseHeaders(req);
+  try {
+    const userId = await getUserId(req);
+    if (!userId) {
+      return NextResponse.json({ error: "Authorization required" }, { status: 401, headers });
+    }
+    const { isRateLimited, unavailable } = await verifiedLimiter.check(req, 30, `private-answers-verified:${userId}`);
+    if (unavailable) return NextResponse.json({ error: "Temporarily unavailable" }, { status: 503, headers });
+    if (isRateLimited) return NextResponse.json({ error: "Too many requests" }, { status: 429, headers });
+    const raw = await req.text();
+    if (raw.length > MAX_PATCH_CHARACTERS) {
+      return NextResponse.json({ error: "Request body too large" }, { status: 413, headers });
+    }
+    let body: { consent?: unknown; change?: unknown };
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400, headers });
+    }
+    if (body?.consent !== true) {
+      return NextResponse.json({ error: "Confirm the privacy notice before saving", code: "validation" }, { status: 400, headers });
+    }
+    const change = parseVerifiedAuthorizationChange(body.change);
+    if (!change) {
+      return NextResponse.json({ error: "Check the answer you confirmed", code: "validation" }, { status: 400, headers });
+    }
+
+    const supabase = adminClient();
+    // Compare-and-set on updated_at so concurrent confirmations never lose one.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const { data: row, error } = await supabase
+        .from("private_application_answers")
+        .select("encrypted_payload, updated_at")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) {
+        return NextResponse.json({ error: "Could not save your answer" }, { status: 500, headers });
+      }
+      const current = row ? decryptPrivateApplicationAnswers(row.encrypted_payload) : {};
+      const { legacyJobPortalLogins: _legacy, ...answers } = current as Record<string, unknown> & { legacyJobPortalLogins?: unknown };
+      const next = applyVerifiedAuthorizationChange(
+        (answers as { verifiedAuthorization?: never }).verifiedAuthorization,
+        change,
+        new Date().toISOString()
+      );
+      if ("error" in next) {
+        return NextResponse.json(
+          { error: next.error === "missing_answer" ? "Save each separate sponsorship answer first" : "That answer does not match this question", code: next.error },
+          { status: 409, headers }
+        );
+      }
+      const now = new Date().toISOString();
+      const payload = encryptPrivateApplicationAnswers({ ...answers, verifiedAuthorization: next } as never);
+      const result = row
+        ? await supabase
+            .from("private_application_answers")
+            .update({ encrypted_payload: payload, payload_version: PRIVATE_APPLICATION_ANSWERS_PAYLOAD_VERSION, updated_at: now })
+            .eq("user_id", userId)
+            .eq("updated_at", row.updated_at)
+            .select("user_id")
+        : await supabase
+            .from("private_application_answers")
+            .insert({ user_id: userId, encrypted_payload: payload, payload_version: PRIVATE_APPLICATION_ANSWERS_PAYLOAD_VERSION, consented_at: now, updated_at: now })
+            .select("user_id");
+      if (result.error?.code === "23505") continue;
+      if (result.error) {
+        return NextResponse.json({ error: "Could not save your answer" }, { status: 500, headers });
+      }
+      if (row && (!result.data || result.data.length === 0)) continue;
+      return NextResponse.json({ ok: true, verifiedAuthorization: next }, { headers });
+    }
+    return NextResponse.json({ error: "Please try again" }, { status: 409, headers });
+  } catch {
+    secureLog.error("Private application answers PATCH failed");
+    return NextResponse.json({ error: "Private answers are temporarily unavailable" }, { status: 503, headers });
   }
 }
 
@@ -209,4 +326,5 @@ async function handleDELETE(req: NextRequest) {
 export const OPTIONS = withSentryApiErrors(handleOPTIONS, '/api/private-application-answers', 'OPTIONS');
 export const GET = withSentryApiErrors(handleGET, '/api/private-application-answers', 'GET');
 export const PUT = withSentryApiErrors(handlePUT, '/api/private-application-answers', 'PUT');
+export const PATCH = withSentryApiErrors(handlePATCH, '/api/private-application-answers', 'PATCH');
 export const DELETE = withSentryApiErrors(handleDELETE, '/api/private-application-answers', 'DELETE');
