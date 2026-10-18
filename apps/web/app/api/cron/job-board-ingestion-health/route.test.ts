@@ -19,7 +19,14 @@ vi.mock('@/lib/supabase/admin', () => ({
         select: () => query,
         like: () => query,
         gte: () => query,
+        order: () => query,
         limit: () => Promise.resolve(m.tables[table]),
+        // Like PostgREST: at most 1,000 rows per range.
+        range: (from: number, to: number) =>
+          Promise.resolve({
+            ...m.tables[table],
+            data: m.tables[table].data.slice(from, Math.min(to + 1, from + 1_000)),
+          }),
       };
       return query;
     },
@@ -89,4 +96,24 @@ it('returns 503 when the audit tables cannot be read', async () => {
   m.tables.ingestion_audit_log = { data: [], error: { message: 'down' } };
   const response = await GET(request());
   expect(response.status).toBe(503);
+});
+
+it('counts failures beyond the first 1,000 audit rows', async () => {
+  vi.stubEnv('JOB_BOARD_INGESTION_HEALTH_ENABLED', 'true');
+  vi.stubEnv('JOB_BOARD_SCHEDULE_START', '2026-10-16T00:00:00Z');
+  const run = 'job-board-hour-2026-10-16T01';
+  m.tables.scheduler_runs = { data: [{ scheduler_run_id: run, dispatch_status: 'queued' }], error: null };
+  m.tables.ingestion_audit_log = {
+    data: Array.from({ length: 1_400 }, (_, index) => ({
+      source_id: `s${index}`,
+      scheduler_run_id: run,
+      // Only sources past the first page failed, as in a quota outage late in a run.
+      status: index < 1_000 ? 'succeeded' : 'failed',
+      error_message: index < 1_000 ? null : "ORA-01536: space quota exceeded for tablespace 'DATA'",
+      run_at: '2026-10-16T02:00:00Z',
+    })),
+    error: null,
+  };
+  const body = await (await GET(request())).json();
+  expect(body).toMatchObject({ ok: false, failedSources: 400, errorCodes: ['ORA-01536'] });
 });

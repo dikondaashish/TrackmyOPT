@@ -507,17 +507,11 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
         deferredReason: 'overlap guard: another ingestion run is still active',
       };
     }
-    const { data, error } = await this.supabase
-      .from('ats_sources')
-      .select('id')
-      .eq('enabled', true);
-    if (error) throw new Error(error.message);
     // Excluded sources stay enabled with their jobs untouched; a full run
     // simply does not select them (for example while a hang is diagnosed).
     const sourceIds =
       context.sourceIds ??
-      (data || [])
-        .map((source) => String(source.id))
+      (await this.listEnabledSourceIds())
         .filter((id) => !this.excludedSourceIds.has(id))
         .sort();
     // Persist the exact selection before either lane is enqueued. Retries reuse
@@ -546,6 +540,27 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
       slowSourcesQueued: slowJobs.length,
       deferred: false,
     };
+  }
+
+  /**
+   * Every enabled source ID. Supabase returns at most 1,000 rows per
+   * request, so a single select silently dropped every source past the
+   * first 1,000; page through them instead.
+   */
+  private async listEnabledSourceIds(): Promise<string[]> {
+    const rows = await fetchAllPages(async (from, to) => {
+      const result = await this.supabase
+        .from('ats_sources')
+        .select('id')
+        .eq('enabled', true)
+        .order('id')
+        .range(from, to);
+      return {
+        data: (result.data || []) as Array<{ id: string }>,
+        error: result.error ? { message: result.error.message } : null,
+      };
+    });
+    return rows.map((source) => String(source.id));
   }
 
   private async getSlowSourceIds(sourceIds: string[]) {

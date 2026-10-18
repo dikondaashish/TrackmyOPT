@@ -57,15 +57,20 @@ function service(settings: Record<string, unknown> = {}) {
   return { instance, normal, slow };
 }
 
+/** Mimics PostgREST paging: each range returns at most 1,000 rows. */
 function enabledSources(ids: string[]) {
-  return {
-    from: () => ({
-      select: () => ({
-        eq: () =>
-          Promise.resolve({ data: ids.map((id) => ({ id })), error: null }),
+  const rows = ids.map((id) => ({ id }));
+  const query = {
+    select: () => query,
+    eq: () => query,
+    order: () => query,
+    range: (from: number, to: number) =>
+      Promise.resolve({
+        data: rows.slice(from, Math.min(to + 1, from + 1_000)),
+        error: null,
       }),
-    }),
   };
+  return { from: () => query };
 }
 
 describe('dedicated worker', () => {
@@ -159,6 +164,34 @@ describe('overlap guard', () => {
     ]);
     const result = await instance.enqueueEnabledSourceJobs(context);
     expect(result).toMatchObject({ deferred: false, sourcesQueued: 1 });
+  });
+});
+
+describe('source selection', () => {
+  it('queues every enabled source past the 1,000-row page limit', async () => {
+    const { instance, normal } = service();
+    const ids = Array.from(
+      { length: 1_261 },
+      (_, index) =>
+        `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
+    );
+    const internal = instance as unknown as {
+      supabase: unknown;
+      getSlowSourceIds: () => Promise<Set<string>>;
+    };
+    internal.supabase = enabledSources(ids);
+    internal.getSlowSourceIds = () => Promise.resolve(new Set());
+    normal.getJobs.mockResolvedValue([]);
+    let manifest: string[] = [];
+    const result = await instance.enqueueEnabledSourceJobs(
+      context,
+      (sourceIds) => {
+        manifest = sourceIds;
+        return Promise.resolve();
+      },
+    );
+    expect(result).toMatchObject({ deferred: false, sourcesQueued: 1_261 });
+    expect(manifest).toHaveLength(1_261);
   });
 });
 
