@@ -1,38 +1,38 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { MetadataRoute } from 'next';
 import { getAllAnswers } from '@/lib/answers';
 import { ANSWER_CANONICAL_OVERRIDES } from '@/lib/answers/canonical-overrides';
 import { researchArticleBySlug } from '@/data/blog-series';
 import { getPublicBlogRoutes } from '@/lib/blog-routes';
 import { loadPublishedAutoPosts } from '@/lib/policy-news/store';
+import pageLastModified from '@/data/seo/page-lastmod.json';
 
 export const revalidate = 3600;
 
-function blogLastModified(route: string): Date {
-  if (route === '/blog') {
-    const index = path.join(process.cwd(), 'app/blog/page.tsx');
-    try {
-      return fs.statSync(index).mtime;
-    } catch {
-      return new Date();
-    }
-  }
+/**
+ * Real last-change date for a route (git history, see scripts/generate-page-lastmod.mjs).
+ * Returns undefined when unknown: omitting <lastmod> is better than claiming every
+ * URL changed today, which teaches Google to ignore lastmod for the whole site.
+ */
+function routeLastModified(route: string): Date | undefined {
+  const date = (pageLastModified as Record<string, string>)[route === '' ? '/' : route];
+  return date ? new Date(`${date}T00:00:00Z`) : undefined;
+}
+
+function blogLastModified(route: string): Date | undefined {
   const slug = route.replace(/^\/blog\//, '');
   const article = researchArticleBySlug.get(slug);
   if (article) return new Date(article.modifiedDate + 'T00:00:00Z');
-  const page = path.join(process.cwd(), 'app/blog', slug, 'page.tsx');
-  try {
-    return fs.statSync(page).mtime;
-  } catch {
-    return new Date();
-  }
+  return routeLastModified(route);
+}
+
+/** Answers carry a "Month YYYY" last-updated label; undefined if it is unparseable. */
+function answerLastModified(lastUpdated: string): Date | undefined {
+  const parsed = new Date(`${lastUpdated} 1 UTC`);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://www.trackmyopt.com';
-    const now = new Date();
-
     // Core pages — highest priority, updated frequently
     const corePages = [
         { route: '', changeFrequency: 'daily' as const, priority: 1.0 },
@@ -63,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Q&A answer pages — dynamically generated from data (exclude canonical overrides)
     const answerPages = getAllAnswers()
         .filter((a) => !(a.slug in ANSWER_CANONICAL_OVERRIDES))
-        .map((a) => `/answers/${a.slug}`);
+        .map((a) => ({ route: `/answers/${a.slug}`, lastModified: answerLastModified(a.lastUpdated) }));
 
     // Feature pages — high priority, updated periodically
     const featurePages = [
@@ -107,25 +107,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [
         ...corePages.map(({ route, changeFrequency, priority }) => ({
             url: `${baseUrl}${route}`,
-            lastModified: now,
+            lastModified: routeLastModified(route),
             changeFrequency,
             priority,
         })),
         ...featurePages.map((route) => ({
             url: `${baseUrl}${route}`,
-            lastModified: now,
+            lastModified: routeLastModified(route),
             changeFrequency: 'weekly' as const,
             priority: 0.8,
         })),
         ...toolPages.map((route) => ({
             url: `${baseUrl}${route}`,
-            lastModified: now,
+            lastModified: routeLastModified(route),
             changeFrequency: 'weekly' as const,
             priority: 0.7,
         })),
         ...legalPages.map((route) => ({
             url: `${baseUrl}${route}`,
-            lastModified: new Date('2026-01-15'),
+            lastModified: routeLastModified(route),
             changeFrequency: 'yearly' as const,
             priority: 0.3,
         })),
@@ -141,9 +141,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: 'weekly' as const,
             priority: 0.8,
         })),
-        ...answerPages.map((route) => ({
+        ...answerPages.map(({ route, lastModified }) => ({
             url: `${baseUrl}${route}`,
-            lastModified: now,
+            lastModified,
             changeFrequency: 'monthly' as const,
             priority: 0.7,
         })),

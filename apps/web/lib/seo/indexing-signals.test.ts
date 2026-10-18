@@ -3,11 +3,15 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 import robots from "@/app/robots";
+import sitemap from "@/app/sitemap";
 
 const require = createRequire(import.meta.url);
 const nextConfig = require("../../next.config.js") as {
     redirects(): Promise<
         Array<{ source: string; destination: string; permanent: boolean }>
+    >;
+    headers(): Promise<
+        Array<{ source: string; headers: Array<{ key: string; value: string }> }>
     >;
 };
 
@@ -140,5 +144,36 @@ describe("indexing signals", () => {
             expect(source, file).toContain("permanentRedirect");
             expect(source, file).not.toContain("export const metadata");
         }
+    });
+
+    it("keeps build assets out of the index without blocking rendering", async () => {
+        const headers = await nextConfig.headers();
+        const assetRule = headers.find((rule) => rule.source === "/_next/static/:path*");
+
+        expect(assetRule?.headers).toContainEqual({ key: "X-Robots-Tag", value: "noindex" });
+        // Googlebot must still fetch chunks to render pages, so never disallow them.
+        expect(JSON.stringify(robots().rules)).not.toContain("/_next");
+    });
+
+    it("advertises only sitemaps that are never empty", () => {
+        expect(robots().sitemap).toEqual(["https://www.trackmyopt.com/sitemap.xml"]);
+    });
+
+    it("reports real lastmod dates instead of the build time", async () => {
+        const entries = await sitemap();
+        const today = new Date().toISOString().slice(0, 10);
+        const stamped = entries.filter((entry) => entry.lastModified);
+        const distinctDates = new Set(
+            stamped.map((entry) => new Date(entry.lastModified as Date).toISOString().slice(0, 10)),
+        );
+
+        expect(distinctDates.size).toBeGreaterThan(3);
+        expect(
+            entries.filter(
+                (entry) =>
+                    entry.lastModified &&
+                    new Date(entry.lastModified as Date).toISOString().slice(0, 10) === today,
+            ).length,
+        ).toBeLessThan(entries.length / 4);
     });
 });

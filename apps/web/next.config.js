@@ -56,6 +56,14 @@ const nextConfig = {
         source: '/api/:path*',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
+      // Build assets (JS/CSS chunks, fingerprinted per deployment with ?dpl=)
+      // are fetched for rendering but must never be reported as pages. Without
+      // this, Search Console lists every chunk of every deploy under "Crawled -
+      // currently not indexed". noindex does not stop Googlebot rendering them.
+      {
+        source: '/_next/static/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
       {
         source: '/:path*',
         headers: securityHeaders,
