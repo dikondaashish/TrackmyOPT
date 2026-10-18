@@ -33,6 +33,7 @@ export const POLICY_NEWS_RESPONSE_SCHEMA = {
           required: [
             'title', 'seoTitle', 'description', 'category', 'tags', 'readTimeMinutes', 'statusNote',
             'directAnswer', 'keyTakeaways', 'sections', 'checklist', 'mistakes', 'faq', 'relatedSlugs', 'cta',
+            'imagePrompt', 'imageAlt',
           ],
           properties: {
             title: { type: 'string' },
@@ -68,6 +69,8 @@ export const POLICY_NEWS_RESPONSE_SCHEMA = {
             },
             relatedSlugs: stringArray(0, 4),
             cta: { type: 'string', enum: [...POLICY_NEWS_CTAS] },
+            imagePrompt: { type: 'string' },
+            imageAlt: { type: 'string' },
           },
         },
       ],
@@ -95,6 +98,8 @@ Format:
 - sections: 3–8 sections with question-style headings; bullets may be empty.
 - relatedSlugs: up to 4 slugs copied exactly from the related posts list, only when genuinely related.
 - readTimeMinutes: a realistic estimate for the article length.
+- imagePrompt: one scene for the cover illustration, 2–4 sentences: one or two fictional adults (for example an international graduate and an advisor or HR contact) in a realistic office, campus or home setting, reacting to this news, with documents or folders on the table that carry simple icons only. Describe people, setting, mood and objects. No text, letters, numbers, logos, flags, seals, real people or government buildings.
+- imageAlt: one sentence describing that illustration for screen readers, starting with "Fictional".
 
 Today: ${input.today}
 

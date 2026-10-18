@@ -62,7 +62,7 @@ export function AutomatedNewsByline() {
                 {AUTOMATED_BYLINE}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
-                This update was written automatically by TrackMyOPT&apos;s news system from the official government document cited above and was published without review by an editor. Rely on the official document for the authoritative text, and confirm how it applies to you with your DSO or an immigration attorney.
+                Generated automatically from the official government document cited above. Confirm how it applies to you with your DSO or an immigration attorney.
             </p>
             <Link href="/about" className="inline-block mt-3 text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline">
                 About TrackMyOPT →

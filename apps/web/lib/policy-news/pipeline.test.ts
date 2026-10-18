@@ -13,6 +13,12 @@ const m = vi.hoisted(() => ({
   revalidate: vi.fn(),
   indexNow: vi.fn(),
   report: vi.fn(),
+  cover: vi.fn(),
+}));
+
+vi.mock('./cover', () => ({
+  generateCover: m.cover,
+  coverPath: (slug: string) => `/blog-covers/${slug}.webp`,
 }));
 
 vi.mock('next/cache', () => ({ revalidatePath: m.revalidate }));
@@ -73,7 +79,10 @@ const ARTICLE = {
   faq: [{ question: 'Final?', answer: 'No.' }],
   relatedSlugs: [],
   cta: 'opt-timeline',
+  imagePrompt: 'A fictional graduate reads a letter at a kitchen table.',
+  imageAlt: 'Fictional graduate reading an OPT fee notice',
 };
+const COVER = Buffer.from('webp-bytes');
 const modelReturns = (body: unknown) => m.generate.mockResolvedValue({ text: JSON.stringify(body) });
 
 beforeEach(() => {
@@ -84,6 +93,7 @@ beforeEach(() => {
   m.recent.mockResolvedValue([]);
   m.slugExists.mockResolvedValue(false);
   m.indexNow.mockResolvedValue(200);
+  m.cover.mockResolvedValue(COVER);
   modelReturns({ relevant: true, skipReason: null, article: ARTICLE });
 });
 
@@ -91,10 +101,16 @@ it('publishes a relevant notice, refreshes the blog and pings IndexNow', async (
   const summary = await runPolicyNewsBlog(NOW);
 
   expect(summary.published).toEqual(['dhs-proposes-new-opt-fees']);
+  expect(m.cover).toHaveBeenCalledWith(ARTICLE.imagePrompt);
   expect(m.insert).toHaveBeenCalledWith(
-    expect.objectContaining({ slug: 'dhs-proposes-new-opt-fees', byline: 'automated', publishedDate: '2026-10-18' }),
+    expect.objectContaining({
+      slug: 'dhs-proposes-new-opt-fees',
+      publishedDate: '2026-10-18',
+      image: '/blog-covers/dhs-proposes-new-opt-fees.webp',
+    }),
     7,
-    NOW
+    NOW,
+    COVER
   );
   expect(m.finish).toHaveBeenCalledWith(7, { status: 'published', slug: 'dhs-proposes-new-opt-fees' });
   expect(m.revalidate).toHaveBeenCalledWith('/blog');
@@ -104,6 +120,16 @@ it('publishes a relevant notice, refreshes the blog and pings IndexNow', async (
     'https://www.trackmyopt.com/blog/dhs-proposes-new-opt-fees',
   ]);
   expect(m.report).not.toHaveBeenCalled();
+});
+
+it('still publishes with the default image when the cover fails', async () => {
+  m.cover.mockRejectedValue(new Error('quota'));
+  const summary = await runPolicyNewsBlog(NOW);
+  expect(summary.published).toEqual(['dhs-proposes-new-opt-fees']);
+  const [article, , , cover] = m.insert.mock.calls[0];
+  expect(article).not.toHaveProperty('image');
+  expect(cover).toBeNull();
+  expect(m.report).toHaveBeenCalledWith('cron', 'cover_generation_failed', 'warning', expect.objectContaining({ source: 'federal_register' }));
 });
 
 it('suffixes a slug that is already used', async () => {

@@ -9,6 +9,7 @@ import {
 } from '@/lib/ai/prompts/policy-news-article';
 import { submitIndexNow } from '@/lib/seo/indexnow';
 import { easternDate, PolicyNewsResponseSchema, slugify, toResearchArticle } from './article';
+import { coverPath, generateCover } from './cover';
 import { reportPolicyNews } from './monitoring';
 import { collectCandidates, loadSourceText, SOURCE_PUBLISHERS } from './sources';
 import {
@@ -23,12 +24,16 @@ import {
   type PolicyNewsItem,
 } from './store';
 
-// One cron run: collect official notices, then write and publish articles for
-// up to MAX_ARTICLES_PER_RUN of them. Published without editorial review.
+// One cron run: collect official notices, then write, illustrate and publish
+// up to MAX_ARTICLES_PER_RUN of them. Published without editorial review; an
+// admin can review a post later in Settings to give it the standard byline.
 
 const SITE = 'https://www.trackmyopt.com';
-/** Each article is one long model call; two fit comfortably in the route's time budget. */
-export const MAX_ARTICLES_PER_RUN = 2;
+/**
+ * An article is one long text call plus one image call; one per run keeps a
+ * worst case (both text models timing out) inside the route's 300 s budget.
+ */
+export const MAX_ARTICLES_PER_RUN = 1;
 const RECENT_POSTS_WINDOW_MS = 60 * 86_400_000;
 
 export class PolicyNewsError extends Error {
@@ -102,7 +107,15 @@ async function writeArticle(
 
   const slug = await availableSlug(slugify(parsed.article.title));
   const article = toResearchArticle({ generated: parsed.article, candidate: item, slug, now, relatedTitles });
-  await insertAutoPost(article, item.id, now);
+  // A missing cover falls back to the site's default image; still publish.
+  let cover: Buffer | null = null;
+  try {
+    cover = await generateCover(parsed.article.imagePrompt);
+    article.image = coverPath(slug);
+  } catch (error) {
+    reportPolicyNews('cron', 'cover_generation_failed', 'warning', { source: item.source, error });
+  }
+  await insertAutoPost(article, item.id, now, cover);
   await finishItem(item.id, { status: 'published', slug });
   return { status: 'published', slug, title: article.title };
 }

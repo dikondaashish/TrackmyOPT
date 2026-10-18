@@ -1,5 +1,6 @@
 import {
   GoogleGenAI,
+  PersonGeneration,
   ThinkingLevel,
   type ContentListUnion,
   type GenerateContentConfig,
@@ -521,5 +522,50 @@ export async function generateAiContent(input: {
       fallbackUsed: true,
       userId: input.userId,
     });
+  }
+}
+
+/** Blog cover illustrations. `POLICY_NEWS_IMAGE_MODEL` overrides the model. */
+const IMAGE_MODEL_DEFAULT = 'imagen-4.0-generate-001';
+const IMAGE_TIMEOUT_MS = 90_000;
+
+/** One 16:9 image for a text prompt; returns the encoded bytes. */
+export async function generateAiImage(input: {
+  task: 'policy_news_cover';
+  prompt: string;
+}): Promise<{ bytes: Buffer; mimeType: string }> {
+  const { client, backend } = getAiClient();
+  const model = process.env.POLICY_NEWS_IMAGE_MODEL?.trim() || IMAGE_MODEL_DEFAULT;
+  const startedAt = Date.now();
+  try {
+    const response = await client.models.generateImages({
+      model,
+      prompt: input.prompt,
+      config: {
+        numberOfImages: 1,
+        aspectRatio: '16:9',
+        outputMimeType: 'image/png',
+        personGeneration: PersonGeneration.ALLOW_ADULT,
+        httpOptions: { timeout: IMAGE_TIMEOUT_MS, retryOptions: { attempts: 1 } },
+      },
+    });
+    const image = response.generatedImages?.[0]?.image;
+    if (!image?.imageBytes) {
+      const error = new Error('Image model returned no image');
+      error.name = 'EmptyImageResponse';
+      throw error;
+    }
+    console.info('[ai-usage]', JSON.stringify({
+      ai_task: input.task, ai_model: model, ai_backend: backend,
+      ai_latency_ms: Date.now() - startedAt, ai_images: 1,
+    }));
+    return { bytes: Buffer.from(image.imageBytes, 'base64'), mimeType: image.mimeType ?? 'image/png' };
+  } catch (error) {
+    const failure = aiFailureDiagnostic(error);
+    console.error(
+      `[ai-failed] task=${input.task} model=${model} fallback=false ` +
+        `error=${failure.errorName} status=${failure.status ?? 'none'} reason=${failure.reason ?? 'none'}`
+    );
+    throw error;
   }
 }

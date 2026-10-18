@@ -47,6 +47,12 @@ CREATE TABLE IF NOT EXISTS public.auto_blog_posts (
   published_at    timestamptz NOT NULL DEFAULT now(),
   -- Set to take a post down; the blog stops serving it within an hour.
   unpublished_at  timestamptz,
+  -- AI-generated 1200x630 WebP cover, served at /blog-covers/<slug>.webp.
+  cover_image     bytea CHECK (octet_length(cover_image) <= 2000000),
+  -- Set when an admin reviews the post in Settings; it then carries the
+  -- standard Vinay Kumar byline instead of "TrackMyOPT News Desk".
+  reviewed_at     timestamptz,
+  reviewed_by     text CHECK (char_length(reviewed_by) <= 320),
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now()
 );

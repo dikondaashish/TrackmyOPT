@@ -57,12 +57,16 @@ raises `Policy news blog: <code>` with fingerprint `policy-news-blog` / `cron` /
 `<code>`: `source_fetch_failed` (warning, tagged with the source and HTTP
 status), per-item `generation_failed`, `invalid_model_output` or a store code
 (warning while retries remain, error on the third and last attempt),
-`indexnow_failed` / `indexnow_rejected` warnings, and run-level store failures
-such as `claim_read_failed` (error, HTTP 200 with `ok: false`). Blog pages and
-the sitemap reading `auto_blog_posts` use the `read` fingerprint
-(`list_failed`, `post_read_failed`) and fall back to the static posts. Gemini
-provider failures also appear as the shared `[ai-failed] task=policy_news_article`
-log line. Reports carry codes, source names, HTTP statuses and error class
+`cover_generation_failed` (warning; the post is published with the default
+cover), `indexnow_failed` / `indexnow_rejected` warnings, and run-level store
+failures such as `claim_read_failed` (error, HTTP 200 with `ok: false`). Blog
+pages, the sitemap and `/blog-covers/<slug>.webp` reading `auto_blog_posts` use
+the `read` fingerprint (`list_failed`, `post_read_failed`, `cover_read_failed`)
+and fall back to the static posts or a 404. The Settings review API
+(`/api/admin/auto-blog-posts`) reports store failures as HTTP 500 through
+`withSentryApiErrors`. Gemini and Imagen provider failures also appear as the
+shared `[ai-failed] task=policy_news_article` / `task=policy_news_cover` log
+lines. Reports carry codes, source names, HTTP statuses and error class
 names, never document text or generated articles. See
 `docs/ops/POLICY_NEWS_BLOG.md`.
 

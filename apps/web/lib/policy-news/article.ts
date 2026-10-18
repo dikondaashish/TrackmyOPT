@@ -29,6 +29,8 @@ const GeneratedArticleSchema = z.object({
   faq: z.array(z.object({ question: text(300), answer: text(1500) })).min(1).max(8),
   relatedSlugs: z.array(z.string()).max(6).default([]),
   cta: z.enum(POLICY_NEWS_CTAS),
+  imagePrompt: text(1200),
+  imageAlt: text(300),
 });
 
 export const PolicyNewsResponseSchema = z.object({
@@ -103,10 +105,24 @@ export function toResearchArticle(input: {
     related: related.length ? related : [{ label: 'All OPT and F-1 guides', href: '/blog' }],
     cta: generated.cta,
     statusNote: generated.statusNote,
-    dataNote: `This article was generated automatically by TrackMyOPT from the official ${publisher} document linked below and published without editorial review. The linked document is the authoritative text.`,
-    reviewLabel: `Generated automatically from the ${publisher} document; not reviewed by an editor`,
-    badgeLabel: 'Policy update',
-    byline: 'automated',
-    imageCaption: 'TrackMyOPT policy update for F-1 students on OPT and STEM OPT.',
+    badgeLabel: 'Developing news',
+    showContents: true,
+    imageAlt: generated.imageAlt,
+    imageCaption: AI_IMAGE_CAPTION,
   };
+}
+
+/** Same caption as the hand-made October 2026 news covers. */
+export const AI_IMAGE_CAPTION =
+  'AI-generated conceptual illustration of fictional people; not a photograph of an actual applicant, company meeting, or government action.';
+
+/**
+ * Byline and review label at read time: the News Desk byline until an admin
+ * reviews the post, then the standard Vinay Kumar byline and review label.
+ */
+export function presentAutoPost(article: ResearchArticle, reviewed: boolean): ResearchArticle {
+  const { byline: _byline, reviewLabel: _reviewLabel, ...rest } = article;
+  if (reviewed) return rest;
+  const publisher = article.sources[0]?.publisher ?? 'government';
+  return { ...rest, byline: 'automated', reviewLabel: `Based on the official ${publisher} document` };
 }

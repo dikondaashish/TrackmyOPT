@@ -3,6 +3,7 @@ import {
   easternDate,
   PolicyNewsResponseSchema,
   slugify,
+  presentAutoPost,
   toResearchArticle,
   type GeneratedArticle,
 } from './article';
@@ -27,6 +28,8 @@ const GENERATED: GeneratedArticle = {
   faq: [{ question: 'Is it in effect?', answer: 'No.' }],
   relatedSlugs: ['real-post', 'invented-post', 'real-post'],
   cta: 'opt-timeline',
+  imagePrompt: 'A fictional graduate and advisor review folders at a desk.',
+  imageAlt: 'Fictional graduate and advisor reviewing OPT fee documents',
 };
 
 const CANDIDATE: PolicyNewsCandidate = {
@@ -79,12 +82,41 @@ describe('toResearchArticle', () => {
     expect(article.related).toEqual([{ label: 'A real post', href: '/blog/real-post' }]);
   });
 
-  it('is labelled as automated and unreviewed', () => {
-    expect(article.byline).toBe('automated');
-    expect(article.reviewLabel).toMatch(/not reviewed by an editor/);
+  it('matches the existing news posts: badge, contents, image alt and caption', () => {
+    expect(article.badgeLabel).toBe('Developing news');
+    expect(article.showContents).toBe(true);
+    expect(article.imageAlt).toBe('Fictional graduate and advisor reviewing OPT fee documents');
+    expect(article.imageCaption).toMatch(/^AI-generated conceptual illustration of fictional people/);
     expect(article.publishedDate).toBe('2026-10-18');
     expect(article.sections[0]).not.toHaveProperty('bullets');
     expect(article.sections[1].bullets).toEqual(['Initial OPT']);
+  });
+
+  it('stores no byline; it is applied at read time', () => {
+    expect(article).not.toHaveProperty('byline');
+    expect(article).not.toHaveProperty('reviewLabel');
+  });
+});
+
+describe('presentAutoPost', () => {
+  const article = toResearchArticle({
+    generated: GENERATED,
+    candidate: CANDIDATE,
+    slug: 'dhs-proposes-new-opt-fees',
+    now: new Date('2026-10-18T15:00:00Z'),
+    relatedTitles: new Map(),
+  });
+
+  it('uses the News Desk byline until reviewed', () => {
+    const shown = presentAutoPost(article, false);
+    expect(shown.byline).toBe('automated');
+    expect(shown.reviewLabel).toBe('Based on the official Federal Register document');
+  });
+
+  it('uses the standard byline and review label once reviewed', () => {
+    const shown = presentAutoPost({ ...article, byline: 'automated', reviewLabel: 'x' }, true);
+    expect(shown).not.toHaveProperty('byline');
+    expect(shown).not.toHaveProperty('reviewLabel');
   });
 });
 

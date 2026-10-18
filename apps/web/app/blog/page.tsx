@@ -61,18 +61,16 @@ function CategoryBadge({ category }: { category: string }) {
 // this page when it publishes one.
 export const revalidate = 3600;
 
-const LATEST_UPDATES_SHOWN = 6;
-
 export default async function BlogIndexPage() {
   const featured = blogPosts.filter((p) => p.featured);
-  const autoPosts = (await loadPublishedAutoPosts()).map((article) =>
-    toBlogCard(article)
-  );
-  const latestUpdates = autoPosts.slice(0, LATEST_UPDATES_SHOWN);
+  const autoArticles = await loadPublishedAutoPosts();
+  // Newest first: automatic policy-news posts, then the existing guides.
   const rest = [
-    ...autoPosts.slice(LATEST_UPDATES_SHOWN),
+    ...autoArticles.map((article) => toBlogCard(article)),
     ...blogPosts.filter((p) => !p.featured),
   ];
+  // Until an admin reviews them, automatic posts carry the News Desk byline.
+  const hasUnreviewed = autoArticles.some((a) => a.byline === 'automated');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -104,14 +102,17 @@ export default async function BlogIndexPage() {
                 Editorial Independence & Accuracy
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
-                Our guides are authored by{' '}
+                {hasUnreviewed ? 'Our guides are authored by' : 'Our content is exclusively authored by'}{' '}
                 <strong>Vinay Kumar</strong>, our Lead Content Writer and former
                 F-1 student. We regularly consult with immigration attorneys and
                 review DHS/USCIS policy updates to ensure our guides remain
-                accurate, objective, and up-to-date. Policy updates bylined{' '}
-                <strong>TrackMyOPT News Desk</strong> are generated
-                automatically from official government notices and are not
-                reviewed by an editor.
+                accurate, objective, and up-to-date.
+                {hasUnreviewed && (
+                  <>
+                    {' '}Posts bylined <strong>TrackMyOPT News Desk</strong> are
+                    generated automatically from official government notices.
+                  </>
+                )}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 <em>
@@ -124,26 +125,6 @@ export default async function BlogIndexPage() {
           </div>
         </div>
       </div>
-
-      {latestUpdates.length > 0 && (
-        <section className="mb-16" aria-labelledby="latest-policy-updates">
-          <h2
-            id="latest-policy-updates"
-            className="text-2xl font-bold text-gray-900 dark:text-white mb-2"
-          >
-            Latest OPT &amp; STEM OPT Policy Updates
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-            Generated automatically from official government notices; not
-            reviewed by an editor.
-          </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            {latestUpdates.map((post) => (
-              <PostCard key={post.slug} post={post} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Featured Posts */}
       <div className="grid md:grid-cols-2 gap-8 mb-16">
