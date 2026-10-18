@@ -26,28 +26,32 @@ export const researchArticleBySlug = new Map(
   ].map((article) => [article.slug, article])
 );
 
+export function toBlogCard(article: ResearchArticle, featured = false) {
+  return {
+    slug: article.slug,
+    title: article.title,
+    description: article.description,
+    category: article.category,
+    readTime: article.readTime,
+    date: new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    }).format(new Date(`${article.publishedDate}T00:00:00Z`)),
+    tags: article.tags,
+    featured,
+    image:
+      article.image ?? '/blog/international-student-guidance-library-2026.png',
+  };
+}
+
 export const researchBlogCards = [
   ...platformGapGuidesOctober2026,
   ...topicGapGuidesOctober2026,
   ...researchArticles,
   ...editorialRefreshes,
-].map((article, index) => ({
-  slug: article.slug,
-  title: article.title,
-  description: article.description,
-  category: article.category,
-  readTime: article.readTime,
-  date: new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${article.publishedDate}T00:00:00Z`)),
-  tags: article.tags,
-  featured: index < 4,
-  image:
-    article.image ?? '/blog/international-student-guidance-library-2026.png',
-}));
+].map((article, index) => toBlogCard(article, index < 4));
 
 export type { ResearchArticle } from './types';
 export { topicGapGuidesOctober2026 } from './topic-gaps';

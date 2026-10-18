@@ -10,6 +10,8 @@ interface BlogPostSchemaProps {
   publishedDate: string;
   modifiedDate: string;
   author?: string;
+  /** 'organization' for automatically generated posts that no person wrote. */
+  authorType?: "person" | "organization";
   /** Full canonical URL for this blog post (enables url + mainEntityOfPage in schema). */
   canonicalUrl?: string;
   /** Absolute 1200x630 article image URL. */
@@ -32,6 +34,7 @@ export function BlogPostSchema({
   publishedDate,
   modifiedDate,
   author = "Vinay Kumar",
+  authorType = "person",
   canonicalUrl,
   imageUrl = "https://www.trackmyopt.com/og-image.jpg",
   faqItems = [],
@@ -61,19 +64,26 @@ export function BlogPostSchema({
       : {}),
     datePublished: publishedDate,
     dateModified: modifiedDate,
-    author: {
-      "@type": "Person",
-      name: author,
-      jobTitle: "Content Writer",
-      worksFor: {
-        "@type": "Organization",
-        name: "Zyene Inc",
-      },
-      sameAs: [
-        "https://www.linkedin.com/company/trackmyopt",
-        "https://www.trackmyopt.com/about",
-      ],
-    },
+    author:
+      authorType === "organization"
+        ? {
+            "@type": "Organization",
+            name: author,
+            url: "https://www.trackmyopt.com",
+          }
+        : {
+            "@type": "Person",
+            name: author,
+            jobTitle: "Content Writer",
+            worksFor: {
+              "@type": "Organization",
+              name: "Zyene Inc",
+            },
+            sameAs: [
+              "https://www.linkedin.com/company/trackmyopt",
+              "https://www.trackmyopt.com/about",
+            ],
+          },
     publisher: {
       "@type": "Organization",
       name: "TrackMyOPT",

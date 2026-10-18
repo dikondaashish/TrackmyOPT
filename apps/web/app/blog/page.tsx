@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Clock, TrendingUp, BookOpen } from 'lucide-react';
 import { BlogPostImage } from '@/components/blog/BlogPostImage';
+import { toBlogCard } from '@/data/blog-series';
+import { loadPublishedAutoPosts } from '@/lib/policy-news/store';
 import { blogPosts, CATEGORY_COLORS, getPostImage } from './blog-index-data';
 
 export const metadata: Metadata = {
@@ -55,9 +57,20 @@ function CategoryBadge({ category }: { category: string }) {
   );
 }
 
-export default function BlogIndexPage() {
+// Automatic policy-news posts come from the database; the cron revalidates
+// this page when it publishes one.
+export const revalidate = 3600;
+
+export default async function BlogIndexPage() {
   const featured = blogPosts.filter((p) => p.featured);
-  const rest = blogPosts.filter((p) => !p.featured);
+  const autoArticles = await loadPublishedAutoPosts();
+  // Newest first: automatic policy-news posts, then the existing guides.
+  const rest = [
+    ...autoArticles.map((article) => toBlogCard(article)),
+    ...blogPosts.filter((p) => !p.featured),
+  ];
+  // Until an admin reviews them, automatic posts carry the News Desk byline.
+  const hasUnreviewed = autoArticles.some((a) => a.byline === 'automated');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -89,11 +102,17 @@ export default function BlogIndexPage() {
                 Editorial Independence & Accuracy
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
-                Our content is exclusively authored by{' '}
+                {hasUnreviewed ? 'Our guides are authored by' : 'Our content is exclusively authored by'}{' '}
                 <strong>Vinay Kumar</strong>, our Lead Content Writer and former
                 F-1 student. We regularly consult with immigration attorneys and
                 review DHS/USCIS policy updates to ensure our guides remain
                 accurate, objective, and up-to-date.
+                {hasUnreviewed && (
+                  <>
+                    {' '}Posts bylined <strong>TrackMyOPT News Desk</strong> are
+                    generated automatically from official government notices.
+                  </>
+                )}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 <em>
@@ -156,38 +175,42 @@ export default function BlogIndexPage() {
       </h2>
       <div className="grid md:grid-cols-2 gap-6">
         {rest.map((post) => (
-          <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
-            <article className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:shadow-lg transition-all duration-300 overflow-hidden">
-              <div className="relative w-full h-40 bg-gray-100 dark:bg-zinc-800">
-                <BlogPostImage
-                  src={getPostImage(post)}
-                  alt={post.title}
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              </div>
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-3 mb-3">
-                  <CategoryBadge category={post.category} />
-                  <span className="text-xs text-gray-500 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {post.readTime}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {post.title}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 flex-grow">
-                  {post.description}
-                </p>
-                <span className="text-sm text-gray-400 mt-auto">
-                  {post.date}
-                </span>
-              </div>
-            </article>
-          </Link>
+          <PostCard key={post.slug} post={post} />
         ))}
       </div>
     </div>
+  );
+}
+
+function PostCard({ post }: { post: (typeof blogPosts)[number] }) {
+  return (
+    <Link href={`/blog/${post.slug}`} className="group">
+      <article className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:shadow-lg transition-all duration-300 overflow-hidden">
+        <div className="relative w-full h-40 bg-gray-100 dark:bg-zinc-800">
+          <BlogPostImage
+            src={getPostImage(post)}
+            alt={post.title}
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+        </div>
+        <div className="p-6 flex flex-col flex-grow">
+          <div className="flex items-center gap-3 mb-3">
+            <CategoryBadge category={post.category} />
+            <span className="text-xs text-gray-500 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {post.readTime}
+            </span>
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {post.title}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 flex-grow">
+            {post.description}
+          </p>
+          <span className="text-sm text-gray-400 mt-auto">{post.date}</span>
+        </div>
+      </article>
+    </Link>
   );
 }

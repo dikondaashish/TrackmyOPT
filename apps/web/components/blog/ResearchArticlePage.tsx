@@ -7,7 +7,11 @@ import {
   Lightbulb,
   ShieldCheck,
 } from 'lucide-react';
-import { AuthorBio } from '@/components/blog/AuthorBio';
+import {
+  AUTOMATED_BYLINE,
+  AuthorBio,
+  AutomatedNewsByline,
+} from '@/components/blog/AuthorBio';
 import { BlogPostSchema } from '@/components/blog/BlogPostSchema';
 import { BlogProductCTA } from '@/components/blog/BlogProductCTA';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
@@ -24,6 +28,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
   const canonical = `${SITE}/blog/${article.slug}`;
   const image = article.image ?? DEFAULT_IMAGE;
   const imageUrl = image.startsWith('http') ? image : `${SITE}${image}`;
+  const automated = article.byline === 'automated';
 
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -39,7 +44,8 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         description={article.description}
         publishedDate={article.publishedDate}
         modifiedDate={article.modifiedDate}
-        author="Vinay Kumar"
+        author={automated ? AUTOMATED_BYLINE : 'Vinay Kumar'}
+        authorType={automated ? 'organization' : 'person'}
         canonicalUrl={canonical}
         imageUrl={imageUrl}
         faqItems={article.faq}
@@ -320,7 +326,7 @@ export function ResearchArticlePage({ article }: { article: ResearchArticle }) {
         </section>
       </div>
 
-      <AuthorBio />
+      {automated ? <AutomatedNewsByline /> : <AuthorBio />}
     </article>
   );
 }

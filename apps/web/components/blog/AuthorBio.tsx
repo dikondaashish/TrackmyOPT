@@ -51,3 +51,22 @@ export function AuthorBio({ compact = false }: AuthorBioProps) {
         </div>
     );
 }
+
+export const AUTOMATED_BYLINE = "TrackMyOPT News Desk";
+
+/** Byline for policy-news posts generated and published without editorial review. */
+export function AutomatedNewsByline() {
+    return (
+        <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-6 my-10">
+            <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+                {AUTOMATED_BYLINE}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+                Generated automatically from the official government document cited above. Confirm how it applies to you with your DSO or an immigration attorney.
+            </p>
+            <Link href="/about" className="inline-block mt-3 text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline">
+                About TrackMyOPT →
+            </Link>
+        </div>
+    );
+}

@@ -32,6 +32,10 @@
       "schedule": "30 18,19 * * *"
     },
     {
+      "path": "/api/cron/policy-news-blog",
+      "schedule": "40 */2 * * *"
+    },
+    {
       "path": "/api/cron/check-case-status",
       "schedule": "0 14 * * *"
     },

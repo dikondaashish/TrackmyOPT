@@ -52,6 +52,24 @@ Admin actions and the connect callback use the `admin` and `connect`
 fingerprints. Reports carry only the error code and LinkedIn's HTTP status,
 never tokens or post text. See `docs/ops/LINKEDIN.md`.
 
+The automatic policy-news blog (`/api/cron/policy-news-blog`, every two hours)
+raises `Policy news blog: <code>` with fingerprint `policy-news-blog` / `cron` /
+`<code>`: `source_fetch_failed` (warning, tagged with the source and HTTP
+status), per-item `generation_failed`, `invalid_model_output` or a store code
+(warning while retries remain, error on the third and last attempt),
+`cover_generation_failed` (warning; the post is published with the default
+cover), `indexnow_failed` / `indexnow_rejected` warnings, and run-level store
+failures such as `claim_read_failed` (error, HTTP 200 with `ok: false`). Blog
+pages, the sitemap and `/blog-covers/<slug>.webp` reading `auto_blog_posts` use
+the `read` fingerprint (`list_failed`, `post_read_failed`, `cover_read_failed`)
+and fall back to the static posts or a 404. The Settings review API
+(`/api/admin/auto-blog-posts`) reports store failures as HTTP 500 through
+`withSentryApiErrors`. Gemini and Imagen provider failures also appear as the
+shared `[ai-failed] task=policy_news_article` / `task=policy_news_cover` log
+lines. Reports carry codes, source names, HTTP statuses and error class
+names, never document text or generated articles. See
+`docs/ops/POLICY_NEWS_BLOG.md`.
+
 The Render job-board worker sends fixed, body-free signals to
 `/api/internal/job-board-worker-failure/[kind]` (authenticated with the API
 key, rate-limited per kind) for failures that never reach an audit row:
