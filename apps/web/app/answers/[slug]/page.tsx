@@ -31,8 +31,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ANSWER_CANONICAL_OVERRIDES[slug] ??
         `https://www.trackmyopt.com/answers/${answer.slug}`;
 
+    // Answer titles already end in "| TrackMyOPT"; skip the segment template so
+    // the brand is not doubled ("... | TrackMyOPT | TrackMyOPT Answers").
+    const title = answer.metadata.title.includes("TrackMyOPT")
+        ? { absolute: answer.metadata.title }
+        : answer.metadata.title;
+
     return {
-        title: answer.metadata.title,
+        title,
         description: answer.metadata.description,
         keywords: answer.metadata.keywords,
         alternates: {

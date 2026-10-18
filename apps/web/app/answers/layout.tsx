@@ -5,7 +5,8 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
     title: {
         template: "%s | TrackMyOPT Answers",
-        default: "OPT & F-1 Visa Answers — Educational Q&A | TrackMyOPT",
+        // The root layout template appends " | TrackMyOPT"; do not repeat the brand here.
+        default: "OPT & F-1 Visa Answers — Educational Q&A",
     },
     description:
         "Clear, educational answers to the most common questions about OPT, STEM OPT, F-1 visa, H-1B, taxes, and US immigration for international students.",

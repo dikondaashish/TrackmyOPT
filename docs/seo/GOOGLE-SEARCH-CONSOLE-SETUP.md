@@ -47,4 +47,11 @@ removed.
 
 | Date | Coverage/CWV result | Important query/page change | Action/owner |
 |------|---------------------|-----------------------------|--------------|
-| _pending_ |  |  |  |
+| 2026-10-18 | 511 not indexed / 322 indexed (data as of 2026-10-11). CWV: 0 poor mobile URLs. | 423 of 426 "Crawled - currently not indexed" were `/_next/static` JS/CSS chunks (`?dpl=` per deploy); 3 were fresh blog posts. 404/redirect/noindex/robots rows are old slugs already redirected, junk URLs, or intentionally private `/dashboard` and `/login`. `news-sitemap.xml` reported "Missing XML tag" because it is empty without recent news. | Added `X-Robots-Tag: noindex` for `/_next/static/*`, real sitemap `lastmod` (`pnpm seo:lastmod`), de-duplicated answer title brand, removed the news sitemap from robots.txt. Owner: re-run "Validate fix" for 404 and redirect rows; remove the news sitemap entry in Search Console. |
+
+## Keeping sitemap lastmod accurate
+
+`app/sitemap.ts` reads `apps/web/data/seo/page-lastmod.json`, which holds the last
+git commit date of each page. After adding or materially editing a page, run
+`pnpm --filter web seo:lastmod` from a full (non-shallow) clone and commit the
+result. Pages missing from the file get no `<lastmod>` rather than a false one.

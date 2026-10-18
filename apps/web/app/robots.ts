@@ -95,10 +95,11 @@ export default function robots(): MetadataRoute.Robots {
 
     return {
         host: "https://www.trackmyopt.com",
-        sitemap: [
-            "https://www.trackmyopt.com/sitemap.xml",
-            "https://www.trackmyopt.com/news-sitemap.xml",
-        ],
+        // news-sitemap.xml is intentionally not advertised: it is empty whenever
+        // nothing was published in the last 48 hours, and Search Console reports
+        // an empty sitemap as "Missing XML tag". The main sitemap carries
+        // every post with an accurate lastmod.
+        sitemap: ["https://www.trackmyopt.com/sitemap.xml"],
         rules: [
             ...aiAndSearchBots.map(botRule),
             botRule("*"),
