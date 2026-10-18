@@ -151,7 +151,7 @@ re-activating the previous version.
 
 ## Database migration
 
-`supabase/migrations/20261017180000_extension_remote_config_and_submissions.sql`
+`supabase/migrations/20261018020352_extension_remote_config_and_submissions.sql`
 creates both tables and the activation function. It was exercised locally on
 PGlite (PostgreSQL in WASM) with constraint, RLS, and rollback checks.
 
