@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import {
   DEFAULT_ORACLE_CALL_TIMEOUT_MS,
+  DEFAULT_ORACLE_QUEUE_TIMEOUT_MS,
   readOracleJobDataConfig,
   type OracleJobDataConfig,
 } from './job-data-store.config';
@@ -131,7 +132,9 @@ export class OracleJobDataStore implements JobDataStore {
         poolMin: 0,
         poolMax: this.config.poolMax,
         poolIncrement: 1,
-        queueTimeout: 5_000,
+        // NJS-040 after this wait; 15 s rides out short load spikes.
+        queueTimeout:
+          this.config.queueTimeoutMs ?? DEFAULT_ORACLE_QUEUE_TIMEOUT_MS,
         // Bound the connection handshake so an unreachable database fails
         // fast instead of holding a request or Bull job.
         connectTimeout: 10,

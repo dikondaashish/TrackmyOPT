@@ -57,6 +57,31 @@ function apiConfiguration() {
   return { apiUrl, apiKey };
 }
 
+const RETRY_DELAY_MS = 1_000;
+
+/**
+ * GET from the job data API, retrying once after a short pause when it
+ * answers 5xx or cannot be reached. The API returns 500 for a momentary
+ * Oracle connection-pool timeout (NJS-040) while ingestion loads the
+ * database; one retry rides that out instead of failing the page.
+ */
+async function fetchJobApi(path: string): Promise<Response> {
+  const { apiUrl, apiKey } = apiConfiguration();
+  const request = () =>
+    fetch(`${apiUrl}${path}`, {
+      headers: { 'x-api-key': apiKey },
+      cache: 'no-store',
+    });
+  try {
+    const response = await request();
+    if (response.status < 500) return response;
+  } catch {
+    // Network failure: retried below.
+  }
+  await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+  return request();
+}
+
 function appendQuery(
   params: URLSearchParams,
   key: string,
@@ -70,13 +95,9 @@ function appendQuery(
 export async function listServerJobs(
   query: Record<string, string | number | undefined | null>,
 ): Promise<ServerJobPage> {
-  const { apiUrl, apiKey } = apiConfiguration();
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) appendQuery(params, key, value);
-  const response = await fetch(`${apiUrl}/job-board/jobs?${params.toString()}`, {
-    headers: { 'x-api-key': apiKey },
-    cache: 'no-store',
-  });
+  const response = await fetchJobApi(`/job-board/jobs?${params.toString()}`);
   if (!response.ok) throw new Error('Unable to load jobs from the job data service');
   const payload = (await response.json()) as {
     rows?: ServerJobRecord[];
@@ -123,11 +144,7 @@ function stringList(value: unknown): string[] {
 
 /** Every location and company of open verified jobs, for the filter options. */
 export async function listServerJobFacets(): Promise<ServerJobFacets> {
-  const { apiUrl, apiKey } = apiConfiguration();
-  const response = await fetch(`${apiUrl}/job-board/jobs/facets`, {
-    headers: { 'x-api-key': apiKey },
-    cache: 'no-store',
-  });
+  const response = await fetchJobApi('/job-board/jobs/facets');
   if (!response.ok) throw new Error('Unable to load job filter options from the job data service');
   const payload = (await response.json()) as { locations?: unknown; companies?: unknown; places?: unknown };
   return {
@@ -138,11 +155,7 @@ export async function listServerJobFacets(): Promise<ServerJobFacets> {
 }
 
 export async function getServerJob(id: string): Promise<ServerJobRecord | null> {
-  const { apiUrl, apiKey } = apiConfiguration();
-  const response = await fetch(`${apiUrl}/job-board/jobs/${encodeURIComponent(id)}`, {
-    headers: { 'x-api-key': apiKey },
-    cache: 'no-store',
-  });
+  const response = await fetchJobApi(`/job-board/jobs/${encodeURIComponent(id)}`);
   if (response.status === 404) return null;
   if (!response.ok) throw new Error('Unable to load job from the job data service');
   return (await response.json()) as ServerJobRecord;
