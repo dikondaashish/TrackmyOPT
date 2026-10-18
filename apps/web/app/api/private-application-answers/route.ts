@@ -11,6 +11,7 @@ import {
   encryptPrivateApplicationAnswers,
 } from "@/lib/private-application-answers";
 import { secureLog } from "@/lib/secure-logger";
+import * as Sentry from "@sentry/nextjs";
 import rateLimit from "@/lib/auth/rate-limit";
 import {
   applyVerifiedAuthorizationChange,
@@ -26,6 +27,19 @@ const SaveSchema = PrivateApplicationAnswersSchema.extend({
 }).strict();
 const verifiedLimiter = rateLimit({ interval: 60_000, name: "private-answers-verified" });
 const MAX_PATCH_CHARACTERS = 2_000;
+
+
+/**
+ * Records why a database call failed, as its PostgreSQL/PostgREST code only
+ * (for example 23514 for a CHECK violation), on the request's Sentry scope;
+ * the HTTP 500 report then carries it. Never logs answers or messages.
+ */
+function noteStoreError(operation: string, error: { code?: string } | null | undefined) {
+  const code = typeof error?.code === "string" ? error.code.slice(0, 16) : "unknown";
+  Sentry.setTag("db_operation", operation);
+  Sentry.setTag("db_error_code", code);
+  secureLog.error(`Private application answers ${operation} failed (code ${code})`);
+}
 
 function responseHeaders(req: NextRequest): Record<string, string> {
   return {
@@ -67,6 +81,7 @@ async function handleGET(req: NextRequest) {
       .eq("user_id", userId)
       .maybeSingle();
     if (error) {
+      noteStoreError("load", error);
       return NextResponse.json(
         { error: "Could not load private answers" },
         { status: 500, headers }
@@ -162,6 +177,7 @@ async function handlePUT(req: NextRequest) {
         .eq("user_id", userId)
         .maybeSingle();
       if (existingError) {
+        noteStoreError("read-before-save", existingError);
         return NextResponse.json(
           { error: "Could not save private answers" },
           { status: 500, headers }
@@ -187,6 +203,7 @@ async function handlePUT(req: NextRequest) {
         { onConflict: "user_id" }
       );
     if (error) {
+      noteStoreError("save", error);
       return NextResponse.json(
         { error: "Could not save private answers" },
         { status: 500, headers }
@@ -249,6 +266,7 @@ async function handlePATCH(req: NextRequest) {
         .eq("user_id", userId)
         .maybeSingle();
       if (error) {
+        noteStoreError("read-before-confirm", error);
         return NextResponse.json({ error: "Could not save your answer" }, { status: 500, headers });
       }
       const current = row ? decryptPrivateApplicationAnswers(row.encrypted_payload) : {};
@@ -279,6 +297,7 @@ async function handlePATCH(req: NextRequest) {
             .select("user_id");
       if (result.error?.code === "23505") continue;
       if (result.error) {
+        noteStoreError("confirm", result.error);
         return NextResponse.json({ error: "Could not save your answer" }, { status: 500, headers });
       }
       if (row && (!result.data || result.data.length === 0)) continue;
@@ -307,6 +326,7 @@ async function handleDELETE(req: NextRequest) {
       .delete()
       .eq("user_id", userId);
     if (error) {
+      noteStoreError("delete", error);
       return NextResponse.json(
         { error: "Could not delete private answers" },
         { status: 500, headers }

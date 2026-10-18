@@ -168,14 +168,14 @@ export function evaluateIngestionHealth(
         .filter((id) => !dispatched.has(id))
     : [];
 
-  // Only the latest audit per (run, source) counts: a recovered source that
-  // later succeeded is not a failure.
+  // Only each source's latest audit counts: a source that failed in an
+  // earlier run of the window and succeeded in a later one has recovered,
+  // so last night's failures stop alerting once tonight's run fixes them.
   const latest = new Map<string, AuditRow>();
   for (const row of [...recentAudits].sort((a, b) =>
     b.run_at.localeCompare(a.run_at)
   )) {
-    const key = `${row.scheduler_run_id}|${row.source_id}`;
-    if (!latest.has(key)) latest.set(key, row);
+    if (!latest.has(row.source_id)) latest.set(row.source_id, row);
   }
   const failed = [...latest.values()].filter((row) => row.status === 'failed');
   const codes = failed

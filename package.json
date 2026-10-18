@@ -51,7 +51,8 @@
       "path-to-regexp": "8.4.2"
     },
     "patchedDependencies": {
-      "@supabase/auth-js@2.75.0": "patches/@supabase__auth-js@2.75.0.patch"
+      "@supabase/auth-js@2.75.0": "patches/@supabase__auth-js@2.75.0.patch",
+      "next-themes@0.4.6": "patches/next-themes@0.4.6.patch"
     }
   }
 }
