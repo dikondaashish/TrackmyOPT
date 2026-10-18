@@ -28,6 +28,10 @@
       "schedule": "20 */3 * * *"
     },
     {
+      "path": "/api/cron/linkedin-daily-post",
+      "schedule": "30 18,19 * * *"
+    },
+    {
       "path": "/api/cron/check-case-status",
       "schedule": "0 14 * * *"
     },
