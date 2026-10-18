@@ -5,6 +5,7 @@ import type { ErrorEvent } from '@sentry/nextjs';
 import {
   isAnalyticsTransportFailure,
   isBrowserFeatureConsoleEvent,
+  isNodeRuntimeNoticeEvent,
   isBrowserNetworkError,
   isBrowserNetworkFailure,
   isForeignScriptEvent,
@@ -338,6 +339,25 @@ describe('Sentry browser-bundled SDK frames', () => {
     expect(
       isBrowserFeatureConsoleEvent(event('generic', translate, '<anonymous>'))
     ).toBe(false);
+  });
+
+  it('drops Node.js experimental and deprecation notices logged to the console (TRACKMYOPT-1T)', () => {
+    const consoleMechanism = 'auto.core.capture_console';
+    const experimental =
+      '(node:8) ExperimentalWarning: vm.USE_MAIN_CONTEXT_DEFAULT_LOADER is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)';
+    const deprecation = '(node:12) [DEP0040] DeprecationWarning: The `punycode` module is deprecated.';
+    expect(isNodeRuntimeNoticeEvent(event(consoleMechanism, experimental))).toBe(true);
+    expect(isNodeRuntimeNoticeEvent(event(consoleMechanism, deprecation))).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(event(consoleMechanism, experimental), {})).toBeNull();
+    // Other process warnings and real errors still report.
+    expect(
+      isNodeRuntimeNoticeEvent(
+        event(consoleMechanism, '(node:8) MaxListenersExceededWarning: Possible EventEmitter memory leak detected.')
+      )
+    ).toBe(false);
+    expect(isNodeRuntimeNoticeEvent(event(consoleMechanism, 'Oracle MERGE failed'))).toBe(false);
+    expect(isNodeRuntimeNoticeEvent(event('generic', experimental))).toBe(false);
   });
 });
 

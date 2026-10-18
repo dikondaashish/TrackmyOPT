@@ -217,7 +217,11 @@ callback) a leading run of `/_next/` frames is treated as that wrapper
 (TRACKMYOPT-1K regressed on 2026-10-16 before this). Chrome's built-in page
 translator logs "Web translate error: ..." through console.error from
 `<anonymous>` script (TRACKMYOPT-1P); `isBrowserFeatureConsoleEvent` drops only
-that captureConsole message with an `<anonymous>` frame. Blog process illustrations
+that captureConsole message with an `<anonymous>` frame. On the server, Node.js
+prints its own `(node:N) ExperimentalWarning:` / `DeprecationWarning:` notices
+through console.error (TRACKMYOPT-1T); `isNodeRuntimeNoticeEvent` drops only
+those captureConsole messages, so other process warnings such as
+`MaxListenersExceededWarning` still report. Blog process illustrations
 (`BlogFlowFigure`, TRACKMYOPT-1N) now use the cover check: report only when the
 server returns a non-OK or non-image response for the asset.
 

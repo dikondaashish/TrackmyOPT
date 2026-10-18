@@ -180,6 +180,32 @@ export function isBrowserFeatureConsoleEvent(event: ErrorEvent): boolean {
   );
 }
 
+// Node.js prints its own runtime notices (e.g. "(node:8) ExperimentalWarning:
+// vm.USE_MAIN_CONTEXT_DEFAULT_LOADER ...", TRACKMYOPT-1T) to stderr through
+// console.error, which captureConsole would report as a TrackMyOPT issue.
+// Only experimental/deprecation notices are dropped; other process warnings
+// (for example MaxListenersExceededWarning) still report.
+const NODE_RUNTIME_NOTICE =
+  /^\(node:\d+\) (?:\[[A-Z0-9_]+\] )?(?:ExperimentalWarning|DeprecationWarning):/;
+
+/** True for a Node.js experimental or deprecation notice logged to the console. */
+export function isNodeRuntimeNoticeEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  const fromConsole = values.some(
+    (v) => v.mechanism?.type === 'auto.core.capture_console'
+  );
+  const messages = [
+    event.message,
+    event.logentry?.message,
+    ...values.map((v) => v.value),
+  ].filter((m): m is string => Boolean(m));
+  return (
+    fromConsole &&
+    messages.length > 0 &&
+    messages.every((m) => NODE_RUNTIME_NOTICE.test(m))
+  );
+}
+
 // Our code always runs from bundled `/_next/` script files. The served HTML is
 // at most 22 lines (`/`) and our only inline scripts are JSON-LD/one-liners, so
 // a frame on a page document beyond line 50 is script the browser or host app
@@ -412,6 +438,7 @@ export function sentryOptions(
         isForeignScriptEvent(event) ||
         isThirdPartyScriptEvent(event) ||
         isBrowserFeatureConsoleEvent(event) ||
+        isNodeRuntimeNoticeEvent(event) ||
         isInjectedPageScriptEvent(event) ||
         isAnalyticsTransportFailure(event)
       )
