@@ -37,6 +37,13 @@ function harness() {
     guidedClickedControls: new WeakSet(), guidedStatus: () => {},
     runGuidedNavigation: () => { tracked.push('navigation'); return {outcome:'advanced'}; },
     trackWidgetAnalytics: () => {},
+    // Emergency switches (feature-gates.ts); tests flip these per case.
+    pausedCapabilities: new Set<string>(),
+    capabilityBlock: (capability: string) => context.pausedCapabilities.has(capability) ? { blocked: true, scope: 'capability', reason: 'incident' } : { blocked: false },
+    autofillBlocked: () => ({ blocked: false }),
+    KILL_SWITCH_COPY: { incident: 'paused for an incident' },
+    queryWidget: () => null, paintPrefillCoverage: () => {}, emptyPrefillCoverage: () => ({}),
+    onConfirmationPage: false, isApplicationSuccessPage: () => context.onConfirmationPage,
   };
   vm.runInNewContext(code, context);
   return { dom, timers, passes, tracked, context, api: context.api, signature: (next: string) => { signature = next; }, tick: () => { const batch = [...timers.values()]; timers.clear(); batch.forEach(fn => fn()); } };
@@ -209,6 +216,8 @@ for (const change of ['navigation', 'mode'] as const) {
       jobContextFor: (job: any) => job, runPrefill: async () => { writes++; return {}; }, emptyPrefillCoverage: () => ({}),
       invalidatePrivateApprovalForJob: () => {}, sensitiveAnswerSession: { confirmed: false },
       withPrefillUndo: (run: () => Promise<unknown>) => run(), isPrefillUndoAllowed: () => true,
+      autofillBlocked: () => ({ blocked: false }),
+      autofillGates: () => ({ block: { blocked: false }, blockedCapabilities: new Set(), fieldRules: undefined }),
     };
     vm.runInNewContext(resolveCode, context);
     const run = context.execute({}, change === 'mode' ? 'continuous' : 'step_by_step');
@@ -218,3 +227,55 @@ for (const change of ['navigation', 'mode'] as const) {
     await assert.rejects(run, /Prefill stopped/); assert.equal(writes, 0);
   });
 }
+
+test('a paused Continuous capability stops automatic passes and explains why', async () => {
+  const h = harness(); const statuses: string[] = []; h.context.guidedStatus = (message: string) => statuses.push(message);
+  try {
+    h.context.pausedCapabilities.add('continuousMode');
+    await h.api.runContinuousPrefill();
+    assert.equal(h.passes.length, 0, 'no engine pass starts while paused');
+    assert.deepEqual(statuses, ['paused for an incident']);
+  } finally { h.dom.window.close(); }
+});
+test('a paused guided capability never schedules navigation', () => {
+  const h = harness(); const statuses: string[] = []; h.context.guidedStatus = (message: string) => statuses.push(message);
+  try {
+    enableGuided(h); h.context.pausedCapabilities.add('guidedAutopilot');
+    h.api.scheduleGuidedNavigation(); h.tick();
+    assert.equal(h.tracked.includes('navigation'), false);
+    assert.deepEqual(statuses, ['paused for an incident']);
+  } finally { h.dom.window.close(); }
+});
+
+test('an emergency switch pauses Prefill before it starts and when it flips mid-run', async () => {
+  let blocked = true; let writes = 0; let finish: (v: any) => void = () => {};
+  const context: any = {
+    window: { location: { href: 'https://example.test/job/1' } }, continuousPrefillGeneration: 0,
+    currentAutofillPreferences: { mode: 'step_by_step' }, currentPlanEntitlements: { continuousMode: true },
+    chrome: { runtime: { sendMessage: () => new Promise(resolve => { finish = resolve; }) } },
+    jobContextFor: (job: any) => job, runPrefill: async () => { writes++; return {}; }, emptyPrefillCoverage: () => ({ total: 0 }),
+    invalidatePrivateApprovalForJob: () => {}, sensitiveAnswerSession: { confirmed: false },
+    withPrefillUndo: (run: () => Promise<unknown>) => run(), isPrefillUndoAllowed: () => true,
+    autofillBlocked: () => blocked ? { blocked: true, scope: 'platform', reason: 'site_change' } : { blocked: false },
+    autofillGates: () => ({ block: { blocked: false }, blockedCapabilities: new Set(), fieldRules: undefined }),
+  };
+  vm.runInNewContext(resolveCode, context);
+  const before = await context.execute({}, 'step_by_step');
+  assert.equal(before.result.featurePaused, 'site_change');
+  assert.equal(before.result.paused, true);
+  assert.equal(writes, 0);
+  blocked = false;
+  const during = context.execute({}, 'step_by_step');
+  blocked = true; finish({ ok: true, source: 'profile_only', reason: 'missing' });
+  const result = await during;
+  assert.equal(result.result.featurePaused, 'site_change', 'reported as paused, not as a failure');
+  assert.equal(writes, 0);
+});
+
+test('a confirmation page never starts a fresh Continuous fill', async () => {
+  const h = harness(); try {
+    h.context.onConfirmationPage = true;
+    await h.api.runContinuousPrefill();
+    assert.equal(h.passes.length, 0);
+  } finally { h.dom.window.close(); }
+});

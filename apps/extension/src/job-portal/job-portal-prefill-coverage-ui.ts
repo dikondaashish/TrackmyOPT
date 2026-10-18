@@ -1,11 +1,14 @@
 import { PREFILL_SOURCE_LABEL } from '../prefill/prefill-contact-source';
 import { UPLOAD_STATUS_COPY } from '../prefill/upload-verification';
 import { ACCESS_BARRIER_COPY } from '../prefill/access-barriers';
+import { KILL_SWITCH_COPY } from '../platform-config/remote-config';
 /**
  * Prefill coverage summary UI painted into the widget coverage line.
  */
 
-import { jumpToPrefillField, type PrefillCoverageResult } from '../easy-apply/easy-apply-engine';
+import { findApplicationForm, jumpToPrefillField, type PrefillCoverageResult } from '../easy-apply/easy-apply-engine';
+import { mountApplicationReview } from '../review/application-review-ui';
+import { reportContentDiagnostic } from '../shared/content-diagnostics';
 import {
   attentionControls,
   formatPrefillCoverageSummary,
@@ -23,6 +26,17 @@ export function paintPrefillCoverage(
   const scan = result.applicationScan;
   const scannedFieldCount =
     (scan?.requiredTotal ?? 0) + (scan?.optionalTotal ?? 0);
+  if (result.featurePaused) {
+    line.style.display = 'block';
+    line.style.cssText += ';padding:14px;border-radius:12px;border:1px solid var(--tmo-widget-border, #dce3ed);background:var(--tmo-widget-surface-2, #f2f5fa);';
+    const notice = document.createElement('p');
+    notice.setAttribute('role', 'status');
+    notice.className = 'tmo-feature-paused';
+    notice.textContent = KILL_SWITCH_COPY[result.featurePaused];
+    notice.style.cssText = 'margin:0;font:500 12px/1.5 system-ui;color:var(--tmo-color-warning-ink, #9b4b13);';
+    line.appendChild(notice);
+    return;
+  }
   if (result.total === 0 && scannedFieldCount === 0 && !result.uploadVerification) {
     line.style.display = 'none';
     return;
@@ -178,8 +192,15 @@ export function paintPrefillCoverage(
       line.appendChild(details);
     };
 
-    appendFieldGroup('Required', scan.required);
-    appendFieldGroup('Optional', scan.optional);
+    // The structured review replaces the plain Required/Optional lists; the
+    // old renderer remains only for pages where review cannot mount.
+    try {
+      mountApplicationReview(line, result, findApplicationForm() ?? document);
+    } catch {
+      appendFieldGroup('Required', scan.required);
+      appendFieldGroup('Optional', scan.optional);
+      reportContentDiagnostic('review_panel_error');
+    }
   }
 
   const summary = document.createElement('span');

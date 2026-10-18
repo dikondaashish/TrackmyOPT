@@ -22,6 +22,8 @@ import {
   hostnameFromSenderTabUrl,
 } from '../private/private-application-delivery';
 import { base64ToUint8Array } from '../resume/resume-file-upload';
+import { normalizeVerifiedAuthorization, parseVerifiedAuthorizationChange } from '../prefill/verified-authorization';
+import { reportExtensionDiagnostic } from './background-diagnostics';
 import { getExtensionBearerToken } from './background-auth';
 import {
   cacheCurrentGeneratedResumeArtifact,
@@ -499,4 +501,43 @@ export async function trackWidgetEvent(
   return response.ok
     ? { ok: true }
     : { ok: false, error: response.status === 401 ? 'not_signed_in' : 'network' };
+}
+
+/**
+ * Save one applicant confirmation of a work-authorization or sponsorship
+ * answer. The applicant's explicit click is the consent; the server sets the
+ * confirmation time. Answers never enter logs, analytics, or diagnostics.
+ */
+export async function saveVerifiedAuthorizationChange(
+  rawChange: unknown,
+): Promise<{ ok: boolean; verifiedAuthorization?: unknown; error?: string }> {
+  const change = parseVerifiedAuthorizationChange(rawChange);
+  if (!change) return { ok: false, error: 'invalid' };
+  let bearer = await getExtensionBearerToken();
+  if (!bearer) return { ok: false, error: 'not_signed_in' };
+  const send = (token: string) => fetch(API_ENDPOINTS.PRIVATE_APPLICATION_ANSWERS, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ consent: true, change }),
+    cache: 'no-store',
+  });
+  let response: Response;
+  try {
+    response = await send(bearer);
+    if (response.status === 401) {
+      bearer = await getExtensionBearerToken(true);
+      if (!bearer) return { ok: false, error: 'not_signed_in' };
+      response = await send(bearer);
+    }
+  } catch {
+    void reportExtensionDiagnostic({ code: 'verified_answer_save_failed', stage: 'network' });
+    return { ok: false, error: 'unavailable' };
+  }
+  if (!response.ok) {
+    if (response.status >= 500) void reportExtensionDiagnostic({ code: 'verified_answer_save_failed', stage: 'http', status: response.status });
+    return { ok: false, error: response.status === 401 ? 'not_signed_in' : response.status === 409 ? 'mismatch' : 'unavailable' };
+  }
+  const body = (await response.json().catch(() => null)) as { verifiedAuthorization?: unknown } | null;
+  const verifiedAuthorization = normalizeVerifiedAuthorization(body?.verifiedAuthorization);
+  return verifiedAuthorization ? { ok: true, verifiedAuthorization } : { ok: false, error: 'unavailable' };
 }

@@ -37,6 +37,9 @@ import type {
   ResumeAutofillSnapshotV1,
   V1PrefillPayloadResponse,
 } from './resume/resume-autofill-contract';
+import { loadEffectiveConfig } from './platform-config/effective-config-client';
+import { autofillBlocked, autofillGates } from './platform-config/feature-gates';
+import { KILL_SWITCH_COPY } from './platform-config/remote-config';
 
 type RelayedPrefill = {
   resume?: GeneratedResumeAttachment;
@@ -49,7 +52,22 @@ type RelayedPrefill = {
   sensitiveAnswers?: unknown;
 };
 
+function showPausedNotice(message: string): void {
+  const notice = document.createElement('div');
+  notice.setAttribute('role', 'status');
+  notice.textContent = message;
+  notice.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2147483647;max-width:420px;padding:12px 16px;background:#111827;color:#fff;font:600 13px/1.4 system-ui;border-radius:10px;';
+  document.body?.appendChild(notice);
+  setTimeout(() => notice.remove(), 8000);
+}
+
 const isTopFrame = window.top === window.self;
+
+/** Popup-started Prefill enforces the same server switches as the widget. */
+async function popupGates() {
+  await loadEffectiveConfig();
+  return autofillGates();
+}
 getPrefillUndoState();
 
 // Registered synchronously, before the top frame's async resolve round-trip, so
@@ -60,8 +78,13 @@ if (!isTopFrame) {
     const relayCurrent = acceptPrefillRelay(message);
     if (!relayCurrent) return false;
     const prefill = (message.prefill ?? {}) as RelayedPrefill;
-    void waitForPrefillRelayTurn(relayCurrent, () => getPrefillUndoState().busy).then(ready => ready ? withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async shouldContinue => {
+    void waitForPrefillRelayTurn(relayCurrent, () => getPrefillUndoState().busy).then(ready => ready ? withPrefillUndo(() => withPrefillModeGuard(message.continuous === true, async guard => {
+      const gates = await popupGates();
+      if (gates.block.blocked) return;
+      const shouldContinue = () => guard() && !autofillBlocked().blocked;
       const result = await runPrefill({
+        blockedCapabilities: gates.blockedCapabilities,
+        fieldRules: gates.fieldRules,
         resume: prefill.resume,
         coverLetter: prefill.coverLetter,
         generatedContentHash: prefill.generatedContentHash,
@@ -76,7 +99,7 @@ if (!isTopFrame) {
       });
       if (result.paused) return;
       const answers = normalizeSensitiveAnswerSession(prefill.sensitiveAnswers);
-      if (answers && shouldContinue() && relayCurrent()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, answers, () => shouldContinue() && relayCurrent());
+      if (answers && shouldContinue() && relayCurrent()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, answers, () => shouldContinue() && relayCurrent(), undefined, { blockedCapabilities: gates.blockedCapabilities });
     }), message.undoRunId) : undefined).catch(() => {});
     return false;
   });
@@ -85,10 +108,15 @@ if (!isTopFrame) {
 async function prefillFromActiveArtifact(): Promise<void> {
   if (!isTopFrame) return;
   const pageUrl = window.location.href;
-  const shouldContinue = () => isPrefillUndoAllowed() && window.location.href === pageUrl;
+  const gates = await popupGates();
+  if (gates.block.blocked) { showPausedNotice(KILL_SWITCH_COPY[gates.block.reason]); return; }
+  const shouldContinue = () => isPrefillUndoAllowed() && window.location.href === pageUrl && !autofillBlocked().blocked;
+  const engineGates = { blockedCapabilities: gates.blockedCapabilities, fieldRules: gates.fieldRules };
   const login = await prefillSavedPortalLogin({ shouldContinue });
   if (!shouldContinue() || login.status === 'stopped') return;
-  const privateLoad = await loadPrivateAnswersForPrefill(shouldContinue);
+  const privateLoad = gates.blockedCapabilities.has('privateAnswers')
+    ? { status: 'empty' as const, answers: { confirmed: false } }
+    : await loadPrivateAnswersForPrefill(shouldContinue);
   if (!shouldContinue()) return;
   if (privateLoad.status === 'unavailable') {
     queryWidget('.tmo-sensitive-answer-panel')?.dispatchEvent(
@@ -117,9 +145,9 @@ async function prefillFromActiveArtifact(): Promise<void> {
   // No profile and no artifact — let the engine resolve the profile itself and
   // surface its own sign-in guidance.
   if (!resolved?.ok) {
-    await runPrefill({ shouldContinue, allowRowCreation: true });
-    if (shouldContinue()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, privateLoad.answers, shouldContinue);
-    if (shouldContinue() && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) await runSmartAnswers({root:findApplicationForm() ?? document,job:{jobUrl:pageUrl,companyName:'',roleTitle:''},hasResume:false,shouldContinue});
+    await runPrefill({ shouldContinue, allowRowCreation: true, ...engineGates });
+    if (shouldContinue()) await fillConfirmedSensitiveAnswers(findApplicationForm() ?? document, privateLoad.answers, shouldContinue, undefined, engineGates);
+    if (shouldContinue() && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts && !gates.blockedCapabilities.has('screeningDrafts')) await runSmartAnswers({root:findApplicationForm() ?? document,job:{jobUrl:pageUrl,companyName:'',roleTitle:''},hasResume:false,shouldContinue});
     return;
   }
 
@@ -152,12 +180,12 @@ async function prefillFromActiveArtifact(): Promise<void> {
   const root = findApplicationForm();
   const visual = privateLoad.answers.confirmed && root ? createAutofillVisualFeedback(document) : undefined;
   try {
-    const result = await runPrefill({ ...prefill, shouldContinue, allowRowCreation: true, visualFeedback: visual, quietResultToast: privateLoad.answers.confirmed });
+    const result = await runPrefill({ ...prefill, ...engineGates, shouldContinue, allowRowCreation: true, visualFeedback: visual, quietResultToast: privateLoad.answers.confirmed });
     if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
     if (result.paused) return;
-    const sensitive = await fillConfirmedSensitiveAnswers(root ?? document, privateLoad.answers, shouldContinue, visual);
+    const sensitive = await fillConfirmedSensitiveAnswers(root ?? document, privateLoad.answers, shouldContinue, visual, engineGates);
     if (!shouldContinue()) { visual?.fail('Prefill stopped'); return; }
-    const smartFilled = AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts ? await runSmartAnswers({
+    const smartFilled = AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts && !gates.blockedCapabilities.has('screeningDrafts') ? await runSmartAnswers({
       root:root ?? document,
       job:{jobUrl:pageUrl,companyName:'',roleTitle:'',jobDescription:resolved.source === 'generated_resume' ? resolved.jobDescription : ''},
       hasResume:resolved.source === 'generated_resume',snapshot:resolved.source === 'generated_resume' ? resolved.snapshot : undefined,shouldContinue,

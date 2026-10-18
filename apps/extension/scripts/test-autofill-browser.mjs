@@ -155,7 +155,13 @@ async function openAndPrefill(portal, timings) {
     const root = document.getElementById('tmo-job-tracker-widget')?.shadowRoot;
     return root?.querySelector('.tmo-prefill-run-summary')?.textContent?.trim() || root?.querySelector('.tmo-prefill-result-line')?.textContent?.trim() || '';
   });
-  return { page, summary, errors };
+  // The review-before-submit panel must render with an honest status.
+  const review = await page.evaluate(() => {
+    const panel = document.getElementById('tmo-job-tracker-widget')?.shadowRoot?.querySelector('.tmo-application-review');
+    return panel ? { status: panel.querySelector('[role="status"]')?.textContent?.trim() || '',
+      groups: Array.from(panel.querySelectorAll('details h4')).map(node => node.textContent) } : null;
+  });
+  return { page, summary, errors, review };
 }
 
 const values = (page, selectors) => page.evaluate(list => Object.fromEntries(list.map(selector => {
@@ -177,8 +183,11 @@ async function check(portal, verify) {
   const started = Date.now();
   try {
     entry.timings = {};
-    const { page, summary, errors } = await openAndPrefill(portal, entry.timings);
+    const { page, summary, errors, review } = await openAndPrefill(portal, entry.timings);
     entry.summary = summary;
+    entry.review = review;
+    if (!review?.status) entry.failures.push('review panel did not render a status');
+    else if (/\bcomplete\b/i.test(review.status)) entry.failures.push('review panel must never claim the form is complete');
     await verify(page, entry);
     assert.equal(await page.evaluate(() => document.body.dataset.submitted || ''), '', 'the form must never be submitted');
     if (errors.length) entry.pageErrors = errors;

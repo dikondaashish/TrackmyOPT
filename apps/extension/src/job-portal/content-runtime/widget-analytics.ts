@@ -1,4 +1,6 @@
 import { jobMemoryKey } from '../../prefill/smart-flow';
+import { reportContentDiagnostic } from '../../shared/content-diagnostics';
+import { platformForHostname } from '../../platform-config/remote-config';
 import { normalizeWidgetAnalyticsProperties, widgetSiteFamily, type WidgetAnalyticsEvent, type WidgetAnalyticsProperties } from '../../widget/widget-platform';
 import { emptyPrefillCoverage } from '../../prefill/prefill-coverage';
 import { type AutofillPreferences } from '../../prefill/autofill-preferences';
@@ -68,6 +70,8 @@ export function trackPrefillRuntimeFailure(
   mode: AutofillPreferences['mode'],
   hasResume = false,
 ): void {
+  // An unexpected runtime failure is also an error signal for Sentry (content-free).
+  reportContentDiagnostic('prefill_runtime_error', 'processing', platformForHostname(location.hostname));
   trackWidgetAnalytics(
     'extension_widget_prefill_completed',
     buildPrefillTelemetryProperties({

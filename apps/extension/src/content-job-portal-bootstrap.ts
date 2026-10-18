@@ -9,7 +9,7 @@ if (!state.__tmoPortalBootstrap) {
   const load = () => runtime ??= import(chrome.runtime.getURL('content-job-portal-runtime.js'))
     .catch(error => { runtime = undefined; throw error; });
   const handled = new Set(['TMO_PREFILL_SAVED_RESUME', 'TMO_GET_JOB_CONTEXT',
-    'GENERATED_RESUME_ARTIFACT_READY', 'CLEAR_RESUME_AUTOFILL_ARTIFACT', 'RUN_PREFILL_IN_CHILD_FRAME']);
+    'GENERATED_RESUME_ARTIFACT_READY', 'CLEAR_RESUME_AUTOFILL_ARTIFACT', 'RUN_PREFILL_IN_CHILD_FRAME', 'TMO_SUBMISSION_STATUS', 'TMO_OPEN_ASSISTANT']);
   // Keep one relay registered: callers arriving while the module loads receive
   // the same response as later callers. Never execute a request twice.
   chrome.runtime.onMessage.addListener((message, sender, respond) => {

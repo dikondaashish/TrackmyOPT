@@ -127,6 +127,7 @@ export const WIDGET_ANALYTICS_EVENTS = [
   'extension_widget_job_analyzed',
   'extension_widget_resume_generated',
   'extension_widget_guided_navigation',
+  'extension_submission_outcome',
 ] as const;
 
 export type WidgetAnalyticsEvent = (typeof WIDGET_ANALYTICS_EVENTS)[number];
@@ -196,6 +197,10 @@ const EVENT_KEYS: Record<WidgetAnalyticsEvent, readonly string[]> = {
   extension_widget_job_analyzed: ['site_family', 'outcome', 'score', 'matched_keywords_count', 'missing_keywords_count', 'error_code'],
   extension_widget_resume_generated: ['site_family', 'outcome', 'template_id', 'baseline_score', 'generated_score', 'score_delta', 'error_code'],
   extension_widget_guided_navigation: ['site_family', 'navigation_outcome'],
+  extension_submission_outcome: [
+    'site_family', 'submission_outcome', 'confirmation_source', 'evidence_kind',
+    'network_detector_mode', 'network_verdict',
+  ],
 };
 
 const ENUM_VALUES: Record<string, readonly string[]> = {
@@ -228,6 +233,14 @@ const ENUM_VALUES: Record<string, readonly string[]> = {
     'blocked_required_fields',
     'no_safe_control',
     'stopped',
+  ],
+  submission_outcome: ['confirmed', 'failed', 'not_confirmed'],
+  confirmation_source: ['automatic', 'manual', 'none'],
+  evidence_kind: ['network', 'page', 'manual', 'none'],
+  network_detector_mode: ['off', 'shadow', 'active'],
+  network_verdict: [
+    'success', 'application_error', 'http_error', 'redirected', 'unexpected_status',
+    'malformed', 'unreadable', 'oversize', 'timeout', 'network_error', 'none',
   ],
 };
 

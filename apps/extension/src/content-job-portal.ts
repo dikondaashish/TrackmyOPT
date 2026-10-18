@@ -118,10 +118,19 @@ import {
   trackerApplicationIdFor,
   markPostSaveSuggestionSeen,
   saveJobContext,
-  tryAutoAddOnSuccess,
 } from './job-portal/content-runtime/tracker-session';
+import {
+  checkSubmissionConfirmationPage,
+  handleSubmissionStatusMessage,
+  remountSubmissionStatus,
+  startSubmissionTracking,
+  stopSubmissionTracking,
+} from './job-portal/content-runtime/submission-session';
 import { mountScreeningQuestionReviewsWith } from './job-portal/content-runtime/screening-reviews';
 import { runChildFramePrefillRelay } from './job-portal/content-runtime/child-frame-relay';
+import { autofillBlocked, autofillGates, capabilityBlock } from './platform-config/feature-gates';
+import { loadEffectiveConfig, onEffectiveConfigChange } from './platform-config/effective-config-client';
+import { KILL_SWITCH_COPY } from './platform-config/remote-config';
 
 /** Set once the widget mounts; announces status to screen readers. */
 let announceWidgetStatus: (message: string) => void = () => {};
@@ -341,7 +350,16 @@ async function executeResolvedPrefill(
   runGuard?: () => boolean,
   explicitPrefillClick = false,
 ): Promise<PrefillExecutionResult> {
-  return withPrefillUndo(() => executeResolvedPrefillBody(job, mode, runGuard, explicitPrefillClick));
+  const paused = pausedExecution();
+  if (paused) return paused;
+  try {
+    return await withPrefillUndo(() => executeResolvedPrefillBody(job, mode, runGuard, explicitPrefillClick));
+  } catch (error) {
+    // A switch flipped mid-run stops the run; explain it rather than failing.
+    const stopped = pausedExecution();
+    if (stopped) return stopped;
+    throw error;
+  }
 }
 
 async function executeResolvedPrefillBody(
@@ -352,7 +370,8 @@ async function executeResolvedPrefillBody(
 ): Promise<PrefillExecutionResult> {
   const pageUrl = window.location.href;
   const generation = continuousPrefillGeneration;
-  const shouldContinue = () => isPrefillUndoAllowed() && window.location.href === pageUrl &&
+  const gates = autofillGates();
+  const shouldContinue = () => isPrefillUndoAllowed() && window.location.href === pageUrl && !autofillBlocked().blocked &&
     (mode !== 'continuous' || (generation === continuousPrefillGeneration &&
       currentAutofillPreferences.mode === 'continuous' && currentPlanEntitlements.continuousMode)) &&
     (runGuard?.() ?? true);
@@ -366,7 +385,9 @@ async function executeResolvedPrefillBody(
       return shouldContinue() && Boolean(current && approvalMatchesJob(binding, jobContextFor(current)));
     } });
     if (!shouldContinue() || login.status === 'stopped') throw new Error('Prefill stopped');
-    const privateLoad = await loadPrivateAnswersForPrefill(shouldContinue);
+    const privateLoad = gates.blockedCapabilities.has('privateAnswers')
+      ? { status: 'empty' as const, answers: { confirmed: false } }
+      : await loadPrivateAnswersForPrefill(shouldContinue);
     const currentJob = getJobInfo();
     if (!shouldContinue() || !currentJob || !approvalMatchesJob(binding, jobContextFor(currentJob))) {
       throw new Error('Prefill stopped');
@@ -393,12 +414,15 @@ async function executeResolvedPrefillBody(
 
   if (!resolved?.ok) {
     const result = mode === 'step_by_step'
-      ? await runPrefill({ autofillSkills: false, shouldContinue, allowRowCreation: explicitPrefillClick })
+      ? await runPrefill({ autofillSkills: false, shouldContinue, allowRowCreation: explicitPrefillClick,
+        blockedCapabilities: gates.blockedCapabilities, fieldRules: gates.fieldRules })
       : emptyPrefillCoverage();
     if (shouldContinue() && mode === 'step_by_step') {
       const root = findApplicationForm() ?? document;
-      await fillConfirmedSensitiveAnswers(root, answersForRun, shouldContinue);
-      if (explicitPrefillClick && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+      const sensitive = await fillConfirmedSensitiveAnswers(root, answersForRun, shouldContinue, undefined,
+        { blockedCapabilities: gates.blockedCapabilities });
+      result.fieldOutcomes = [...(result.fieldOutcomes ?? []), ...sensitive.outcomes];
+      if (explicitPrefillClick && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts && !gates.blockedCapabilities.has('screeningDrafts')) {
         await runSmartAnswers({root,job:jobContextFor(job),hasResume:false,shouldContinue});
       }
       result.applicationScan = scanApplicationFields(root);
@@ -480,6 +504,8 @@ async function executeResolvedPrefillBody(
   const result = await runPrefill({
     ...prefill,
     allowRowCreation: explicitPrefillClick,
+    blockedCapabilities: gates.blockedCapabilities,
+    fieldRules: gates.fieldRules,
     shouldContinue,
     animateFields: mode === 'step_by_step',
     visualFeedback: visual,
@@ -494,10 +520,12 @@ async function executeResolvedPrefillBody(
     answersForRun,
     shouldContinue,
     visual,
+    { blockedCapabilities: gates.blockedCapabilities },
   ).catch(error => { visual?.fail('Prefill paused'); throw error; });
+  result.fieldOutcomes = [...(result.fieldOutcomes ?? []), ...sensitive.outcomes];
   if (!shouldContinue()) { visual?.fail('Prefill stopped'); throw new Error('Prefill stopped'); }
   let smartFilled = 0;
-  if (explicitPrefillClick && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts) {
+  if (explicitPrefillClick && AUTOFILL_FEATURE_FLAGS.aiScreeningDrafts && !gates.blockedCapabilities.has('screeningDrafts')) {
     const binding = createPrivateApprovalBinding(jobContextFor(job));
     smartFilled = await runSmartAnswers({
       root: applicationRoot,
@@ -538,6 +566,18 @@ async function executeResolvedPrefillBody(
 }
 
 
+/** An emergency switch paused autofill here; manual completion still works. */
+function pausedExecution(): PrefillExecutionResult | null {
+  const block = autofillBlocked();
+  if (!block.blocked) return null;
+  return {
+    result: { ...emptyPrefillCoverage(), paused: true, featurePaused: block.reason },
+    hasResume: false,
+    hasCoverLetter: false,
+    sourceType: 'unavailable',
+    artifactStateReason: 'feature_disabled',
+  };
+}
 
 async function mountScreeningQuestionReviews(
   card: HTMLElement,
@@ -856,6 +896,7 @@ async function injectOrRefreshButton() {
     // hidden default state and continue with the z-index fallback.
     widget.removeAttribute('popover');
   }
+  remountSubmissionStatus();
   syncLinkedInEasyApplyAction();
 }
 
@@ -883,7 +924,7 @@ function runSuccessCheckDebounced() {
   if (successCheckTimeout) clearTimeout(successCheckTimeout);
   successCheckTimeout = setTimeout(() => {
     successCheckTimeout = null;
-    tryAutoAddOnSuccess();
+    checkSubmissionConfirmationPage();
   }, SUCCESS_CHECK_DEBOUNCE_MS);
 }
 
@@ -1013,6 +1054,11 @@ function paintGuidedNavigationResult(result: GuidedNavigationResult): void {
 }
 
 function scheduleGuidedNavigation(): void {
+  const guidedPause = capabilityBlock('guidedAutopilot');
+  if (guidedPause.blocked) {
+    guidedStatus(KILL_SWITCH_COPY[guidedPause.reason]);
+    return;
+  }
   if (
     !AUTOFILL_FEATURE_FLAGS.guidedAutopilot ||
     !currentPlanEntitlements.guidedAutopilot ||
@@ -1048,8 +1094,25 @@ function scheduleGuidedNavigation(): void {
   }, 1_200);
 }
 
+/** Stop new automatic work as soon as an emergency switch arrives. */
+function applyRemoteSwitches(): void {
+  const paused = autofillBlocked();
+  const continuousPause = capabilityBlock('continuousMode');
+  if (continuousPause.blocked && currentAutofillPreferences.mode === 'continuous') {
+    stopContinuousPrefill();
+    guidedStatus(KILL_SWITCH_COPY[continuousPause.reason]);
+  }
+  if (paused.blocked) {
+    const line = queryWidget<HTMLElement>('.tmo-prefill-result-line');
+    if (line) paintPrefillCoverage(line, { ...emptyPrefillCoverage(), paused: true, featurePaused: paused.reason });
+  }
+}
+
 async function runContinuousPrefill(): Promise<void> {
   continuousPrefillTimer = null;
+  // Never start a fresh automatic fill on a confirmation page.
+  if (isApplicationSuccessPage()) return;
+  if (capabilityBlock('continuousMode').blocked) { applyRemoteSwitches(); return; }
   if (
     !AUTOFILL_FEATURE_FLAGS.continuousMode ||
     !currentPlanEntitlements.continuousMode
@@ -1278,6 +1341,7 @@ function teardownWidgetRuntime() {
   hiddenForLinkedInDialog = null;
   document.querySelectorAll('[data-tmo-linkedin-prefill]').forEach((action) => action.remove());
   stopContinuousPrefill();
+  stopSubmissionTracking();
   clearPrivateApplicationApproval();
   disconnectWidgetViewportObserver();
   if (_spaObserver) {
@@ -1285,7 +1349,7 @@ function teardownWidgetRuntime() {
     _spaObserver = null;
   }
   if (_earlyRetryId !== null) {
-    window.clearInterval(_earlyRetryId);
+    window.clearTimeout(_earlyRetryId);
     _earlyRetryId = null;
   }
   if (injectDebounceTimer) {
@@ -1339,31 +1403,35 @@ function setupSpaObservers() {
   _spaObserver = observer;
 }
 
+/** Enrichment checks back off instead of polling every 600 ms for 27 s. */
+const EARLY_RETRY_DELAYS_MS = [600, 1200, 2000, 3000, 5000, 8000, 12000, 18000, 27000];
+
 function startEarlyRetryLoop() {
   // Clear any previously running retry loop before starting a new one.
   if (_earlyRetryId !== null) {
-    window.clearInterval(_earlyRetryId);
+    window.clearTimeout(_earlyRetryId);
     _earlyRetryId = null;
   }
-  let n = 0;
-  const max = 45;
-  const id: number = window.setInterval(() => {
-    if (!extAlive()) {
-      teardownWidgetRuntime();
-      return;
-    }
-    n += 1;
-    if (n > max) {
-      window.clearInterval(id);
-      if (_earlyRetryId === id) _earlyRetryId = null;
-      return;
-    }
-    // Keep sampling briefly even after the initial widget appears: ATS pages
-    // often publish location, compensation, and logos a few seconds later.
-    // injectOrRefreshButton only replaces the widget when data is enriched.
-    injectOrRefreshButton();
-  }, 600);
-  _earlyRetryId = id;
+  let step = 0;
+  let elapsed = 0;
+  const next = () => {
+    if (step >= EARLY_RETRY_DELAYS_MS.length) { _earlyRetryId = null; return; }
+    const delay = EARLY_RETRY_DELAYS_MS[step] - elapsed;
+    elapsed = EARLY_RETRY_DELAYS_MS[step];
+    step += 1;
+    _earlyRetryId = window.setTimeout(() => {
+      if (!extAlive()) {
+        teardownWidgetRuntime();
+        return;
+      }
+      // Keep sampling briefly even after the initial widget appears: ATS pages
+      // often publish location, compensation, and logos a few seconds later.
+      // injectOrRefreshButton only replaces the widget when data is enriched.
+      injectOrRefreshButton();
+      next();
+    }, delay);
+  };
+  next();
 }
 
 // Cleanup on page unload (navigation away in non-SPA contexts).
@@ -1374,17 +1442,16 @@ window.addEventListener('pagehide', () => {
   stopContinuousPrefill();
   disconnectWidgetViewportObserver();
   if (_spaObserver) { _spaObserver.disconnect(); _spaObserver = null; }
-  if (_earlyRetryId !== null) { window.clearInterval(_earlyRetryId); _earlyRetryId = null; }
+  if (_earlyRetryId !== null) { window.clearTimeout(_earlyRetryId); _earlyRetryId = null; }
   if (injectDebounceTimer) { clearTimeout(injectDebounceTimer); injectDebounceTimer = null; }
   if (successCheckTimeout) { clearTimeout(successCheckTimeout); successCheckTimeout = null; }
   if (artifactExpiryTimer) { clearTimeout(artifactExpiryTimer); artifactExpiryTimer = null; }
 }, { once: true });
 
 function startSuccessDetection() {
-  tryAutoAddOnSuccess();
-  setTimeout(tryAutoAddOnSuccess, 2000);
-  setTimeout(tryAutoAddOnSuccess, 5000);
-  setTimeout(tryAutoAddOnSuccess, 8000);
+  startSubmissionTracking();
+  checkSubmissionConfirmationPage();
+  for (const delay of [2000, 5000, 8000]) setTimeout(checkSubmissionConfirmationPage, delay);
 }
 
 /** Sparse retries on unknown sites (JSON-LD / title-only) without a full DOM observer. */
@@ -1396,11 +1463,16 @@ function initLightScanMode() {
   startSuccessDetection();
 }
 
+let assistModeStarted = false;
+
 function initFullJobAssistMode() {
+  if (assistModeStarted) return;
+  assistModeStarted = true;
   const boot = () => {
     tryInject();
     setupSpaObservers();
-    startEarlyRetryLoop();
+    // A confirmation page needs status and manual confirmation, not enrichment polling.
+    if (!isApplicationSuccessPage()) startEarlyRetryLoop();
     startSuccessDetection();
   };
   if (document.readyState === 'loading') {
@@ -1532,6 +1604,24 @@ export function handlePortalMessage(message: any, _sender: chrome.runtime.Messag
     sendResponse({ ok: true });
     return false;
   }
+  if (message?.type === 'TMO_OPEN_ASSISTANT') {
+    // Manual open from the popup when automatic detection missed this page.
+    if (window.top !== window.self || _sender.id !== chrome.runtime.id || _sender.tab) return false;
+    if (!assistModeStarted) {
+      void initializeAutofillPreferences();
+      void loadEffectiveConfig().then(applyRemoteSwitches);
+      onEffectiveConfigChange(applyRemoteSwitches);
+      initFullJobAssistMode();
+    } else tryInject();
+    sendResponse({ ok: true });
+    return false;
+  }
+  if (message?.type === 'TMO_SUBMISSION_STATUS') {
+    if (window.top !== window.self || _sender.id !== chrome.runtime.id || _sender.tab) return false;
+    handleSubmissionStatusMessage(message.attempt);
+    sendResponse({ ok: true });
+    return false;
+  }
   if (message?.type !== 'RUN_PREFILL_IN_CHILD_FRAME' || window.top === window.self) return false;
   return runChildFramePrefillRelay(message, sendResponse);
 }
@@ -1549,6 +1639,8 @@ if (window.top !== window.self) {
     // Not a career page — fully inert, zero DOM work.
   } else {
     void initializeAutofillPreferences();
+    void loadEffectiveConfig().then(applyRemoteSwitches);
+    onEffectiveConfigChange(applyRemoteSwitches);
     if (shouldUseFullJobAssistMode()) {
       // Well-known job board or ATS: full SPA observer + retry loop.
       initFullJobAssistMode();

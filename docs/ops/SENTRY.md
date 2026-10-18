@@ -11,7 +11,9 @@ including failures that occur before a server handler can run. Case workers
 report partial failures and audit-recording failures, even when an error was
 caught internally. Expected validation/authentication/not-found/rate-limit
 responses (4xx) do not create API-response issues. The separate ingestion API
-process and Chrome extension's own runtime do not run the Next.js SDK. The Render
+process and Chrome extension's own runtime do not run the Next.js SDK (the
+extension reports through the diagnostic bridge described under "Chrome
+extension diagnostics"). The Render
 pending-case email enrollment catch sends a fixed, authenticated, body-free error
 signal to `/api/internal/pending-case-enrollment-failure`, where the web SDK
 captures and flushes it. The daily case worker also sends a fixed body-free signal to
@@ -240,8 +242,32 @@ present and served with HTTP 200. `components/blog/blog-cover-assets.test.ts`
 fails the test suite if a blog index or research cover file is missing.
 Dashboard extension messaging consumes callback errors and rejected promises;
 expected missing/closed contexts are normal detection outcomes. Unexpected
-bridge failures and open-tool timeouts use fixed error reports. The extension's
-own background runtime still has the coverage limitation described above.
+bridge failures and open-tool timeouts use fixed error reports.
+
+### Chrome extension diagnostics
+
+The extension still does not run a Sentry SDK. Since 2026-10-17 its background
+worker posts closed-enum failure signals to `POST /api/extension/diagnostic`
+(`apps/extension/src/shared/diagnostics-protocol.ts`), and the web SDK captures
+each one as a fixed-format message such as
+`Extension tracker_sync_failed (stage=http, platform=workday, status=503, version=0.2.4)`
+with the tags `source=chrome_extension` and `extension_code`. Only a code, a
+stage, a bundled platform id, a small status integer, and the extension version
+are accepted; anything else is rejected with HTTP 400, so URLs, field labels,
+answers, tokens, documents, and response bodies cannot reach Sentry. The worker
+sends each code/stage/platform at most once per hour, and the route is rate
+limited per user (30/min, 60/min shared when signed out); rate-limited signals
+are dropped with HTTP 202.
+
+Codes: `remote_config_fetch_failed`, `remote_config_invalid`,
+`submission_monitor_error`, `submission_result_rejected`, `tracker_sync_failed`,
+`tracker_sync_abandoned`, `verified_answer_save_failed`, `review_panel_error`,
+`prefill_runtime_error`. Content scripts relay through the worker
+(`REPORT_DIAGNOSTIC`). Remaining gaps: failures while the worker cannot reach
+the website are reported only after connectivity returns or not at all, and
+page-context (MAIN world) monitor exceptions are swallowed by design so they
+can never affect the site; they surface only as inconclusive submission
+verdicts.
 
 ## Historical PostHog code review
 

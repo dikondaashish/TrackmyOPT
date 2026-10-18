@@ -29,6 +29,10 @@ for (const [name, stored, sourceType, expected] of [
     fillConfirmedSensitiveAnswers: async () => ({filled:0,unresolved:[]}),
     withPrefillModeGuard: async (_mode: boolean, run: any) => run(() => true),
     runPrefill: async (options: any) => { fills.push(options); },
+    // No emergency switches are active (feature-gates.ts).
+    loadEffectiveConfig: async () => ({}), KILL_SWITCH_COPY: {},
+    autofillBlocked: () => ({ blocked: false }),
+    autofillGates: () => ({ block: { blocked: false }, blockedCapabilities: new Set(), fieldRules: undefined }),
     chrome: { storage: { sync: { get: async () => ({ [AUTOFILL_PREFERENCES_KEY]: stored }) } }, runtime: {
       sendMessage: async (m: any) => { if(m.type === 'PREFILL_CHILD_FRAMES') { relays.push(m); return {}; }
         return { ok: true, source: sourceType, snapshot: { skills: ['TypeScript'] }, profileFallback: {} }; },
