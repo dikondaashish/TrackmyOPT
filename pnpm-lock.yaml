@@ -28,6 +28,9 @@ patchedDependencies:
   '@supabase/auth-js@2.75.0':
     hash: b0b48dcd03879da5d80ee42cd8fe9840e25fd3e1753e75e20dd678fad568b76d
     path: patches/@supabase__auth-js@2.75.0.patch
+  next-themes@0.4.6:
+    hash: ee2047ff23e0187d4f1ddf70b41609c6e041278e8fc64d0cbc16f2a269a56329
+    path: patches/next-themes@0.4.6.patch
 
 importers:
 
@@ -279,7 +282,7 @@ importers:
         version: 16.3.3(@babel/core@7.29.6)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@20.19.21)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       next-themes:
         specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: 0.4.6(patch_hash=ee2047ff23e0187d4f1ddf70b41609c6e041278e8fc64d0cbc16f2a269a56329)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       nodemailer:
         specifier: ^9.0.5
         version: 9.0.5
@@ -14384,7 +14387,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-themes@0.4.6(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+  next-themes@0.4.6(patch_hash=ee2047ff23e0187d4f1ddf70b41609c6e041278e8fc64d0cbc16f2a269a56329)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)

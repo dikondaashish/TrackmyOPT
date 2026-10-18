@@ -96,6 +96,32 @@ describe('evaluateIngestionHealth', () => {
       stalledSources: 1,
     });
   });
+
+  it('treats a source that failed in one run and succeeded in a later run as recovered', () => {
+    const health = evaluateIngestionHealth(now, [], [
+      audit({
+        source_id: 'a',
+        scheduler_run_id: 'job-board-hour-2026-10-15T18',
+        status: 'failed',
+        error_message: "ORA-01536: space quota exceeded for tablespace 'DATA'",
+        run_at: '2026-10-15T18:10:00Z',
+      }),
+      audit({
+        source_id: 'a',
+        scheduler_run_id: 'job-board-hour-2026-10-16T01',
+        status: 'succeeded',
+        run_at: '2026-10-16T01:30:00Z',
+      }),
+      audit({
+        source_id: 'b',
+        scheduler_run_id: 'job-board-hour-2026-10-15T18',
+        status: 'failed',
+        error_message: "ORA-01536: space quota exceeded for tablespace 'DATA'",
+        run_at: '2026-10-15T18:20:00Z',
+      }),
+    ]);
+    expect(health).toMatchObject({ failedSources: 1, errorCodes: ['ORA-01536'] });
+  });
 });
 
 describe('scheduledSlot', () => {

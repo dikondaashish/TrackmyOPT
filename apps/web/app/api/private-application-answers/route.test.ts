@@ -8,6 +8,14 @@ const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   row: null as Record<string, unknown> | null,
   lastUpsert: null as Record<string, unknown> | null,
+  upsertError: null as { code: string; message: string } | null,
+  setTag: vi.fn(),
+  captureMessage: vi.fn(),
+}));
+
+vi.mock("@sentry/nextjs", () => ({
+  setTag: mocks.setTag,
+  captureMessage: mocks.captureMessage,
 }));
 
 vi.mock("@/lib/auth/get-user-id", () => ({
@@ -31,6 +39,7 @@ function query() {
     error: null,
   }));
   builder.upsert = vi.fn(async (value: Record<string, unknown>) => {
+    if (mocks.upsertError) return { error: mocks.upsertError };
     mocks.lastUpsert = value;
     mocks.row = value;
     return { error: null };
@@ -71,6 +80,7 @@ describe("/api/private-application-answers", () => {
     mocks.getUserId.mockResolvedValue(USER_ID);
     mocks.row = null;
     mocks.lastUpsert = null;
+    mocks.upsertError = null;
     mocks.from.mockImplementation((table: string) => {
       expect(table).toBe("private_application_answers");
       return query();
@@ -237,6 +247,25 @@ describe("/api/private-application-answers", () => {
 
     expect(response.status).toBe(400);
     expect(mocks.lastUpsert).toBeNull();
+  });
+
+  it("reports a failed save with only the database error code", async () => {
+    mocks.upsertError = {
+      code: "23514",
+      message: 'new row violates check constraint "private_application_answers_payload_version_check"',
+    };
+    const response = await PUT(request("PUT", { consent: true, visaType: "opt" }));
+
+    expect(response.status).toBe(500);
+    expect(mocks.setTag).toHaveBeenCalledWith("db_operation", "save");
+    expect(mocks.setTag).toHaveBeenCalledWith("db_error_code", "23514");
+    expect(mocks.captureMessage).toHaveBeenCalledWith(
+      "PUT /api/private-application-answers returned HTTP 500",
+      "error"
+    );
+    for (const call of mocks.setTag.mock.calls) {
+      expect(String(call[1])).not.toContain("opt");
+    }
   });
 
   it("deletes all saved private answers", async () => {
