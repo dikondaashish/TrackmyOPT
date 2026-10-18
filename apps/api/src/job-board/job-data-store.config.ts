@@ -8,6 +8,11 @@ export type OracleJobDataConfig = {
   user: string;
   password: string;
   poolMax: number;
+  /**
+   * How long a request waits for a free pooled connection before NJS-040.
+   * Long enough to ride out a short burst while ingestion loads the database.
+   */
+  queueTimeoutMs?: number;
   /** Per-round-trip limit; a blocked statement errors instead of hanging. */
   callTimeoutMs?: number;
   /**
@@ -18,6 +23,7 @@ export type OracleJobDataConfig = {
 };
 
 export const DEFAULT_ORACLE_CALL_TIMEOUT_MS = 1_800_000;
+export const DEFAULT_ORACLE_QUEUE_TIMEOUT_MS = 15_000;
 const MIN_ORACLE_CALL_TIMEOUT_MS = 1_000;
 const MAX_ORACLE_CALL_TIMEOUT_MS = 2_147_483_647;
 
@@ -77,6 +83,14 @@ export function readOracleJobDataConfig(
       ? parsedCallTimeout
       : DEFAULT_ORACLE_CALL_TIMEOUT_MS;
 
+  const parsedQueueTimeout = Number(env.ORACLE_JOB_DB_QUEUE_TIMEOUT_MS);
+  const queueTimeoutMs =
+    Number.isInteger(parsedQueueTimeout) &&
+    parsedQueueTimeout >= 1_000 &&
+    parsedQueueTimeout <= 60_000
+      ? parsedQueueTimeout
+      : DEFAULT_ORACLE_QUEUE_TIMEOUT_MS;
+
   const incrementalIngestion = env.JOB_INGEST_INCREMENTAL === 'true';
 
   return {
@@ -84,6 +98,7 @@ export function readOracleJobDataConfig(
     user,
     password,
     poolMax,
+    queueTimeoutMs,
     callTimeoutMs,
     incrementalIngestion,
   };

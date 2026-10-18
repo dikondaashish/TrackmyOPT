@@ -49,6 +49,23 @@ describe('job data store configuration', () => {
     );
   });
 
+  it.each([
+    [undefined, 15_000],
+    ['30000', 30_000],
+    ['500', 15_000],
+    ['120000', 15_000],
+    ['abc', 15_000],
+  ])('reads ORACLE_JOB_DB_QUEUE_TIMEOUT_MS=%s as %i ms', (value, expected) => {
+    const config = readOracleJobDataConfig({
+      JOB_DATA_STORE: 'oracle',
+      ORACLE_JOB_DB_CONNECT_STRING: 'tcps://oracle.example/service',
+      ORACLE_JOB_DB_USER: 'TRACKMYOPT_JOBS',
+      ORACLE_JOB_DB_PASSWORD: 'not-logged',
+      ORACLE_JOB_DB_QUEUE_TIMEOUT_MS: value,
+    });
+    expect(config.queueTimeoutMs).toBe(expected);
+  });
+
   it('bounds the Oracle pool and returns no secret in the configuration error path', () => {
     const config = readOracleJobDataConfig({
       JOB_DATA_STORE: 'oracle',
@@ -63,6 +80,7 @@ describe('job data store configuration', () => {
       user: 'TRACKMYOPT_JOBS',
       password: 'not-logged',
       poolMax: 10,
+      queueTimeoutMs: 15_000,
       callTimeoutMs: 1_800_000,
       incrementalIngestion: false,
     });
