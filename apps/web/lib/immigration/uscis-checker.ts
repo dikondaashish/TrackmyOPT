@@ -26,6 +26,8 @@ export interface USCISError {
   userMessage: string;
   details?: string;
   retryAfter?: number;
+  /** USCIS itself answered 5xx (an outage), not our request or credentials. */
+  upstreamUnavailable?: boolean;
 }
 
 export type USCISResult =

@@ -1,6 +1,10 @@
 import { resolveActivePlanTier } from '@/lib/premium/user-plan-tier';
 import { visibleStatusSnapshot } from '@/lib/case-status/visible-status';
-import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import {
+  reportedElsewhere,
+  UPSTREAM_UNAVAILABLE_HEADER,
+  withSentryApiErrors,
+} from '@/lib/sentry/api-errors';
 import { recordObservation } from '@/lib/opt-forecast/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCronAuth } from '@/lib/api/verify-cron-auth';
@@ -439,7 +443,10 @@ async function handlePOST(req: NextRequest) {
             : 400;
       await finishFailed(failureHttpStatus, uscisResult.error.code);
 
-      return NextResponse.json(
+      // A USCIS outage is reported once by the client as a grouped warning;
+      // callers read the header to pass it on without new error issues.
+      const upstreamUnavailable = uscisResult.error.upstreamUnavailable === true;
+      const failure = NextResponse.json(
         {
           ok: false,
           error: uscisResult.error.userMessage,
@@ -454,9 +461,13 @@ async function handlePOST(req: NextRequest) {
             ...(uscisResult.error.retryAfter
               ? { 'Retry-After': String(uscisResult.error.retryAfter) }
               : {}),
+            ...(upstreamUnavailable
+              ? { [UPSTREAM_UNAVAILABLE_HEADER]: 'uscis' }
+              : {}),
           },
         }
       );
+      return upstreamUnavailable ? reportedElsewhere(failure) : failure;
     }
 
     // SUCCESS: Extract data from result

@@ -42,6 +42,28 @@ was already dispatched (`suppressed`) is not an error. Failures
 inside the Render worker that never reach an audit row remain visible only in
 Render logs. See `docs/ops/ingestion-automation.md`.
 
+Grouping and tags (2026-10-19): `scrubSentryEvent` keeps each event's custom
+`fingerprint` and only the diagnostic tags in `DIAGNOSTIC_TAGS` (static codes
+our code sets, such as `job_board_health`, `linkedin_post`, `db_error_code`,
+`uscis_status`); every other tag is still dropped. Before this, every
+`setFingerprint` was discarded, so reports from one call site merged (the
+ingestion health kinds all landed in TRACKMYOPT-1G). `withSentryApiErrors`
+reports are grouped per method, route and status (`applyApiErrorFingerprint`),
+so different routes no longer share one issue (TRACKMYOPT-P).
+
+USCIS outages: when USCIS itself answers 5xx (for example Cloudflare 522),
+`fetchCaseStatus` reports one grouped warning "USCIS case-status API
+unavailable" (fingerprint `uscis-api` / `upstream-unavailable`, tag
+`uscis_status`) and the request governor defers further calls. The check
+route marks that 503 `X-Upstream-Unavailable: uscis` and `reportedElsewhere`,
+`/api/case-status/refresh` passes it on as 503 (other failures stay a reported
+502), the initial-check trigger skips it, and the browser filter drops that
+refresh 503. Rejected credentials (401/403) and our own failures still report
+as errors. Also dropped as non-TrackMyOPT outcomes: MetaMask's injected
+`app:///scripts/inpage.js`, the frameless "browsing context is going away"
+AbortError of a page unloading, and Supabase auth-js's console report of a
+reused or missing refresh token (the visitor is signed out).
+
 The daily LinkedIn jobs post (`/api/cron/linkedin-daily-post`, 2:30 PM New
 York time) raises `LinkedIn daily jobs post: <code>` with fingerprint
 `linkedin-daily-post` / `cron` / `<code>` when building or publishing fails
