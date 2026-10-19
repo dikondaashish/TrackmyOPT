@@ -20,6 +20,7 @@ import {
   generateAiContent,
   estimateAiCostUsd,
   resolveAiBackendConfig,
+  toGeminiResponseSchema,
 } from './google-ai';
 
 describe('Vertex AI backend configuration', () => {
@@ -187,10 +188,70 @@ describe('AI failure diagnostics', () => {
       generateAiContent({ task: 'autofill_extract', contents: 'synthetic' })
     ).rejects.toThrow();
     const line =
-      '[ai-failed] task=autofill_extract model=gemini-3.5-flash-lite fallback=false error=ApiError status=400 reason=INVALID_ARGUMENT';
+      '[ai-failed] task=autofill_extract model=gemini-3.5-flash-lite fallback=false error=ApiError status=400 reason=INVALID_ARGUMENT cause=other';
     expect(error).toHaveBeenCalledWith(line);
     expect(JSON.stringify(error.mock.calls)).not.toContain('Synthetic applicant');
     expect(scrubSentryEvent({ type: undefined, message: line }, {}).message).toBe(line);
+  });
+
+  it('reports a primary timeout only when the fallback model also fails', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const timeout = () =>
+      Object.assign(new Error('{"error":{"code":504,"status":"DEADLINE_EXCEEDED"}}'), {
+        name: 'ApiError',
+        status: 504,
+      });
+    generateContent.mockRejectedValueOnce(timeout()).mockResolvedValueOnce({ text: 'ok' });
+    await expect(generateAiContent({ task: 'resume_generate', contents: 'synthetic' })).resolves.toMatchObject({
+      text: 'ok',
+    });
+    expect(error).not.toHaveBeenCalled();
+    expect(warn.mock.calls.some(([line]) => String(line).startsWith('[ai-failed] task=resume_generate'))).toBe(true);
+
+    generateContent.mockRejectedValueOnce(timeout()).mockRejectedValueOnce(timeout());
+    await expect(generateAiContent({ task: 'resume_generate', contents: 'synthetic' })).rejects.toThrow();
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(String(error.mock.calls[0][0])).toContain('fallback=true');
+  });
+
+  it('names the kind of request rejection without logging provider text', () => {
+    const rejected = (message: string) =>
+      Object.assign(
+        new Error(JSON.stringify({ error: { code: 400, message, status: 'INVALID_ARGUMENT' } })),
+        { name: 'ApiError', status: 400 }
+      );
+    expect(aiFailureDiagnostic(rejected('The specified schema produces a constraint that has too many states for serving.')).cause).toBe('schema');
+    expect(aiFailureDiagnostic(rejected('The input token count exceeds the maximum number of tokens allowed.')).cause).toBe('input_too_large');
+    expect(aiFailureDiagnostic(rejected('API key not valid. Please pass a valid API key.')).cause).toBe('auth');
+    expect(aiFailureDiagnostic(rejected('Applicant resume text')).cause).toBe('other');
+    // Rate limits and server errors carry no cause.
+    expect(aiFailureDiagnostic(Object.assign(new Error('{}'), { name: 'ApiError', status: 504 })).cause).toBeUndefined();
+  });
+
+  it('strips length, count and range keywords from a response schema, recursively', () => {
+    const schema = {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        name: { type: 'string', maxLength: 120, minLength: 1 },
+        tags: { type: 'array', maxItems: 5, items: { type: 'string', maxLength: 40, pattern: '^a' } },
+        years: { type: 'number', minimum: 0, maximum: 100 },
+      },
+      required: ['name'],
+    };
+    expect(toGeminiResponseSchema(schema)).toEqual({
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        name: { type: 'string' },
+        tags: { type: 'array', items: { type: 'string' } },
+        years: { type: 'number' },
+      },
+      required: ['name'],
+    });
+    // The caller's schema is left intact for its own validation.
+    expect(schema.properties.name.maxLength).toBe(120);
   });
 
   it('labels failures without provider bodies', () => {

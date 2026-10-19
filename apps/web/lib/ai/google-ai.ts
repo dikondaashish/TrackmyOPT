@@ -309,10 +309,46 @@ export function estimateAiCostUsd(
  * numeric HTTP status, and Google's upper-case status enum (e.g.
  * INVALID_ARGUMENT) parsed from the provider body. Never the message text.
  */
+// Categories for a provider's 4xx explanation. The provider text itself is
+// never logged (it can quote the request), only which family it belongs to.
+const REQUEST_REJECTION_CAUSES: ReadonlyArray<[string, RegExp]> = [
+  ['schema', /schema|too many states|response_?json|constraint/i],
+  ['input_too_large', /token|context (?:length|window)|too (?:long|large)|exceeds the maximum/i],
+  ['auth', /api key|permission|unauthori[sz]ed|credential|forbidden/i],
+  ['model', /model\b.*(?:not found|not supported|unavailable)|unsupported model/i],
+];
+
+function requestRejectionCause(message: string): string {
+  return REQUEST_REJECTION_CAUSES.find(([, pattern]) => pattern.test(message))?.[0] ?? 'other';
+}
+
+/**
+ * Removes length, count and range keywords from a JSON schema sent as
+ * responseJsonSchema. Gemini rejects schemas whose constraints expand into too
+ * many decoding states (400 INVALID_ARGUMENT); callers must validate the
+ * returned JSON against their full schema, which keeps these limits.
+ */
+export function toGeminiResponseSchema<T>(schema: T): T {
+  const constraintKeys = new Set([
+    'maxLength', 'minLength', 'maxItems', 'minItems', 'minimum', 'maximum', 'pattern',
+  ]);
+  const strip = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(strip);
+    if (!value || typeof value !== 'object') return value;
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => !constraintKeys.has(key))
+        .map(([key, nested]) => [key, strip(nested)])
+    );
+  };
+  return strip(schema) as T;
+}
+
 export function aiFailureDiagnostic(error: unknown): {
   errorName: string;
   status?: number;
   reason?: string;
+  cause?: string;
 } {
   const errorName =
     error instanceof Error && /^[A-Za-z]{1,64}$/.test(error.name)
@@ -326,10 +362,23 @@ export function aiFailureDiagnostic(error: unknown): {
     error instanceof Error
       ? /"status"\s*:\s*"([A-Z_]{3,40})"/.exec(error.message)?.[1]
       : undefined;
+  // For a rejected request (4xx other than rate limits), which kind of
+  // problem the provider named; the message itself stays out of logs.
+  const cause =
+    error instanceof Error &&
+    Number.isInteger(rawStatus) &&
+    rawStatus >= 400 &&
+    rawStatus < 500 &&
+    rawStatus !== 429
+      ? requestRejectionCause(
+          /"message"\s*:\s*"((?:[^"\\]|\\.)*)"/.exec(error.message)?.[1] ?? error.message
+        )
+      : undefined;
   return {
     errorName,
     ...(Number.isInteger(rawStatus) ? { status: rawStatus } : {}),
     ...(reason ? { reason } : {}),
+    ...(cause ? { cause } : {}),
   };
 }
 
@@ -399,6 +448,8 @@ function emitUsageTelemetry(input: {
 }
 
 async function callModel(input: {
+  /** A fallback model will retry a retryable failure of this call. */
+  fallbackAvailable?: boolean;
   client: GoogleGenAI;
   backend: AiBackendConfig['backend'];
   task: AiTask;
@@ -461,11 +512,19 @@ async function callModel(input: {
     }));
     // ...and a stable, payload-free line for Sentry. A JSON argument would be
     // redacted wholesale by the privacy filter, hiding task, model and status.
-    console.error(
+    const line =
       `[ai-failed] task=${input.task} model=${input.choice.model} ` +
-        `fallback=${input.fallbackUsed} error=${failure.errorName} ` +
-        `status=${failure.status ?? 'none'} reason=${failure.reason ?? 'none'}`
-    );
+      `fallback=${input.fallbackUsed} error=${failure.errorName} ` +
+      `status=${failure.status ?? 'none'} reason=${failure.reason ?? 'none'}` +
+      (failure.cause ? ` cause=${failure.cause}` : '');
+    // A failure the fallback model retries is not yet a user-facing failure
+    // (warn stays out of Sentry); the fallback's own failure reports.
+    const recoverable =
+      input.fallbackAvailable === true &&
+      isRetryableProviderError(error) &&
+      !input.config?.abortSignal?.aborted;
+    if (recoverable) console.warn(line);
+    else console.error(line);
     throw error;
   } finally {
     clearTimeout(timer);
@@ -495,6 +554,7 @@ export async function generateAiContent(input: {
 
   try {
     return await callModel({
+      fallbackAvailable: Boolean(policy.fallback),
       client,
       backend,
       task: input.task,
