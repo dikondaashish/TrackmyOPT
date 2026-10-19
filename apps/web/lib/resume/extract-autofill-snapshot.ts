@@ -9,7 +9,7 @@ import {
   type ResumeDateValue,
 } from './autofill-schema';
 import { latexToPlainText, splitResumeSections } from './latex-to-plain-text';
-import { generateAiContent } from '../ai/google-ai';
+import { generateAiContent, toGeminiResponseSchema } from '../ai/google-ai';
 
 export const FINAL_LATEX_MAX_CHARS = 250_000;
 const NORMALIZED_RESUME_MAX_CHARS = 50_000;
@@ -518,7 +518,8 @@ ${input.sourceResumeText}`;
     contents: prompt,
     config: {
       responseMimeType: 'application/json',
-      responseJsonSchema: SOURCE_TITLE_JSON_SCHEMA,
+      // Limits are enforced by ResumeAutofillSnapshotV1Schema on the result.
+      responseJsonSchema: toGeminiResponseSchema(SOURCE_TITLE_JSON_SCHEMA),
       maxOutputTokens: 2_048,
     },
   });
@@ -609,7 +610,8 @@ ${input.plainText}`;
     contents: prompt,
     config: {
       responseMimeType: 'application/json',
-      responseJsonSchema: RESUME_AUTOFILL_SNAPSHOT_JSON_SCHEMA,
+      // Limits are enforced by ResumeAutofillSnapshotV1Schema on the result.
+      responseJsonSchema: toGeminiResponseSchema(RESUME_AUTOFILL_SNAPSHOT_JSON_SCHEMA),
       maxOutputTokens: 8_192,
     },
   });
