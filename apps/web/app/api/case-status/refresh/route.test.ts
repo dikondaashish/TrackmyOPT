@@ -4,7 +4,9 @@ const m = vi.hoisted(() => ({
   user: '10000000-0000-0000-0000-000000000001' as string | null,
   rpc: vi.fn(),
   fetch: vi.fn(),
+  capture: vi.fn(),
 }));
+vi.mock('@sentry/nextjs', () => ({ captureMessage: m.capture }));
 vi.mock('@/lib/auth/get-user-id', () => ({ getUserId: async () => m.user }));
 vi.mock('@supabase/supabase-js', () => ({
   createClient: () => ({ rpc: m.rpc }),
@@ -76,4 +78,33 @@ it('does not report success for a failed check inside HTTP 200', async () => {
   });
   m.fetch.mockResolvedValue(Response.json({ ok: false }));
   expect((await POST(request())).status).toBe(400);
+});
+
+it('passes a USCIS outage on as 503 without a second error report', async () => {
+  m.rpc.mockResolvedValue({
+    data: { source: 'uscis', receipt_number: 'IOE0000000001' },
+  });
+  m.fetch.mockResolvedValue(
+    Response.json(
+      { ok: false, error: 'Unable to connect to USCIS. Please try again later.' },
+      { status: 503, headers: { 'X-Upstream-Unavailable': 'uscis', 'Retry-After': '60' } }
+    )
+  );
+  const response = await POST(request());
+  expect(response.status).toBe(503);
+  expect(response.headers.get('Retry-After')).toBe('60');
+  expect(m.capture).not.toHaveBeenCalled();
+});
+
+it('still reports other server failures as 502', async () => {
+  m.rpc.mockResolvedValue({
+    data: { source: 'uscis', receipt_number: 'IOE0000000001' },
+  });
+  m.fetch.mockResolvedValue(Response.json({ ok: false }, { status: 500 }));
+  const response = await POST(request());
+  expect(response.status).toBe(502);
+  expect(m.capture).toHaveBeenCalledWith(
+    'POST /api/case-status/refresh returned HTTP 502',
+    'error'
+  );
 });

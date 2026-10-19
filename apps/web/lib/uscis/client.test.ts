@@ -5,6 +5,13 @@ const m = vi.hoisted(() => ({
   acquire: vi.fn(),
   defer: vi.fn(),
   fetch: vi.fn(),
+  capture: vi.fn(),
+  fingerprint: vi.fn(),
+}));
+vi.mock('@sentry/nextjs', () => ({
+  captureMessage: m.capture,
+  withScope: (fn: (scope: unknown) => void) =>
+    fn({ setFingerprint: m.fingerprint, setTag: vi.fn() }),
 }));
 vi.mock('@/lib/uscis/enrollment-guard', () => ({
   assertReceiptEnrolledByUser: m.enrollment,
@@ -103,4 +110,40 @@ it('accounts for OAuth and case calls, and shares an upstream throttle', async (
   });
   expect(m.acquire).toHaveBeenCalledTimes(2);
   expect(m.defer).toHaveBeenCalledWith(input.supabase, 'production', 120);
+});
+
+function upstreamReturns(status: number) {
+  // The token may be cached from an earlier test; answer by URL.
+  m.fetch.mockImplementation(async (url: string) =>
+    url.includes('/oauth/')
+      ? Response.json({ access_token: 'synthetic-token', expires_in: 3600 })
+      : new Response(null, { status })
+  );
+}
+
+it('reports a USCIS outage once as a grouped warning, not a console error', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+  upstreamReturns(522);
+  const result = await fetchCaseStatus(input);
+  expect(result).toMatchObject({
+    success: false,
+    error: { code: 522, upstreamUnavailable: true },
+  });
+  expect(m.fingerprint).toHaveBeenCalledWith(['uscis-api', 'upstream-unavailable']);
+  expect(m.capture).toHaveBeenCalledWith('USCIS case-status API unavailable', 'warning');
+  expect(consoleError).not.toHaveBeenCalled();
+  consoleError.mockRestore();
+});
+
+it('still reports rejected credentials as an error', async () => {
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+  upstreamReturns(403);
+  const result = await fetchCaseStatus(input);
+  expect(result).toMatchObject({
+    success: false,
+    error: { code: 403, upstreamUnavailable: false },
+  });
+  expect(m.capture).not.toHaveBeenCalled();
+  expect(consoleError).toHaveBeenCalledWith('[USCIS] Case status request failed (403)');
+  consoleError.mockRestore();
 });

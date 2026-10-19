@@ -19,7 +19,10 @@ export async function triggerInitialCaseCheck(
         }),
       }
     );
-    if (response.status >= 500) {
+    // A USCIS outage was already reported once as a grouped warning.
+    const upstreamUnavailable =
+      response.headers.get('X-Upstream-Unavailable') === 'uscis';
+    if (response.status >= 500 && !upstreamUnavailable) {
       console.error(`Initial case check returned HTTP ${response.status}`);
     } else if (response.ok) {
       const result = await response.json();
