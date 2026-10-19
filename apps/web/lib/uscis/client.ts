@@ -1,4 +1,5 @@
 /** Sole USCIS HTTP entry point: enrollment, shared pacing/quota, timeouts and safe errors. */
+import * as Sentry from '@sentry/nextjs';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { assertReceiptEnrolledByUser } from '@/lib/uscis/enrollment-guard';
 import { UnauthorizedReceiptLookupError } from '@/lib/uscis/errors';
@@ -25,6 +26,17 @@ class ProviderError extends Error {
   ) {
     super(`USCIS upstream HTTP ${code}`);
   }
+}
+/**
+ * One grouped warning per USCIS outage. Further requests are deferred by the
+ * request governor, so an outage yields few events and no per-route errors.
+ */
+function reportUSCISUnavailable(code: number) {
+  Sentry.withScope((scope) => {
+    scope.setFingerprint(['uscis-api', 'upstream-unavailable']);
+    scope.setTag('uscis_status', String(code));
+    Sentry.captureMessage('USCIS case-status API unavailable', 'warning');
+  });
 }
 function approvedEndpoint(value: string) {
   const url = new URL(value);
@@ -213,13 +225,16 @@ export async function fetchCaseStatus(
       error instanceof USCISRateLimitError || error instanceof ProviderError
         ? error.retryAfter
         : undefined;
-    if (![404, 422, 429].includes(code))
+    const upstreamUnavailable = error instanceof ProviderError && code >= 500;
+    if (upstreamUnavailable) reportUSCISUnavailable(code);
+    else if (![404, 422, 429].includes(code))
       console.error(`[USCIS] Case status request failed (${code})`);
     return {
       success: false,
       error: {
         code,
         retryAfter,
+        upstreamUnavailable,
         message: `USCIS request failed (${code})`,
         userMessage:
           code === 404

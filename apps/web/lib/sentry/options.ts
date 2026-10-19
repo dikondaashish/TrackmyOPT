@@ -44,12 +44,48 @@ function scrubFrame(frame: StackFrame): StackFrame {
 }
 
 /** Allow only diagnostic fields, even when a caller adds private scope data. */
+// Diagnostic tags our own code sets with static codes (never user data).
+// Any other tag, including ones third-party code sets, is dropped.
+const DIAGNOSTIC_TAGS = new Set([
+  'db_error_code',
+  'db_operation',
+  'extension_code',
+  'extension_version',
+  'job_board_dispatch_reason',
+  'job_board_dispatch_status',
+  'job_board_health',
+  'job_board_worker',
+  'linkedin_post',
+  'policy_news',
+  'policy_news_source',
+  'source',
+  'uscis_status',
+]);
+const MAX_TAG_LENGTH = 64;
+
+function diagnosticTags(tags: ErrorEvent['tags']): ErrorEvent['tags'] {
+  const kept = Object.entries(tags ?? {}).flatMap(([key, value]) =>
+    DIAGNOSTIC_TAGS.has(key) &&
+    (typeof value === 'string' || typeof value === 'number')
+      ? [[key, scrubText(String(value)).slice(0, MAX_TAG_LENGTH)] as const]
+      : []
+  );
+  return kept.length ? Object.fromEntries(kept) : undefined;
+}
+
 export function scrubSentryEvent(
   event: ErrorEvent,
   hint: EventHint
 ): ErrorEvent {
   hint.attachments = [];
   return {
+    // Custom grouping (setFingerprint) and our diagnostic tags survive the
+    // scrub; without them every report from one call site merged into one
+    // issue (TRACKMYOPT-1G held Oracle, failed-source and missing-run kinds).
+    fingerprint: event.fingerprint?.map((part) =>
+      scrubText(String(part)).slice(0, 200)
+    ),
+    tags: diagnosticTags(event.tags),
     type: undefined,
     event_id: event.event_id,
     timestamp: event.timestamp,
@@ -102,10 +138,12 @@ export function scrubSentryEvent(
 
 // Browser extensions and userscript managers inject code into our pages; their
 // crashes are not TrackMyOPT failures and would otherwise exhaust the quota.
+// MetaMask's injected provider reports as `app:///scripts/inpage.js`
+// (TRACKMYOPT-1Y); our own scripts are always served from /_next/.
 const FOREIGN_SCRIPT =
-  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$/i;
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$|^app:\/\/\/scripts\/inpage\.js$/i;
 const EXPLICIT_FOREIGN_SCRIPT =
-  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript/i;
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^app:\/\/\/scripts\/inpage\.js$/i;
 
 /** True when every stack frame belongs to injected third-party script. */
 export function isForeignScriptEvent(event: ErrorEvent): boolean {
@@ -408,6 +446,69 @@ export function isAnalyticsTransportFailure(event: ErrorEvent): boolean {
   );
 }
 
+// Leaving a page rejects pending promises with this DOMException
+// (TRACKMYOPT-22); nothing failed for the visitor.
+const PAGE_UNLOAD_ABORT = /^Promise was rejected because the browsing context is going away$/;
+
+/** True for a frameless unhandled AbortError raised while a page unloads. */
+export function isPageUnloadAbortEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  return (
+    values.length > 0 &&
+    values.every(
+      (v) =>
+        v.type === 'AbortError' &&
+        PAGE_UNLOAD_ABORT.test(v.value ?? '') &&
+        !(v.stacktrace?.frames ?? []).length
+    )
+  );
+}
+
+// Supabase auth-js logs a definitive refresh failure with console.error
+// (GoTrueClient _recoverAndRefresh). A refresh token that was already used or
+// revoked (TRACKMYOPT-1Z) signs the visitor out: an expected auth outcome.
+const EXPECTED_AUTH_REFRESH =
+  /^Invalid Refresh Token: (?:Already Used|Refresh Token Not Found)$/;
+
+/** True for Supabase's console report of an expired or reused refresh token. */
+export function isExpectedAuthRefreshEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  return (
+    values.length > 0 &&
+    values.some((v) => v.mechanism?.type === 'auto.core.capture_console') &&
+    values.every(
+      (v) => v.type === 'AuthApiError' && EXPECTED_AUTH_REFRESH.test(v.value ?? '')
+    )
+  );
+}
+
+// During a USCIS outage /api/case-status/refresh answers 503, already
+// reported once server-side as "USCIS case-status API unavailable"; other
+// failures there answer 502 and still report from the browser.
+const PROVIDER_OUTAGE_ROUTE = /\/api\/case-status\/refresh(?:[?#]|$)/;
+
+/** True for the browser's report of the refresh route's USCIS-outage 503. */
+export function isProviderOutageHttpEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  return (
+    values.some((v) => v.mechanism?.type === 'auto.http.client.fetch') &&
+    event.contexts?.response?.status_code === 503 &&
+    PROVIDER_OUTAGE_ROUTE.test(event.request?.url ?? '')
+  );
+}
+
+// withSentryApiErrors reports every handled 5xx from one call site, so Sentry
+// grouped all routes into a single issue (TRACKMYOPT-P held both a private
+// answers 500 and a case refresh 502). Group by method, route and status.
+const API_HTTP_ERROR =
+  /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) (\/\S+) returned HTTP (\d{3})$/;
+
+/** Sets a per-route fingerprint on withSentryApiErrors reports. */
+export function applyApiErrorFingerprint(event: ErrorEvent): void {
+  const match = API_HTTP_ERROR.exec(event.message ?? event.logentry?.message ?? '');
+  if (match) event.fingerprint = ['api-http-error', match[1], match[2], match[3]];
+}
+
 export function sentryOptions(
   dsn: string | undefined
 ): Parameters<typeof init>[0] {
@@ -440,9 +541,13 @@ export function sentryOptions(
         isBrowserFeatureConsoleEvent(event) ||
         isNodeRuntimeNoticeEvent(event) ||
         isInjectedPageScriptEvent(event) ||
-        isAnalyticsTransportFailure(event)
+        isAnalyticsTransportFailure(event) ||
+        isPageUnloadAbortEvent(event) ||
+        isExpectedAuthRefreshEvent(event) ||
+        isProviderOutageHttpEvent(event)
       )
         return null;
+      applyApiErrorFingerprint(event);
       const drop = shouldDropNetworkFailure(event);
       if (typeof drop === 'boolean')
         return drop ? null : scrubSentryEvent(event, hint);

@@ -1,4 +1,8 @@
-import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import {
+  reportedElsewhere,
+  UPSTREAM_UNAVAILABLE_HEADER,
+  withSentryApiErrors,
+} from '@/lib/sentry/api-errors';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
@@ -82,9 +86,19 @@ async function handlePOST(req: NextRequest) {
   if (!response.ok || result.ok !== true || result.skipped) {
     if (response.ok && result.ok !== true)
       console.error('Manual case check returned an unsuccessful response');
+    // USCIS outage: 503, already reported once by the USCIS client. Any
+    // other server failure stays a reported 502.
+    const upstreamUnavailable =
+      response.headers.get(UPSTREAM_UNAVAILABLE_HEADER) === 'uscis';
     const status =
-      response.status === 429 ? 429 : response.status >= 500 ? 502 : 400;
-    return reply(
+      response.status === 429
+        ? 429
+        : upstreamUnavailable
+          ? 503
+          : response.status >= 500
+            ? 502
+            : 400;
+    const failure = reply(
       {
         ok: false,
         error: result.error || 'Could not refresh this case',
@@ -95,6 +109,7 @@ async function handlePOST(req: NextRequest) {
         ? { 'Retry-After': response.headers.get('Retry-After')! }
         : {}
     );
+    return upstreamUnavailable ? reportedElsewhere(failure) : failure;
   }
   return reply({ ok: true, source: 'uscis' });
 }

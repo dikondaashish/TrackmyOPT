@@ -119,7 +119,9 @@ jobs:
 
   e2e:
     name: Playwright E2E
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04 on 2026-10-19, where Playwright's
+    # `install --with-deps` has no Chromium build yet. Revisit when supported.
+    runs-on: ubuntu-24.04
     needs: verify
     timeout-minutes: 20
     permissions:

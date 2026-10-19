@@ -3,7 +3,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as Sentry from '@sentry/nextjs';
 import type { ErrorEvent } from '@sentry/nextjs';
 import {
+  applyApiErrorFingerprint,
   isAnalyticsTransportFailure,
+  isExpectedAuthRefreshEvent,
+  isPageUnloadAbortEvent,
+  isProviderOutageHttpEvent,
   isBrowserFeatureConsoleEvent,
   isNodeRuntimeNoticeEvent,
   isBrowserNetworkError,
@@ -724,5 +728,111 @@ describe('server analytics transport noise', () => {
       })
     ).toBe(false);
     expect(isAnalyticsTransportFailure({ type: undefined })).toBe(false);
+  });
+});
+
+describe('Sentry grouping and expected outcomes (2026-10-19 review)', () => {
+  const beforeSend = () => sentryOptions('https://key@example.test/1')?.beforeSend;
+
+  it('keeps custom fingerprints and only allowlisted diagnostic tags through the scrubber', () => {
+    const result = scrubSentryEvent(
+      {
+        type: undefined,
+        message: 'Job-board ingestion failed for 1 source(s)',
+        fingerprint: ['job-board-ingestion', 'failed-source'],
+        tags: { job_board_health: 'failed-source', db_error_code: '23514', passport: 'private passport' },
+      },
+      {}
+    );
+    expect(result.fingerprint).toEqual(['job-board-ingestion', 'failed-source']);
+    expect(result.tags).toEqual({ job_board_health: 'failed-source', db_error_code: '23514' });
+  });
+
+  it('groups withSentryApiErrors reports by method, route and status (TRACKMYOPT-P)', () => {
+    const refresh: ErrorEvent = { type: undefined, message: 'POST /api/case-status/refresh returned HTTP 502' };
+    applyApiErrorFingerprint(refresh);
+    expect(refresh.fingerprint).toEqual(['api-http-error', 'POST', '/api/case-status/refresh', '502']);
+    const other: ErrorEvent = { type: undefined, message: 'Something else failed' };
+    applyApiErrorFingerprint(other);
+    expect(other.fingerprint).toBeUndefined();
+    const sent = beforeSend()?.(
+      { type: undefined, message: 'PUT /api/private-application-answers returned HTTP 500' },
+      {}
+    ) as ErrorEvent;
+    expect(sent.fingerprint).toEqual(['api-http-error', 'PUT', '/api/private-application-answers', '500']);
+  });
+
+  it('drops the frameless AbortError of a page unloading (TRACKMYOPT-22)', () => {
+    const unload: ErrorEvent = {
+      type: undefined,
+      exception: {
+        values: [
+          {
+            type: 'AbortError',
+            value: 'Promise was rejected because the browsing context is going away',
+            mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection', handled: false },
+          },
+        ],
+      },
+    };
+    expect(isPageUnloadAbortEvent(unload)).toBe(true);
+    expect(beforeSend()?.(unload, {})).toBeNull();
+    const withFrames = structuredClone(unload);
+    withFrames.exception!.values![0].stacktrace = {
+      frames: [{ filename: 'https://www.trackmyopt.com/_next/static/chunks/app.js' }],
+    };
+    expect(isPageUnloadAbortEvent(withFrames)).toBe(false);
+  });
+
+  it("drops Supabase's console report of a reused refresh token only (TRACKMYOPT-1Z)", () => {
+    const authEvent = (value: string, mechanism = 'auto.core.capture_console'): ErrorEvent => ({
+      type: undefined,
+      exception: { values: [{ type: 'AuthApiError', value, mechanism: { type: mechanism, handled: true } }] },
+    });
+    expect(isExpectedAuthRefreshEvent(authEvent('Invalid Refresh Token: Already Used'))).toBe(true);
+    expect(isExpectedAuthRefreshEvent(authEvent('Invalid Refresh Token: Refresh Token Not Found'))).toBe(true);
+    expect(isExpectedAuthRefreshEvent(authEvent('Database error saving new user'))).toBe(false);
+    expect(isExpectedAuthRefreshEvent(authEvent('Invalid Refresh Token: Already Used', 'generic'))).toBe(false);
+  });
+
+  it("drops the refresh route's USCIS-outage 503 from the browser but keeps 502s (TRACKMYOPT-21/23)", () => {
+    const http = (status: number, url: string): ErrorEvent => ({
+      type: undefined,
+      message: `HTTP Client Error with status code: ${status}`,
+      request: { url },
+      contexts: { response: { status_code: status } },
+      exception: {
+        values: [{ type: 'Error', mechanism: { type: 'auto.http.client.fetch', handled: false } }],
+      },
+    });
+    expect(isProviderOutageHttpEvent(http(503, 'https://www.trackmyopt.com/api/case-status/refresh'))).toBe(true);
+    expect(isProviderOutageHttpEvent(http(502, 'https://www.trackmyopt.com/api/case-status/refresh'))).toBe(false);
+    expect(isProviderOutageHttpEvent(http(503, 'https://www.trackmyopt.com/api/job-board/jobs'))).toBe(false);
+  });
+
+  it("treats MetaMask's injected inpage.js as foreign script (TRACKMYOPT-1Y)", () => {
+    const metamask: ErrorEvent = {
+      type: undefined,
+      exception: {
+        values: [
+          {
+            type: 'i',
+            value: 'Failed to connect to MetaMask',
+            stacktrace: { frames: [{ filename: 'app:///scripts/inpage.js', lineno: 12, colno: 4822 }] },
+          },
+          {
+            type: 'Error',
+            value: 'MetaMask extension not found',
+            stacktrace: { frames: [{ filename: 'app:///scripts/inpage.js', lineno: 12, colno: 1696 }] },
+          },
+        ],
+      },
+    };
+    expect(isForeignScriptEvent(metamask)).toBe(true);
+    const ours = structuredClone(metamask);
+    ours.exception!.values![0].stacktrace!.frames!.push({
+      filename: 'https://www.trackmyopt.com/_next/static/chunks/app.js',
+    });
+    expect(isForeignScriptEvent(ours)).toBe(false);
   });
 });
