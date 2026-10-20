@@ -172,6 +172,10 @@ const BUNDLE_FRAME = /\/_next\//i;
 // browser callback (addEventListener, setTimeout, ...) its wrapper is the
 // outermost frame, so a leading run of bundle frames is the SDK, not our code.
 const SDK_WRAPPED_CALLBACK = /^auto\.browser\.browserapierrors\./;
+// AdSense logs its own TagErrors with console.error from timers the SDK wrapped
+// (TRACKMYOPT-2C), so captureConsole events start with exactly one SDK wrapper
+// frame. Skip only that frame: our code calling the ad script still counts.
+const CONSOLE_MECHANISM = 'auto.core.capture_console';
 
 const frameFiles = (event: ErrorEvent) =>
   (event.exception?.values ?? []).flatMap((exception) =>
@@ -190,6 +194,14 @@ export function isThirdPartyScriptEvent(event: ErrorEvent): boolean {
   if (wrapped) {
     const firstForeign = files.findIndex((file) => !BUNDLE_FRAME.test(file));
     files = firstForeign < 0 ? [] : files.slice(firstForeign);
+  } else if (
+    files.length > 1 &&
+    BUNDLE_FRAME.test(files[0]) &&
+    (event.exception?.values ?? []).some(
+      (exception) => exception.mechanism?.type === CONSOLE_MECHANISM
+    )
+  ) {
+    files = files.slice(1);
   }
   return files.length > 0 && files.every((file) => THIRD_PARTY_SCRIPT.test(file));
 }
