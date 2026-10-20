@@ -1,4 +1,4 @@
-# Chrome Web Store update — 0.2.4
+# Chrome Web Store update — 0.2.5
 
 Existing production item: `hfljbefkccdmlnhclfojlafipjnjbajm` (Zyene, Inc.).
 Upload to this item's draft; do not create a second listing. The listing copy,
@@ -17,12 +17,12 @@ pnpm --filter extension package:store
 The script rebuilds `dist/`, checks the manifest (MV3, version matches
 `package.json`, exact permission and host lists), rejects `localhost`, source
 maps, console calls, and key-shaped strings, and writes
-`apps/extension/releases/trackmyopt-v0.2.4-chrome-web-store.zip`. `releases/`
+`apps/extension/releases/trackmyopt-v0.2.5-chrome-web-store.zip`. `releases/`
 is not tracked; rebuild to reproduce it. Record the SHA-256 the script prints.
 
 ## What changes for the Store form
 
-0.2.4 adds one permission since the last published package: **`alarms`**.
+0.2.5 includes the remote-config and submission-tracking work merged after the published 0.2.4 (which was built on 2026-09-27). It declares one permission that package did not: **`alarms`**.
 Chrome re-reviews permission additions, and the Privacy practices tab needs a
 justification for it. Suggested text:
 
@@ -38,7 +38,7 @@ do not change.
 
 ## Before you submit
 
-1. Upload the ZIP on the **Package** tab; confirm the dashboard reports 0.2.4.
+1. Upload the ZIP on the **Package** tab; confirm the dashboard reports 0.2.5.
 2. Add the `alarms` justification on **Privacy practices**.
 3. Re-read the single-purpose and permission fields; they must still describe
    the extension accurately.
