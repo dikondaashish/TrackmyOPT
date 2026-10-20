@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { getUserId } from '@/lib/auth/get-user-id';
+import { loadCheckoutProfile } from '@/lib/premium/load-checkout-profile';
 import { sanitizeError, secureLog } from '@/lib/secure-logger';
 import { requireLiveStripeKeyInProduction } from '@/lib/stripe/require-live-key-in-production';
 import {
@@ -213,21 +214,19 @@ async function handlePOST(req: NextRequest) {
       );
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select(
-        'email, first_name, last_name, stripe_customer_id, pro_free_trial_consumed'
-      )
-      .eq('user_id', userId)
-      .single();
-
-    if (profileError) {
-      console.error('Error fetching profile:', profileError);
+    const profileResult = await loadCheckoutProfile(supabase, userId);
+    if (!profileResult.ok) {
+      console.error(
+        'Error loading checkout profile:',
+        profileResult.error.code,
+        profileResult.error.message
+      );
       return NextResponse.json(
-        { error: 'Could not find user profile' },
-        { status: 404 }
+        { error: 'Could not load your profile. Please try again.' },
+        { status: 500 }
       );
     }
+    const { profile } = profileResult;
 
     let customerId = profile?.stripe_customer_id;
 
@@ -246,7 +245,7 @@ async function handlePOST(req: NextRequest) {
     if (!customerId) {
       secureLog.log('Creating new Stripe customer for user:', userId);
       const customer = await stripe.customers.create({
-        email: profile?.email,
+        email: profile.email ?? undefined,
         name:
           `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() ||
           undefined,
