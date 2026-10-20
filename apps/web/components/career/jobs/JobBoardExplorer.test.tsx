@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { EMPTY_JOB_FILTERS } from '@/lib/job-board/filters';
 import { JobBoardExplorer } from './JobBoardExplorer';
 
 vi.mock('./JobCardActions', () => ({
@@ -287,8 +288,60 @@ describe('JobBoardExplorer', () => {
     expect(params.getAll('place')).toEqual(['state:MA', 'city:San Francisco, CA']);
     expect(params.has('location')).toBe(false);
     expect(params.get('page')).toBe('1');
-    expect(params.has('resumeId')).toBe(false);
+    expect(params.get('resumeId')).toBe('none');
+    // The address bar keeps the applied search for reloads and shared links.
+    expect(new URLSearchParams(window.location.search).get('company')).toBe('Anyscale, Inc.');
     fetchMock.mockRestore();
+  });
+
+  it('offers a retry when a description fails to load, and says when a listing closed', async () => {
+    const fetchMock = vi.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Unable to load job description' }), { status: 500 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ description: '<p>Loaded on retry</p>' }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Job not found' }), { status: 404 }));
+    render(<JobBoardExplorer jobs={[job({ description: null }), job({ id: 'job-closed', title: 'Closed role', description: null })]} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Software Engineer' }));
+    expect(await screen.findByText('Couldn’t load the job description.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByText('Loaded on retry')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Closed role' }));
+    expect(await screen.findByText('This listing is no longer open on the employer board.')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    fetchMock.mockRestore();
+  });
+
+  it('pages with the server page size, shows loading, and keeps the tracker-wide saved count', async () => {
+    let resolvePage: (response: Response) => void = () => {};
+    const fetchMock = vi.spyOn(global, 'fetch').mockImplementationOnce(() => new Promise((resolve) => { resolvePage = resolve; }));
+    render(<JobBoardExplorer jobs={jobs} totalJobs={45} pageSize={20} savedCount={12} serverMode runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    expect(screen.getByText('Saved 12')).toBeInTheDocument();
+    expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText('Loading jobs…')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+
+    resolvePage(new Response(JSON.stringify({ jobs: [job({ id: 'page-2', title: 'Second page role', tracker_status: null })], total: 45, page: 2, pageSize: 20 }), { status: 200 }));
+    expect(await screen.findByText('Second page role')).toBeInTheDocument();
+    expect(screen.getByText('Page 2 of 3')).toBeInTheDocument();
+    expect(screen.getByText('Saved 12')).toBeInTheDocument();
+    expect(new URL(String(fetchMock.mock.calls[0][0]), 'https://example.test').searchParams.get('page')).toBe('2');
+    fetchMock.mockRestore();
+  });
+
+  it('says how much of the feed the server ranked for the resume', () => {
+    const initialResumeMatch = {
+      resumeId: '44444444-4444-4444-8444-444444444444',
+      filename: 'Stored Resume.pdf',
+      source: 'ai' as const,
+      profile: { schemaVersion: 1 as const, roleTitles: ['Software Engineer'], skills: [], certifications: [], education: [], yearsExperience: 2 },
+    };
+    render(<JobBoardExplorer jobs={jobs} totalJobs={900} rankedCount={300} serverMode initialFilters={{ ...EMPTY_JOB_FILTERS }} initialResumeMatch={initialResumeMatch} runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+    expect(screen.getByText('900 jobs · newest 300 ranked for your resume, then by date')).toBeInTheDocument();
+    // Server-applied filters are shown as given, not replaced by resume defaults.
+    expect(screen.getByRole('textbox', { name: 'Search verified jobs' })).toHaveValue('');
   });
 
   it('keeps the newest server results when an earlier request finishes last', async () => {

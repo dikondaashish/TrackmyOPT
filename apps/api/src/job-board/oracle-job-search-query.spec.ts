@@ -117,8 +117,23 @@ describe('buildOracleJobSearchFilter', () => {
   it('keeps jobs without a URL in the not-saved scope', () => {
     const { where } = build({ excludeJobUrls: ['https://example.test/a'] });
     expect(where).toContain(
-      '(job_url IS NULL OR job_url NOT IN (:excludeUrl0))',
+      '(job_url IS NULL OR (job_url NOT IN (:excludeUrl0)))',
     );
+  });
+
+  it('splits tracker URL lists at the Oracle IN-list limit', () => {
+    const urls = Array.from(
+      { length: 1001 },
+      (_, index) => `https://example.test/${index}`,
+    );
+    const include = build({ includeJobUrls: urls });
+    expect(include.where).toContain('job_url IN (:includeUrl1000)');
+    expect(include.where).toContain(') OR job_url IN (');
+    expect(include.filterBinds.includeUrl1000).toBe(
+      'https://example.test/1000',
+    );
+    const exclude = build({ excludeJobUrls: urls });
+    expect(exclude.where).toContain(') AND job_url NOT IN (:excludeUrl1000)))');
   });
 
   it.each([

@@ -125,6 +125,40 @@ describe('JobBoardController scheduler contract', () => {
     expect(listForJobs).toHaveBeenCalledWith([]);
   });
 
+  it('reads tracker URL lists from a POST body, keeping commas in URLs', async () => {
+    listJobs.mockResolvedValue({ rows: [], total: 0 });
+    await controller.searchJobsByBody({
+      page: 3,
+      tracker: 'ignored',
+      country: 'us',
+      includeJobUrls: [
+        'https://example.test/a,b',
+        ' https://example.test/c ',
+        7,
+      ],
+      excludeJobUrls: [],
+    });
+    expect(listJobs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        page: 3,
+        country: 'us',
+        includeJobUrls: ['https://example.test/a,b', 'https://example.test/c'],
+        excludeJobUrls: [],
+      }),
+    );
+  });
+
+  it('rejects an unbounded tracker URL list', () => {
+    expect(() =>
+      controller.searchJobsByBody({
+        includeJobUrls: Array.from(
+          { length: 5001 },
+          (_, i) => `https://e.test/${i}`,
+        ),
+      }),
+    ).toThrow(BadRequestException);
+  });
+
   it('serves complete filter options before the jobs/:id route', async () => {
     const facets = { locations: ['Remote'], companies: ['Anthropic'] };
     listJobFacets.mockResolvedValue(facets);

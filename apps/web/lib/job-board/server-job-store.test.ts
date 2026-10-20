@@ -44,4 +44,20 @@ describe('job data API reads', () => {
     await expect(getServerJob('missing')).resolves.toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it('sends tracker URL lists in a POST body, with a per-attempt timeout', async () => {
+    fetchMock.mockResolvedValueOnce(page());
+    await listServerJobs({ page: 1, includeJobUrls: ['https://jobs.test/a,b'] });
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('https://api.example.test/job-board/jobs/search');
+    expect(init).toMatchObject({ method: 'POST', headers: { 'content-type': 'application/json' } });
+    expect(JSON.parse(init.body)).toEqual({ page: '1', includeJobUrls: ['https://jobs.test/a,b'] });
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('falls back to the query-string search on an API without the POST route', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('{}', { status: 404 })).mockResolvedValueOnce(page());
+    await expect(listServerJobs({ page: 1, excludeJobUrls: ['https://jobs.test/a'] })).resolves.toMatchObject({ total: 7 });
+    expect(fetchMock.mock.calls[1][0]).toBe('https://api.example.test/job-board/jobs?page=1&excludeJobUrls=https%3A%2F%2Fjobs.test%2Fa');
+  });
 });

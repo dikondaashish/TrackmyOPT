@@ -1,4 +1,5 @@
-import { withSentryApiErrors } from '@/lib/sentry/api-errors';
+import * as Sentry from '@sentry/nextjs';
+import { reportedElsewhere, withSentryApiErrors } from '@/lib/sentry/api-errors';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getServerJob } from '@/lib/job-board/server-job-store';
@@ -15,8 +16,10 @@ async function handleGET(_request: Request, context: { params: Promise<{ id: str
       return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     }
     return NextResponse.json({ description: job.description || '' });
-  } catch {
-    return NextResponse.json({ error: 'Unable to load job description' }, { status: 500 });
+  } catch (error) {
+    // Reported with its cause, so the route wrapper does not open a second issue.
+    Sentry.captureException(new Error('Verified job description read failed', { cause: error }));
+    return reportedElsewhere(NextResponse.json({ error: 'Unable to load job description' }, { status: 500 }));
   }
 }
 

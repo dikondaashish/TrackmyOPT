@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Headers,
   Get,
@@ -30,7 +31,38 @@ export class JobBoardController {
    * in the web/Supabase composition layer.
    */
   @Get('jobs')
-  async listJobs(@Query() query: Record<string, string | undefined>) {
+  listJobs(@Query() query: Record<string, string | undefined>) {
+    return this.searchJobs(
+      query,
+      splitList(query.includeJobUrls),
+      splitList(query.excludeJobUrls),
+    );
+  }
+
+  /**
+   * The same search with tracker URL lists in a JSON body. A user's tracked
+   * job URLs can outgrow a URL query string, and URLs may contain commas.
+   */
+  @Post('jobs/search')
+  searchJobsByBody(@Body() body: Record<string, unknown>) {
+    const query: Record<string, string | undefined> = {};
+    for (const [key, value] of Object.entries(body ?? {})) {
+      if (typeof value === 'string' || typeof value === 'number') {
+        query[key] = String(value);
+      }
+    }
+    return this.searchJobs(
+      query,
+      urlList(body?.includeJobUrls),
+      urlList(body?.excludeJobUrls),
+    );
+  }
+
+  private async searchJobs(
+    query: Record<string, string | undefined>,
+    includeJobUrls: string[] | undefined,
+    excludeJobUrls: string[] | undefined,
+  ) {
     const page = positiveInteger(query.page, 1);
     const pageSize = Math.min(100, positiveInteger(query.pageSize, 50));
     const result = await this.jobBoard.listJobs({
@@ -58,8 +90,8 @@ export class JobBoardController {
         query.sortBy === 'last_confirmed_at'
           ? 'last_confirmed_at'
           : 'posted_at',
-      includeJobUrls: splitList(query.includeJobUrls),
-      excludeJobUrls: splitList(query.excludeJobUrls),
+      includeJobUrls,
+      excludeJobUrls,
     });
     const signals = await this.visaSignals.listForJobs(
       result.rows.map((row) => row.id),
@@ -248,6 +280,21 @@ function asListingStatus(
   value: string | undefined,
 ): JobStoreSearch['listingStatus'] {
   return value === 'stale' || value === 'removed' ? value : 'open';
+}
+
+/** Bounds one search's bind count; more tracked URLs than this is not a real tracker. */
+const MAX_JOB_URLS = 5000;
+
+function urlList(value: unknown) {
+  if (!Array.isArray(value)) return undefined;
+  const urls = value
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0 && item.length <= 2000);
+  if (urls.length > MAX_JOB_URLS) {
+    throw new BadRequestException('Too many job URLs');
+  }
+  return urls;
 }
 
 function splitList(value: string | undefined) {
