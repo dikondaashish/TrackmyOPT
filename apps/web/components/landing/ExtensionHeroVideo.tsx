@@ -7,9 +7,9 @@ import { ArrowUpRight, Play } from "lucide-react";
 const VIDEO_ID = "GoaFPpoygoQ";
 const VIDEO_TITLE = "Day 1 of OPT: TrackMyOPT, the free Chrome extension for your OPT timeline and job search";
 const WATCH_URL = `https://youtu.be/${VIDEO_ID}`;
-const EMBED_URL = `https://www.youtube-nocookie.com/embed/${VIDEO_ID}?autoplay=1&rel=0&playsinline=1`;
+const EMBED_URL = `https://www.youtube-nocookie.com/embed/${VIDEO_ID}?autoplay=1&mute=1&rel=0&playsinline=1`;
 
-/** The YouTube player loads only after a click, so the landing page ships no third-party video code up front. */
+/** The YouTube player loads only after a click, so the landing page ships no third-party video code up front. It starts muted; viewers unmute with the player controls. */
 export function ExtensionHeroVideo() {
     const [isPlaying, setIsPlaying] = useState(false);
 
