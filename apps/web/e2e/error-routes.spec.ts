@@ -85,13 +85,12 @@ test('translated landing controls update without DOM mutation failures', async (
     await expect(enhance).toHaveCount(0);
   }
 
-  const sound = page.getByLabel('TrackMyOPT Chrome extension video preview', { exact: true })
-    .getByRole('button').nth(1);
-  await translateLabel(sound, 'Unmute', 'Activar sonido');
-  await sound.click();
-  await expect(sound).toHaveText('Mute');
-  await sound.click();
-  await expect(sound).toHaveText('Unmute');
+  // The hero video loads YouTube only after a click, and starts muted.
+  await page.route('https://www.youtube-nocookie.com/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '' }));
+  const video = page.getByLabel('TrackMyOPT Chrome extension video', { exact: true });
+  await expect(video.locator('iframe')).toHaveCount(0);
+  await video.getByRole('button', { name: 'Play the TrackMyOPT video' }).click();
+  await expect(video.locator('iframe')).toHaveAttribute('src', /youtube-nocookie\.com\/embed\/GoaFPpoygoQ\?.*mute=1/);
   expect(errors).toEqual([]);
 });
 
