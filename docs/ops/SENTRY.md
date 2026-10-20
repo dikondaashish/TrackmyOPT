@@ -346,6 +346,14 @@ avoid dnd-kit's server/client counter mismatch. Individual historical #418 cause
 remain unverified; do not describe a suppression label or an old last-seen date
 as a root-cause repair. This source review does not verify deployment or recurrence.
 
+On October 20, `TRACKMYOPT-J` (removeChild) and `TRACKMYOPT-28` (insertBefore)
+recurred with only React frames, so no single component could be repaired.
+`lib/dom-mutation-guard.ts`, registered in `instrumentation-client.ts`, now
+skips only a removeChild/insertBefore whose node is no longer under that parent
+(facebook/react#11538) and logs a console warning, which is not captured.
+The trigger (translator or extension) is inferred; the events carry no URL or
+browser context.
+
 The further October 12 review reproduced browser-translation DOM crashes in the
 landing resume enhancement and video sound controls. Their changing labels now
 have stable elements, with translated-node regression checks; translation and

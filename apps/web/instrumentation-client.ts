@@ -2,8 +2,10 @@ import * as Sentry from '@sentry/nextjs';
 import { sentryOptions } from '@/lib/sentry/options';
 import { apiHttpClientIntegration } from '@/lib/sentry/http-client';
 import { registerCrossOriginErrorHandler } from '@/lib/cross-origin-error-handler';
+import { registerDomMutationGuard } from '@/lib/dom-mutation-guard';
 
 registerCrossOriginErrorHandler();
+registerDomMutationGuard();
 
 try {
   Sentry.init({
