@@ -89,7 +89,7 @@ async function handleGET(request: NextRequest) {
     }
     return { data: rows, error: null };
   };
-  const [runs, audits] = await Promise.all([
+  const [runs, audits, disabled] = await Promise.all([
     supabase
       .from('scheduler_runs')
       .select('scheduler_run_id,dispatch_status')
@@ -97,18 +97,26 @@ async function handleGET(request: NextRequest) {
       .gte('created_at', since)
       .limit(500),
     readAudits(),
+    // A source switched off after it failed (e.g. a removed board) is an
+    // operator decision; its old audit must not keep alerting for 26 hours.
+    supabase.from('ats_sources').select('id').eq('enabled', false).limit(1_000),
   ]);
-  if (runs.error || audits.error) {
+  if (runs.error || audits.error || disabled.error) {
     return NextResponse.json(
       { ok: false, error: 'Ingestion audit unavailable' },
       { status: 503 }
     );
   }
 
+  const disabledIds = new Set(
+    ((disabled.data ?? []) as { id: string }[]).map((row) => row.id)
+  );
   const health = evaluateIngestionHealth(
     now,
     (runs.data ?? []) as SchedulerRunRow[],
-    (audits.data ?? []) as AuditRow[],
+    ((audits.data ?? []) as AuditRow[]).filter(
+      (row) => !disabledIds.has(row.source_id)
+    ),
     parseScheduleStart(process.env.JOB_BOARD_SCHEDULE_START)
   );
   report(health);

@@ -19,6 +19,7 @@ vi.mock('@/lib/supabase/admin', () => ({
         select: () => query,
         like: () => query,
         gte: () => query,
+        eq: () => query,
         order: () => query,
         limit: () => Promise.resolve(m.tables[table]),
         // Like PostgREST: at most 1,000 rows per range.
@@ -43,6 +44,7 @@ beforeEach(() => {
   vi.useFakeTimers({ now: new Date('2026-10-16T16:00:00Z') });
   m.tables.scheduler_runs = { data: [], error: null };
   m.tables.ingestion_audit_log = { data: [], error: null };
+  m.tables.ats_sources = { data: [], error: null };
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -116,4 +118,28 @@ it('counts failures beyond the first 1,000 audit rows', async () => {
   };
   const body = await (await GET(request())).json();
   expect(body).toMatchObject({ ok: false, failedSources: 400, errorCodes: ['ORA-01536'] });
+});
+
+it('ignores failures of sources that were disabled afterwards', async () => {
+  vi.stubEnv('JOB_BOARD_INGESTION_HEALTH_ENABLED', 'true');
+  m.tables.ats_sources = { data: [{ id: 'carbon' }], error: null };
+  m.tables.ingestion_audit_log = {
+    data: ['carbon', 'other'].map((source_id) => ({
+      source_id,
+      scheduler_run_id: 'job-board-hour-2026-10-16T01',
+      status: 'failed',
+      error_message: 'greenhouse HTTP 404',
+      run_at: '2026-10-16T02:00:00Z',
+    })),
+    error: null,
+  };
+  expect(await (await GET(request())).json()).toMatchObject({ ok: false, failedSources: 1 });
+  m.tables.ingestion_audit_log.data.pop();
+  expect(await (await GET(request())).json()).toMatchObject({ ok: true, failedSources: 0 });
+});
+
+it('returns 503 when disabled sources cannot be read', async () => {
+  vi.stubEnv('JOB_BOARD_INGESTION_HEALTH_ENABLED', 'true');
+  m.tables.ats_sources = { data: [], error: { message: 'down' } };
+  expect((await GET(request())).status).toBe(503);
 });
