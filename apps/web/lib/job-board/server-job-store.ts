@@ -58,25 +58,32 @@ function apiConfiguration() {
 }
 
 const RETRY_DELAY_MS = 1_000;
+/** One attempt's limit, so a stalled job API fails the request instead of hanging the page. */
+const REQUEST_TIMEOUT_MS = 10_000;
 
 /**
- * GET from the job data API, retrying once after a short pause when it
- * answers 5xx or cannot be reached. The API returns 500 for a momentary
+ * Calls the job data API, retrying once after a short pause when it answers
+ * 5xx, cannot be reached, or times out. The API returns 500 for a momentary
  * Oracle connection-pool timeout (NJS-040) while ingestion loads the
  * database; one retry rides that out instead of failing the page.
  */
-async function fetchJobApi(path: string): Promise<Response> {
+async function fetchJobApi(path: string, body?: unknown): Promise<Response> {
   const { apiUrl, apiKey } = apiConfiguration();
   const request = () =>
     fetch(`${apiUrl}${path}`, {
-      headers: { 'x-api-key': apiKey },
+      method: body === undefined ? 'GET' : 'POST',
+      headers: body === undefined
+        ? { 'x-api-key': apiKey }
+        : { 'x-api-key': apiKey, 'content-type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
       cache: 'no-store',
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   try {
     const response = await request();
     if (response.status < 500) return response;
   } catch {
-    // Network failure: retried below.
+    // Network failure or timeout: retried below.
   }
   await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
   return request();
@@ -92,12 +99,34 @@ function appendQuery(
   }
 }
 
-export async function listServerJobs(
-  query: Record<string, string | number | undefined | null>,
-): Promise<ServerJobPage> {
+export type ServerJobQuery = {
+  [filter: string]: string | number | string[] | undefined | null;
+  /** Only jobs with one of these URLs (the user's tracker). */
+  includeJobUrls?: string[];
+  /** No jobs with these URLs. */
+  excludeJobUrls?: string[];
+};
+
+export async function listServerJobs(query: ServerJobQuery): Promise<ServerJobPage> {
+  const { includeJobUrls, excludeJobUrls, ...filters } = query;
   const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(query)) appendQuery(params, key, value);
-  const response = await fetchJobApi(`/job-board/jobs?${params.toString()}`);
+  for (const [key, value] of Object.entries(filters)) appendQuery(params, key, value as string | number | undefined | null);
+  let response: Response;
+  if (includeJobUrls?.length || excludeJobUrls?.length) {
+    // Tracker URL lists go in a JSON body: they outgrow a query string and may contain commas.
+    const body: Record<string, unknown> = Object.fromEntries(params);
+    if (includeJobUrls?.length) body.includeJobUrls = includeJobUrls;
+    if (excludeJobUrls?.length) body.excludeJobUrls = excludeJobUrls;
+    response = await fetchJobApi('/job-board/jobs/search', body);
+    // An API deploy older than the POST route answers 404; use the query-string form.
+    if (response.status === 404) {
+      if (includeJobUrls?.length) params.set('includeJobUrls', includeJobUrls.join(','));
+      if (excludeJobUrls?.length) params.set('excludeJobUrls', excludeJobUrls.join(','));
+      response = await fetchJobApi(`/job-board/jobs?${params.toString()}`);
+    }
+  } else {
+    response = await fetchJobApi(`/job-board/jobs?${params.toString()}`);
+  }
   if (!response.ok) throw new Error('Unable to load jobs from the job data service');
   const payload = (await response.json()) as {
     rows?: ServerJobRecord[];

@@ -1,71 +1,49 @@
 import { BriefcaseBusiness } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { JobRunwaySummary } from '@/components/career/jobs/JobRunwayPersonalization';
 import { JobBoardExplorer } from '@/components/career/jobs/JobBoardExplorer';
 import type { ActiveResumeMatch } from '@/components/career/jobs/ResumeJobMatcher';
-import { findActiveTrackerStatus } from '@/lib/job-board/filters';
-import { parseResumeJobProfile } from '@/lib/job-board/resume-match';
-import { listServerJobFacets, listServerJobs, type ServerJobFacets } from '@/lib/job-board/server-job-store';
+import { EMPTY_JOB_FILTERS } from '@/lib/job-board/filters';
+import { hasJobFilterParams, NO_RESUME, readJobSearchParams, toUrlSearchParams } from '@/lib/job-board/filter-params';
+import { cachedResumeJobProfile, countSavedJobs, loadJobFeed } from '@/lib/job-board/job-feed';
+import { deriveResumeJobFilters } from '@/lib/job-board/resume-filter-defaults';
+import { listServerJobFacets, type ServerJobFacets } from '@/lib/job-board/server-job-store';
 import { getRunwayContext, type StoredOptStatus } from '@/lib/job-board/runway';
 import type { EmploymentSpan } from '@/lib/immigration/opt-calculations';
 
 export const dynamic = 'force-dynamic';
 
-type FeedJob = {
-  id: string;
-  title: string;
-  company_name: string;
-  employer_board_name: string | null;
-  location: string | null;
-  department: string | null;
-  description: string | null;
-  job_url: string | null;
-  posted_at: string | null;
-  first_seen_at: string;
-  last_confirmed_at: string;
-  source_ats: string;
-  employer_match: {
-    canonical_h1b_sponsor_id: string | null;
-    confidence: number;
-    review_status: string;
-  } | null;
-  visa_signals: Array<{
-    signal_type: string;
-    evidence_snippet: string;
-    source_url: string;
-    observed_date: string;
-    confidence: number;
-    source: string;
-  }>;
-};
+type SavedResumeRow = { id: string; filename: string | null; structured_data: unknown };
 
-function restoreResumeMatch(resumes: Array<{ id: string; filename: string | null; structured_data: unknown }>): ActiveResumeMatch | null {
+function resumeMatchFor(resume: SavedResumeRow): ActiveResumeMatch | null {
+  const cached = cachedResumeJobProfile(resume.structured_data);
+  return cached ? { resumeId: String(resume.id), filename: resume.filename || 'Untitled resume', ...cached } : null;
+}
+
+/** The resume the URL names; otherwise the newest resume with a cached match profile. */
+function chooseResumeMatch(resumes: SavedResumeRow[], resumeId: string | null): ActiveResumeMatch | null {
+  if (resumeId === NO_RESUME) return null;
+  if (resumeId) {
+    const named = resumes.find((resume) => String(resume.id) === resumeId);
+    return named ? resumeMatchFor(named) : null;
+  }
   for (const resume of resumes) {
-    if (!resume.structured_data || typeof resume.structured_data !== 'object' || Array.isArray(resume.structured_data)) continue;
-    const cached = (resume.structured_data as Record<string, unknown>).jobMatchProfile;
-    if (!cached || typeof cached !== 'object' || Array.isArray(cached)) continue;
-    const source = (cached as Record<string, unknown>).source;
-    const profile = parseResumeJobProfile((cached as Record<string, unknown>).profile);
-    if ((source !== 'ai' && source !== 'deterministic') || !profile) continue;
-    return {
-      resumeId: String(resume.id),
-      filename: resume.filename || 'Untitled resume',
-      source,
-      profile,
-    };
+    const match = resumeMatchFor(resume);
+    if (match) return match;
   }
   return null;
 }
 
-export default async function VerifiedJobsPage() {
+export default async function VerifiedJobsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [serverPage, facets, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
-    listServerJobs({ page: 1, pageSize: 50, country: 'us' }),
+  const params = toUrlSearchParams(await searchParams);
+  const search = readJobSearchParams(params);
+
+  const [facets, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
     // The Location and Company options must cover every open job, not only
     // the first page. Without them the explorer falls back to page values.
     listServerJobFacets().catch((): ServerJobFacets | null => {
@@ -104,71 +82,23 @@ export default async function VerifiedJobsPage() {
     now,
   );
   const trackerEntries = trackerResult.data || [];
-  const rows = serverPage.rows;
-  const matchIds = [...new Set(rows.map((row) => row.employerMatchId).filter(Boolean))] as string[];
-  // Match IDs come only from verified jobs the Oracle job API returned; the
-  // service-role read replaces an RLS policy that joined the retired Supabase
-  // jobs table.
-  const matchesResult = matchIds.length
-    ? await getSupabaseAdminClient().from('employer_matches').select('id, canonical_h1b_sponsor_id, confidence, review_status').in('id', matchIds)
-    : { data: [], error: null };
-  if (matchesResult.error) throw new Error('Unable to load verified job evidence');
-  const matchesById = new Map((matchesResult.data || []).map((match) => [String(match.id), {
-    canonical_h1b_sponsor_id: match.canonical_h1b_sponsor_id,
-    confidence: Number(match.confidence),
-    review_status: String(match.review_status),
-  }]));
-  const signalsByJobId = new Map<string, FeedJob['visa_signals']>();
-  for (const signal of serverPage.visaSignals || []) {
-    const list = signalsByJobId.get(String(signal.jobId)) || [];
-    list.push({
-      signal_type: String(signal.signalType),
-      evidence_snippet: String(signal.evidenceSnippet),
-      source_url: String(signal.sourceUrl),
-      observed_date: String(signal.observedDate),
-      confidence: Number(signal.confidence),
-      source: String(signal.source),
-    });
-    signalsByJobId.set(String(signal.jobId), list);
-  }
-  const matchedJobs: FeedJob[] = rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    company_name: row.companyName,
-    employer_board_name: row.employerBoardName,
-    location: row.location,
-    department: row.department,
-    description: null,
-    job_url: row.jobUrl,
-    posted_at: row.postedAt,
-    first_seen_at: row.firstSeenAt,
-    last_confirmed_at: row.lastConfirmedAt,
-    source_ats: row.sourceAts,
-    employer_match: row.employerMatchId ? matchesById.get(row.employerMatchId) || null : null,
-    visa_signals: signalsByJobId.get(row.id) || [],
-  }));
-  const sponsorIds = [...new Set(matchedJobs.map((job) => job.employer_match?.canonical_h1b_sponsor_id).filter((id): id is string => Boolean(id)))];
-  const sponsorWebsiteById = new Map<string, string | null>();
-  if (sponsorIds.length > 0) {
-    const { data: sponsors, error: sponsorError } = await getSupabaseAdminClient()
-      .from('h1b_sponsors')
-      .select('id, website')
-      .in('id', sponsorIds);
-    if (sponsorError) throw new Error('Unable to load verified employer logos');
-    for (const sponsor of sponsors || []) sponsorWebsiteById.set(String(sponsor.id), sponsor.website ? String(sponsor.website) : null);
-  }
-
-  const jobs = matchedJobs.map((job) => {
-    return {
-      ...job,
-      company_website: job.employer_match?.canonical_h1b_sponsor_id
-        ? sponsorWebsiteById.get(job.employer_match.canonical_h1b_sponsor_id) || null
-        : null,
-      tracker_status: findActiveTrackerStatus(job, trackerEntries),
-    };
-  });
   const savedResumeRows = resumesResult.data || [];
-  const initialResumeMatch = restoreResumeMatch(savedResumeRows);
+  const initialResumeMatch = chooseResumeMatch(savedResumeRows, search.resumeId);
+  // A link or reload keeps its filters; a fresh visit with a saved resume
+  // starts from that resume's suggested filters.
+  const initialFilters = hasJobFilterParams(params)
+    ? search.filters
+    : initialResumeMatch && !search.resumeId
+      ? deriveResumeJobFilters(initialResumeMatch.profile, (facets?.places || []).map((place) => place.key))
+      : EMPTY_JOB_FILTERS;
+
+  const feed = await loadJobFeed({
+    filters: initialFilters,
+    page: search.page,
+    trackerEntries,
+    resumeProfile: initialResumeMatch?.profile ?? null,
+    asOf: now,
+  });
 
   return (
     <main className="mx-auto max-w-[1440px] space-y-4 px-3 py-4 sm:px-5 sm:py-5">
@@ -187,9 +117,14 @@ export default async function VerifiedJobsPage() {
       <JobRunwaySummary runway={runway} />
 
       <JobBoardExplorer
-        jobs={jobs}
-        totalJobs={serverPage.total}
+        jobs={feed.jobs}
+        totalJobs={feed.total}
         serverMode
+        initialPage={feed.page}
+        pageSize={feed.pageSize}
+        rankedCount={feed.rankedCount}
+        initialFilters={initialFilters}
+        savedCount={countSavedJobs(trackerEntries)}
         placeOptions={facets?.places}
         companyOptions={facets?.companies}
         runway={runway}

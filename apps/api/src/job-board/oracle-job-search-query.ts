@@ -391,21 +391,31 @@ export function buildOracleJobSearchFilter(
   if (query.employerEvidence === 'source_backed') {
     conditions.push('employer_match_id IS NOT NULL');
   }
+  // Oracle accepts at most 1000 expressions per IN list (ORA-01795).
+  const urlLists = (prefix: string, urls: readonly string[]) => {
+    const lists: string[] = [];
+    for (let start = 0; start < urls.length; start += ORACLE_IN_LIST_LIMIT) {
+      const names = urls
+        .slice(start, start + ORACLE_IN_LIST_LIMIT)
+        .map((url, offset) => {
+          filterBinds[`${prefix}${start + offset}`] = url;
+          return `:${prefix}${start + offset}`;
+        });
+      lists.push(`(${names.join(', ')})`);
+    }
+    return lists;
+  };
   if (query.includeJobUrls?.length) {
-    const names = query.includeJobUrls.map((_, index) => `:includeUrl${index}`);
-    conditions.push(`job_url IN (${names.join(', ')})`);
-    query.includeJobUrls.forEach((url, index) => {
-      filterBinds[`includeUrl${index}`] = url;
-    });
+    const lists = urlLists('includeUrl', query.includeJobUrls);
+    conditions.push(
+      `(${lists.map((list) => `job_url IN ${list}`).join(' OR ')})`,
+    );
   }
   if (query.excludeJobUrls?.length) {
-    const names = query.excludeJobUrls.map((_, index) => `:excludeUrl${index}`);
+    const lists = urlLists('excludeUrl', query.excludeJobUrls);
     conditions.push(
-      `(job_url IS NULL OR job_url NOT IN (${names.join(', ')}))`,
+      `(job_url IS NULL OR (${lists.map((list) => `job_url NOT IN ${list}`).join(' AND ')}))`,
     );
-    query.excludeJobUrls.forEach((url, index) => {
-      filterBinds[`excludeUrl${index}`] = url;
-    });
   }
 
   const where = conditions.join(' AND ');
