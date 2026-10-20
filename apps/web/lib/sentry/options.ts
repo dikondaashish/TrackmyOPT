@@ -464,6 +464,25 @@ export function isPageUnloadAbortEvent(event: ErrorEvent): boolean {
   );
 }
 
+// iOS in-app browsers (WKWebView hosts such as social apps) reject their own
+// native-bridge promises with this message (TRACKMYOPT-2A). TrackMyOPT never
+// uses webkit.messageHandlers, so a frameless rejection is the host app's.
+const IN_APP_BRIDGE_REJECTION = /^Script message handler is unavailable$/;
+
+/** True for a frameless unhandled rejection from an iOS in-app browser bridge. */
+export function isInAppBrowserBridgeEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  return (
+    values.length > 0 &&
+    values.every(
+      (v) =>
+        v.mechanism?.type === 'auto.browser.global_handlers.onunhandledrejection' &&
+        IN_APP_BRIDGE_REJECTION.test(v.value ?? '') &&
+        !(v.stacktrace?.frames ?? []).length
+    )
+  );
+}
+
 // Supabase auth-js logs a definitive refresh failure with console.error
 // (GoTrueClient _recoverAndRefresh). A refresh token that was already used or
 // revoked (TRACKMYOPT-1Z) signs the visitor out: an expected auth outcome.
@@ -543,6 +562,7 @@ export function sentryOptions(
         isInjectedPageScriptEvent(event) ||
         isAnalyticsTransportFailure(event) ||
         isPageUnloadAbortEvent(event) ||
+        isInAppBrowserBridgeEvent(event) ||
         isExpectedAuthRefreshEvent(event) ||
         isProviderOutageHttpEvent(event)
       )

@@ -7,6 +7,7 @@ import {
   isAnalyticsTransportFailure,
   isExpectedAuthRefreshEvent,
   isPageUnloadAbortEvent,
+  isInAppBrowserBridgeEvent,
   isProviderOutageHttpEvent,
   isBrowserFeatureConsoleEvent,
   isNodeRuntimeNoticeEvent,
@@ -782,6 +783,31 @@ describe('Sentry grouping and expected outcomes (2026-10-19 review)', () => {
       frames: [{ filename: 'https://www.trackmyopt.com/_next/static/chunks/app.js' }],
     };
     expect(isPageUnloadAbortEvent(withFrames)).toBe(false);
+  });
+
+  it('drops the frameless iOS in-app browser bridge rejection only (TRACKMYOPT-2A)', () => {
+    const bridge: ErrorEvent = {
+      type: undefined,
+      exception: {
+        values: [
+          {
+            type: 'Error',
+            value: 'Script message handler is unavailable',
+            mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection', handled: false },
+          },
+        ],
+      },
+    };
+    expect(isInAppBrowserBridgeEvent(bridge)).toBe(true);
+    expect(beforeSend()?.(bridge, {})).toBeNull();
+    const withFrames = structuredClone(bridge);
+    withFrames.exception!.values![0].stacktrace = {
+      frames: [{ filename: 'https://www.trackmyopt.com/_next/static/chunks/app.js' }],
+    };
+    expect(isInAppBrowserBridgeEvent(withFrames)).toBe(false);
+    const thrown = structuredClone(bridge);
+    thrown.exception!.values![0].mechanism = { type: 'auto.browser.global_handlers.onerror', handled: false };
+    expect(isInAppBrowserBridgeEvent(thrown)).toBe(false);
   });
 
   it("drops Supabase's console report of a reused refresh token only (TRACKMYOPT-1Z)", () => {
