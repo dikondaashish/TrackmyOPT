@@ -14,7 +14,7 @@ const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 assert.equal(manifest.version, pkg.version);
 assert.equal(manifest.manifest_version, 3);
 assert.deepEqual(manifest.host_permissions, ['https://www.trackmyopt.com/*', 'https://trackmyopt.com/*']);
-assert.deepEqual(manifest.permissions, ['storage', 'tabs', 'notifications', 'scripting', 'activeTab', 'sidePanel']);
+assert.deepEqual(manifest.permissions, ['storage', 'tabs', 'notifications', 'scripting', 'activeTab', 'sidePanel', 'alarms']);
 const walk = (dir, prefix = '') => readdirSync(dir).flatMap(name => {
   const relative = prefix + name;
   return statSync(join(dir, name)).isDirectory() ? walk(join(dir, name), relative + '/') : [relative];
