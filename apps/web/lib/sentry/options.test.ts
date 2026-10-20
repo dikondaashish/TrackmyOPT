@@ -319,6 +319,17 @@ describe('Sentry browser-bundled SDK frames', () => {
     expect(beforeSend?.(event(listener, 'int64', chunk, ad), {})).toBeNull();
   });
 
+  it('drops AdSense console TagErrors behind the single SDK timer wrapper (TRACKMYOPT-2C)', () => {
+    const console = 'auto.core.capture_console';
+    const tag = 'adsbygoogle.push() error: No slot size for availableWidth=0';
+    expect(isThirdPartyScriptEvent(event(console, tag, chunk, ad, ad))).toBe(true);
+    const beforeSend = sentryOptions('https://key@example.test/1')?.beforeSend;
+    expect(beforeSend?.(event(console, tag, chunk, ad), {})).toBeNull();
+    // Our own code between the wrapper and the ad script is still reported.
+    expect(isThirdPartyScriptEvent(event(console, tag, chunk, chunk, ad))).toBe(false);
+    expect(isThirdPartyScriptEvent(event(console, tag, chunk))).toBe(false);
+  });
+
   it('keeps errors where our bundle code is called by, or throws inside, the ad script', () => {
     expect(isThirdPartyScriptEvent(event(listener, 'x', chunk, ad, chunk))).toBe(false);
     expect(isThirdPartyScriptEvent(event('generic', 'x', chunk, ad))).toBe(false);
