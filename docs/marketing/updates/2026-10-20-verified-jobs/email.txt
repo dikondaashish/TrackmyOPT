@@ -2,6 +2,7 @@ Subject (named):   {{firstName}}, quick one about your job search
 Subject (no name): Quick one about your job search
 Preheader: none. Leave it empty so the inbox preview shows the first line, like a normal email.
 From: Karthik <karthik@trackmyopt.com>   Reply-To: the same mailbox, read by Karthik
+Headers: keep List-Unsubscribe and List-Unsubscribe-Post (Gmail shows a small "Unsubscribe" next to the sender name; nothing appears in the body).
 
 ---
 
@@ -11,26 +12,27 @@ Karthik from TrackMyOPT here. {{openingLine}}
 
 Something I kept hearing from students on OPT: the big job sites are full of reposted, expired and staffing-agency listings, and it's easy to lose a week applying to roles that were never really open.
 
-So we built Verified Jobs. It pulls openings directly from the career pages of 1,200+ US employers and keeps only US-based roles. A few things that help on OPT:
+So we built Verified Jobs. It pulls openings directly from the career pages of 1,200+ US employers and keeps only US-based roles. You can filter by the experience a job asks for, show only employers with a past H-1B filing history (that's history, not a promise they'll sponsor you), and hide jobs that mention words like "citizenship" or "clearance".
 
-- Filter by how many years of experience a job asks for
-- Show only employers with a past H-1B filing history (that's history, not a promise they'll sponsor you)
-- Hide any job that mentions words like "citizenship" or "clearance"
+Here's how applying works:
 
-{{linkIntro}}
-{{jobsUrl}}
+1. Find a job in Verified Jobs. {{linkIntro}}
+   {{jobsUrl}}
+2. Click "Apply on ATS" to open the employer's own application page.
+3. Our Chrome extension fills in the form from your profile and can draft answers to the screening questions. You check everything and click submit yourself.
 
-{{resumeLine}}
+[APPLY TIME: replace with a measured number before sending, e.g. "When I tried it, an application took about X minutes instead of the usual Y."]
 
-Would you try it and reply with one thing that's missing or annoying? I read every reply, and we're shaping this around what students tell us.
+You can add the extension here:
+https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm
+
+Would you try it on one job this week and reply with how long it took, or what got in the way? I read every reply.
 
 Thanks,
 Karthik
-TrackMyOPT
+TrackMyOPT · Zyene, Inc., {{POSTAL_ADDRESS}}
 
---
-You're getting this because you have a TrackMyOPT account. Not useful? Unsubscribe: {{UNSUBSCRIBE_URL}}
-Zyene, Inc. · {{POSTAL_ADDRESS}}
+P.S. If you'd rather not get emails like this from me, just reply "no thanks" and I won't send more.
 
 ---
 
@@ -45,13 +47,15 @@ MERGE FIELDS (built from audience.sql)
 
 {{linkIntro}}
   role_label present  I set up a link that opens it on entry-level {{role_label}} roles:
-  otherwise           Here's a link that opens it on entry-level roles:
+  otherwise           This link opens it on entry-level roles:
 
 {{jobsUrl}}  jobs_url (sign-in required; it returns them to this filtered view).
 
-{{resumeLine}}
-  has_resume = true   Since you've already uploaded a resume, the newest jobs are ranked against it.
-  has_resume = false  If you add your resume, the newest jobs get ranked against it.
+OPT-OUT HANDLING
+
+The P.S. is the visible opt-out (CAN-SPAM allows a reply-based one). Every "no thanks" reply must
+be honored within 10 business days by setting email_preferences.marketing_emails = false, and
+replies must keep working for at least 30 days after the send.
 
 SAMPLE (runway segment, fictional person)
 
@@ -61,5 +65,5 @@ Hi Maya,
 
 Karthik from TrackMyOPT here. The work authorization end date saved in your TrackMyOPT account is March 14, 2027, about 145 days from now. I'm guessing the job search is on your mind, so I wanted to share something we built for exactly that.
 ...
-I set up a link that opens it on entry-level data and analytics roles:
-https://www.trackmyopt.com/dashboard/career/jobs?experience=entry&role=data&utm_source=outreach&utm_medium=email&utm_campaign=verified_jobs_2026_10
+1. Find a job in Verified Jobs. I set up a link that opens it on entry-level data and analytics roles:
+   https://www.trackmyopt.com/dashboard/career/jobs?experience=entry&role=data&utm_source=outreach&utm_medium=email&utm_campaign=verified_jobs_2026_10
