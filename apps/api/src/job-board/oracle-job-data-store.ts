@@ -184,14 +184,17 @@ export class OracleJobDataStore implements JobDataStore {
         pageBinds,
         outputOptions(this.driver),
       );
-      const countResult = await connection.execute<{ TOTAL: number }>(
-        `SELECT COUNT(*) AS "TOTAL" FROM jobs WHERE ${where}`,
-        filterBinds,
-        outputOptions(this.driver),
-      );
+      const countResult =
+        query.withTotal === false
+          ? null
+          : await connection.execute<{ TOTAL: number }>(
+              `SELECT COUNT(*) AS "TOTAL" FROM jobs WHERE ${where}`,
+              filterBinds,
+              outputOptions(this.driver),
+            );
       return {
         rows: (rowsResult.rows || []).map(mapJobRow),
-        total: Number(countResult.rows?.[0]?.TOTAL || 0),
+        total: Number(countResult?.rows?.[0]?.TOTAL || 0),
       };
     } finally {
       await connection.close();

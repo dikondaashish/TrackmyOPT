@@ -831,6 +831,23 @@ describe('OracleJobDataStore shadow adapter', () => {
     expect(companies?.binds).toMatchObject({ nonUsLocation0: 'London' });
   });
 
+  it('skips the COUNT query when the caller already knows the total', async () => {
+    const { driver, executed } = setup();
+    const store = new OracleJobDataStore(
+      {
+        connectString: 'tcps://oracle.example/service',
+        user: 'TRACKMYOPT_JOBS',
+        password: 'test-only',
+        poolMax: 4,
+      },
+      driver,
+    );
+    await expect(
+      store.listJobs({ page: 2, pageSize: 100, withTotal: false }),
+    ).resolves.toMatchObject({ total: 0 });
+    expect(executed.some((call) => call.sql.includes('COUNT(*)'))).toBe(false);
+  });
+
   it('reads the location index once and reuses it across searches', async () => {
     const { driver, executed, connection } = setup();
     const base = connection.execute.bind(

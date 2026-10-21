@@ -331,6 +331,20 @@ describe('JobBoardExplorer', () => {
     fetchMock.mockRestore();
   });
 
+  it('keeps the page and retries when the server could not load the first page', async () => {
+    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ jobs: [job({ id: 'retried', title: 'Loaded after retry', tracker_status: null })], total: 1, page: 1, pageSize: 50 }), { status: 200 }),
+    );
+    render(<JobBoardExplorer jobs={[]} totalJobs={0} serverMode initialError="Verified jobs are taking longer than usual to load." runway={null} asOf="2026-08-29T12:00:00.000Z" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Verified jobs are taking longer than usual to load.');
+    expect(screen.queryByText('No verified jobs match these filters')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Loaded after retry')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    fetchMock.mockRestore();
+  });
+
   it('says how much of the feed the server ranked for the resume', () => {
     const initialResumeMatch = {
       resumeId: '44444444-4444-4444-8444-444444444444',
