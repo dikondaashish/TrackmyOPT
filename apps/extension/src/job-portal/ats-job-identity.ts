@@ -78,6 +78,46 @@ function segmentAfter(segments: string[], marker: string): string {
 
 type PlatformResolver = (url: URL) => AtsJobIdentity | undefined;
 
+const SMARTRECRUITERS_HOST_RE = /(?:^|\.)smartrecruiters\.com$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** `/oneclick-ui/company/{Company}/publication/{uuid}`, SmartRecruiters' "I'm interested" apply page. */
+function smartRecruitersOneClick(segments: string[]): { company: string; publicationId: string } | undefined {
+  if (lower(segments[0] ?? '') !== 'oneclick-ui') return undefined;
+  const company = segmentAfter(segments, 'company');
+  const publicationId = segmentAfter(segments, 'publication');
+  return company && UUID_RE.test(publicationId) ? { company, publicationId } : undefined;
+}
+
+/**
+ * Company and posting id (numeric id, or publication UUID on the one-click
+ * apply page) of a SmartRecruiters URL; the Posting API accepts either id.
+ */
+export function smartRecruitersPostingRef(value: string): { company: string; postingId: string } | undefined {
+  try {
+    const url = new URL(value);
+    if (!SMARTRECRUITERS_HOST_RE.test(url.hostname)) return undefined;
+    const segments = pathSegments(url);
+    const oneClick = smartRecruitersOneClick(segments);
+    if (oneClick) return { company: oneClick.company, postingId: oneClick.publicationId };
+    const postingId = segments.map(leadingNumericId).find(Boolean);
+    return postingId && segments[0] ? { company: segments[0], postingId } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Publication UUID of a SmartRecruiters one-click apply URL. */
+export function smartRecruitersPublicationId(value: string): string | undefined {
+  try {
+    const url = new URL(value);
+    if (!SMARTRECRUITERS_HOST_RE.test(url.hostname)) return undefined;
+    return smartRecruitersOneClick(pathSegments(url))?.publicationId.toLowerCase();
+  } catch {
+    return undefined;
+  }
+}
+
 const WORKDAY_HOST_RE = /(?:^|\.)(?:myworkdayjobs|myworkday)\.com$/i;
 const ICIMS_HOST_RE = /(?:^|\.)icims\.com$/i;
 
@@ -124,10 +164,14 @@ const PLATFORM_RESOLVERS: PlatformResolver[] = [
   },
 
   // SmartRecruiters — the long numeric posting id is the stable part; the
-  // trailing slug and the `/apply` suffix both vary.
+  // trailing slug and the `/apply` suffix both vary. "I'm interested" opens a
+  // one-click apply page keyed by the posting's publication UUID instead, which
+  // jobUrlsReferToSameJob links through the artifact's requisition id.
   (url) => {
-    if (!/(?:^|\.)smartrecruiters\.com$/i.test(url.hostname)) return undefined;
+    if (!SMARTRECRUITERS_HOST_RE.test(url.hostname)) return undefined;
     const segments = pathSegments(url);
+    const oneClick = smartRecruitersOneClick(segments);
+    if (oneClick) return identity('smartrecruiters', oneClick.company, oneClick.publicationId);
     const posting = segments.map(leadingNumericId).find(Boolean) ?? '';
     return identity('smartrecruiters', segments[0] ?? '', posting);
   },

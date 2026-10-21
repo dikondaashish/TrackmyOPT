@@ -5,6 +5,7 @@ import {
   looksLikeRealJobPostingText, type JobDescriptionCandidate,
 } from './job-description';
 import { WIDGET_ROOT_ID } from '../widget/widget-dom-ids';
+import { fetchSmartRecruitersPosting } from './smartrecruiters-posting';
 
 export interface JobDescriptionResolution {
   text: string;
@@ -146,6 +147,14 @@ async function retrieve(pageUrl: string): Promise<JobDescriptionResolution> {
       }
     }
   } catch { /* try public listing */ }
+
+  // SmartRecruiters' one-click apply page has no description and its URL
+  // shares no id with the job page; the public Posting API has both.
+  const smartRecruiters = await fetchSmartRecruitersPosting(pageUrl);
+  if (smartRecruiters && looksLikeRealJobPostingText(smartRecruiters.description)) {
+    await remember(pageUrl, smartRecruiters.description, sourceUrl);
+    return {text:smartRecruiters.description.slice(0,15_000),source:'original_listing',sourceUrl};
+  }
 
   const listingUrl = deriveJobListingUrl(pageUrl) || sourceUrl;
   try {

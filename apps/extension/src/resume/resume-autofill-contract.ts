@@ -333,7 +333,13 @@ export function jobUrlsReferToSameJob(
   const artifactAtsIdentity = extractAtsJobIdentity(artifactUrl);
   const contextAtsIdentity = extractAtsJobIdentity(contextUrl);
   if (artifactAtsIdentity && contextAtsIdentity) {
-    return atsJobIdentitiesMatch(artifactAtsIdentity, contextAtsIdentity);
+    if (atsJobIdentitiesMatch(artifactAtsIdentity, contextAtsIdentity)) return true;
+    // SmartRecruiters' one-click apply page is keyed by the posting's
+    // publication UUID, not the numeric id in the job page URL. A resume made
+    // on the job page records that UUID as its requisition id.
+    const requisitionId = artifactRequisitionId?.trim().toLowerCase();
+    return artifactAtsIdentity.platform === 'smartrecruiters' && Boolean(requisitionId) &&
+      atsJobIdentitiesMatch({ ...artifactAtsIdentity, jobId: requisitionId! }, contextAtsIdentity);
   }
   // A recognised posting must not fall through to path comparison against an
   // unrecognised URL — that is a genuinely different destination.
