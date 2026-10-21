@@ -63,6 +63,7 @@ import {
   readIngestionRunStatus,
 } from './job-board-queue-inspection';
 import { JobBoardFailureReporter } from './job-board-failure-reporter';
+import { TtlCache } from './read-cache';
 import {
   isJobBoardWorkerEnabled,
   parseExcludedSourceIds,
@@ -96,6 +97,8 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
   private pacingTail: Promise<void> = Promise.resolve();
   private nextRequestAt = 0;
   private readonly nextProviderRequestAt = new Map<string, number>();
+  /** Shared job searches for a minute; each cached page holds up to 100 rows. */
+  private readonly jobPages = new TtlCache<JobStorePage>(60_000, 20);
   private readonly workerEnabled: boolean;
   private readonly pacingWindowMs: number;
   private readonly providerMinGaps: Map<string, number>;
@@ -426,7 +429,14 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
    * pagination; callers never need to know whether records live in Postgres
    * or Oracle. */
   listJobs(query: JobStoreSearch): Promise<JobStorePage> {
-    return this.jobStore.listJobs(query);
+    // Tracker URL lists are one user's; everything else is a shared search
+    // (the board's first page is the same for every visitor), so reuse it briefly.
+    if (query.includeJobUrls?.length || query.excludeJobUrls?.length) {
+      return this.jobStore.listJobs(query);
+    }
+    return this.jobPages.get(JSON.stringify(query), () =>
+      this.jobStore.listJobs(query),
+    );
   }
 
   listJobFacets(): Promise<JobStoreFacets> {

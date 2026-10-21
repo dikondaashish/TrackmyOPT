@@ -14,6 +14,9 @@ import type { EmploymentSpan } from '@/lib/immigration/opt-calculations';
 
 export const dynamic = 'force-dynamic';
 
+/** Longest the page waits for filter options before using the loaded jobs' values. */
+const FACETS_WAIT_MS = 3_000;
+
 type SavedResumeRow = { id: string; filename: string | null; structured_data: unknown };
 
 function resumeMatchFor(resume: SavedResumeRow): ActiveResumeMatch | null {
@@ -43,13 +46,18 @@ export default async function VerifiedJobsPage({ searchParams }: { searchParams:
   const params = toUrlSearchParams(await searchParams);
   const search = readJobSearchParams(params);
 
-  const [facets, optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
-    // The Location and Company options must cover every open job, not only
-    // the first page. Without them the explorer falls back to page values.
+  // The Location and Company options must cover every open job, not only
+  // the first page. Without them the explorer falls back to page values.
+  // Started now and awaited last, and bounded, so it never holds the page:
+  // a slow read still finishes and fills the API's cache for the next visit.
+  const facetsPromise = Promise.race([
     listServerJobFacets().catch((): ServerJobFacets | null => {
       console.error('[job-board] Filter options unavailable; falling back to first-page values');
       return null;
     }),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), FACETS_WAIT_MS)),
+  ]);
+  const [optStatusResult, employmentResult, trackerResult, resumesResult] = await Promise.all([
     supabase
       .from('opt_status')
       .select('opt_start_date, opt_ead_end_date, stem_start_date')
@@ -85,20 +93,21 @@ export default async function VerifiedJobsPage({ searchParams }: { searchParams:
   const savedResumeRows = resumesResult.data || [];
   const initialResumeMatch = chooseResumeMatch(savedResumeRows, search.resumeId);
   // A link or reload keeps its filters; a fresh visit with a saved resume
-  // starts from that resume's suggested filters.
+  // starts from that resume's suggested filters (which need the place options).
   const initialFilters = hasJobFilterParams(params)
     ? search.filters
     : initialResumeMatch && !search.resumeId
-      ? deriveResumeJobFilters(initialResumeMatch.profile, (facets?.places || []).map((place) => place.key))
+      ? deriveResumeJobFilters(initialResumeMatch.profile, ((await facetsPromise)?.places || []).map((place) => place.key))
       : EMPTY_JOB_FILTERS;
 
-  const feed = await loadJobFeed({
+  const feedPromise = loadJobFeed({
     filters: initialFilters,
     page: search.page,
     trackerEntries,
     resumeProfile: initialResumeMatch?.profile ?? null,
     asOf: now,
   });
+  const [feed, facets] = await Promise.all([feedPromise, facetsPromise]);
 
   return (
     <main className="mx-auto max-w-[1440px] space-y-4 px-3 py-4 sm:px-5 sm:py-5">

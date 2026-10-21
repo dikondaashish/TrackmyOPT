@@ -73,6 +73,7 @@ export {
   toOracleTimestamp,
   validateVisaSignals,
 } from './oracle-job-data-helpers';
+import { StaleWhileRevalidate } from './read-cache';
 
 const nodeRequire = createRequire(__filename);
 
@@ -100,10 +101,16 @@ export class OracleJobDataStore implements JobDataStore {
   private closed = false;
   /** False once Oracle reports DELETE on the ADMIN search table is not granted. */
   private searchDeleteAllowed = true;
-  private locationIndex: {
-    expiresAt: number;
-    value: Promise<JobLocationIndex>;
-  } | null = null;
+  private readonly locationIndex = new StaleWhileRevalidate(
+    LOCATION_INDEX_TTL_MS,
+    () => this.readJobLocationIndex(),
+    (error) => this.warnRefreshFailed('location index', error),
+  );
+  private readonly facets = new StaleWhileRevalidate(
+    LOCATION_INDEX_TTL_MS,
+    () => this.readJobFacets(),
+    (error) => this.warnRefreshFailed('filter options', error),
+  );
 
   constructor(
     private readonly config: OracleJobDataConfig,
@@ -191,7 +198,12 @@ export class OracleJobDataStore implements JobDataStore {
     }
   }
 
-  async listJobFacets(): Promise<JobStoreFacets> {
+  /** Filter options for every open US job; shared by all visitors, so cached. */
+  listJobFacets(): Promise<JobStoreFacets> {
+    return this.facets.get();
+  }
+
+  private async readJobFacets(): Promise<JobStoreFacets> {
     const index = await this.jobLocationIndex();
     // Options cover the US board: companies with only non-US jobs are left out.
     const { where, filterBinds } = await this.searchFilter({
@@ -806,17 +818,15 @@ export class OracleJobDataStore implements JobDataStore {
    * hidden) until the next refresh.
    */
   private jobLocationIndex(): Promise<JobLocationIndex> {
-    const now = Date.now();
-    if (this.locationIndex && this.locationIndex.expiresAt > now) {
-      return this.locationIndex.value;
-    }
-    const value = this.readJobLocationIndex();
-    const entry = { expiresAt: now + LOCATION_INDEX_TTL_MS, value };
-    this.locationIndex = entry;
-    value.catch(() => {
-      if (this.locationIndex === entry) this.locationIndex = null;
-    });
-    return value;
+    return this.locationIndex.get();
+  }
+
+  private warnRefreshFailed(what: string, error: unknown) {
+    this.logger.warn(
+      `Job board ${what} refresh failed; serving the previous copy: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
   }
 
   private async readJobLocationIndex(): Promise<JobLocationIndex> {
