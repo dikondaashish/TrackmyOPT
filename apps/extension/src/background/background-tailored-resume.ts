@@ -20,6 +20,7 @@ import { readCachedToken } from '../shared/token-store';
 import {
   cacheCurrentGeneratedResumeArtifact,
 } from './background-resume-artifact';
+import { fetchSmartRecruitersPosting } from '../job/smartrecruiters-posting';
 
 export interface GenerateResumeResult {
   ok: boolean;
@@ -270,6 +271,9 @@ export async function generateTailoredResume(input: {
   if ((await readCachedToken())?.userId !== generationOwnerId) return {ok:false,error:'account_changed'};
   let artifact: GeneratedResumeArtifactV1 | undefined;
   let savedToAccount = false;
+  // On a SmartRecruiters job page, record the publication id that its
+  // "I'm interested" apply page uses, so Prefill there attaches this resume.
+  const smartRecruitersPosting = await fetchSmartRecruitersPosting(jobUrl, 5_000);
   try {
     const builtArtifact = await buildGeneratedResumeArtifactV1({
       sourceResumeId: pastedResumeText ? '__pasted__' : resumeId,
@@ -281,6 +285,7 @@ export async function generateTailoredResume(input: {
         companyName,
         roleTitle,
       },
+      requisitionId: smartRecruitersPosting?.publicationId,
       jobDescription,
       finalLatex: latex,
       extractedContentHash: snapshotExtraction?.generatedContentHash,

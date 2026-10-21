@@ -7,6 +7,7 @@ import {
   type JobContextIdentity,
   type ResumeAutofillSnapshotV1,
 } from './resume-autofill-contract';
+import { smartRecruitersPublicationId } from '../job-portal/ats-job-identity';
 
 export const RESUME_ARTIFACT_TTL_MS = 30 * 60 * 1_000;
 export const RESUME_ARTIFACT_JOB_DESCRIPTION_MAX_CHARS = 12_000;
@@ -92,6 +93,8 @@ export async function buildGeneratedResumeArtifactV1(input: {
   templateId: string;
   jobKey: string;
   jobContext: JobContextIdentity;
+  /** Another id the posting's apply page uses, e.g. a SmartRecruiters publication UUID. */
+  requisitionId?: string;
   jobDescription?: string;
   finalLatex: string;
   extractedContentHash?: string;
@@ -138,7 +141,9 @@ export async function buildGeneratedResumeArtifactV1(input: {
         sourceUrl: normalizeJobUrl(input.jobContext.jobUrl),
         requisitionId:
           extractWorkdayJobIdentity(input.jobContext.jobUrl)?.requisitionId ??
-          extractICimsJobIdentity(input.jobContext.jobUrl)?.jobId,
+          extractICimsJobIdentity(input.jobContext.jobUrl)?.jobId ??
+          smartRecruitersPublicationId(input.jobContext.jobUrl) ??
+          (input.requisitionId?.trim() || undefined),
       },
       generatedAt: new Date(generatedAtMs).toISOString(),
       expiresAt: new Date(generatedAtMs + RESUME_ARTIFACT_TTL_MS).toISOString(),
