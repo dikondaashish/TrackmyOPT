@@ -76,7 +76,8 @@ select
   f.email,
   f.first_name,
   case
-    when f.days_left between 1 and 270 then 'runway'
+    -- Under 30 days, a countdown opener reads as alarming; use the major or general line.
+    when f.days_left between 30 and 270 then 'runway'
     when f.role_param is not null or f.query_param is not null then 'major'
     else 'general'
   end as segment,

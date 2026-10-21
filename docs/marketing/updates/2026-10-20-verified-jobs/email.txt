@@ -21,8 +21,6 @@ Here's how applying works:
 2. Click "Apply on ATS" to open the employer's own application page.
 3. Our Chrome extension fills in the form from your profile and can draft answers to the screening questions. You check everything and click submit yourself.
 
-[APPLY TIME: replace with a measured number before sending, e.g. "When I tried it, an application took about X minutes instead of the usual Y."]
-
 You can add the extension here:
 https://chromewebstore.google.com/detail/trackmyopt/hfljbefkccdmlnhclfojlafipjnjbajm
 
@@ -41,7 +39,7 @@ MERGE FIELDS (built from audience.sql)
 {{firstName}}  first_name; "there" when no usable name.
 
 {{openingLine}} by segment:
-  runway   The work authorization end date saved in your TrackMyOPT account is {{work_end_label}}, about {{days_left}} days from now. I'm guessing the job search is on your mind, so I wanted to share something we built for exactly that.
+  runway   (30–270 days left) The work authorization end date saved in your TrackMyOPT account is {{work_end_label}}, about {{days_left}} days from now. I'm guessing the job search is on your mind, so I wanted to share something we built for exactly that.
   major    You mentioned you studied {{major_name}}, so I wanted to share something we just built that should help with your job search.
   general  I wanted to share something we just built for students on OPT who are job hunting.
 
