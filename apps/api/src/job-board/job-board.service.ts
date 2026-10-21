@@ -5,6 +5,7 @@ import {
   Logger,
   Optional,
   OnModuleDestroy,
+  OnApplicationBootstrap,
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -86,7 +87,9 @@ type IncrementalJobStore = JobDataStore &
 const STAGE_WATCHDOG_INTERVAL_MS = 60_000;
 
 @Injectable()
-export class JobBoardService implements OnModuleInit, OnModuleDestroy {
+export class JobBoardService
+  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy
+{
   private readonly logger = new Logger(JobBoardService.name);
   private readonly supabase: SupabaseClient;
   private readonly schedulerRuns: SupabaseSchedulerRunStore;
@@ -166,6 +169,21 @@ export class JobBoardService implements OnModuleInit, OnModuleDestroy {
     // or resume while this process is being inspected/restarted.
     await Promise.all([this.queue.pause(), this.slowQueue.pause()]);
     this.logger.warn('Job-board Bull queues paused by boot safety guard');
+  }
+
+  /**
+   * Builds the shared filter options right after boot, so the first visitor
+   * after a deploy does not wait for the slow scans behind them.
+   */
+  onApplicationBootstrap() {
+    if (process.env.NODE_ENV === 'test') return;
+    this.jobStore.listJobFacets().catch((error: unknown) => {
+      this.logger.warn(
+        `Job board filter options warm-up failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    });
   }
 
   /** Bull job keys must never be evicted; report any other policy loudly. */

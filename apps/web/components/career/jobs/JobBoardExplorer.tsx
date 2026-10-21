@@ -294,6 +294,7 @@ export function JobBoardExplorer({
   pageSize: initialPageSize = DEFAULT_PAGE_SIZE,
   rankedCount: initialRankedCount = 0,
   initialFilters: serverFilters,
+  initialError = null,
   savedCount: initialSavedCount,
   runway,
   asOf,
@@ -311,6 +312,8 @@ export function JobBoardExplorer({
   rankedCount?: number;
   /** Filters the server already applied to `jobs`; otherwise derived from the resume match. */
   initialFilters?: JobFilters;
+  /** The server could not load the first page; the explorer offers a retry. */
+  initialError?: string | null;
   /** Every saved tracker entry; otherwise counted from the loaded jobs. */
   savedCount?: number;
   runway: RunwayContext | null;
@@ -329,7 +332,7 @@ export function JobBoardExplorer({
   const [rankedCount, setRankedCount] = useState(initialRankedCount);
   const [rankingUnavailable, setRankingUnavailable] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(initialError);
   const resultsRef = useRef<HTMLDivElement>(null);
   // Server mode loads one page at a time, so options derived from the loaded
   // jobs would only list that page's values.
@@ -524,7 +527,13 @@ export function JobBoardExplorer({
       </div>
 
       <div aria-busy={loading} className={`transition-opacity duration-200 ${loading ? 'pointer-events-none opacity-50' : ''}`}>
-      {visibleJobs.length === 0 ? (
+      {serverMode && serverError && visibleJobs.length === 0 ? (
+        <div role="alert" className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900/50">
+          <h2 className="font-semibold text-slate-950 dark:text-white">{serverError}</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Your filters are kept. Try again in a moment.</p>
+          <button type="button" disabled={loading} onClick={() => void loadServerPage(currentPage, filters)} className="mt-4 min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">Try again</button>
+        </div>
+      ) : visibleJobs.length === 0 ? (
         <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-900/50">
           <h2 className="font-semibold text-slate-950 dark:text-white">No verified jobs match these filters</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Try removing a filter or searching with a broader term. Only authorized employer-board listings appear here.</p>
@@ -563,7 +572,7 @@ export function JobBoardExplorer({
           <button type="button" disabled={loading || currentPage >= pageCount} onClick={() => void loadServerPage(currentPage + 1, filters)} className="min-h-10 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-200">Next</button>
         </nav>
       )}
-      {serverMode && serverError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{serverError}</p>}
+      {serverMode && serverError && visibleJobs.length > 0 && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{serverError}</p>}
     </section>
   );
 }

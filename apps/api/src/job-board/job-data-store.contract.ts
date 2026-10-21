@@ -117,6 +117,8 @@ export type JobStoreSearch = {
   sortBy?: 'posted_at' | 'last_confirmed_at';
   includeJobUrls?: readonly string[];
   excludeJobUrls?: readonly string[];
+  /** False skips the COUNT query (later pages of a known search); `total` is then 0. */
+  withTotal?: boolean;
 };
 
 export type JobStorePage = {

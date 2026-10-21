@@ -186,17 +186,30 @@ async function readStore(query: ServerJobQuery): Promise<ServerJobPage> {
   }
 }
 
+async function readDatePage(query: ServerJobQuery, page: number) {
+  const result = await readStore({ ...query, page, pageSize: JOB_FEED_PAGE_SIZE });
+  return { ...result, rankedCount: 0, scores: new Map<string, ResumeJobMatch>() };
+}
+
 /** One page of rows, ranked by resume score across the newest RESUME_RANKING_POOL jobs when a profile is given. */
 async function readPage(query: ServerJobQuery, page: number, profile: ResumeJobProfile | null) {
   const start = (page - 1) * JOB_FEED_PAGE_SIZE;
-  if (!profile || start >= RESUME_RANKING_POOL) {
-    const result = await readStore({ ...query, page, pageSize: JOB_FEED_PAGE_SIZE });
-    return { ...result, rankedCount: 0, scores: new Map<string, ResumeJobMatch>() };
+  if (!profile || start >= RESUME_RANKING_POOL) return readDatePage(query, page);
+  try {
+    return await readRankedPage(query, start, profile);
+  } catch (error) {
+    // Ranking reads several larger pages; when they fail, still show the jobs by date.
+    Sentry.captureException(new Error('Verified job feed resume ranking read failed', { cause: error }));
+    return readDatePage(query, page);
   }
+}
+
+async function readRankedPage(query: ServerJobQuery, start: number, profile: ResumeJobProfile) {
   const first = await readStore({ ...query, page: 1, pageSize: POOL_PAGE_SIZE });
   const poolPages = Math.ceil(Math.min(first.total, RESUME_RANKING_POOL) / POOL_PAGE_SIZE);
+  // The first page already counted the matches; later pool pages skip the COUNT.
   const rest = await Promise.all(
-    Array.from({ length: Math.max(0, poolPages - 1) }, (_, index) => readStore({ ...query, page: index + 2, pageSize: POOL_PAGE_SIZE })),
+    Array.from({ length: Math.max(0, poolPages - 1) }, (_, index) => readStore({ ...query, page: index + 2, pageSize: POOL_PAGE_SIZE, withTotal: 'false' })),
   );
   const pool = [first, ...rest];
   const rows = pool.flatMap((result) => result.rows).slice(0, RESUME_RANKING_POOL);

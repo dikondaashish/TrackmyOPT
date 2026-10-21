@@ -92,6 +92,7 @@ export class JobBoardController {
           : 'posted_at',
       includeJobUrls,
       excludeJobUrls,
+      withTotal: query.withTotal !== 'false',
     });
     const signals = await this.visaSignals.listForJobs(
       result.rows.map((row) => row.id),

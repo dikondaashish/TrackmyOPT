@@ -55,10 +55,23 @@ describe('loadJobFeed', () => {
     expect(feed.jobs[0].resume_match?.score).toBeGreaterThan(feed.jobs[1].resume_match?.score ?? 0);
     expect(feed).toMatchObject({ total: 900, rankedCount: RESUME_RANKING_POOL, pageSize: 50 });
     expect(listServerJobs).toHaveBeenCalledTimes(3);
+    // Only the first pool page counts the matches.
+    expect(listServerJobs.mock.calls.filter(([query]) => query.withTotal === 'false')).toHaveLength(2);
 
     listServerJobs.mockClear();
     await loadJobFeed({ filters: EMPTY_JOB_FILTERS, page: 7, trackerEntries: [], resumeProfile: profile });
     expect(listServerJobs).toHaveBeenCalledWith(expect.objectContaining({ page: 7, pageSize: 50 }));
+  });
+
+  it('falls back to date order when the ranking reads fail', async () => {
+    listServerJobs.mockImplementation(async ({ pageSize }: { pageSize: number }) => {
+      if (pageSize === 100) throw new Error('The operation was aborted due to timeout');
+      return { rows: [row(1)], total: 1, visaSignals: [] };
+    });
+    const feed = await loadJobFeed({ filters: EMPTY_JOB_FILTERS, page: 1, trackerEntries: [], resumeProfile: profile });
+    expect(feed).toMatchObject({ total: 1, rankedCount: 0 });
+    expect(feed.jobs[0].resume_match).not.toBeNull();
+    expect(captureException).toHaveBeenCalledTimes(1);
   });
 
   it('adds employer logos on every page and keeps loading when the logo read fails', async () => {

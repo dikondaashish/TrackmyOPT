@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { BriefcaseBusiness } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -6,7 +7,7 @@ import { JobBoardExplorer } from '@/components/career/jobs/JobBoardExplorer';
 import type { ActiveResumeMatch } from '@/components/career/jobs/ResumeJobMatcher';
 import { EMPTY_JOB_FILTERS } from '@/lib/job-board/filters';
 import { hasJobFilterParams, NO_RESUME, readJobSearchParams, toUrlSearchParams } from '@/lib/job-board/filter-params';
-import { cachedResumeJobProfile, countSavedJobs, loadJobFeed } from '@/lib/job-board/job-feed';
+import { cachedResumeJobProfile, countSavedJobs, JOB_FEED_PAGE_SIZE, JobFeedError, loadJobFeed, type JobFeedPage } from '@/lib/job-board/job-feed';
 import { deriveResumeJobFilters } from '@/lib/job-board/resume-filter-defaults';
 import { listServerJobFacets, type ServerJobFacets } from '@/lib/job-board/server-job-store';
 import { getRunwayContext, type StoredOptStatus } from '@/lib/job-board/runway';
@@ -100,14 +101,21 @@ export default async function VerifiedJobsPage({ searchParams }: { searchParams:
       ? deriveResumeJobFilters(initialResumeMatch.profile, ((await facetsPromise)?.places || []).map((place) => place.key))
       : EMPTY_JOB_FILTERS;
 
+  // A slow or failed job read keeps the page (filters, resume, tracker) and
+  // offers a retry in the explorer instead of replacing it with an error page.
   const feedPromise = loadJobFeed({
     filters: initialFilters,
     page: search.page,
     trackerEntries,
     resumeProfile: initialResumeMatch?.profile ?? null,
     asOf: now,
+  }).catch((error: unknown): JobFeedPage | null => {
+    if (!(error instanceof JobFeedError)) throw error;
+    Sentry.captureException(error);
+    return null;
   });
-  const [feed, facets] = await Promise.all([feedPromise, facetsPromise]);
+  const [loadedFeed, facets] = await Promise.all([feedPromise, facetsPromise]);
+  const feed = loadedFeed ?? { jobs: [], total: 0, page: search.page, pageSize: JOB_FEED_PAGE_SIZE, rankedCount: 0 };
 
   return (
     <main className="mx-auto max-w-[1440px] space-y-4 px-3 py-4 sm:px-5 sm:py-5">
@@ -132,6 +140,7 @@ export default async function VerifiedJobsPage({ searchParams }: { searchParams:
         initialPage={feed.page}
         pageSize={feed.pageSize}
         rankedCount={feed.rankedCount}
+        initialError={loadedFeed ? null : 'Verified jobs are taking longer than usual to load.'}
         initialFilters={initialFilters}
         savedCount={countSavedJobs(trackerEntries)}
         placeOptions={facets?.places}

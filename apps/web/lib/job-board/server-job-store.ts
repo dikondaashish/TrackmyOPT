@@ -58,8 +58,12 @@ function apiConfiguration() {
 }
 
 const RETRY_DELAY_MS = 1_000;
-/** One attempt's limit, so a stalled job API fails the request instead of hanging the page. */
-const REQUEST_TIMEOUT_MS = 10_000;
+/**
+ * One attempt's limit, so a stalled job API fails the request instead of
+ * hanging the page. Oracle COUNTs take up to ~8 s under ingestion load; the
+ * API caches shared searches, so a retry joins the read the first started.
+ */
+const REQUEST_TIMEOUT_MS = 15_000;
 
 /**
  * Calls the job data API, retrying once after a short pause when it answers

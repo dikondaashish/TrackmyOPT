@@ -120,6 +120,7 @@ describe('JobBoardController scheduler contract', () => {
         workplace: 'remote',
         employerEvidence: 'source_backed',
         includeJobUrls: ['https://example.test/a', 'https://example.test/b'],
+        withTotal: true,
       }),
     );
     expect(listForJobs).toHaveBeenCalledWith([]);
