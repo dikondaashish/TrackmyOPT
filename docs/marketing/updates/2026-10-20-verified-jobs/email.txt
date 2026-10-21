@@ -1,0 +1,65 @@
+Subject (named):   {{firstName}}, quick one about your job search
+Subject (no name): Quick one about your job search
+Preheader: none. Leave it empty so the inbox preview shows the first line, like a normal email.
+From: Karthik <karthik@trackmyopt.com>   Reply-To: the same mailbox, read by Karthik
+
+---
+
+Hi {{firstName}},
+
+Karthik from TrackMyOPT here. {{openingLine}}
+
+Something I kept hearing from students on OPT: the big job sites are full of reposted, expired and staffing-agency listings, and it's easy to lose a week applying to roles that were never really open.
+
+So we built Verified Jobs. It pulls openings directly from the career pages of 1,200+ US employers and keeps only US-based roles. A few things that help on OPT:
+
+- Filter by how many years of experience a job asks for
+- Show only employers with a past H-1B filing history (that's history, not a promise they'll sponsor you)
+- Hide any job that mentions words like "citizenship" or "clearance"
+
+{{linkIntro}}
+{{jobsUrl}}
+
+{{resumeLine}}
+
+Would you try it and reply with one thing that's missing or annoying? I read every reply, and we're shaping this around what students tell us.
+
+Thanks,
+Karthik
+TrackMyOPT
+
+--
+You're getting this because you have a TrackMyOPT account. Not useful? Unsubscribe: {{UNSUBSCRIBE_URL}}
+Zyene, Inc. · {{POSTAL_ADDRESS}}
+
+---
+
+MERGE FIELDS (built from audience.sql)
+
+{{firstName}}  first_name; "there" when no usable name.
+
+{{openingLine}} by segment:
+  runway   The work authorization end date saved in your TrackMyOPT account is {{work_end_label}}, about {{days_left}} days from now. I'm guessing the job search is on your mind, so I wanted to share something we built for exactly that.
+  major    You mentioned you studied {{major_name}}, so I wanted to share something we just built that should help with your job search.
+  general  I wanted to share something we just built for students on OPT who are job hunting.
+
+{{linkIntro}}
+  role_label present  I set up a link that opens it on entry-level {{role_label}} roles:
+  otherwise           Here's a link that opens it on entry-level roles:
+
+{{jobsUrl}}  jobs_url (sign-in required; it returns them to this filtered view).
+
+{{resumeLine}}
+  has_resume = true   Since you've already uploaded a resume, the newest jobs are ranked against it.
+  has_resume = false  If you add your resume, the newest jobs get ranked against it.
+
+SAMPLE (runway segment, fictional person)
+
+Subject: Maya, quick one about your job search
+
+Hi Maya,
+
+Karthik from TrackMyOPT here. The work authorization end date saved in your TrackMyOPT account is March 14, 2027, about 145 days from now. I'm guessing the job search is on your mind, so I wanted to share something we built for exactly that.
+...
+I set up a link that opens it on entry-level data and analytics roles:
+https://www.trackmyopt.com/dashboard/career/jobs?experience=entry&role=data&utm_source=outreach&utm_medium=email&utm_campaign=verified_jobs_2026_10
