@@ -69,8 +69,10 @@ async function handleGET(req: NextRequest) {
     // window a leaked token is usable.
     const token = await mintToken({ userId: user.id, email: user.email ?? '' });
 
+    // The extension scopes the tailored resume it hands to Prefill to this
+    // user; without it the resume is never kept and Prefill cannot attach it.
     return NextResponse.json(
-      { token },
+      { token, userId: user.id },
       { headers: { ...corsHeaders(req), 'Cache-Control': 'no-store' } }
     );
   } catch (e) {

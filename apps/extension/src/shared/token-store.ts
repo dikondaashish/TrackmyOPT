@@ -19,6 +19,23 @@ export async function getIdToken(): Promise<string | null> {
   return typeof idToken === 'string' && idToken.length > 0 ? idToken : null;
 }
 
+/**
+ * The `userId` claim of a TrackMyOPT JWT, read without verifying it: the
+ * token came from our own API and the value only scopes local caches (the
+ * server verifies the token on every request).
+ */
+export function tokenUserId(token: string): string | undefined {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return undefined;
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const userId = (JSON.parse(json) as { userId?: unknown }).userId;
+    return typeof userId === 'string' && userId.length > 0 ? userId : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Full cached entry (token + issuedAt + userId), or null if none. */
 export async function readCachedToken(): Promise<CachedTokenEntry | null> {
   const { idToken, idTokenIssuedAt, idTokenUserId } = await chrome.storage.local.get([
@@ -30,7 +47,10 @@ export async function readCachedToken(): Promise<CachedTokenEntry | null> {
   return {
     token: idToken,
     issuedAt: typeof idTokenIssuedAt === 'number' ? idTokenIssuedAt : 0,
-    userId: typeof idTokenUserId === 'string' ? idTokenUserId : undefined,
+    // The token's own claim wins: a token stored without a user id (popup
+    // sign-in, or a token API that omitted it) left the tailored-resume cache
+    // ownerless, so Prefill never received the generated PDF.
+    userId: tokenUserId(idToken) ?? (typeof idTokenUserId === 'string' ? idTokenUserId : undefined),
   };
 }
 
