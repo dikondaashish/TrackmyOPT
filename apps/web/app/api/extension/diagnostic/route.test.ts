@@ -44,3 +44,17 @@ it('drops signals when rate limited instead of failing the extension', async () 
   expect((await post({ code: 'review_panel_error', stage: 'processing', extensionVersion: '0.2.5' })).status).toBe(202);
   expect(mocks.capture).not.toHaveBeenCalled();
 });
+
+it('acknowledges a remote-config network failure without raising a Sentry issue (TRACKMYOPT-2H)', async () => {
+  const res = await post({ code: 'remote_config_fetch_failed', stage: 'network', extensionVersion: '0.2.5' });
+  expect(res.status).toBe(202);
+  expect(await res.json()).toEqual({ ok: true, accepted: false });
+  expect(mocks.capture).not.toHaveBeenCalled();
+});
+
+it('still reports remote-config HTTP failures and other network-stage signals', async () => {
+  expect((await post({ code: 'remote_config_fetch_failed', stage: 'http', status: 500, extensionVersion: '0.2.5' })).status).toBe(202);
+  expect(mocks.capture).toHaveBeenLastCalledWith('Extension remote_config_fetch_failed (stage=http, status=500, version=0.2.5)', 'error');
+  expect((await post({ code: 'tracker_sync_failed', stage: 'network', platform: 'workday', extensionVersion: '0.2.5' })).status).toBe(202);
+  expect(mocks.capture).toHaveBeenCalledTimes(2);
+});

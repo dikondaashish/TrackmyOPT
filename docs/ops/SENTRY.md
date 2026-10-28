@@ -255,6 +255,18 @@ checkout keeps its PostHog `pro_checkout_failed` event with the same stage. Auth
 provider errors (other than missing sessions), HTTP failures, malformed bodies
 and processing failures still report with their stage and status.
 
+Three more non-TrackMyOPT sources are dropped (2026-10-28 review). A
+`tracking_script.js` that fails loading `apis.google.com/js/client.js`
+(TRACKMYOPT-2K) is injected by the visitor's browser or host app, like
+`inpage.js`. The Next.js RSC client's unhandled "Connection closed." rejection
+(TRACKMYOPT-2J) means the response stream was cut by navigation, reload or a lost
+connection; it is dropped only when every frame is in `react-server-dom-*-client`
+and the mechanism is an unhandled rejection. The extension's
+`remote_config_fetch_failed` with `stage=network` (TRACKMYOPT-2H) is a silent,
+backed-off poll that keeps the last-known-good config, so the diagnostic route
+acknowledges it (HTTP 202, `accepted: false`) without a Sentry event; the same
+code with `http`, `json` or `validation` stages, and every other code, still reports.
+
 Promise rejections without a stack — `undefined` (TRACKMYOPT-1C), a synthetic
 `CustomEvent` of type `unhandledrejection`, and an empty object (TRACKMYOPT-X/Y,
 one page view) — cannot be attributed. TrackMyOPT's own source never dispatches
