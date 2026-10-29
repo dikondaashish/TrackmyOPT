@@ -140,10 +140,12 @@ export function scrubSentryEvent(
 // crashes are not TrackMyOPT failures and would otherwise exhaust the quota.
 // MetaMask's injected provider reports as `app:///scripts/inpage.js`
 // (TRACKMYOPT-1Y); our own scripts are always served from /_next/.
+// A `tracking_script.js` loading Google's apis.google.com/js/client.js
+// (TRACKMYOPT-2K) is likewise injected by the visitor's browser or a host app.
 const FOREIGN_SCRIPT =
-  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$|^app:\/\/\/scripts\/inpage\.js$/i;
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^<anonymous>$|^app:\/\/\/(?:scripts\/inpage|tracking_script)\.js$/i;
 const EXPLICIT_FOREIGN_SCRIPT =
-  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^app:\/\/\/scripts\/inpage\.js$/i;
+  /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:\/\/|userscript|^app:\/\/\/(?:scripts\/inpage|tracking_script)\.js$/i;
 
 /** True when every stack frame belongs to injected third-party script. */
 export function isForeignScriptEvent(event: ErrorEvent): boolean {
@@ -476,6 +478,32 @@ export function isPageUnloadAbortEvent(event: ErrorEvent): boolean {
   );
 }
 
+// The Next.js RSC client rejects its pending stream with "Connection closed."
+// (React error 412) when the response stream is cut: the visitor navigated away,
+// reloaded or lost their connection mid-render (TRACKMYOPT-2J). Every frame is in
+// the framework's react-server-dom client, so no TrackMyOPT code is involved.
+const RSC_CONNECTION_CLOSED = /^Connection closed\.$/;
+const RSC_CLIENT_FRAME = /react-server-dom-[a-z]+-client/;
+
+/** True for the RSC client's unhandled "Connection closed." stream rejection. */
+export function isRscStreamClosedEvent(event: ErrorEvent): boolean {
+  const values = event.exception?.values ?? [];
+  return (
+    values.length > 0 &&
+    values.every((v) => {
+      const frames = v.stacktrace?.frames ?? [];
+      return (
+        v.mechanism?.type === 'auto.browser.global_handlers.onunhandledrejection' &&
+        RSC_CONNECTION_CLOSED.test(v.value ?? '') &&
+        frames.length > 0 &&
+        frames.every((frame) =>
+          RSC_CLIENT_FRAME.test(frame.filename ?? frame.abs_path ?? '')
+        )
+      );
+    })
+  );
+}
+
 // iOS in-app browsers (WKWebView hosts such as social apps) reject their own
 // native-bridge promises with this message (TRACKMYOPT-2A). TrackMyOPT never
 // uses webkit.messageHandlers, so a frameless rejection is the host app's.
@@ -574,6 +602,7 @@ export function sentryOptions(
         isInjectedPageScriptEvent(event) ||
         isAnalyticsTransportFailure(event) ||
         isPageUnloadAbortEvent(event) ||
+        isRscStreamClosedEvent(event) ||
         isInAppBrowserBridgeEvent(event) ||
         isExpectedAuthRefreshEvent(event) ||
         isProviderOutageHttpEvent(event)

@@ -9,6 +9,7 @@ import {
   isPageUnloadAbortEvent,
   isInAppBrowserBridgeEvent,
   isProviderOutageHttpEvent,
+  isRscStreamClosedEvent,
   isBrowserFeatureConsoleEvent,
   isNodeRuntimeNoticeEvent,
   isBrowserNetworkError,
@@ -871,5 +872,77 @@ describe('Sentry grouping and expected outcomes (2026-10-19 review)', () => {
       filename: 'https://www.trackmyopt.com/_next/static/chunks/app.js',
     });
     expect(isForeignScriptEvent(ours)).toBe(false);
+  });
+});
+
+describe('Sentry injected tracking script and RSC stream noise (2026-10-28 review)', () => {
+  const beforeSend = () => sentryOptions('https://key@example.test/1')?.beforeSend;
+
+  it('drops the injected tracking_script.js Jsloader failure (TRACKMYOPT-2K)', () => {
+    const event: ErrorEvent = {
+      type: undefined,
+      exception: {
+        values: [
+          {
+            type: 'CustomError',
+            value: 'Jsloader error (code #0): Error while loading script https://apis.google.com/js/client.js',
+            mechanism: { type: 'auto.browser.browserapierrors.setTimeout', handled: false },
+            stacktrace: {
+              frames: [
+                { filename: 'app:///tracking_script.js', lineno: 70, colno: 278 },
+                { filename: 'app:///tracking_script.js', lineno: 68, colno: 887 },
+              ],
+            },
+          },
+        ],
+      },
+    };
+    expect(isForeignScriptEvent(event)).toBe(true);
+    expect(beforeSend()?.(event, {})).toBeNull();
+    const withOurs = structuredClone(event);
+    withOurs.exception!.values![0].stacktrace!.frames!.push({ filename: 'app:///_next/static/chunks/app.js' });
+    expect(isForeignScriptEvent(withOurs)).toBe(false);
+  });
+
+  const rscClosed = (): ErrorEvent => ({
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'Error',
+          value: 'Connection closed.',
+          mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection', handled: false },
+          stacktrace: {
+            frames: [
+              {
+                filename:
+                  'node_modules/.pnpm/next@16.3.3_x/node_modules/next/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.browser.production.js',
+                lineno: 1855,
+              },
+            ],
+          },
+        },
+      ],
+    },
+  });
+
+  it('drops the RSC client "Connection closed." stream rejection (TRACKMYOPT-2J)', () => {
+    expect(isRscStreamClosedEvent(rscClosed())).toBe(true);
+    expect(beforeSend()?.(rscClosed(), {})).toBeNull();
+  });
+
+  it('keeps look-alikes: other messages, handled errors, and our own frames', () => {
+    const other = rscClosed();
+    other.exception!.values![0].value = 'Connection closed';
+    expect(isRscStreamClosedEvent(other)).toBe(false);
+    const handled = rscClosed();
+    handled.exception!.values![0].mechanism = { type: 'generic', handled: true };
+    expect(isRscStreamClosedEvent(handled)).toBe(false);
+    const ours = rscClosed();
+    ours.exception!.values![0].stacktrace!.frames!.push({ filename: 'app:///_next/static/chunks/app.js' });
+    expect(isRscStreamClosedEvent(ours)).toBe(false);
+    const frameless = rscClosed();
+    frameless.exception!.values![0].stacktrace = undefined;
+    expect(isRscStreamClosedEvent(frameless)).toBe(false);
   });
 });

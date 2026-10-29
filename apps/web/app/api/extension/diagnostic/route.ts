@@ -38,6 +38,13 @@ async function handlePOST(req: NextRequest) {
   try { body = JSON.parse(raw); } catch { return NextResponse.json({ ok: false }, { status: 400, headers }); }
   const signal = normalizeDiagnosticSignal(body);
   if (!signal) return NextResponse.json({ ok: false }, { status: 400, headers });
+  // The remote-config poll is silent and retried with backoff, keeping the
+  // last-known-good config. A request that never got a response is the user's
+  // connection or a timeout, not a TrackMyOPT failure (TRACKMYOPT-2H); an HTTP,
+  // JSON or validation failure of the same poll still reports.
+  if (signal.code === 'remote_config_fetch_failed' && signal.stage === 'network') {
+    return NextResponse.json({ ok: true, accepted: false }, { status: 202, headers });
+  }
   Sentry.withScope((scope) => {
     scope.setFingerprint(['chrome-extension', signal.code, signal.stage, signal.platform ?? 'any']);
     scope.setTag('source', 'chrome_extension');
