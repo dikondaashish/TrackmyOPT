@@ -28,10 +28,16 @@ export function reportReceiptEntryFailure(
   stage: 'save' | 'poll' | 'load',
   kind: 'network' | 'response'
 ) {
+  const report = () =>
+    Sentry.captureException(
+      new Error(`Receipt entry ${source}: ${stage} ${kind} failure`)
+    );
   // A visitor's dropped connection follows the shared browser network policy:
-  // skipped offline/hidden, and at most one network report per page load.
-  if (kind === 'network' && !shouldReportCaughtNetworkFailure()) return;
-  Sentry.captureException(
-    new Error(`Receipt entry ${source}: ${stage} ${kind} failure`)
-  );
+  // skipped offline/hidden or when TrackMyOPT answers a probe (transient), and
+  // at most one network report per page load.
+  if (kind === 'network')
+    void shouldReportCaughtNetworkFailure().then((reportable) => {
+      if (reportable) report();
+    });
+  else report();
 }

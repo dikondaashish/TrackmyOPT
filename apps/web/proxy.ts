@@ -168,7 +168,10 @@ export const config = {
     /*
      * Host canonicalization (zyene.com, trackmyopt.com → www.trackmyopt.com)
      * must run on marketing pages too — not only dashboard/API.
+     * /ingest is the PostHog rewrite: Vercel proxies it at the edge, so a
+     * PostHog reset or stall is not a TrackMyOPT function error or a 300 s
+     * function timeout (TRACKMYOPT-2N, 2F), and beacons skip the auth lookup.
      */
-    '/((?!_next/static|_next/image|template-previews/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
+    '/((?!_next/static|_next/image|ingest(?:/|$)|template-previews/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)',
   ],
 };

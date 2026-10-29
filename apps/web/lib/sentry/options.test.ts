@@ -652,21 +652,33 @@ describe('caught browser network failures', () => {
       Promise.resolve(false)
     );
     // A caught failure during the probe is coalesced with it.
-    expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
+    await expect(shouldReportCaughtNetworkFailure(online)).resolves.toBe(false);
     await expect(pending).resolves.toBe(false);
-    expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
+    await expect(shouldReportCaughtNetworkFailure(online)).resolves.toBe(false);
   });
 
-  it('skips offline or hidden pages and reports the first visible failure', () => {
-    expect(
-      shouldReportCaughtNetworkFailure({ offline: true, hidden: false })
-    ).toBe(false);
-    expect(
-      shouldReportCaughtNetworkFailure({ offline: false, hidden: true })
-    ).toBe(false);
-    expect(shouldReportCaughtNetworkFailure(online)).toBe(true);
-    expect(shouldReportCaughtNetworkFailure(online)).toBe(false);
-    expect(shouldReportCaughtNetworkFailure(null)).toBe(true);
+  it('skips offline or hidden pages and reports the first visible failure while unreachable', async () => {
+    const unreachable = vi.fn(() => Promise.resolve(false));
+    await expect(
+      shouldReportCaughtNetworkFailure({ offline: true, hidden: false }, unreachable)
+    ).resolves.toBe(false);
+    await expect(
+      shouldReportCaughtNetworkFailure({ offline: false, hidden: true }, unreachable)
+    ).resolves.toBe(false);
+    expect(unreachable).not.toHaveBeenCalled();
+    await expect(shouldReportCaughtNetworkFailure(online, unreachable)).resolves.toBe(true);
+    await expect(shouldReportCaughtNetworkFailure(online, unreachable)).resolves.toBe(false);
+    await expect(shouldReportCaughtNetworkFailure(null)).resolves.toBe(true);
+  });
+
+  it('drops a transient failure when TrackMyOPT still answers (TRACKMYOPT-N)', async () => {
+    const page = { ...online, origin: 'https://www.trackmyopt.com' };
+    const reachable = vi.fn(() => Promise.resolve(true));
+    await expect(shouldReportCaughtNetworkFailure(page, reachable)).resolves.toBe(false);
+    await expect(shouldReportCaughtNetworkFailure(page, reachable)).resolves.toBe(false);
+    expect(reachable).toHaveBeenCalledWith('https://www.trackmyopt.com');
+    // Failures that keep coming while the origin answers are persistent.
+    await expect(shouldReportCaughtNetworkFailure(page, reachable)).resolves.toBe(true);
   });
 });
 
@@ -820,6 +832,31 @@ describe('Sentry grouping and expected outcomes (2026-10-19 review)', () => {
     const thrown = structuredClone(bridge);
     thrown.exception!.values![0].mechanism = { type: 'auto.browser.global_handlers.onerror', handled: false };
     expect(isInAppBrowserBridgeEvent(thrown)).toBe(false);
+  });
+
+  it("drops Safari's frameless runtime.sendMessage tab rejection only (TRACKMYOPT-9)", () => {
+    const rejection: ErrorEvent = {
+      type: undefined,
+      exception: {
+        values: [
+          {
+            type: 'Error',
+            value: 'Invalid call to runtime.sendMessage(). Tab not found.',
+            mechanism: { type: 'auto.browser.global_handlers.onunhandledrejection', handled: false },
+          },
+        ],
+      },
+    };
+    expect(isInAppBrowserBridgeEvent(rejection)).toBe(true);
+    expect(beforeSend()?.(rejection, {})).toBeNull();
+    const withFrames = structuredClone(rejection);
+    withFrames.exception!.values![0].stacktrace = {
+      frames: [{ filename: 'https://www.trackmyopt.com/_next/static/chunks/app.js' }],
+    };
+    expect(isInAppBrowserBridgeEvent(withFrames)).toBe(false);
+    const other = structuredClone(rejection);
+    other.exception!.values![0].value = 'Invalid call to runtime.sendMessage(). Extension not found.';
+    expect(isInAppBrowserBridgeEvent(other)).toBe(false);
   });
 
   it("drops Supabase's console report of a reused refresh token only (TRACKMYOPT-1Z)", () => {

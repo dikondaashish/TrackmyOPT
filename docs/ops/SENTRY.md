@@ -129,10 +129,12 @@ reported separately and are unaffected.
 
 App code that catches such a failure and reports it with its own fixed message
 (for example the receipt-entry `network` diagnostics) applies the same policy
-through `shouldReportCaughtNetworkFailure`, sharing the once-per-page budget
-(without the reachability probe; it is also skipped while a probe is running).
-Fixed messages ending in `(stage=network, status=none)` get the full probe
-policy instead.
+through `shouldReportCaughtNetworkFailure`: the same probe of this site, the
+same transient allowance and the shared once-per-page budget (it is skipped
+while another probe is running). Until the 2026-10-29 review it reported without
+the probe, so a visitor's one-off dropped request to a reachable site still
+became an issue (TRACKMYOPT-N). Fixed messages ending in
+`(stage=network, status=none)` get the same policy through `beforeSend`.
 
 posthog-node logs its own delivery problems through `console.error`.
 `isAnalyticsTransportFailure` drops only PostHog network errors/timeouts and
@@ -266,6 +268,22 @@ and the mechanism is an unhandled rejection. The extension's
 backed-off poll that keeps the last-known-good config, so the diagnostic route
 acknowledges it (HTTP 202, `accepted: false`) without a Sentry event; the same
 code with `http`, `json` or `validation` stages, and every other code, still reports.
+
+The 2026-10-29 review fixed or dropped four more. Safari's frameless unhandled
+rejection "Invalid call to runtime.sendMessage(). Tab not found."
+(TRACKMYOPT-9) comes from another extension's page-world script: TrackMyOPT's
+own extension messages go through `sendExtensionMessage`, which catches it. It
+is dropped with the iOS bridge rejection (frameless, unhandled, exact message
+only). The `/ingest/*` PostHog rewrite is no longer matched by `proxy.ts`, so
+Vercel proxies it without a TrackMyOPT function: PostHog resets and stalls
+(`fetch failed` with `ECONNRESET` or `HeadersTimeoutError`, TRACKMYOPT-2N/2F)
+no longer surface as server errors or 300 s function timeouts, and beacons
+skip the Supabase auth lookup. Resume autofill snapshots (TRACKMYOPT-2G) were
+rejected whole when Gemini, which receives the schema without its limits,
+returned one value outside the contract, such as an empty optional field or a
+LinkedIn URL without `https://`. Such values are now dropped or repaired before
+validation; a snapshot that still fails reports its schema paths and Zod issue
+codes (`extra.issues`, list indices as `#`), never values.
 
 Promise rejections without a stack — `undefined` (TRACKMYOPT-1C), a synthetic
 `CustomEvent` of type `unhandledrejection`, and an empty object (TRACKMYOPT-X/Y,
