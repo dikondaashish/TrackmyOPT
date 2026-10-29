@@ -357,6 +357,91 @@ describe('extractAutofillSnapshot', () => {
     });
   });
 
+  it('keeps a snapshot when the model returns stray values outside the contract', async () => {
+    sentry.captureException.mockClear();
+    const [job] = jobASnapshot.experience;
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: `${fixture('job-a-source.txt')}\nlinkedin.com/in/alice-johnson\nSkills: Python, SQL`,
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        contact: {
+          ...jobASnapshot.contact,
+          country: '',
+          email: 'not an email',
+          linkedinUrl: 'linkedin.com/in/alice-johnson',
+          portfolioUrl: 'N/A',
+        },
+        skills: ['', 'Python', 'SQL'],
+        experience: [
+          {
+            ...job,
+            location: ' ',
+            bullets: ['', ...job.bullets],
+            endDate: { originalText: 'Mar 2024', year: 2024, precision: 'month' },
+          },
+          { ...job, company: '' },
+        ],
+        education: [{ ...jobASnapshot.education[0], location: '' }],
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.snapshot.contact).toEqual({
+      firstName: 'Alice',
+      lastName: 'Johnson',
+      fullName: 'Alice Johnson',
+      phone: '+1 617 555 0101',
+      city: 'Boston',
+      state: 'MA',
+      linkedinUrl: 'https://linkedin.com/in/alice-johnson',
+    });
+    expect(result.snapshot.skills).toEqual(['Python', 'SQL']);
+    expect(result.snapshot.experience).toEqual([
+      {
+        ...job,
+        endDate: { originalText: 'Mar 2024', year: 2024, precision: 'year' },
+      },
+    ]);
+    expect(result.snapshot.education).toEqual([jobASnapshot.education[0]]);
+    expect(sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it('cuts lists the model returns over their limits', async () => {
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        skills: Array.from({ length: 250 }, () => 'Python'),
+      }),
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it('reports which schema paths failed validation, without their values', async () => {
+    sentry.captureException.mockClear();
+    const result = await extractAutofillSnapshot({
+      finalLatex: fixture('job-a-final.tex'),
+      sourceResumeText: fixture('job-a-source.txt'),
+      extractStructuredSnapshot: async () => ({
+        ...jobASnapshot,
+        skills: 'Alice Johnson',
+        experience: [{ ...jobASnapshot.experience[0], isCurrent: 'Alice Johnson' }],
+      }),
+    });
+
+    expect(result.ok).toBe(false);
+    expect(sentry.captureException).toHaveBeenCalledTimes(1);
+    const [error, context] = sentry.captureException.mock.calls[0];
+    expect((error as Error).message).toBe('Resume autofill snapshot validate failed');
+    // The invalid job is dropped; the required skills list cannot be repaired.
+    expect(context.extra.issues).toEqual(['skills:invalid_type']);
+    expect(JSON.stringify(sentry.captureException.mock.calls)).not.toContain('Alice');
+  });
+
   it('reports extraction and title-recovery failures to Sentry without resume content', async () => {
     sentry.captureException.mockClear();
     await extractAutofillSnapshot({

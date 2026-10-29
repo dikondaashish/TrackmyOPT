@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { proxy } from '@/proxy';
+import { config, proxy } from '@/proxy';
 import { NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
@@ -171,3 +171,19 @@ it.each([
     );
   }
 );
+
+describe('proxy matcher', () => {
+  // Each entry is a path pattern (`:path*`) or a single regex group, which
+  // Next compiles to the same anchored expression.
+  const matches = (path: string) =>
+    config.matcher.some((pattern) =>
+      new RegExp(`^${pattern.replace('/:path*', '(?:/.*)?')}$`).test(path)
+    );
+
+  it('leaves the PostHog /ingest rewrite to the edge (TRACKMYOPT-2N, 2F)', () => {
+    for (const path of ['/ingest', '/ingest/s/', '/ingest/i/v0/e/', '/ingest/static/array.js'])
+      expect(matches(path)).toBe(false);
+    for (const path of ['/', '/ingestion', '/blog/a', '/login', '/dashboard', '/api/x'])
+      expect(matches(path)).toBe(true);
+  });
+});

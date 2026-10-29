@@ -398,9 +398,21 @@ export function shouldDropNetworkFailure(
   isReachable: (origin: string) => Promise<boolean> = isOriginReachable
 ): boolean | Promise<boolean> {
   if (!state || !isBrowserNetworkFailure(event)) return false;
+  return dropNetworkFailure(
+    state,
+    networkFailureOrigin(event, state.origin ?? ''),
+    isReachable
+  );
+}
+
+function dropNetworkFailure(
+  state: BrowserState,
+  origin: string,
+  isReachable: (origin: string) => Promise<boolean>
+): boolean | Promise<boolean> {
   if (state.offline || state.hidden || networkFailureReported || networkProbe)
     return true;
-  const probe = isReachable(networkFailureOrigin(event, state.origin ?? ''))
+  const probe = isReachable(origin)
     .catch(() => false)
     .then((reachable) => {
       const transient =
@@ -417,18 +429,17 @@ export function shouldDropNetworkFailure(
 }
 
 /**
- * The same policy for app code that catches a network failure and reports it
- * with its own fixed message (which `isBrowserNetworkFailure` cannot match).
- * Shares the once-per-page-load budget with uncaught network failures.
+ * The same policy for app code that catches a network failure of a request to
+ * this origin and reports it with its own fixed message (which
+ * `isBrowserNetworkFailure` cannot match): the same probe, transient allowance
+ * and once-per-page-load budget as uncaught network failures.
  */
-export function shouldReportCaughtNetworkFailure(
-  state: BrowserState | null = browserState()
-): boolean {
+export async function shouldReportCaughtNetworkFailure(
+  state: BrowserState | null = browserState(),
+  isReachable: (origin: string) => Promise<boolean> = isOriginReachable
+): Promise<boolean> {
   if (!state) return true;
-  if (state.offline || state.hidden || networkFailureReported || networkProbe)
-    return false;
-  networkFailureReported = true;
-  return true;
+  return !(await dropNetworkFailure(state, state.origin ?? '', isReachable));
 }
 
 // posthog-node reports its own delivery problems through console.error, which
@@ -507,9 +518,13 @@ export function isRscStreamClosedEvent(event: ErrorEvent): boolean {
 // iOS in-app browsers (WKWebView hosts such as social apps) reject their own
 // native-bridge promises with this message (TRACKMYOPT-2A). TrackMyOPT never
 // uses webkit.messageHandlers, so a frameless rejection is the host app's.
-const IN_APP_BRIDGE_REJECTION = /^Script message handler is unavailable$/;
+// Safari's extension bridge rejects another extension's page-world
+// runtime.sendMessage with "Tab not found." (TRACKMYOPT-9); TrackMyOPT's own
+// extension messages go through sendExtensionMessage, which catches it.
+const IN_APP_BRIDGE_REJECTION =
+  /^(?:Script message handler is unavailable|Invalid call to runtime\.sendMessage\(\)\. Tab not found\.)$/;
 
-/** True for a frameless unhandled rejection from an iOS in-app browser bridge. */
+/** True for a frameless unhandled rejection from a browser host bridge (in-app WebView or Safari extension). */
 export function isInAppBrowserBridgeEvent(event: ErrorEvent): boolean {
   const values = event.exception?.values ?? [];
   return (

@@ -1,10 +1,12 @@
 import { createHash } from 'node:crypto';
 
 import * as Sentry from '@sentry/nextjs';
+import { z } from 'zod';
 
 import {
   AUTOFILL_CONTRACT_LIMITS,
   ResumeAutofillSnapshotV1Schema,
+  ResumeDateValueSchema,
   type ResumeAutofillSnapshotV1,
   type ResumeDateValue,
 } from './autofill-schema';
@@ -21,15 +23,98 @@ const NORMALIZED_RESUME_MAX_CHARS = 50_000;
  */
 function reportExtractionFailure(
   stage: 'extract' | 'validate' | 'title_recovery',
-  error?: unknown
+  error?: unknown,
+  issues?: string[]
 ): void {
   Sentry.captureException(
     new Error(`Resume autofill snapshot ${stage} failed`),
     {
       tags: { feature: 'resume_autofill_snapshot', stage },
-      extra: { errorName: error instanceof Error ? error.name : typeof error },
+      extra: {
+        errorName: error instanceof Error ? error.name : typeof error,
+        ...(issues ? { issues } : {}),
+      },
     }
   );
+}
+
+/**
+ * Schema paths and Zod issue codes only (list indices as "#"), e.g.
+ * "experience.#.startDate:custom". Zod messages are left out because some
+ * quote the rejected value.
+ */
+function describeSchemaIssues(error: z.ZodError): string[] {
+  const issues = error.issues.map(
+    (issue) =>
+      `${issue.path.map((part) => (typeof part === 'number' ? '#' : part)).join('.')}:${issue.code}`
+  );
+  return [...new Set(issues)].slice(0, 10);
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** A date whose year or month was dropped keeps only the precision it still has. */
+function settleDatePrecision(value: unknown): unknown {
+  if (!isPlainObject(value)) return value;
+  if (value.precision === 'month' && (value.year === undefined || value.month === undefined)) {
+    return { ...value, precision: value.year === undefined ? 'text' : 'year' };
+  }
+  if (value.precision === 'year' && value.year === undefined) {
+    return { ...value, precision: 'text' };
+  }
+  return value;
+}
+
+/**
+ * Gemini receives the schema without its length, format and range limits
+ * (toGeminiResponseSchema), so one stray value, such as an empty optional
+ * field or a LinkedIn URL without "https://", used to reject the whole
+ * snapshot. This keeps everything that meets the contract: an invalid
+ * optional value is omitted, an invalid list entry is removed, a list is cut
+ * to its limit, and a bare host URL such as "linkedin.com/in/x" gets
+ * "https://". Required fields
+ * and unknown keys are not repaired, so those still fail validation.
+ */
+function salvageToSchema(schema: z.ZodTypeAny, value: unknown): unknown {
+  if (schema.safeParse(value).success) return value;
+  if (schema instanceof z.ZodOptional) {
+    const salvaged = salvageToSchema(schema.unwrap(), value);
+    return schema.safeParse(salvaged).success ? salvaged : undefined;
+  }
+  if (schema instanceof z.ZodEffects) {
+    const salvaged = salvageToSchema(schema.innerType(), value);
+    return schema === ResumeDateValueSchema ? settleDatePrecision(salvaged) : salvaged;
+  }
+  if (schema instanceof z.ZodObject && isPlainObject(value)) {
+    const shape = schema.shape as Record<string, z.ZodTypeAny>;
+    const salvaged: Record<string, unknown> = { ...value };
+    for (const [key, fieldSchema] of Object.entries(shape)) {
+      if (!(key in salvaged)) continue;
+      const field = salvageToSchema(fieldSchema, salvaged[key]);
+      if (field === undefined) delete salvaged[key];
+      else salvaged[key] = field;
+    }
+    return salvaged;
+  }
+  if (schema instanceof z.ZodArray && Array.isArray(value)) {
+    const element = schema.element as z.ZodTypeAny;
+    const kept = value
+      .map((item) => salvageToSchema(element, item))
+      .filter((item) => element.safeParse(item).success);
+    const maxLength = schema._def.maxLength?.value;
+    return maxLength === undefined ? kept : kept.slice(0, maxLength);
+  }
+  if (
+    schema instanceof z.ZodString &&
+    schema.isURL &&
+    typeof value === 'string' &&
+    /^(?:[a-z\d-]+\.)+[a-z]{2,}(?:[/?#]\S*)?$/i.test(value.trim())
+  ) {
+    return `https://${value.trim()}`;
+  }
+  return value;
 }
 
 type StructuredSnapshotExtractor = (input: {
@@ -653,9 +738,11 @@ export async function extractAutofillSnapshot(input: {
     return { ok: false, reason: 'extraction_failed', generatedContentHash };
   }
 
-  const validated = ResumeAutofillSnapshotV1Schema.safeParse(rawSnapshot);
+  const validated = ResumeAutofillSnapshotV1Schema.safeParse(
+    salvageToSchema(ResumeAutofillSnapshotV1Schema, rawSnapshot)
+  );
   if (!validated.success) {
-    reportExtractionFailure('validate');
+    reportExtractionFailure('validate', undefined, describeSchemaIssues(validated.error));
     return { ok: false, reason: 'invalid_snapshot', generatedContentHash };
   }
 

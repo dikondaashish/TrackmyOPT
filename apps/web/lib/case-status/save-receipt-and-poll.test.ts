@@ -25,6 +25,11 @@ const resolved = {
 const response = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status });
 const fetchMock = vi.fn();
+/** Network reports wait for the shared reachability probe (which retries). */
+async function settled<T>(work: Promise<T>): Promise<T> {
+  await vi.runAllTimersAsync();
+  return work;
+}
 beforeEach(() => {
   vi.clearAllMocks();
   resetNetworkFailureReporting();
@@ -33,6 +38,7 @@ beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock);
 });
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -68,13 +74,13 @@ describe('receipt enrollment and result measurement', () => {
   });
 
   it('keeps a saved receipt when polling fails, without claiming activation', async () => {
+    vi.useFakeTimers();
     fetchMock
       .mockResolvedValueOnce(response({ ok: true, data: saved }))
       .mockRejectedValue(new Error(`${receipt} private server body`));
-    const result = await saveReceiptAndPoll(receipt, {
-      maxAttempts: 2,
-      pollIntervalMs: 0,
-    });
+    const result = await settled(
+      saveReceiptAndPoll(receipt, { maxAttempts: 2, pollIntervalMs: 0 })
+    );
     expect(result).toEqual({ ok: true, data: saved, statusResolved: false });
     expect(Sentry.captureException).toHaveBeenCalledOnce();
     expect(vi.mocked(Sentry.captureException).mock.calls[0][0]).toEqual(
@@ -127,22 +133,25 @@ describe('receipt enrollment and result measurement', () => {
   );
 
   it('reports save network errors with a safe static diagnostic', async () => {
+    vi.useFakeTimers();
     fetchMock.mockRejectedValue(new Error(`${receipt} applicant@example.com`));
-    expect((await saveReceiptAndPoll(receipt)).ok).toBe(false);
+    expect((await settled(saveReceiptAndPoll(receipt))).ok).toBe(false);
     expect(vi.mocked(Sentry.captureException).mock.calls[0][0]).toEqual(
       new Error('Receipt entry onboarding_wizard: save network failure')
     );
   });
 
   it('follows the browser network policy for dropped connections', async () => {
+    vi.useFakeTimers();
     fetchMock.mockRejectedValue(new TypeError('Load failed'));
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
-    expect((await saveReceiptAndPoll(receipt)).ok).toBe(false);
+    expect((await settled(saveReceiptAndPoll(receipt))).ok).toBe(false);
     expect(Sentry.captureException).not.toHaveBeenCalled();
 
+    // TrackMyOPT stays unreachable here (every fetch, probes included, fails).
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
-    await saveReceiptAndPoll(receipt);
-    await saveReceiptAndPoll(receipt);
+    await settled(saveReceiptAndPoll(receipt));
+    await settled(saveReceiptAndPoll(receipt));
     // One report per page load: a real outage still surfaces, a flaky
     // connection does not fan out into an issue per request.
     expect(Sentry.captureException).toHaveBeenCalledTimes(1);
