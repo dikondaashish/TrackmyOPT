@@ -41,13 +41,17 @@ const VARIANTS: Record<
     href: '/dashboard/case-status',
     cta: 'Save my case',
   },
+  // Primary destination is the free case tracker (account required), as it was
+  // before Oct 5, 2026. Sending this CTA to the guest decision-window tool
+  // added a step before signup; signups fell about a third and new paid
+  // subscriptions stopped. The tool stays one click away as the secondary link.
   'case-status': {
     icon: Bell,
-    title: 'Check your OPT or STEM OPT wait',
+    title: 'Know your USCIS status — and when a decision may come',
     description:
-      'Enter your receipt date for a free community-based estimate — no account needed. If enough comparable cases are available, see the sample size and range; then save your case for ongoing tracking.',
-    href: '/tools/opt-decision-window',
-    cta: 'Check my wait',
+      'Add your receipt number once. See plain-English status updates, refresh free anytime, and add daily checks with email alerts on Pro.',
+    href: '/dashboard/case-status',
+    cta: 'Check my status free',
   },
   'opt-timeline': {
     icon: Clock,
@@ -139,12 +143,17 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
                     ? '/features/resume-ai'
                     : variant === 'community'
                       ? '/features/community'
-                      : '/features/case-status'
+                      : variant === 'case-status'
+                        ? '/tools/opt-decision-window'
+                        : '/features/case-status'
               }
               className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
               onClick={() =>
                 captureClientEvent('blog_product_cta_clicked', {
-                  variant: 'features-link',
+                  variant:
+                    variant === 'case-status'
+                      ? 'decision-window-link'
+                      : 'features-link',
                   source_page: sourcePage,
                 })
               }
@@ -155,7 +164,9 @@ export function BlogProductCTA({ variant, sourcePage }: BlogProductCTAProps) {
                   ? 'resume and job-search features'
                   : variant === 'community'
                     ? 'community timeline methodology'
-                    : 'USCIS case status tracker features'}
+                    : variant === 'case-status'
+                      ? 'a free decision-window estimate (no account needed)'
+                      : 'USCIS case status tracker features'}
             </Link>
           </p>
           {variant === 'case-status' && (

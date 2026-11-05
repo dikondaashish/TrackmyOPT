@@ -154,11 +154,11 @@ export default function CaseStatusPage() {
                 badge="Stop refreshing USCIS"
                 headline="Know where your case stands — and your decision window"
                 subheadline="Free: see your decision window and refresh status anytime. Pro: daily auto-checks and email alerts when USCIS moves — using Case Status API access. Always verify with official notices."
-                ctaText="See my decision window"
-                ctaHref="/tools/opt-decision-window"
+                ctaText="Track my case free"
+                ctaHref="/dashboard/case-status"
                 secondaryCta={{
-                    text: "Track live status",
-                    href: "/dashboard/case-status",
+                    text: "See my decision window",
+                    href: "/tools/opt-decision-window",
                 }}
                 gradient="from-emerald-600 to-teal-600"
                 visual={<CaseStatusCard />}
@@ -318,12 +318,12 @@ export default function CaseStatusPage() {
                 headline="Stop Refreshing USCIS Manually"
                 subheadline="See your decision window in seconds — then add your receipt for live status and Pro alerts when it changes."
                 primaryCTA={{
-                    text: "See my decision window",
-                    href: "/tools/opt-decision-window",
+                    text: "Track my case free",
+                    href: "/dashboard/case-status",
                 }}
                 secondaryCTA={{
-                    text: "Track live status free",
-                    href: "/dashboard/case-status",
+                    text: "See my decision window",
+                    href: "/tools/opt-decision-window",
                 }}
                 gradient="emerald"
                 icon={<FileSearch className="w-12 h-12 text-white" />}
