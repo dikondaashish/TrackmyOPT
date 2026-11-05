@@ -116,6 +116,9 @@ export default function StemOptProcessingTime2026Page() {
                     <strong>There is no single STEM OPT approval time for every case.</strong> Use the{" "}
                     <a href="https://egov.uscis.gov/processing-times/" className="text-purple-600 dark:text-purple-400 font-semibold hover:underline">USCIS processing-times tool</a>
                     {" "}for the current estimate. Eligible applicants can request <strong>30-business-day premium processing</strong>. A timely and properly filed STEM extension can allow up to <strong>180 days</strong> of continued employment after the current EAD expires, ending sooner if USCIS adjudicates the case.
+                    {" "}Save your receipt in TrackMyOPT&apos;s{" "}
+                    <Link href="/dashboard/case-status" className="text-purple-600 dark:text-purple-400 font-semibold hover:underline">free case status tracker</Link>
+                    {" "}to follow your STEM OPT case (manual refresh; Pro adds daily automatic checks).
                 </p>
             </div>
 
@@ -277,6 +280,9 @@ export default function StemOptProcessingTime2026Page() {
                     ))}
                 </div>
             </section>
+
+            {/* Bottom sign-up CTA (removed in the Oct 10, 2026 refresh; restored). */}
+            <BlogProductCTA variant="case-status" sourcePage="/blog/stem-opt-processing-time-2026#bottom" />
 
             <section className="my-10 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6">
                 <h2 className="text-lg font-bold mb-3">Official Sources and Next Steps</h2>

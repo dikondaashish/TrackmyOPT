@@ -93,6 +93,9 @@ export default function OPTProcessingTimeArticle() {
                     <strong>OPT processing time varies by case and workload.</strong> Check the current estimate for your I-765 category on the{" "}
                     <a href="https://egov.uscis.gov/processing-times/" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">USCIS processing-times tool</a>.
                     Eligible OPT applicants can request <strong>30-business-day premium processing</strong> with Form I-907. That is a period for USCIS action, not a promise of approval or card delivery.
+                    {" "}While you wait, save your receipt in TrackMyOPT&apos;s{" "}
+                    <Link href="/dashboard/case-status" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">free case status tracker</Link>
+                    {" "}(manual refresh; Pro adds daily automatic checks).
                 </p>
             </div>
 
@@ -222,6 +225,9 @@ export default function OPTProcessingTimeArticle() {
                     </div>
                 </section>
             </div>
+
+            {/* Bottom sign-up CTA (removed in the Oct 10, 2026 refresh; restored). */}
+            <BlogProductCTA variant="case-status" sourcePage="/blog/opt-processing-time-2026#bottom" />
 
             <section className="my-10 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6">
                 <h2 className="text-lg font-bold mb-3">Official Sources and Next Steps</h2>

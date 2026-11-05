@@ -592,8 +592,13 @@ export function CaseStatusSection() {
         onClose={() => setShowPricingModal(false)}
         isPremium={isPremium ?? false}
         initialPlan={pricingModalPlan}
-        initialInterval={pricingModalPlan === 'pro' ? 'month' : 'year'}
-        caseMonitoring={pricingModalPlan === 'pro'}
+        // Case-status upgrades open the full plan comparison with annual billing
+        // preselected. From Oct 10, 2026 they opened the single-offer "gold ticket"
+        // with monthly preselected instead; new paid subscriptions stopped after
+        // Oct 15 (165 offer views, 2 checkout clicks, 0 purchases), so this
+        // restores the flow that converted. The focused offer remains for the
+        // monitoring-email landing page (app/premium/monitoring).
+        initialInterval="year"
       />
     </div>
   );
