@@ -52,7 +52,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'OPT Deadline Tracker, Resume AI & H-1B Tools | TrackMyOPT',
   description:
-    'Track OPT deadlines and USCIS case status, build AI resumes, store documents, and find H-1B sponsors. Free forever. 3,000+ users have signed up, and 10,000+ people regularly use our free tools.',
+    'Track OPT deadlines and USCIS case status, build AI resumes, store documents, and find H-1B sponsors. Free forever. 3,500+ users have signed up, and 10,000+ people regularly use our free tools.',
 };
 
 export default function LandingPage() {

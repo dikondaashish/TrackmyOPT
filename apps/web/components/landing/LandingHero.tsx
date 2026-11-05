@@ -217,7 +217,7 @@ export function LandingHero() {
                                     <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500" />
                                 </span>
                                 <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                                    3,000+ users have signed up
+                                    3,500+ users have signed up
                                 </span>
                             </div>
                         </motion.div>

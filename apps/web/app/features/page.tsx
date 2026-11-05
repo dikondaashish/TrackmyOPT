@@ -130,7 +130,7 @@ export default function FeaturesPage() {
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-3">Ready to protect your OPT status?</h2>
           <p className="text-blue-100 mb-6 max-w-lg mx-auto">
-            Join 3,000+ people who have signed up for TrackMyOPT. Explore tools for OPT planning and your job search.
+            Join 3,500+ people who have signed up for TrackMyOPT. Explore tools for OPT planning and your job search.
           </p>
           <Link
             href="/login"

@@ -123,7 +123,7 @@ export function LandingTestimonials() {
                         Trusted by International Students Nationwide
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        3,000+ users have signed up for TrackMyOPT, and 10,000+ people regularly use our free tools.
+                        3,500+ users have signed up for TrackMyOPT, and 10,000+ people regularly use our free tools.
                     </p>
                 </div>
 
