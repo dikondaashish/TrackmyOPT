@@ -65,7 +65,7 @@ export function LandingChromeExtension() {
                                         </div>
                                     ))}
                                 </div>
-                                <span>TrackMyOPT: 3,000+ users signed up</span>
+                                <span>TrackMyOPT: 3,500+ users signed up</span>
                             </div>
                         </div>
                     </div>

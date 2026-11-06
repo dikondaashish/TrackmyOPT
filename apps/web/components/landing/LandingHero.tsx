@@ -115,7 +115,7 @@ export function LandingHero() {
                         {/* Who This Is For - Trust Signals */}
                         <motion.div variants={fadeInUp} className="flex justify-center lg:justify-start mb-6">
                             <p className="text-sm font-medium text-muted-foreground">
-                                3,000+ users have signed up
+                                3,500+ users have signed up
                             </p>
                         </motion.div>
 

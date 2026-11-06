@@ -97,7 +97,7 @@ export function LandingFooter() {
               <span className="text-xl font-bold text-gray-900 dark:text-white">TrackMyOPT</span>
             </Link>
             <p className="max-w-xs text-base text-gray-600 dark:text-gray-400 md:text-sm">
-              OPT deadlines, USCIS case status, AI resumes, Document Vault, and H-1B sponsors — built for F-1 students. 3,000+ signed up · 10,000+ use free tools.
+              OPT deadlines, USCIS case status, AI resumes, Document Vault, and H-1B sponsors — built for F-1 students. 3,500+ signed up · 10,000+ use free tools.
             </p>
           </div>
 

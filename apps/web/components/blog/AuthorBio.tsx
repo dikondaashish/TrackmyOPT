@@ -33,7 +33,7 @@ export function AuthorBio({ compact = false }: AuthorBioProps) {
                     <p className="flex flex-wrap items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
                         <span>Content Writer</span>
                         <span aria-hidden>·</span>
-                        <span>3,000+ Users Signed Up</span>
+                        <span>3,500+ Users Signed Up</span>
                     </p>
                     <div className="flex items-center gap-4 mt-3">
                         <Link href="/about" className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline">
