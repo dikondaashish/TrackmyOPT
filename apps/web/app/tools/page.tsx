@@ -16,7 +16,6 @@ import {
 const TOOLS = {
   opt: {
     title: 'OPT Timeline & Compliance',
-    gradient: 'from-blue-500 to-indigo-600',
     tools: [
       {
         name: 'OPT Filing Window Calculator',
@@ -51,7 +50,6 @@ const TOOLS = {
   },
   uscis: {
     title: 'USCIS Case Tracking',
-    gradient: 'from-emerald-500 to-teal-600',
     tools: [
       {
         name: 'OPT Decision Window',
@@ -87,7 +85,6 @@ const TOOLS = {
   },
   career: {
     title: 'H-1B & Career',
-    gradient: 'from-amber-500 to-orange-600',
     tools: [
       {
         name: 'H-1B Sponsor Database',
@@ -124,7 +121,6 @@ const TOOLS = {
   },
   resources: {
     title: 'Immigration Resources',
-    gradient: 'from-purple-500 to-violet-600',
     tools: [
       {
         name: 'Tax Filing Guide',
@@ -189,7 +185,7 @@ const itemListSchema = {
 export default function ToolsPage() {
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
         {/* Hero */}
         <section className="pt-24 pb-12 sm:pt-28 sm:pb-16 text-center px-4">
           <div className="max-w-4xl mx-auto">
@@ -213,11 +209,9 @@ export default function ToolsPage() {
               ][]
             ).map(([key, category]) => (
               <div key={key}>
-                <div
-                  className={`inline-block px-4 py-2 rounded-lg bg-gradient-to-r ${category.gradient} text-white font-semibold text-sm sm:text-base mb-6`}
-                >
+                <h2 className="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
                   {category.title}
-                </div>
+                </h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
                   {category.tools.map((tool) => {
                     const Icon = tool.icon;
@@ -225,7 +219,7 @@ export default function ToolsPage() {
                       <Link
                         key={tool.name}
                         href={tool.href}
-                        className="group relative flex flex-col p-5 sm:p-6 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900/50 transition-all duration-200"
+                        className="group relative flex flex-col p-5 sm:p-6 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 hover:border-blue-200 dark:hover:border-blue-950 transition-colors"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
@@ -239,15 +233,11 @@ export default function ToolsPage() {
                               {tool.description}
                             </p>
                           </div>
-                          <span
-                            className={`flex-shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              tool.badge === 'Pro'
-                                ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-                                : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                            }`}
-                          >
-                            {tool.badge}
-                          </span>
+                          {tool.badge === 'Pro' && (
+                            <span className="flex-shrink-0 rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                              {tool.badge}
+                            </span>
+                          )}
                         </div>
                         <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:gap-2 transition-all">
                           Try Free <ArrowRight className="w-4 h-4" />
@@ -264,7 +254,7 @@ export default function ToolsPage() {
         {/* CTA */}
         <section className="py-16 px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 sm:p-12 text-white">
+            <div className="bg-blue-600 rounded-xl p-8 sm:p-12 text-white">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">
                 Ready to Protect Your OPT Status?
               </h2>

@@ -5,11 +5,9 @@ import {
   BookOpen,
   BriefcaseBusiness,
   CheckCircle2,
-  CircleHelp,
   ExternalLink,
   FileCheck2,
   FileText,
-  GraduationCap,
   Landmark,
   Search,
   ShieldCheck,
@@ -145,9 +143,8 @@ export default function EVerifyEmployerSearchPage() {
   return (
     <>
       <main className="min-h-screen bg-slate-50 text-slate-950 dark:bg-zinc-950 dark:text-white">
-        <section className="relative overflow-hidden border-b border-blue-100 bg-gradient-to-br from-white via-blue-50 to-indigo-100/70 px-4 pb-16 pt-28 dark:border-blue-950 dark:from-zinc-950 dark:via-slate-950 dark:to-blue-950/40 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
-          <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:radial-gradient(circle_at_1px_1px,rgba(37,99,235,0.16)_1px,transparent_0)] [background-size:28px_28px] dark:opacity-20" />
-          <div className="relative mx-auto max-w-6xl">
+        <section className="border-b border-slate-200 bg-white px-4 pb-16 pt-28 dark:border-zinc-800 dark:bg-zinc-950 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
+          <div className="mx-auto max-w-6xl">
             <nav
               aria-label="Breadcrumb"
               className="mb-8 text-sm text-slate-600 dark:text-slate-400"
@@ -182,13 +179,10 @@ export default function EVerifyEmployerSearchPage() {
 
             <div className="grid items-center gap-10 lg:grid-cols-[1.25fr_.75fr]">
               <div>
-                <div className="mb-5 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
-                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                    Free · No sign-in required
-                  </span>
-                </div>
-                <h1 className="max-w-4xl text-4xl font-black tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
+                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                  Free · No sign-in required
+                </p>
+                <h1 className="max-w-4xl text-4xl font-black text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
                   E-Verify employer search
                 </h1>
                 <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 dark:text-slate-300 sm:text-xl">
@@ -199,7 +193,7 @@ export default function EVerifyEmployerSearchPage() {
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <a
                     href="#employer-search"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
                   >
                     Search an employer
                     <Search className="h-4 w-4" aria-hidden="true" />
@@ -216,9 +210,9 @@ export default function EVerifyEmployerSearchPage() {
                 </div>
               </div>
 
-              <aside className="rounded-3xl border border-white/80 bg-white/85 p-6 shadow-xl shadow-blue-900/5 backdrop-blur dark:border-slate-800 dark:bg-zinc-900/85">
+              <aside className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-zinc-900">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div>
@@ -258,7 +252,7 @@ export default function EVerifyEmployerSearchPage() {
             <div className="mb-7 max-w-3xl">
               <h2
                 id="search-section-heading"
-                className="text-3xl font-black tracking-tight sm:text-4xl"
+                className="text-3xl font-black sm:text-4xl"
               >
                 Search an employer
               </h2>
@@ -274,12 +268,9 @@ export default function EVerifyEmployerSearchPage() {
             className="grid gap-10 lg:grid-cols-[.75fr_1.25fr]"
           >
             <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
-                Search smarter
-              </p>
               <h2
                 id="how-to-search-heading"
-                className="mt-2 text-3xl font-black tracking-tight"
+                className="text-3xl font-black"
               >
                 How to search an employer
               </h2>
@@ -308,7 +299,7 @@ export default function EVerifyEmployerSearchPage() {
               ].map(([step, title, text]) => (
                 <li
                   key={step}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+                  className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
                 >
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-black text-white">
                     {step}
@@ -324,12 +315,9 @@ export default function EVerifyEmployerSearchPage() {
 
           <section aria-labelledby="results-heading">
             <div className="max-w-3xl">
-              <p className="text-sm font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
-                Understand the result
-              </p>
               <h2
                 id="results-heading"
-                className="mt-2 text-3xl font-black tracking-tight"
+                className="text-3xl font-black"
               >
                 What an E-Verify search result means
               </h2>
@@ -338,7 +326,7 @@ export default function EVerifyEmployerSearchPage() {
                 eligibility.
               </p>
             </div>
-            <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
               <table className="w-full min-w-[760px] text-left">
                 <thead className="bg-slate-100 text-sm text-slate-700 dark:bg-zinc-800 dark:text-slate-200">
                   <tr>
@@ -373,7 +361,7 @@ export default function EVerifyEmployerSearchPage() {
                 </tbody>
               </table>
             </div>
-            <div className="mt-5 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+            <div className="mt-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
               <TriangleAlert
                 className="mt-0.5 h-5 w-5 shrink-0"
                 aria-hidden="true"
@@ -398,17 +386,13 @@ export default function EVerifyEmployerSearchPage() {
 
           <section
             aria-labelledby="stem-opt-heading"
-            className="overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 to-indigo-800 text-white shadow-xl shadow-blue-900/10"
+            className="overflow-hidden rounded-xl bg-blue-700 text-white"
           >
             <div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:p-12">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold ring-1 ring-white/20">
-                  <GraduationCap className="h-4 w-4" aria-hidden="true" />
-                  STEM OPT checklist
-                </div>
                 <h2
                   id="stem-opt-heading"
-                  className="mt-5 text-3xl font-black tracking-tight sm:text-4xl"
+                  className="text-3xl font-black sm:text-4xl"
                 >
                   E-Verify is required—but it is not the only requirement
                 </h2>
@@ -430,7 +414,7 @@ export default function EVerifyEmployerSearchPage() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex gap-3 rounded-2xl bg-white/10 p-4 ring-1 ring-white/15"
+                    className="flex gap-3 rounded-lg bg-blue-800 p-4"
                   >
                     <CheckCircle2
                       className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300"
@@ -450,12 +434,9 @@ export default function EVerifyEmployerSearchPage() {
             className="grid gap-8 lg:grid-cols-3"
           >
             <div className="lg:col-span-3">
-              <p className="text-sm font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
-                Avoid a common filing error
-              </p>
               <h2
                 id="numbers-heading"
-                className="mt-2 text-3xl font-black tracking-tight"
+                className="text-3xl font-black"
               >
                 Company ID, EIN, and case number are different
               </h2>
@@ -479,9 +460,9 @@ export default function EVerifyEmployerSearchPage() {
             ].map(({ icon: Icon, title, text }) => (
               <article
                 key={title}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+                className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <h3 className="mt-5 text-lg font-bold">{title}</h3>
@@ -494,12 +475,9 @@ export default function EVerifyEmployerSearchPage() {
 
           <section aria-labelledby="faq-heading">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                <CircleHelp className="h-6 w-6" aria-hidden="true" />
-              </div>
               <h2
                 id="faq-heading"
-                className="mt-5 text-3xl font-black tracking-tight sm:text-4xl"
+                className="text-3xl font-black sm:text-4xl"
               >
                 E-Verify employer search FAQ
               </h2>
@@ -512,7 +490,7 @@ export default function EVerifyEmployerSearchPage() {
               {faqs.map((faq) => (
                 <details
                   key={faq.question}
-                  className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm open:border-blue-300 dark:border-zinc-800 dark:bg-zinc-900 dark:open:border-blue-800"
+                  className="group rounded-xl border border-slate-200 bg-white p-6 open:border-blue-300 dark:border-zinc-800 dark:bg-zinc-900 dark:open:border-blue-800"
                 >
                   <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-bold marker:content-none">
                     {faq.question}
@@ -523,7 +501,7 @@ export default function EVerifyEmployerSearchPage() {
                       +
                     </span>
                   </summary>
-                  <p className="mt-4 border-t border-slate-100 pt-4 leading-7 text-slate-600 dark:border-zinc-800 dark:text-slate-300">
+                  <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">
                     {faq.answer}
                   </p>
                 </details>
@@ -534,12 +512,9 @@ export default function EVerifyEmployerSearchPage() {
           <section aria-labelledby="next-steps-heading">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <div>
-                <p className="text-sm font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300">
-                  Keep moving
-                </p>
                 <h2
                   id="next-steps-heading"
-                  className="mt-2 text-3xl font-black tracking-tight"
+                  className="text-3xl font-black"
                 >
                   Your next OPT and career steps
                 </h2>
@@ -576,7 +551,7 @@ export default function EVerifyEmployerSearchPage() {
                 <Link
                   key={href}
                   href={href}
-                  className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-blue-800"
+                  className="group rounded-xl border border-slate-200 bg-white p-6 transition-colors hover:border-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-blue-800"
                 >
                   <Icon
                     className="h-6 w-6 text-blue-600 dark:text-blue-400"
@@ -599,7 +574,7 @@ export default function EVerifyEmployerSearchPage() {
 
           <section
             aria-labelledby="sources-heading"
-            className="rounded-3xl border border-slate-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-900 sm:p-9"
+            className="rounded-xl border border-slate-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-900 sm:p-9"
           >
             <div className="flex items-start gap-4">
               <Landmark

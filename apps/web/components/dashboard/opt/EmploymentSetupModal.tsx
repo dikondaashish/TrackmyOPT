@@ -36,7 +36,7 @@ export function EmploymentSetupModal({
       <DialogContent className="sm:max-w-md" onClose={() => onOpenChange(false)}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900">
               <Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </span>
             One more step: job history
@@ -54,7 +54,7 @@ export function EmploymentSetupModal({
               onOpenChange(false);
               onAddJob();
             }}
-            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary/5"
+            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary hover:bg-primary-soft"
           >
             <Briefcase className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <div>
@@ -71,7 +71,7 @@ export function EmploymentSetupModal({
               onOpenChange(false);
               onBetweenJobs();
             }}
-            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-amber-400/50 hover:bg-amber-50/50 dark:hover:bg-amber-950/20"
+            className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950"
           >
             <Timer className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div>
@@ -88,9 +88,9 @@ export function EmploymentSetupModal({
               onOpenChange(false);
               onNotOnOpt();
             }}
-            className="flex w-full items-start gap-3 rounded-xl border border-dashed border-border bg-muted/30 p-4 text-left transition-colors hover:bg-muted/50"
+            className="flex w-full items-start gap-3 rounded-xl border border-dashed border-border bg-muted p-4 text-left transition-colors hover:bg-muted"
           >
-            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-muted-foreground/40 text-xs text-muted-foreground">
+            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-muted-foreground text-xs text-muted-foreground">
               ?
             </div>
             <div>

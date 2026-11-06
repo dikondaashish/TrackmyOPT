@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function DisclaimerPage() {
   return (
     <LegalPageShell title="Legal Disclaimer" policyType="disclaimer">
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-5 rounded-xl not-prose mb-8">
+      <div className="bg-yellow-50 dark:bg-yellow-950 border-l-4 border-yellow-400 p-5 rounded-xl not-prose mb-8">
         <p className="text-yellow-900 dark:text-yellow-100 font-semibold m-0">
           TrackMyOPT is software only. It is not legal advice, not immigration advice, and not affiliated with USCIS, DHS, SEVP, ICE, any university, any DSO, or any government agency.
         </p>

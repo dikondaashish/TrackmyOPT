@@ -17,9 +17,9 @@ interface H1BSponsorCardProps {
 
 // Get score color based on value
 const getScoreColor = (score: number) => {
-    if (score >= 80) return { bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50 dark:bg-emerald-900/20" };
-    if (score >= 60) return { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50 dark:bg-blue-900/20" };
-    if (score >= 40) return { bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50 dark:bg-amber-900/20" };
+    if (score >= 80) return { bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50 dark:bg-emerald-950" };
+    if (score >= 60) return { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50 dark:bg-blue-950" };
+    if (score >= 40) return { bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50 dark:bg-amber-950" };
     return { bg: "bg-gray-400", text: "text-gray-600", light: "bg-gray-50 dark:bg-gray-800" };
 };
 
@@ -36,11 +36,11 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
 
     return (
         <div
-            className="group relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white transition-all duration-300 hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-500/10 dark:border-gray-700/50 dark:bg-gray-800/80 dark:hover:border-blue-600/50"
+            className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-700"
         >
 
             {/* Top Color Bar - Visual Indicator */}
-            <div className={`h-1 ${scoreColors.bg} opacity-80`} />
+            <div className={`h-1 ${scoreColors.bg}`} />
 
             <div className="p-5">
                 {/* Header Row */}
@@ -70,7 +70,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                         type="button"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSave(sponsor.id); }}
                         className={`min-h-11 min-w-11 p-2 rounded-lg transition-all shrink-0 ${isSaved
-                            ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm"
+                            ? "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400 shadow-sm"
                             : "text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-300 dark:hover:bg-gray-700"
                             }`}
                         aria-label={isSaved ? `Remove ${sponsor.name} from saved sponsors` : `Save ${sponsor.name}`}
@@ -83,10 +83,10 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                 {/* Stats Row - Clean and Scannable */}
                 <div className="flex items-stretch gap-3 mb-4">
                     {/* Sponsor Score */}
-                    <div className={`flex-1 rounded-xl p-3 ${scoreColors.light} border border-transparent`}>
+                    <div className={`flex-1 rounded-lg p-3 ${scoreColors.light}`}>
                         <div className="flex items-center gap-1.5 mb-1">
                             <Star className={`w-3.5 h-3.5 ${scoreColors.text}`} />
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Score</span>
+                            <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">Score</span>
                         </div>
                         <div className="flex items-baseline gap-1.5">
                             <span className={`text-2xl font-bold ${scoreColors.text} dark:opacity-90`}>{scoreData.score}</span>
@@ -95,7 +95,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                     </div>
 
                     {/* 2025 Approvals */}
-                    <div className="flex-1 rounded-xl p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50">
+                    <div className="flex-1 rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
                         <div className="flex items-center gap-1.5 mb-1">
                             {scoreData.trend === "Up" ? (
                                 <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
@@ -104,7 +104,7 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                             ) : (
                                 <div className="w-3.5 h-3.5" />
                             )}
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">FY2025</span>
+                            <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">FY2025</span>
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-bold text-gray-900 dark:text-white">{approvals.toLocaleString()}</span>
@@ -117,13 +117,13 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                 {(sponsor.is_virtual_office || (sponsor.entry_level_percent || 0) > 0.7) && (
                     <div className="flex flex-wrap gap-2 mb-4">
                         {sponsor.is_virtual_office && (
-                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800 text-xs font-medium" title="High volume of companies at this address">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 text-xs font-medium" title="High volume of companies at this address">
                                 <AlertTriangle className="w-3 h-3" />
                                 <span>Specific Office Cluster</span>
                             </div>
                         )}
                         {(sponsor.entry_level_percent || 0) > 0.7 && (
-                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-xs font-medium">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400 text-xs font-medium">
                                 <Briefcase className="w-3 h-3" />
                                 <span>Entry Level Friendly</span>
                             </div>
@@ -135,15 +135,12 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                 {!((sponsor.is_virtual_office || (sponsor.entry_level_percent || 0) > 0.7)) && (
                     <div className="mb-4">
                         {hasRecentRecordedActivity ? (
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-950">
+                                <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500"></span>
                                 <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">FY2025 activity recorded</span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/30">
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800">
                                 <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
                                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400">No FY2025 activity recorded</span>
                             </div>
@@ -172,15 +169,15 @@ export function H1BSponsorCard({ sponsor, isSaved, onToggleSave, onAddToTracker 
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all ${sponsor.careers_url
-                            ? "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-emerald-500/25 hover:shadow-emerald-500/40"
-                            : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-blue-500/25 hover:shadow-blue-500/40"
+                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${sponsor.careers_url
+                            ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                            : "bg-blue-600 hover:bg-blue-700 text-white"
                             }`}
                     >
                         {sponsor.careers_url ? (
                             <>
                                 <span className="flex items-center gap-1">
-                                    Careers <span className="bg-white/20 p-0.5 rounded-full"><Check className="w-3 h-3" /></span>
+                                    Careers <Check className="w-3.5 h-3.5" aria-hidden="true" />
                                 </span>
                             </>
                         ) : (

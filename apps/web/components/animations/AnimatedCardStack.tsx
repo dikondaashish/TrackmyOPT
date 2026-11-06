@@ -13,17 +13,17 @@ const cardData = {
     1: {
         title: "Landed Amazon Offer",
         description: "Used the H-1B sponsor filter to find verified roles.",
-        gradient: "from-blue-500 via-indigo-500 to-purple-600",
+        color: "bg-blue-500",
     },
     2: {
         title: "Never Missed a Deadline",
         description: "Automated standard alerts saved my STEM OPT status.",
-        gradient: "from-emerald-400 via-teal-500 to-cyan-600",
+        color: "bg-emerald-400",
     },
     3: {
         title: "Resume ATS 95/100",
         description: "Optimized my resume specifically for OPT hiring.",
-        gradient: "from-amber-400 via-orange-500 to-rose-500",
+        color: "bg-amber-400",
     },
 }
 
@@ -55,12 +55,7 @@ function CardContent({ contentType }: { contentType: 1 | 2 | 3 }) {
 
     return (
         <div className="flex h-full w-full flex-col gap-4">
-            <div className={`-outline-offset-1 flex h-[200px] w-full items-center justify-center overflow-hidden rounded-xl outline outline-black/10 dark:outline-white/10 bg-gradient-to-br ${data.gradient} relative shadow-inner`}>
-                {/* Premium Gradient Overlays */}
-                <div className="absolute inset-0 bg-white/10 dark:bg-black/10 backdrop-blur-[2px]" />
-                <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/40 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent" />
-            </div>
+            <div className={`h-[200px] w-full rounded-lg ${data.color}`} />
             <div className="flex w-full items-center justify-between gap-2 px-3 pb-6">
                 <div className="flex min-w-0 flex-1 flex-col text-left">
                     <span className="truncate font-semibold text-foreground text-lg">{data.title}</span>
@@ -107,7 +102,7 @@ function AnimatedCard({
                 x: "-50%",
                 bottom: 0,
             }}
-            className="absolute flex h-[300px] w-[340px] items-center justify-center overflow-hidden rounded-2xl border border-border bg-card p-2 shadow-2xl will-change-transform sm:w-[400px]"
+            className="absolute flex h-[300px] w-[340px] items-center justify-center overflow-hidden rounded-xl border border-border bg-card p-2 shadow-sm will-change-transform sm:w-[400px]"
         >
             <CardContent contentType={card.contentType} />
         </motion.div>
@@ -159,7 +154,7 @@ export default function AnimatedCardStack() {
             <div className="relative z-10 mt-6 flex w-full items-center justify-center">
                 <button
                     onClick={handleAnimate}
-                    className="flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 overflow-hidden rounded-full border border-border bg-background px-6 py-2.5 font-medium text-foreground transition-all hover:bg-muted active:scale-[0.98] shadow-sm"
+                    className="flex min-h-11 cursor-pointer select-none items-center justify-center gap-2 overflow-hidden rounded-lg border border-border bg-background px-6 py-2.5 font-medium text-foreground transition-colors hover:bg-muted"
                 >
                     Next Story
                     <ArrowRight className="w-4 h-4" />

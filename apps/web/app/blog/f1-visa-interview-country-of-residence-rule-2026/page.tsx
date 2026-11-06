@@ -109,14 +109,6 @@ export default function F1VisaInterviewCountryRulePage() {
       />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full">
-            F-1 Visa Update
-          </span>
-          <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-3 py-1 rounded-full">
-            Effective Immediately
-          </span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           New F-1 Visa Interview Rule: Apply in Your Country of Nationality or
           Residence
@@ -128,6 +120,8 @@ export default function F1VisaInterviewCountryRulePage() {
           should check before traveling.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>F-1 Visa Update · Effective Immediately</span>
+          <span>•</span>
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" /> 9 min read
           </span>
@@ -139,7 +133,7 @@ export default function F1VisaInterviewCountryRulePage() {
       </header>
 
       <figure className="mb-12">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-xl">
           <Image
             src="/blog/f1-visa-interview-country-of-residence-rule-2026.png"
             alt="Passport and visa appointment papers on a world map showing a return route to the applicant’s home country"
@@ -155,8 +149,8 @@ export default function F1VisaInterviewCountryRulePage() {
         </figcaption>
       </figure>
 
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-2">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2">
           Direct Answer
         </p>
         <p className="text-lg text-gray-800 dark:text-gray-100 font-medium leading-relaxed mb-0">
@@ -239,14 +233,14 @@ export default function F1VisaInterviewCountryRulePage() {
             lawfully reside somewhere else.
           </p>
 
-          <div className="not-prose bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
+          <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
             <div className="flex gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-amber-900 dark:text-amber-200 mb-1">
                   “Should apply” is important wording
                 </p>
-                <p className="text-amber-800 dark:text-amber-200/80 text-sm mb-0">
+                <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">
                   The announcement does not say every third-country case must be
                   refused. It does expressly warn that applying outside
                   nationality or residence may make qualification more difficult
@@ -326,7 +320,7 @@ export default function F1VisaInterviewCountryRulePage() {
                 ].map(([issue, preferred, third]) => (
                   <tr
                     key={issue}
-                    className="odd:bg-white even:bg-gray-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900/50"
+                    className="odd:bg-white even:bg-gray-50 dark:odd:bg-zinc-950 dark:even:bg-zinc-900"
                   >
                     <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
                       {issue}
@@ -521,7 +515,7 @@ export default function F1VisaInterviewCountryRulePage() {
           </p>
         </section>
 
-        <section className="not-prose bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 text-white my-12 shadow-xl">
+        <section className="not-prose bg-blue-600 rounded-xl p-8 text-white my-12">
           <div className="flex items-start gap-4">
             <Globe2 className="w-9 h-9 text-blue-100 flex-shrink-0" />
             <div>

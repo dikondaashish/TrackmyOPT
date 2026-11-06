@@ -75,10 +75,10 @@ export function PremiumProcessingCountdown({
   return (
     <Card
       className={cn(
-        "overflow-hidden border-0 shadow-lg",
+        "overflow-hidden border-0",
         clock?.isOverdue
-          ? "ring-2 ring-red-500/40 shadow-red-500/10"
-          : "shadow-amber-500/10"
+          ? "ring-2 ring-red-500"
+          : ""
       )}
       role="status"
       aria-live="polite"
@@ -87,12 +87,17 @@ export function PremiumProcessingCountdown({
         className={cn(
           "px-5 py-5 sm:px-7 text-white",
           clock?.isOverdue
-            ? "bg-gradient-to-br from-red-600 via-rose-600 to-orange-700"
-            : "bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600"
+            ? "bg-red-600"
+            : "bg-amber-500"
         )}
       >
         <div className="flex items-start gap-3">
-          <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0">
+          <div
+            className={cn(
+              "w-11 h-11 rounded-lg flex items-center justify-center shrink-0",
+              clock?.isOverdue ? "bg-red-500" : "bg-amber-400"
+            )}
+          >
             {clock?.isOverdue ? (
               <AlertTriangle className="w-6 h-6" />
             ) : (
@@ -100,7 +105,7 @@ export function PremiumProcessingCountdown({
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-white/80">
+            <p className="text-xs font-medium text-white">
               Premium Processing
             </p>
             <h3 className="text-lg sm:text-xl font-extrabold mt-0.5">
@@ -111,10 +116,10 @@ export function PremiumProcessingCountdown({
                   : state.status === 'stopped' ? "Premium Processing clock stopped" : "Clock start unconfirmed"}
             </h3>
             {clock && (
-              <p className="text-sm text-white/90 mt-1">
+              <p className="text-sm text-white mt-1">
                 Estimated action date:{" "}
                 <span className="font-bold">{formatDisplayDateNoon(clock.deadline)}</span>
-                <span className="text-white/70">
+                <span className="text-white">
                   {" "}
                   ({PP_BUSINESS_DAY_LIMIT} business days from{" "}
                   {formatDisplayDateNoon(clock.ppStart)})
@@ -164,7 +169,7 @@ export function PremiumProcessingCountdown({
         )}
 
         {clock?.isOverdue && (
-          <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 p-4">
+          <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 p-4">
             <p className="text-sm font-semibold text-red-900 dark:text-red-100 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               Past the {PP_BUSINESS_DAY_LIMIT}-business-day PP target — contact USCIS
@@ -179,7 +184,7 @@ export function PremiumProcessingCountdown({
               <Phone className="w-4 h-4" />
               USCIS Contact Center {PP_CONTACT.phoneDisplay}
             </a>
-            <p className="text-xs text-red-700/80 dark:text-red-300/80 mt-1">
+            <p className="text-xs text-red-700 dark:text-red-300 mt-1">
               {PP_CONTACT.hours}
             </p>
           </div>

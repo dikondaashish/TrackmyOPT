@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, ShieldAlert, Eye, FileText, CheckCircle } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, ShieldAlert, Eye, CheckCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
@@ -53,8 +53,7 @@ export default function OPTCPTScrutinyArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-semibold">Compliance Warning</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />8 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Compliance Warning · 8 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     Increased Scrutiny on OPT and CPT: What International Students Need to Know (2026)
@@ -65,14 +64,14 @@ export default function OPTCPTScrutinyArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 12, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
                 <BlogPostImage src="/blog/opt-cpt-scrutiny.png" alt="Compliance officer reviewing official documents" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
                 Immigration authorities are increasing their oversight on CPT and OPT programs.
             </figcaption>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     In 2026, worksite inspections and digital footprint audits for OPT and CPT students have increased. To stay compliant, you must strictly follow the 90-day unemployment rule, keep SEVP records 100% accurate, and avoid fraudulent "shadow" employers.
@@ -81,9 +80,7 @@ export default function OPTCPTScrutinyArticle() {
 
             {/* Table of Contents */}
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    Table of Contents
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
                     <li><a href="#current-landscape" className="hover:underline">1. The Current Enforcement Landscape</a></li>
@@ -128,7 +125,7 @@ export default function OPTCPTScrutinyArticle() {
                 </section>
 
                 <section id="protect-status" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             How to Protect Your Status
@@ -143,7 +140,7 @@ export default function OPTCPTScrutinyArticle() {
                     </div>
                     
                     {/* Practical Tool: Checklist Download */}
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
                                 <CheckCircle className="w-5 h-5" /> Free 2026 OPT Compliance Checklist
@@ -195,7 +192,7 @@ export default function OPTCPTScrutinyArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Compliance Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day OPT Unemployment Rule</Link>
@@ -204,7 +201,7 @@ export default function OPTCPTScrutinyArticle() {
                 </div>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Stay Compliant, Stay Safe</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">TrackMyOPT's Compliance Tracker ensures you never miss a SEVP reporting deadline or accidentally exceed your unemployment limits.</p>
                 <Link href="/features/compliance" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors">

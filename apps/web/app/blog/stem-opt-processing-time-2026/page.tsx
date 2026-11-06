@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, AlertTriangle, CheckCircle2, TrendingUp } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -94,12 +94,7 @@ export default function StemOptProcessingTime2026Page() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
-                        STEM OPT
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />8 min read
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Stem opt · 8 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     STEM OPT Processing Time 2026: Premium Processing & the 180-Day Rule
@@ -110,7 +105,7 @@ export default function StemOptProcessingTime2026Page() {
                 <div className="mt-6 text-sm text-gray-500">Last reviewed: October 10, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-6 mb-10">
+            <div className="bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>There is no single STEM OPT approval time for every case.</strong> Use the{" "}
@@ -133,9 +128,7 @@ export default function StemOptProcessingTime2026Page() {
             </nav>
 
             <section id="check-wait" className="mb-12 scroll-mt-24">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-7 h-7 text-purple-600" />
-                    How to Check Current STEM OPT Processing Times
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">How to Check Current STEM OPT Processing Times
                 </h2>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                     Use your USCIS receipt notice and account to identify the application and handling office. Select Form I-765 and the STEM OPT category in the official processing-times tool, then follow its case-inquiry instructions. We do not publish a fixed monthly average here: a general I-765 average, receipt prefix, or individual student report cannot establish when your case will finish.
@@ -187,7 +180,7 @@ export default function StemOptProcessingTime2026Page() {
                             <li>Confirm the filing and recommendation deadlines with your DSO</li>
                         </ul>
                     </div>
-                    <div className="p-5 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/10">
+                    <div className="p-5 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-2">STEM OPT Extension</h3>
                         <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 list-disc pl-4">
                             <li>Use the current USCIS estimate for the extension category</li>
@@ -284,7 +277,7 @@ export default function StemOptProcessingTime2026Page() {
             {/* Bottom sign-up CTA (removed in the Oct 10, 2026 refresh; restored). */}
             <BlogProductCTA variant="case-status" sourcePage="/blog/stem-opt-processing-time-2026#bottom" />
 
-            <section className="my-10 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6">
+            <section className="my-10 rounded-xl border border-gray-200 dark:border-zinc-800 p-6">
                 <h2 className="text-lg font-bold mb-3">Official Sources and Next Steps</h2>
                 <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
                     <li><a href="https://egov.uscis.gov/processing-times/" className="hover:underline">USCIS processing times and case-inquiry eligibility</a></li>
@@ -295,7 +288,7 @@ export default function StemOptProcessingTime2026Page() {
                 <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Check the official estimate first, then compare community timelines with the free tool above. Choose STEM OPT in the tool and keep the estimate separate from your permission to work. General information; confirm your individual situation with your DSO or qualified counsel.</p>
             </section>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete STEM OPT Extension Guide</Link>

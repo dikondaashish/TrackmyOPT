@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, Plane, RefreshCw, XCircle } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,10 +46,6 @@ export default function FallOutOfStatusPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Compliance</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Emergency</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     What Happens If You Fall Out of F-1 Status? Options & Solutions
                 </h1>
@@ -57,13 +53,15 @@ export default function FallOutOfStatusPage() {
                     A terminated SEVIS record is terrifying, but it is not always the end of your US journey. Learn how to navigate reinstatement, reentry, or voluntary departure.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Compliance · Emergency</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 8 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/fall-out-of-f1-status-options.png" alt="Stressed student desk with passport, I-20, and phone showing missed deadlines" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -72,7 +70,7 @@ export default function FallOutOfStatusPage() {
                     "Falling out of status" means you have violated the terms of your F-1 visa, causing your Designated School Official (DSO) to terminate your SEVIS record. When this happens, you lose your legal right to remain in the United States. While this is a serious situation, acting quickly gives you several options to recover your status.
                 </p>
 
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl mb-10">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl mb-10">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-6 h-6" />
                         First Step: Stop Working Immediately
@@ -100,8 +98,8 @@ export default function FallOutOfStatusPage() {
 
                 <div className="space-y-8 my-8">
                     <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-8 shadow-sm">
-                        <h3 className="text-2xl font-bold mt-0 mb-4 flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                            <RefreshCw className="w-6 h-6" /> Option 1: Reinstatement (Within the US)
+                        <h3 className="text-2xl font-bold mt-0 mb-4 text-blue-600 dark:text-blue-400">
+                            Option 1: Reinstatement (Within the US)
                         </h3>
                         <p>
                             You can apply to USCIS to reinstate your F-1 status without leaving the country. This requires filing Form I-539 and paying a $470 fee.
@@ -114,14 +112,14 @@ export default function FallOutOfStatusPage() {
                             <li>You are currently pursuing, or intend to pursue, a full course of study.</li>
                             <li>The violation resulted from circumstances <strong>beyond your control</strong> (e.g., serious illness, natural disaster, DSO error).</li>
                         </ul>
-                        <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg mt-4 text-sm border border-amber-200 dark:border-amber-900/50">
+                        <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-lg mt-4 text-sm border border-amber-200 dark:border-amber-950">
                             <strong>Warning:</strong> Reinstatement takes 6 to 12 months for USCIS to process. You cannot work (no CPT, no OPT, no on-campus jobs) while the application is pending, though you must continue studying full-time.
                         </div>
                     </div>
 
                     <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-8 shadow-sm">
-                        <h3 className="text-2xl font-bold mt-0 mb-4 flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                            <Plane className="w-6 h-6" /> Option 2: Travel and Reentry (New Initial I-20)
+                        <h3 className="text-2xl font-bold mt-0 mb-4 text-indigo-600 dark:text-indigo-400">
+                            Option 2: Travel and Reentry (New Initial I-20)
                         </h3>
                         <p>
                             Instead of waiting for USCIS, you can leave the US, obtain a new "Initial" I-20 with a new SEVIS ID from your school, pay a new SEVIS fee ($350), and reenter the US.
@@ -164,9 +162,8 @@ export default function FallOutOfStatusPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
 
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Prevent Status Violations with TrackMyOPT
                 </h3>
@@ -176,7 +173,7 @@ export default function FallOutOfStatusPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Free Account
                     </Link>
@@ -187,7 +184,7 @@ export default function FallOutOfStatusPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/opt-reporting-requirements-dso" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 OPT Reporting Requirements
                             </h4>
@@ -200,7 +197,7 @@ export default function FallOutOfStatusPage() {
                         </div>
                     </Link>
                     <Link href="/blog/90-day-unemployment-rule-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The 90-Day Unemployment Rule
                             </h4>

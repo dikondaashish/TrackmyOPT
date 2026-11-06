@@ -25,7 +25,6 @@
   font-size: clamp(2rem, 4.6vw, 3.55rem);
   line-height: 1.13;
   font-weight: 750;
-  letter-spacing: -0.035em;
   max-width: 24ch;
   margin: 1.25rem 0;
 }
@@ -33,7 +32,6 @@
   font-size: clamp(1.5rem, 3vw, 2rem);
   line-height: 1.25;
   font-weight: 700;
-  letter-spacing: -0.02em;
   margin: 3.5rem 0 1rem;
 }
 .guide h3 {
@@ -76,10 +74,6 @@
 .body > section > h2 {
   max-width: 72ch;
 }
-.eyebrow {
-  color: var(--blue);
-  font-weight: 650;
-}
 .meta {
   color: var(--muted);
   font-size: 0.9rem;
@@ -91,8 +85,7 @@
 .quickAnswer {
   background: var(--mint);
   padding: 1.5rem 2rem;
-  border: 1px solid var(--line);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   margin: 2rem 0;
 }
 .quickAnswer h2 {
@@ -106,7 +99,7 @@
 .animation img {
   width: 100%;
   height: auto;
-  border-radius: 1rem;
+  border-radius: 0.75rem;
 }
 .cover figcaption,
 .visual figcaption {
@@ -137,7 +130,7 @@
   background: var(--paper);
   border: 1px solid var(--line);
   padding: clamp(1rem, 3vw, 2rem);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   margin: 2rem 0;
   scroll-margin-top: 7rem;
 }
@@ -237,7 +230,7 @@
 .student {
   margin: 2.5rem 0 1rem;
   border: 1px solid var(--line);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   padding: clamp(1.1rem, 3vw, 2rem);
 }
 .studentHeading {

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -75,8 +75,7 @@ export default function OPTProcessingTimeArticle() {
             {/* Header */}
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold">USCIS</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />7 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Uscis · 7 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     OPT Processing Time 2026: USCIS Waits & Premium Processing
@@ -87,7 +86,7 @@ export default function OPTProcessingTimeArticle() {
                 <div className="mt-6 text-sm text-gray-500">Last reviewed: October 10, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>OPT processing time varies by case and workload.</strong> Check the current estimate for your I-765 category on the{" "}
@@ -154,7 +153,7 @@ export default function OPTProcessingTimeArticle() {
                 </section>
 
                 <section id="premium-processing" className="mb-12 scroll-mt-24">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><TrendingUp className="w-6 h-6" />OPT Premium Processing: What 30 Business Days Means</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">OPT Premium Processing: What 30 Business Days Means</h2>
                     <p>USCIS offers premium processing for pre-completion OPT, post-completion OPT, and STEM OPT: I-765 categories (c)(3)(A), (c)(3)(B), and (c)(3)(C). Submit Form I-907 using the current USCIS instructions. The additional premium fee is <strong>$1,780 as of October 10, 2026</strong>; check the fee schedule before paying.</p>
                     <p>Under <a href="https://www.ecfr.gov/current/title-8/chapter-I/subchapter-B/part-106/section-106.4">8 CFR 106.4</a>, the 30-business-day period starts when USCIS has the required prerequisites, request, and fees. Action may be approval, denial, a notice of intent to deny, or an RFE. An RFE or notice of intent to deny stops the clock; a new period starts after USCIS receives the response. Fraud or misrepresentation investigations have separate provisions.</p>
                     <p>Premium service does not guarantee a favorable decision, a physical EAD within 30 business days, or a particular work start date. Compare the fee with the consequences of a delayed start, then discuss your circumstances with your DSO. See our <Link href="/blog/opt-premium-processing-timeline-2026">OPT premium-processing timeline guide</Link> for the request stages.</p>
@@ -204,7 +203,7 @@ export default function OPTProcessingTimeArticle() {
                         ))}
                     </div>
 
-                    <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
+                    <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
                         <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                         <p className="text-amber-800 dark:text-amber-200 text-sm">
                             <strong>Important:</strong> Your <Link href="/blog/90-day-unemployment-rule-opt" className="underline font-medium">90-day unemployment clock</Link> is tied to your authorized OPT period. A requested start date is not necessarily the approved start date. If approval or delivery is delayed, confirm the actual dates and next steps with your DSO.
@@ -229,7 +228,7 @@ export default function OPTProcessingTimeArticle() {
             {/* Bottom sign-up CTA (removed in the Oct 10, 2026 refresh; restored). */}
             <BlogProductCTA variant="case-status" sourcePage="/blog/opt-processing-time-2026#bottom" />
 
-            <section className="my-10 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6">
+            <section className="my-10 rounded-xl border border-gray-200 dark:border-zinc-800 p-6">
                 <h2 className="text-lg font-bold mb-3">Official Sources and Next Steps</h2>
                 <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
                     <li><a href="https://egov.uscis.gov/processing-times/" className="hover:underline">USCIS processing times and case-inquiry eligibility</a></li>
@@ -240,7 +239,7 @@ export default function OPTProcessingTimeArticle() {
             </section>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Application Checklist 2026</Link>
@@ -258,7 +257,7 @@ export default function OPTProcessingTimeArticle() {
 
             
             {/* Internal Linking for SEO */}
-            <div className="my-12 p-8 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+            <div className="my-12 p-8 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-950">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Guides & Resources</h3>
                 <ul className="space-y-4 list-disc pl-5">
                     <li><Link href="/blog/form-i765-ead-application-guide" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">Form I-765: The Complete EAD Application Guide</Link></li>

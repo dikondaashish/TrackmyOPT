@@ -28,33 +28,33 @@ export const toolLinks = [
 ] as const;
 export type ToolSlug = (typeof toolLinks)[number]['slug'];
 export const panelClass =
-  'min-w-0 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5';
+  'min-w-0 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5';
 // Retain the tools' established blue, orange, green, and purple identities.
 export const toolThemes = {
   'opt-apply': {
     surface:
-      'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30',
+      'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950',
     solid: 'border-blue-700 bg-blue-700 text-white hover:bg-blue-800',
     text: 'text-blue-700 dark:text-blue-300',
     focus: 'focus-visible:ring-blue-500',
   },
   'opt-clock': {
     surface:
-      'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30',
+      'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950',
     solid: 'border-orange-700 bg-orange-700 text-white hover:bg-orange-800',
     text: 'text-orange-700 dark:text-amber-300',
     focus: 'focus-visible:ring-orange-500',
   },
   'stem-apply': {
     surface:
-      'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30',
+      'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950',
     solid: 'border-teal-700 bg-teal-700 text-white hover:bg-teal-800',
     text: 'text-teal-700 dark:text-emerald-300',
     focus: 'focus-visible:ring-emerald-500',
   },
   'stem-clock': {
     surface:
-      'border-purple-200 bg-purple-50 dark:border-purple-900 dark:bg-purple-950/30',
+      'border-purple-200 bg-purple-50 dark:border-purple-900 dark:bg-purple-950',
     solid: 'border-violet-700 bg-violet-700 text-white hover:bg-violet-800',
     text: 'text-violet-700 dark:text-purple-300',
     focus: 'focus-visible:ring-purple-500',

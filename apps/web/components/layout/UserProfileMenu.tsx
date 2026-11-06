@@ -84,7 +84,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                         {getInitials(userName, userEmail)}
                     </div>
                     {isPremium && (
-                        <div className="absolute -bottom-3.5 -right-0.5 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-white dark:border-gray-900 uppercase">
+                        <div className="absolute -bottom-3.5 -right-0.5 bg-blue-500 dark:bg-blue-400 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-lg border-2 border-white dark:border-gray-900">
                             Pro
                         </div>
                     )}
@@ -151,7 +151,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                         <div className="py-1">
                             <Link
                                 href="/dashboard/settings"
-                                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 onClick={() => setShowProfileMenu(false)}
                             >
                                 <Settings className="w-4 h-4" />
@@ -159,7 +159,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                             </Link>
                             <Link
                                 href="/help"
-                                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 onClick={() => setShowProfileMenu(false)}
                             >
                                 <HelpCircle className="w-4 h-4" />
@@ -167,7 +167,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                             </Link>
                             <button
                                 type="button"
-                                className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                 onClick={() => {
                                     setShowProfileMenu(false);
                                     openPrivacySettings();
@@ -182,7 +182,7 @@ export function UserProfileMenu({ userEmail, userName, isCollapsed, isPremium, i
                         <div className="border-t border-gray-100 dark:border-gray-700 pt-1">
                             <button
                                 onClick={handleSignOut}
-                                className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
+                                className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 w-full"
                             >
                                 <LogOut className="w-4 h-4" />
                                 Sign out

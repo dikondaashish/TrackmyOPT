@@ -19,8 +19,8 @@ export function EmploymentStatsSummary({
 }: EmploymentStatsSummaryProps) {
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 border-b border-border bg-gradient-to-br from-slate-50 via-white to-blue-50/60 p-3 dark:from-card dark:via-card dark:to-blue-950/20 sm:grid-cols-4 sm:gap-3 sm:p-4">
-        <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-2 py-3 text-center dark:border-emerald-950 dark:bg-emerald-950/20">
+      <div className="grid grid-cols-2 gap-2 border-b border-border bg-slate-50 p-3 dark:bg-card sm:grid-cols-4 sm:gap-3 sm:p-4">
+        <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-2 py-3 text-center dark:border-emerald-950 dark:bg-emerald-950">
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {showComplianceNumbers ? stats.totalEmployedDays : '—'}
           </p>
@@ -28,7 +28,7 @@ export function EmploymentStatsSummary({
             Days Employed
           </p>
         </div>
-        <div className="rounded-xl border border-blue-100 bg-blue-50/70 px-2 py-3 text-center dark:border-blue-950 dark:bg-blue-950/20">
+        <div className="rounded-xl border border-blue-100 bg-blue-50 px-2 py-3 text-center dark:border-blue-950 dark:bg-blue-950">
           <p
             className={`text-2xl font-bold ${
               !showComplianceNumbers
@@ -46,7 +46,7 @@ export function EmploymentStatsSummary({
             {trackingIncomplete ? 'Pending setup' : 'Days Unemployed'}
           </p>
         </div>
-        <div className="rounded-xl border border-violet-100 bg-violet-50/70 px-2 py-3 text-center dark:border-violet-950 dark:bg-violet-950/20">
+        <div className="rounded-xl border border-violet-100 bg-violet-50 px-2 py-3 text-center dark:border-violet-950 dark:bg-violet-950">
           <p className="text-2xl font-bold text-primary">
             {showComplianceNumbers ? stats.currentStreak : '—'}
           </p>
@@ -54,7 +54,7 @@ export function EmploymentStatsSummary({
             Current Streak
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white/80 px-2 py-3 text-center dark:border-slate-800 dark:bg-slate-950/20">
+        <div className="rounded-xl border border-slate-200 bg-white px-2 py-3 text-center dark:border-slate-800 dark:bg-slate-950">
           <p
             className={`text-2xl font-bold ${
               !showComplianceNumbers
@@ -107,7 +107,7 @@ export function EmploymentStatsSummary({
               }}
             />
           ) : (
-            <div className="h-full w-full border-2 border-dashed border-muted-foreground/30 bg-transparent" />
+            <div className="h-full w-full border-2 border-dashed border-muted-foreground bg-transparent" />
           )}
         </div>
         {trackingIncomplete && (

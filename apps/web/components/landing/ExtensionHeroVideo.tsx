@@ -14,7 +14,7 @@ export function ExtensionHeroVideo() {
     const [isPlaying, setIsPlaying] = useState(false);
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-border bg-slate-100 shadow-2xl dark:bg-slate-900" aria-label="TrackMyOPT Chrome extension video">
+        <div className="overflow-hidden rounded-xl border border-border bg-slate-100 dark:bg-slate-900" aria-label="TrackMyOPT Chrome extension video">
             <div className="relative aspect-video w-full bg-slate-950">
                 {isPlaying ? (
                     <iframe
@@ -40,8 +40,8 @@ export function ExtensionHeroVideo() {
                             className="object-cover"
                             priority={false}
                         />
-                        <span className="absolute inset-0 flex items-center justify-center bg-slate-950/20 transition-colors group-hover:bg-slate-950/10">
-                            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-slate-950 shadow-lg transition-transform group-hover:scale-105">
+                        <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-slate-950 shadow-lg transition-transform group-hover:scale-105">
                                 <Play className="ml-1 h-7 w-7" aria-hidden />
                             </span>
                         </span>
@@ -54,7 +54,7 @@ export function ExtensionHeroVideo() {
                     href={WATCH_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="inline-flex min-h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                     Watch on YouTube <ArrowUpRight className="h-4 w-4" aria-hidden />
                 </a>

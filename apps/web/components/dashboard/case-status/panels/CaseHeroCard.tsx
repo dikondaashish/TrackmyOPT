@@ -125,7 +125,7 @@ export function CaseHeroCard({
           <p className="mt-4 text-xs font-medium text-muted-foreground">
             USCIS status
           </p>
-          <h2 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight leading-snug break-words">
+          <h2 className="mt-1 text-xl sm:text-2xl font-semibold leading-snug break-words">
             {caseStatus.current_status?.trim() || 'Awaiting USCIS status'}
           </h2>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-muted-foreground">

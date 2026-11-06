@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, Star, Award } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, Star } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,24 +46,22 @@ export default function O1VisaGuidePage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Work Visas</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">H-1B Alternatives</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     O-1 Visa for International Students: Can You Qualify After OPT?
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     No lottery. No cap. No prevailing wage requirement. Discover how F-1 students can build an "Extraordinary Ability" profile to bypass the H-1B lottery entirely.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Work Visas · H-1B Alternatives</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 11 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/o1-visa-international-students.png" alt="Workspace with an award certificate, published research paper, and design portfolio representing O-1 visa extraordinary ability" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -72,10 +70,8 @@ export default function O1VisaGuidePage() {
                     With the H-1B lottery becoming increasingly difficult to win, international students are desperately seeking alternatives. Enter the <strong>O-1 Visa for Individuals with Extraordinary Ability or Achievement</strong>. While it sounds intimidating, many Master's and PhD students—and even highly accomplished Bachelor's students—successfully transition from OPT directly to an O-1 visa every year.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl mb-10">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <CheckCircle2 className="w-6 h-6 text-primary" />
-                        Why the O-1 is the "Holy Grail" of Work Visas
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-10">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">Why the O-1 is the "Holy Grail" of Work Visas
                     </h3>
                     <ul className="mb-0 mt-2">
                         <li><strong>No Lottery:</strong> If you meet the criteria, you get the visa. No gambling with your future.</li>
@@ -91,7 +87,7 @@ export default function O1VisaGuidePage() {
                 </p>
                 <p>There are two main subcategories relevant to students:</p>
                 <div className="grid md:grid-cols-2 gap-6 my-8">
-                    <div className="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-xl border border-gray-200 dark:border-zinc-700">
+                    <div className="bg-gray-50 dark:bg-zinc-800 p-6 rounded-xl border border-gray-200 dark:border-zinc-700">
                         <h4 className="font-bold text-lg mb-2 flex items-center gap-2">
                             <Star className="w-5 h-5 text-blue-500" />
                             O-1A Visa
@@ -100,7 +96,7 @@ export default function O1VisaGuidePage() {
                             For individuals in the <strong>sciences, education, business, or athletics</strong>. The standard here is very high: you must demonstrate you are one of the small percentage who have arisen to the very top of your field of endeavor.
                         </p>
                     </div>
-                    <div className="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-xl border border-gray-200 dark:border-zinc-700">
+                    <div className="bg-gray-50 dark:bg-zinc-800 p-6 rounded-xl border border-gray-200 dark:border-zinc-700">
                         <h4 className="font-bold text-lg mb-2 flex items-center gap-2">
                             <Star className="w-5 h-5 text-purple-500" />
                             O-1B Visa
@@ -117,57 +113,57 @@ export default function O1VisaGuidePage() {
                 </p>
 
                 <div className="space-y-4 my-8">
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">1</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">1</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">Awards</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Receipt of nationally or internationally recognized prizes or awards for excellence in the field of endeavor.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">2</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">2</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">Memberships</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Membership in associations in the field which require outstanding achievements of their members, as judged by recognized national or international experts.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">3</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">3</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">Press/Media</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Published material in professional or major trade publications or major media about the alien and their work.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">4</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">4</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">Judging Others</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Original scientific, scholarly, or business-related contributions of major significance in the field.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">5</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">5</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">Original Contributions</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Original scientific, scholarly, or business-related contributions of major significance in the field.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">6</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">6</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">Authorship</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Authorship of scholarly articles in the field, in professional journals, or other major media.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">7</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">7</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">Critical Role</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Employment in a critical or essential capacity for organizations and establishments that have a distinguished reputation.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">8</div>
+                    <div className="flex gap-4 items-start p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg">
+                        <div className="bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 p-2 rounded-full font-bold">8</div>
                         <div>
                             <h4 className="font-bold mt-0 mb-1">High Remuneration</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-0">Commanding a high salary or other significantly high remuneration for services, as evidenced by contracts or other reliable evidence.</p>
@@ -180,22 +176,22 @@ export default function O1VisaGuidePage() {
                     Most recent graduates do not organically meet three criteria upon graduation. However, with 1 to 3 years of OPT/STEM OPT, you can intentionally manufacture a qualifying profile. Here is the playbook commonly used by ambitious students:
                 </p>
 
-                <h3 className="font-bold text-xl mt-8 mb-3 flex items-center gap-2"><FileText className="w-5 h-5" /> Target 1: Authorship</h3>
+                <h3 className="font-bold text-xl mt-8 mb-3">Target 1: Authorship</h3>
                 <p>
                     You don't need a PhD to publish. Collaborate with your former professors to co-author papers, write detailed technical articles on platforms like Medium (if curated in top publications) or submit articles to industry trade magazines.
                 </p>
 
-                <h3 className="font-bold text-xl mt-8 mb-3 flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Target 2: Judging Others</h3>
+                <h3 className="font-bold text-xl mt-8 mb-3">Target 2: Judging Others</h3>
                 <p>
                     This is often the easiest criterion to satisfy. Reach out to academic journals, industry conferences, or hackathons and offer your services as a peer reviewer or judge. Even reviewing papers for student conferences or judging high-level university hackathons can count if documented correctly.
                 </p>
 
-                <h3 className="font-bold text-xl mt-8 mb-3 flex items-center gap-2"><Award className="w-5 h-5" /> Target 3: Original Contributions / Critical Role</h3>
+                <h3 className="font-bold text-xl mt-8 mb-3">Target 3: Original Contributions / Critical Role</h3>
                 <p>
                     If you work for a startup on OPT, you naturally play a "critical role." Have the founders write detailed recommendation letters explaining how your specific algorithms, designs, or business strategies directly led to the company securing venture capital funding or massive user growth.
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         The Secret Weapon: Expert Letters
@@ -212,9 +208,7 @@ export default function O1VisaGuidePage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Maximize Your OPT Time to Build Your O-1 Profile
                 </h3>
@@ -224,7 +218,7 @@ export default function O1VisaGuidePage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Free Account
                     </Link>
@@ -235,7 +229,7 @@ export default function O1VisaGuidePage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/h1b-alternatives-work-visas" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 H-1B Alternatives Guide
                             </h4>
@@ -248,7 +242,7 @@ export default function O1VisaGuidePage() {
                         </div>
                     </Link>
                     <Link href="/blog/start-company-f1-opt-visa" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Start a Company on OPT
                             </h4>

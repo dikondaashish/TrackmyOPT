@@ -3,7 +3,7 @@ export default function VerifiedJobsLoading() {
   return (
     <main className="mx-auto max-w-[1440px] space-y-4 px-3 py-4 sm:px-5 sm:py-5" aria-busy="true">
       <header className="max-w-4xl space-y-1.5">
-        <h1 className="text-2xl font-semibold tracking-[-0.025em] text-gray-950 sm:text-3xl dark:text-white">Find verified jobs</h1>
+        <h1 className="text-2xl font-semibold text-gray-950 sm:text-3xl dark:text-white">Find verified jobs</h1>
         <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
           Browse jobs and add them to your resume queue.
         </p>

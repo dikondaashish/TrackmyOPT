@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, AlertTriangle, FileText, Download, Briefcase } from "lucide-react";
+import { Clock, AlertTriangle, Download, Briefcase } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -56,8 +56,7 @@ export default function OPTStartupArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">Entrepreneurship Series: Part 2</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />7 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Entrepreneurship Series: Part 2 · 7 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     The Founder's Guide to Starting a Company on F-1 OPT
@@ -69,15 +68,15 @@ export default function OPTStartupArticle() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/f1-opt-startup.png" alt="Young entrepreneur standing confidently in a modern coworking space" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/f1-opt-startup.png" alt="Young entrepreneur standing confidently in a modern coworking space" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     The initial 12-month OPT provides the only window where self-employment is explicitly permitted for F-1 students.
                 </figcaption>
             </figure>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     During your first 12 months of post-completion OPT, you are explicitly allowed to be self-employed and work full-time for your own startup. The business <strong>must</strong> be directly related to your college degree, and you must work at least 20 hours a week to avoid unemployment days.
@@ -85,9 +84,7 @@ export default function OPTStartupArticle() {
             </div>
 
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    Table of Contents
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
                     <li><a href="#the-golden-window" className="hover:underline">1. The 12-Month Golden Window</a></li>
@@ -113,7 +110,7 @@ export default function OPTStartupArticle() {
                 </section>
 
                 <section id="the-degree-rule" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             The "Directly Related" Rule
@@ -143,7 +140,7 @@ export default function OPTStartupArticle() {
                         <li>A log proving you are working at least 20 hours per week.</li>
                     </ul>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
                                 <Download className="w-5 h-5" /> Free Founder's Compliance Log
@@ -189,7 +186,7 @@ export default function OPTStartupArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-opt-visa")} />
             <AuthorBio />
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Read The Rest of the Series</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/start-company-f1-student-visa" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Part 1: Starting a Company on F-1 (Studying)</Link>

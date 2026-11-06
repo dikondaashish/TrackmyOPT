@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle2, BookOpen, CreditCard, Building2, Mail, Hourglass, Briefcase, MailOpen } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle2, CreditCard, Building2, Mail, Hourglass, Briefcase, MailOpen } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -70,9 +70,8 @@ export default function HowToGetSSNOnOPT() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-xs font-semibold">
-                        Finance & Compliance
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Finance & Compliance</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         9 min read
@@ -92,24 +91,23 @@ export default function HowToGetSSNOnOPT() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/ssn-opt-guide.png" alt="Passport, EAD card, and Form SS-5 application laid out on a desk for SSN application" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/ssn-opt-guide.png" alt="Passport, EAD card, and Form SS-5 application laid out on a desk for SSN application" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     You&apos;ll need to visit your local SSA office in person to apply — there is no online option for first-time applicants.
                 </figcaption>
             </figure>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     <strong>Visit your nearest SSA office with your passport, I-20, EAD card, and I-94.</strong> Fill out Form SS-5 on-site. SSA verifies your SEVIS record with DHS (takes 48-72 hours after your I-20 is updated). Your SSN card arrives by mail in 2-4 weeks. You can start working with your EAD card before receiving your SSN.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -120,9 +118,8 @@ export default function HowToGetSSNOnOPT() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
                 <nav className="space-y-2">
@@ -202,7 +199,7 @@ export default function HowToGetSSNOnOPT() {
                         </div>
                     </div>
 
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mt-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mt-6">
                         <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Common Mistake: Applying Too Early
@@ -336,7 +333,7 @@ export default function HowToGetSSNOnOPT() {
                         If your start date arrives before your SSN card, you can still begin working legally:
                     </p>
                     <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-green-900 dark:text-green-100">Form I-9: Use EAD Card</h3>
@@ -345,7 +342,7 @@ export default function HowToGetSSNOnOPT() {
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-green-900 dark:text-green-100">Payroll: Provide SSN When Received</h3>
@@ -358,11 +355,10 @@ export default function HowToGetSSNOnOPT() {
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-gradient-to-br from-teal-600 to-blue-700 rounded-2xl p-8 my-12 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="relative z-10">
+                <div className="bg-teal-600 rounded-xl p-8 my-12 text-white">
+                    <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-white/20 rounded-lg">
+                            <div className="p-2 bg-teal-500 rounded-lg">
                                 <CreditCard className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Track Your OPT Timeline & EAD Status</h3>
@@ -386,7 +382,7 @@ export default function HowToGetSSNOnOPT() {
                         </ul>
                         <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-teal-700 font-bold hover:bg-teal-50 transition-colors shadow-lg"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-teal-700 font-bold hover:bg-teal-50 transition-colors"
                         >
                             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
                         </Link>
@@ -417,7 +413,7 @@ export default function HowToGetSSNOnOPT() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/form-i9-complete-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Form I-9 Complete Guide</Link>
@@ -434,7 +430,7 @@ export default function HowToGetSSNOnOPT() {
 
             <AuthorBio />
 
-            <div className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-teal-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your EAD Card Status</h2>
                 <p className="text-teal-100 mb-6 max-w-lg mx-auto">
                     Know the moment your EAD is approved so you can apply for your SSN immediately. TrackMyOPT Pro runs daily USCIS auto-checks and can email you when status changes.

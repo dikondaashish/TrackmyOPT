@@ -137,14 +137,6 @@ export default function August2026VisaBulletinPage() {
       />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full">
-            Green Card Update
-          </span>
-          <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
-            EB-2 India Unavailable
-          </span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           August 2026 Visa Bulletin: EB-2 India Unavailable and EB-1 at Risk
         </h1>
@@ -156,6 +148,8 @@ export default function August2026VisaBulletinPage() {
           charts.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>Green Card Update</span>
+          <span>•</span>
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" /> 10 min read
           </span>
@@ -167,7 +161,7 @@ export default function August2026VisaBulletinPage() {
       </header>
 
       <figure className="mb-12">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-xl">
           <Image
             src="/blog/august-2026-visa-bulletin-opt-workers.png"
             alt="Calendar and abstract employment-based priority-date timelines showing a stopped category"
@@ -183,8 +177,8 @@ export default function August2026VisaBulletinPage() {
         </figcaption>
       </figure>
 
-      <div className="bg-gradient-to-r from-red-50 to-amber-50 dark:from-red-900/20 dark:to-amber-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wider mb-2">
+      <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-2">
           Direct Answer
         </p>
         <p className="text-lg text-gray-800 dark:text-gray-100 font-medium leading-relaxed mb-0">
@@ -277,7 +271,7 @@ export default function August2026VisaBulletinPage() {
                 {indiaSnapshot.map(([category, finalAction, filing, note]) => (
                   <tr
                     key={category}
-                    className="odd:bg-white even:bg-gray-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900/50"
+                    className="odd:bg-white even:bg-gray-50 dark:odd:bg-zinc-950 dark:even:bg-zinc-900"
                   >
                     <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
                       {category}
@@ -312,7 +306,7 @@ export default function August2026VisaBulletinPage() {
             to a premature filing or an incorrect expectation about approval.
           </p>
           <div className="not-prose grid md:grid-cols-2 gap-5 my-8">
-            <div className="p-6 border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+            <div className="p-6 border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950 rounded-xl">
               <CalendarDays className="w-7 h-7 text-indigo-600 mb-3" />
               <h3 className="font-bold text-indigo-900 dark:text-indigo-200 mb-2">
                 Dates for Filing
@@ -323,7 +317,7 @@ export default function August2026VisaBulletinPage() {
                 chart only when USCIS says so for that month.
               </p>
             </div>
-            <div className="p-6 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 rounded-xl">
+            <div className="p-6 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 rounded-xl">
               <FileClock className="w-7 h-7 text-green-600 mb-3" />
               <h3 className="font-bold text-green-900 dark:text-green-200 mb-2">
                 Final Action Dates
@@ -383,14 +377,14 @@ export default function August2026VisaBulletinPage() {
               while waiting.
             </li>
           </ul>
-          <div className="not-prose bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
+          <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
             <div className="flex gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-amber-900 dark:text-amber-200 mb-1">
                   October is a reset, not a guaranteed jump
                 </p>
-                <p className="text-amber-800 dark:text-amber-200/80 text-sm mb-0">
+                <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">
                   The fiscal-year limit resets October 1, 2026, and DOS
                   previously said issuance may resume for qualified applicants.
                   The exact cutoff movement will depend on FY 2027 allocation
@@ -524,7 +518,7 @@ export default function August2026VisaBulletinPage() {
           </p>
         </section>
 
-        <section className="not-prose bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-8 text-white my-12 shadow-xl">
+        <section className="not-prose bg-indigo-600 rounded-xl p-8 text-white my-12">
           <div className="flex items-start gap-4">
             <CalendarDays className="w-9 h-9 text-indigo-100 flex-shrink-0" />
             <div>

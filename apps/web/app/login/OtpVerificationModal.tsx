@@ -37,7 +37,7 @@ export function OtpVerificationModal({
 }: OtpVerificationModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-card rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+      <div className="bg-white dark:bg-card rounded-xl shadow-2xl max-w-md w-full p-8 relative">
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@ export function OtpVerificationModal({
                 onChange={(e) => onDigitChange(index, e.target.value)}
                 onKeyDown={(e) => onDigitKeyDown(index, e)}
                 disabled={otpLoading || countdown === 0}
-                className="w-10 h-12 md:w-12 md:h-14 border-2 border-gray-300 dark:border-border rounded-lg text-center text-xl md:text-2xl font-mono tracking-widest focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
+                className="w-10 h-12 md:w-12 md:h-14 border-2 border-gray-300 dark:border-border rounded-lg text-center text-xl md:text-2xl font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-muted dark:text-foreground"
               />
             ))}
           </div>

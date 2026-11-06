@@ -71,10 +71,6 @@ export default function H1BCapClosedPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Breaking News</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">H-1B Visa</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     USCIS Closes FY 2027 H-1B Cap: No Second Lottery & What OPT Students Must Do Next
                 </h1>
@@ -82,16 +78,18 @@ export default function H1BCapClosedPage() {
                     USCIS has officially announced that the 85,000 petition limit for FY 2027 has been reached. There will be no second lottery this year. Here are your backup options.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>H-1B Visa</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 6 min read</span>
                     <span>•</span>
                     <span>July 18, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/h1b-fy2027-cap-closed-no-second-lottery.png" alt="Passport with H-1B stamp and CLOSED stamp" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-                    <p className="text-white/80 text-sm p-4">The FY 2027 H-1B Cap is officially closed.</p>
+                <div className="absolute inset-x-0 bottom-0 bg-black/60">
+                    <p className="text-white text-sm p-4">The FY 2027 H-1B Cap is officially closed.</p>
                 </div>
             </div>
 
@@ -103,12 +101,12 @@ export default function H1BCapClosedPage() {
                     USCIS confirmed that they have received a sufficient number of petitions needed to reach the congressionally mandated 65,000 H-1B regular cap and the 20,000 U.S. advanced degree exemption (master’s cap) for fiscal year 2027.
                 </p>
                 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 my-8 rounded-r-xl">
+                <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 my-8 rounded-r-xl">
                     <h3 className="text-amber-800 dark:text-amber-300 m-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5" />
                         What Does This Mean?
                     </h3>
-                    <p className="text-amber-900 dark:text-amber-200/80 m-0">
+                    <p className="text-amber-900 dark:text-amber-200 m-0">
                         If your employer submitted a registration for you in March but you were not selected, your registration status will soon be updated to "Not Selected." You cannot rely on a second lottery to save your status this year. You must immediately pivot to a backup plan.
                     </p>
                 </div>
@@ -159,7 +157,7 @@ export default function H1BCapClosedPage() {
                     With the H-1B door closed for this year, managing your remaining OPT days is more critical than ever. Under the new <Link href="/blog/september-2026-f1-fixed-admission-rule-opt">2026 fixed-admission rules</Link>, the grace period and filing steps can depend on whether you remain in the D/S transition or receive a date-specific I-94.
                 </p>
 
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 text-white my-12 shadow-xl">
+                <div className="bg-blue-600 rounded-xl p-8 text-white my-12">
                     <h3 className="text-2xl font-bold text-white mb-4 mt-0">Don't Lose Track of Your OPT Dates</h3>
                     <p className="text-blue-100 mb-6 text-lg">
                         Use TrackMyOPT to monitor your exact OPT expiration, unemployment days, and visa grace periods so you never fall out of status unexpectedly.

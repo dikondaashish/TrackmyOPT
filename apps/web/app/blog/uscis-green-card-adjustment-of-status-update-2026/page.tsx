@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, AlertTriangle, FileText, CheckCircle, Scale } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle, Scale } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -56,8 +56,7 @@ export default function GreenCardUpdateArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs font-semibold">Critical Policy Update</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />7 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Critical Policy Update · 7 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     USCIS Adjustment of Status Policy Shift: "Discretionary Grace" Explained (2026)
@@ -68,14 +67,14 @@ export default function GreenCardUpdateArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 27, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
                 <BlogPostImage src="/blog/green-card-processing.png" alt="USCIS green card resting on a passport" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
                 USCIS is instructing officers to treat Adjustment of Status as an act of discretionary grace.
             </figcaption>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     A May 2026 USCIS policy memorandum instructs adjudicators to treat Adjustment of Status (AOS) as an act of "discretionary grace." This means USCIS will now actively push most green card applicants to undergo Consular Processing abroad unless they can demonstrate extraordinary circumstances to stay in the U.S. during processing.
@@ -83,9 +82,7 @@ export default function GreenCardUpdateArticle() {
             </div>
 
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    Table of Contents
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
                     <li><a href="#the-memo" className="hover:underline">1. The May 21 Policy Memo</a></li>
@@ -127,7 +124,7 @@ export default function GreenCardUpdateArticle() {
                 </section>
 
                 <section id="impact-h1b" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Impact on H-1B Holders in the Backlog
@@ -140,7 +137,7 @@ export default function GreenCardUpdateArticle() {
                         </p>
                     </div>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
                                 <CheckCircle className="w-5 h-5" /> Free Consular Processing Checklist

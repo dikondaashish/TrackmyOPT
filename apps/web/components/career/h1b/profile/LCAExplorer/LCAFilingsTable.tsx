@@ -37,7 +37,7 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col h-full">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col h-full">
             {/* Header / Controls */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div>
@@ -45,7 +45,7 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
                     <p className="text-sm text-gray-500 mb-2">
                         Showing {filteredFilings.length} filings
                     </p>
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 text-xs text-amber-800 dark:text-amber-200">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-200">
                         <Lightbulb className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
                         <p><strong>Pro Tip:</strong> The <strong>Hiring Manager's</strong> name is often listed in <strong>Section J</strong> or "Employer Point of Contact".</p>
                     </div>
@@ -66,7 +66,7 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
             {/* Table */}
             <div className="overflow-x-auto min-h-[400px]">
                 <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0 z-10">
+                    <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
                         <tr>
                             {[
                                 "Job Title",
@@ -75,7 +75,7 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
                                 "Status",
                                 "Received Date"
                             ].map((header) => (
-                                <th key={header} className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-4 whitespace-nowrap">
+                                <th key={header} className="text-left text-xs font-semibold text-gray-500 px-6 py-4 whitespace-nowrap">
                                     {header}
                                 </th>
                             ))}
@@ -87,7 +87,7 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
                                 <tr
                                     key={filing.id}
                                     onClick={() => handleRowClick(filing)}
-                                    className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer transition-colors group"
+                                    className="hover:bg-blue-50 dark:hover:bg-blue-950 cursor-pointer transition-colors group"
                                 >
                                     <td className="px-6 py-4">
                                         <p className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -112,13 +112,12 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full border ${filing.status === "Certified"
-                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+                                        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${filing.status === "Certified"
+                                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
                                             : filing.status === "Denied"
-                                                ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
-                                                : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
+                                                ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400"
+                                                : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                             }`}>
-                                            {filing.status === "Certified" && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />}
                                             {filing.status}
                                         </span>
                                     </td>
@@ -140,7 +139,7 @@ export function LCAFilingsTable({ filings }: LCAFilingsTableProps) {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
+                <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800">
                     <button
                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                         disabled={currentPage === 1}

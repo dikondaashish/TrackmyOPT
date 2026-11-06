@@ -135,7 +135,7 @@ export function LocationPicker({
 
   const section = (title: string, items: PlaceOption[]) => items.length > 0 && (
     <div className="py-1">
-      <p className="px-2.5 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{title}</p>
+      <p className="px-2.5 pb-1 pt-2 text-[11px] font-semibold text-slate-400">{title}</p>
       <ul>{items.map(row)}</ul>
     </div>
   );
@@ -162,7 +162,7 @@ export function LocationPicker({
           className="absolute left-0 top-full z-30 mt-2 flex max-h-[min(28rem,70vh)] w-[22rem] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl max-sm:fixed max-sm:inset-x-4 max-sm:top-24 max-sm:mt-0 max-sm:w-auto dark:border-slate-700 dark:bg-slate-950"
         >
           <div className="border-b border-slate-100 p-2.5 dark:border-slate-800">
-            <label className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 px-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600/20 dark:border-slate-700">
+            <label className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 px-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-600 dark:border-slate-700">
               <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
               <span className="sr-only">Search US states and cities</span>
               <input

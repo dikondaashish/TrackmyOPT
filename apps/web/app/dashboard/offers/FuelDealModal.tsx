@@ -33,17 +33,17 @@ export function FuelDealModal({
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-lg bg-card rounded-2xl shadow-2xl overflow-hidden">
-                <div className={`bg-gradient-to-r ${deal.badgeColor} p-6 text-white`}>
+            <div className="relative w-full max-w-lg bg-card rounded-xl shadow-2xl overflow-hidden">
+                <div className={`${deal.badgeColor} p-6 text-white`}>
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                        className="absolute top-4 right-4 p-1 rounded-full bg-white text-gray-700 hover:bg-gray-100 transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
 
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                        <div className="w-14 h-14 bg-white text-gray-900 rounded-lg flex items-center justify-center">
                             <deal.icon className="w-7 h-7" />
                         </div>
                         <div>
@@ -53,11 +53,11 @@ export function FuelDealModal({
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-3">
-                        <div className="px-4 py-2 bg-white/20 rounded-full">
+                        <div className="px-3 py-1.5 bg-white text-gray-900 rounded-md">
                             <span className="text-xl font-bold">{deal.discount}</span>
                         </div>
                         {deal.maxSavings && (
-                            <div className="px-4 py-2 bg-white/30 rounded-full border border-white/40">
+                            <div className="px-3 py-1.5 bg-white text-gray-900 rounded-md">
                                 <span className="text-lg font-semibold inline-flex items-center gap-1.5">
                                     <Banknote className="w-4 h-4 shrink-0" />
                                     {deal.maxSavings}
@@ -77,7 +77,7 @@ export function FuelDealModal({
                         <ul className="space-y-2">
                             {deal.benefits.map((benefit, i) => (
                                 <li key={i} className="flex items-center gap-2 text-sm">
-                                    <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                                    <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center flex-shrink-0">
                                         <span className="text-green-600 dark:text-green-400 text-xs">✓</span>
                                     </div>
                                     {benefit}
@@ -86,7 +86,7 @@ export function FuelDealModal({
                         </ul>
                     </div>
 
-                    <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg">
+                    <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950 rounded-lg">
                         <div className="flex items-center gap-2 text-sm">
                             <MapPin className="w-4 h-4 text-amber-600" />
                             <span className="font-medium text-amber-700 dark:text-amber-400">
@@ -98,7 +98,7 @@ export function FuelDealModal({
                     {deal.id === "fuel-discount" && (
                         <button
                             onClick={onShowSteps}
-                            className="w-full mb-4 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all text-left flex items-center justify-between group"
+                            className="w-full mb-4 px-4 py-3 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all text-left flex items-center justify-between group"
                         >
                             <span className="text-sm font-medium text-blue-700 dark:text-blue-400 group-hover:text-blue-900 dark:group-hover:text-blue-300 flex items-center gap-2">
                                 <ClipboardList className="w-4 h-4 shrink-0" />
@@ -116,11 +116,11 @@ export function FuelDealModal({
                                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                                 onClick={onHideSteps}
                             />
-                            <div className="relative w-full max-w-md bg-card rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-5 text-white">
+                            <div className="relative w-full max-w-md bg-card rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                <div className="bg-blue-600 p-5 text-white">
                                     <button
                                         onClick={onHideSteps}
-                                        className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                                        className="absolute top-4 right-4 p-1.5 rounded-full bg-blue-500 hover:bg-blue-700 transition-colors"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -160,7 +160,7 @@ export function FuelDealModal({
                                                 <p className="text-xs text-muted-foreground">
                                                     Go to a participating gas station, select the app, enter your <strong>Alt ID</strong>
                                                 </p>
-                                                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/40 rounded-lg">
+                                                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900 rounded-lg">
                                                     <span className="text-sm font-bold text-green-700 dark:text-green-400">
                                                         Save $0.50/gal → Up to $17.50!
                                                     </span>
@@ -191,7 +191,7 @@ export function FuelDealModal({
 
                     <button
                         onClick={() => onClaim(deal.link)}
-                        className={`w-full py-3 px-6 bg-gradient-to-r ${deal.badgeColor} text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2`}
+                        className={`w-full py-3 px-6 ${deal.badgeColor} text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2`}
                     >
                         Claim This Offer
                         <ExternalLink className="w-4 h-4" />

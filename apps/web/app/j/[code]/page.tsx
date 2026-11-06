@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, BriefcaseBusiness, Building2, CalendarDays, ExternalLink, MapPin, Sparkles } from 'lucide-react';
+import { ArrowRight, Building2, CalendarDays, ExternalLink, MapPin, Sparkles } from 'lucide-react';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { POST_DOMAINS } from '@/lib/linkedin/daily-post';
@@ -45,11 +45,9 @@ export default async function SharedJobPage({ params }: PageProps) {
             ← All of this day&apos;s picks
           </Link>
 
-          <article className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+          <article className="mt-4 rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
             {domain && (
-              <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                {domain.emoji} {domain.label}
-              </p>
+              <p className="text-sm text-slate-500 dark:text-zinc-400">{domain.label}</p>
             )}
             <h1 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">{job.title}</h1>
             <dl className="mt-5 space-y-2 text-sm text-slate-600 dark:text-zinc-300">
@@ -99,9 +97,8 @@ export default async function SharedJobPage({ params }: PageProps) {
             </p>
           </article>
 
-          <section className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-6 dark:border-blue-900/50 dark:bg-blue-950/30">
-            <h2 className="flex items-center gap-2 font-semibold">
-              <BriefcaseBusiness className="h-5 w-5" aria-hidden />
+          <section className="mt-6 rounded-xl bg-blue-50 p-6 dark:bg-blue-950">
+            <h2 className="font-semibold">
               Thousands more jobs, free
             </h2>
             <p className="mt-2 text-sm text-slate-700 dark:text-zinc-300">

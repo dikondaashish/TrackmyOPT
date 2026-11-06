@@ -22,9 +22,9 @@ export const ResumeEditorMockup = () => {
     };
 
     return (
-        <div className="relative bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 border border-border/50 overflow-hidden h-full flex flex-col">
+        <div className="relative bg-white dark:bg-zinc-800 rounded-xl border border-border overflow-hidden h-full flex flex-col">
             {/* Window Controls */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-gray-50/50 dark:bg-zinc-900/50">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gray-50 dark:bg-zinc-900">
                 <div className="flex gap-1.5">
                     <div className="w-3 h-3 rounded-full bg-red-400" />
                     <div className="w-3 h-3 rounded-full bg-yellow-400" />
@@ -41,7 +41,7 @@ export const ResumeEditorMockup = () => {
             </div>
 
             {/* Toolbar */}
-            <div className="px-4 py-2 border-b border-border/50 flex items-center justify-between bg-white dark:bg-zinc-800">
+            <div className="px-4 py-2 border-b border-border flex items-center justify-between bg-white dark:bg-zinc-800">
                 <div className="flex items-center gap-2">
                     <h3 className="text-xs font-semibold text-foreground">Resume Editor</h3>
                     <div className="h-4 w-[1px] bg-border mx-1" />
@@ -50,14 +50,14 @@ export const ResumeEditorMockup = () => {
                         disabled={isGenerating || displayText === afterText}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-medium transition-all
                             ${isGenerating || displayText === afterText
-                                ? "bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 opacity-80"
-                                : "bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/25 ring-1 ring-purple-500"}`}
+                                ? "bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 opacity-80"
+                                : "bg-purple-600 hover:bg-purple-700 text-white"}`}
                     >
                         {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                         <span>{isGenerating ? "Enhancing..." : displayText === afterText ? "AI Enhanced" : "Enhance with AI"}</span>
                     </button>
                 </div>
-                <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-700/50 p-0.5 rounded-lg">
+                <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-700 p-0.5 rounded-lg">
                     <div className="p-1 rounded bg-white dark:bg-zinc-600 shadow-sm">
                         <Code className="w-3 h-3 text-foreground" />
                     </div>
@@ -68,7 +68,7 @@ export const ResumeEditorMockup = () => {
             </div>
 
             {/* Marketing Banner */}
-            <div className="bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/20 px-4 py-1.5 flex items-center justify-center">
+            <div className="bg-amber-50 dark:bg-amber-950 border-b border-amber-100 dark:border-amber-950 px-4 py-1.5 flex items-center justify-center">
                 <p className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
                     <Timer className="w-3.5 h-3.5 shrink-0" />
                     We cook your resume in 2 minutes — faster than Maggi.
@@ -78,16 +78,16 @@ export const ResumeEditorMockup = () => {
             {/* Split View Content */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Editor Side (Left) */}
-                <div className="w-1/2 border-r border-border/50 bg-gray-50/30 dark:bg-zinc-900/10 flex flex-col">
+                <div className="w-1/2 border-r border-border bg-gray-50 dark:bg-zinc-950 flex flex-col">
                     <div className="p-4 space-y-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Role</label>
-                            <div className="w-full p-2 bg-white dark:bg-zinc-800 border border-border/50 rounded-lg text-xs font-medium">
+                            <label className="text-[10px] font-medium text-muted-foreground">Role</label>
+                            <div className="w-full p-2 bg-white dark:bg-zinc-800 border border-border rounded-lg text-xs font-medium">
                                 Software Engineer
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex justify-between">
+                            <label className="text-[10px] font-medium text-muted-foreground flex justify-between">
                                 <span>Description</span>
                                 {displayText === afterText && (
                                     <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
@@ -97,7 +97,7 @@ export const ResumeEditorMockup = () => {
                             </label>
                             <div className="relative">
                                 <motion.div
-                                    className="w-full h-32 p-3 bg-white dark:bg-zinc-800 border border-border/50 rounded-lg text-xs leading-relaxed resize-none font-mono"
+                                    className="w-full h-32 p-3 bg-white dark:bg-zinc-800 border border-border rounded-lg text-xs leading-relaxed resize-none"
                                     initial={false}
                                     animate={{
                                         backgroundColor: isGenerating ? "rgba(168, 85, 247, 0.05)" : "rgba(255, 255, 255, 0)",
@@ -106,7 +106,7 @@ export const ResumeEditorMockup = () => {
                                 >
                                     <span>{displayText}</span>
                                     {isGenerating && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-zinc-800/50 backdrop-blur-[1px]">
+                                        <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-zinc-800">
                                             <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
                                         </div>
                                     )}
@@ -119,7 +119,7 @@ export const ResumeEditorMockup = () => {
                                             animate={{ opacity: 1, scale: 1 }}
                                             className="absolute -right-2 -top-2"
                                         >
-                                            <div className="bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+                                            <div className="bg-green-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-md">
                                                 +40% Impact
                                             </div>
                                         </motion.div>
@@ -131,32 +131,28 @@ export const ResumeEditorMockup = () => {
                 </div>
 
                 {/* Preview Side (Right) */}
-                <div className="w-1/2 bg-white dark:bg-zinc-800 relative flex flex-col p-4 shadow-[inset_4px_0_24px_-12px_rgba(0,0,0,0.1)]">
-                    <div className="absolute top-0 right-0 p-2 opacity-50">
-                        <span className="text-[60px] font-serif text-gray-100 dark:text-zinc-700/20 select-none">Aa</span>
-                    </div>
-
+                <div className="w-1/2 bg-white dark:bg-zinc-800 relative flex flex-col p-4">
                     {/* Simulated Document */}
                     <motion.div
                         className="flex-1 space-y-3 opacity-80"
                         animate={{ opacity: isGenerating ? 0.5 : 0.9 }}
                     >
                         {/* Doc Header */}
-                        <div className="border-b-2 border-black dark:border-white/20 pb-2 mb-2">
-                            <div className="h-4 w-1/2 bg-gray-800 dark:bg-white/80 rounded mb-1" />
+                        <div className="border-b-2 border-black dark:border-zinc-800 pb-2 mb-2">
+                            <div className="h-4 w-1/2 bg-gray-800 dark:bg-white rounded mb-1" />
                             <div className="flex gap-2">
-                                <div className="h-2 w-16 bg-gray-400 dark:bg-white/40 rounded" />
-                                <div className="h-2 w-16 bg-gray-400 dark:bg-white/40 rounded" />
+                                <div className="h-2 w-16 bg-gray-400 dark:bg-zinc-500 rounded" />
+                                <div className="h-2 w-16 bg-gray-400 dark:bg-zinc-500 rounded" />
                             </div>
                         </div>
 
                         {/* Experience Section */}
                         <div className="space-y-2">
-                            <div className="h-3 w-1/3 bg-gray-600 dark:bg-white/60 rounded uppercase" />
+                            <div className="h-3 w-1/3 bg-gray-600 dark:bg-white rounded" />
                             <div className="space-y-2 pl-2 border-l-2 border-gray-200 dark:border-zinc-700">
                                 <div className="flex justify-between">
-                                    <div className="h-3 w-32 bg-gray-800 dark:bg-white/70 rounded" />
-                                    <div className="h-2 w-16 bg-gray-400 dark:bg-white/30 rounded" />
+                                    <div className="h-3 w-32 bg-gray-800 dark:bg-white rounded" />
+                                    <div className="h-2 w-16 bg-gray-400 dark:bg-zinc-600 rounded" />
                                 </div>
 
                                 {/* Dynamic Content */}
@@ -166,9 +162,9 @@ export const ResumeEditorMockup = () => {
                                 >
                                     {isGenerating ? (
                                         <>
-                                            <div className="h-2 w-full bg-purple-100 dark:bg-purple-900/30 rounded animate-pulse" />
-                                            <div className="h-2 w-5/6 bg-purple-100 dark:bg-purple-900/30 rounded animate-pulse" />
-                                            <div className="h-2 w-4/6 bg-purple-100 dark:bg-purple-900/30 rounded animate-pulse" />
+                                            <div className="h-2 w-full bg-purple-100 dark:bg-purple-950 rounded animate-pulse" />
+                                            <div className="h-2 w-5/6 bg-purple-100 dark:bg-purple-950 rounded animate-pulse" />
+                                            <div className="h-2 w-4/6 bg-purple-100 dark:bg-purple-950 rounded animate-pulse" />
                                         </>
                                     ) : (
                                         <motion.div
@@ -179,7 +175,7 @@ export const ResumeEditorMockup = () => {
                                         >
                                             {displayText.split('\n').slice(1).map((line, i) => (
                                                 <div key={i} className="flex gap-1.5 items-start">
-                                                    <div className="w-1 h-1 rounded-full bg-gray-400 dark:bg-white/40 mt-1.5 shrink-0" />
+                                                    <div className="w-1 h-1 rounded-full bg-gray-400 dark:bg-zinc-500 mt-1.5 shrink-0" />
                                                     <div className={`text-[8px] leading-3 ${displayText === afterText ? "text-gray-700 dark:text-gray-300 font-medium" : "text-gray-500 dark:text-gray-400"}`}>
                                                         {line.replace(/^• /, '')}
                                                     </div>
@@ -199,12 +195,10 @@ export const ResumeEditorMockup = () => {
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.2, type: "spring" }}
-                                className="absolute bottom-4 right-4 bg-green-500 text-white px-3 py-1.5 rounded-full shadow-lg shadow-green-500/30 flex items-center gap-1.5"
+                                className="absolute bottom-4 right-4 bg-green-600 text-white px-2.5 py-1 rounded-md flex items-center gap-1.5"
                             >
-                                <div className="p-0.5 bg-white/20 rounded-full">
-                                    <Check className="w-2.5 h-2.5" />
-                                </div>
-                                <div className="text-xs font-bold">92% ATS Score</div>
+                                <Check className="w-3 h-3" aria-hidden />
+                                <div className="text-xs font-semibold">92% ATS Score</div>
                             </motion.div>
                         )}
                     </AnimatePresence>

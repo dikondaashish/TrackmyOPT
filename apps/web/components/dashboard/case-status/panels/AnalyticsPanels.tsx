@@ -347,7 +347,7 @@ export function AnalyticsPanels({
   return (
     <div>
       <div className="mb-4">
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 className="text-lg font-semibold">
           {postApproval
             ? 'After your decision'
             : closedWithoutApproval
@@ -359,7 +359,7 @@ export function AnalyticsPanels({
         </p>
       </div>
       {postApproval || closedWithoutApproval ? (
-        <div className="rounded-xl bg-muted/40 p-4 text-sm">
+        <div className="rounded-xl bg-muted p-4 text-sm">
           <p>
             {closedWithoutApproval
               ? 'Review your official decision notice and next steps above. An approval-wait estimate no longer applies to this status.'
@@ -386,7 +386,7 @@ export function AnalyticsPanels({
       ) : estimateLoading && !prediction && !summary ? (
         <div
           role="status"
-          className="rounded-xl bg-muted/40 p-5 text-sm text-muted-foreground"
+          className="rounded-xl bg-muted p-5 text-sm text-muted-foreground"
         >
           Loading community timeline comparison…
         </div>

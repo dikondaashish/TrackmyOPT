@@ -138,7 +138,7 @@ export default function ForgotPasscodePage() {
                             maxLength={6}
                             value={otp}
                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-center text-xl tracking-widest"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-center text-xl"
                             placeholder="● ● ● ● ● ●"
                             autoComplete="one-time-code"
                         />

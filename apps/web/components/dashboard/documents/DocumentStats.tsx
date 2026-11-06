@@ -104,11 +104,11 @@ function StatCard({
   isText?: boolean;
 }) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-gradient-to-br dark:from-blue-700/50 dark:via-blue-800/70 dark:to-indigo-800/50 dark:text-blue-300 dark:border-blue-400/50',
-    orange: 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-gradient-to-br dark:from-orange-700/50 dark:via-orange-800/70 dark:to-amber-800/50 dark:text-orange-300 dark:border-orange-400/50',
-    red: 'bg-red-50 text-red-600 border-red-200 dark:bg-gradient-to-br dark:from-red-700/50 dark:via-red-800/70 dark:to-rose-800/50 dark:text-red-300 dark:border-red-400/50',
-    cyan: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-gradient-to-br dark:from-cyan-700/50 dark:via-cyan-800/70 dark:to-teal-800/50 dark:text-cyan-300 dark:border-cyan-400/50',
-    purple: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-gradient-to-br dark:from-purple-700/50 dark:via-purple-800/70 dark:to-violet-800/50 dark:text-purple-300 dark:border-purple-400/50',
+    blue: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700',
+    orange: 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:border-orange-700',
+    red: 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700',
+    cyan: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900 dark:text-cyan-300 dark:border-cyan-700',
+    purple: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:border-purple-700',
   };
 
   return (

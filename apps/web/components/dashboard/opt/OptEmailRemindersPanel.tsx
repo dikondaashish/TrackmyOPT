@@ -3,12 +3,10 @@
 import Link from "next/link";
 import {
   Mail,
-  Bell,
   BellOff,
   Pencil,
   Lock,
   ArrowRight,
-  Clock,
   Check,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -38,25 +36,25 @@ const TOOL_INFO: Record<
     label: "OPT Apply Dates",
     icon: "opt_apply",
     alertExample: "I-765 filing window closes in 14 days",
-    color: "from-blue-500 to-blue-600",
+    color: "bg-blue-500",
   },
   opt_clock: {
     label: "OPT Clock Tracker",
     icon: "opt_clock",
     alertExample: "28 unemployment days left — act before 90",
-    color: "from-amber-500 to-orange-500",
+    color: "bg-amber-500",
   },
   stem_apply: {
     label: "STEM Apply Dates",
     icon: "stem_apply",
     alertExample: "STEM extension deadline in 21 days",
-    color: "from-green-500 to-emerald-600",
+    color: "bg-green-500",
   },
   stem_clock: {
     label: "STEM Clock Tracker",
     icon: "stem_clock",
     alertExample: "STEM unemployment days approaching limit",
-    color: "from-purple-500 to-violet-600",
+    color: "bg-purple-500",
   },
 };
 
@@ -77,7 +75,7 @@ interface OptEmailRemindersPanelProps {
 
 function ReminderPreviewMock() {
   return (
-    <div className="rounded-xl border border-purple-200/80 bg-white/90 p-4 shadow-sm dark:border-purple-800/60 dark:bg-gray-950/80">
+    <div className="rounded-xl border border-purple-200 bg-white p-4 dark:border-purple-800 dark:bg-gray-950">
       <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <Mail className="h-3.5 w-3.5" />
         <span>Sample reminder · Today, 9:00 AM ET</span>
@@ -100,30 +98,24 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
   const proCta = PLAN_SALES_META.pro.ctaDefault;
 
   return (
-    <Card className="overflow-hidden border-purple-200/80 dark:border-purple-800/60">
-      <div className="bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-700 px-5 py-6 text-white sm:px-6 sm:py-7">
+    <Card className="overflow-hidden border-purple-200 dark:border-purple-800">
+      <div className="bg-purple-600 px-5 py-6 text-white sm:px-6 sm:py-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-xl space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
-              <Bell className="h-3.5 w-3.5" />
+            <p className="text-sm font-medium text-purple-100">
               Pro · Morning reminders
-            </div>
-            <h3 className="text-xl font-bold tracking-tight sm:text-2xl">
+            </p>
+            <h3 className="text-xl font-bold sm:text-2xl">
               {REMINDER_MESSAGING.panelHeadline}
             </h3>
-            <p className="text-sm text-white/90 sm:text-base">
+            <p className="text-sm text-white sm:text-base">
               {REMINDER_MESSAGING.panelSubhead}
             </p>
-          </div>
-          <div className="hidden shrink-0 sm:block">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
-              <Clock className="h-7 w-7" />
-            </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-5 bg-gradient-to-b from-purple-50/50 to-white p-5 dark:from-purple-950/20 dark:to-gray-950 sm:p-6">
+      <div className="space-y-5 bg-purple-50 p-5 dark:bg-purple-950 sm:p-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {(Object.keys(TOOL_INFO) as ToolName[]).map((tool) => {
             const info = TOOL_INFO[tool];
@@ -131,14 +123,11 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
             return (
               <div
                 key={tool}
-                className="relative overflow-hidden rounded-xl border border-gray-200/80 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50"
+                className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
               >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${info.color} opacity-[0.07] dark:opacity-[0.12]`}
-                />
-                <div className="relative flex gap-3">
+                <div className="flex gap-3">
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${info.color} text-white shadow-sm`}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${info.color} text-white`}
                   >
                     <ToolIcon className="h-5 w-5" />
                   </div>
@@ -161,27 +150,24 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
 
         <ReminderPreviewMock />
 
-        <div className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-purple-900 dark:text-purple-200">
           {[
             "Separate email per tool",
             "Browser + inbox alerts",
             "Customize each tracker",
           ].map((label) => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-1.5 rounded-full border border-purple-200/80 bg-purple-50 px-3 py-1 text-xs font-medium text-purple-800 dark:border-purple-800/60 dark:bg-purple-950/40 dark:text-purple-200"
-            >
-              <Check className="h-3 w-3" />
+            <li key={label} className="inline-flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
               {label}
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button
             asChild
             size="lg"
-            className="w-full bg-purple-600 text-white shadow-md hover:bg-purple-700 sm:w-auto"
+            className="w-full bg-purple-600 text-white hover:bg-purple-700 sm:w-auto"
           >
             <Link href={PRO_CHECKOUT}>
               {proCta}
@@ -193,7 +179,7 @@ function ProUpsellPanel({ onComparePlans }: { onComparePlans: () => void }) {
             variant="ghost"
             size="lg"
             onClick={onComparePlans}
-            className="w-full text-purple-700 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-300 dark:hover:bg-purple-950/40 sm:w-auto"
+            className="w-full text-purple-700 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-300 dark:hover:bg-purple-900 sm:w-auto"
           >
             {PRODUCT_CTAS.comparePlans}
           </Button>
@@ -235,26 +221,30 @@ function PremiumToolCard({
 
   return (
     <div
-      className={`rounded-2xl bg-gradient-to-br p-5 text-white shadow-lg transition-all duration-300 hover:shadow-xl ${info.color}`}
+      className="rounded-xl bg-gray-50 p-5 dark:bg-gray-800"
     >
       <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-start sm:gap-0">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20">
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${info.color} text-white`}
+          >
             <ToolIcon className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-base font-bold">{info.label}</h4>
-            <p className="text-sm opacity-90">Example: {info.alertExample}</p>
+            <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              {info.label}
+            </h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Example: {info.alertExample}
+            </p>
           </div>
         </div>
         {hasEmail ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/30 px-3 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur-sm">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
+          <span className="rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-950 dark:text-green-300">
             Active
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-500/30 px-3 py-1.5 text-xs font-semibold text-white/70 backdrop-blur-sm">
-            <span className="h-2 w-2 rounded-full bg-gray-400" />
+          <span className="rounded-md bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
             Inactive
           </span>
         )}
@@ -267,13 +257,13 @@ function PremiumToolCard({
             value={toolEmails[tool]}
             onChange={(e) => onUpdateEmail(tool, e.target.value)}
             placeholder="your.email@example.com"
-            className="h-11 border-white/30 bg-white/20 text-sm text-white placeholder:text-white/60"
+            className="h-11 bg-white text-sm dark:bg-gray-900"
           />
           <div className="flex gap-2">
             <Button
               onClick={() => onSaveTool(tool)}
               size="sm"
-              className="bg-white/25 px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-white/35"
+              className="px-4 text-sm font-medium"
               disabled={isSaving}
             >
               {isSaving ? "Saving..." : "Save"}
@@ -282,17 +272,17 @@ function PremiumToolCard({
               onClick={onCancelEdit}
               size="sm"
               variant="ghost"
-              className="text-sm text-white/80 transition-all duration-200 hover:bg-white/15 hover:text-white"
+              className="text-sm"
             >
               Cancel
             </Button>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col justify-between gap-4 border-t border-white/15 pt-3 sm:flex-row sm:items-center sm:gap-0">
+        <div className="flex flex-col justify-between gap-4 border-t border-gray-200 pt-3 dark:border-gray-700 sm:flex-row sm:items-center sm:gap-0">
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 opacity-80" />
-            <span className="text-sm font-medium">
+            <Mail className="h-5 w-5 text-gray-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {toolEmails[tool] || "No email set"}
             </span>
           </div>
@@ -302,7 +292,7 @@ function PremiumToolCard({
                 type="button"
                 onClick={() => onStopTool(tool)}
                 disabled={isSaving}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-red-500/20 px-3 py-1.5 text-sm font-medium text-red-200 shadow-sm transition-all duration-200 hover:bg-red-500/30 hover:text-red-100 hover:shadow disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900"
               >
                 <BellOff className="h-4 w-4" />
                 <span>{isSaving ? "..." : "Stop"}</span>
@@ -311,7 +301,7 @@ function PremiumToolCard({
             <button
               type="button"
               onClick={() => onEditTool(tool)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium text-white/90 shadow-sm transition-all duration-200 hover:bg-white/25 hover:text-white hover:shadow"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
             >
               <Pencil className="h-4 w-4" />
               <span>Edit</span>
@@ -341,11 +331,8 @@ export function OptEmailRemindersPanel({
 
   return (
     <Card className="overflow-hidden border-purple-200 dark:border-purple-800">
-      <div className="border-b border-purple-100 bg-gradient-to-br from-purple-50/80 to-blue-50/80 px-5 py-5 dark:border-purple-900/50 dark:from-purple-900/20 dark:to-blue-900/20 sm:px-6">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-            <Mail className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          </div>
+      <div className="border-b border-purple-100 bg-purple-50 px-5 py-5 dark:border-purple-950 dark:bg-purple-950 sm:px-6">
+        <div>
           <div>
             <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
               Your morning reminders

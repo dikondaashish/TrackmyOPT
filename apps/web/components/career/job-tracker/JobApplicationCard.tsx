@@ -166,7 +166,7 @@ export function JobApplicationCard({
                                 <button
                                     type="button"
                                     role="menuitem"
-                                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
+                                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900"
                                     onPointerDown={(event) => event.stopPropagation()}
                                     onClick={(event) => {
                                         event.preventDefault();
@@ -197,7 +197,7 @@ export function JobApplicationCard({
                 </span>
 
                 {application.sponsor_h1b && (
-                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
                         H-1B
                     </span>
                 )}

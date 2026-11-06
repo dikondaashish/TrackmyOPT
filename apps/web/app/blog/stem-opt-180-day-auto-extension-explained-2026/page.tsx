@@ -6,10 +6,8 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  FileText,
   Scale,
-  ShieldCheck,
-} from "lucide-react";
+  } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
@@ -153,13 +151,7 @@ export default function STEMOPTAutoExtensionPage() {
 
       <header className="mb-12">
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-            Work Authorization Guide
-          </span>
-          <span className="text-sm text-gray-500 flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            8 min read
-          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Work Authorization Guide · 8 min read</span>
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
           STEM OPT 180-Day Auto-Extension: When It Applies, When It <span className="text-red-500">Stops</span>
@@ -174,7 +166,7 @@ export default function STEMOPTAutoExtensionPage() {
         </div>
       </header>
 
-      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 mb-10">
+      <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl p-6 mb-10">
         <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-2">
           Quick Answer
         </p>
@@ -193,9 +185,7 @@ export default function STEMOPTAutoExtensionPage() {
 
       <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <ShieldCheck className="w-7 h-7 text-emerald-600" />
-            The Rule, in One Paragraph
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">The Rule, in One Paragraph
           </h2>
           <div className="not-prose p-5 rounded-xl border border-gray-200 dark:border-zinc-800">
             <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -226,7 +216,7 @@ export default function STEMOPTAutoExtensionPage() {
             {edges.map((item) => (
               <div
                 key={item.title}
-                className="p-5 rounded-xl bg-gray-50 dark:bg-zinc-900/50 border border-gray-100 dark:border-zinc-800"
+                className="p-5 rounded-xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800"
               >
                 <p className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
                   {item.title}
@@ -285,9 +275,7 @@ export default function STEMOPTAutoExtensionPage() {
         </section>
 
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <FileText className="w-7 h-7 text-blue-600" />
-            What to Show a Skeptical Employer
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What to Show a Skeptical Employer
           </h2>
           <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
             HR teams that don't process many STEM OPT extensions often stop you
@@ -373,7 +361,7 @@ export default function STEMOPTAutoExtensionPage() {
         </section>
 
         <section className="mb-12">
-          <div className="not-prose bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-2xl p-6">
+          <div className="not-prose bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-xl p-6">
             <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
               <strong>Reminder:</strong> This guide describes the regulation and
               common practice. Your I-20, SEVIS record, and employer's I-9

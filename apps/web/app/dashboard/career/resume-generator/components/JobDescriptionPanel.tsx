@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    Briefcase,
     Loader2,
     Check,
     CheckCircle2,
@@ -46,11 +45,8 @@ export function JobDescriptionPanel({
     onUrlProcess,
 }: JobDescriptionPanelProps) {
     return (
-        <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
-            <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                </div>
+        <Card className="p-6 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-none">
+            <div className="mb-4">
                 <div>
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100" id="job-description-heading">Paste the job description</h2>
                     <p className="text-xs text-gray-500">Copy the posting from the job board or company website.</p>
@@ -71,7 +67,7 @@ export function JobDescriptionPanel({
                         }
                     }}
                     placeholder="Copy and paste the full job description here..."
-                    className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
+                    className="w-full h-40 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 dark:focus:border-amber-400 transition-all resize-none text-sm"
                 />
                 {text && (
                     <button
@@ -85,7 +81,7 @@ export function JobDescriptionPanel({
                 )}
             </div>
 
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-amber-100 bg-amber-50/60 p-3 dark:border-amber-900/40 dark:bg-amber-950/20">
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-amber-100 bg-amber-50 p-3 dark:border-amber-950 dark:bg-amber-950">
                 <Checkbox
                     id="align-job-titles"
                     checked={alignJobTitles}
@@ -127,7 +123,7 @@ export function JobDescriptionPanel({
 
             {/* Error Message */}
             {error && (
-                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-start gap-2">
+                <div className="mt-2 p-2 bg-red-50 dark:bg-red-950 rounded-lg flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                 </div>
@@ -149,7 +145,7 @@ export function JobDescriptionPanel({
                         onChange={(e) => onUrlChange(e.target.value)}
                         aria-label="Job posting URL"
                         placeholder="https://company.com/careers/job"
-                        className="flex-1 bg-gray-50 dark:bg-gray-800/50 text-sm"
+                        className="flex-1 bg-gray-50 dark:bg-gray-800 text-sm"
                         onKeyDown={(e) => {
                             if (e.key === "Enter" && url.trim()) {
                                 onUrlProcess();
@@ -180,7 +176,7 @@ export function JobDescriptionPanel({
             </div>
 
             {/* Tip */}
-            <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800">
                 <p className="text-xs text-amber-700 dark:text-amber-300 flex items-start gap-1.5">
                     <Lightbulb className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                     <span><strong>Tip:</strong> Include the full job requirements, skills, and qualifications for better AI matching.</span>

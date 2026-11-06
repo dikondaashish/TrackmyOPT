@@ -3,13 +3,8 @@ import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
 import {
   ArrowRight,
   BookOpen,
-  Briefcase,
   CheckCircle2,
   XCircle,
-  Scale,
-  GraduationCap,
-  DollarSign,
-  ArrowRightLeft,
   ChevronDown,
   ExternalLink,
 } from 'lucide-react';
@@ -332,8 +327,6 @@ interface ComparisonRow {
 
 function ComparisonTable({
   id,
-  icon: Icon,
-  iconColor,
   title,
   description,
   col1Header,
@@ -343,8 +336,6 @@ function ComparisonTable({
   col2Color,
 }: {
   id: string;
-  icon: React.ElementType;
-  iconColor: string;
   title: string;
   description: string;
   col1Header: string;
@@ -355,10 +346,7 @@ function ComparisonTable({
 }) {
   return (
     <section id={id} className="scroll-mt-24">
-      <div className="flex items-start gap-4 mb-6">
-        <div className={`p-3 rounded-xl ${iconColor} flex-shrink-0`}>
-          <Icon className="w-6 h-6" />
-        </div>
+      <div className="mb-6">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             {title}
@@ -381,7 +369,7 @@ function ComparisonTable({
         <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-700">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-800/80">
+              <tr className="bg-gray-50 dark:bg-gray-800">
                 <th className="text-left px-5 py-4 font-semibold text-gray-700 dark:text-gray-300 w-[200px]">
                   Feature
                 </th>
@@ -404,7 +392,7 @@ function ComparisonTable({
                   className={
                     i % 2 === 0
                       ? 'bg-white dark:bg-zinc-950'
-                      : 'bg-gray-50/50 dark:bg-gray-800/30'
+                      : 'bg-gray-50 dark:bg-gray-900'
                   }
                 >
                   <td className="px-5 py-4 font-medium text-gray-900 dark:text-white align-top">
@@ -558,10 +546,6 @@ export default function ComparePage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-4">
-              <ArrowRightLeft className="w-4 h-4" />
-              Side-by-Side Comparisons
-            </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               OPT vs CPT vs H-1B — Comparison Tables
             </h1>
@@ -584,7 +568,7 @@ export default function ComparePage() {
               <a
                 key={link.id}
                 href={`#${link.id}`}
-                className="px-4 py-2 rounded-full text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 {link.label}
               </a>
@@ -595,8 +579,6 @@ export default function ComparePage() {
           <div className="space-y-20">
             <ComparisonTable
               id="opt-vs-cpt"
-              icon={GraduationCap}
-              iconColor="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
               title="OPT vs CPT Comparison"
               description="Optional Practical Training vs Curricular Practical Training — the two main work authorizations for F-1 students."
               col1Header="OPT (Optional Practical Training)"
@@ -608,8 +590,6 @@ export default function ComparePage() {
 
             <ComparisonTable
               id="regular-vs-stem-opt"
-              icon={BookOpen}
-              iconColor="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
               title="Regular OPT vs STEM OPT Extension"
               description="How the 24-month STEM OPT extension differs from the standard 12-month OPT period."
               col1Header="Regular OPT (12 Months)"
@@ -621,8 +601,6 @@ export default function ComparePage() {
 
             <ComparisonTable
               id="opt-vs-h1b"
-              icon={Briefcase}
-              iconColor="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
               title="OPT vs H-1B Comparison"
               description="F-1 OPT work authorization compared to H-1B specialty occupation employer-sponsored status."
               col1Header="OPT (F-1 Status)"
@@ -634,8 +612,6 @@ export default function ComparePage() {
 
             <ComparisonTable
               id="tax-comparison"
-              icon={DollarSign}
-              iconColor="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
               title="Resident vs Non-Resident Tax Status for F-1 Students"
               description="Tax obligations differ significantly based on whether an F-1 student qualifies as a Non-Resident Alien or Resident Alien."
               col1Header="Non-Resident Alien (NRA)"
@@ -647,29 +623,26 @@ export default function ComparePage() {
           </div>
 
           {/* Key Takeaways */}
-          <div className="mt-20 bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-800/40 dark:to-gray-900/40 border border-gray-200 dark:border-gray-700 rounded-2xl p-8 sm:p-10">
+          <div className="mt-20 bg-gray-50 dark:bg-gray-800 rounded-xl p-8 sm:p-10">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               Key Takeaways
             </h2>
-            <ul className="space-y-3 text-gray-700 dark:text-gray-300">
-              <li className="flex items-start gap-3">
-                <Scale className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+            <ul className="list-disc pl-5 space-y-3 text-gray-700 dark:text-gray-300">
+              <li>
                 <span>
                   <strong>CPT is authorized by your school;</strong> OPT
                   requires a USCIS application. Using 12+ months of full-time
                   CPT eliminates your OPT eligibility.
                 </span>
               </li>
-              <li className="flex items-start gap-3">
-                <Scale className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" />
+              <li>
                 <span>
                   <strong>STEM OPT</strong> extends your work authorization to
                   36 months total, but requires a STEM degree, an E-Verify
                   employer, and a completed I-983 training plan.
                 </span>
               </li>
-              <li className="flex items-start gap-3">
-                <Scale className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+              <li>
                 <span>
                   <strong>H-1B</strong> is the primary long-term work visa after
                   OPT, offering dual intent and a direct path to permanent
@@ -677,8 +650,7 @@ export default function ComparePage() {
                   requires employer sponsorship.
                 </span>
               </li>
-              <li className="flex items-start gap-3">
-                <Scale className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+              <li>
                 <span>
                   <strong>F-1 students are Non-Resident Aliens</strong> for
                   their first 5 calendar years — exempt from FICA taxes and
@@ -698,7 +670,7 @@ export default function ComparePage() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 hover:border-blue-300 dark:hover:border-blue-600 transition-all group"
+                  className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-600 transition-all group"
                 >
                   <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500 flex-shrink-0 transition-colors" />
                   <div className="min-w-0">
@@ -715,7 +687,7 @@ export default function ComparePage() {
           </div>
 
           {/* CTA */}
-          <div className="mt-20 text-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-10">
+          <div className="mt-20 text-center bg-blue-50 dark:bg-blue-950 rounded-xl p-10">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               Track Your OPT Timeline for Free
             </h2>
@@ -726,14 +698,14 @@ export default function ComparePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
                 Get Started Free
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/glossary"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full font-semibold text-gray-700 dark:text-gray-300 hover:border-blue-300 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:border-blue-300 transition-colors"
               >
                 <BookOpen className="w-4 h-4" />
                 Browse Glossary

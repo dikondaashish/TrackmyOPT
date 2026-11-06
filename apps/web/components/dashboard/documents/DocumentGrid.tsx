@@ -145,7 +145,7 @@ export function DocumentGrid({
 
   return (
     <>
-      {actionError && !selectedDocument && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-700 dark:bg-red-900/30 dark:text-red-400">{actionError}</p>}
+      {actionError && !selectedDocument && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-700 dark:bg-red-950 dark:text-red-400">{actionError}</p>}
       {notice && <p role="status" className="text-sm text-gray-600 dark:text-slate-300">{notice}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {documents.map((doc) => (
@@ -194,7 +194,7 @@ export function DocumentGrid({
           {deleteError && <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{deleteError}</p>}
           <div className="mt-5 flex justify-end gap-3">
             <button autoFocus disabled={deleting} onClick={() => setDeleteTarget(null)} className="min-h-11 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 dark:border-slate-600 dark:text-slate-300">Cancel</button>
-            <button disabled={deleting} onClick={handleDelete} className="min-h-11 rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:border-red-600 dark:text-red-400 dark:hover:bg-red-900/30 disabled:opacity-50">{deleting ? 'Deleting…' : 'Delete permanently'}</button>
+            <button disabled={deleting} onClick={handleDelete} className="min-h-11 rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:border-red-600 dark:text-red-400 dark:hover:bg-red-950 disabled:opacity-50">{deleting ? 'Deleting…' : 'Delete permanently'}</button>
           </div>
         </dialog>
       )}

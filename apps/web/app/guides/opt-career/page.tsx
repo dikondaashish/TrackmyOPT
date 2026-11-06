@@ -2,10 +2,22 @@ import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
 import {
-    Clock, ArrowRight, CheckCircle2, AlertTriangle, Briefcase, BookOpen,
-    GraduationCap, Search, FileText, Users, DollarSign, TrendingUp,
-    Shield, XCircle, Wrench, Globe, Award, Target, ChevronRight,
-    Building2, Lightbulb, MessageSquare, Star,
+    Clock,
+    ArrowRight,
+    CheckCircle2,
+    AlertTriangle,
+    Briefcase,
+    GraduationCap,
+    Search,
+    FileText,
+    Users,
+    XCircle,
+    Target,
+    ChevronRight,
+    Building2,
+    Lightbulb,
+    MessageSquare,
+    Star,
 } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 
@@ -189,11 +201,13 @@ export default function OPTCareerPillarGuide() {
 
             {/* Hero */}
             <header className="mb-12">
-                <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">Pillar Guide</span>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">2026 Edition</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />35 min read</span>
-                </div>
+                <p className="flex flex-wrap items-center gap-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Pillar Guide</span>
+                    <span aria-hidden>·</span>
+                    <span>2026 Edition</span>
+                    <span aria-hidden>·</span>
+                    <span>35 min read</span>
+                </p>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     F-1 Career Guide 2026: From OPT Application to H-1B and Beyond
                 </h1>
@@ -205,20 +219,20 @@ export default function OPTCareerPillarGuide() {
             </header>
 
             {/* Key Takeaway */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway</h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
                     Over <strong>200,000 F-1 students</strong> apply for OPT each year, all competing for positions at companies willing to sponsor H-1B visas. Your career success depends on <strong>three things</strong>: starting early (6+ months before graduation), targeting the right employers (confirmed H-1B sponsors), and presenting yourself strategically (ATS-optimized resume, confident interview answers about work authorization).
                 </p>
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><FileText className="w-5 h-5" />In This Guide</h2>
+            <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <div className="grid sm:grid-cols-2 gap-2">
                     {tocSections.map((s, i) => (
                         <a key={s.id} href={`#${s.id}`} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-1">
-                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold flex-shrink-0">{i + 1}</span>
+                            <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-700 dark:text-blue-300 text-xs font-bold flex-shrink-0">{i + 1}</span>
                             {s.label}
                         </a>
                     ))}
@@ -229,8 +243,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 1 */}
                 <section id="career-landscape" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Globe className="w-7 h-7 text-blue-500 flex-shrink-0" />The F-1 Student Career Landscape
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        The F-1 Student Career Landscape
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Every year, more than <strong>200,000 F-1 students</strong> apply for Optional Practical Training (OPT) — making it one of the largest pools of early-career talent in the United States. These students bring advanced degrees, multilingual ability, and global perspective. Yet they face challenges that domestic graduates never encounter: work authorization timelines, employer sponsorship requirements, and immigration uncertainty.
@@ -258,8 +272,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 2 */}
                 <section id="work-authorization" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Shield className="w-7 h-7 text-indigo-500 flex-shrink-0" />Understanding Your Work Authorization
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Understanding Your Work Authorization
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         Before you start job searching, you must understand the three main work authorization pathways available to F-1 students. Each has different eligibility requirements, durations, and employer obligations.
@@ -292,7 +306,7 @@ export default function OPTCareerPillarGuide() {
                             </tbody>
                         </table>
                     </div>
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mt-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mt-6">
                         <p className="text-amber-800 dark:text-amber-200 text-sm flex items-start gap-2">
                             <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <span><strong>Unemployment limits are strict.</strong> Exceeding 90 days (OPT) or 150 days (STEM OPT) of cumulative unemployment means your OPT automatically terminates and you must leave the US. Track every day with <Link href="/tools/opt-clock" className="text-amber-700 dark:text-amber-300 underline font-medium">TrackMyOPT's Unemployment Clock</Link>.</span>
@@ -302,8 +316,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 3 */}
                 <section id="ats-resume" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <FileText className="w-7 h-7 text-green-500 flex-shrink-0" />Building an ATS-Optimized Resume
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Building an ATS-Optimized Resume
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Over 98% of Fortune 500 companies use Applicant Tracking Systems (ATS) to screen resumes before a human ever sees them. For F-1 students, getting past the ATS is even more critical — you're competing with domestic candidates who don't face work authorization questions.
@@ -358,8 +372,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 4 */}
                 <section id="job-search-strategy" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Search className="w-7 h-7 text-teal-500 flex-shrink-0" />Job Search Strategy for International Students
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Job Search Strategy for International Students
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         A successful job search for F-1 students isn't about spraying 500 applications. It's a phased strategy that starts months before graduation and combines research, targeted applications, and networking.
@@ -413,7 +427,7 @@ export default function OPTCareerPillarGuide() {
                         ].map((item, i) => (
                             <div key={i} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-700 dark:text-blue-300 text-sm font-bold">{i + 1}</div>
+                                    <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-700 dark:text-blue-300 text-sm font-bold">{i + 1}</div>
                                     {item.phase}
                                 </h3>
                                 <ul className="space-y-1.5">
@@ -433,8 +447,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 5 */}
                 <section id="h1b-sponsors" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Building2 className="w-7 h-7 text-amber-500 flex-shrink-0" />Finding H-1B Sponsor Companies
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Finding H-1B Sponsor Companies
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Not all employers sponsor H-1B visas, and among those who do, approval rates vary dramatically. Your job search must be data-driven. Here's how to find and evaluate potential sponsors.
@@ -468,16 +482,16 @@ export default function OPTCareerPillarGuide() {
                             { industry: "Manufacturing & Energy", examples: "Intel, GM, ExxonMobil, Caterpillar, Boeing", rate: "Moderate", approx: "~4% of filings" },
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2"><Briefcase className="w-4 h-4 text-amber-500" />{item.industry}</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white">{item.industry}</h4>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.examples}</p>
                                 <div className="flex items-center gap-2 mt-2">
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">Sponsorship: {item.rate}</span>
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300">Sponsorship: {item.rate}</span>
                                     <span className="text-xs text-gray-400">{item.approx}</span>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                         <p className="text-blue-800 dark:text-blue-200 text-sm flex items-start gap-2">
                             <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <span><strong>Pro tip:</strong> Cap-exempt employers (universities, nonprofit research organizations, government research labs) can sponsor H-1B visas year-round — no lottery required. If you're in STEM or research, this path bypasses lottery risk entirely.</span>
@@ -498,8 +512,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 6 */}
                 <section id="interview-prep" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <MessageSquare className="w-7 h-7 text-rose-500 flex-shrink-0" />Interview Preparation for F-1 Students
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Interview Preparation for F-1 Students
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         As an international student, you'll face the same technical and behavioral interviews as everyone else — plus questions about work authorization. How you handle these questions can make or break an offer.
@@ -525,14 +539,14 @@ export default function OPTCareerPillarGuide() {
                                 },
                             ].map((item, i) => (
                                 <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-white italic mb-1">{item.question}</p>
-                                    <p className="text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 rounded-lg p-3 mb-2">{item.answer}</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">{item.question}</p>
+                                    <p className="text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950 rounded-lg p-3 mb-2">{item.answer}</p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">{item.note}</p>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6">
+                    <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6">
                         <h3 className="font-bold text-red-900 dark:text-red-100 text-sm mb-2 flex items-center gap-2"><XCircle className="w-4 h-4" />What NOT to Say in Interviews</h3>
                         <ul className="space-y-1">
                             {[
@@ -570,8 +584,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 7 */}
                 <section id="salary-negotiation" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <DollarSign className="w-7 h-7 text-emerald-500 flex-shrink-0" />Salary Negotiation as an International Student
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Salary Negotiation as an International Student
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         Many F-1 students accept the first offer they receive because they feel they can't negotiate — they need sponsorship and don't want to jeopardize it. This is a costly mistake. Employers who sponsor H-1B visas are investing $5,000-$10,000+ in legal fees; they want you to accept and stay. You have more leverage than you think.
@@ -597,16 +611,16 @@ export default function OPTCareerPillarGuide() {
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
                                 <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-xs font-bold">{i + 1}</div>
+                                    <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-xs font-bold">{i + 1}</div>
                                     {item.title}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p>
                             </div>
                         ))}
                     </div>
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
                         <h3 className="font-bold text-emerald-900 dark:text-emerald-100 text-sm mb-2">Sample Negotiation Script</h3>
-                        <p className="text-emerald-800 dark:text-emerald-200 text-sm italic">
+                        <p className="text-emerald-800 dark:text-emerald-200 text-sm">
                             "Thank you for the offer — I'm excited about this opportunity. Based on my research of market rates for [role] in [city], and the value I'd bring with [specific skill/experience], I was hoping we could discuss a base salary closer to $[X]. I've also seen that the prevailing wage for this position is $[Y], which supports this range. Is there flexibility here?"
                         </p>
                     </div>
@@ -614,8 +628,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 8 */}
                 <section id="opt-to-h1b" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <TrendingUp className="w-7 h-7 text-purple-500 flex-shrink-0" />The OPT to H-1B Pipeline
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        The OPT to H-1B Pipeline
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         The most common long-term path for F-1 students is OPT → STEM OPT Extension → H-1B. Here's the timeline and what to expect at each stage.
@@ -630,15 +644,15 @@ export default function OPTCareerPillarGuide() {
                             { period: "October 1: H-1B Starts", desc: "If selected and approved, H-1B status begins October 1. Cap-gap extension bridges your OPT to this date. You transition from F-1 to H-1B.", color: "emerald" },
                         ].map((step, i) => (
                             <div key={i} className="flex gap-4 items-start">
-                                <div className="flex-shrink-0 w-3 h-3 rounded-full bg-purple-500 mt-2 ring-4 ring-purple-100 dark:ring-purple-900/50" />
+                                <div className="flex-shrink-0 w-3 h-3 rounded-full bg-purple-500 mt-2 ring-4 ring-purple-100 dark:ring-purple-900" />
                                 <div className="flex-1 pb-4 border-l-2 border-purple-100 dark:border-zinc-800 pl-6 -ml-[7px]">
-                                    <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide">{step.period}</p>
+                                    <p className="text-xs font-semibold text-purple-600 dark:text-purple-400">{step.period}</p>
                                     <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{step.desc}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
                         <p className="text-amber-800 dark:text-amber-200 text-sm flex items-start gap-2">
                             <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                             <span><strong>Plan B, C, and D.</strong> Even with 3 lottery attempts, there's a 34-42% chance of never being selected. Always have backup plans: cap-exempt employers, O-1 visa, employer-sponsored green card, or international career options.</span>
@@ -656,8 +670,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 9 */}
                 <section id="alternative-visas" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Globe className="w-7 h-7 text-cyan-500 flex-shrink-0" />Beyond H-1B: Alternative Work Visas
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Beyond H-1B: Alternative Work Visas
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         H-1B is the most common path, but it's not the only one. Depending on your background, achievements, and career stage, other visa categories may be viable — some without a lottery.
@@ -682,8 +696,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 10 */}
                 <section id="permanent-residency" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Award className="w-7 h-7 text-amber-500 flex-shrink-0" />The Path to Permanent Residency
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        The Path to Permanent Residency
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         For many F-1 students, the ultimate goal is a green card — permanent residency. The most common employer-sponsored path is the EB-2 or EB-3 category through the PERM process. Here's how it works.
@@ -696,7 +710,7 @@ export default function OPTCareerPillarGuide() {
                             { step: "I-485: Adjustment of Status", desc: "Once your priority date is current, file I-485 to adjust to permanent resident status. You can also file for EAD and advance parole concurrently. Processing: 6-24 months." },
                         ].map((item, i) => (
                             <div key={i} className="flex gap-4 items-start">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-700 dark:text-amber-300 text-sm font-bold">{i + 1}</div>
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-700 dark:text-amber-300 text-sm font-bold">{i + 1}</div>
                                 <div className="flex-1">
                                     <h3 className="font-semibold text-gray-900 dark:text-white">{item.step}</h3>
                                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.desc}</p>
@@ -737,8 +751,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 11 */}
                 <section id="common-mistakes" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <AlertTriangle className="w-7 h-7 text-red-500 flex-shrink-0" />Common Career Mistakes F-1 Students Make
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Common Career Mistakes F-1 Students Make
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         These are costly OPT career mistakes to watch for — and how to avoid them.
@@ -757,7 +771,7 @@ export default function OPTCareerPillarGuide() {
                             { mistake: "Not consulting an immigration attorney for complex situations", fix: "Free advice online has limits. For multi-employer situations, status gaps, or alternative visas, invest in legal counsel." },
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex gap-3">
-                                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 text-xs font-bold">{i + 1}</div>
+                                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center text-red-600 dark:text-red-400 text-xs font-bold">{i + 1}</div>
                                 <div>
                                     <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{item.mistake}</h3>
                                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{item.fix}</p>
@@ -769,8 +783,8 @@ export default function OPTCareerPillarGuide() {
 
                 {/* Section 12 */}
                 <section id="tools-resources" className="mb-16 scroll-mt-20">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
-                        <Wrench className="w-7 h-7 text-indigo-500 flex-shrink-0" />Tools & Resources for Your Job Search
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Tools & Resources for Your Job Search
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                         The right tools can save hundreds of hours and reduce costly mistakes. Here's what we recommend.
@@ -830,7 +844,7 @@ export default function OPTCareerPillarGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/ats-resume-international-students-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ ATS Resume Guide for International Students</Link>
@@ -852,7 +866,7 @@ export default function OPTCareerPillarGuide() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Launch Your Career with TrackMyOPT</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">AI resume builder, H-1B sponsor database, job tracker, and unemployment clock — all the tools F-1 students need in one place.</p>
                 <div className="flex flex-wrap items-center justify-center gap-3">

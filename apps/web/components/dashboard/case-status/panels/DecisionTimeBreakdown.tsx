@@ -89,7 +89,7 @@ export function DecisionTimeBreakdown({
               aria-live="polite"
               aria-atomic="true"
             >
-              <span className="text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+              <span className="text-2xl font-semibold tabular-nums text-foreground">
                 {active
                   ? share(active.count)
                   : total.toLocaleString('en-US', {
@@ -138,7 +138,7 @@ export function DecisionTimeBreakdown({
             {distribution.map((group, index) => (
               <tr
                 key={group.label}
-                className={active?.label === group.label ? 'bg-muted/60' : ''}
+                className={active?.label === group.label ? 'bg-muted' : ''}
               >
                 <th scope="row" className="py-1 pr-3 text-left font-medium">
                   <button

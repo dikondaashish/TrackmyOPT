@@ -3,7 +3,6 @@ import Image from "next/image";
 export type LoginCarouselImage = {
   title: string;
   description: string;
-  gradient: string;
 };
 
 type LoginImageCarouselProps = {
@@ -18,7 +17,7 @@ export function LoginImageCarousel({
   onSelectIndex,
 }: LoginImageCarouselProps) {
   return (
-    <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden p-16">
+    <div className="hidden lg:flex lg:w-1/2 bg-slate-900 relative overflow-hidden p-16">
       <div className="flex-1 flex items-center justify-center relative">
         {images.map((img, index) => (
           <div
@@ -31,22 +30,17 @@ export function LoginImageCarousel({
                   : "opacity-0 transform translate-x-full scale-95"
             }`}
           >
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-12 shadow-2xl">
-              <div className="relative mb-12 flex items-center justify-center">
-                <div
-                  className={`w-full aspect-square max-w-sm mx-auto rounded-2xl bg-gradient-to-br ${img.gradient} opacity-30 shadow-xl`}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-[#226BE7]/80 backdrop-blur-sm flex items-center justify-center shadow-2xl border border-white/20">
-                    <Image
-                      src="/TrackMyOPT Logo/logo.gif"
-                      alt="TrackMyOPT Logo"
-                      width={96}
-                      height={96}
-                      className="w-20 h-20 md:w-24 md:h-24 object-contain"
-                      unoptimized
-                    />
-                  </div>
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-12">
+              <div className="mb-10 flex items-center justify-center">
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-xl bg-[#226BE7] flex items-center justify-center">
+                  <Image
+                    src="/TrackMyOPT Logo/logo.gif"
+                    alt="TrackMyOPT Logo"
+                    width={96}
+                    height={96}
+                    className="w-20 h-20 md:w-24 md:h-24 object-contain"
+                    unoptimized
+                  />
                 </div>
               </div>
 
@@ -65,8 +59,8 @@ export function LoginImageCarousel({
               onClick={() => onSelectIndex(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === currentImageIndex
-                  ? "bg-white w-12 shadow-lg"
-                  : "bg-white/40 w-2 hover:bg-white/60"
+                  ? "bg-white w-12"
+                  : "bg-slate-600 w-2 hover:bg-white"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -75,7 +69,7 @@ export function LoginImageCarousel({
       </div>
 
       <div className="absolute bottom-6 left-8 right-8 text-center">
-        <p className="text-white/60 text-sm">Private, secure, and reliable.</p>
+        <p className="text-gray-300 text-sm">Private, secure, and reliable.</p>
       </div>
     </div>
   );

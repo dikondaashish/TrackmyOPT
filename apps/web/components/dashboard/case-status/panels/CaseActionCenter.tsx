@@ -24,28 +24,28 @@ const PRIORITY_UI: Record<
   urgent: {
     label: 'Action required',
     icon: AlertTriangle,
-    panel: 'border-red-200 bg-red-50/60 dark:border-red-900 dark:bg-red-950/20',
+    panel: 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950',
     iconBox: 'bg-red-600 text-white',
   },
   review: {
     label: 'Review carefully',
     icon: FileSearch,
     panel:
-      'border-amber-200 bg-amber-50/60 dark:border-amber-900 dark:bg-amber-950/20',
+      'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950',
     iconBox: 'bg-amber-500 text-white',
   },
   monitor: {
     label: 'Monitoring',
     icon: Eye,
     panel:
-      'border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/20',
+      'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950',
     iconBox: 'bg-blue-600 text-white',
   },
   complete: {
     label: 'USCIS milestone reached',
     icon: CheckCircle2,
     panel:
-      'border-emerald-200 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-950/20',
+      'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950',
     iconBox: 'bg-emerald-600 text-white',
   },
 };
@@ -86,13 +86,13 @@ export function CaseActionCenter({
             >
               {plan.title}
             </h2>
-            <p className="mt-1 max-w-prose text-sm leading-6 text-foreground/80">
+            <p className="mt-1 max-w-prose text-sm leading-6 text-foreground">
               {plan.summary}
             </p>
           </div>
         </div>
 
-        <div className="mt-3 border-t border-border/60 pt-3">
+        <div className="mt-3 border-t border-border pt-3">
           <p className="max-w-prose text-sm leading-6 text-foreground">
             {plan.nextStep}
           </p>

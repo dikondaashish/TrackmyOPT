@@ -5,11 +5,11 @@ import { useState } from 'react';
 import { ATS_DOMAINS, atsSourceName, companyLogoUrl, domainFromWebsite } from './JobBrandLogo.utils';
 
 const logoGradients = [
-  'from-blue-600 to-indigo-700',
-  'from-emerald-500 to-teal-700',
-  'from-violet-500 to-purple-700',
-  'from-amber-500 to-orange-600',
-  'from-rose-500 to-pink-700',
+  'bg-blue-600',
+  'bg-emerald-500',
+  'bg-violet-500',
+  'bg-amber-500',
+  'bg-rose-500',
 ] as const;
 
 function initials(name: string) {
@@ -29,7 +29,7 @@ function Logo({ name, domain, compact = false }: { name: string; domain: string 
   if (!src || failed) {
     return (
       <span
-        className={`${sizeClass} inline-flex shrink-0 items-center justify-center bg-gradient-to-br ${gradientFor(name)} font-bold text-white shadow-sm ${compact ? 'text-[0.6rem]' : 'text-sm'}`}
+        className={`${sizeClass} inline-flex shrink-0 items-center justify-center ${gradientFor(name)} font-bold text-white shadow-sm ${compact ? 'text-[0.6rem]' : 'text-sm'}`}
         aria-label={`${name} logo unavailable`}
       >
         {initials(name)}

@@ -217,7 +217,7 @@ export function HelpFaqTab() {
         </Card>
 
         {/* Still Need Help */}
-        <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+        <Card className="p-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
           <div className="text-center">
             <h3 className="text-xl font-bold mb-2">Still Have Questions?</h3>
             <p className="text-muted-foreground mb-4">

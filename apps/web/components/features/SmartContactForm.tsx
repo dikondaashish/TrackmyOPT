@@ -75,13 +75,13 @@ export function SmartContactForm() {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-12 text-center shadow-xl"
+                        className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-12 text-center"
                     >
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                            className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 mx-auto mb-6"
+                            className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center text-green-600 mx-auto mb-6"
                         >
                             <CheckCircle className="w-10 h-10" />
                         </motion.div>
@@ -121,7 +121,7 @@ export function SmartContactForm() {
                             </p>
                         </motion.div>
 
-                        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-2xl p-6 mb-8">
+                        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800 rounded-xl p-6 mb-8">
                             <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
                                 <Search className="w-4 h-4" />
                                 Instant Answers
@@ -164,7 +164,7 @@ export function SmartContactForm() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         onSubmit={handleSubmit}
-                        className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-8 shadow-lg"
+                        className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8"
                     >
                         <div className="space-y-6">
                             <div className="grid md:grid-cols-2 gap-6">
@@ -220,7 +220,7 @@ export function SmartContactForm() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? (
                                     <>

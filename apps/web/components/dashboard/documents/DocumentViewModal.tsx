@@ -251,7 +251,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
           <div className="p-4 sm:p-6 space-y-5">
             {/* Error */}
             {(error || actionError) && (
-              <div ref={errorRef} role="alert" className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400">
+              <div ref={errorRef} role="alert" className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400">
                 {error || actionError}
               </div>
             )}
@@ -303,7 +303,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                       <FileText className="w-4 h-4" /> Summary
                     </h3>
-                    <p className="text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-lg">{document.summary}</p>
+                    <p className="text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-700 p-3 rounded-lg">{document.summary}</p>
                   </div>
                 )}
 
@@ -311,8 +311,8 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Document Type - Editable */}
                   {isEditingType ? (
-                    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-800/40 dark:to-indigo-800/40 rounded-lg p-4 border border-purple-200 dark:border-purple-500/40">
-                      <label htmlFor="vault-document-type" className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                    <div className="bg-purple-50 dark:bg-purple-900 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                      <label htmlFor="vault-document-type" className="text-xs text-purple-700 dark:text-purple-300 font-medium flex items-center gap-1.5">
                         <FolderOpen className="w-3.5 h-3.5" /> Edit Document Type
                       </label>
                       <select
@@ -357,9 +357,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-100 dark:border-slate-600">
+                    <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 border border-gray-100 dark:border-slate-600">
                       <div className="flex justify-between items-start">
-                        <label className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wide">Document Type</label>
+                        <label className="text-xs text-gray-500 dark:text-slate-400">Document Type</label>
                         <button
                           aria-label="Edit document type"
                           onClick={() => { setError(''); setIsEditingType(true); }}
@@ -376,8 +376,8 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
 
                   {/* Expiry Date - Editable */}
                   {isEditingExpiry ? (
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-800/40 dark:to-indigo-800/40 rounded-lg p-4 border border-blue-200 dark:border-blue-500/40">
-                      <label htmlFor="vault-expiry-date" className="text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                    <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                      <label htmlFor="vault-expiry-date" className="text-xs text-blue-700 dark:text-blue-300 font-medium flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5" /> Edit Expiry Date
                       </label>
                       <input
@@ -407,9 +407,9 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                       </div>
                     </div>
                   ) : isValidExpiryDate(currentExpiryDate) ? (
-                    <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-800/40 dark:to-red-800/40 rounded-lg p-4 border border-orange-200 dark:border-orange-500/40">
+                    <div className="bg-orange-50 dark:bg-orange-900 rounded-lg p-4 border border-orange-200 dark:border-orange-800">
                       <div className="flex justify-between items-start">
-                        <label className="text-xs text-orange-700 dark:text-orange-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                        <label className="text-xs text-orange-700 dark:text-orange-300 font-medium flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5" /> Expires On
                         </label>
                         <button
@@ -435,14 +435,14 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-800/40 dark:to-yellow-800/40 rounded-lg p-4 border border-amber-200 dark:border-amber-500/40">
-                      <label className="text-xs text-amber-700 dark:text-amber-300 uppercase tracking-wide font-medium flex items-center gap-1.5">
+                    <div className="bg-amber-50 dark:bg-amber-900 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                      <label className="text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5" /> Expiry Date
                       </label>
                       <p className="font-semibold text-amber-900 dark:text-amber-200 mt-1">No expiry date set</p>
                       <button
                         onClick={() => { setError(''); setIsEditingExpiry(true); }}
-                        className="mt-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-700/50 text-amber-800 dark:text-amber-200 text-sm rounded-lg hover:bg-amber-200 dark:hover:bg-amber-700 border border-amber-300 dark:border-amber-600 w-full font-medium"
+                        className="mt-2 px-3 py-1.5 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-sm rounded-lg hover:bg-amber-200 dark:hover:bg-amber-700 border border-amber-300 dark:border-amber-600 w-full font-medium"
                       >
                         + Add Expiry Date
                       </button>
@@ -450,8 +450,8 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                   )}
 
                   {/* Uploaded Date */}
-                  <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-100 dark:border-slate-600">
-                    <label className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                  <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 border border-gray-100 dark:border-slate-600">
+                    <label className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
                       <Upload className="w-3.5 h-3.5" /> Uploaded
                     </label>
                     <p className="font-semibold text-gray-900 dark:text-white mt-1">
@@ -470,7 +470,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
                 {document.extractedFields && Object.keys(document.extractedFields).length > 0 && (
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Extracted Information</h3>
-                    <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 space-y-2">
+                    <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 space-y-2">
                       {Object.entries(document.extractedFields).map(([key, value]) => (
                         <div key={key} className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-4 text-sm">
                           <span className="text-gray-600 dark:text-slate-400 capitalize">
@@ -492,7 +492,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
           <button
             onClick={onDelete}
             disabled={savingExpiry || savingType}
-            className="min-h-11 px-3 py-2 border border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center gap-2"
+            className="min-h-11 px-3 py-2 border border-red-300 dark:border-red-600 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -501,7 +501,7 @@ export function DocumentViewModal({ document, onClose, onDelete, onDownload, dow
           </button>
           <button
             onClick={() => { setError(''); setIsEditingExpiry(true); }}
-            className="min-h-11 px-3 py-2 border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors flex items-center justify-center gap-2"
+            className="min-h-11 px-3 py-2 border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

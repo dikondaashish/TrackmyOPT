@@ -119,7 +119,7 @@ export default function StemApplyPage() {
         title="STEM OPT Extension Application Guide"
         description="Use this planning tool to organize your STEM OPT extension deadline and prepare for the documents and employer details involved."
       >
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Confirm STEM OPT eligibility
           </h2>
@@ -130,7 +130,7 @@ export default function StemApplyPage() {
             recommendation.
           </p>
         </div>
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Build a complete filing plan
           </h2>

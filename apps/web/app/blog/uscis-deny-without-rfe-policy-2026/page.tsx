@@ -115,14 +115,6 @@ export default function USCISDenyWithoutRFEPolicyPage() {
       />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
-            Critical USCIS Update
-          </span>
-          <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">
-            August 2026
-          </span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           USCIS Can Deny Your Case Without an RFE: What Changed August 5, 2026
         </h1>
@@ -133,6 +125,8 @@ export default function USCISDenyWithoutRFEPolicyPage() {
           get wrong, and how to submit a complete case.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>Critical USCIS Update</span>
+          <span>•</span>
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" /> 10 min read
           </span>
@@ -144,7 +138,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
       </header>
 
       <figure className="mb-12">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-xl">
           <Image
             src="/blog/uscis-deny-without-rfe-policy-2026.png"
             alt="Immigration application evidence packet beside a completed checklist and deadline warning"
@@ -160,8 +154,8 @@ export default function USCISDenyWithoutRFEPolicyPage() {
         </figcaption>
       </figure>
 
-      <div className="bg-gradient-to-r from-red-50 to-amber-50 dark:from-red-900/20 dark:to-amber-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wider mb-2">
+      <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-2">
           Direct Answer
         </p>
         <p className="text-lg text-gray-800 dark:text-gray-100 font-medium leading-relaxed mb-0">
@@ -250,11 +244,8 @@ export default function USCISDenyWithoutRFEPolicyPage() {
                 aria-hidden="true"
               />
             </a>
-            , titled{' '}
-            <em>
-              Evidence, Requests for Evidence, and Notices of Intent to Deny
-            </em>
-            .
+            , titled &ldquo;Evidence, Requests for Evidence, and Notices of
+            Intent to Deny.&rdquo;
           </p>
           <p>The policy makes four changes that matter in practice:</p>
           <ol>
@@ -284,14 +275,14 @@ export default function USCISDenyWithoutRFEPolicyPage() {
             </li>
           </ol>
 
-          <div className="not-prose bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+          <div className="not-prose bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
             <div className="flex gap-3">
               <ShieldAlert className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-red-900 dark:text-red-200 mb-1">
                   The practical safety net is smaller—not completely gone
                 </p>
-                <p className="text-red-800 dark:text-red-200/80 text-sm mb-0">
+                <p className="text-red-800 dark:text-red-200 text-sm mb-0">
                   USCIS may still send an RFE or NOID. The risk is that an
                   officer no longer has to provide that opportunity in the
                   situations covered by the new guidance. Prepare the filing as
@@ -370,7 +361,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
                     An officer may issue an RFE or deny without one.
                   </td>
                 </tr>
-                <tr className="bg-gray-50/60 dark:bg-zinc-900/50">
+                <tr className="bg-gray-50 dark:bg-zinc-900">
                   <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
                     RFE response time
                   </td>
@@ -393,7 +384,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
                     Only 3 days are added when the notice is served by mail.
                   </td>
                 </tr>
-                <tr className="bg-gray-50/60 dark:bg-zinc-900/50">
+                <tr className="bg-gray-50 dark:bg-zinc-900">
                   <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
                     Partial RFE or NOID response
                   </td>
@@ -585,7 +576,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
               address current.
             </li>
           </ol>
-          <div className="not-prose bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5 my-6">
+          <div className="not-prose bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-5 my-6">
             <div className="flex gap-3">
               <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-amber-900 dark:text-amber-200 mb-0">
@@ -619,7 +610,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
           </p>
 
           <div className="not-prose grid sm:grid-cols-3 gap-4 my-8">
-            <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+            <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
               <Timer className="w-7 h-7 text-blue-600 mb-3" />
               <p className="font-bold text-blue-900 dark:text-blue-200 mb-1">
                 Up to 12 weeks
@@ -628,7 +619,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
                 Maximum for an RFE, not a guaranteed response period.
               </p>
             </div>
-            <div className="p-5 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20">
+            <div className="p-5 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950">
               <Clock className="w-7 h-7 text-purple-600 mb-3" />
               <p className="font-bold text-purple-900 dark:text-purple-200 mb-1">
                 Up to 30 days
@@ -637,7 +628,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
                 Maximum response time for a Notice of Intent to Deny.
               </p>
             </div>
-            <div className="p-5 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+            <div className="p-5 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950">
               <ShieldAlert className="w-7 h-7 text-red-600 mb-3" />
               <p className="font-bold text-red-900 dark:text-red-200 mb-1">
                 No extension
@@ -758,7 +749,7 @@ export default function USCISDenyWithoutRFEPolicyPage() {
           </p>
         </section>
 
-        <section className="not-prose bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 text-white my-12 shadow-xl">
+        <section className="not-prose bg-blue-600 rounded-xl p-8 text-white my-12">
           <div className="flex items-start gap-4">
             <FileCheck2 className="w-9 h-9 text-blue-100 flex-shrink-0" />
             <div>

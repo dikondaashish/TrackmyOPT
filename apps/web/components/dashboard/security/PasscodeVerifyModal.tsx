@@ -170,7 +170,7 @@ export function PasscodeVerifyModal({ open, onSuccess, onCancel }: PasscodeVerif
               value={passcode}
               onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ''))}
               disabled={isLocked || loading}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-center text-2xl font-bold tracking-widest [text-security:disc] [-webkit-text-security:disc] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-white dark:bg-muted dark:text-foreground"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg text-center text-2xl font-bold [text-security:disc] [-webkit-text-security:disc] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-muted disabled:cursor-not-allowed bg-white dark:bg-muted dark:text-foreground"
               placeholder="● ● ● ● ● ●"
               autoFocus
               autoComplete="one-time-code"

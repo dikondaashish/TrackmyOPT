@@ -42,7 +42,7 @@ export function PromoCodeCheckoutBar({
   if (compact && mode === 'default') {
     return (
       <div
-        className="flex items-center justify-between gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/[0.07] px-2.5 py-1"
+        className="flex items-center justify-between gap-2 rounded-md border border-emerald-300 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-1"
         role="status"
       >
         <p className="min-w-0 truncate text-[11px] sm:text-xs text-foreground">
@@ -67,8 +67,8 @@ export function PromoCodeCheckoutBar({
   }
 
   const shellClass = compact
-    ? 'rounded-md border border-border/60 bg-muted/20 px-2.5 py-1.5 text-left'
-    : 'rounded-lg border border-border bg-muted/30 px-3 py-2.5 text-left';
+    ? 'rounded-md border border-border bg-muted px-2.5 py-1.5 text-left'
+    : 'rounded-lg border border-border bg-muted px-3 py-2.5 text-left';
 
   return (
     <div className={shellClass}>

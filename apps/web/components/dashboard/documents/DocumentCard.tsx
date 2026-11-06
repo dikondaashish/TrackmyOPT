@@ -46,12 +46,12 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
   const DocIcon = DOCUMENT_TYPE_ICONS[displayType] ?? DOCUMENT_TYPE_ICONS.other;
 
   return (
-    <article aria-label={document.filename} className="group flex min-w-0 flex-col bg-white dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-500/10 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none overflow-hidden">
+    <article aria-label={document.filename} className="group flex min-w-0 flex-col bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none overflow-hidden">
       {/* Modern Header */}
       <div className={`p-4 ${getHeaderColor(expiryStatus)}`}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex shrink-0 h-9 w-9 items-center justify-center rounded-lg bg-white/80 dark:bg-slate-900/40">
+            <div className="flex shrink-0 h-9 w-9 items-center justify-center rounded-lg bg-white dark:bg-slate-900">
               <DocIcon className="w-5 h-5 text-gray-700 dark:text-slate-200" />
             </div>
             <div>
@@ -68,7 +68,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
 
           {/* Expiry Badge */}
           {formattedExpiry ? (
-            <div className={`flex items-center gap-1 text-xs rounded-full px-2.5 py-1 font-medium ${getExpiryBadgeColor(expiryStatus)}`}>
+            <div className={`flex items-center gap-1 text-xs rounded-md px-2 py-0.5 font-medium ${getExpiryBadgeColor(expiryStatus)}`}>
               {(() => {
                 const ExpiryIcon = getExpiryIcon(expiryStatus);
                 return <ExpiryIcon className="w-3.5 h-3.5 shrink-0" aria-hidden />;
@@ -76,7 +76,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
               <span>{daysLeft === null ? '—' : daysLeft < 0 ? 'Expired' : daysLeft === 0 ? 'Today' : `${daysLeft}d left`}</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-full px-2.5 py-1 font-medium">
+            <div className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rounded-md px-2 py-0.5 font-medium">
               <span>—</span>
             </div>
           )}
@@ -101,7 +101,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
 
         {/* Expiry Date - Prominent Display */}
         {formattedExpiry ? (
-          <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 border border-gray-100 dark:border-slate-600">
+          <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-3 border border-gray-100 dark:border-slate-600">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-gray-600 dark:text-slate-400">Expires on</span>
               <span className={`text-sm font-semibold ${getExpiryTextColor(expiryStatus)}`}>
@@ -112,7 +112,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
         ) : (
           <button
             onClick={onAddExpiry}
-            className="w-full bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg p-3 border border-amber-200 dark:border-amber-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors"
+            className="w-full bg-amber-50 dark:bg-amber-950 hover:bg-amber-100 dark:hover:bg-amber-900 rounded-lg p-3 border border-amber-200 dark:border-amber-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-amber-700 dark:text-amber-400">No expiry date</span>
@@ -139,7 +139,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
             disabled={downloadDisabled}
             aria-label={downloading ? 'Downloading document' : 'Download document'}
             aria-busy={downloading}
-            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title="Download document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +149,7 @@ export function DocumentCard({ document, onView, onDelete, onAddExpiry, onDownlo
           <button
             onClick={onDelete}
             aria-label="Delete document"
-            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="min-h-11 min-w-11 disabled:opacity-50 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-300 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             title="Delete document"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,14 +181,14 @@ function getExpiryStatus(expiryDate: string | null, now: Date = new Date()): 'go
 
 function getHeaderColor(status: string): string {
   const colors: Record<string, string> = {
-    good: 'bg-green-50 dark:bg-green-900/30',
-    attention: 'bg-yellow-50 dark:bg-yellow-900/30',
-    warning: 'bg-orange-50 dark:bg-orange-900/30',
-    critical: 'bg-red-50 dark:bg-red-900/30',
-    expired: 'bg-gray-100 dark:bg-slate-700/50',
-    no_expiry: 'bg-blue-50 dark:bg-blue-900/30',
+    good: 'bg-green-50 dark:bg-green-950',
+    attention: 'bg-yellow-50 dark:bg-yellow-950',
+    warning: 'bg-orange-50 dark:bg-orange-950',
+    critical: 'bg-red-50 dark:bg-red-950',
+    expired: 'bg-gray-100 dark:bg-slate-700',
+    no_expiry: 'bg-blue-50 dark:bg-blue-950',
   };
-  return colors[status] || 'bg-gray-50 dark:bg-slate-700/50';
+  return colors[status] || 'bg-gray-50 dark:bg-slate-700';
 }
 
 function getExpiryTextColor(status: string): string {
@@ -205,12 +205,12 @@ function getExpiryTextColor(status: string): string {
 
 function getExpiryBadgeColor(status: string): string {
   const colors: Record<string, string> = {
-    good: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',
-    attention: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300',
-    warning: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300',
-    critical: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300',
+    good: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+    attention: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+    warning: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+    critical: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
     expired: 'bg-gray-100 text-gray-700 dark:bg-slate-600 dark:text-slate-300',
-    no_expiry: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+    no_expiry: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
   };
   return colors[status] || 'bg-gray-100 text-gray-600 dark:bg-slate-600 dark:text-slate-300';
 }

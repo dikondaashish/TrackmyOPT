@@ -22,20 +22,8 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/30 dark:selection:text-blue-100 relative">
-      {/* Careerflow-inspired Vignette Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* 1. Base Layer: Soft White/Zinc */}
-        <div className="absolute inset-0 bg-slate-50 dark:bg-zinc-950" />
-
-        {/* 2. Top-Center Highlights (Sunlight effect) */}
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[80%] h-[500px] bg-blue-100/40 dark:bg-blue-900/10 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
-
-        {/* 3. Vignette Edges (Depth) */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.8)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
-      </div>
-
-      <div className="relative z-10">
+    <main className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-foreground overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-950 dark:selection:text-blue-100">
+      <div>
         <LandingNavbar />
 
         <div className="max-w-4xl mx-auto pt-8 pb-20 px-4">
@@ -47,10 +35,10 @@ export default function TermsPage() {
             Back to Home
           </Link>
 
-          <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm rounded-[2.5rem] border border-gray-200 dark:border-white/10 shadow-2xl p-8 md:p-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Terms & Conditions</h1>
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8 md:p-12">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">Terms & Conditions</h1>
 
-            <p className="text-sm font-mono text-blue-600 dark:text-blue-400 mb-4 uppercase tracking-widest">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Last Updated: {LEGAL_EFFECTIVE_DATE} · Version {LEGAL_VERSION_ID}
             </p>
 
@@ -58,12 +46,12 @@ export default function TermsPage() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none 
               prose-headings:text-gray-900 dark:prose-headings:text-white 
-              prose-headings:font-bold prose-headings:tracking-tight
+              prose-headings:font-bold
               prose-p:text-gray-600 dark:prose-p:text-gray-400
               prose-li:text-gray-600 dark:prose-li:text-gray-400
               prose-strong:text-gray-900 dark:prose-strong:text-white
               prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-              prose-hr:border-gray-200 dark:prose-hr:border-white/10">
+              prose-hr:border-gray-200 dark:prose-hr:border-zinc-800">
 
               <h2>1. Acceptance of Terms</h2>
               <p>
@@ -85,7 +73,7 @@ export default function TermsPage() {
               </ul>
 
               <h2 id="immigration-disclaimer" className="direct-answer">2A. Important immigration and legal notice</h2>
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-5 rounded-xl my-6">
+              <div className="bg-yellow-50 dark:bg-yellow-950 border-l-4 border-yellow-400 p-5 rounded-xl my-6">
                 <p className="m-0 text-yellow-900 dark:text-yellow-100">
                   <strong>TrackMyOPT is not a law firm and does not provide legal or immigration advice.</strong> We are not affiliated with USCIS, DHS, SEVP, ICE, any university, any DSO, or any government agency. We do not guarantee any immigration outcome, approval, or deadline accuracy. You must verify all requirements with official sources, your DSO, your employer, and/or a licensed immigration attorney. See our <Link href="/disclaimer">Disclaimer</Link>.
                 </p>
@@ -334,10 +322,10 @@ export default function TermsPage() {
 
               <hr className="my-8" />
 
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 my-8 rounded-xl">
+              <div className="bg-yellow-50 dark:bg-yellow-950 border-l-4 border-yellow-400 p-4 my-8 rounded-xl">
                 <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
-                  DISCLAIMER
+                  Disclaimer
                 </p>
                 <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-2 leading-relaxed">
                   TrackMyOPT is an independent tool and is NOT affiliated with, endorsed by, or associated with the U.S. Citizenship and Immigration Services (USCIS), Department of Homeland Security (DHS), or any educational institution. Always verify information with your DSO and official USCIS resources.

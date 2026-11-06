@@ -10,11 +10,11 @@ interface OptDatesStatusSummaryProps {
 
 const toneStyles = {
   neutral:
-    'border-blue-200/70 bg-blue-50/70 dark:border-blue-900 dark:bg-blue-950/30',
-  good: 'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30',
+    'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950',
+  good: 'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950',
   warning:
-    'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30',
-  critical: 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30',
+    'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950',
+  critical: 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950',
 };
 
 const valueStyles = {
@@ -25,11 +25,11 @@ const valueStyles = {
 };
 
 const iconStyles = {
-  neutral: 'bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300',
-  good: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300',
+  neutral: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+  good: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
   warning:
-    'bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300',
-  critical: 'bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300',
+    'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  critical: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
 };
 
 type Progress = { used: number; total: number; percent: number };
@@ -69,9 +69,9 @@ function StatCard({
   const content = (
     <div
       className={cn(
-        'group flex h-full min-w-0 flex-col rounded-2xl border p-4 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none sm:p-5',
+        'group flex h-full min-w-0 flex-col rounded-xl border p-4 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none sm:p-5',
         toneStyles[tone],
-        href && 'cursor-pointer hover:border-primary/30 hover:shadow-md'
+        href && 'cursor-pointer hover:border-primary hover:shadow-md'
       )}
     >
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -95,7 +95,7 @@ function StatCard({
       </div>
       <div
         className={cn(
-          'text-2xl font-semibold tabular-nums tracking-tight',
+          'text-2xl font-semibold tabular-nums',
           valueStyles[tone]
         )}
       >
@@ -123,7 +123,7 @@ function StatCard({
           aria-valuenow={Math.min(progress.used, progress.total)}
           aria-valuetext={`${progress.used} of ${progress.total} unemployment days used. ${detail}.`}
         >
-          <div className="h-1.5 overflow-hidden rounded-full bg-foreground/10">
+          <div className="h-1.5 overflow-hidden rounded-full bg-foreground">
             <div
               className={cn(
                 'h-full rounded-full',
@@ -151,7 +151,7 @@ function StatCard({
     return (
       <a
         href={href}
-        className="block min-w-0 rounded-2xl no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="block min-w-0 rounded-xl no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label={`${label}: ${value}. ${detail}. Open employment history.`}
       >
         {content}

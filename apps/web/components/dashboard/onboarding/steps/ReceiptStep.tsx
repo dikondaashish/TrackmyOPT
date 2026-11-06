@@ -47,10 +47,10 @@ export function ReceiptStep({
   return (
     <div className="animate-in fade-in slide-in-from-right-4 flex-1 flex flex-col">
       <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600">
+        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600">
           <ClipboardCheck className="w-5 h-5" />
         </div>
-        <h2 className="text-2xl font-bold tracking-tight">Track your USCIS case</h2>
+        <h2 className="text-2xl font-bold">Track your USCIS case</h2>
       </div>
       <p className="text-muted-foreground mb-6">
         We&apos;ll save your receipt so you can refresh status anytime on Free. Pro adds daily
@@ -104,7 +104,7 @@ export function ReceiptStep({
         </div>
 
         {(isReceiptSaving || receiptStatusPending) && (
-          <div className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+          <div className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800">
             <Loader2 className="w-5 h-5 text-blue-600 animate-spin shrink-0" />
             <p className="text-sm text-blue-900 dark:text-blue-100">
               Checking USCIS for your latest status...
@@ -113,7 +113,7 @@ export function ReceiptStep({
         )}
 
         {savedCaseStatus?.current_status && (
-          <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+          <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
@@ -123,7 +123,7 @@ export function ReceiptStep({
                 <p className="text-sm text-emerald-800 dark:text-emerald-200 mt-1">
                   {savedCaseStatus.current_status}
                 </p>
-                <p className="text-xs text-emerald-700/80 dark:text-emerald-300/80 mt-2">
+                <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-2">
                   Pro users can add more cases anytime from Dashboard → Case Status.
                 </p>
               </div>

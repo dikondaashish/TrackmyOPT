@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LockKeyhole } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -53,18 +52,14 @@ export default function AdminLoginForm({
 
   return (
     <main className="flex min-h-[80vh] items-center justify-center bg-slate-50 px-5 py-12 dark:bg-background">
-      <div className="w-full max-w-md rounded-2xl border bg-card p-7 shadow-sm sm:p-9">
+      <div className="w-full max-w-md rounded-xl border bg-card p-7 sm:p-9">
         <p className="mb-8 font-semibold text-blue-600 dark:text-blue-400">
           TrackMyOPT{' '}
-          <span className="ml-2 text-xs font-normal uppercase tracking-widest text-muted-foreground">
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
             Admin
           </span>
         </p>
-        <LockKeyhole
-          aria-hidden="true"
-          className="mb-4 h-7 w-7 text-blue-600"
-        />
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-2xl font-semibold">
           Sign in to email analytics
         </h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">

@@ -36,7 +36,7 @@ export function DeleteStageModal({ isOpen, onClose, stageToDelete, onConfirm }: 
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <div className="flex items-center gap-3 text-red-600 mb-2">
-                        <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                        <div className="p-2 bg-red-100 dark:bg-red-950 rounded-full">
                             <Trash2 className="w-5 h-5" />
                         </div>
                         <DialogTitle>Delete Column?</DialogTitle>
@@ -45,7 +45,7 @@ export function DeleteStageModal({ isOpen, onClose, stageToDelete, onConfirm }: 
                         <p>
                             Are you sure you want to delete the <span className="font-semibold text-foreground">"{stageToDelete?.title}"</span> column?
                         </p>
-                        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg flex gap-2 items-start text-sm text-amber-700 dark:text-amber-400">
+                        <div className="p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg flex gap-2 items-start text-sm text-amber-700 dark:text-amber-400">
                             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                             <p>Any jobs currently in this column will be automatically moved to the <strong>"Applied"</strong> stage so you don't lose them.</p>
                         </div>

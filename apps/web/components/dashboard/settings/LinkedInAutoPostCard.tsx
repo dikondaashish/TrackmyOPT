@@ -95,10 +95,10 @@ async function fetchStatus(): Promise<Status | "hidden" | "error"> {
 }
 
 const STATUS_STYLES: Record<Draft["status"], string> = {
-  draft: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
-  publishing: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
-  published: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
-  failed: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200",
+  draft: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+  publishing: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  published: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  failed: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
 };
 
 /**
@@ -158,7 +158,7 @@ export function LinkedInAutoPostCard() {
     return (
       <div id="linkedin" className="pt-8 border-t border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">LinkedIn daily jobs post</h3>
-        <div className="p-4 bg-red-50 dark:bg-red-900/30 rounded-xl text-sm text-red-800 dark:text-red-200 flex items-center justify-between gap-3">
+        <div className="p-4 bg-red-50 dark:bg-red-950 rounded-xl text-sm text-red-800 dark:text-red-200 flex items-center justify-between gap-3">
           Could not load the LinkedIn settings.
           <Button variant="outline" className="h-9" onClick={() => void load()}>
             Try again
@@ -190,8 +190,8 @@ export function LinkedInAutoPostCard() {
         <div
           className={`mb-4 flex items-start gap-2 rounded-xl p-3 text-sm ${
             message.ok
-              ? "bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-              : "bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-200"
+              ? "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200"
+              : "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200"
           }`}
         >
           {message.ok ? <CheckCircle2 className="w-4 h-4 mt-0.5" /> : <AlertCircle className="w-4 h-4 mt-0.5" />}
@@ -200,13 +200,13 @@ export function LinkedInAutoPostCard() {
       )}
 
       {!status.configured && (
-        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl text-sm text-amber-900 dark:text-amber-100">
+        <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl text-sm text-amber-900 dark:text-amber-100">
           Add LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET and LINKEDIN_TOKEN_ENCRYPTION_KEY in Vercel, then redeploy.
         </div>
       )}
 
       {status.configured && !connection && (
-        <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p className="font-medium text-gray-900 dark:text-gray-100">Not connected</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -221,7 +221,7 @@ export function LinkedInAutoPostCard() {
 
       {connection && (
         <div className="space-y-4">
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">
                 Connected: {connection.organizationName || connection.organizationUrn}
@@ -251,7 +251,7 @@ export function LinkedInAutoPostCard() {
             </div>
           </div>
 
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl space-y-4">
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl space-y-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-medium text-gray-900 dark:text-gray-100">Daily post</p>
@@ -276,12 +276,12 @@ export function LinkedInAutoPostCard() {
             </div>
           </div>
 
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+          <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-2">
                 <p className="font-medium text-gray-900 dark:text-gray-100">Today ({status.today})</p>
                 {draft && (
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[draft.status]}`}>
+                  <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[draft.status]}`}>
                     {draft.status}
                   </span>
                 )}
@@ -343,13 +343,13 @@ export function LinkedInAutoPostCard() {
           </div>
 
           {status.recent.length > 0 && (
-            <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
               <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">Last 7 days</p>
               <ul className="space-y-1 text-sm">
                 {status.recent.map((post) => (
                   <li key={post.postDate} className="flex flex-wrap items-center gap-2 text-gray-600 dark:text-gray-300">
                     <span className="w-24 shrink-0">{post.postDate}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[post.status]}`}>
+                    <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[post.status]}`}>
                       {post.status}
                     </span>
                     <span>

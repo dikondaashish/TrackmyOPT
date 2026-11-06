@@ -293,7 +293,7 @@ export function ClockTool({ kind }: { kind: 'opt' | 'stem' }) {
               <p
                 role="alert"
                 key={message}
-                className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+                className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-900 dark:text-amber-200"
               >
                 {message}
               </p>

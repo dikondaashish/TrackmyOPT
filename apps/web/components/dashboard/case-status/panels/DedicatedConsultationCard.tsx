@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, CheckCircle2, Loader2, Scale } from "lucide-react";
+import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -139,12 +139,9 @@ export function DedicatedConsultationCard({
 
   if (!isDedicated) {
     return (
-      <Card className="border-purple-200 bg-purple-50/60 p-5 shadow-sm dark:border-purple-900 dark:bg-purple-950/20 sm:p-6">
+      <Card className="border-purple-200 bg-purple-50 p-5 shadow-none dark:border-purple-900 dark:bg-purple-950 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-700 text-white">
-              <Scale className="h-5 w-5" aria-hidden />
-            </div>
+          <div>
             <div>
               <h2 className="font-extrabold text-foreground">Need a licensed attorney to review your situation?</h2>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -161,13 +158,10 @@ export function DedicatedConsultationCard({
   }
 
   return (
-    <Card className="border-purple-200 p-5 shadow-sm dark:border-purple-900 sm:p-6" aria-labelledby="dedicated-consultation-title">
-      <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-700 text-white">
-          <Scale className="h-5 w-5" aria-hidden />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-purple-700 dark:text-purple-300">Dedicated benefit</p>
+    <Card className="border-purple-200 p-5 dark:border-purple-900 sm:p-6" aria-labelledby="dedicated-consultation-title">
+      <div>
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">Dedicated benefit</p>
           <h2 id="dedicated-consultation-title" className="mt-1 text-lg font-extrabold text-foreground">
             Attorney consultation center
           </h2>
@@ -180,11 +174,11 @@ export function DedicatedConsultationCard({
           Checking eligibility and request status…
         </div>
       ) : loadFailed ? (
-        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/20 dark:text-red-200" role="alert">
+        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200" role="alert">
           We could not verify your consultation benefit. Refresh this page before submitting a request.
         </div>
       ) : request ? (
-        <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/20" role="status">
+        <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950" role="status">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" aria-hidden />
             <div>
@@ -248,7 +242,7 @@ export function DedicatedConsultationCard({
           </Button>
         </div>
       ) : (
-        <div className="mt-5 rounded-xl border border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950/20">
+        <div className="mt-5 rounded-xl border border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950">
           <p className="font-bold text-foreground">Eligibility unlocks in {eligibility.daysRemaining} day{eligibility.daysRemaining === 1 ? "" : "s"}</p>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
             The consultation request becomes available after seven uninterrupted days on Dedicated.

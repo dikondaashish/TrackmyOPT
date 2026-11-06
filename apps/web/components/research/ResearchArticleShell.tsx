@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 type ResearchArticleShellProps = {
   category: string;
@@ -34,25 +34,21 @@ export function ResearchArticleShell({
       </Link>
 
       <header className="mb-10 border-b border-gray-200 pb-10 dark:border-zinc-800">
-        <p className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-          {category}
-        </p>
-        <h1 className="mt-3 text-3xl font-extrabold leading-tight text-gray-900 dark:text-white sm:text-4xl">
+        <h1 className="text-3xl font-extrabold leading-tight text-gray-900 dark:text-white sm:text-4xl">
           {title}
         </h1>
         <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">{description}</p>
         <div className="mt-5 flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
-          <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" />
-            {readTime}
-          </span>
-          <span>•</span>
+          <span>{category}</span>
+          <span aria-hidden>·</span>
+          <span>{readTime}</span>
+          <span aria-hidden>·</span>
           <span>{publishedDate}</span>
-          <span>•</span>
+          <span aria-hidden>·</span>
           <span>Written by the TrackMyOPT team</span>
         </div>
         {image && (
-          <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl border border-gray-200 dark:border-zinc-800">
+          <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800">
             <Image
               src={image}
               alt=""
@@ -70,8 +66,8 @@ export function ResearchArticleShell({
       </div>
 
       {next && (
-        <div className="mt-14 rounded-2xl border border-indigo-200 bg-indigo-50 p-6 dark:border-indigo-800 dark:bg-indigo-950/30">
-          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400 mb-2">
+        <div className="mt-14 rounded-xl bg-indigo-50 p-6 dark:bg-indigo-950">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
             Up next
           </p>
           <Link href={next.href} className="text-lg font-bold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400">

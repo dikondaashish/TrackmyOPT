@@ -25,7 +25,7 @@ const accentClasses: Record<
     }
 > = {
     blue: {
-        iconBg: "bg-blue-100 dark:bg-blue-900/30",
+        iconBg: "bg-blue-100 dark:bg-blue-950",
         iconText: "text-blue-600 dark:text-blue-400",
         btn: "bg-blue-600 hover:bg-blue-700 text-white gap-1.5",
         stepBg: "bg-blue-600 dark:bg-blue-500",
@@ -33,7 +33,7 @@ const accentClasses: Record<
         bar: "bg-blue-600 dark:bg-blue-500",
     },
     amber: {
-        iconBg: "bg-amber-100 dark:bg-amber-900/30",
+        iconBg: "bg-amber-100 dark:bg-amber-950",
         iconText: "text-amber-600 dark:text-amber-400",
         btn: "bg-amber-600 hover:bg-amber-700 text-white gap-1.5",
         stepBg: "bg-amber-600 dark:bg-amber-500",
@@ -60,7 +60,7 @@ export function OcrProcessingCard({
     const c = accentClasses[accent];
 
     return (
-        <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+        <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl">
             {!ocr.running ? (
                 <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 ${c.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>

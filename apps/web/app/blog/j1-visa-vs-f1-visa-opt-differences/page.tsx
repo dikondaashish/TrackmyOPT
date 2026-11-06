@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, BookOpen, ShieldCheck } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,10 +46,6 @@ export default function J1vsF1Page() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Visa Types</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">International Students</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     F-1 vs J-1 Visa: Which is Better for International Students?
                 </h1>
@@ -57,13 +53,15 @@ export default function J1vsF1Page() {
                     Compare the F-1 and J-1 student visas. Learn the differences between OPT and Academic Training, spouse work rules, and the dreaded 2-year home residency requirement.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Visa Types · International Students</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 8 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/j1-visa-vs-f1-visa-opt-differences.png" alt="Two passports showing an F-1 visa stamp and a J-1 visa stamp next to an I-20 and DS-2019" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -81,9 +79,9 @@ export default function J1vsF1Page() {
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-6 my-8">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-xl p-6">
-                        <h4 className="flex items-center gap-2 font-bold text-blue-900 dark:text-blue-400 mt-0 mb-3">
-                            <FileText className="w-5 h-5" /> F-1 Visa: OPT
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-950 rounded-xl p-6">
+                        <h4 className="font-bold text-blue-900 dark:text-blue-400 mt-0 mb-3">
+                            F-1 Visa: OPT
                         </h4>
                         <ul className="text-sm text-blue-800 dark:text-blue-200 mb-0 space-y-2">
                             <li><strong>Length:</strong> 12 months standard + 24-month STEM extension (up to 3 years total).</li>
@@ -91,14 +89,14 @@ export default function J1vsF1Page() {
                             <li><strong>Flexibility:</strong> You can work for any employer, as long as the job is related to your major.</li>
                         </ul>
                     </div>
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl p-6">
-                        <h4 className="flex items-center gap-2 font-bold text-emerald-900 dark:text-emerald-400 mt-0 mb-3">
-                            <BookOpen className="w-5 h-5" /> J-1 Visa: Academic Training (AT)
+                    <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-950 rounded-xl p-6">
+                        <h4 className="font-bold text-emerald-900 dark:text-emerald-400 mt-0 mb-3">
+                            J-1 Visa: Academic Training (AT)
                         </h4>
                         <ul className="text-sm text-emerald-800 dark:text-emerald-200 mb-0 space-y-2">
                             <li><strong>Length:</strong> Up to 18 months for most students (or up to 36 months for Post-Doctoral researchers). No STEM extension.</li>
                             <li><strong>Process:</strong> Approved instantly by your J-1 sponsor (Responsible Officer). No USCIS application or fee required!</li>
-                            <li><strong>Flexibility:</strong> You must have a specific job offer <em>before</em> your sponsor will authorize AT.</li>
+                            <li><strong>Flexibility:</strong> You must have a specific job offer <strong>before</strong> your sponsor will authorize AT.</li>
                         </ul>
                     </div>
                 </div>
@@ -123,7 +121,7 @@ export default function J1vsF1Page() {
                     <strong>Winner: J-1 Visa.</strong> The ability for a spouse to work and earn a US income makes the J-1 visa incredibly attractive for married graduate students and researchers.
                 </p>
 
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl my-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-6 h-6" />
                         The 212(e) Two-Year Home Residency Trap
@@ -136,9 +134,9 @@ export default function J1vsF1Page() {
                     If you want to build a long-term career in the US, being subject to the 212(e) requirement is devastating. While you can apply for a "J-1 Waiver," the process takes 6-12 months and is frequently denied. <strong>F-1 students are never subject to this requirement.</strong>
                 </p>
 
-                <div className="bg-primary/5 border border-primary/20 p-6 rounded-xl my-8">
-                    <h4 className="flex items-center gap-2 font-bold text-primary mt-0 mb-3">
-                        <ShieldCheck className="w-6 h-6" /> Document Safe: I-20s vs DS-2019s
+                <div className="bg-primary-soft border border-primary-muted p-6 rounded-xl my-8">
+                    <h4 className="font-bold text-primary mt-0 mb-3">
+                        Document Safe: I-20s vs DS-2019s
                     </h4>
                     <p className="mb-0">
                         Whether you are an F-1 student managing an I-20 or a J-1 student managing a DS-2019, you must keep every historical version of these documents for future visa applications. <strong>Use TrackMyOPT's Document Safe</strong> to scan and securely store your entire immigration history in the cloud. When USCIS asks for your documents 5 years from now, they will be right there on your phone.
@@ -160,9 +158,8 @@ export default function J1vsF1Page() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
 
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Organize Your Visa History
                 </h3>
@@ -172,7 +169,7 @@ export default function J1vsF1Page() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Access the Document Safe
                     </Link>
@@ -183,7 +180,7 @@ export default function J1vsF1Page() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/j1-waiver-212e-two-year-home-residency" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 The J-1 Waiver (212e) Guide
                             </h4>
@@ -196,7 +193,7 @@ export default function J1vsF1Page() {
                         </div>
                     </Link>
                     <Link href="/blog/stem-opt-extension-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 STEM OPT Extension Guide
                             </h4>

@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BarChart3,
   BellRing,
-  LockKeyhole,
   RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -63,15 +62,14 @@ export function CaseInsightUpgradeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         aria-describedby="case-insight-upgrade-description"
-        className="max-w-xl overflow-hidden rounded-2xl border-violet-200 p-0 dark:border-violet-900"
+        className="max-w-xl overflow-hidden rounded-xl border-violet-200 p-0 dark:border-violet-900"
       >
-        <div className="bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 px-5 pb-6 pt-7 text-white sm:px-7">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em]">
-            <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" />
+        <div className="bg-violet-600 px-5 pb-6 pt-7 text-white sm:px-7">
+          <p className="mb-3 text-sm font-medium text-violet-100">
             Pro case intelligence
-          </div>
+          </p>
           <DialogHeader className="pr-7 text-left">
-            <DialogTitle className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
+            <DialogTitle className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
               {CASE_STATUS_MESSAGING.caseInsightHeadline}
             </DialogTitle>
             <DialogDescription
@@ -89,7 +87,7 @@ export function CaseInsightUpgradeDialog({
           <div className="space-y-4">
             {BENEFITS.map(({ icon: Icon, title }) => (
               <div key={title} className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
@@ -99,7 +97,7 @@ export function CaseInsightUpgradeDialog({
             ))}
           </div>
 
-          <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900 dark:bg-violet-950/40">
+          <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900 dark:bg-violet-900">
             <p className="text-sm font-bold text-violet-950 dark:text-violet-100">
               {introEligible
                 ? `$${PRO_PAID_INTRO.price.toFixed(2)} for your first ${PRO_PAID_INTRO.durationDays} days`

@@ -14,7 +14,7 @@ export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors 
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Total Sponsors - Blue */}
-            <div className="rounded-xl bg-[#EEF4FF] dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800/50 p-4 flex items-center gap-3">
+            <div className="rounded-xl bg-[#EEF4FF] dark:bg-blue-950 border border-blue-100 dark:border-blue-900 p-4 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[#3B82F6] flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-white" />
                 </div>
@@ -25,7 +25,7 @@ export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors 
             </div>
 
             {/* High Sponsors - Orange/Peach */}
-            <div className="rounded-xl bg-[#FFF4ED] dark:bg-orange-900/30 border border-orange-100 dark:border-orange-800/50 p-4 flex items-center gap-3">
+            <div className="rounded-xl bg-[#FFF4ED] dark:bg-orange-950 border border-orange-100 dark:border-orange-900 p-4 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[#F97316] flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-white" />
                 </div>
@@ -36,7 +36,7 @@ export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors 
             </div>
 
             {/* Saved Sponsors - Purple */}
-            <div className="rounded-xl bg-[#F5F3FF] dark:bg-purple-900/30 border border-purple-100 dark:border-purple-800/50 p-4 flex items-center gap-3">
+            <div className="rounded-xl bg-[#F5F3FF] dark:bg-purple-950 border border-purple-100 dark:border-purple-900 p-4 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[#A855F7] flex items-center justify-center">
                     <Bookmark className="w-5 h-5 text-white" />
                 </div>
@@ -47,7 +47,7 @@ export function H1BSponsorStatsRow({ totalSponsors, highSponsors, savedSponsors 
             </div>
 
             {/* Updated - Yellow */}
-            <div className="rounded-xl bg-[#FEFCE8] dark:bg-yellow-900/30 border border-yellow-100 dark:border-yellow-800/50 p-4 flex items-center gap-3">
+            <div className="rounded-xl bg-[#FEFCE8] dark:bg-yellow-950 border border-yellow-100 dark:border-yellow-900 p-4 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-[#EAB308] flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-white" />
                 </div>

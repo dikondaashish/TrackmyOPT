@@ -40,8 +40,7 @@ export default function OPTtoH1BArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">H-1B</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />9 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />H-1B · 9 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     OPT to H-1B Transition: Step-by-Step Timeline & Guide (2026)
@@ -56,7 +55,7 @@ export default function OPTtoH1BArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The transition from OPT to H-1B requires your employer to file an H-1B petition with USCIS, including registration in the annual lottery. If selected and approved, your H-1B status begins October 1, with the cap-gap extension bridging any gap in work authorization.
@@ -64,7 +63,7 @@ export default function OPTtoH1BArticle() {
             </div>
 
             {/* Quick Answer */}
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
+            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
                 <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                     <Calendar className="w-5 h-5" />
                     Key Timeline
@@ -94,9 +93,9 @@ export default function OPTtoH1BArticle() {
                             { month: "October 1", title: "H-1B Employment Begins", desc: "If approved, your H-1B status takes effect on October 1. You transition from F-1/OPT to H-1B status.", color: "emerald" },
                         ].map((step, i) => (
                             <div key={i} className="flex gap-4 items-start">
-                                <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-500 mt-2 ring-4 ring-blue-100 dark:ring-blue-900/50" />
+                                <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-500 mt-2 ring-4 ring-blue-100 dark:ring-blue-900" />
                                 <div className="flex-1 pb-6 border-l-2 border-blue-100 dark:border-zinc-800 pl-6 -ml-[7px]">
-                                    <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">{step.month}</p>
+                                    <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">{step.month}</p>
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mt-1">{step.title}</h3>
                                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{step.desc}</p>
                                 </div>
@@ -182,7 +181,7 @@ export default function OPTtoH1BArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
@@ -199,7 +198,7 @@ export default function OPTtoH1BArticle() {
             </div>
 
             {/* CTA */}
-            <div className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-amber-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Find H-1B Sponsors With Real Data</h2>
                 <p className="text-amber-100 mb-6 max-w-lg mx-auto">Search 25,000+ verified H-1B sponsors with approval rates, salary data, and fraud alerts.</p>
                 <Link href="/features/sponsors" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-600 rounded-xl font-semibold hover:bg-amber-50 transition-colors">

@@ -11,7 +11,6 @@ import {
   shouldShowDedicatedPlanForSale,
 } from '@/lib/pricing/sales-copy';
 import {
-  LIMITED_TIME_OFFER,
   PLAN_LIST_PRICES,
   PLAN_PRICES,
   annualSavingsPercent,
@@ -45,7 +44,7 @@ export function LandingPricing() {
       buttonLabel: LANDING_PLAN_COPY.pro.buttonLabel,
       features: LANDING_PRO_FEATURES,
       recommended: true,
-      badge: 'Most Popular',
+      badge: 'Most popular',
     },
   ];
 
@@ -63,15 +62,13 @@ export function LandingPricing() {
       buttonLabel: LANDING_PLAN_COPY.dedicated.buttonLabel,
       features: LANDING_DEDICATED_FEATURES,
       recommended: false,
-      badge: 'Priority Support',
+      badge: 'Priority support',
     });
   }
 
   return (
     <section id="pricing" className="py-24 relative">
-      <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
       <PricingModule
-        offerLabel={LIMITED_TIME_OFFER.label}
         title="Simple, Transparent Pricing"
         subtitle={
           shouldShowDedicatedPlanForSale()

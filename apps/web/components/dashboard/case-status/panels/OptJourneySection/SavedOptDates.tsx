@@ -123,7 +123,7 @@ export function SavedOptDates({
                   key={phase}
                   className="border-l-2 border-blue-200 pl-3 dark:border-blue-800"
                 >
-                  <h4 className="mb-3 text-xs font-semibold tracking-wide text-blue-700 dark:text-blue-300">
+                  <h4 className="mb-3 text-xs font-semibold text-blue-700 dark:text-blue-300">
                     {phase}
                   </h4>
                   <dl data-ph-mask className="ph-mask space-y-3">

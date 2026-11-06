@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BarChart3 } from 'lucide-react';
 import type { I765ObservedTrends as Trends } from '@/lib/case-status/i765-observed-trends';
 import { DecisionTimeBreakdown } from './DecisionTimeBreakdown';
 
@@ -32,17 +31,13 @@ export function I765ObservedTrends() {
   return (
     <section
       aria-label="Broader I-765 data"
-      className="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+      className="mt-6 overflow-hidden rounded-xl border border-border bg-card"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-3.5 sm:px-5">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <BarChart3
-            className="h-4 w-4 text-blue-600 dark:text-blue-400"
-            aria-hidden="true"
-          />
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted px-4 py-3.5 sm:px-5">
+        <h3 className="text-sm font-semibold text-foreground">
           Broader I-765 data
         </h3>
-        <span className="rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           All I-765 categories · 6 months
         </span>
       </div>
@@ -65,25 +60,25 @@ export function I765ObservedTrends() {
               <dt className="text-xs font-medium text-muted-foreground">
                 Median decision time
               </dt>
-              <dd className="mt-1 text-3xl font-semibold tracking-tight tabular-nums text-foreground">
+              <dd className="mt-1 text-3xl font-semibold tabular-nums text-foreground">
                 {trends.medianDays}
                 <span className="ml-1 text-sm font-medium">days</span>
               </dd>
             </div>
-            <div className="rounded-xl bg-muted/40 p-4">
+            <div className="rounded-xl bg-muted p-4">
               <dt className="text-xs font-medium text-muted-foreground">
                 Middle 50%
               </dt>
-              <dd className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-foreground">
                 {trends.p25Days}–{trends.p75Days}
                 <span className="ml-1 text-sm font-medium">days</span>
               </dd>
             </div>
-            <div className="rounded-xl bg-muted/40 p-4">
+            <div className="rounded-xl bg-muted p-4">
               <dt className="text-xs font-medium text-muted-foreground">
                 Decided cases
               </dt>
-              <dd className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-foreground">
                 {trends.decidedCases.toLocaleString()}
               </dd>
             </div>

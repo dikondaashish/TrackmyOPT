@@ -46,7 +46,7 @@ export function BillingHistory() {
                 <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
                 <div className="space-y-3">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-16 w-full bg-gray-100 dark:bg-gray-700/50 rounded-lg animate-pulse" />
+                        <div key={i} className="h-16 w-full bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse" />
                     ))}
                 </div>
             </div>
@@ -74,7 +74,7 @@ export function BillingHistory() {
                     {invoices.map((invoice) => (
                         <div
                             key={invoice.id}
-                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg group hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
                         >
                             <div className="flex flex-col">
                                 <span className="font-medium text-sm text-gray-900 dark:text-gray-100">

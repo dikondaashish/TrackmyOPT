@@ -9,26 +9,21 @@ export function OfficialEVerifyEmployerSearch() {
   return (
     <section
       aria-labelledby="official-everify-search-heading"
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-gray-800"
+      className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-gray-800"
     >
-      <div className="border-b border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900/40 sm:p-6">
+      <div className="border-b border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900">
               <Landmark className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3
-                  id="official-everify-search-heading"
-                  className="text-lg font-bold text-gray-950 dark:text-white"
-                >
-                  Official USCIS E-Verify search
-                </h3>
-                <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-                  USCIS source
-                </span>
-              </div>
+              <h3
+                id="official-everify-search-heading"
+                className="text-lg font-bold text-gray-950 dark:text-white"
+              >
+                Official USCIS E-Verify search
+              </h3>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600 dark:text-gray-300">
                 Search official USCIS employer records.
               </p>

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen, Shield } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, AlertTriangle, Shield } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -63,9 +63,7 @@ export default function STEMOPTGuideArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">STEM OPT</span>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">Pillar Guide</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />15 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Stem opt · 15 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     STEM OPT Timeline & Processing Time 2026: 24-Month Extension Guide
@@ -80,7 +78,7 @@ export default function STEMOPTGuideArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The STEM OPT extension gives F-1 graduates with STEM degrees an additional 24 months of work authorization beyond the initial 12-month OPT period. Your employer must be E-Verify enrolled and you must complete a Form I-983 Training Plan.
@@ -92,15 +90,15 @@ export default function STEMOPTGuideArticle() {
                 sourcePage="/blog/stem-opt-extension-guide"
             />
 
-            <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
+            <div className="bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3">Key Takeaway</h2>
                 <p className="text-purple-800 dark:text-purple-200 font-medium">
                     STEM OPT gives eligible F-1 students a <strong>24-month work authorization extension</strong> beyond the initial 12-month OPT. Your employer must be <strong>E-Verify enrolled</strong>, you need a STEM-designated degree, and you must file <strong>Form I-983</strong> with your DSO before applying.
                 </p>
                 <p className="text-purple-700 dark:text-purple-300 text-sm mt-2">Source: <a href="https://www.ice.gov/sevis/stemopt" target="_blank" rel="noopener noreferrer" className="underline">ICE.gov STEM OPT Hub</a></p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="grid md:grid-cols-2 gap-2">
                     {[["#eligibility", "Who Is Eligible for STEM OPT?"], ["#cip-codes", "STEM OPT CIP Code List"], ["#timeline", "Application Timeline"], ["#i983", "I-983 Training Plan"], ["#employer", "Employer Requirements"], ["#unemployment", "Unemployment & Reporting Rules"], ["#after-stem", "What Comes After STEM OPT?"]].map(([href, text]) => (
@@ -123,7 +121,7 @@ export default function STEMOPTGuideArticle() {
                             { req: "F-1 status maintained", detail: "You must be in valid F-1 status with no violations (unemployment days within limits, proper reporting, etc.)." },
                         ].map((item, i) => (
                             <div key={i} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-500" />{item.req}</h3>
+                                <h3 className="font-semibold text-gray-900 dark:text-white">{item.req}</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.detail}</p>
                             </div>
                         ))}
@@ -169,15 +167,15 @@ export default function STEMOPTGuideArticle() {
                             { step: "Approval", action: "New EAD card issued for 24 months. Update your SEVP Portal employer information.", color: "emerald" },
                         ].map((item, i) => (
                             <div key={i} className="flex gap-4 items-start">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-300 text-xs font-bold">{i + 1}</div>
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-purple-700 dark:text-purple-300 text-xs font-bold">{i + 1}</div>
                                 <div className="flex-1 pb-4 border-l-2 border-purple-100 dark:border-zinc-800 pl-4 -ml-[1px]">
-                                    <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase">{item.step}</p>
+                                    <p className="text-xs font-semibold text-purple-600 dark:text-purple-400">{item.step}</p>
                                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{item.action}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
+                    <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
                         <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                         <p className="text-sm text-amber-800 dark:text-amber-200"><strong>Critical:</strong> If your I-765 is not received before your OPT expires, you will NOT get the 180-day extension. File early.</p>
                     </div>
@@ -276,7 +274,7 @@ export default function STEMOPTGuideArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/i-983-training-plan-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ I-983 Training Plan Guide</Link>
@@ -295,7 +293,7 @@ export default function STEMOPTGuideArticle() {
 
             <AuthorBio />
 
-            <div className="bg-gradient-to-r from-purple-600 to-violet-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-purple-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your STEM OPT Timeline & Unemployment Days</h2>
                 <p className="text-purple-100 mb-6 max-w-lg mx-auto">Join 3,500+ people who have signed up for TrackMyOPT. Use it to plan STEM OPT deadlines, employer reporting, and unemployment days.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>

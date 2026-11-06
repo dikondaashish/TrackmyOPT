@@ -73,7 +73,7 @@ interface AnimatedRoadmapProps extends React.HTMLAttributes<HTMLDivElement> {
 const MilestoneMarker = ({ milestone }: { milestone: Milestone }) => {
     const statusColors = {
         complete: "bg-primary text-primary-foreground border-primary",
-        "in-progress": "bg-blue-500 text-white border-blue-500 animate-pulse",
+        "in-progress": "bg-blue-500 text-white border-blue-500",
         pending: "bg-muted text-muted-foreground border-border",
     };
 
@@ -95,7 +95,7 @@ const MilestoneMarker = ({ milestone }: { milestone: Milestone }) => {
         >
             {/* Marker Circle */}
             <div className={cn(
-                "relative flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border-4 shadow-lg z-10",
+                "relative flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full border-4 z-10",
                 statusColors[milestone.status]
             )}>
                 <Icon className="w-5 h-5" />
@@ -103,10 +103,10 @@ const MilestoneMarker = ({ milestone }: { milestone: Milestone }) => {
 
             {/* Label */}
             <div className="absolute top-12 md:top-14 w-40 text-center">
-                <div className="font-bold text-xs md:text-sm bg-background/80 backdrop-blur-sm px-2 rounded-md border border-border/50 inline-block shadow-sm">
+                <div className="font-semibold text-xs md:text-sm bg-background px-2 rounded-md inline-block">
                     {milestone.name}
                 </div>
-                <div className="hidden md:block text-xs text-muted-foreground mt-1 bg-background/50 backdrop-blur-sm rounded px-1">
+                <div className="hidden md:block text-xs text-muted-foreground mt-1 bg-background rounded px-1">
                     {milestone.description}
                 </div>
             </div>

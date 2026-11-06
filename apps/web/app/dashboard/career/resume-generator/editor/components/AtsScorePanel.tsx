@@ -24,7 +24,7 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
     const isPassing = safeAnalysis.passed === true && score >= 75;
 
     return (
-        <Card className="h-full border-0 shadow-none bg-gray-50/50 dark:bg-gray-900/50 overflow-y-auto max-h-[calc(100vh-200px)]">
+        <Card className="h-full border-0 shadow-none bg-gray-50 dark:bg-gray-900 overflow-y-auto max-h-[calc(100vh-200px)]">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center justify-between">
                     <span>Estimated ATS Match</span>
@@ -53,8 +53,8 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
                     </p>
                 )}
 
-                <div className={`p-3 rounded-lg text-sm flex items-start gap-2 ${isPassing ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
-                    'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                <div className={`p-3 rounded-lg text-sm flex items-start gap-2 ${isPassing ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300' :
+                    'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
                     }`}>
                     {isPassing ? <Check className="w-4 h-4 mt-0.5 shrink-0" /> : <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />}
                     <div>
@@ -69,7 +69,7 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
 
                 {safeAnalysis.keywordMatch && (
                     <div className="space-y-4">
-                        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                             Content Analysis
                         </h4>
 
@@ -86,7 +86,7 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
                                     <p className="text-xs text-red-500 mb-1">Missing Keywords:</p>
                                     <div className="flex flex-wrap gap-1">
                                         {safeAnalysis.keywordMatch.missing.map((kw, i) => (
-                                            <span key={i} className="text-xs px-2 py-0.5 bg-red-50 text-red-600 rounded border border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800">
+                                            <span key={i} className="text-xs px-2 py-0.5 bg-red-50 text-red-600 rounded border border-red-100 dark:bg-red-950 dark:text-red-300 dark:border-red-800">
                                                 {kw}
                                             </span>
                                         ))}
@@ -131,7 +131,7 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
 
                 {safeAnalysis.keywordPlacement && safeAnalysis.keywordPlacement.length > 0 && (
                     <div className="space-y-2">
-                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                             Keyword placement
                         </p>
                         <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-300">
@@ -139,7 +139,7 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
                                 .filter((p) => p.needsBetterPlacement)
                                 .slice(0, 8)
                                 .map((p) => (
-                                    <li key={p.keyword} className="bg-amber-50 dark:bg-amber-900/10 p-2 rounded border border-amber-100 dark:border-amber-800">
+                                    <li key={p.keyword} className="bg-amber-50 dark:bg-amber-950 p-2 rounded border border-amber-100 dark:border-amber-800">
                                         {formatPlacementHint(p)}
                                     </li>
                                 ))}
@@ -153,7 +153,7 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
                 )}
 
                 <div className="space-y-2">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                         {safeAnalysis.issues.length > 0 ? 'Formatting Issues' : 'Formatting Checks'}
                     </p>
 
@@ -176,12 +176,12 @@ export function AtsScorePanel({ analysis }: AtsScorePanelProps) {
 
                 {safeAnalysis.improvements && safeAnalysis.improvements.length > 0 && (
                     <div className="space-y-2">
-                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                             AI Suggestions
                         </p>
                         <ul className="space-y-2">
                             {safeAnalysis.improvements.map((imp, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/10 p-2 rounded border border-blue-100 dark:border-blue-800">
+                                <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-950 p-2 rounded border border-blue-100 dark:border-blue-800">
                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                                     <span>{imp}</span>
                                 </li>

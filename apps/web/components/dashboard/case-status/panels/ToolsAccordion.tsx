@@ -58,7 +58,7 @@ const STATUS_DECODER_ROWS = [
 function PPContactPanel() {
   return (
     <div className="space-y-3 text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800">
         <div>
           <p className="font-semibold">USCIS Contact Center</p>
           <p className="text-muted-foreground text-xs">Mon–Fri 8 AM–8 PM ET</p>
@@ -73,7 +73,7 @@ function PPContactPanel() {
       <p className="text-xs text-muted-foreground px-1">
         Ask the IVR system for <strong>&#34;premium processing&#34;</strong> to reach the correct team faster.
       </p>
-      <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800">
         <div>
           <p className="font-semibold">Online E-Request</p>
           <p className="text-muted-foreground text-xs">my.uscis.gov → Case inquiry</p>
@@ -102,7 +102,7 @@ function DecoderPanel() {
         </thead>
         <tbody>
           {STATUS_DECODER_ROWS.map((row) => (
-            <tr key={row.status} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+            <tr key={row.status} className="border-b border-border hover:bg-muted transition-colors">
               <td className="py-2 pr-3 font-medium">{row.status}</td>
               <td className="py-2 pr-3 text-muted-foreground">{row.plain}</td>
               <td className="py-2 text-muted-foreground">{row.action}</td>
@@ -233,7 +233,7 @@ export function ToolsAccordion({ notifications }: ToolsAccordionProps) {
               type="button"
               aria-expanded={isOpen}
               onClick={() => toggle(tool.key)}
-              className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 transition-colors cursor-pointer text-left"
+              className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted transition-colors cursor-pointer text-left"
             >
               <span className="flex items-center gap-3 text-sm font-medium">
                 <span className="text-muted-foreground">{tool.icon}</span>
@@ -244,7 +244,7 @@ export function ToolsAccordion({ notifications }: ToolsAccordionProps) {
               />
             </button>
             {isOpen && (
-              <div className="px-4 pb-4 pt-2 bg-muted/10">
+              <div className="px-4 pb-4 pt-2 bg-muted">
                 {tool.key === "notifications" && <NotificationsPanel n={notifications} />}
                 {tool.key === "ppcontact"     && <PPContactPanel />}
                 {tool.key === "decoder"       && <DecoderPanel />}

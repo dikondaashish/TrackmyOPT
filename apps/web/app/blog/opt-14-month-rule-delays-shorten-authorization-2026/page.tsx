@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
-  BookOpen,
   CheckCircle2,
   Clock,
   Calculator,
@@ -118,13 +117,7 @@ export default function Opt14MonthRuleDelaysPage() {
 
       <header className="mb-12">
         <div className="flex items-center gap-3 mb-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">
-            USCIS Timing
-          </span>
-          <span className="text-sm text-gray-500 flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            10 min read
-          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />USCIS Timing · 10 min read</span>
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
           OPT&apos;s 14-Month Rule: How USCIS Delays Can Permanently Shorten Your
@@ -141,7 +134,7 @@ export default function Opt14MonthRuleDelaysPage() {
         </div>
       </header>
 
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
+      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
         <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-2">
           Quick Answer
         </p>
@@ -155,10 +148,8 @@ export default function Opt14MonthRuleDelaysPage() {
         </p>
       </div>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-        <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-          <BookOpen className="w-5 h-5" />
-          Key Takeaway
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+        <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
         </h2>
         <p className="text-blue-800 dark:text-blue-200 font-medium">
           Track three clocks: <strong>program end date</strong>,{" "}
@@ -187,7 +178,7 @@ export default function Opt14MonthRuleDelaysPage() {
           </p>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
             Put those together with how start dates work: authorization generally
-            begins on the requested start date <em>or</em> the adjudication date,
+            begins on the requested start date <strong>or</strong> the adjudication date,
             whichever is later. The end date cannot slide past the 14-month mark.
             Late approval compresses the middle.
           </p>
@@ -240,7 +231,7 @@ export default function Opt14MonthRuleDelaysPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-sm text-gray-500 italic">
+          <p className="text-sm text-gray-500">
             Illustrative only. Your EAD dates depend on the requested start date,
             USCIS decision, and how your DSO / USCIS apply the regulations to your
             filing. Always verify against your notice and I-20.
@@ -334,7 +325,7 @@ export default function Opt14MonthRuleDelaysPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900"
+                className="flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950 border border-green-100 dark:border-green-900"
               >
                 <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
                 <div>

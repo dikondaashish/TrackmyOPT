@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, BookOpen, DollarSign } from "lucide-react";
+import { Clock, ArrowRight, DollarSign } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -65,9 +65,8 @@ export default function F1TaxFilingArticle() {
             {/* Header */}
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold">
-                        TAX & FINANCE
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Tax & finance</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         12 min read
@@ -90,7 +89,7 @@ export default function F1TaxFilingArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     F-1 students must file taxes in the US even if they had no income — at minimum Form 8843 is required. Most F-1 students file as nonresident aliens using Form 1040-NR and are exempt from FICA taxes during their first 5 calendar years.
@@ -98,9 +97,8 @@ export default function F1TaxFilingArticle() {
             </div>
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -112,7 +110,7 @@ export default function F1TaxFilingArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -146,7 +144,7 @@ export default function F1TaxFilingArticle() {
                         As a nonresident alien for tax purposes (during your first 5 years in the US), you file a different tax form than US citizens and may qualify for specific exemptions and tax treaty benefits.
                     </p>
 
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             "F-1 students earning US wages must file federal income tax returns and report all compensation earned on OPT, even if the employer is a sponsoring company."
                         </p>
@@ -239,7 +237,7 @@ export default function F1TaxFilingArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Form 1040-NR (Nonresident Alien Income Tax Return)</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
                                 This is the main tax return for nonresident aliens. You report all US-source income (wages, interest, dividends) and claim any applicable deductions or exemptions.
@@ -247,7 +245,7 @@ export default function F1TaxFilingArticle() {
                             <p className="text-blue-700 dark:text-blue-300 text-sm"><strong>Due:</strong> April 15, 2027 | <strong>Extension available:</strong> Form 4868</p>
                         </div>
 
-                        <div className="p-5 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="p-5 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <h3 className="font-bold text-green-900 dark:text-green-100 mb-2">Form 8843 (Statement for Individuals Exempt From Withholding)</h3>
                             <p className="text-green-800 dark:text-green-200 text-sm mb-3">
                                 Filed by nonresident aliens to claim exemption from the Substantial Presence Test or to report being exempt. F-1 students must file this even if they have no taxable income.
@@ -255,7 +253,7 @@ export default function F1TaxFilingArticle() {
                             <p className="text-green-700 dark:text-green-300 text-sm"><strong>Due:</strong> April 15, 2027 (same deadline as 1040-NR)</p>
                         </div>
 
-                        <div className="p-5 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
+                        <div className="p-5 bg-purple-50 dark:bg-purple-950 rounded-xl border border-purple-100 dark:border-purple-800">
                             <h3 className="font-bold text-purple-900 dark:text-purple-100 mb-2">W-2 or 1099 Forms (From Your Employer)</h3>
                             <p className="text-purple-800 dark:text-purple-200 text-sm mb-3">
                                 Your employer sends W-2 (if you're an employee) or 1099 (if contract/self-employed) by January 31, 2027. Use this to complete your 1040-NR.
@@ -263,7 +261,7 @@ export default function F1TaxFilingArticle() {
                             <p className="text-purple-700 dark:text-purple-300 text-sm"><strong>Received:</strong> January 31, 2027</p>
                         </div>
 
-                        <div className="p-5 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-100 dark:border-orange-800">
+                        <div className="p-5 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-100 dark:border-orange-800">
                             <h3 className="font-bold text-orange-900 dark:text-orange-100 mb-2">State Tax Return (if applicable)</h3>
                             <p className="text-orange-800 dark:text-orange-200 text-sm mb-3">
                                 If you earned income in a state, file that state's nonresident income tax return. Deadlines typically match federal (April 15) but verify with your state.
@@ -290,7 +288,7 @@ export default function F1TaxFilingArticle() {
                             { step: "Your paycheck shows $0 FICA withholding.", detail: "You'll only see federal income tax, not Social Security (6.2%) or Medicare (1.45%)." },
                         ].map((item, i) => (
                             <div key={i} className="flex gap-3 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm">
+                                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-950 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm">
                                     {i + 1}
                                 </div>
                                 <div>
@@ -301,7 +299,7 @@ export default function F1TaxFilingArticle() {
                         ))}
                     </div>
 
-                    <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
+                    <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800">
                         <p className="text-red-800 dark:text-red-200 text-sm">
                             <strong>⚠️ Important:</strong> If you're self-employed or have 1099 income, you must pay self-employment tax (15.3%) even as an F-1 student. This exemption only applies to W-2 employment.
                         </p>
@@ -316,7 +314,7 @@ export default function F1TaxFilingArticle() {
                         Many countries have tax treaties with the United States that provide special benefits to students. If your country has a treaty with the US, you may be able to reduce your tax liability.
                     </p>
 
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5 mb-6">
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-5 mb-6">
                         <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">Common Tax Treaty Benefits</h3>
                         <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
                             <li className="flex gap-2"><span>✓</span> <span>Waived or reduced FICA taxes on certain scholarships</span></li>
@@ -330,7 +328,7 @@ export default function F1TaxFilingArticle() {
                         To claim tax treaty benefits, you typically file <strong>Form W-8BEN</strong> with your employer. Check the <a href="https://www.irs.gov/individuals/international-individuals/tax-treaties" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">IRS Treaty section</a> to see if your country has a treaty with the US.
                     </p>
 
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-900 dark:text-amber-100 font-medium text-sm">
                             Not all countries have treaties, and treaty benefits vary widely. Consult a tax professional familiar with your country's tax treaty to maximize your benefits.
                         </p>
@@ -415,7 +413,7 @@ export default function F1TaxFilingArticle() {
                             { mistake: "Missing state tax filing", solution: "If you earned income in a state, file that state's nonresident return even if federal liability is zero." },
                             { mistake: "Not reporting days outside the US", solution: "Form 8843 requires detailed information about your time in and outside the US. Keep records of trips." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
+                            <div key={i} className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
                                 <h3 className="font-semibold text-red-900 dark:text-red-100">{item.mistake}</h3>
                                 <p className="text-sm text-red-800 dark:text-red-200 mt-2">💡 {item.solution}</p>
                             </div>
@@ -449,7 +447,7 @@ export default function F1TaxFilingArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Complete OPT Extension Guide 2026</Link>
@@ -467,7 +465,7 @@ export default function F1TaxFilingArticle() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Calculate Your Tax Obligation Free</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">
                     Use TrackMyOPT's Tax Calculator to estimate your federal, state, and FICA obligations based on your specific situation.

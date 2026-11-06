@@ -51,9 +51,9 @@ export function MonitoringEmailOffer() {
   }
   return (
     <main className="mx-auto max-w-xl px-6 py-20 text-center">
-      <p className="text-sm font-medium text-blue-600">TrackMyOPT Pro</p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight">
-        Let us handle the daily checks.
+      <p className="text-sm text-slate-500">TrackMyOPT Pro</p>
+      <h1 className="mt-3 text-3xl font-semibold">
+        Let us handle the daily checks
       </h1>
       <p className="mt-4 text-slate-600">
         Daily USCIS checks. Email when your status changes. Manual tracking

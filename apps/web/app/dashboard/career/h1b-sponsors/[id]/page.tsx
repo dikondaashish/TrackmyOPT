@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
     ArrowLeft, Building2, MapPin, Globe, Bookmark, ExternalLink, Linkedin, Star, Check,
-    Scale, DollarSign, Lock
+    Lock
 } from "lucide-react";
 import { Database } from "@/types/supabase";
 import type { H1BSponsor } from "@/lib/career/h1b/types";
@@ -40,9 +40,9 @@ type H1BFilingRow = Database['public']['Tables']['h1b_filings']['Row'];
 
 // Get score color based on value
 const getScoreColor = (score: number) => {
-    if (score >= 80) return { bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50 dark:bg-emerald-900/20" };
-    if (score >= 60) return { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50 dark:bg-blue-900/20" };
-    if (score >= 40) return { bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50 dark:bg-amber-900/20" };
+    if (score >= 80) return { bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50 dark:bg-emerald-950" };
+    if (score >= 60) return { bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50 dark:bg-blue-950" };
+    if (score >= 40) return { bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50 dark:bg-amber-950" };
     return { bg: "bg-gray-400", text: "text-gray-600", light: "bg-gray-50 dark:bg-gray-800" };
 };
 
@@ -114,7 +114,7 @@ export default function CompanyProfilePage() {
         return (
             <div className="space-y-6 animate-pulse">
                 <div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+                <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl" />
                 <div className="grid grid-cols-4 gap-4">
                     {[...Array(4)].map((_, i) => (
                         <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl" />
@@ -127,7 +127,7 @@ export default function CompanyProfilePage() {
     if (isLocked) {
         return (
             <div className="text-center py-20 space-y-6">
-                <div className="inline-flex p-4 rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
+                <div className="inline-flex p-4 rounded-xl bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
                     <Lock className="w-10 h-10" />
                 </div>
                 <div>
@@ -211,10 +211,10 @@ export default function CompanyProfilePage() {
             </Link>
 
             {/* Company Header */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
-                        <EmployerSuggestionLogo name={sponsor.name} domain={sponsor.website || ''} className="size-16 rounded-2xl" />
+                        <EmployerSuggestionLogo name={sponsor.name} domain={sponsor.website || ''} className="size-16 rounded-xl" />
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{sponsor.name}</h1>
                             <div className="flex max-md:flex-col max-md:items-start max-md:gap-1 items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -230,7 +230,7 @@ export default function CompanyProfilePage() {
 
                             {/* Virtual Office Warning */}
                             {isVirtualOffice && (
-                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
                                     <Building2 className="w-4 h-4 shrink-0" />
                                     <span className="text-xs font-semibold">
                                         Potential Virtual Office / Cluster Address
@@ -241,16 +241,14 @@ export default function CompanyProfilePage() {
                             {/* Intelligence Badges */}
                             <div className="flex flex-wrap gap-2 mt-3">
                                 {topLawFirm && (
-                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/50">
-                                        <Scale className="w-3.5 h-3.5" />
-                                        <span className="text-xs font-medium">Rep: {topLawFirm}</span>
-                                    </div>
+                                    <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                                        Rep: {topLawFirm}
+                                    </span>
                                 )}
                                 {isEntryLevelHeavy && (
-                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50">
-                                        <DollarSign className="w-3.5 h-3.5" />
-                                        <span className="text-xs font-medium">Entry-Level Focus</span>
-                                    </div>
+                                    <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                                        Entry-level focus
+                                    </span>
                                 )}
                             </div>
                         </div>
@@ -270,7 +268,7 @@ export default function CompanyProfilePage() {
                         <button
                             onClick={toggleSave}
                             className={`p-3 rounded-xl transition-all ${isSaved
-                                ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
+                                ? "bg-blue-100 text-blue-600 dark:bg-blue-950"
                                 : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                                 }`}
                         >
@@ -282,7 +280,7 @@ export default function CompanyProfilePage() {
                             target="_blank"
                             rel="noreferrer"
                             className={`max-md:flex-1 max-md:justify-center flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${sponsor.careers_url
-                                ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/25"
+                                ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg"
                                 : "bg-blue-600 hover:bg-blue-700 text-white"
                                 }`}
                         >
@@ -309,7 +307,7 @@ export default function CompanyProfilePage() {
             </div>
 
             {/* Approval History */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">H-1B Approval History</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
@@ -318,7 +316,7 @@ export default function CompanyProfilePage() {
                         { label: "Q3 FY2025", count: 0 },
                         { label: "Q4 FY2025", count: sponsor.approvals_2025 ?? 0 },
                     ].map((item) => (
-                        <div key={item.label} className="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                        <div key={item.label} className="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800">
                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{item.label}</p>
                             <p className="text-xl font-bold text-gray-900 dark:text-white">{item.count.toLocaleString()}</p>
                         </div>
@@ -333,11 +331,11 @@ export default function CompanyProfilePage() {
 
             {/* Worksite Locations */}
             {sortedLocations.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Top Worksite Locations</h2>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                         {sortedLocations.map(([location, count]) => (
-                            <div key={location} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                            <div key={location} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800">
                                 <span className="text-sm text-gray-700 dark:text-gray-300">{location}</span>
                                 <span className="text-sm font-bold text-gray-900 dark:text-white">{count}</span>
                             </div>
@@ -348,11 +346,11 @@ export default function CompanyProfilePage() {
 
             {/* Common Roles */}
             {sponsor.common_roles && Array.isArray(sponsor.common_roles) && (sponsor.common_roles as string[]).length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Common Roles</h2>
                     <div className="flex flex-wrap gap-2">
                         {(sponsor.common_roles as string[]).map((role, idx) => (
-                            <span key={idx} className="px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-sm font-medium">
+                            <span key={idx} className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 text-sm">
                                 {role}
                             </span>
                         ))}

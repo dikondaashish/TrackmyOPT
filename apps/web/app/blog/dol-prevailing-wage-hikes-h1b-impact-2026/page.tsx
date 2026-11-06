@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, AlertTriangle, FileText, Download, TrendingUp } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -56,7 +56,8 @@ export default function PrevailingWageArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">Economic Update</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Economic Update</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />7 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
@@ -68,11 +69,11 @@ export default function PrevailingWageArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 13, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
                 <BlogPostImage src="/blog/prevailing-wage-hikes.png" alt="Financial chart showing wage increases on a corporate desk" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     A March 2026 DOL proposal seeks to raise the statistical percentiles used to calculate prevailing wages for H-1B and PERM workers. If implemented, entry-level H-1B roles could see mandatory salary minimums spike by over 30%, potentially pricing recent international graduates out of the U.S. job market.
@@ -80,8 +81,7 @@ export default function PrevailingWageArticle() {
             </div>
 
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
@@ -95,8 +95,7 @@ export default function PrevailingWageArticle() {
 
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
                 <section id="the-proposal" className="mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <TrendingUp className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         The DOL Wage Hike Proposal
                     </h2>
                     <p>
@@ -126,7 +125,7 @@ export default function PrevailingWageArticle() {
                 </section>
 
                 <section id="impact-on-graduates" className="mb-12">
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
                         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
                             <AlertTriangle className="w-5 h-5" />
                             Impact on Recent Graduates
@@ -142,10 +141,10 @@ export default function PrevailingWageArticle() {
                         </p>
                     </div>
 
-                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
                         <div>
-                            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1 flex items-center gap-2">
-                                <Download className="w-5 h-5" /> Free Prevailing Wage Estimator
+                            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
+                                Free Prevailing Wage Estimator
                             </h3>
                             <p className="text-sm text-blue-800 dark:text-blue-200 mb-0">
                                 Download our Excel tool to compare current OES wages vs. the proposed 2026 hiked wages for top tech roles.

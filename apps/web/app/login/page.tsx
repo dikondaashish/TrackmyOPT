@@ -478,18 +478,15 @@ function LoginPageContent() {
   const images = [
     {
       title: 'Track Your OPT Timeline',
-      description: 'Filing windows, unemployment days, and STEM deadlines with reminders',
-      gradient: 'from-blue-500 to-cyan-500'
+      description: 'Filing windows, unemployment days, and STEM deadlines with reminders'
     },
     {
       title: 'Know Your Case Status',
-      description: 'Decision window from similar cases + live USCIS tracking and alerts',
-      gradient: 'from-emerald-500 to-teal-500'
+      description: 'Decision window from similar cases + live USCIS tracking and alerts'
     },
     {
       title: 'Land the Next Role',
-      description: 'AI resumes, Document Vault, H-1B sponsors, and job tracking in one place',
-      gradient: 'from-purple-500 to-pink-500'
+      description: 'AI resumes, Document Vault, H-1B sponsors, and job tracking in one place'
     }
   ];
 
@@ -546,7 +543,7 @@ function LoginPageContent() {
         <div className="w-full max-w-md">
           {/* Mobile only: single hero (avoid duplicate TrackMyOPT + tighter visual hierarchy) */}
           <div className="mb-6 space-y-3 text-center lg:hidden">
-            <div className="mx-auto flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-2xl bg-[#226BE7] shadow-md shadow-[#226BE7]/35 ring-1 ring-white/25 dark:bg-[#226BE7] dark:shadow-[#226BE7]/25 dark:ring-white/15">
+            <div className="mx-auto flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-xl bg-[#226BE7]">
               <Image
                 src="/TrackMyOPT Logo/logo.gif"
                 alt="TrackMyOPT"
@@ -556,7 +553,7 @@ function LoginPageContent() {
                 unoptimized
               />
             </div>
-            <h1 className="text-[1.625rem] font-bold tracking-tight text-gray-900 dark:text-foreground">
+            <h1 className="text-[1.625rem] font-bold text-gray-900 dark:text-foreground">
               TrackMyOPT
             </h1>
             <p className="text-sm font-semibold text-[#226BE7] dark:text-blue-300">

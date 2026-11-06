@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2, BookOpen } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
@@ -46,8 +46,7 @@ export default function StemOPTUnemploymentArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">STEM OPT</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />6 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Stem opt · 6 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     STEM OPT Unemployment Limit: The 150-Day Rule Explained
@@ -62,7 +61,7 @@ export default function StemOPTUnemploymentArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     STEM OPT recipients are allowed a total of 150 cumulative days of unemployment across both their initial 12-month OPT and the 24-month STEM extension. This is more generous than the 90-day limit for regular OPT.
@@ -70,10 +69,8 @@ export default function StemOPTUnemploymentArticle() {
             </div>
 
             {/* Key Stat */}
-            <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    Quick Answer
+            <div className="bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-purple-900 dark:text-purple-100 mb-3">Quick Answer
                 </h2>
                 <p className="text-purple-800 dark:text-purple-200 font-medium">
                     STEM OPT students are allowed <strong>150 cumulative days of unemployment</strong> across the entire OPT + STEM OPT period (36 months). This is the 90 days from initial OPT plus an additional 60 days from the STEM extension.
@@ -127,7 +124,7 @@ export default function StemOPTUnemploymentArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-green-900 dark:text-green-100">What Stops the Clock on STEM OPT</h3>
@@ -140,7 +137,7 @@ export default function StemOPTUnemploymentArticle() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
+                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
                             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-red-900 dark:text-red-100">What Does NOT Count on STEM OPT</h3>
@@ -196,7 +193,7 @@ export default function StemOPTUnemploymentArticle() {
             </div>
 
             {/* CTA */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-purple-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your STEM OPT Unemployment Days</h2>
                 <p className="text-purple-100 mb-6 max-w-lg mx-auto">
                     TrackMyOPT monitors your unemployment days, sends alerts before you hit the 150-day limit, and tracks your reporting deadlines.
@@ -207,7 +204,7 @@ export default function StemOPTUnemploymentArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/90-day-unemployment-rule-opt" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ The 90-Day OPT Unemployment Rule</Link>

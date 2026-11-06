@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck, CreditCard, XCircle } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle, ShieldCheck, CreditCard, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -62,7 +62,8 @@ export default function FormI765GuidePage() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">Immigration Forms</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Immigration Forms</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />12 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
@@ -74,7 +75,7 @@ export default function FormI765GuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Published: February 21, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
                 <BlogPostImage src="/blog/form-i765.png" alt="Form I-765 Application for Employment Authorization document with EAD card on office desk" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -82,7 +83,7 @@ export default function FormI765GuidePage() {
             </figcaption>
 
             {/* TL;DR */}
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-6 mb-10">
+            <div className="bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Form I-765 is how F-1 students apply for their EAD card (OPT work permit). Apply 90 days before your OPT start date, use eligibility category (c)(3)(B) for standard OPT or (c)(3)(C) for STEM OPT, pay the $520 fee, and mail to the correct USCIS lockbox. Never start working until your physical EAD arrives and your OPT start date has passed.
@@ -91,8 +92,7 @@ export default function FormI765GuidePage() {
 
             {/* Table of Contents */}
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Table of Contents
                 </h2>
                 <ol className="space-y-2 text-sm text-indigo-600 dark:text-indigo-400">
@@ -118,7 +118,7 @@ export default function FormI765GuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                     Form I-765 is authorized under <a href="https://www.uscis.gov/i-765" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">8 CFR § 274a.12</a> and is one of the most commonly filed USCIS forms, with hundreds of thousands of applications processed each year — the largest share coming from F-1 international students applying for OPT.
                 </p>
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-5">
+                <div className="bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 rounded-xl p-5">
                     <div className="flex gap-3">
                         <CreditCard className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
                         <div>
@@ -189,7 +189,7 @@ export default function FormI765GuidePage() {
                         </tbody>
                     </table>
                 </div>
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
+                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">The category code must match the OPT type your DSO recommended in your I-20. If there is a mismatch, USCIS may reject or deny your application. Always confirm with your DSO (Designated School Official) before filing.</p>
@@ -202,14 +202,14 @@ export default function FormI765GuidePage() {
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">4. How to Fill Out Form I-765 Step by Step</h2>
                 <div className="space-y-4 mb-6">
                     {[
-                        { step: "01", title: "Download the current form from USCIS.gov", desc: "Always use the most current version. As of 2026, the edition date is 04/01/24. Download at uscis.gov/i-765. Do not use old forms saved on your computer." },
-                        { step: "02", title: "Part 1 — Reason for Applying", desc: "Check whether you are applying for initial EAD, renewing an existing EAD, or replacing a lost/stolen EAD." },
-                        { step: "03", title: "Part 2 — Information About You", desc: "Enter your full legal name (exactly matching your passport), US mailing address, date of birth, Social Security Number (if you have one), country of citizenship, SEVIS number, and current immigration status." },
-                        { step: "04", title: "Part 3 — Passport & Travel Document", desc: "Enter your passport number, country of issuance, and expiration date. For F-1 students, also enter your I-94 Admission Number." },
-                        { step: "05", title: "Part 4 — Information About Immigration History", desc: "State when you last entered the US, your most recent immigration status, and your authorized period of stay (for F-1 students, this will be D/S — Duration of Status)." },
-                        { step: "06", title: "Part 5 — Eligibility Category", desc: "Enter (c)(3)(B) for standard OPT or (c)(3)(C) for STEM OPT. This is the most important question on the form. Also enter your proposed employment start and end dates." },
-                        { step: "07", title: "Part 6 — Applicant's Statement & Signature", desc: "Read the certification carefully. Sign and date the form. The form cannot be processed without your signature." },
-                        { step: "08", title: "Prepare your packet", desc: "Assemble: completed I-765, copy of I-20 with DSO OPT recommendation, copy of SEVIS I-20, copy of passport bio page, copy of current US visa, copy of I-94, and two passport-style photos. For STEM OPT: also include Form I-983 and copy of current EAD." },
+                        { step: "1", title: "Download the current form from USCIS.gov", desc: "Always use the most current version. As of 2026, the edition date is 04/01/24. Download at uscis.gov/i-765. Do not use old forms saved on your computer." },
+                        { step: "2", title: "Part 1 — Reason for Applying", desc: "Check whether you are applying for initial EAD, renewing an existing EAD, or replacing a lost/stolen EAD." },
+                        { step: "3", title: "Part 2 — Information About You", desc: "Enter your full legal name (exactly matching your passport), US mailing address, date of birth, Social Security Number (if you have one), country of citizenship, SEVIS number, and current immigration status." },
+                        { step: "4", title: "Part 3 — Passport & Travel Document", desc: "Enter your passport number, country of issuance, and expiration date. For F-1 students, also enter your I-94 Admission Number." },
+                        { step: "5", title: "Part 4 — Information About Immigration History", desc: "State when you last entered the US, your most recent immigration status, and your authorized period of stay (for F-1 students, this will be D/S — Duration of Status)." },
+                        { step: "6", title: "Part 5 — Eligibility Category", desc: "Enter (c)(3)(B) for standard OPT or (c)(3)(C) for STEM OPT. This is the most important question on the form. Also enter your proposed employment start and end dates." },
+                        { step: "7", title: "Part 6 — Applicant's Statement & Signature", desc: "Read the certification carefully. Sign and date the form. The form cannot be processed without your signature." },
+                        { step: "8", title: "Prepare your packet", desc: "Assemble: completed I-765, copy of I-20 with DSO OPT recommendation, copy of SEVIS I-20, copy of passport bio page, copy of current US visa, copy of I-94, and two passport-style photos. For STEM OPT: also include Form I-983 and copy of current EAD." },
                     ].map((item) => (
                         <div key={item.step} className="flex gap-4 p-5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl">
                             <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">{item.step}</div>
@@ -303,7 +303,7 @@ export default function FormI765GuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                     After mailing your packet, you will receive a Form I-797C (Receipt Notice) by mail in 2–4 weeks. Use the receipt number (starts with EAC, WAC, LIN, etc.) to track your case at <a href="https://egov.uscis.gov" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">egov.uscis.gov</a> or via the myUSCIS mobile app.
                 </p>
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
+                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                         <p className="text-sm text-yellow-800 dark:text-yellow-300"><strong>Apply early!</strong> Because processing times average 3–5 months, students who apply at the last minute often experience gaps in their work authorization. Most DSOs recommend submitting your I-765 no later than 3 months before your program end date.</p>
@@ -369,7 +369,7 @@ export default function FormI765GuidePage() {
 
             
             {/* Internal Linking for SEO */}
-            <div className="my-12 p-8 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+            <div className="my-12 p-8 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-950">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Guides & Resources</h3>
                 <ul className="space-y-4 list-disc pl-5">
                     <li><Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">OPT Processing Times & Tips to Avoid Delays</Link></li>\n                    <li><Link href="/blog/opt-application-checklist-2026" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">OPT Application Checklist 2026</Link></li>\n                    <li><Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-lg">Complete STEM OPT Guide: Extension & Application</Link></li>
@@ -385,8 +385,7 @@ export default function FormI765GuidePage() {
 
             {/* Sources */}
             <div className="mt-12 p-6 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl">
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <Download className="w-4 h-4 text-indigo-600" />
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">
                     Official Resources & Sources
                 </h3>
                 <ul className="space-y-2 text-sm">

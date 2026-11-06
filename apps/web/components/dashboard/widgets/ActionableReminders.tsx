@@ -20,9 +20,9 @@ const DEFAULT_REMINDERS: Omit<Reminder, "id" | "createdAt">[] = [
 ];
 
 const CATEGORY_COLORS: Record<Reminder["category"], string> = {
-  employment: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  document: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  filing: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+  employment: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
+  document: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
+  filing: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400",
   general: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
 };
 
@@ -122,13 +122,13 @@ export function ActionableReminders() {
       {/* Header */}
       <button
         type="button"
-        className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
+        className="flex w-full items-center justify-between p-4 text-left hover:bg-muted transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
         aria-expanded={isExpanded}
         aria-controls="actionable-reminders-content"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="p-2 bg-primary-soft rounded-lg">
             <CheckCircle2 className="w-5 h-5 text-primary" />
           </div>
           <div>
@@ -163,7 +163,7 @@ export function ActionableReminders() {
       {isExpanded && (
         <div id="actionable-reminders-content" className="border-t border-border">
           {/* Add new reminder form */}
-          <div className="p-4 bg-muted/20">
+          <div className="p-4 bg-muted">
             {showAddForm ? (
               <div className="space-y-3">
                 <input
@@ -172,14 +172,14 @@ export function ActionableReminders() {
                   value={newReminder}
                   onChange={(e) => setNewReminder(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && addReminder()}
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   autoFocus
                 />
                 <div className="flex flex-wrap gap-2">
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value as Reminder["category"])}
-                    className="px-3 py-1.5 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="px-3 py-1.5 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="general">General</option>
                     <option value="employment">Employment</option>
@@ -190,7 +190,7 @@ export function ActionableReminders() {
                     type="date"
                     value={newDueDate}
                     onChange={(e) => setNewDueDate(e.target.value)}
-                    className="px-3 py-1.5 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="px-3 py-1.5 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <div className="flex gap-2 ml-auto">
                     <button
@@ -202,7 +202,7 @@ export function ActionableReminders() {
                     <button
                       onClick={addReminder}
                       disabled={!newReminder.trim()}
-                      className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Add Task
                     </button>
@@ -212,7 +212,7 @@ export function ActionableReminders() {
             ) : (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add new task
@@ -232,13 +232,13 @@ export function ActionableReminders() {
                 {sortedReminders.map((reminder) => (
                   <li
                     key={reminder.id}
-                    className={`group flex items-start gap-3 p-4 hover:bg-muted/30 transition-colors ${
+                    className={`group flex items-start gap-3 p-4 hover:bg-muted transition-colors ${
                       reminder.completed ? "opacity-60" : ""
                     }`}
                   >
                     <button
                       onClick={() => toggleReminder(reminder.id)}
-                      className="mt-0.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-full"
+                      className="mt-0.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-primary rounded-full"
                       aria-label={reminder.completed ? "Mark as incomplete" : "Mark as complete"}
                     >
                       {reminder.completed ? (
@@ -256,7 +256,7 @@ export function ActionableReminders() {
                         {reminder.title}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`px-2 py-0.5 text-xs rounded-full ${CATEGORY_COLORS[reminder.category]}`}>
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded-md ${CATEGORY_COLORS[reminder.category]}`}>
                           {CATEGORY_LABELS[reminder.category]}
                         </span>
                         {reminder.dueDate && (
@@ -272,7 +272,7 @@ export function ActionableReminders() {
                     </div>
                     <button
                       onClick={() => deleteReminder(reminder.id)}
-                      className="shrink-0 p-1 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-all focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500/50 rounded"
+                      className="shrink-0 p-1 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-all focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
                       aria-label="Delete task"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -285,7 +285,7 @@ export function ActionableReminders() {
 
           {/* Footer */}
           {completedCount > 0 && (
-            <div className="p-3 border-t border-border bg-muted/20">
+            <div className="p-3 border-t border-border bg-muted">
               <button
                 onClick={() => setReminders((prev) => prev.filter((r) => !r.completed))}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"

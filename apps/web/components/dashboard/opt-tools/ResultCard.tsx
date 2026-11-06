@@ -18,9 +18,9 @@ export function ResultCard({
   large,
 }: ResultCardProps) {
   const statusStyles = {
-    ok: 'border-green-500 bg-green-50 dark:bg-green-900/20',
-    warning: 'border-amber-500 bg-amber-50 dark:bg-amber-900/20',
-    critical: 'border-red-500 bg-red-50 dark:bg-red-900/20',
+    ok: 'border-green-500 bg-green-50 dark:bg-green-950',
+    warning: 'border-amber-500 bg-amber-50 dark:bg-amber-950',
+    critical: 'border-red-500 bg-red-50 dark:bg-red-950',
   };
 
   const defaultStyle =

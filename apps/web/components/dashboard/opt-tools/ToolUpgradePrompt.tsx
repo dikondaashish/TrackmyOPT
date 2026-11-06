@@ -29,14 +29,14 @@ export function ToolUpgradePrompt({
   return (
     <section
       aria-label="Explore TrackMyOPT Pro"
-      className={`rounded-2xl border p-4 sm:p-5 ${theme.surface}`}
+      className={`rounded-xl border p-4 sm:p-5 ${theme.surface}`}
     >
       <p
-        className={`text-xs font-semibold uppercase tracking-wide ${theme.text}`}
+        className={`text-xs font-semibold ${theme.text}`}
       >
         Go further with TrackMyOPT Pro
       </p>
-      <h3 className="mt-2 text-xl font-semibold leading-snug tracking-tight">
+      <h3 className="mt-2 text-xl font-semibold leading-snug">
         {headlines[slug]}
       </h3>
       <p className="mt-2 text-sm text-muted-foreground">

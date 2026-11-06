@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2, FileCheck, DollarSign, Search } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, FileCheck, DollarSign, Search } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,29 +46,27 @@ export default function PermLaborCertificationPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Green Card</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Employer Sponsorship</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     PERM Labor Certification Process: What OPT Workers Need to Know
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     The first and most critical step in getting an employer-sponsored Green Card. Learn how the PERM process works, why it takes so long, and what your employer must do.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Green Card · Employer Sponsorship</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 9 min read</span>
                     <span>•</span>
                     <span>Updated October 12, 2026</span>
                 </div>
             </header>
 
-            <aside className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+            <aside className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
                 <p className="font-semibold">October 12, 2026 update: officials announced a halt to new and pending PERM applications involving eight named employers on October 8. Confirm your legal employer, case stage and remaining deadlines with immigration counsel.</p>
                 <Link href="/blog/perm-suspension-tech-companies-october-2026" className="mt-2 inline-block font-semibold underline">Read the PERM suspension guide</Link>
             </aside>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/perm-labor-certification-opt.png" alt="Department of Labor form and classified newspaper ads representing the PERM labor certification process" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -77,10 +75,8 @@ export default function PermLaborCertificationPage() {
                     If your employer has agreed to sponsor you for an EB-2 or EB-3 Green Card while you are on OPT, STEM OPT, or H-1B, the very first hurdle you will face is not with USCIS, but with the <strong>Department of Labor (DOL)</strong>. This hurdle is known as the <strong>PERM Labor Certification</strong>.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl mb-10">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <CheckCircle2 className="w-6 h-6 text-primary" />
-                        What is PERM?
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-10">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">What is PERM?
                     </h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">
                         PERM stands for Program Electronic Review Management. Before an employer can sponsor a foreign worker for a permanent green card, they must prove to the US government that there are <strong>no willing, able, and qualified US workers</strong> available for the position.
@@ -93,9 +89,9 @@ export default function PermLaborCertificationPage() {
                 </p>
 
                 <div className="space-y-8 my-8">
-                    <div className="flex flex-col md:flex-row gap-6 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-6 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
                         <div className="flex-shrink-0">
-                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-2xl">
+                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-2xl">
                                 1
                             </div>
                         </div>
@@ -113,9 +109,9 @@ export default function PermLaborCertificationPage() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-6 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-6 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
                         <div className="flex-shrink-0">
-                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-2xl">
+                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-2xl">
                                 2
                             </div>
                         </div>
@@ -136,9 +132,9 @@ export default function PermLaborCertificationPage() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-6 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-6 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
                         <div className="flex-shrink-0">
-                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-2xl">
+                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-2xl">
                                 3
                             </div>
                         </div>
@@ -165,7 +161,7 @@ export default function PermLaborCertificationPage() {
                     If you only have 3 years of total work authorization (1 year OPT + 2 years STEM OPT), you literally do not have enough time to complete the PERM process and file your Green Card application (I-140/I-485) before your student visa expires, unless your employer starts the process <strong>immediately</strong> upon hiring you.
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         The H-1B Bridge
@@ -195,9 +191,7 @@ export default function PermLaborCertificationPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Manage Your OPT Timeline Carefully
                 </h3>
@@ -207,7 +201,7 @@ export default function PermLaborCertificationPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Free Account
                     </Link>
@@ -218,7 +212,7 @@ export default function PermLaborCertificationPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/green-card-after-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Green Card Pathways After OPT
                             </h4>
@@ -231,7 +225,7 @@ export default function PermLaborCertificationPage() {
                         </div>
                     </Link>
                     <Link href="/blog/eb2-niw-green-card-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Skip PERM with an EB-2 NIW
                             </h4>

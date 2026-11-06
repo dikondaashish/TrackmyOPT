@@ -29,7 +29,7 @@ export function UscisProcessingTimes() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          <h3 className="text-lg font-semibold tracking-tight text-foreground">USCIS Processing Times</h3>
+          <h3 className="text-lg font-semibold text-foreground">USCIS Processing Times</h3>
         </div>
       </div>
 

@@ -66,7 +66,7 @@ export function ResumeUsageStats({
             {compact ? (
                 <div className="flex w-[168px] flex-col gap-1">
                     <div className="flex items-center justify-between gap-1.5">
-                        <span className="text-[9px] font-semibold uppercase leading-none tracking-wide text-gray-400 dark:text-gray-500">
+                        <span className="text-[9px] font-semibold leading-none text-gray-400 dark:text-gray-500">
                             Monthly Usage
                         </span>
                         <span className="text-[9px] font-medium leading-none text-gray-500 dark:text-gray-400">
@@ -74,7 +74,7 @@ export function ResumeUsageStats({
                         </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-baseline gap-1 font-mono leading-none">
+                        <div className="flex items-baseline gap-1 tabular-nums leading-none">
                             <span className={`text-xs font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>
                                 {resumeUsage}
                             </span>
@@ -87,10 +87,10 @@ export function ResumeUsageStats({
                         aria-label={`${resumeUsage} of ${resumeLimit} resumes used this month`}
                         className={`h-1 w-full ${
                             isLimitReached
-                                ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600'
+                                ? 'bg-red-100 dark:bg-red-950 [&>div]:bg-red-600'
                                 : isNearLimit
-                                  ? 'bg-amber-100 dark:bg-amber-900/30 [&>div]:bg-amber-500'
-                                  : 'bg-blue-100 dark:bg-blue-900/30 [&>div]:bg-blue-600'
+                                  ? 'bg-amber-100 dark:bg-amber-950 [&>div]:bg-amber-500'
+                                  : 'bg-blue-100 dark:bg-blue-950 [&>div]:bg-blue-600'
                         }`}
                     />
                     {resumeCreditBalance > 0 && (
@@ -103,7 +103,7 @@ export function ResumeUsageStats({
                 <>
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                            <div className={`p-2 rounded-lg ${isLimitReached ? 'bg-red-100 dark:bg-red-900/30 text-red-600' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'}`}>
+                            <div className={`p-2 rounded-lg ${isLimitReached ? 'bg-red-100 dark:bg-red-950 text-red-600' : 'bg-blue-100 dark:bg-blue-950 text-blue-600'}`}>
                                 <Zap className="w-4 h-4" />
                             </div>
                             <div>
@@ -131,10 +131,10 @@ export function ResumeUsageStats({
                         aria-label={`${resumeUsage} of ${resumeLimit} resumes used this month`}
                         className={`h-2.5 mb-1 w-full ${
                             isLimitReached
-                                ? 'bg-red-100 dark:bg-red-900/30 [&>div]:bg-red-600'
+                                ? 'bg-red-100 dark:bg-red-950 [&>div]:bg-red-600'
                                 : isNearLimit
-                                  ? 'bg-amber-100 dark:bg-amber-900/30 [&>div]:bg-amber-500'
-                                  : 'bg-blue-100 dark:bg-blue-900/30 [&>div]:bg-blue-600'
+                                  ? 'bg-amber-100 dark:bg-amber-950 [&>div]:bg-amber-500'
+                                  : 'bg-blue-100 dark:bg-blue-950 [&>div]:bg-blue-600'
                         }`}
                     />
                     <p className="text-[11px] text-gray-500 dark:text-gray-400">
@@ -149,7 +149,7 @@ export function ResumeUsageStats({
                     )}
 
                     {isLimitReached && (
-                        <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">
+                        <div className="flex items-center justify-between gap-4 mt-2 p-3 bg-red-50 dark:bg-red-950 rounded-lg border border-red-100 dark:border-red-950">
                             <p className="text-xs text-red-600 dark:text-red-400 font-medium">
                                 {canBuyResumeCredits
                                     ? `Monthly allowance used. ${resumeCreditBalance} purchased credits available.`

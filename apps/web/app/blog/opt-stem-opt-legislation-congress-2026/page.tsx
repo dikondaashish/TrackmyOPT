@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, AlertTriangle, FileText, Download, CheckCircle, Scale } from "lucide-react";
+import { Clock, AlertTriangle, Download, CheckCircle, Scale } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -56,8 +56,7 @@ export default function OPTCongressArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">Legislative News</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />6 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Legislative News · 6 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     Dueling Congress Bills Target OPT & STEM OPT: What You Need to Know (2026)
@@ -68,11 +67,11 @@ export default function OPTCongressArticle() {
                 <div className="mt-6 text-sm text-gray-500">Published: May 21, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
                 <BlogPostImage src="/blog/opt-congress-bills.png" alt="US Capitol building with legislation documents" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Two completely opposing movements are clashing in Congress over OPT. Restrictionist bills are seeking to pause or heavily limit the program, while a strong bipartisan coalition, backed by the tech industry and higher education, is pushing the "Protect OPT Act" to formally codify the program into law and shield it from executive branch interference.
@@ -80,9 +79,7 @@ export default function OPTCongressArticle() {
             </div>
 
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    Table of Contents
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
                     <li><a href="#the-threat" className="hover:underline">1. The Threat: Restrictionist Legislation</a></li>
@@ -126,7 +123,7 @@ export default function OPTCongressArticle() {
                 </section>
 
                 <section id="tech-industry" className="mb-12">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
                         <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
                             <CheckCircle className="w-5 h-5" />
                             Why Big Tech is Fighting Back
@@ -139,7 +136,7 @@ export default function OPTCongressArticle() {
                         </p>
                     </div>
 
-                    <div className="mt-8 p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-1 flex items-center gap-2">
                                 <Download className="w-5 h-5" /> Free OPT Advocacy Toolkit

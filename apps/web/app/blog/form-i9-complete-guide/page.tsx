@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, FileText, CheckCircle, Download, ShieldCheck, XCircle } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, CheckCircle, ShieldCheck, XCircle } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -63,7 +63,8 @@ export default function FormI9GuidePage() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">Immigration Forms</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Immigration Forms</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />10 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
@@ -75,7 +76,7 @@ export default function FormI9GuidePage() {
                 <div className="mt-6 text-sm text-gray-500">Published: February 23, 2026 • Written by Vinay Kumar</div>
             </header>
 
-            <div className="relative w-full h-[400px] rounded-2xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
+            <div className="relative w-full h-[400px] rounded-xl overflow-hidden mb-12 shadow-lg border border-gray-200 dark:border-zinc-800">
                 <BlogPostImage src="/blog/form-i9.png" alt="Form I-9 Employment Eligibility Verification on a corporate desk with a US passport" className="object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
             <figcaption className="mt-3 mb-12 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -83,7 +84,7 @@ export default function FormI9GuidePage() {
             </figcaption>
 
             {/* TL;DR */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Form I-9 is a federally-mandated form that every US employer must complete for every new hire. It verifies the employee&apos;s identity and work authorization. For OPT students, your EAD card (Form I-766) + passport is the standard combination. It must be completed within 3 business days of starting work.
@@ -92,8 +93,7 @@ export default function FormI9GuidePage() {
 
             {/* Table of Contents */}
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     Table of Contents
                 </h2>
                 <ol className="space-y-2 text-sm text-blue-600 dark:text-blue-400">
@@ -118,7 +118,7 @@ export default function FormI9GuidePage() {
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                     Every employer in the United States — private companies, nonprofits, government agencies, and universities — must use Form I-9 to verify that <strong>every person they hire for pay after November 6, 1986</strong> is legally authorized to work in the United States.
                 </p>
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5 mb-4">
+                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5 mb-4">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
                         <div>
@@ -198,7 +198,7 @@ export default function FormI9GuidePage() {
                     Employees must present <strong>original, unexpired</strong> documents. They may choose to present either <strong>one List A document</strong> OR <strong>one List B + one List C document</strong>.
                 </p>
                 <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
                         <h3 className="text-base font-bold text-blue-800 dark:text-blue-300 mb-3">List A — Identity + Work Auth</h3>
                         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                             <li>• U.S. Passport or Passport Card</li>
@@ -208,7 +208,7 @@ export default function FormI9GuidePage() {
                             <li>• Passport from a Federated State of Micronesia or the Marshall Islands with I-94</li>
                         </ul>
                     </div>
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-5">
+                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-5">
                         <h3 className="text-base font-bold text-green-800 dark:text-green-300 mb-3">List B — Identity Only</h3>
                         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                             <li>• State driver&apos;s license</li>
@@ -219,7 +219,7 @@ export default function FormI9GuidePage() {
                             <li>• Native American tribal document</li>
                         </ul>
                     </div>
-                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-5">
+                    <div className="bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-xl p-5">
                         <h3 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-3">List C — Work Auth Only</h3>
                         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                             <li>• Social Security Account Number card</li>
@@ -231,7 +231,7 @@ export default function FormI9GuidePage() {
                         </ul>
                     </div>
                 </div>
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
+                <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-xl p-5">
                     <div className="flex gap-3">
                         <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">Employers <strong>cannot</strong> specify which documents an employee must present, as long as the documents are on the accepted list. Requiring specific documents (e.g., demanding a green card from a non-citizen) is discriminatory and violates federal law (8 U.S.C. § 1324b).</p>
@@ -247,11 +247,11 @@ export default function FormI9GuidePage() {
                 </p>
                 <div className="space-y-4 mb-8">
                     {[
-                        { step: "01", title: "Section 1 — Choose the correct box", desc: "Select 'A noncitizen authorized to work until...' Enter the expiration date printed on your EAD card and your USCIS number (10-digit number on the front of your EAD card)." },
-                        { step: "02", title: "Documents to bring on Day 1 or Day 3", desc: "Bring your EAD card (Form I-766). This alone satisfies both the identity AND work authorization requirement as a single List A document. You do NOT need your passport additionally, though you may also bring your passport + I-94 as an alternative." },
-                        { step: "03", title: "Your employer examines the originals in person", desc: "The employer must physically look at the original document(s). Photocopies or scans are not acceptable for verification (remote verification rules apply separately — see Section 7)." },
-                        { step: "04", title: "STEM OPT Re-verification (Section 3)", desc: "When you transition from standard 12-month OPT to the 24-month STEM OPT extension, you will receive a new EAD card. Your employer MUST complete Section 3 of the I-9 using your new EAD card details before your old EAD expires." },
-                        { step: "05", title: "Keep a copy for your records", desc: "Although employers are required to retain the I-9, you should also keep a personal copy for your own compliance records. TrackMyOPT can help you track when your re-verification is due." },
+                        { step: "1", title: "Section 1 — Choose the correct box", desc: "Select 'A noncitizen authorized to work until...' Enter the expiration date printed on your EAD card and your USCIS number (10-digit number on the front of your EAD card)." },
+                        { step: "2", title: "Documents to bring on Day 1 or Day 3", desc: "Bring your EAD card (Form I-766). This alone satisfies both the identity AND work authorization requirement as a single List A document. You do NOT need your passport additionally, though you may also bring your passport + I-94 as an alternative." },
+                        { step: "3", title: "Your employer examines the originals in person", desc: "The employer must physically look at the original document(s). Photocopies or scans are not acceptable for verification (remote verification rules apply separately — see Section 7)." },
+                        { step: "4", title: "STEM OPT Re-verification (Section 3)", desc: "When you transition from standard 12-month OPT to the 24-month STEM OPT extension, you will receive a new EAD card. Your employer MUST complete Section 3 of the I-9 using your new EAD card details before your old EAD expires." },
+                        { step: "5", title: "Keep a copy for your records", desc: "Although employers are required to retain the I-9, you should also keep a personal copy for your own compliance records. TrackMyOPT can help you track when your re-verification is due." },
                     ].map((item) => (
                         <div key={item.step} className="flex gap-4 p-5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl">
                             <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">{item.step}</div>
@@ -262,7 +262,7 @@ export default function FormI9GuidePage() {
                         </div>
                     ))}
                 </div>
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
+                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-5">
                     <div className="flex gap-3">
                         <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                         <div>
@@ -373,7 +373,7 @@ export default function FormI9GuidePage() {
             <AuthorBio />
 
             {/* CTA */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white text-center">
+            <div className="bg-blue-600 rounded-xl p-8 text-white text-center">
                 <h2 className="text-2xl font-bold mb-3">Track Your OPT Compliance Deadlines Automatically</h2>
                 <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
                     Never miss an I-9 re-verification deadline again. TrackMyOPT automatically alerts you when your EAD is expiring, when you need a STEM OPT extension, and when your employer needs to complete Section 3.
@@ -385,8 +385,7 @@ export default function FormI9GuidePage() {
 
             {/* Official Sources */}
             <div className="mt-12 p-6 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl">
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <Download className="w-4 h-4 text-blue-600" />
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">
                     Official Resources & Sources
                 </h3>
                 <ul className="space-y-2 text-sm">

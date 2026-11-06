@@ -99,7 +99,7 @@ export function EmployerNameInput({
               aria-selected={index === suggestions.active}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => suggestions.select(company)}
-              className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm outline-none transition-[background-color,box-shadow] motion-reduce:transition-none hover:bg-primary/[0.05] ${index === suggestions.active ? 'bg-primary/10 text-foreground ring-1 ring-inset ring-primary/30' : 'text-foreground'}`}
+              className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm outline-none transition-[background-color,box-shadow] motion-reduce:transition-none hover:bg-primary/[0.05] ${index === suggestions.active ? 'bg-primary-soft text-foreground ring-1 ring-inset ring-primary' : 'text-foreground'}`}
             >
               <EmployerSuggestionLogo
                 name={company.name}

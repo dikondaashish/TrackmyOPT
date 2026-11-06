@@ -50,7 +50,7 @@ export function GapAnalysisPanel({
     };
 
     return (
-        <div className="mt-4 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10">
+        <div className="mt-4 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950">
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -105,7 +105,7 @@ export function GapAnalysisPanel({
                                 {result.missingKeywords.slice(0, 15).map((kw) => (
                                     <span
                                         key={kw}
-                                        className="text-xs px-2 py-0.5 rounded bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800"
+                                        className="text-xs px-2 py-0.5 rounded bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800"
                                     >
                                         {kw}
                                     </span>

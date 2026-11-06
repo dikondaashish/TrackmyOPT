@@ -24,7 +24,7 @@ export function CancelSubscriptionCard({
     : "the end of your current billing period";
 
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 space-y-4">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 space-y-4">
       <div className="flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
         <div>
@@ -38,7 +38,7 @@ export function CancelSubscriptionCard({
       </div>
       <Button
         variant="outline"
-        className="w-full border-red-200 text-red-700 hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-950/30"
+        className="w-full border-red-200 text-red-700 hover:bg-red-50 dark:border-red-950 dark:text-red-300 dark:hover:bg-red-950"
         onClick={onCancel}
         disabled={isLoading}
       >

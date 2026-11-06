@@ -134,7 +134,7 @@ export function EmploymentSpanForm({
           type="button"
           onClick={onSubmit}
           disabled={saving}
-          className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-60"
+          className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary-hover disabled:opacity-60"
         >
           {saving ? 'Saving...' : submitLabel}
         </button>

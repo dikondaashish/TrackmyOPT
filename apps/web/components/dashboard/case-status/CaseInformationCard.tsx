@@ -14,7 +14,6 @@ import {
   type FilingCategory,
 } from "@/lib/case-status/filing-category";
 import { formatDisplayDateShort } from "@/lib/case-status/safe-dates";
-import { Globe } from "lucide-react";
 
 type CaseInfoFields = {
   receipt_number: string;
@@ -47,13 +46,8 @@ export function CaseInformationCard({
   onSaveFilingDate,
 }: CaseInformationCardProps) {
   return (
-    <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-          <Globe className="w-5 h-5 text-white" />
-        </div>
-        <h2 className="text-lg font-extrabold">Case Information</h2>
-      </div>
+    <Card className="p-6 sm:p-7">
+      <h2 className="text-lg font-bold mb-6">Case Information</h2>
 
       <div className="space-y-3">
         <div className="flex max-md:flex-col max-md:items-start max-md:gap-2 items-center justify-between py-2.5 border-b border-gray-200 dark:border-gray-800">
@@ -165,12 +159,7 @@ export function CaseInformationPendingCard({
 }) {
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-          <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        </div>
-        <h2 className="text-lg font-bold">Case Information</h2>
-      </div>
+      <h2 className="text-lg font-bold mb-6">Case Information</h2>
       <p className="text-sm text-muted-foreground mb-4">
         Status history will appear here after USCIS posts updates.
       </p>

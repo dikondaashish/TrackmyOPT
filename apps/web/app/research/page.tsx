@@ -3,15 +3,9 @@ import Image from 'next/image';
 import { safeSerializeJsonLd } from '@/lib/safe-json-ld';
 import {
   ArrowRight,
-  BarChart3,
-  BookOpen,
   Briefcase,
   CheckCircle2,
   Chrome,
-  Clock,
-  FileText,
-  Sparkles,
-  TrendingUp,
 } from 'lucide-react';
 import {
   RESEARCH_BRIEFS,
@@ -37,16 +31,12 @@ const collectionSchema = {
   },
 };
 
-const POST_STYLES: Record<string, { icon: typeof Briefcase; accent: string; ring: string }> = {
+const POST_STYLES: Record<string, { ring: string }> = {
   'Hiring reality': {
-    icon: Briefcase,
-    accent: 'text-indigo-600 dark:text-indigo-400',
-    ring: 'ring-indigo-100 dark:ring-indigo-900/50 group-hover:border-indigo-300 dark:group-hover:border-indigo-700',
+    ring: 'ring-indigo-100 dark:ring-indigo-900 group-hover:border-indigo-300 dark:group-hover:border-indigo-700',
   },
   Resume: {
-    icon: FileText,
-    accent: 'text-violet-600 dark:text-violet-400',
-    ring: 'ring-violet-100 dark:ring-violet-900/50 group-hover:border-violet-300 dark:group-hover:border-violet-700',
+    ring: 'ring-violet-100 dark:ring-violet-900 group-hover:border-violet-300 dark:group-hover:border-violet-700',
   },
 };
 
@@ -68,20 +58,15 @@ export default function ResearchPage() {
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-gray-200/80 dark:border-zinc-800">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(99,102,241,0.14),transparent)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(99,102,241,0.22),transparent)]"
-        />
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+      <section className="border-b border-gray-200 dark:border-zinc-800">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <div className="text-center lg:text-left">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-white/80 px-4 py-1.5 text-sm font-medium text-indigo-700 shadow-sm backdrop-blur dark:border-indigo-800/60 dark:bg-zinc-900/80 dark:text-indigo-300">
-                <Sparkles className="h-3.5 w-3.5" />
+              <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
                 Written by our team — not AI filler
-              </div>
+              </p>
 
-              <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
+              <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
                 What we have actually seen
               </h1>
               <p className="mt-5 text-lg text-gray-600 dark:text-gray-300 sm:text-xl leading-relaxed">
@@ -97,7 +82,7 @@ export default function ResearchPage() {
                   <a
                     key={link.href}
                     href={link.href}
-                    className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-indigo-300 hover:text-indigo-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-300 dark:hover:border-indigo-600 dark:hover:text-indigo-300"
+                    className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-indigo-300 hover:text-indigo-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-gray-300 dark:hover:border-indigo-600 dark:hover:text-indigo-300"
                   >
                     {link.label}
                   </a>
@@ -106,7 +91,7 @@ export default function ResearchPage() {
             </div>
 
             <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-indigo-100 shadow-2xl shadow-indigo-500/10 dark:border-indigo-900/50">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800">
                 <Image
                   src={RESEARCH_HUB_HERO_IMAGE}
                   alt="TrackMyOPT research — hiring data and career intelligence for OPT students"
@@ -119,7 +104,7 @@ export default function ResearchPage() {
             </div>
           </div>
 
-          <div className="mx-auto mt-12 max-w-4xl rounded-2xl border border-gray-200/80 bg-white/70 p-6 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-8 lg:max-w-none">
+          <div className="mx-auto mt-12 max-w-4xl rounded-xl border border-gray-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8 lg:max-w-none">
             <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300 sm:text-lg">
               We built TrackMyOPT for international students navigating OPT — timelines,
               unemployment days, sponsor research, and the job search on top of all of it. Thousands
@@ -145,25 +130,19 @@ export default function ResearchPage() {
       {featured && (
         <section
           id="this-week"
-          className="scroll-mt-24 border-b border-gray-200 dark:border-zinc-800 bg-amber-50/40 dark:bg-amber-950/10"
+          className="scroll-mt-24 border-b border-gray-200 dark:border-zinc-800 bg-amber-50 dark:bg-amber-950"
         >
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                  This week
-                </p>
-                <h2 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
-                  Career intelligence
-                </h2>
-              </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
-                <TrendingUp className="h-3.5 w-3.5" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
+                Career intelligence
+              </h2>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 Updated {formatResearchDate(featured.publishedDate)}
               </span>
             </div>
 
-            <article className="overflow-hidden rounded-2xl border border-amber-200/80 bg-white shadow-sm dark:border-amber-800/40 dark:bg-zinc-900">
+            <article className="overflow-hidden rounded-xl border border-amber-200 bg-white dark:border-amber-900 dark:bg-zinc-900">
               {featured.image && (
                 <div className="relative h-48 w-full sm:h-56">
                   <Image
@@ -173,11 +152,10 @@ export default function ResearchPage() {
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 1152px"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/20 to-transparent dark:from-zinc-900/90 dark:via-zinc-900/20" />
                 </div>
               )}
               <div className="grid lg:grid-cols-[1.4fr_1fr]">
-                <div className="p-6 sm:p-8 lg:border-r lg:border-amber-100 dark:lg:border-amber-900/30">
+                <div className="p-6 sm:p-8 lg:border-r lg:border-amber-100 dark:lg:border-amber-950">
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-[1.65rem] leading-snug">
                     {featured.title}
                   </h3>
@@ -203,8 +181,8 @@ export default function ResearchPage() {
                 </div>
 
                 {featured.takeaways && featured.takeaways.length > 0 && (
-                  <div className="bg-amber-50/80 p-6 sm:p-8 dark:bg-amber-950/20">
-                    <p className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                  <div className="bg-amber-50 p-6 sm:p-8 dark:bg-amber-950">
+                    <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
                       Do this now
                     </p>
                     <ul className="mt-4 space-y-3">
@@ -218,8 +196,7 @@ export default function ResearchPage() {
                         </li>
                       ))}
                     </ul>
-                    <p className="mt-6 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-                      <Clock className="h-3.5 w-3.5" />
+                    <p className="mt-6 text-xs text-gray-500 dark:text-gray-400">
                       {featured.readTime}
                     </p>
                   </div>
@@ -231,14 +208,11 @@ export default function ResearchPage() {
       )}
 
       {/* Editorial guides */}
-      <section id="guides" className="scroll-mt-24 bg-gray-50 dark:bg-zinc-900/40">
+      <section id="guides" className="scroll-mt-24 bg-gray-50 dark:bg-zinc-900">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                Deep dives
-              </p>
-              <h2 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
                 Hiring & resume guides
               </h2>
               <p className="mt-2 max-w-2xl text-gray-600 dark:text-gray-400">
@@ -246,22 +220,20 @@ export default function ResearchPage() {
                 but interviews are not coming back.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 shadow-sm ring-1 ring-gray-200 dark:bg-zinc-900 dark:text-gray-300 dark:ring-zinc-700">
-              <BookOpen className="h-3.5 w-3.5" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               {RESEARCH_POSTS.length} guides
-            </div>
+            </span>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
             {RESEARCH_POSTS.map((post) => {
               const style = POST_STYLES[post.category] ?? POST_STYLES['Hiring reality'];
-              const Icon = style.icon;
 
               return (
                 <Link
                   key={post.slug}
                   href={`/research/${post.slug}`}
-                  className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900 ${style.ring}`}
+                  className={`group relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-colors dark:border-zinc-800 dark:bg-zinc-900 ${style.ring}`}
                 >
                   <div className="relative h-44 w-full overflow-hidden bg-gray-100 dark:bg-zinc-800">
                     <Image
@@ -271,7 +243,7 @@ export default function ResearchPage() {
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
-                    <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-lg font-bold text-gray-900 shadow-sm dark:bg-zinc-900 dark:text-white">
+                    <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg font-bold text-gray-900 shadow-sm dark:bg-zinc-900 dark:text-white">
                       {post.number}
                     </div>
                   </div>
@@ -280,17 +252,9 @@ export default function ResearchPage() {
                   <div className="flex items-start gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span
-                          className={`inline-flex items-center gap-1 font-semibold uppercase tracking-wide ${style.accent}`}
-                        >
-                          <Icon className="h-3.5 w-3.5" />
-                          {post.category}
-                        </span>
-                        <span aria-hidden>•</span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {post.readTime}
-                        </span>
+                        <span>{post.category}</span>
+                        <span aria-hidden>·</span>
+                        <span>{post.readTime}</span>
                       </div>
                       <h3 className="mt-2 text-xl font-bold text-gray-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
                         {post.title}
@@ -302,7 +266,7 @@ export default function ResearchPage() {
                     {post.teaser}
                   </p>
 
-                  <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-zinc-800">
+                  <div className="mt-6 flex items-center justify-between">
                     <span className="text-xs text-gray-400">
                       {formatResearchDate(post.publishedDate)}
                     </span>
@@ -323,10 +287,6 @@ export default function ResearchPage() {
       <section id="data" className="scroll-mt-24 border-t border-gray-200 dark:border-zinc-800">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
           <div className="mb-10 max-w-2xl">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-              <BarChart3 className="h-3.5 w-3.5" />
-              Community data
-            </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
               Numbers from our users
             </h2>
@@ -341,9 +301,9 @@ export default function ResearchPage() {
               <Link
                 key={article.slug}
                 href={`/blog/${article.slug}`}
-                className="group flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-700"
+                className="group flex h-full flex-col rounded-xl border border-gray-200 bg-white p-5 transition-colors hover:border-emerald-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-700"
               >
-                <span className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {article.category}
                 </span>
                 <h3 className="mt-2 flex-1 text-base font-bold leading-snug text-gray-900 transition-colors group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
@@ -353,10 +313,7 @@ export default function ResearchPage() {
                   {article.description}
                 </p>
                 <div className="mt-4 flex items-center justify-between text-xs text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {article.readTime}
-                  </span>
+                  <span>{article.readTime}</span>
                   <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 opacity-0 transition-all group-hover:opacity-100 dark:text-emerald-400">
                     Read
                     <ArrowRight className="h-3 w-3" />
@@ -371,18 +328,10 @@ export default function ResearchPage() {
       {/* CTA */}
       <section className="border-t border-gray-200 dark:border-zinc-800">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 px-6 py-10 text-center shadow-xl sm:px-10 sm:py-12">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/10 blur-2xl"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-violet-400/20 blur-3xl"
-            />
-            <div className="relative">
+          <div className="rounded-xl bg-indigo-600 px-6 py-10 text-center sm:px-10 sm:py-12">
+            <div>
               <h2 className="text-2xl font-bold text-white sm:text-3xl">
-                Read the research. Then use the tools.
+                Read the research, then use the tools
               </h2>
               <p className="mx-auto mt-3 max-w-xl text-indigo-100 leading-relaxed">
                 Job tracker, sponsor search, unemployment clock — built for OPT, not generic job
@@ -391,21 +340,21 @@ export default function ResearchPage() {
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition-colors hover:bg-indigo-50"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-50"
                 >
                   Get started
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/features/extension"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-xl border border-indigo-400 bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
                 >
                   <Chrome className="h-4 w-4" />
                   Chrome extension
                 </Link>
                 <Link
                   href="/features/job-tracker"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-xl border border-indigo-400 bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
                 >
                   <Briefcase className="h-4 w-4" />
                   Job tracker

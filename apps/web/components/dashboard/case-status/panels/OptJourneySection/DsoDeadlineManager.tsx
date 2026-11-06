@@ -124,11 +124,11 @@ export function DsoDeadlineManager({
             className={cn(
               'flex flex-wrap items-start gap-3 p-3 rounded-lg border text-sm transition-colors',
               task.status === 'overdue' &&
-                'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800',
+                'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800',
               task.status === 'open' &&
-                'bg-white dark:bg-gray-900/30 border-gray-200 dark:border-gray-800',
+                'bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800',
               task.status === 'done' &&
-                'bg-gray-50 dark:bg-gray-900/20 border-gray-100 dark:border-gray-800 opacity-70'
+                'bg-gray-50 dark:bg-gray-950 border-gray-100 dark:border-gray-800 opacity-70'
             )}
           >
             {STATUS_ICON[task.status]}

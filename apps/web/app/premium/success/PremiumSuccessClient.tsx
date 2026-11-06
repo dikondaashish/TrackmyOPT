@@ -27,40 +27,17 @@ import {
   PRO_TRIAL_DAYS,
 } from "@/lib/legal/legal-config";
 
-const CONFETTI = [
-  { tx: "28px", ty: "-52px", rot: "18deg", delay: "0s" },
-  { tx: "-36px", ty: "-44px", rot: "-14deg", delay: "0.04s" },
-  { tx: "42px", ty: "-28px", rot: "22deg", delay: "0.08s" },
-  { tx: "-22px", ty: "-56px", rot: "-8deg", delay: "0.12s" },
-  { tx: "8px", ty: "-48px", rot: "10deg", delay: "0.16s" },
-  { tx: "-48px", ty: "-32px", rot: "-20deg", delay: "0.2s" },
-];
-
 function SuccessHeroMark({ variant }: { variant: "pro" | "dedicated" }) {
   const ring =
     variant === "dedicated"
       ? "bg-secondary text-secondary-foreground ring-1 ring-border"
-      : "bg-primary text-primary-foreground ring-1 ring-primary/20";
+      : "bg-primary text-primary-foreground ring-1 ring-primary";
 
   return (
     <div className="relative mx-auto mb-8 flex h-[120px] w-[120px] items-center justify-center">
-      {CONFETTI.map((c, i) => (
-        <span
-          key={i}
-          className="pointer-events-none absolute left-1/2 top-1/2 h-1.5 w-1.5 animate-premium-confetti rounded-[1px] bg-primary/40 dark:bg-primary/50"
-          style={
-            {
-              "--tx": c.tx,
-              "--ty": c.ty,
-              "--rot": c.rot,
-              animationDelay: c.delay,
-            } as any
-          }
-        />
-      ))}
       <div
         className={cn(
-          "relative flex h-[88px] w-[88px] items-center justify-center rounded-full shadow-sm animate-premium-hero-in",
+          "relative flex h-[88px] w-[88px] items-center justify-center rounded-full animate-premium-hero-in",
           ring
         )}
       >
@@ -86,10 +63,10 @@ function FeatureCard({
   const iconWrap =
     variant === "dedicated"
       ? "bg-secondary text-secondary-foreground"
-      : "bg-primary/10 text-primary";
+      : "bg-primary-soft text-primary";
 
   return (
-    <div className="flex flex-col rounded-lg border border-border bg-card p-4 text-left shadow-sm transition-shadow hover:shadow-md">
+    <div className="flex flex-col rounded-lg border border-border bg-card p-4 text-left">
       <div
         className={cn(
           "mb-3 flex h-9 w-9 items-center justify-center rounded-md",
@@ -228,10 +205,10 @@ export function PremiumSuccessClient() {
   }, [router]);
 
   const headline = isDedicated
-    ? "You're set for Dedicated."
+    ? "You're set for Dedicated"
     : isTrialing
-      ? `Your ${PRO_TRIAL_DAYS}-day paid Pro introduction is live.`
-      : "You're all set.";
+      ? `Your ${PRO_TRIAL_DAYS}-day paid Pro introduction is live`
+      : "You're all set";
   const sub = isDedicated
     ? `Higher career-tool limits and priority support are live. Your one-time attorney consultation becomes requestable after ${DEDICATED_CONSULTATION_WAIT_DAYS} continuous days on Dedicated.`
     : isTrialing
@@ -324,7 +301,7 @@ export function PremiumSuccessClient() {
             <SuccessHeroMark variant={variant} />
 
             <div className="text-center">
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
+              <h1 className="text-2xl font-semibold text-foreground sm:text-[1.75rem]">
                 {headline}
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">{sub}</p>
@@ -369,7 +346,7 @@ export function PremiumSuccessClient() {
             )}
 
             <div className="mt-8">
-              <p className="mb-3 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="mb-3 text-center text-xs font-medium text-muted-foreground">
                 Included with your plan
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -385,8 +362,8 @@ export function PremiumSuccessClient() {
               </div>
             </div>
 
-            <div className="mt-8 rounded-lg border border-border bg-muted/30 p-4">
-              <p className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <div className="mt-8 rounded-lg border border-border bg-muted p-4">
+              <p className="mb-4 text-xs font-medium text-muted-foreground">
                 Next steps
               </p>
               <Stepper steps={steps} />
@@ -410,16 +387,16 @@ export function PremiumSuccessClient() {
         </div>
       </main>
 
-      <footer className="border-t border-border bg-muted/20 px-4 py-4">
+      <footer className="border-t border-border bg-muted px-4 py-4">
         <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 text-center text-[10px] text-muted-foreground sm:flex-row sm:gap-6 sm:text-left">
           <a
             href="mailto:support@trackmyopt.com"
-            className="order-2 font-medium text-foreground/80 underline-offset-2 hover:underline sm:order-1"
+            className="order-2 font-medium text-foreground underline-offset-2 hover:underline sm:order-1"
           >
             support@trackmyopt.com
           </a>
           {sessionId && (
-            <span className="order-1 font-mono text-[10px] text-muted-foreground/80 sm:order-2">
+            <span className="order-1 font-mono text-[10px] text-muted-foreground sm:order-2">
               Session {sessionId.slice(0, 24)}…
             </span>
           )}

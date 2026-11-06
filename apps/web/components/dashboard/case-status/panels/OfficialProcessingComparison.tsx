@@ -33,7 +33,7 @@ export function OfficialProcessingComparison({
             />
             USCIS published measure
           </dt>
-          <dd className="mt-2 text-3xl font-semibold tracking-tight tabular-nums text-foreground">
+          <dd className="mt-2 text-3xl font-semibold tabular-nums text-foreground">
             {official ? `${official.months} months` : 'Not current'}
           </dd>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -42,7 +42,7 @@ export function OfficialProcessingComparison({
               : 'Check USCIS for the applicable category and office'}
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-muted/30 p-4">
+        <div className="rounded-xl border border-border bg-muted p-4">
           <dt className="flex items-center gap-2 text-xs font-semibold text-foreground">
             <UsersRound
               className="h-4 w-4 text-blue-600 dark:text-blue-400"
@@ -50,7 +50,7 @@ export function OfficialProcessingComparison({
             />
             Matched community reports
           </dt>
-          <dd className="mt-2 text-3xl font-semibold tracking-tight tabular-nums text-foreground">
+          <dd className="mt-2 text-3xl font-semibold tabular-nums text-foreground">
             {medianDays == null ? 'Not enough data' : `${medianDays} days`}
           </dd>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -58,7 +58,7 @@ export function OfficialProcessingComparison({
           </p>
         </div>
       </dl>
-      <p className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground">
+      <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-xs font-medium text-muted-foreground">
         Different measures and case groups — neither is your approval date.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">

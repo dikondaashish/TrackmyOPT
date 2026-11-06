@@ -60,10 +60,10 @@ export function NetworkingUsageStats({ mode }: { mode: 'manual' | 'bundles' }) {
   return (
     <section
       aria-label="Networking daily usage"
-      className="self-end rounded-2xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:shrink-0"
+      className="self-end rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:shrink-0"
     >
       <div className="min-w-[144px]">
-        <p className="text-[10px] font-semibold uppercase leading-none tracking-[0.12em] text-slate-500 dark:text-slate-400">
+        <p className="text-[10px] font-semibold leading-none text-slate-500 dark:text-slate-400">
           Daily usage
         </p>
         {failed ? (

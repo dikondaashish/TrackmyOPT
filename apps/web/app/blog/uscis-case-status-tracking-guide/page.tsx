@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Search, CheckCircle2, Clock, ArrowRight, BookOpen, AlertTriangle, Bell, FileText } from "lucide-react";
+import { Search, CheckCircle2, Clock, ArrowRight, AlertTriangle, Bell, FileText } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
@@ -73,13 +73,7 @@ export default function USCISCaseStatusTrackingGuide() {
             {/* Header */}
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold">
-                        USCIS
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        9 min read
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Uscis · 9 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     How to Check OPT & USCIS Case Status Online (2026)
@@ -94,7 +88,7 @@ export default function USCISCaseStatusTrackingGuide() {
                 </div>
             </header>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     You can track your USCIS case status online at egov.uscis.gov using your 13-character receipt number (e.g., IOE0123456789). TrackMyOPT Free provides manual tracking with plain-English status explanations; Pro adds daily auto-checks and email alerts when status changes.
@@ -109,10 +103,8 @@ export default function USCISCaseStatusTrackingGuide() {
             <AdSenseInArticle />
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    Key Takeaway
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
                     Every USCIS application receives a unique <strong>13-character receipt number</strong> (e.g., IOE0912345678). You can check your status for free at <a href="https://egov.uscis.gov/casestatus/landing.do" target="_blank" rel="noopener noreferrer" className="underline">egov.uscis.gov</a>, but it only shows the latest update. TrackMyOPT Free lets you refresh manually anytime; Pro adds daily auto-checks and email alerts when status changes — so you never miss a critical update.
@@ -123,7 +115,7 @@ export default function USCISCaseStatusTrackingGuide() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -203,7 +195,7 @@ export default function USCISCaseStatusTrackingGuide() {
                             { step: "4", title: "Read Your Status", desc: "USCIS will display the most recent status update for your case, including the date of the update and a brief explanation of what it means." },
                         ].map((item) => (
                             <div key={item.step} className="flex items-start gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-700 dark:text-green-300 font-bold text-sm flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center text-green-700 dark:text-green-300 font-bold text-sm flex-shrink-0">
                                     {item.step}
                                 </div>
                                 <div>
@@ -214,7 +206,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         ))}
                     </div>
 
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold">
                             Limitation: USCIS.gov only shows the most recent status update. It does not show a history of changes, and you won't know when the status changed unless you check manually every day.
                         </p>
@@ -261,7 +253,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         </table>
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800 mt-6">
+                    <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800 mt-6">
                         <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                         <div>
                             <h3 className="font-semibold text-green-900 dark:text-green-100">Tip</h3>
@@ -297,7 +289,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         ))}
                     </div>
 
-                    <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div className="mt-6 p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                         <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
                             Check your USCIS case status and plan your next step.
                         </p>
@@ -345,7 +337,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         </div>
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800 mt-6">
+                    <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800 mt-6">
                         <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                             <h3 className="font-semibold text-red-900 dark:text-red-100">If Your OPT Start Date Passes Without an EAD</h3>
@@ -366,9 +358,7 @@ export default function USCISCaseStatusTrackingGuide() {
 
                     <div className="space-y-4">
                         <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-blue-500" />
-                                I-765 (Initial OPT)
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-765 (Initial OPT)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 <strong>Typical processing:</strong> 3–5 months. Filed by F-1 students applying for post-completion OPT work authorization. Most I-765 applications in 2026 are filed online through myUSCIS, which tends to be slightly faster than paper filing.
@@ -379,9 +369,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         </div>
 
                         <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-blue-500" />
-                                I-765 (STEM OPT Extension)
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-765 (STEM OPT Extension)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 <strong>Typical processing:</strong> 3–5 months. You must file before your initial OPT expires. If filed on time, you receive an automatic 180-day extension of work authorization while the STEM application is pending.
@@ -392,9 +380,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         </div>
 
                         <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-blue-500" />
-                                I-140 (Immigrant Petition for Alien Workers)
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-140 (Immigrant Petition for Alien Workers)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 <strong>Typical processing:</strong> 6–12 months (or 15 business days with premium processing). Filed by your employer to sponsor you for a green card.
@@ -405,9 +391,7 @@ export default function USCISCaseStatusTrackingGuide() {
                         </div>
 
                         <div className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-blue-500" />
-                                I-485 (Adjustment of Status)
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-2">I-485 (Adjustment of Status)
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                                 <strong>Typical processing:</strong> 8–24 months depending on category and field office. This is the final step to obtaining a green card if you're adjusting status from within the US.
@@ -464,7 +448,7 @@ export default function USCISCaseStatusTrackingGuide() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Processing Time 2026</Link>
@@ -481,7 +465,7 @@ export default function USCISCaseStatusTrackingGuide() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-green-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Never Miss a USCIS Status Update</h2>
                 <p className="text-green-100 mb-6 max-w-lg mx-auto">
                     Join 3,500+ people who have signed up for TrackMyOPT. Check your case status for free with manual refresh, or use Pro for daily auto-checks and email alerts.

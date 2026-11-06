@@ -36,7 +36,7 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center">
-      <div className="rounded-full bg-red-100 p-3 dark:bg-red-900/20">
+      <div className="rounded-full bg-red-100 p-3 dark:bg-red-950">
         <svg
           className="h-8 w-8 text-red-600 dark:text-red-500"
           fill="none"

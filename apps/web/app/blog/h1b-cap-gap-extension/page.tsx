@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { safeSerializeJsonLd } from "@/lib/safe-json-ld";
 import Link from "next/link";
-import { Clock, ArrowRight, CheckCircle2, AlertTriangle, BookOpen } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, AlertTriangle } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
@@ -36,7 +36,8 @@ export default function CapGapArticle() {
             </nav>
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-semibold">H-1B</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">H-1B</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />10 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">H-1B Cap-Gap Extension Explained: What Happens Between OPT and H-1B</h1>
@@ -48,15 +49,15 @@ export default function CapGapArticle() {
                 <span>Last Updated: February 2026</span>
             </div>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     The H-1B cap-gap automatically extends your F-1 status and OPT work authorization from April 1 through September 30 if your employer files a timely H-1B cap-subject petition. This prevents any gap in your legal status between OPT expiration and H-1B start date.
                 </p>
             </div>
 
-            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-orange-900 dark:text-orange-100 mb-3 flex items-center gap-2"><BookOpen className="w-5 h-5" />Key Takeaway</h2>
+            <div className="bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-orange-900 dark:text-orange-100 mb-3">Key Takeaway</h2>
                 <p className="text-orange-800 dark:text-orange-200 font-medium">The <strong>H-1B cap-gap</strong> automatically extends your F-1 status and OPT work authorization from your OPT expiration date until <strong>October 1</strong> (the H-1B start date) — but only if your employer files a timely H-1B change-of-status petition and you're selected in the lottery.</p>
                 <p className="text-orange-700 dark:text-orange-300 text-sm mt-2">Source: <a href="https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations-and-fashion-models/extension-of-status-and-change-of-status-for-cap-gap-h-1b-beneficiaries" target="_blank" rel="noopener noreferrer" className="underline">USCIS.gov Cap-Gap</a></p>
             </div>
@@ -66,7 +67,7 @@ export default function CapGapArticle() {
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Is the H-1B Cap-Gap?</h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">The cap-gap is a regulation (<strong>8 CFR 214.2(f)(5)(vi)</strong>) that fills the timing gap between:</p>
                     <div className="flex flex-col md:flex-row items-center gap-4 my-6">
-                        <div className="flex-1 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 text-center">
+                        <div className="flex-1 p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800 text-center">
                             <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Your OPT Expires</p>
                             <p className="text-lg font-bold text-blue-900 dark:text-blue-100">e.g., June 15</p>
                         </div>
@@ -76,7 +77,7 @@ export default function CapGapArticle() {
                             <p className="text-lg font-bold text-gray-900 dark:text-white">Auto-Extended</p>
                         </div>
                         <ArrowRight className="w-6 h-6 text-gray-400 rotate-90 md:rotate-0" />
-                        <div className="flex-1 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 text-center">
+                        <div className="flex-1 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800 text-center">
                             <p className="text-sm text-green-600 dark:text-green-400 font-medium">H-1B Starts</p>
                             <p className="text-lg font-bold text-green-900 dark:text-green-100">October 1</p>
                         </div>
@@ -112,11 +113,11 @@ export default function CapGapArticle() {
                 <section className="mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Can You Work During the Cap-Gap?</h2>
                     <div className="space-y-3">
-                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 flex items-start gap-3">
+                        <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800 flex items-start gap-3">
                             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                             <div><h3 className="font-semibold text-green-900 dark:text-green-100">Yes — if H-1B petition filed as change of status</h3><p className="text-sm text-green-800 dark:text-green-200">If your employer filed an H-1B petition requesting change of status (not consular processing), your EAD work authorization is automatically extended until October 1.</p></div>
                         </div>
-                        <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 flex items-start gap-3">
+                        <div className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800 flex items-start gap-3">
                             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                             <div><h3 className="font-semibold text-red-900 dark:text-red-100">No work auth — if consular processing</h3><p className="text-sm text-red-800 dark:text-red-200">If the petition requests consular processing instead of change of status, you get F-1 status extension (can stay in US) but NOT work authorization during the cap-gap.</p></div>
                         </div>
@@ -131,7 +132,7 @@ export default function CapGapArticle() {
                             { scenario: "H-1B petition denied", result: "Cap-gap ends immediately. You enter the 60-day grace period from the denial date." },
                             { scenario: "H-1B petition withdrawn", result: "Same as denial — cap-gap terminates and grace period begins." },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                            <div key={i} className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                                 <h3 className="font-semibold text-amber-900 dark:text-amber-100">{item.scenario}</h3>
                                 <p className="text-sm text-amber-800 dark:text-amber-200 mt-1">{item.result}</p>
                             </div>
@@ -157,7 +158,7 @@ export default function CapGapArticle() {
                 </section>
             </div>
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/h1b-approval-rates-by-company" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ H-1B Approval Rates by Company 2026</Link>
@@ -172,7 +173,7 @@ export default function CapGapArticle() {
             </div>
 
             <AuthorBio />
-            <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-orange-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your H-1B Timeline & Cap-Gap Status</h2>
                 <p className="text-orange-100 mb-6 max-w-lg mx-auto">TrackMyOPT monitors your H-1B registration, lottery results, and cap-gap dates — all in one dashboard.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-colors">Start Tracking Free <ArrowRight className="w-4 h-4" /></Link>

@@ -218,7 +218,7 @@ export default function H1BSponsorsPage() {
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
-                        <div key={i} className="h-64 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                        <div key={i} className="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
                     ))}
                 </div>
             ) : filteredSponsors.length > 0 ? (
@@ -298,7 +298,7 @@ export default function H1BSponsorsPage() {
                     )}
                 </>
             ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                         <Search className="w-8 h-8 text-gray-400" />
                     </div>

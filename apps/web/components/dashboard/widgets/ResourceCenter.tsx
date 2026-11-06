@@ -164,13 +164,13 @@ export function ResourceCenter() {
   const getCategoryStyles = (category: Resource["category"]) => {
     switch (category) {
       case "form":
-        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+        return "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400";
       case "guide":
-        return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
+        return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400";
       case "faq":
-        return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
+        return "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400";
       case "external":
-        return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+        return "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400";
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
     }
@@ -181,7 +181,7 @@ export function ResourceCenter() {
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="p-2 bg-primary-soft rounded-lg">
             <BookOpen className="w-5 h-5 text-primary" />
           </div>
           <div>
@@ -198,7 +198,7 @@ export function ResourceCenter() {
             placeholder="Search resources..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-muted/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
           />
         </div>
 
@@ -208,9 +208,9 @@ export function ResourceCenter() {
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${selectedCategory === category.id
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${selectedCategory === category.id
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                  : "bg-muted hover:bg-muted text-muted-foreground"
                 }`}
             >
               {category.label}
@@ -223,7 +223,7 @@ export function ResourceCenter() {
       <div className="max-h-96 overflow-y-auto">
         {filteredResources.length === 0 ? (
           <div className="p-8 text-center">
-            <Search className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3" />
+            <Search className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
             <p className="text-sm text-muted-foreground">No resources found</p>
           </div>
         ) : (
@@ -234,7 +234,7 @@ export function ResourceCenter() {
                 href={resource.url}
                 target={resource.isExternal ? "_blank" : undefined}
                 rel={resource.isExternal ? "noopener noreferrer" : undefined}
-                className="flex items-start gap-4 p-4 hover:bg-muted/30 transition-colors group"
+                className="flex items-start gap-4 p-4 hover:bg-muted transition-colors group"
               >
                 <div className={`shrink-0 p-2.5 rounded-lg ${getCategoryStyles(resource.category)}`}>
                   {resource.icon}
@@ -270,7 +270,7 @@ export function ResourceCenter() {
       </div>
 
       {/* Footer */}
-      <div className="p-3 bg-muted/30 border-t border-border text-center">
+      <div className="p-3 bg-muted border-t border-border text-center">
         <p className="text-xs text-muted-foreground">
           Always verify information with your DSO and official USCIS sources
         </p>

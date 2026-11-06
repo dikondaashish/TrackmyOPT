@@ -37,7 +37,7 @@ export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
       <div className="border border-border rounded-xl overflow-hidden">
         <button
           onClick={() => setOpen((p) => !p)}
-          className="w-full flex items-center justify-between px-4 py-3 text-sm text-muted-foreground hover:bg-muted/30 transition-colors cursor-pointer"
+          className="w-full flex items-center justify-between px-4 py-3 text-sm text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
         >
           <span className="font-medium">Case Information</span>
           {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -73,7 +73,7 @@ export function CaseInfoFooter({ caseStatus }: CaseInfoFooterProps) {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex justify-between gap-4 py-1.5 border-b border-border/50 last:border-0">
+    <div className="flex justify-between gap-4 py-1.5 border-b border-border last:border-0">
       <span className="text-muted-foreground shrink-0">{label}</span>
       <span className="font-medium text-right text-foreground">{value}</span>
     </div>

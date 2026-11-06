@@ -123,8 +123,8 @@ export function DateSelector() {
                 {selectedOption?.label || 'Select a date'}
               </span>
               {lastUpdatedFieldFromAPI === selectedDateType && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm">
-                  Latest Updated
+                <span className="rounded-md px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                  Latest updated
                 </span>
               )}
             </div>
@@ -169,7 +169,7 @@ export function DateSelector() {
           Date value
         </label>
         <div className="relative">
-          <div className="px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
+          <div className="px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
             <p className="text-lg font-semibold text-slate-900 dark:text-white">
               {selectedDate}
             </p>

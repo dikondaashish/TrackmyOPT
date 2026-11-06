@@ -82,7 +82,7 @@ const jsonLd = [
 
 export default function OptDecisionWindowPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <main className="min-h-screen bg-slate-50 dark:bg-zinc-950">
       <PublicOptToolPageIntro
         title="Stop refreshing. See your OPT decision window."
         description="Enter the date USCIS received your I-765. We’ll show where you stand against similar community cases — then you can track live status free."

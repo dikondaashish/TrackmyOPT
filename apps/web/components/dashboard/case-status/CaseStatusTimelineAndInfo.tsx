@@ -44,7 +44,7 @@ export function CaseStatusTimelineAndInfo({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
-      <Card className="p-6 sm:p-7 border-0 shadow-lg hover-lift transition-all">
+      <Card className="p-6 sm:p-7">
         <CaseTimelineErrorBoundary>
           <CaseHistoryTimeline
             statusHistory={safeStatusHistory}

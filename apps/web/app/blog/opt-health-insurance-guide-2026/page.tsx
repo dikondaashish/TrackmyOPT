@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, ArrowRight } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
@@ -65,13 +65,7 @@ export default function OPTHealthInsuranceArticle() {
             {/* Header */}
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs font-semibold">
-                        BENEFITS & INSURANCE
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        11 min read
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Benefits & insurance · 11 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     Health Insurance While on OPT: Plans, Costs & What You Need (2026)
@@ -86,7 +80,7 @@ export default function OPTHealthInsuranceArticle() {
                 </div>
             </header>
 
-            <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-10">
+            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Your university health plan usually ends at graduation. On OPT, get coverage through <strong>employer insurance</strong> (best value), <strong>COBRA</strong> (bridge after leaving a job), the <strong>ACA marketplace</strong> (special enrollment after losing student coverage), or a <strong>budget international student plan</strong> ($50–$150/mo). Going uninsured risks five-figure medical debt.
@@ -101,10 +95,8 @@ export default function OPTHealthInsuranceArticle() {
             </div>
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    Key Takeaway
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
                     F-1 students on OPT have four main insurance options: <strong>employer plans (cheapest), COBRA (best coverage), ACA marketplace plans, and international student plans (budget option)</strong>. Your best choice depends on cost, coverage needs, and employment status. Most employers offer health insurance as part of the OPT package.
@@ -115,7 +107,7 @@ export default function OPTHealthInsuranceArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -147,7 +139,7 @@ export default function OPTHealthInsuranceArticle() {
                         The federal government does not mandate health insurance for F-1 OPT students. However, <strong>your employer may require it, and some states do</strong>. Additionally, not having health insurance exposes you to potentially catastrophic medical debt.
                     </p>
 
-                    <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded-r-xl my-6">
                         <p className="text-red-900 dark:text-red-100 font-semibold text-lg">
                             "A single hospitalization without insurance can cost $50,000–$200,000+. One medical emergency could derail your entire OPT period and career plans."
                         </p>
@@ -175,14 +167,13 @@ export default function OPTHealthInsuranceArticle() {
 
                     <div className="space-y-4">
                         {[
-                            { type: "Employer Health Insurance", icon: "💼", desc: "Coverage provided by your OPT employer. Typically has low premium costs (employer pays 50-100%), good coverage, and includes dental/vision." },
-                            { type: "COBRA Health Insurance", icon: "🔗", desc: "Temporary continuation of your ex-employer's health plan after leaving a job. More expensive but excellent coverage for 18 months." },
-                            { type: "ACA Marketplace Plans", icon: "🏛️", desc: "Plans purchased directly from Healthcare.gov. Most affordable for those without employer coverage. No subsidies for international students." },
-                            { type: "International Student Plans", icon: "🌍", desc: "Special plans designed for international students. Budget-friendly ($50-150/month) but limited coverage and exclusions." },
+                            { type: "Employer Health Insurance", desc: "Coverage provided by your OPT employer. Typically has low premium costs (employer pays 50-100%), good coverage, and includes dental/vision." },
+                            { type: "COBRA Health Insurance", desc: "Temporary continuation of your ex-employer's health plan after leaving a job. More expensive but excellent coverage for 18 months." },
+                            { type: "ACA Marketplace Plans", desc: "Plans purchased directly from Healthcare.gov. Most affordable for those without employer coverage. No subsidies for international students." },
+                            { type: "International Student Plans", desc: "Special plans designed for international students. Budget-friendly ($50-150/month) but limited coverage and exclusions." },
                         ].map((item) => (
                             <div key={item.type} className="p-5 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
-                                    <span className="text-2xl">{item.icon}</span>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-2">
                                     {item.type}
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
@@ -229,7 +220,7 @@ export default function OPTHealthInsuranceArticle() {
                         </table>
                     </div>
 
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                    <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-200 dark:border-green-800">
                         <p className="text-green-900 dark:text-green-100 font-medium text-sm">
                             <CheckCircle2 className="inline w-4 h-4 mr-2" />
                             <strong>Pros:</strong> Low cost, broad coverage, employer contribution, no eligibility waiting period
@@ -268,9 +259,9 @@ export default function OPTHealthInsuranceArticle() {
                         ))}
                     </div>
 
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-800 dark:text-amber-200 text-sm">
-                            <strong>⚠️ Important:</strong> You must apply and be denied marketplace subsidies to be allowed to purchase plans. International students cannot claim subsidies, but they can purchase full-price plans.
+                            <strong>Important:</strong> You must apply and be denied marketplace subsidies to be allowed to purchase plans. International students cannot claim subsidies, but they can purchase full-price plans.
                         </p>
                     </div>
                 </section>
@@ -307,7 +298,7 @@ export default function OPTHealthInsuranceArticle() {
                     </div>
 
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-4">Should You Enroll in COBRA?</h3>
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800">
                         <p className="text-blue-800 dark:text-blue-200 font-medium text-sm mb-2">✓ Yes, if your next job starts in 1-6 months (bridge coverage)</p>
                         <p className="text-blue-800 dark:text-blue-200 font-medium text-sm mb-2">✓ Yes, if you have upcoming medical procedures or prescriptions</p>
                         <p className="text-blue-800 dark:text-blue-200 font-medium text-sm mb-2">✗ No, if you can get employer coverage immediately</p>
@@ -341,7 +332,7 @@ export default function OPTHealthInsuranceArticle() {
                         ))}
                     </div>
 
-                    <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
+                    <div className="p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800">
                         <p className="text-red-900 dark:text-red-100 font-medium text-sm mb-2">
                             <AlertTriangle className="inline w-4 h-4 mr-2" />
                             <strong>Limitations of International Plans:</strong>
@@ -450,28 +441,28 @@ export default function OPTHealthInsuranceArticle() {
                     </h2>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">What if I get married or have dependents?</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm">
                                 Most employer plans allow you to add spouses and children to coverage. Notify HR within 30 days of marriage or birth for a qualifying event. Marketplace plans also offer family coverage options.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="p-5 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <h3 className="font-bold text-green-900 dark:text-green-100 mb-2">What if I leave my OPT job?</h3>
                             <p className="text-green-800 dark:text-green-200 text-sm">
                                 You have 60 days from losing coverage to elect COBRA if eligible. If you get a new job with health insurance, enroll immediately to avoid gaps. If transitioning to H-1B, your new employer typically covers health insurance.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800">
+                        <div className="p-5 bg-purple-50 dark:bg-purple-950 rounded-xl border border-purple-100 dark:border-purple-800">
                             <h3 className="font-bold text-purple-900 dark:text-purple-100 mb-2">What if I have pre-existing conditions?</h3>
                             <p className="text-purple-800 dark:text-purple-200 text-sm">
                                 Employer and marketplace plans must cover pre-existing conditions with no exclusions. International student plans may exclude pre-existing conditions. Compare plan details carefully if this applies to you.
                             </p>
                         </div>
 
-                        <div className="p-5 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-100 dark:border-orange-800">
+                        <div className="p-5 bg-orange-50 dark:bg-orange-950 rounded-xl border border-orange-100 dark:border-orange-800">
                             <h3 className="font-bold text-orange-900 dark:text-orange-100 mb-2">Can I skip health insurance if I'm young and healthy?</h3>
                             <p className="text-orange-800 dark:text-orange-200 text-sm">
                                 Legally yes, but medically no. One accident or illness could result in $50,000-200,000 in medical debt. Even the cheapest plans ($50-150/month) protect you from catastrophic costs. Don't skip insurance.
@@ -506,7 +497,7 @@ export default function OPTHealthInsuranceArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ OPT Extension Guide 2026</Link>
@@ -524,7 +515,7 @@ export default function OPTHealthInsuranceArticle() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-red-500 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Compare OPT Health Plans Today</h2>
                 <p className="text-red-100 mb-6 max-w-lg mx-auto">
                     Use TrackMyOPT's health insurance comparison tool to find the best plan matching your needs and budget.

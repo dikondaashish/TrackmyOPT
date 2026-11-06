@@ -7,12 +7,12 @@ import {
   Shield,
   Loader2,
   AlertCircle,
-  Lock,
   Clock,
   RefreshCw,
   Eye,
   EyeOff,
-  ShieldCheck} from "lucide-react";
+  ShieldCheck,
+} from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import type { DocumentSettings } from "../settings-types";
 
@@ -77,9 +77,6 @@ export function DocumentsTab({
           <div className="p-6 sm:p-8">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Document Vault Settings</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Manage your document vault security</p>
@@ -88,10 +85,10 @@ export function DocumentsTab({
 
               <div className="space-y-6">
                 {/* Passcode Status */}
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docSettings.hasPasscode ? 'bg-green-100 dark:bg-green-900/50' : 'bg-yellow-100 dark:bg-yellow-900/50'}`}>
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docSettings.hasPasscode ? 'bg-green-100 dark:bg-green-900' : 'bg-yellow-100 dark:bg-yellow-900'}`}>
                         {docSettings.hasPasscode ? (
                           <ShieldCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
@@ -129,7 +126,7 @@ export function DocumentsTab({
                               value={currentPasscode}
                               onChange={(e) => setCurrentPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                               placeholder="Enter 6-digit passcode"
-                              className="h-11 pr-10 font-mono tracking-widest"
+                              className="h-11 pr-10 font-mono"
                               maxLength={6}
                               inputMode="numeric"
                             />
@@ -152,7 +149,7 @@ export function DocumentsTab({
                           value={newPasscode}
                           onChange={(e) => setNewPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                           placeholder="Enter 6-digit passcode"
-                          className="h-11 font-mono tracking-widest"
+                          className="h-11 font-mono"
                           maxLength={6}
                           inputMode="numeric"
                         />
@@ -167,14 +164,14 @@ export function DocumentsTab({
                           value={confirmPasscode}
                           onChange={(e) => setConfirmPasscode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                           placeholder="Re-enter 6-digit passcode"
-                          className="h-11 font-mono tracking-widest"
+                          className="h-11 font-mono"
                           maxLength={6}
                           inputMode="numeric"
                         />
                       </div>
                       {/* OTP Verification Section */}
                       {showOtpInput ? (
-                        <div className="space-y-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                        <div className="space-y-4 p-4 bg-indigo-50 dark:bg-indigo-950 rounded-lg border border-indigo-200 dark:border-indigo-800">
                           <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
                             <Mail className="w-5 h-5" />
                             <p className="text-sm font-medium">
@@ -191,7 +188,7 @@ export function DocumentsTab({
                               value={otp}
                               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                               placeholder="Enter OTP"
-                              className="h-11 font-mono tracking-widest text-center text-lg"
+                              className="h-11 font-mono text-center text-lg"
                               maxLength={6}
                               inputMode="numeric"
                               autoFocus

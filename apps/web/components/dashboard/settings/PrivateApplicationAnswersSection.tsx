@@ -590,7 +590,7 @@ export function PrivateApplicationAnswersSection() {
               />
             </div>
           </details>
-          <label className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-3 text-sm">
+          <label className="flex items-start gap-3 rounded-lg border border-border bg-muted p-3 text-sm">
             <input
               type="checkbox"
               checked={consent}
@@ -638,7 +638,7 @@ export function PrivateApplicationAnswersSection() {
                 variant="outline"
                 onClick={deleteAnswers}
                 disabled={deleting}
-                className="h-10 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/30"
+                className="h-10 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
               >
                 {deleting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

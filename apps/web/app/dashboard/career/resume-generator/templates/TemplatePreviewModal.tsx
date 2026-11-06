@@ -131,7 +131,7 @@ function TemplatePreviewBody({
                                 {template.description}
                             </p>
 
-                            <div className="flex items-start gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3">
+                            <div className="flex items-start gap-2 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 p-3">
                                 <ShieldCheck className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
                                 <p className="text-xs text-green-800 dark:text-green-200">
                                     Single column, no tables or graphics — parses cleanly in Workday,
@@ -169,7 +169,7 @@ function TemplatePreviewBody({
                             </dl>
 
                             <div>
-                                <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                                <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                                     Section order
                                 </h4>
                                 <ol className="space-y-1">
@@ -195,7 +195,7 @@ function TemplatePreviewBody({
 
                             {template.colors.length > 1 && (
                                 <div>
-                                    <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
                                         Accent colour
                                     </h4>
                                     <div className="flex gap-2">
@@ -218,16 +218,9 @@ function TemplatePreviewBody({
                                 </div>
                             )}
 
-                            <div className="flex flex-wrap gap-1.5">
-                                {template.tags.map((tag) => (
-                                    <span
-                                        key={tag}
-                                        className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                                    >
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {template.tags.join(" · ")}
+                            </p>
                         </div>
                     </aside>
                 </div>

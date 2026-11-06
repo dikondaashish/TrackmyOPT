@@ -399,14 +399,14 @@ export function OptDatesSection() {
               ? 'Next step: add your job history so we can calculate unemployment days accurately.'
               : 'Add or update employment records below to keep your unemployment clock accurate.',
             className:
-              'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800',
+              'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800',
           });
         } else {
           toast({
             title: 'Success',
             description: 'Dates saved successfully!',
             className:
-              'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800',
+              'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800',
           });
         }
 
@@ -486,7 +486,7 @@ export function OptDatesSection() {
       {isDirty && (
         <p
           role="status"
-          className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200"
+          className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200"
         >
           Unsaved changes: dashboard summaries and email reminders use your
           saved dates until you save.
@@ -494,7 +494,7 @@ export function OptDatesSection() {
       )}
 
       {/* Main Form Card */}
-      <Card className="overflow-hidden rounded-2xl border border-slate-200/90 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800">
+      <Card className="overflow-hidden rounded-xl border border-slate-200 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800">
         <div className="space-y-5 p-4 sm:p-6 lg:p-7">
           <OptDatesFormFields
             dates={dates}
@@ -515,7 +515,7 @@ export function OptDatesSection() {
               </button>
             </p>
           )}
-          <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/35 p-3 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted p-3 sm:flex-row sm:items-center">
             <Button
               onClick={handleSave}
               disabled={isSaving || datesLoadError}

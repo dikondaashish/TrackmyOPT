@@ -17,10 +17,10 @@ export function ApplyReadinessChecklist({ input }: ApplyReadinessChecklistProps)
                     Apply readiness
                 </h4>
                 <span
-                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    className={`text-xs font-medium px-2 py-0.5 rounded-md ${
                         ready
-                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                            : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                            ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300"
+                            : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
                     }`}
                 >
                     {ready ? "Ready to apply" : "Not ready yet"}

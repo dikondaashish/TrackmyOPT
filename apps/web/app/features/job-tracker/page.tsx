@@ -31,7 +31,7 @@ import { H2, Lead, P } from "@/components/ui/typography";
 // Analytics Preview
 function AnalyticsPreview() {
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 shadow-xl">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6">
             <div className="flex items-center gap-2 mb-6">
                 <BarChart3 className="w-5 h-5 text-amber-600" />
                 <h4 className="font-semibold text-gray-900 dark:text-white">Your Stats</h4>
@@ -67,7 +67,7 @@ function AnalyticsPreview() {
                         whileInView={{ height: `${height}%` }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.5 + i * 0.05, duration: 0.3 }}
-                        className="flex-1 bg-gradient-to-t from-amber-500 to-orange-400 rounded-t"
+                        className="flex-1 bg-amber-500 rounded-t"
                     />
                 ))}
             </div>
@@ -82,7 +82,7 @@ function AnalyticsPreview() {
 export default function JobTrackerPage() {
     return (
         <>
-            <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+            <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <FeatureServiceSchema
                 name="Job Tracker with OPT Unemployment Counter Sync"
                 description="Track all your job applications with a visual Kanban board that syncs with your OPT unemployment clock. Never lose track of applications or miss follow-ups while staying compliant."
@@ -98,8 +98,7 @@ export default function JobTrackerPage() {
             />
             {/* Hero */}
             <FeatureHero
-                badge="New"
-                headline="Track Applications. Beat the 90-Day Clock."
+                headline="Track applications and beat the 90-day clock"
                 subheadline="The only job tracker that syncs with your OPT unemployment counter. Never lose track of your applications or visa timeline."
                 ctaText="Start Tracking"
                 ctaHref="/dashboard/jobs"
@@ -107,7 +106,7 @@ export default function JobTrackerPage() {
                     text: "See How It Works",
                     href: "#sync"
                 }}
-                gradient="from-amber-500 to-orange-600"
+                gradient="bg-amber-500"
                 visual={<TrackerKanbanDemo />}
             />
 
@@ -120,10 +119,6 @@ export default function JobTrackerPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-4">
-                                <Briefcase className="w-4 h-4" />
-                                Visual Tracking
-                            </div>
                             <H2>See All Your Applications at a Glance</H2>
                             <P>
                                 Drag-and-drop Kanban board to track every application
@@ -156,7 +151,7 @@ export default function JobTrackerPage() {
             </section>
 
             {/* OPT Sync Feature */}
-            <section id="sync" className="py-24 bg-gray-50 dark:bg-zinc-900/50 relative overflow-hidden">
+            <section id="sync" className="py-24 bg-gray-50 dark:bg-zinc-900 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <H2>Syncs More Than Just Dates</H2>
@@ -179,18 +174,14 @@ export default function JobTrackerPage() {
                             viewport={{ once: true }}
                             className="order-1 lg:order-2"
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
-                                <Clock className="w-4 h-4" />
-                                OPT Integration
-                            </div>
                             <H2>Jobs + OPT Clock = Peace of Mind</H2>
                             <P>
                                 Your job applications automatically update your unemployment
                                 counter. Stay compliant while you job search.
                             </P>
-                            <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 shadow-sm mt-6">
+                            <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-gray-100 dark:border-zinc-800 mt-6">
                                 <div className="flex gap-4">
-                                    <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg h-fit text-blue-600">
+                                    <div className="p-3 bg-blue-100 dark:bg-blue-950 rounded-lg h-fit text-blue-600">
                                         <TrendingUp className="w-5 h-5" />
                                     </div>
                                     <div>
@@ -213,10 +204,6 @@ export default function JobTrackerPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-                                <BarChart3 className="w-4 h-4" />
-                                Analytics
-                            </div>
                             <H2>Understand Your Job Search</H2>
                             <P>
                                 Track response rates, interview conversions, and application
@@ -224,7 +211,7 @@ export default function JobTrackerPage() {
                             </P>
                             <Link
                                 href="/dashboard/jobs"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
                             >
                                 Start Tracking
                                 <ArrowRight className="w-4 h-4" />

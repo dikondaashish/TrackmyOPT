@@ -71,10 +71,6 @@ export default function InterviewWaiverPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Travel Update</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Consular Processing</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     F-1 Visa Renewals in 2026: Why You Now Need an In-Person Interview
                 </h1>
@@ -82,13 +78,15 @@ export default function InterviewWaiverPage() {
                     The era of easy drop-box renewals is ending. The State Department has severely restricted interview waivers. Here is what you need to know before traveling.
                 </p>
                 <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Travel Update · Consular Processing</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 6 min read</span>
                     <span>•</span>
                     <span>July 15, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/f1-visa-interview-waivers-restricted-2026.png" alt="Exterior of a US Embassy or Consulate building" className="w-full h-full object-cover" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -100,12 +98,12 @@ export default function InterviewWaiverPage() {
                     Following policy updates rolled out in late 2025 and early 2026, the U.S. State Department has severely restricted the eligibility criteria for nonimmigrant visa interview waivers (commonly known as drop-box appointments). 
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 my-8 rounded-r-xl">
+                <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 my-8 rounded-r-xl">
                     <h3 className="text-amber-800 dark:text-amber-300 m-0 mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5" />
                         The Bottom Line
                     </h3>
-                    <p className="text-amber-900 dark:text-amber-200/80 m-0">
+                    <p className="text-amber-900 dark:text-amber-200 m-0">
                         Most F-1 and J-1 students applying for a visa renewal will now be required to attend an <strong>in-person interview</strong> at the U.S. consulate or embassy. You can no longer bank on simply mailing in your documents.
                     </p>
                 </div>
@@ -144,7 +142,7 @@ export default function InterviewWaiverPage() {
                     <li><strong>Gather Strong Documentation:</strong> In-person interviews mean higher scrutiny. Bring your valid EAD card, a recent employment verification letter, your I-20 endorsed for travel, and paystubs to prove you are legitimately employed on OPT.</li>
                 </ol>
 
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 text-white my-12 shadow-xl">
+                <div className="bg-blue-600 rounded-xl p-8 text-white my-12">
                     <h3 className="text-2xl font-bold text-white mb-4 mt-0">Track Your OPT Compliance</h3>
                     <p className="text-blue-100 mb-6 text-lg">
                         Don't let a travel delay cost you your OPT status. Use TrackMyOPT to monitor your unemployment days and critical deadlines.

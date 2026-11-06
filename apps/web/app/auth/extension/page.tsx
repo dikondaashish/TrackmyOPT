@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { AlertTriangle, Lightbulb } from 'lucide-react';
+import { AlertTriangle, Lightbulb, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 
@@ -150,10 +150,10 @@ function ExtensionAuthContent() {
     !looksLikeExtensionRedirectUri(redirectUri)
   ) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background dark:to-background p-4">
-        <div className="bg-white dark:bg-card rounded-2xl shadow-xl p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
+        <div className="bg-white dark:bg-card rounded-xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
               <AlertTriangle className="w-7 h-7 text-amber-600 dark:text-amber-400" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Invalid Login Link</h1>
@@ -309,8 +309,8 @@ function ExtensionAuthContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-background dark:via-background dark:to-background p-4">
-      <div className="bg-white dark:bg-card rounded-2xl shadow-2xl p-8 max-w-lg w-full">
+    <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-background p-4">
+      <div className="bg-white dark:bg-card rounded-xl shadow-2xl p-8 max-w-lg w-full">
         {/* Page Title */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-foreground mb-2">
@@ -332,7 +332,7 @@ function ExtensionAuthContent() {
             disabled={loading}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'google'
               ? 'bg-blue-600 text-white shadow-lg'
-              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
+              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted'
               }`}
           >
             Google
@@ -342,7 +342,7 @@ function ExtensionAuthContent() {
             disabled={loading}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 ${tab === 'manual'
               ? 'bg-blue-600 text-white shadow-lg'
-              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted/80'
+              : 'bg-gray-100 dark:bg-muted text-gray-700 dark:text-foreground hover:bg-gray-200 dark:hover:bg-muted'
               }`}
           >
             Manual
@@ -359,7 +359,7 @@ function ExtensionAuthContent() {
             >
               {loading ? (
                 <>
-                  <span className="animate-spin">⏳</span>
+                  <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
                   Redirecting...
                 </>
               ) : (
@@ -397,7 +397,7 @@ function ExtensionAuthContent() {
               <button
                 onClick={() => setShowSignIn(!showSignIn)}
                 disabled={loading}
-                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted/80 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
+                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
               >
                 <span>Sign In</span>
                 <span className="text-xl">{showSignIn ? '−' : '+'}</span>
@@ -452,7 +452,7 @@ function ExtensionAuthContent() {
               <button
                 onClick={() => setShowSignUp(!showSignUp)}
                 disabled={loading}
-                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted/80 transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
+                className="w-full px-6 py-4 bg-gray-50 dark:bg-muted hover:bg-gray-100 dark:hover:bg-muted transition disabled:opacity-50 flex items-center justify-between font-semibold text-gray-900 dark:text-foreground"
               >
                 <span>Create Account</span>
                 <span className="text-xl">{showSignUp ? '−' : '+'}</span>

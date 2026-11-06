@@ -1,6 +1,5 @@
 'use client';
 
-import { Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { annualSavingsPercent } from '@/lib/pricing/plan-config';
 
@@ -27,9 +26,9 @@ export function PricingModalBillingToggle({
       <button
         onClick={onToggle}
         className={cn(
-          'relative w-16 h-8 md:w-14 md:h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500/40',
+          'relative w-16 h-8 md:w-14 md:h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500',
           isYearly
-            ? 'bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/30'
+            ? 'bg-violet-600'
             : 'bg-muted border border-border'
         )}
         aria-label="Toggle billing period"
@@ -51,8 +50,7 @@ export function PricingModalBillingToggle({
         >
           Annual
         </span>
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 md:px-2 md:py-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] md:text-[9px] font-bold uppercase tracking-wider border border-green-500/20">
-          <Gift className="w-3 h-3" />
+        <span className="text-xs md:text-[11px] font-medium text-green-700 dark:text-green-400">
           Save up to {annualSavingsPercent('pro')}%
         </span>
       </div>

@@ -183,19 +183,19 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
     switch (priority) {
       case "urgent":
         return {
-          badge: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+          badge: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
           border: "border-l-red-500",
           icon: "text-red-500",
         };
       case "warning":
         return {
-          badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+          badge: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
           border: "border-l-amber-500",
           icon: "text-amber-500",
         };
       default:
         return {
-          badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+          badge: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
           border: "border-l-blue-500",
           icon: "text-blue-500",
         };
@@ -214,7 +214,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
     return (
       <div className="bg-card border border-border rounded-xl p-6 h-full">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="p-2 bg-primary-soft rounded-lg">
             <Calendar className="w-5 h-5 text-primary" />
           </div>
           <div>
@@ -240,7 +240,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
     <div className="bg-card border border-border rounded-xl p-6 h-full">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="p-2 bg-primary-soft rounded-lg">
             <Calendar className="w-5 h-5 text-primary" />
           </div>
           <div>
@@ -268,7 +268,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
             return (
               <div
                 key={deadline.id}
-                className={`relative pl-4 border-l-4 ${styles.border} bg-muted/30 rounded-r-lg p-4 transition-all hover:bg-muted/50`}
+                className={`relative pl-4 border-l-4 ${styles.border} bg-muted rounded-r-lg p-4 transition-all hover:bg-muted`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -281,7 +281,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
                         <Clock className="w-3 h-3" />
                         {formatDate(deadline.date)}
                       </span>
-                      <span className={`px-2 py-0.5 rounded-full font-medium ${styles.badge}`}>
+                      <span className={`px-2 py-0.5 rounded-md font-medium ${styles.badge}`}>
                         {deadline.daysLeft < 0 ? `${Math.abs(deadline.daysLeft)} days ago` : deadline.daysLeft === 0
                           ? "Today"
                           : deadline.daysLeft === 1
@@ -293,7 +293,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
                   {deadline.action && (
                     <Link
                       href={deadline.action.href}
-                      className="shrink-0 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                      className="shrink-0 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
                     >
                       {deadline.action.label}
                     </Link>
@@ -301,7 +301,7 @@ export function UpcomingDeadlinesPanel({ optStatus, isStemEligible }: UpcomingDe
                 </div>
                 {deadline.priority === "urgent" && (
                   <div className="absolute -top-1 -right-1">
-                    <AlertTriangle className="w-4 h-4 text-red-500 animate-pulse" />
+                    <AlertTriangle className="w-4 h-4 text-red-500" />
                   </div>
                 )}
               </div>

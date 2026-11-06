@@ -15,7 +15,7 @@ export function PricingModalTrustFooter({
   isPremium,
 }: PricingModalTrustFooterProps) {
   return (
-    <div className="px-4 sm:px-5 md:px-4 pb-4 md:pb-3 pt-3 md:pt-2 border-t border-border/40 bg-background/95">
+    <div className="px-4 sm:px-5 md:px-4 pb-4 md:pb-3 pt-3 md:pt-2 border-t border-border bg-background">
       <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-4 gap-y-2 md:gap-y-1">
         <div className="flex items-center gap-1.5 text-xs md:text-[11px] text-muted-foreground">
           <Shield className="w-3.5 h-3.5 text-green-600" />
@@ -41,8 +41,8 @@ export function PricingModalTrustFooter({
           <span>Cancel in Settings → Billing</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs md:text-[11px]">
-          <span className="text-muted-foreground/60">Powered by</span>
-          <span className="font-semibold text-foreground/80">Stripe</span>
+          <span className="text-muted-foreground">Powered by</span>
+          <span className="font-semibold text-foreground">Stripe</span>
         </div>
       </div>
     </div>

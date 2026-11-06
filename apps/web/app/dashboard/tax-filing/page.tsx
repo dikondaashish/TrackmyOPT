@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Receipt,
   ChevronDown,
   ExternalLink,
   Calendar,
@@ -98,19 +97,17 @@ export default function TaxFilingPage() {
   const filingRequirement = getFilingRequirement();
 
   return (
-    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-background dark:to-background">
+    <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-background">
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/5 via-transparent to-teal-500/5" />
+      <div>
         <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 sm:pt-8 sm:pb-8">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Receipt className="w-4 h-4" />
+            <p className="text-sm text-slate-500 dark:text-muted-foreground mb-4">
               Tax Season 2024-2025
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground tracking-tight mb-4">
+            </p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-foreground mb-4">
               Tax Filing for
-              <span className="block text-emerald-600 dark:text-emerald-400">OPT & STEM-OPT</span>
+              <span className="block">OPT & STEM-OPT</span>
             </h1>
             <p className="text-lg text-slate-600 dark:text-muted-foreground max-w-2xl mx-auto">
               Navigate U.S. tax requirements with confidence. Learn what forms you need,
@@ -121,21 +118,15 @@ export default function TaxFilingPage() {
           {/* Quick Stats */}
           <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-8">
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              </div>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <span className="text-slate-700 dark:text-foreground">Non-Resident Specialists</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                <Shield className="w-4 h-4 text-blue-600" />
-              </div>
+              <Shield className="w-4 h-4 text-emerald-600" />
               <span className="text-slate-700 dark:text-foreground">IRS Compliant</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                <Clock className="w-4 h-4 text-purple-600" />
-              </div>
+              <Clock className="w-4 h-4 text-emerald-600" />
               <span className="text-slate-700 dark:text-foreground">File in Minutes</span>
             </div>
           </div>
@@ -144,8 +135,8 @@ export default function TaxFilingPage() {
 
       {/* Important Alert */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
-        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 flex items-start gap-4">
-          <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/50 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-5 flex items-start gap-4">
+          <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center flex-shrink-0">
             <AlertCircle className="w-5 h-5 text-amber-600" />
           </div>
           <div>
@@ -160,7 +151,7 @@ export default function TaxFilingPage() {
 
       {/* Tax Status Checker */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
-        <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border shadow-sm p-6">
+        <div className="bg-white dark:bg-card rounded-xl border border-slate-200 dark:border-border shadow-sm p-6">
           <h2 className="text-xl font-bold text-slate-900 dark:text-foreground mb-2">Determine Your Filing Requirements</h2>
           <p className="text-slate-600 dark:text-muted-foreground text-sm mb-6">Answer these quick questions to find out what forms you need to file.</p>
 
@@ -174,7 +165,7 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, years: "non-resident" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.years === "non-resident"
-                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
+                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400"
                     : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
@@ -183,7 +174,7 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, years: "may-be-resident" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.years === "may-be-resident"
-                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
+                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"
                     : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
@@ -201,7 +192,7 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, income: "has-income" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.income === "has-income"
-                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
+                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400"
                     : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
@@ -210,7 +201,7 @@ export default function TaxFilingPage() {
                 <button
                   onClick={() => setTaxStatus(prev => ({ ...prev, income: "no-income" }))}
                   className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${taxStatus.income === "no-income"
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400"
                     : "border-slate-200 dark:border-border hover:border-slate-300 dark:hover:border-muted-foreground dark:text-foreground"
                     }`}
                 >
@@ -222,14 +213,14 @@ export default function TaxFilingPage() {
 
           {/* Result Preview */}
           {filingRequirement && (
-            <div className={`rounded-xl p-4 ${filingRequirement.color === "amber" ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800" :
-              filingRequirement.color === "blue" ? "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800" :
-                "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
+            <div className={`rounded-xl p-4 ${filingRequirement.color === "amber" ? "bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800" :
+              filingRequirement.color === "blue" ? "bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800" :
+                "bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800"
               }`}>
               <div className="flex items-start gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50" :
-                  filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50" :
-                    "bg-emerald-100 dark:bg-emerald-900/50"
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900" :
+                  filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900" :
+                    "bg-emerald-100 dark:bg-emerald-900"
                   }`}>
                   <FileText className={`w-4 h-4 ${filingRequirement.color === "amber" ? "text-amber-600" :
                     filingRequirement.color === "blue" ? "text-blue-600" :
@@ -247,9 +238,9 @@ export default function TaxFilingPage() {
                     }`}>{filingRequirement.message}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {filingRequirement.forms.map((form, i) => (
-                      <span key={i} className={`text-xs font-medium px-2 py-1 rounded-full ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300" :
-                        filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300" :
-                          "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
+                      <span key={i} className={`text-xs font-medium px-2 py-0.5 rounded-md ${filingRequirement.color === "amber" ? "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300" :
+                        filingRequirement.color === "blue" ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" :
+                          "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300"
                         }`}>
                         {form}
                       </span>
@@ -269,7 +260,7 @@ export default function TaxFilingPage() {
             }}
             disabled={!taxStatus.years || !taxStatus.income}
             className={`w-full h-12 rounded-xl font-semibold text-base transition-all flex items-center justify-center gap-2 ${taxStatus.years && taxStatus.income
-              ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90 shadow-lg"
+              ? "bg-emerald-500 text-white hover:opacity-90 shadow-lg"
               : "bg-slate-100 dark:bg-muted text-slate-400 dark:text-muted-foreground cursor-not-allowed"
               }`}
           >
@@ -284,17 +275,17 @@ export default function TaxFilingPage() {
         <h2 className="text-xl font-bold text-slate-900 dark:text-foreground mb-4">Important Tax Deadlines</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {TAX_DEADLINES.map((deadline, i) => (
-            <div key={i} className={`relative rounded-xl p-[1.5px] overflow-hidden group bg-slate-200 dark:bg-gradient-to-br ${i === 0 ? "dark:from-emerald-400 dark:via-cyan-500 dark:to-blue-500" :
-                i === 1 ? "dark:from-blue-400 dark:via-indigo-500 dark:to-purple-500" :
-                  i === 2 ? "dark:from-purple-400 dark:via-fuchsia-500 dark:to-pink-500" :
-                    "dark:from-pink-400 dark:via-rose-500 dark:to-amber-500"
+            <div key={i} className={`relative rounded-xl p-[1.5px] overflow-hidden group bg-slate-200 ${i === 0 ? "dark:bg-emerald-400" :
+                i === 1 ? "dark:bg-blue-400" :
+                  i === 2 ? "dark:bg-purple-400" :
+                    "dark:bg-pink-400"
               }`}>
               <div className="absolute inset-0 bg-white dark:bg-slate-900 rounded-xl" />
               <div className="relative h-full bg-white dark:bg-slate-900 rounded-xl p-4 transition-colors">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${i === 0 ? "bg-emerald-50 dark:bg-emerald-900/20" :
-                    i === 1 ? "bg-blue-50 dark:bg-blue-900/20" :
-                      i === 2 ? "bg-purple-50 dark:bg-purple-900/20" :
-                        "bg-pink-50 dark:bg-pink-900/20"
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${i === 0 ? "bg-emerald-50 dark:bg-emerald-950" :
+                    i === 1 ? "bg-blue-50 dark:bg-blue-950" :
+                      i === 2 ? "bg-purple-50 dark:bg-purple-950" :
+                        "bg-pink-50 dark:bg-pink-950"
                   }`}>
                   <deadline.icon className={`w-5 h-5 ${i === 0 ? "text-emerald-600 dark:text-emerald-400" :
                       i === 1 ? "text-blue-600 dark:text-blue-400" :

@@ -29,7 +29,7 @@ export function RelatedPosts({
           <li key={post.href}>
             <Link
               href={post.href}
-              className="group flex h-full flex-col rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/40 p-4 transition-colors hover:border-blue-300 dark:hover:border-blue-700"
+              className="group flex h-full flex-col rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 p-4 transition-colors hover:border-blue-300 dark:hover:border-blue-700"
             >
               <span className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
                 {post.title}

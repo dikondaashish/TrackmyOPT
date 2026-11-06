@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileCheck, Clock, AlertCircle, CheckCircle2, RefreshCw, ExternalLink, ChevronRight } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle2, RefreshCw, ExternalLink, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { formatDisplayDateTime } from "@/lib/case-status/safe-dates";
 
@@ -98,15 +98,15 @@ export function CaseStatusSummary() {
     }
     
     if (normalizedStatus.includes("approved") || normalizedStatus.includes("produced")) {
-      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
+      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400";
     }
     if (normalizedStatus.includes("denied") || normalizedStatus.includes("rejected")) {
-      return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+      return "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400";
     }
     if (normalizedStatus.includes("rfe") || normalizedStatus.includes("evidence")) {
-      return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+      return "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400";
     }
-    return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+    return "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400";
   };
 
   const formatDate = (dateStr: string | null | undefined) => {
@@ -132,10 +132,7 @@ export function CaseStatusSummary() {
   if (!caseStatus) {
     return (
       <div className="bg-card border border-border rounded-xl p-5 h-full">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 bg-muted rounded-lg">
-            <FileCheck className="w-5 h-5 text-muted-foreground" />
-          </div>
+        <div className="mb-4">
           <div>
             <h3 className="font-semibold">Case Status</h3>
             <p className="text-xs text-muted-foreground">Track your USCIS application</p>
@@ -146,7 +143,7 @@ export function CaseStatusSummary() {
           <p className="text-sm text-muted-foreground mb-3">No case being tracked</p>
           <Link
             href="/dashboard/case-status"
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
           >
             Add Receipt Number
             <ChevronRight className="w-4 h-4" />
@@ -162,14 +159,11 @@ export function CaseStatusSummary() {
   return (
     <div className="bg-card border border-border rounded-xl p-5 h-full">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-primary/10 rounded-lg">
-            <FileCheck className="w-5 h-5 text-primary" />
-          </div>
+        <div>
           <div>
             <h3 className="font-semibold">Case Status</h3>
-            <p className="text-xs text-muted-foreground font-mono">
-              {caseStatus.receipt_number}
+            <p className="text-xs text-muted-foreground">
+              <span className="font-mono">{caseStatus.receipt_number}</span>
               {caseCount > 1 ? ` · +${caseCount - 1} more` : ""}
             </p>
           </div>
@@ -195,7 +189,7 @@ export function CaseStatusSummary() {
       </div>
 
       {/* Current Status */}
-      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+      <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
         {getStatusIcon(caseStatus.current_status)}
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm truncate">
@@ -212,7 +206,7 @@ export function CaseStatusSummary() {
             </p>
           )}
         </div>
-        <span className={`shrink-0 px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(caseStatus.current_status)}`}>
+        <span className={`shrink-0 px-2 py-0.5 text-xs font-medium rounded-md ${getStatusColor(caseStatus.current_status)}`}>
           {isPending ? "Pending" : statusText.includes("Approved") ? "Complete" : "In Progress"}
         </span>
       </div>

@@ -18,7 +18,7 @@ const proAtsScanLabel = `${PRO_ATS_SCAN_LIMIT_DISPLAY.toLocaleString("en-US")}/m
 export function PricingComparison() {
     const showDedicated = shouldShowDedicatedPlanForSale();
     return (
-        <section className="py-24 bg-gray-50 dark:bg-zinc-900/50">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-900">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -31,10 +31,10 @@ export function PricingComparison() {
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-x-auto shadow-lg">
+                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="bg-gray-50 dark:bg-zinc-800/50">
+                            <tr className="bg-gray-50 dark:bg-zinc-800">
                                 <th
                                     scope="col"
                                     className="text-left px-6 py-4 font-semibold text-gray-900 dark:text-white"
@@ -52,8 +52,8 @@ export function PricingComparison() {
                                     className="text-center px-6 py-4"
                                 >
                                     <div className="inline-flex flex-col items-center">
-                                        <span className="bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 text-xs font-bold px-2 py-0.5 rounded-full mb-1">
-                                            MOST POPULAR
+                                        <span className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Most popular
                                         </span>
                                         <span className="font-semibold text-violet-600 dark:text-violet-400">
                                             Pro
@@ -94,7 +94,7 @@ export function PricingComparison() {
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 text-center bg-violet-50/50 dark:bg-violet-900/10">
+                                    <td className="px-6 py-4 text-center bg-violet-50 dark:bg-violet-950">
                                         {row.pro === true ? (
                                             <Check className="w-5 h-5 text-violet-600 mx-auto" />
                                         ) : (
@@ -110,10 +110,10 @@ export function PricingComparison() {
                 </div>
 
                 {showDedicated ? (
-                <div className="mt-8 rounded-2xl border border-amber-200 dark:border-amber-800/50 bg-amber-50/80 dark:bg-amber-950/20 p-6">
+                <div className="mt-8 rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900">
                                 <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>

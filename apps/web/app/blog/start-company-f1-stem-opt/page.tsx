@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, AlertTriangle, FileText, Download, Target } from "lucide-react";
+import { Clock, AlertTriangle, Download, Target } from "lucide-react";
 import { RelatedPosts } from "@/components/blog/RelatedPosts";
 import { getRelatedPostsForSlug } from "@/lib/blog/related-posts";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
@@ -56,8 +56,7 @@ export default function STEMOPTStartupArticle() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">Entrepreneurship Series: Part 3</span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />8 min read</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Entrepreneurship Series: Part 3 · 8 min read</span>
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                     Can You Run a Startup on STEM OPT? The Employer Rules Explained
@@ -69,15 +68,15 @@ export default function STEMOPTStartupArticle() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/f1-stem-opt-startup.png" alt="Tech startup founder presenting to investors in a modern boardroom" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/f1-stem-opt-startup.png" alt="Tech startup founder presenting to investors in a modern boardroom" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     To transition a startup to STEM OPT, you must restructure the entity so that you are supervised by an independent board or manager.
                 </figcaption>
             </figure>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / The Bottom Line</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Self-employment is strictly prohibited on STEM OPT. To work for your own company, you must prove a <strong>bona fide employer-employee relationship</strong>. This requires restructuring your startup with an independent Board of Directors that has the authority to fire you, and your company must be enrolled in E-Verify and pay you a salary.
@@ -85,9 +84,7 @@ export default function STEMOPTStartupArticle() {
             </div>
 
             <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 mb-12">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    Table of Contents
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Table of Contents
                 </h2>
                 <ul className="space-y-2 text-blue-600 dark:text-blue-400 text-sm">
                     <li><a href="#the-prohibition" className="hover:underline">1. The Self-Employment Prohibition</a></li>
@@ -117,17 +114,17 @@ export default function STEMOPTStartupArticle() {
                         The "Employer-Employee" Restructure
                     </h2>
                     <p>
-                        To legally work for your own startup on STEM OPT, the company must be a separate legal entity (like a C-Corp), and you must be an <em>employee</em> of that entity. How do you prove this to USCIS?
+                        To legally work for your own startup on STEM OPT, the company must be a separate legal entity (like a C-Corp), and you must be an <strong>employee</strong> of that entity. How do you prove this to USCIS?
                     </p>
                     <ul>
-                        <li><strong>A Board of Directors:</strong> You must establish an independent board or appoint a CEO/manager who has the power to supervise your work, evaluate your performance, and <em>fire you</em> if necessary.</li>
+                        <li><strong>A Board of Directors:</strong> You must establish an independent board or appoint a CEO/manager who has the power to supervise your work, evaluate your performance, and <strong>fire you</strong> if necessary.</li>
                         <li><strong>Outside Investors:</strong> Giving up equity to venture capitalists or angel investors helps prove that the company is controlled by entities other than yourself.</li>
                         <li><strong>Paid Salary:</strong> You can no longer work for free. You must be paid a salary commensurate with similarly situated U.S. workers in your area.</li>
                     </ul>
                 </section>
 
                 <section id="i983-and-everify" className="mb-12">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
+                    <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
                         <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
                             <Target className="w-5 h-5" />
                             E-Verify and the I-983 Training Plan
@@ -140,7 +137,7 @@ export default function STEMOPTStartupArticle() {
                         </p>
                     </div>
 
-                    <div className="mt-8 p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
+                    <div className="mt-8 p-6 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-1 flex items-center gap-2">
                                 <Download className="w-5 h-5" /> STEM OPT Founder's Restructure Checklist
@@ -186,7 +183,7 @@ export default function STEMOPTStartupArticle() {
             <RelatedPosts posts={getRelatedPostsForSlug("start-company-f1-stem-opt")} />
             <AuthorBio />
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Read The Rest of the Series</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/start-company-f1-student-visa" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ Part 1: Starting a Company on F-1 (Studying)</Link>

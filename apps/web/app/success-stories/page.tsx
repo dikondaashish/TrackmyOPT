@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Star, Building2, ArrowRight, Trophy, Send } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
 import { LandingNavbar } from "../../components/landing/LandingNavbar";
 import { LandingFooter } from "../../components/landing/LandingFooter";
 import { FeatureHero } from "../../components/features/FeatureHero";
@@ -15,10 +15,9 @@ import { CountUp } from "@/components/ui/count-up";
 function SuccessStatsVisual() {
     return (
         <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl blur-2xl opacity-20" />
-            <div className="relative bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 shadow-2xl">
+            <div className="relative bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8">
                 <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Success Metrics</span>
                 </div>
 
@@ -27,9 +26,8 @@ function SuccessStatsVisual() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center"
+                        className="bg-green-50 dark:bg-green-950 rounded-xl p-4 text-center"
                     >
-                        <Trophy className="w-6 h-6 text-green-600 mx-auto mb-2" />
                         <div className="text-2xl font-bold text-green-700 dark:text-green-300">
                             <CountUp value={500} suffix="+" />
                         </div>
@@ -39,9 +37,8 @@ function SuccessStatsVisual() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center"
+                        className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 text-center"
                     >
-                        <Building2 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                         <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                             <CountUp value={85} suffix="%" />
                         </div>
@@ -62,10 +59,6 @@ function SuccessStatsVisual() {
     );
 }
 
-
-
-
-
 // Stats Section
 function StatsSection() {
     const stats = [
@@ -77,7 +70,7 @@ function StatsSection() {
     return (
         <section className="py-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-3xl p-8 md:p-12">
+                <div className="bg-green-600 rounded-xl p-8 md:p-12">
                     <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
                         Proven Track Record
                     </h2>
@@ -104,11 +97,8 @@ function SubmitStory() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-800 p-8 md:p-12 text-center"
+                    className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-8 md:p-12 text-center"
                 >
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 mb-6">
-                        <Send className="w-8 h-8 text-white" />
-                    </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Share Your Success Story
                     </h2>
@@ -117,7 +107,7 @@ function SubmitStory() {
                     </p>
                     <Link
                         href="/contact"
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                        className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                     >
                         Submit Your Story
                         <ArrowRight className="w-5 h-5" />
@@ -130,12 +120,11 @@ function SubmitStory() {
 
 export default function SuccessStoriesPage() {
     return (
-        <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <main className="min-h-screen bg-gray-50 dark:bg-zinc-950">
             <LandingNavbar />
 
             {/* Hero */}
             <FeatureHero
-                badge="Success Stories"
                 headline="Real Results from Real Students"
                 subheadline="Explore stories and tools for planning OPT timelines and researching H-1B sponsors."
                 ctaText="Start Your Journey"
@@ -144,7 +133,7 @@ export default function SuccessStoriesPage() {
                     text: "See Features",
                     href: "/features"
                 }}
-                gradient="from-green-600 to-emerald-600"
+                gradient="bg-green-600"
                 visual={<SuccessStatsVisual />}
             />
 

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, Shield } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,24 +46,22 @@ export default function RentingWithoutCreditPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Life in US</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Housing</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     How to Rent an Apartment Without US Credit History (2026 Guide)
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Moving off-campus or relocating for your new OPT job? Learn the 5 proven strategies to get your lease approved when you have zero US credit history.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Life in US · Housing</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 8 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/renting-apartment-without-us-credit-history.png" alt="Printed apartment lease agreement with house keys and a passport" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -77,7 +75,7 @@ export default function RentingWithoutCreditPage() {
                     A guarantor (or co-signer) is someone who legally agrees to pay your rent if you default. If you don't have wealthy family members living in the US with excellent credit, you can pay a company to act as your guarantor.
                 </p>
                 <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-xl my-6">
-                    <h4 className="flex items-center gap-2 font-bold text-lg mt-0 mb-3"><Shield className="w-5 h-5 text-primary" /> Popular Guarantor Services</h4>
+                    <h4 className="font-bold text-lg mt-0 mb-3">Popular Guarantor Services</h4>
                     <ul className="mb-0">
                         <li><strong>The Guarantors:</strong> Very popular in major cities like NYC and San Francisco. They typically charge a one-time fee of about 50% to 100% of one month's rent.</li>
                         <li><strong>Leap:</strong> Similar to The Guarantors, widely accepted by major corporate landlords.</li>
@@ -85,7 +83,7 @@ export default function RentingWithoutCreditPage() {
                     </ul>
                 </div>
                 <p>
-                    <em>Note: You must ask the landlord/leasing office if they accept third-party guarantors before applying. Not all do.</em>
+                    Note: You must ask the landlord/leasing office if they accept third-party guarantors before applying. Not all do.
                 </p>
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">Strategy 2: Show Your OPT Offer Letter & Bank Statements</h2>
@@ -103,7 +101,7 @@ export default function RentingWithoutCreditPage() {
                 <p>
                     If a landlord is nervous about your lack of credit, money talks. By law, some states restrict how much a landlord can ask for (e.g., New York limits security deposits to one month's rent). However, in states where it is legal, offering to pay a larger deposit can instantly get you approved.
                 </p>
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-6">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-6">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         Beware of Scams
@@ -131,9 +129,7 @@ export default function RentingWithoutCreditPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Ready to Build Your Credit?
                 </h3>
@@ -143,7 +139,7 @@ export default function RentingWithoutCreditPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/blog/building-credit-international-students-opt"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Read the Credit Guide
                     </Link>
@@ -154,7 +150,7 @@ export default function RentingWithoutCreditPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/how-to-get-ssn-on-opt" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 How to get an SSN on OPT
                             </h4>
@@ -167,7 +163,7 @@ export default function RentingWithoutCreditPage() {
                         </div>
                     </Link>
                     <Link href="/blog/f1-student-tax-filing-guide-2026" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 F-1 Student Tax Filing
                             </h4>

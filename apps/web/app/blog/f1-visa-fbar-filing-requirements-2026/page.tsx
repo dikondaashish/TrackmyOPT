@@ -100,7 +100,7 @@ export default function FbarGuidePage() {
         <Link href="/blog">Blog</Link> / Tax &amp; Finance
       </nav>
       <header>
-        <p className={styles.eyebrow}>
+        <p className={styles.meta}>
           The international student’s visual tax guide · 2026
         </p>
         <h1>Do F-1 Students on OPT or STEM OPT Need to File an FBAR?</h1>

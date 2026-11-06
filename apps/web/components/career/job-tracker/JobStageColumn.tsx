@@ -46,14 +46,14 @@ export function JobStageColumn({
                         <button
                             type="button"
                             onClick={handleDeleteClick}
-                            className="min-h-11 min-w-11 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                            className="min-h-11 min-w-11 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded"
                             aria-label={`Delete ${column.title} column`}
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
                     )}
                 </div>
-                <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium px-2 py-0.5 rounded-md">
                     {applications.length} Job{applications.length !== 1 ? 's' : ''}
                 </span>
             </div>
@@ -63,11 +63,11 @@ export function JobStageColumn({
                 ref={setNodeRef}
                 className={cn(
                     "flex-1 p-3 rounded-b-xl transition-all duration-200 overflow-y-auto scrollbar-thin",
-                    "bg-dot-pattern bg-slate-50/50 dark:bg-slate-900/50", // Light dot background
+                    "bg-dot-pattern bg-slate-50 dark:bg-slate-900", // Light dot background
                     "border border-slate-200 dark:border-slate-800",
                     "min-h-[75vh] max-h-[calc(100vh-190px)]",
                     // Drop target highlight
-                    isOver && "ring-2 ring-blue-400/50 bg-blue-50/50 dark:bg-blue-900/20"
+                    isOver && "ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-950"
                 )}
             >
                 <SortableContext items={applications.map(a => a.id)} strategy={verticalListSortingStrategy}>

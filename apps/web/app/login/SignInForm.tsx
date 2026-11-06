@@ -97,7 +97,7 @@ export function SignInForm({
           {loading ? "Signing in..." : "Sign In"}
         </button>
         {lastUsedMethod === "email" && (
-          <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+          <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-medium px-2 py-0.5 rounded-md">
             Last used
           </span>
         )}
@@ -142,7 +142,7 @@ export function SignInForm({
           Google
         </button>
         {lastUsedMethod === "google" && (
-          <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+          <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs font-medium px-2 py-0.5 rounded-md">
             Last used
           </span>
         )}

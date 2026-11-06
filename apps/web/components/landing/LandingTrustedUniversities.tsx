@@ -58,16 +58,16 @@ export function LandingTrustedUniversities() {
                     {item.name[0]}
                 </div>
             )}
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-foreground whitespace-nowrap">
+            <span className="text-lg sm:text-xl font-bold text-foreground whitespace-nowrap">
                 {item.name}
             </span>
         </div>
     );
 
     return (
-        <div className="w-full py-12 border-y border-gray-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm overflow-hidden mb-12">
+        <div className="w-full py-12 border-y border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden mb-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center">
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+                <p className="text-sm font-semibold text-muted-foreground">
                     Trusted by students from top universities and companies
                 </p>
             </div>

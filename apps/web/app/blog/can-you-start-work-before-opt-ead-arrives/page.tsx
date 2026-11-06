@@ -45,9 +45,6 @@ export default function StartWorkBeforeEadPage() {
       <BreadcrumbSchema items={[{ name: "Home", url: "https://www.trackmyopt.com" }, { name: "Blog", url: "https://www.trackmyopt.com/blog" }, { name: "Can You Work Before Your OPT EAD Arrives?", url: CANONICAL }]} />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">OPT Work Authorization</span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           Can You Start Working Before Your OPT EAD Arrives?
         </h1>
@@ -57,19 +54,21 @@ export default function StartWorkBeforeEadPage() {
           work, and exactly what to do if the card is delayed.
         </p>
         <div className="mt-6 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>OPT Work Authorization</span>
+          <span>•</span>
           <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 10 min read</span>
           <span>•</span>
           <span>Updated July 27, 2026</span>
         </div>
       </header>
 
-      <div className="relative w-full h-[420px] md:h-[520px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+      <div className="relative w-full h-[420px] md:h-[520px] rounded-xl overflow-hidden mb-12 shadow-xl">
         <BlogPostImage src="/blog/can-you-start-work-before-opt-ead-arrives.png" alt="USCIS approval notice, sticky note saying Card NOT arrived - Do NOT start work, and USCIS case status on laptop" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
       </div>
 
       {/* Direct Answer */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">Direct Answer</p>
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">Direct Answer</p>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed">
           Do not begin performing work for an employer before you have your physical EAD card in
           hand and the OPT authorization start date has arrived. ICE guidance instructs students
@@ -169,7 +168,7 @@ export default function StartWorkBeforeEadPage() {
               { item: "Allow the employer to log you as an active employee before authorization", note: "Even if the payroll department suggests it is fine, this creates a record of unauthorized employment." },
             ].map((row, i) => (
               <li key={i} className="flex items-start gap-3 text-gray-800 dark:text-gray-200">
-                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mt-0.5">
+                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center mt-0.5">
                   <span className="text-red-600 dark:text-red-400 text-xs font-bold">✕</span>
                 </div>
                 <div>
@@ -204,7 +203,7 @@ export default function StartWorkBeforeEadPage() {
           <li>Do not let employer pressure push you into starting without authorization</li>
         </ol>
 
-        <div className="not-prose bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
+        <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-5 rounded-r-xl my-6">
           <div className="flex gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -229,7 +228,7 @@ export default function StartWorkBeforeEadPage() {
           customize:
         </p>
         <div className="not-prose bg-gray-50 dark:bg-zinc-800 rounded-xl p-5 my-4 border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Sample Email to HR</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">Sample Email to HR</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
             Subject: Employment Authorization Card — Update on Start Date<br /><br />
             Hi [HR Contact],<br /><br />
@@ -318,7 +317,7 @@ export default function StartWorkBeforeEadPage() {
             { label: "DHS Form I-9 Acceptable Documents", href: "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents" },
           ].map((s) => (
             <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary/30 transition-colors">
+              className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-primary hover:border-primary transition-colors">
               <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
               {s.label}
             </a>
@@ -347,7 +346,7 @@ export default function StartWorkBeforeEadPage() {
               { href: "/blog/opt-employment-evidence-checklist", title: "OPT Employment Evidence Checklist", desc: "Every document to save — including EAD card copies and approval notices." },
             ].map((r) => (
               <Link key={r.href} href={r.href} className="group block">
-                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-5 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                   <h3 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-base">{r.title}</h3>
                   <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{r.desc}</p>
                   <span className="text-primary font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Read Guide <ArrowRight className="w-4 h-4" /></span>

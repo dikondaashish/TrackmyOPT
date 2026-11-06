@@ -25,40 +25,40 @@ interface MetricCardProps {
 
 function MetricCard({ title, value, icon, status, subtitle }: MetricCardProps) {
   const statusStyles = {
-    good: "border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20",
-    warning: "border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20",
-    critical: "border-red-200 dark:border-red-800 bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-950/30 dark:to-red-900/20",
+    good: "border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950",
+    warning: "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950",
+    critical: "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950",
     neutral: "border-border bg-card",
   };
 
   const iconStyles = {
-    good: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/50",
-    warning: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50",
-    critical: "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50",
+    good: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900",
+    warning: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900",
+    critical: "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900",
     neutral: "text-muted-foreground bg-muted",
   };
 
   const badgeStyles = {
-    good: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400",
-    warning: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400",
-    critical: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400",
+    good: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400",
+    warning: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-400",
+    critical: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-400",
     neutral: "bg-muted text-muted-foreground",
   };
 
   return (
-    <div className={`group border rounded-xl p-5 transition-all duration-200 hover:shadow-lg ${statusStyles[status]}`}>
+    <div className={`group border rounded-xl p-5 ${statusStyles[status]}`}>
       <div className="flex items-start justify-between mb-3">
         <div className={`p-2.5 rounded-lg ${iconStyles[status]}`}>
           {icon}
         </div>
         {subtitle && (
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${badgeStyles[status]}`}>
+          <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${badgeStyles[status]}`}>
             {subtitle}
           </span>
         )}
       </div>
       <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
-      <p className="text-2xl font-bold tracking-tight text-foreground">{value}</p>
+      <p className="text-2xl font-bold text-foreground">{value}</p>
     </div>
   );
 }
@@ -358,7 +358,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
 
       {showBreakdown && (
         <div
-          className="rounded-xl border border-border bg-card/50 p-4 text-sm space-y-2"
+          className="rounded-xl border border-border bg-card p-4 text-sm space-y-2"
           role="region"
           aria-label="OPT and STEM unemployment breakdown"
         >
@@ -388,7 +388,7 @@ export function MetricCards({ apiData }: MetricCardsProps = {}) {
           )}
           {!metrics.exceededInitialOptCap && (
             <p className="text-xs text-muted-foreground">
-              STEM OPT extends your cumulative allowance to 150 days total. It does <em>not</em> reset the counter.
+              STEM OPT extends your cumulative allowance to 150 days total. It does <strong>not</strong> reset the counter.
             </p>
           )}
         </div>

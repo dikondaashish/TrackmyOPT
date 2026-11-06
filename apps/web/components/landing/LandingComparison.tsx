@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, X, FileSpreadsheet, AlertTriangle, Zap, Shield } from "lucide-react";
+import { Check, X, AlertTriangle, Shield } from "lucide-react";
 
 const comparisonData = [
     {
@@ -29,15 +29,11 @@ const comparisonData = [
 export function LandingComparison() {
     return (
         <section className="py-24 relative">
-            {/* Glass Background for Section */}
-            <div className="absolute inset-0 bg-white/30 dark:bg-black/20 backdrop-blur-[2px] -z-10" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="prose-longform text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                         OPT Tracking: Spreadsheets vs{" "}
-                        <span className="text-red-500 decoration-4 underline decoration-red-200 dark:decoration-red-900/50 underline-offset-4">
-                            TrackMyOPT
-                        </span>
+                        TrackMyOPT
                     </h2>
                     <p className="text-lg text-muted-foreground">
                         The difference between stress and peace of mind is the right system.
@@ -50,17 +46,11 @@ export function LandingComparison() {
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative bg-red-50/40 dark:bg-red-950/20 backdrop-blur-md rounded-3xl p-8 border border-red-500/20 dark:border-red-500/10"
+                        className="relative bg-red-50 dark:bg-red-950 rounded-xl p-8"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <FileSpreadsheet className="w-32 h-32 text-red-500" />
-                        </div>
-
                         <div className="relative z-10 prose-longform">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-3 bg-red-100/50 dark:bg-red-900/30 rounded-xl">
-                                    <X className="w-6 h-6 text-red-600 dark:text-red-400" />
-                                </div>
+                                <X className="w-6 h-6 text-red-600 dark:text-red-400" aria-hidden />
                                 <h3 className="text-xl font-bold text-red-900 dark:text-red-200">The Old Way</h3>
                             </div>
 
@@ -75,7 +65,7 @@ export function LandingComparison() {
                                 ))}
                             </ul>
 
-                            <div className="mt-10 p-4 bg-red-100/50 dark:bg-red-900/20 rounded-xl border border-red-200/50 dark:border-red-900/30">
+                            <div className="mt-10 p-4 bg-red-100 dark:bg-red-900 rounded-lg">
                                 <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-semibold mb-1">
                                     <AlertTriangle className="w-4 h-4" />
                                     <span>Risk Level: High</span>
@@ -92,26 +82,18 @@ export function LandingComparison() {
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative bg-blue-50/40 dark:bg-blue-950/20 backdrop-blur-md rounded-3xl p-8 border border-blue-500/20 dark:border-blue-500/10 shadow-xl shadow-blue-500/5"
+                        className="relative bg-blue-50 dark:bg-blue-950 rounded-xl p-8"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <Zap className="w-32 h-32 text-blue-500" />
-                        </div>
-
                         <div className="relative z-10 prose-longform">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-3 bg-blue-100/50 dark:bg-blue-900/30 rounded-xl">
-                                    <Check className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                                </div>
+                                <Check className="w-6 h-6 text-blue-600 dark:text-blue-400" aria-hidden />
                                 <h3 className="text-xl font-bold text-blue-900 dark:text-blue-200">The TrackMyOPT Way</h3>
                             </div>
 
                             <ul className="space-y-6">
                                 {comparisonData.map((item, i) => (
                                     <li key={i} className="flex gap-4 items-start">
-                                        <div className="p-1 bg-blue-100 dark:bg-blue-900/40 rounded-full">
-                                            <Check className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                                        </div>
+                                        <Check className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                                         <div>
                                             <p className="font-semibold text-gray-900 dark:text-white">{item.newWay}</p>
                                         </div>
@@ -119,7 +101,7 @@ export function LandingComparison() {
                                 ))}
                             </ul>
 
-                            <div className="mt-10 p-4 bg-blue-100/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-900/30">
+                            <div className="mt-10 p-4 bg-blue-100 dark:bg-blue-900 rounded-lg">
                                 <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold mb-1">
                                     <Shield className="w-4 h-4" />
                                     <span>Risk Minimized</span>

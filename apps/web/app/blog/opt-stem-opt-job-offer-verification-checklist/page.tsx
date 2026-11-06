@@ -105,13 +105,7 @@ export default function OPTSTEMOfferChecklistPage() {
 
       <header className="mb-12">
         <div className="flex items-center gap-3 mb-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
-            STEM OPT
-          </span>
-          <span className="text-sm text-gray-500 flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            8 min read
-          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Stem opt · 8 min read</span>
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
           OPT & STEM OPT: Before Accepting a Job Offer, Verify These 3 Areas
@@ -122,14 +116,14 @@ export default function OPTSTEMOfferChecklistPage() {
         <div className="mt-6 text-sm text-gray-500">Last updated: April 23, 2026 • Written by Vinay Kumar</div>
       </header>
 
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
         <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
         <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
           Before accepting an OPT/STEM OPT job offer, confirm it is a W-2 degree-related role, verify E-Verify and I-983 readiness (for STEM OPT), and make sure DSO + SEVIS records match your EAD dates and real work location.
         </p>
       </div>
 
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-10">
+      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-10">
         <h2 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
           <AlertTriangle className="w-5 h-5" />
           Why this matters
@@ -223,7 +217,7 @@ export default function OPTSTEMOfferChecklistPage() {
         </section>
       </div>
 
-      <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-8 text-center text-white mt-12">
+      <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
         <h2 className="text-2xl font-bold mb-3">Track Compliance Before It Becomes a Problem</h2>
         <p className="text-blue-100 mb-6 max-w-lg mx-auto">
           Use TrackMyOPT to monitor unemployment days, deadline windows, and STEM OPT requirements in one dashboard.
@@ -236,7 +230,7 @@ export default function OPTSTEMOfferChecklistPage() {
         </Link>
       </div>
 
-      <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+      <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
         <div className="grid sm:grid-cols-2 gap-3">
           <Link href="/blog/stem-opt-employer-requirements" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">

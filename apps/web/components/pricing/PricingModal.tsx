@@ -348,7 +348,7 @@ function PricingModalContent({
         current: !isPremium,
         iconBg: 'bg-slate-100 dark:bg-slate-800',
         iconColor: 'text-slate-600 dark:text-slate-400',
-        borderColor: 'border-border/60',
+        borderColor: 'border-border',
         features: getPlanCardFeatures('free'),
       },
       {
@@ -362,9 +362,9 @@ function PricingModalContent({
         yearlyListPrice: PLAN_LIST_PRICES.pro.year,
         popular: true,
         current: isPremium,
-        iconBg: 'bg-gradient-to-br from-violet-500 to-indigo-600',
+        iconBg: 'bg-violet-500',
         iconColor: 'text-white',
-        borderColor: 'border-violet-500/50',
+        borderColor: 'border-violet-500',
         features: getPlanCardFeatures('pro'),
       },
       {
@@ -378,9 +378,9 @@ function PricingModalContent({
         yearlyListPrice: PLAN_LIST_PRICES.dedicated.year,
         popular: false,
         current: false,
-        iconBg: 'bg-gradient-to-br from-amber-400 to-orange-500',
+        iconBg: 'bg-amber-400',
         iconColor: 'text-white',
-        borderColor: 'border-amber-500/30',
+        borderColor: 'border-amber-300',
         features: getPlanCardFeatures('dedicated'),
       },
     ];
@@ -396,7 +396,7 @@ function PricingModalContent({
         <DialogContent
           onClose={onClose}
           aria-labelledby="case-monitoring-offer-title"
-          className="w-[95vw] max-w-xl overflow-hidden rounded-3xl border-0 bg-amber-300 p-0 text-slate-950 [&>button]:text-slate-900"
+          className="w-[95vw] max-w-xl overflow-hidden rounded-xl border-0 bg-amber-300 p-0 text-slate-950 [&>button]:text-slate-900"
         >
           <CaseMonitoringOffer
             eligible={proIntroEligible}
@@ -420,25 +420,23 @@ function PricingModalContent({
       <DialogContent
         onClose={onClose}
         className={cn(
-          'max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border/50 bg-background shadow-2xl flex flex-col',
+          'max-w-[1100px] w-[95vw] p-0 gap-0 overflow-hidden border border-border bg-background shadow-2xl flex flex-col',
           checkoutPage
             ? 'max-h-[min(95vh,920px)] md:text-base lg:text-[15px]'
             : 'max-h-[min(92vh,880px)] md:text-[15px]'
         )}
       >
-        <div className="relative shrink-0 overflow-hidden px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2 text-center border-b border-border/30 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.08),transparent_50%)]" />
-
+        <div className="relative shrink-0 overflow-hidden px-5 sm:px-6 md:px-5 pt-5 pb-3 sm:pb-4 md:pt-4 md:pb-2 text-center border-b border-border">
           <div
             className="pointer-events-none absolute inset-0 z-0 hidden select-none lg:block"
             aria-hidden="true"
           >
-            <div className="absolute inset-y-0 left-0 w-44 overflow-hidden opacity-60 [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)]">
+            <div className="absolute inset-y-0 left-0 w-44 overflow-hidden opacity-60">
               <div className="px-3 py-2">
                 <HeaderBenefitTicker />
               </div>
             </div>
-            <div className="absolute inset-y-0 right-0 w-44 overflow-hidden opacity-60 [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)]">
+            <div className="absolute inset-y-0 right-0 w-44 overflow-hidden opacity-60">
               <div className="px-3 py-2">
                 <HeaderBenefitTicker reverse />
               </div>
@@ -446,14 +444,13 @@ function PricingModalContent({
           </div>
 
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 md:px-2.5 md:py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 text-[11px] md:text-[10px] font-semibold mb-2 md:mb-1.5 border border-violet-500/20">
-              <Shield className="w-3 h-3 md:w-2.5 md:h-2.5" />
+            <p className="mb-1.5 text-xs text-muted-foreground">
               {PRICING_MODAL.badge}
-            </div>
+            </p>
 
             <h2
               className={cn(
-                'text-xl sm:text-2xl font-bold tracking-tight text-foreground mb-1',
+                'text-xl sm:text-2xl font-bold text-foreground mb-1',
                 checkoutPage
                   ? 'md:text-2xl lg:text-[1.4rem]'
                   : 'md:text-xl lg:text-[1.35rem]'
@@ -473,7 +470,7 @@ function PricingModalContent({
             </p>
             <p
               className={cn(
-                'text-muted-foreground/90 max-w-xl mx-auto mt-2 leading-snug',
+                'text-muted-foreground max-w-xl mx-auto mt-2 leading-snug',
                 checkoutPage
                   ? 'text-[11px] sm:text-xs'
                   : 'text-[10px] sm:text-[11px]'

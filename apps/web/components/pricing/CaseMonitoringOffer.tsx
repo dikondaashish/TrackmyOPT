@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Bell, CalendarCheck, Clock3, Zap } from 'lucide-react';
+import { ArrowRight, Bell, CalendarCheck, Clock3 } from 'lucide-react';
 import { PLAN_PRICES } from '@/lib/pricing/plan-config';
 import {
   PRO_PAID_INTRO_PRICE,
@@ -37,7 +37,7 @@ export function CaseMonitoringOffer(props: Props) {
       <h2
         id="case-monitoring-offer-title"
         tabIndex={0}
-        className={`px-5 text-center text-2xl font-bold tracking-tight sm:text-3xl ${styles.title}`}
+        className={`px-5 text-center text-2xl font-bold sm:text-3xl ${styles.title}`}
       >
         {eligible ? 'Special one-time offer' : 'Upgrade to Pro'}
       </h2>
@@ -45,16 +45,12 @@ export function CaseMonitoringOffer(props: Props) {
         Let Pro handle your daily USCIS checks.
       </p>
       <div
-        className={`my-3 rounded-3xl bg-white px-5 py-3 text-slate-900 shadow-lg sm:px-6 ${styles.ticket}`}
+        className={`my-3 rounded-xl bg-white px-5 py-3 text-slate-900 sm:px-6 ${styles.ticket}`}
       >
         <div className="flex items-center justify-center gap-2 text-sm font-semibold">
-          <Zap
-            aria-hidden="true"
-            className={`h-5 w-5 fill-amber-400 text-amber-500 ${styles.spark}`}
-          />
           <span>TrackMyOPT Pro</span>
-          <span className="rounded-lg bg-amber-300 px-2 py-1 text-xs font-bold">
-            {eligible ? `${PRO_TRIAL_DAYS} DAYS` : yearly ? 'ANNUAL' : 'MONTHLY'}
+          <span className="rounded-md bg-amber-200 px-2 py-0.5 text-xs font-medium">
+            {eligible ? `${PRO_TRIAL_DAYS} days` : yearly ? 'Annual' : 'Monthly'}
           </span>
         </div>
         <div className="mt-3 text-center" role="status">
@@ -67,7 +63,7 @@ export function CaseMonitoringOffer(props: Props) {
           ) : eligible ? (
             <>
               <span className="block text-xs text-slate-500">Just</span>{' '}
-              <span className="block text-6xl font-bold tracking-tighter">
+              <span className="block text-6xl font-bold">
                 {intro}
               </span>{' '}
               <span className="mt-1 block text-xs text-slate-600">
@@ -203,7 +199,7 @@ export function CaseMonitoringOffer(props: Props) {
           type="button"
           disabled={loading}
           onClick={props.onClose}
-          className="min-h-11 text-slate-700 underline decoration-slate-700/30 underline-offset-4 hover:text-slate-950"
+          className="min-h-11 text-slate-700 underline decoration-slate-700 underline-offset-4 hover:text-slate-950"
         >
           Keep manual checks free
         </button>
@@ -211,7 +207,7 @@ export function CaseMonitoringOffer(props: Props) {
           type="button"
           disabled={loading}
           onClick={props.onCompare}
-          className="min-h-11 text-slate-700 underline decoration-slate-700/30 underline-offset-4 hover:text-slate-950"
+          className="min-h-11 text-slate-700 underline decoration-slate-700 underline-offset-4 hover:text-slate-950"
         >
           Compare all plans
         </button>

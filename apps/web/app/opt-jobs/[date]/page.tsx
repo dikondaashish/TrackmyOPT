@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { displayPostDate, POST_DOMAINS } from '@/lib/linkedin/daily-post';
@@ -33,7 +33,7 @@ export default async function DailyOptJobsPage({ params }: PageProps) {
       <LandingNavbar />
       <main className="min-h-screen bg-slate-50 px-4 pb-20 pt-28 text-slate-950 dark:bg-zinc-950 dark:text-white">
         <div className="mx-auto max-w-3xl">
-          <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">{displayPostDate(date)}</p>
+          <p className="text-sm text-slate-500 dark:text-zinc-400">{displayPostDate(date)}</p>
           <h1 className="mt-2 text-3xl font-bold leading-tight">Jobs for OPT &amp; STEM OPT job seekers</h1>
           <p className="mt-3 text-slate-600 dark:text-zinc-300">
             {post.items.length} fresh US openings from verified company career pages. Roles that rule out visa
@@ -42,10 +42,8 @@ export default async function DailyOptJobsPage({ params }: PageProps) {
 
           {groups.map((group) => (
             <section key={group.key} className="mt-8">
-              <h2 className="text-lg font-semibold">
-                {group.emoji} {group.label}
-              </h2>
-              <ul className="mt-3 divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+              <h2 className="text-lg font-semibold">{group.label}</h2>
+              <ul className="mt-3 divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
                 {group.items.map((item) => (
                   <li key={item.code}>
                     <Link
@@ -67,9 +65,8 @@ export default async function DailyOptJobsPage({ params }: PageProps) {
             </section>
           ))}
 
-          <section className="mt-10 rounded-2xl border border-blue-100 bg-blue-50 p-6 dark:border-blue-900/50 dark:bg-blue-950/30">
-            <h2 className="flex items-center gap-2 font-semibold">
-              <Sparkles className="h-5 w-5" aria-hidden />
+          <section className="mt-10 rounded-xl bg-blue-50 p-6 dark:bg-blue-950">
+            <h2 className="font-semibold">
               Stand out for these roles
             </h2>
             <p className="mt-2 text-sm text-slate-700 dark:text-zinc-300">

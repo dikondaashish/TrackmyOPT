@@ -73,7 +73,7 @@ export function SimilarFilingCard({
 
   if (!peers) {
     return (
-      <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-1.5">
+      <div className="rounded-xl border border-border bg-muted p-4 space-y-1.5">
         <div className="flex items-center gap-2">
           <CalendarRange className="w-4 h-4 text-muted-foreground" />
           <p className="text-sm font-semibold text-foreground">
@@ -110,13 +110,13 @@ export function SimilarFilingCard({
             </p>
           </div>
         </div>
-        <p className="rounded-full bg-muted/50 px-2.5 py-1 text-xs text-muted-foreground whitespace-nowrap">
+        <p className="text-xs text-muted-foreground whitespace-nowrap">
           {peers.sampleSize.toLocaleString()} reports
         </p>
       </div>
 
       {copy.caveat && (
-        <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+        <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
           <p className="font-medium text-foreground">{copy.note}</p>
           <details className="mt-1">
             <summary className="w-fit cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -128,24 +128,24 @@ export function SimilarFilingCard({
       )}
 
       <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-lg bg-muted/40 px-2 py-2">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-lg bg-muted px-2 py-2">
+          <p className="text-[10px] text-muted-foreground">
             Median
           </p>
           <p className="text-base font-bold text-foreground">
             {peers.medianDays}d
           </p>
         </div>
-        <div className="rounded-lg bg-muted/40 px-2 py-2">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-lg bg-muted px-2 py-2">
+          <p className="text-[10px] text-muted-foreground">
             Middle 50%
           </p>
           <p className="text-base font-bold text-foreground">
             {peers.p25Days}–{peers.p75Days}d
           </p>
         </div>
-        <div className="rounded-lg bg-muted/40 px-2 py-2">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-lg bg-muted px-2 py-2">
+          <p className="text-[10px] text-muted-foreground">
             {seasonal ? 'Years' : 'Window'}
           </p>
           <p className="text-xs font-semibold text-foreground leading-snug pt-0.5">

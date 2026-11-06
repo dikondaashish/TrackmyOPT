@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, FileText, BookOpen, GraduationCap, Binary, Cpu } from "lucide-react";
+import { Clock, ArrowRight, GraduationCap } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import { AuthorBio } from "@/components/blog/AuthorBio";
@@ -68,9 +68,8 @@ export default function CIPCodeGuide() {
 
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
-                        STEM OPT
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">STEM OPT</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         8 min read
@@ -90,24 +89,23 @@ export default function CIPCodeGuide() {
             </header>
 
             <figure className="mb-12">
-                <div className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
-                    <BlogPostImage src="/blog/is-my-degree-stem-eligible-cip-code.png" alt="Laptop screen showing DHS STEM Designated Degree list with university catalogs on a desk" className="w-full h-[400px] object-cover rounded-2xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
+                <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-zinc-800">
+                    <BlogPostImage src="/blog/is-my-degree-stem-eligible-cip-code.png" alt="Laptop screen showing DHS STEM Designated Degree list with university catalogs on a desk" className="w-full h-[400px] object-cover rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800" sizes="(max-width: 768px) 100vw, 768px" priority />
                 </div>
                 <figcaption className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                     Your university registrar and DSO map school degree courses to official federal CIP codes.
                 </figcaption>
             </figure>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">TL;DR / Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     Look at the <strong>&quot;Primary Major&quot;</strong> section on page 1 of your Form I-20. You will see a 6-digit code (e.g., <strong>11.0101</strong> for Computer Science). Compare this code to the official <strong>DHS STEM Designated Degree Program List</strong>. If it matches, your program is eligible for the 24-month STEM OPT extension.
                 </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -118,9 +116,8 @@ export default function CIPCodeGuide() {
                 </p>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                     In This Guide
                 </h2>
                 <nav className="space-y-2">
@@ -141,8 +138,7 @@ export default function CIPCodeGuide() {
             <div className="prose prose-lg prose-longform dark:prose-invert max-w-none">
 
                 <section id="what-is-cip" className="mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <Binary className="w-7 h-7 text-indigo-500" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         What is a CIP Code?
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -154,8 +150,7 @@ export default function CIPCodeGuide() {
                 </section>
 
                 <section id="find-on-i20" className="mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <GraduationCap className="w-7 h-7 text-blue-500" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         How to Find Your CIP Code on Form I-20
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -178,24 +173,22 @@ export default function CIPCodeGuide() {
                 </section>
 
                 <section id="dhs-stem-list" className="mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <Cpu className="w-7 h-7 text-purple-500" />
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                         Checking the DHS STEM Designated Degree List
                     </h2>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                         DHS maintains the official list of STEM-designated CIP codes. If your CIP code matches a code on this list, you are eligible to apply for the 24-month STEM OPT extension.
                     </p>
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-4 text-amber-900 dark:text-amber-100">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-4 text-amber-900 dark:text-amber-100">
                         Always check the official, current list on ICE studyinthestates.dhs.gov before assuming eligibility. DHS updates the list periodically to include new interdisciplinary or tech-related codes.
                     </div>
                 </section>
 
                 {/* Product CTA */}
-                <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-8 my-12 text-white shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="relative z-10">
+                <div className="bg-purple-600 rounded-xl p-8 my-12 text-white">
+                    <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-white/20 rounded-lg">
+                            <div className="p-2 bg-purple-500 rounded-lg">
                                 <GraduationCap className="w-6 h-6 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">Simplify Your STEM OPT Transition</h3>
@@ -232,7 +225,7 @@ export default function CIPCodeGuide() {
                 </section>
             </div>
 
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/stem-opt-extension-guide" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ STEM OPT Extension Guide</Link>

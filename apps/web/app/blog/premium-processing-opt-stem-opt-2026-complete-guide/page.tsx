@@ -148,13 +148,7 @@ export default function OPTPremiumProcessingGuide() {
 
       <header className="mb-12">
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-semibold">
-            Fee & Process Guide
-          </span>
-          <span className="text-sm text-gray-500 flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            9 min read
-          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Fee & Process Guide · 9 min read</span>
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
           Premium Processing for OPT & STEM OPT in 2026: <span className="text-violet-600">$1,780, 30 Business Days</span> — When It's Worth It
@@ -169,7 +163,7 @@ export default function OPTPremiumProcessingGuide() {
         </div>
       </header>
 
-      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-200 dark:border-violet-800 rounded-2xl p-6 mb-10">
+      <div className="bg-violet-50 dark:bg-violet-950 border border-violet-200 dark:border-violet-800 rounded-xl p-6 mb-10">
         <p className="text-sm font-semibold text-violet-600 dark:text-violet-400 mb-2">
           Quick Answer
         </p>
@@ -220,7 +214,7 @@ export default function OPTPremiumProcessingGuide() {
                 key={stat.label}
                 className="p-5 rounded-xl border border-gray-200 dark:border-zinc-800"
               >
-                <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {stat.label}
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
@@ -266,7 +260,7 @@ export default function OPTPremiumProcessingGuide() {
             {notWorth.map((item) => (
               <div
                 key={item}
-                className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900"
+                className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-900"
               >
                 <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
                 <p className="text-sm text-amber-800 dark:text-amber-200 leading-relaxed">
@@ -379,7 +373,7 @@ export default function OPTPremiumProcessingGuide() {
         </section>
 
         <section className="mb-12">
-          <div className="not-prose bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-2xl p-6">
+          <div className="not-prose bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-xl p-6">
             <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
               <strong>Reminder:</strong> Fees and rules change. Verify against
               USCIS's official premium processing page before paying, and treat

@@ -86,11 +86,11 @@ export function PricingModule({
     >
       <div className="max-w-6xl mx-auto text-center">
         {offerLabel && (
-          <div className="mb-3 inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+          <p className="mb-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
             {offerLabel}
-          </div>
+          </p>
         )}
-        <h2 className="text-4xl font-bold tracking-tight mb-2">{title}</h2>
+        <h2 className="text-4xl font-bold mb-2">{title}</h2>
         <p className="text-muted-foreground mb-8">{subtitle}</p>
 
         {/* Toggle */}
@@ -114,14 +114,14 @@ export function PricingModule({
             <Card
               key={plan.id}
               className={cn(
-                'relative border rounded-xl transition-all duration-300 hover:shadow-lg flex flex-col',
+                'relative border rounded-xl transition-colors flex flex-col',
                 plan.recommended
-                  ? 'border-primary shadow-md scale-[1.02] sm:scale-105 z-10'
-                  : 'border-border hover:border-primary/30'
+                  ? 'border-primary'
+                  : 'border-border hover:border-primary'
               )}
             >
               {plan.badge && (
-                <div className="absolute -top-3 left-0 right-0 mx-auto w-fit bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                <div className="absolute -top-3 left-0 right-0 mx-auto w-fit rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
                   {plan.badge}
                 </div>
               )}
@@ -139,7 +139,7 @@ export function PricingModule({
                   {plan.priceMonthly === 0 && plan.priceYearly === 0 ? (
                     <>
                       <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-extrabold tracking-tight tabular-nums">
+                        <span className="text-4xl font-extrabold tabular-nums">
                           $0
                         </span>
                         <span className="text-muted-foreground font-medium">
@@ -156,7 +156,7 @@ export function PricingModule({
                     <>
                       {plan.priceYearlyOriginal != null &&
                         plan.priceYearlyOriginal > plan.priceYearly && (
-                          <div className="text-muted-foreground/60 line-through text-sm font-medium mb-1 tabular-nums">
+                          <div className="text-muted-foreground line-through text-sm font-medium mb-1 tabular-nums">
                             $
                             {formatMonthlyEquivalentFromYearly(
                               plan.priceYearlyOriginal
@@ -165,7 +165,7 @@ export function PricingModule({
                           </div>
                         )}
                       <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-extrabold tracking-tight tabular-nums">
+                        <span className="text-4xl font-extrabold tabular-nums">
                           ${formatMonthlyEquivalentFromYearly(plan.priceYearly)}
                         </span>
                         <span className="text-muted-foreground font-medium">
@@ -185,12 +185,12 @@ export function PricingModule({
                     <>
                       {plan.priceMonthlyOriginal != null &&
                         plan.priceMonthlyOriginal > plan.priceMonthly && (
-                          <div className="text-muted-foreground/60 line-through text-sm font-medium mb-1 tabular-nums">
+                          <div className="text-muted-foreground line-through text-sm font-medium mb-1 tabular-nums">
                             ${plan.priceMonthlyOriginal}
                           </div>
                         )}
                       <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-extrabold tracking-tight tabular-nums">
+                        <span className="text-4xl font-extrabold tabular-nums">
                           ${plan.priceMonthly}
                         </span>
                         <span className="text-muted-foreground font-medium">
@@ -213,7 +213,7 @@ export function PricingModule({
                     className={
                       plan.recommended
                         ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white hover:bg-blue-800'
-                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground/20 text-foreground'
+                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground text-foreground'
                     }
                   >
                     <Link
@@ -233,7 +233,7 @@ export function PricingModule({
                     className={
                       plan.recommended
                         ? 'mb-8 min-h-11 w-full font-semibold bg-blue-700 text-white hover:bg-blue-800'
-                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground/20 text-foreground'
+                        : 'mb-8 min-h-11 w-full font-semibold border-2 border-foreground text-foreground'
                     }
                   >
                     {plan.buttonLabel || buttonLabel}
@@ -247,7 +247,7 @@ export function PricingModule({
                         f.isHeader ? (
                           <li
                             key={i}
-                            className="font-semibold text-foreground/90 mt-5 mb-2 text-xs uppercase tracking-wide border-l-2 border-primary/40 pl-2"
+                            className="font-semibold text-foreground mt-5 mb-2 text-xs border-l-2 border-primary pl-2"
                           >
                             {f.label}
                           </li>
@@ -263,7 +263,7 @@ export function PricingModule({
                                 'leading-tight flex items-center gap-1.5',
                                 f.included
                                   ? 'text-foreground'
-                                  : 'text-muted-foreground/60 line-through'
+                                  : 'text-muted-foreground line-through'
                               )}
                             >
                               {f.label}
@@ -271,7 +271,7 @@ export function PricingModule({
                                 <TooltipProvider delayDuration={0}>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-primary cursor-help shrink-0" />
+                                      <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-primary cursor-help shrink-0" />
                                     </TooltipTrigger>
                                     <TooltipContent
                                       side="top"
@@ -323,7 +323,7 @@ function FeatureCollapse({
           f.isHeader ? (
             <li
               key={`more-${i}`}
-              className="font-semibold text-foreground/90 mt-5 mb-2 text-xs uppercase tracking-wide border-l-2 border-primary/40 pl-2 animate-in fade-in slide-in-from-top-1 duration-200"
+              className="font-semibold text-foreground mt-5 mb-2 text-xs border-l-2 border-primary pl-2 animate-in fade-in slide-in-from-top-1 duration-200"
             >
               {f.label}
             </li>
@@ -342,7 +342,7 @@ function FeatureCollapse({
                   'leading-tight flex items-center gap-1.5',
                   f.included
                     ? 'text-foreground'
-                    : 'text-muted-foreground/60 line-through'
+                    : 'text-muted-foreground line-through'
                 )}
               >
                 {f.label}
@@ -350,7 +350,7 @@ function FeatureCollapse({
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-primary cursor-help shrink-0" />
+                        <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-primary cursor-help shrink-0" />
                       </TooltipTrigger>
                       <TooltipContent
                         side="top"
@@ -368,7 +368,7 @@ function FeatureCollapse({
       <li className="pt-2">
         <button
           onClick={onToggle}
-          className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+          className="text-xs font-medium text-primary hover:text-primary flex items-center gap-1 transition-colors"
         >
           {isOpen ? 'Show less' : 'See all features'}
           <ChevronDown

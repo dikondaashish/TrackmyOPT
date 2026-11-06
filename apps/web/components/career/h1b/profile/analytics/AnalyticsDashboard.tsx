@@ -103,9 +103,9 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 {/* ... existing Salary, Processing, Roles cards ... */}
                 {/* Refactored slightly to fit new layout structure if needed, but keeping simple for now */}
                 {/* Salary Insights */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="p-2 bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg">
+                        <div className="p-2 bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 rounded-lg">
                             <DollarSign className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Salary Insights</h3>
@@ -113,8 +113,8 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
 
                     <div className="mt-auto space-y-6">
                         <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Median Salary</p>
-                            <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1 tracking-tight">
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Median Salary</p>
+                            <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">
                                 ${(stats.medianSalary / 1000).toFixed(0)}k
                             </p>
                         </div>
@@ -126,7 +126,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
 
                             {/* Range Bar (25th to 75th) - Centered roughly for visual effect since we don't have max */}
                             {/* Ideally dynamic width based on range spread relative to median, but static visual for now is safer without max salary */}
-                            <div className="absolute top-6 h-2 bg-emerald-500/30 dark:bg-emerald-500/20 rounded-full left-[15%] right-[15%]" />
+                            <div className="absolute top-6 h-2 bg-emerald-100 dark:bg-emerald-900 rounded-full left-[15%] right-[15%]" />
                             <div className="absolute top-6 h-2 bg-emerald-500 rounded-full left-[35%] right-[35%]" />
 
                             {/* Markers */}
@@ -151,9 +151,9 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 </div>
 
                 {/* Processing Speed */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg">
+                        <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400 rounded-lg">
                             <Clock className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Processing Speed</h3>
@@ -162,12 +162,12 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                     <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                         {/* Speed Metric */}
                         <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Avg Time</p>
-                            <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1 tracking-tight">
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Time</p>
+                            <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">
                                 {stats.avgProcessingTime < 1 ? "< 1" : stats.avgProcessingTime}
                                 <span className="text-lg font-medium text-gray-500 ml-1">days</span>
                             </p>
-                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium bg-emerald-50 dark:bg-emerald-900/20 inline-block px-2 py-1 rounded">
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium bg-emerald-50 dark:bg-emerald-950 inline-block px-2 py-1 rounded">
                                 Fast Processing
                             </p>
                         </div>
@@ -194,7 +194,7 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                                         <div className="absolute inset-2 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center">
                                             <div className="text-center">
                                                 <span className="block text-xl font-bold text-gray-900 dark:text-white">{certifiedPct}%</span>
-                                                <span className="text-[10px] text-gray-500 uppercase">Success</span>
+                                                <span className="text-[10px] text-gray-500">Success</span>
                                             </div>
                                         </div>
                                     </div>
@@ -217,9 +217,9 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 </div>
 
                 {/* Job Roles */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="p-2 bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 rounded-lg">
+                        <div className="p-2 bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400 rounded-lg">
                             <Briefcase className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Top Roles</h3>
@@ -251,17 +251,17 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
             {/* Bottom Row: Advanced Insights (Legal & Geo) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Geographic Presence */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="p-2 bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg">
+                        <div className="p-2 bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400 rounded-lg">
                             <PieChart className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Worksite Hotspots</h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {stats.topLocations.map(([loc, count], i) => (
-                            <div key={loc} className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
-                                <p className="text-xs text-gray-500 uppercase font-medium">Location #{i + 1}</p>
+                            <div key={loc} className="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <p className="text-xs text-gray-500 font-medium">Location #{i + 1}</p>
                                 <p className="font-semibold text-gray-900 dark:text-white truncate" title={loc}>{loc}</p>
                                 <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1">{count} filings</p>
                             </div>
@@ -270,18 +270,18 @@ export function AnalyticsDashboard({ filings }: AnalyticsDashboardProps) {
                 </div>
 
                 {/* Legal Partners */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="p-2 bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg">
+                        <div className="p-2 bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400 rounded-lg">
                             <Scale className="w-5 h-5" />
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">Legal Representation</h3>
                     </div>
                     <div className="space-y-4">
                         {stats.topLawFirms.map(([firm, count], _i) => (
-                            <div key={firm} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-900/50 rounded-xl transition-colors">
+                            <div key={firm} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-xl transition-colors">
                                 <span className="text-sm font-medium text-gray-900 dark:text-white truncate flex-1 pr-4">{firm}</span>
-                                <span className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-lg font-semibold">
+                                <span className="px-2 py-1 bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 text-xs rounded-lg font-semibold">
                                     {count} cases
                                 </span>
                             </div>

@@ -2,16 +2,13 @@
 
 import { motion } from "framer-motion";
 import { GlobalTalentGlobe } from "@/components/features/GlobalTalentGlobe";
-import { ArrowRight, Globe2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export function LandingGlobalReach() {
     return (
         <section className="py-24 bg-white dark:bg-zinc-950 relative overflow-hidden">
-            {/* Background Gradients */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/40 dark:bg-blue-900/10 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen opacity-50" />
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid lg:grid-cols-2 gap-16 items-center">
 
@@ -22,16 +19,8 @@ export function LandingGlobalReach() {
                         viewport={{ once: true }}
                         className="relative z-10 prose-longform"
                     >
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300 text-sm font-medium mb-6">
-                            <Globe2 className="w-4 h-4" />
-                            Global Network
-                        </div>
-
                         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                            Your Network is Your <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-violet-500">
-                                Net Worth
-                            </span>
+                            Your network is your net worth
                         </h2>
 
                         <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
@@ -62,17 +51,14 @@ export function LandingGlobalReach() {
                             <FloatingBadge
                                 domain="google.com"
                                 name="Google"
-                                delay={0}
                             />
                             <FloatingBadge
                                 domain="microsoft.com"
                                 name="Microsoft"
-                                delay={1.5}
                             />
                             <FloatingBadge
                                 domain="amazon.com"
                                 name="Amazon"
-                                delay={3}
                             />
                         </div>
 
@@ -81,17 +67,14 @@ export function LandingGlobalReach() {
                             <FloatingBadge
                                 domain="meta.com"
                                 name="Meta"
-                                delay={0.5}
                             />
                             <FloatingBadge
                                 domain="netflix.com"
                                 name="Netflix"
-                                delay={2}
                             />
                             <FloatingBadge
                                 domain="tesla.com"
                                 name="Tesla"
-                                delay={3.5}
                             />
                         </div>
 
@@ -110,21 +93,9 @@ export function LandingGlobalReach() {
     );
 }
 
-function FloatingBadge({ domain, name, delay }: { domain: string, name: string, delay: number }) {
+function FloatingBadge({ domain, name }: { domain: string, name: string }) {
     return (
-        <motion.div
-            className="flex items-center gap-3 bg-white dark:bg-zinc-800 px-4 py-2.5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 dark:border-zinc-700"
-            animate={{
-                y: [-10, 10, -10],
-                rotate: [-2, 2, -2]
-            }}
-            transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: delay
-            }}
-        >
+        <div className="flex items-center gap-3 bg-white dark:bg-zinc-800 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-zinc-700">
             <div className="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg bg-white">
                 <Image
                     src={`https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=256`}
@@ -136,6 +107,6 @@ function FloatingBadge({ domain, name, delay }: { domain: string, name: string, 
                 />
             </div>
             <span className="font-medium text-gray-700 dark:text-gray-200">{name}</span>
-        </motion.div>
+        </div>
     );
 }

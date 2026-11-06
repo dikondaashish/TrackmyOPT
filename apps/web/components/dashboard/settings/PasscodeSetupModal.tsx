@@ -101,7 +101,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
               maxLength={6}
               value={passcode}
               onChange={(e) => setPasscode(e.target.value.replace(/\D/g, ''))}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               placeholder="● ● ● ● ● ●"
               autoComplete="off"
               id="new-document-passcode"
@@ -124,7 +124,7 @@ export function PasscodeSetupModal({ open, onComplete }: PasscodeSetupModalProps
               maxLength={6}
               value={confirmPasscode}
               onChange={(e) => setConfirmPasscode(e.target.value.replace(/\D/g, ''))}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold tracking-widest focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               placeholder="● ● ● ● ● ●"
               autoComplete="off"
               id="confirm-document-passcode"

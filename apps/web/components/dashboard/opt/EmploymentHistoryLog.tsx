@@ -313,11 +313,11 @@ export function EmploymentHistoryLog({
   return (
     <div
       id="employment"
-      className={`scroll-mt-24 rounded-2xl border border-slate-200 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800 ${showInlineForm || editingId ? 'overflow-visible' : 'overflow-hidden'}`}
+      className={`scroll-mt-24 rounded-xl border border-slate-200 bg-card shadow-[0_14px_36px_-24px_rgba(15,23,42,0.35)] dark:border-slate-800 ${showInlineForm || editingId ? 'overflow-visible' : 'overflow-hidden'}`}
     >
-      <div className="flex flex-col gap-3 border-b border-border bg-gradient-to-r from-emerald-50/80 via-white to-blue-50/60 p-4 dark:from-emerald-950/20 dark:via-card dark:to-blue-950/20 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="flex flex-col gap-3 border-b border-border bg-emerald-50 p-4 dark:bg-emerald-950 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
             <Briefcase className="h-5 w-5" />
           </div>
           <div className="min-w-0">
@@ -330,7 +330,7 @@ export function EmploymentHistoryLog({
         <button
           type="button"
           onClick={() => setShowInlineForm(true)}
-          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary/15 bg-white/80 px-3 py-2 text-sm font-semibold text-primary shadow-sm transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card sm:w-auto"
+          className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-primary-muted bg-white px-3 py-2 text-sm font-semibold text-primary shadow-sm transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary hover:bg-primary-soft hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card sm:w-auto"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Employment
@@ -346,7 +346,7 @@ export function EmploymentHistoryLog({
       )}
 
       {notOnOptYet && optStartDate && (
-        <div className="mx-4 mt-4 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-sm leading-6 text-blue-950 dark:border-blue-950 dark:bg-blue-950/20 dark:text-blue-100">
+        <div className="mx-4 mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950 dark:border-blue-950 dark:bg-blue-950 dark:text-blue-100">
           OPT dates are saved. The unemployment clock will start counting once
           your OPT period begins and you confirm your employment status.
         </div>
@@ -363,7 +363,7 @@ export function EmploymentHistoryLog({
       )}
 
       {showInlineForm && (
-        <div className="border-t border-border bg-muted/30 px-4 pb-2 pt-4">
+        <div className="border-t border-border bg-muted px-4 pb-2 pt-4">
           <EmploymentSpanForm
             employer={newEmployer}
             startDate={newStartDate}
@@ -396,7 +396,7 @@ export function EmploymentHistoryLog({
 
       {spans.length === 0 && !showInlineForm ? (
         <div className="p-8 text-center sm:p-10">
-          <span className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+          <span className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-lg bg-primary-soft text-primary">
             <Building2 className="h-7 w-7" />
           </span>
           <p className="text-sm font-medium text-foreground mb-1">
@@ -409,7 +409,7 @@ export function EmploymentHistoryLog({
           <button
             type="button"
             onClick={openAddJobForm}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Plus className="w-4 h-4" />
             Add Your First Job
@@ -420,7 +420,7 @@ export function EmploymentHistoryLog({
           {displayedSpans.map((span) => (
             <div
               key={span.id}
-              className="p-4 hover:bg-muted/30 transition-colors"
+              className="p-4 hover:bg-muted transition-colors"
             >
               {editingId === span.id ? (
                 <EmploymentSpanForm
@@ -462,7 +462,7 @@ export function EmploymentHistoryLog({
       {sortedSpans.length > 3 && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full p-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-1 border-t border-border"
+          className="w-full p-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center gap-1 border-t border-border"
         >
           {isExpanded ? (
             <>

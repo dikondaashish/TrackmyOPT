@@ -45,12 +45,12 @@ export function GuestPreviewModal() {
       </button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent onClose={() => setIsOpen(false)} className="sm:max-w-[800px] p-0 overflow-hidden bg-slate-50 dark:bg-zinc-950 border-border/50 shadow-2xl">
+        <DialogContent onClose={() => setIsOpen(false)} className="sm:max-w-[800px] p-0 overflow-hidden bg-slate-50 dark:bg-zinc-950 border-border">
           <div className="flex flex-col h-[600px] max-h-[80vh]">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b bg-white dark:bg-zinc-900">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-primary-soft flex items-center justify-center">
                   <Clock className="w-4 h-4 text-primary" />
                 </div>
                 <div>
@@ -59,7 +59,7 @@ export function GuestPreviewModal() {
                 </div>
               </div>
               <Link href="/login">
-                <Button size="sm" className="min-h-11 rounded-full px-4 text-sm font-semibold bg-blue-700 text-white hover:bg-blue-800">
+                <Button size="sm" className="min-h-11 rounded-lg px-4 text-sm font-semibold bg-blue-700 text-white hover:bg-blue-800">
                   Start free
                 </Button>
               </Link>
@@ -69,7 +69,7 @@ export function GuestPreviewModal() {
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
               {/* Calculator Widget */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border/50 p-5 shadow-sm">
+              <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border p-5">
                 <h4 className="font-semibold flex items-center gap-2 mb-4">
                   <Calendar className="w-4 h-4 text-blue-500" /> Quick OPT Calculator
                 </h4>
@@ -80,24 +80,24 @@ export function GuestPreviewModal() {
                       type="date"
                       value={optStart}
                       onChange={handleCalculate}
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">Calculated EAD End Date</label>
-                    <div className="w-full rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground font-mono">
+                    <div className="w-full rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground tabular-nums">
                       {calculatedEnd ? new Date(calculatedEnd).toLocaleDateString() : 'YYYY-MM-DD'}
                     </div>
                   </div>
                 </div>
 
                 {daysRemaining !== null && (
-                  <div className="mt-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                  <div className="mt-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-950 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
                     <div>
                       <p className="font-semibold text-blue-700 dark:text-blue-300">Validity Period Generated</p>
-                      <p className="text-xs text-blue-600/80 dark:text-blue-400/80">You would have {daysRemaining} days remaining on this OPT period.</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">You would have {daysRemaining} days remaining on this OPT period.</p>
                     </div>
-                    <div className="text-2xl font-black text-blue-700 dark:text-blue-300">{daysRemaining}</div>
+                    <div className="text-2xl font-bold tabular-nums text-blue-700 dark:text-blue-300">{daysRemaining}</div>
                   </div>
                 )}
               </div>
@@ -105,7 +105,7 @@ export function GuestPreviewModal() {
               {/* Dummy Widgets */}
               <div className="grid sm:grid-cols-2 gap-6 opacity-60 pointer-events-none select-none">
 
-                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border/50 p-5 shadow-sm">
+                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border p-5">
                   <h4 className="font-semibold flex items-center gap-2 mb-4">
                     <Briefcase className="w-4 h-4 text-emerald-500" /> Employment History
                   </h4>
@@ -115,7 +115,7 @@ export function GuestPreviewModal() {
                         <p className="text-sm font-medium">Software Engineer</p>
                         <p className="text-xs text-muted-foreground">Tech Corp Incc.</p>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Active</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700">Active</span>
                     </div>
                     <div className="h-2 bg-emerald-100 rounded-full overflow-hidden">
                       <div className="h-full bg-emerald-500 w-3/4"></div>
@@ -124,7 +124,7 @@ export function GuestPreviewModal() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border/50 p-5 shadow-sm">
+                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-border p-5">
                   <h4 className="font-semibold flex items-center gap-2 mb-4">
                     <FileText className="w-4 h-4 text-purple-500" /> I-983 Deadlines (STEM)
                   </h4>
@@ -145,11 +145,11 @@ export function GuestPreviewModal() {
             </div>
 
             {/* Footer CTA */}
-            <div className="p-4 border-t bg-muted/30 text-center">
+            <div className="p-4 border-t bg-muted text-center">
               <h4 className="font-bold text-base mb-2">Like what you see?</h4>
               <p className="text-xs text-muted-foreground mb-4">Unlock the full dashboard, export tools, safe document vault, and email reminders.</p>
               <Link href="/login" onClick={() => setIsOpen(false)}>
-                <Button className="min-h-11 rounded-full w-full sm:w-auto px-8 gap-2 bg-blue-700 text-white hover:bg-blue-800">
+                <Button className="min-h-11 rounded-lg w-full sm:w-auto px-8 gap-2 bg-blue-700 text-white hover:bg-blue-800">
                   Start free <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>

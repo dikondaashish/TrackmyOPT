@@ -7,8 +7,8 @@ import { toolLinks, toolThemes } from '../opt-tools/tool-config';
 export function OptToolsSection() {
   return (
     <section className="mx-auto max-w-6xl space-y-5 px-4 sm:px-6">
-      <header className="rounded-2xl bg-blue-800 p-5 text-white">
-        <h1 className="font-semibold tracking-tight">OPT Tools</h1>
+      <header className="rounded-xl bg-blue-800 p-5 text-white">
+        <h1 className="font-semibold">OPT Tools</h1>
         <p className="mt-2 text-blue-100">
           Plan filing dates and review unemployment days.
         </p>
@@ -18,7 +18,7 @@ export function OptToolsSection() {
           <Link
             href={'/dashboard/opt-tools/' + tool.slug}
             key={tool.slug}
-            className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="group rounded-xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <div className="flex items-center justify-between">
               <span

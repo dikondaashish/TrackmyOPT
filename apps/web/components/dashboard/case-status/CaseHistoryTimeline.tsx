@@ -1,7 +1,7 @@
 "use client";
 import { sanitizeUscisDescription } from '@/lib/case-status/uscis-status-text';
 import { useState } from "react";
-import { CheckCircle2, ChevronDown, ChevronUp, History, Clock, AlertCircle, FileCheck } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronUp, Clock, AlertCircle, FileCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useClientDate } from "@/hooks/useClientDate";
 import { daysSinceEpochMs, formatDisplayDateShort } from "@/lib/case-status/safe-dates";
@@ -69,16 +69,11 @@ export function CaseHistoryTimeline({
         <div className={`${className}`}>
             {/* Header */}
             <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                        <History className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
+                <div>
                         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Case Timeline</h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                             {safeHistory.length} update{safeHistory.length !== 1 ? 's' : ''} from USCIS
                         </p>
-                    </div>
                 </div>
 
                 {/* Toggle Button */}
@@ -87,7 +82,7 @@ export function CaseHistoryTimeline({
                         variant="ghost"
                         size="sm"
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold"
+                        className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 font-semibold"
                     >
                         {isExpanded ? (
                             <>
@@ -106,9 +101,9 @@ export function CaseHistoryTimeline({
 
             {/* Timeline */}
             <div className="relative">
-                {/* Connecting Line — animated gradient */}
+                {/* Connecting line */}
                 {visibleHistory.length > 1 && (
-                    <div className="absolute left-[15px] top-8 bottom-4 w-0.5 bg-gradient-to-b from-emerald-500 via-blue-500 to-gray-200 dark:to-gray-700 rounded-full" />
+                    <div className="absolute left-[15px] top-8 bottom-4 w-0.5 bg-emerald-500 rounded-full" />
                 )}
 
                 {/* Timeline Events */}
@@ -120,19 +115,17 @@ export function CaseHistoryTimeline({
                         return (
                             <div
                                 key={index}
-                                className={`relative pl-10 animate-slide-in ${
+                                className={`relative pl-10 ${
                                     !isFirst && !isExpanded ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'
                                 }`}
-                                style={{ animationDelay: `${index * 80}ms` }}
                             >
                                 {/* Timeline Dot */}
                                 <div
                                     className={`
                                         absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center 
-                                        transition-all duration-300
                                         ${isFirst
-                                            ? 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 ring-4 ring-emerald-100 dark:ring-emerald-900/30'
-                                            : 'bg-white dark:bg-gray-800 border-2 border-emerald-400 shadow-md'
+                                            ? 'bg-emerald-500'
+                                            : 'bg-white dark:bg-gray-800 border-2 border-emerald-400'
                                         }
                                     `}
                                 >
@@ -142,10 +135,10 @@ export function CaseHistoryTimeline({
                                 {/* Event Card */}
                                 <div
                                     className={`
-                                        p-4 rounded-xl transition-all duration-300 hover-lift
+                                        p-4 rounded-lg
                                         ${isFirst
-                                            ? 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800 shadow-lg shadow-emerald-500/5'
-                                            : 'bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700'
+                                            ? 'bg-emerald-50 dark:bg-emerald-950'
+                                            : 'bg-gray-50 dark:bg-gray-950'
                                         }
                                     `}
                                 >
@@ -153,9 +146,9 @@ export function CaseHistoryTimeline({
                                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                                         <span
                                             className={`
-                                                text-xs font-bold px-2.5 py-0.5 rounded-full
+                                                text-xs font-medium px-2 py-0.5 rounded-md
                                                 ${isFirst
-                                                    ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
+                                                    ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300'
                                                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                                 }
                                             `}
@@ -168,9 +161,8 @@ export function CaseHistoryTimeline({
                                             </span>
                                         )}
                                         {isFirst && (
-                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                Most Recent
+                                            <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                                                Most recent
                                             </span>
                                         )}
                                     </div>
@@ -198,21 +190,8 @@ export function CaseHistoryTimeline({
                     <div className="mt-4 text-center">
                         <button
                             onClick={() => setIsExpanded(true)}
-                            className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                            className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         >
-                            <div className="flex -space-x-2">
-                                {[...Array(Math.min(3, safeHistory.length - 1))].map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border-2 border-white dark:border-gray-900 flex items-center justify-center group-hover:scale-110 transition-transform"
-                                        style={{ transitionDelay: `${i * 50}ms` }}
-                                    >
-                                        <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400">
-                                            {i + 2}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
                             <span className="font-medium">+{safeHistory.length - 1} earlier updates</span>
                         </button>
                     </div>

@@ -60,7 +60,7 @@ export function MonitorHealthStrip({
   return (
     <section
       aria-label="Case monitoring"
-      className="rounded-xl border border-border bg-muted/20 p-4 text-xs text-muted-foreground"
+      className="rounded-xl border border-border bg-muted p-4 text-xs text-muted-foreground"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-1 font-medium">

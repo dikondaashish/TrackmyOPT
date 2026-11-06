@@ -57,11 +57,11 @@ export function HeaderBenefitTicker({ reverse = false }: { reverse?: boolean }) 
             return (
               <div
                 key={b.title}
-                className="flex items-start gap-2 rounded-xl border border-border/40 bg-background/70 px-3 py-2 shadow-sm backdrop-blur-sm"
+                className="flex items-start gap-2 rounded-lg border border-border bg-background px-3 py-2"
               >
                 <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-500 dark:text-violet-400" />
                 <div className="min-w-0 text-left">
-                  <p className="text-[11px] font-semibold leading-tight text-foreground/80 truncate">
+                  <p className="text-[11px] font-semibold leading-tight text-foreground truncate">
                     {b.title}
                   </p>
                   <p className="text-[10px] leading-snug text-muted-foreground truncate">

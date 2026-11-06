@@ -21,22 +21,15 @@ const CloudflareLogo = () => (
 );
 
 const StripeBadge = () => (
-  <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 px-2.5 py-1 rounded-full">
-    <span className="text-[9px] font-semibold text-violet-800 dark:text-violet-200 uppercase tracking-wide">
-      Payments by Stripe
-    </span>
-  </div>
+  <span className="text-xs text-gray-500 dark:text-gray-400">
+    Payments by Stripe
+  </span>
 );
 
 const SslLogo = () => (
-  <div className="flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-2 py-1 rounded-full">
-    <svg viewBox="0 0 24 24" className="w-3 h-3 text-green-600 dark:text-green-400" fill="currentColor">
-      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-    </svg>
-    <span className="text-[9px] font-bold text-green-700 dark:text-green-300 uppercase tracking-wide">
-      SSL Secure
-    </span>
-  </div>
+  <span className="text-xs text-gray-500 dark:text-gray-400">
+    SSL secure
+  </span>
 );
 
 const linkClass =

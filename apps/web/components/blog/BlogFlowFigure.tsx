@@ -16,7 +16,7 @@ export function BlogFlowFigure({
   const [failed, setFailed] = useState(false);
 
   return (
-    <figure className="not-prose my-8 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-5 dark:border-slate-700 dark:bg-slate-900">
+    <figure className="not-prose my-8 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-5 dark:border-slate-700 dark:bg-slate-900">
       {!failed && (
         <Image
           src={playing ? visual.src : visual.poster}

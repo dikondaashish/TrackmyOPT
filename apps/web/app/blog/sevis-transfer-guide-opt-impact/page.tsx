@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, RefreshCw, XCircle } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, XCircle } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,24 +46,22 @@ export default function SevisTransferPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Compliance</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">SEVIS</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     SEVIS Transfer Guide: How Moving Schools Impacts Your OPT
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Planning to start a Master's degree or transition to a Day-1 CPT school? Read this before you request a SEVIS transfer, or you might accidentally work illegally.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>Compliance · Sevis</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 7 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/sevis-transfer-guide-opt-impact.png" alt="Academic desk with a SEVIS transfer request form, university admission letter, and I-20 document" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -73,7 +71,7 @@ export default function SevisTransferPage() {
                 </p>
 
                 <h2 className="text-2xl font-bold mt-12 mb-6">The Golden Rule: Transfer = Cancellation</h2>
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl mb-8">
+                <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-6 rounded-r-xl mb-8">
                     <h3 className="text-xl font-bold text-red-900 dark:text-red-400 mt-0 mb-2 flex items-center gap-2">
                         <XCircle className="w-6 h-6" />
                         Immediate OPT Cancellation
@@ -94,10 +92,10 @@ export default function SevisTransferPage() {
                 <h3 className="text-xl font-bold mt-6 mb-3">How to Strategize Your Release Date</h3>
                 <ul className="space-y-4">
                     <li>
-                        <strong>If you are currently working on OPT:</strong> You should set your release date for the day <em>after</em> your last day of work. For example, if you plan to quit your OPT job on Friday, August 10th, you should set your SEVIS Release Date to Monday, August 13th.
+                        <strong>If you are currently working on OPT:</strong> You should set your release date for the day <strong>after</strong> your last day of work. For example, if you plan to quit your OPT job on Friday, August 10th, you should set your SEVIS Release Date to Monday, August 13th.
                     </li>
                     <li>
-                        <strong>If you are in your 60-day grace period:</strong> If your OPT has already ended, you must request a SEVIS release date <em>before</em> your 60-day grace period expires.
+                        <strong>If you are in your 60-day grace period:</strong> If your OPT has already ended, you must request a SEVIS release date <strong>before</strong> your 60-day grace period expires.
                     </li>
                 </ul>
 
@@ -118,8 +116,8 @@ export default function SevisTransferPage() {
                     A very common scenario is a student transferring from OPT to a Day-1 CPT master's program after failing the H-1B lottery. Because the SEVIS transfer instantly cancels your OPT, you will have a gap in work authorization.
                 </p>
                 
-                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm my-6">
-                    <h4 className="flex items-center gap-2 font-bold text-lg mt-0 mb-3"><RefreshCw className="w-5 h-5 text-blue-500" /> The Work Gap Timeline</h4>
+                <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6 my-6">
+                    <h4 className="font-bold text-lg mt-0 mb-3">The Work Gap Timeline</h4>
                     <ol className="mb-0 text-sm space-y-2">
                         <li><strong>August 10:</strong> Your last day working on OPT.</li>
                         <li><strong>August 11 (Release Date):</strong> SEVIS record transfers. OPT is canceled. You cannot work.</li>
@@ -133,7 +131,7 @@ export default function SevisTransferPage() {
                     You must coordinate this gap perfectly with your employer's HR department. You must be taken off the payroll entirely during the gap period.
                 </p>
 
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-xl my-8">
+                <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-950 p-6 rounded-xl my-8">
                     <h4 className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-400 mt-0 mb-2">
                         <AlertTriangle className="w-5 h-5" />
                         Pending H-1B Petitions (Cap-Gap)
@@ -145,9 +143,7 @@ export default function SevisTransferPage() {
 
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Manage Your Transition Safely
                 </h3>
@@ -157,7 +153,7 @@ export default function SevisTransferPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Free Account
                     </Link>
@@ -168,7 +164,7 @@ export default function SevisTransferPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/fall-out-of-f1-status-options" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 Falling Out of F-1 Status
                             </h4>
@@ -181,7 +177,7 @@ export default function SevisTransferPage() {
                         </div>
                     </Link>
                     <Link href="/blog/h1b-cap-gap-extension" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 H-1B Cap-Gap Extension
                             </h4>

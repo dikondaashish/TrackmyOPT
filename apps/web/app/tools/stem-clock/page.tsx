@@ -118,7 +118,7 @@ export default function StemClockPage() {
         title="STEM OPT Unemployment Calculator"
         description="Record STEM extension employment dates and use this planning tool to monitor the unemployment time that may apply to your F-1 status."
       >
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Understand the combined limit
           </h2>
@@ -128,7 +128,7 @@ export default function StemClockPage() {
             Keep your initial OPT history in mind when planning.
           </p>
         </div>
-        <div className="rounded-xl bg-white/90 p-4 ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
+        <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <h2 className="font-semibold text-slate-950 dark:text-white">
             Keep your records current
           </h2>

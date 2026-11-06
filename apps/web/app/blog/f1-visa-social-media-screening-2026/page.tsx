@@ -114,14 +114,6 @@ export default function F1VisaSocialMediaScreeningPage() {
       />
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-semibold mb-4">
-          <span className="bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 px-3 py-1 rounded-full">
-            Visa Screening Update
-          </span>
-          <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full">
-            F, M & J Applicants
-          </span>
-        </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
           F-1 Visa Social Media Screening in 2026: What Officers Can Review
         </h1>
@@ -132,6 +124,8 @@ export default function F1VisaSocialMediaScreeningPage() {
           requirements from rumors and provides a practical accuracy audit.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>Visa Screening Update · F, M & J Applicants</span>
+          <span>•</span>
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" /> 9 min read
           </span>
@@ -143,7 +137,7 @@ export default function F1VisaSocialMediaScreeningPage() {
       </header>
 
       <figure className="mb-12">
-        <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-xl">
           <Image
             src="/blog/f1-visa-social-media-screening-2026.png"
             alt="Smartphone with abstract social profiles beside a passport and visa review checklist"
@@ -159,8 +153,8 @@ export default function F1VisaSocialMediaScreeningPage() {
         </figcaption>
       </figure>
 
-      <div className="bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 border border-violet-200 dark:border-violet-800 rounded-2xl p-6 mb-10">
-        <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 uppercase tracking-wider mb-2">
+      <div className="bg-violet-50 dark:bg-violet-950 border border-violet-200 dark:border-violet-800 rounded-xl p-6 mb-10">
+        <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 mb-2">
           Direct Answer
         </p>
         <p className="text-lg text-gray-800 dark:text-gray-100 font-medium leading-relaxed mb-0">
@@ -252,7 +246,7 @@ export default function F1VisaSocialMediaScreeningPage() {
             applicants from the process.
           </p>
           <div className="not-prose grid sm:grid-cols-3 gap-4 my-8">
-            <div className="p-5 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-900/20">
+            <div className="p-5 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950">
               <Eye className="w-7 h-7 text-violet-600 mb-3" />
               <p className="font-bold text-violet-900 dark:text-violet-200 mb-1">
                 Online review
@@ -261,7 +255,7 @@ export default function F1VisaSocialMediaScreeningPage() {
                 Confirmed for F, M, and J visa applicants.
               </p>
             </div>
-            <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+            <div className="p-5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
               <Smartphone className="w-7 h-7 text-blue-600 mb-3" />
               <p className="font-bold text-blue-900 dark:text-blue-200 mb-1">
                 Public profiles
@@ -270,7 +264,7 @@ export default function F1VisaSocialMediaScreeningPage() {
                 Applicants are instructed to change profiles to public or open.
               </p>
             </div>
-            <div className="p-5 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
+            <div className="p-5 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950">
               <ShieldCheck className="w-7 h-7 text-green-600 mb-3" />
               <p className="font-bold text-green-900 dark:text-green-200 mb-1">
                 No passwords
@@ -380,7 +374,7 @@ export default function F1VisaSocialMediaScreeningPage() {
                 ].map(([publicInfo, record, question]) => (
                   <tr
                     key={publicInfo}
-                    className="odd:bg-white even:bg-gray-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900/50"
+                    className="odd:bg-white even:bg-gray-50 dark:odd:bg-zinc-950 dark:even:bg-zinc-900"
                   >
                     <td className="p-4 border border-gray-200 dark:border-zinc-700 font-semibold">
                       {publicInfo}
@@ -437,14 +431,14 @@ export default function F1VisaSocialMediaScreeningPage() {
               in visa issuance.
             </li>
           </ul>
-          <div className="not-prose bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
+          <div className="not-prose bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-6 rounded-r-xl my-8">
             <div className="flex gap-3">
               <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-amber-900 dark:text-amber-200 mb-1">
                   Do not manufacture a cleaner history
                 </p>
-                <p className="text-amber-800 dark:text-amber-200/80 text-sm mb-0">
+                <p className="text-amber-800 dark:text-amber-200 text-sm mb-0">
                   Concealing requested identifiers, deleting evidence of
                   unauthorized work, or changing dates to match an application
                   can create a credibility or misrepresentation issue. Correct
@@ -548,7 +542,7 @@ export default function F1VisaSocialMediaScreeningPage() {
           </p>
         </section>
 
-        <section className="not-prose bg-gradient-to-br from-violet-600 to-blue-700 rounded-2xl p-8 text-white my-12 shadow-xl">
+        <section className="not-prose bg-violet-600 rounded-xl p-8 text-white my-12">
           <div className="flex items-start gap-4">
             <ShieldCheck className="w-9 h-9 text-violet-100 flex-shrink-0" />
             <div>

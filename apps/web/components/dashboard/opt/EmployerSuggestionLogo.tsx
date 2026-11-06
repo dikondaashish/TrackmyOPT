@@ -49,7 +49,7 @@ export function EmployerSuggestionLogo({
     <span
       aria-hidden="true"
       className={cn(
-        'grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-border bg-white text-[11px] font-semibold text-primary shadow-sm dark:bg-slate-950',
+        'grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-white text-[11px] font-semibold text-primary dark:bg-slate-950',
         className
       )}
     >

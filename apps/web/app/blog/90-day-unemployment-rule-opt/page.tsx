@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, ArrowRight, BookOpen } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, ArrowRight } from "lucide-react";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 import { BlogProductCTA } from "@/components/blog/BlogProductCTA";
@@ -79,9 +79,8 @@ export default function NinetyDayRuleArticle() {
             {/* Header */}
             <header className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold">
-                        OPT Basics
-                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">OPT Basics</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">·</span>
                     <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5" />
                         8 min read
@@ -100,7 +99,7 @@ export default function NinetyDayRuleArticle() {
                 </div>
             </header>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
                 <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Quick Answer</p>
                 <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                     F-1 students on post-completion OPT are limited to <strong>90 cumulative calendar days</strong> of unemployment (150 total with STEM OPT). Exceeding the limit can result in SEVIS termination. Waiting for your EAD? See <Link href="/blog/opt-processing-time-2026" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">how long OPT takes in 2026</Link>.
@@ -113,9 +112,8 @@ export default function NinetyDayRuleArticle() {
             />
 
             {/* Key Takeaway Box */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-10">
-                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">
                     Key Takeaway
                 </h2>
                 <p className="text-blue-800 dark:text-blue-200 font-medium">
@@ -127,7 +125,7 @@ export default function NinetyDayRuleArticle() {
             </div>
 
             {/* Table of Contents */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mb-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">In This Guide</h2>
                 <nav className="space-y-2">
                     {[
@@ -161,7 +159,7 @@ export default function NinetyDayRuleArticle() {
                     </p>
 
                     {/* Quotable Stat Box */}
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
+                    <div className="bg-amber-50 dark:bg-amber-950 border-l-4 border-amber-500 p-4 rounded-r-xl my-6">
                         <p className="text-amber-900 dark:text-amber-100 font-semibold text-lg">
                             "F-1 students on post-completion OPT cannot accumulate more than 90 days of unemployment. For STEM OPT students, the limit extends to 150 days total."
                         </p>
@@ -180,7 +178,7 @@ export default function NinetyDayRuleArticle() {
                     </p>
 
                     <div className="space-y-4 mb-6">
-                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
+                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950 rounded-xl border border-red-100 dark:border-red-800">
                             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-red-900 dark:text-red-100">Days That Count as Unemployed</h3>
@@ -193,7 +191,7 @@ export default function NinetyDayRuleArticle() {
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                        <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-800">
                             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                             <div>
                                 <h3 className="font-semibold text-green-900 dark:text-green-100">Days That Do NOT Count</h3>
@@ -242,7 +240,7 @@ export default function NinetyDayRuleArticle() {
                         ))}
                     </div>
 
-                    <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950 rounded-xl border border-amber-200 dark:border-amber-800">
                         <p className="text-amber-800 dark:text-amber-200 text-sm">
                             <strong>⚠️ Important for STEM OPT:</strong> Volunteer and unpaid positions do <strong>not</strong> count as qualifying employment during STEM OPT extension. Employment must be paid and at least 20 hours per week.
                         </p>
@@ -314,7 +312,7 @@ export default function NinetyDayRuleArticle() {
                     </p>
 
                     <div className="space-y-4">
-                        <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <div className="p-5 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-800">
                             <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">1. TrackMyOPT (Recommended)</h3>
                             <p className="text-blue-800 dark:text-blue-200 text-sm mb-3">
                                 Our <Link href="/tools/opt-clock" className="underline font-medium">OPT Unemployment Clock</Link> automatically counts your unemployment days, sends alerts when you're approaching the limit, and integrates with your USCIS case timeline.
@@ -379,7 +377,7 @@ export default function NinetyDayRuleArticle() {
             </div>
 
             {/* Related Guides */}
-            <div className="bg-gray-50 dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
+            <div className="bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-6 mt-10">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Related Guides</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                     <Link href="/blog/what-happens-if-opt-expires" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">→ What Happens If Your OPT Expires?</Link>
@@ -399,7 +397,7 @@ export default function NinetyDayRuleArticle() {
             <AuthorBio />
 
             {/* CTA Box */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white mt-12">
+            <div className="bg-blue-600 rounded-xl p-8 text-center text-white mt-12">
                 <h2 className="text-2xl font-bold mb-3">Track Your OPT Unemployment Days Automatically</h2>
                 <p className="text-blue-100 mb-6 max-w-lg mx-auto">
                     Join 3,500+ people who have signed up for TrackMyOPT. Use it to monitor unemployment days and plan ahead.

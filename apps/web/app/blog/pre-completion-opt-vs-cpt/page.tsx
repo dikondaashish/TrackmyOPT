@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { BlogPostImage } from "@/components/blog/BlogPostImage";
 import Link from "next/link";
-import { Clock, ArrowRight, AlertTriangle, CheckCircle2, Briefcase, GraduationCap } from "lucide-react";
+import { Clock, ArrowRight, AlertTriangle, Briefcase, GraduationCap } from "lucide-react";
 import { BlogPostSchema } from "@/components/blog/BlogPostSchema";
 
 export const metadata: Metadata = {
@@ -46,24 +46,22 @@ export default function PreCompletionOPTvsCPTPage() {
             />
 
             <header className="mb-10 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-primary font-semibold mb-4">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">F-1 Visas</span>
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">Internships</span>
-                </div>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     Pre-Completion OPT vs CPT: Which Should You Choose?
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Got an internship offer? Here is how to choose between Pre-Completion OPT and CPT, including costs, processing times, and impacts on your future post-graduation OPT.
                 </p>
-                <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>F-1 Visas · Internships</span>
+                    <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> 7 min read</span>
                     <span>•</span>
                     <span>Updated July 12, 2026</span>
                 </div>
             </header>
 
-            <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 shadow-xl">
+            <div className="relative w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden mb-12 shadow-xl">
                 <BlogPostImage src="/blog/pre-opt-vs-cpt.png" alt="Desk with student notes, university forms, laptop and textbooks for CPT vs OPT comparison" className="object-cover w-full h-full" sizes="(max-width: 768px) 100vw, 768px" priority />
             </div>
 
@@ -72,10 +70,8 @@ export default function PreCompletionOPTvsCPTPage() {
                     When you land a summer internship or a part-time job during your academic program, you need proper work authorization. As an F-1 student, you generally have two main options: <strong>Curricular Practical Training (CPT)</strong> and <strong>Pre-Completion Optional Practical Training (Pre-Completion OPT)</strong>. While both allow you to work before you graduate, they have vastly different rules, costs, and long-term consequences.
                 </p>
 
-                <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl mb-10">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2 flex items-center gap-2">
-                        <CheckCircle2 className="w-6 h-6 text-primary" />
-                        The Quick Answer
+                <div className="bg-primary-soft border-l-4 border-primary p-6 rounded-r-xl mb-10">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0 mb-2">The Quick Answer
                     </h3>
                     <p className="mb-0 text-gray-700 dark:text-gray-200">
                         Whenever possible, <strong>choose CPT</strong>. It is faster, free, authorized entirely by your school, and does not eat into your post-graduation OPT time (unless you work full-time CPT for 12 months or more). Pre-Completion OPT should only be used as a backup if you do not qualify for CPT.
@@ -128,7 +124,7 @@ export default function PreCompletionOPTvsCPTPage() {
                                 <td className="p-4">USCIS</td>
                                 <td className="p-4 text-green-600 dark:text-green-400 font-medium">Your University (DSO)</td>
                             </tr>
-                            <tr className="border-b dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/50">
+                            <tr className="border-b dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800">
                                 <td className="p-4 font-semibold">Processing Time</td>
                                 <td className="p-4 text-red-600 dark:text-red-400 font-medium">1-4+ months</td>
                                 <td className="p-4 text-green-600 dark:text-green-400 font-medium">1-3 weeks</td>
@@ -138,7 +134,7 @@ export default function PreCompletionOPTvsCPTPage() {
                                 <td className="p-4 text-red-600 dark:text-red-400 font-medium">$470</td>
                                 <td className="p-4 text-green-600 dark:text-green-400 font-medium">Free ($0)</td>
                             </tr>
-                            <tr className="border-b dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/50">
+                            <tr className="border-b dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800">
                                 <td className="p-4 font-semibold">Job Offer Required to Apply?</td>
                                 <td className="p-4">No</td>
                                 <td className="p-4 text-blue-600 dark:text-blue-400 font-medium">Yes</td>
@@ -148,7 +144,7 @@ export default function PreCompletionOPTvsCPTPage() {
                                 <td className="p-4 text-green-600 dark:text-green-400 font-medium">No</td>
                                 <td className="p-4">Yes (usually requires paying tuition for credits)</td>
                             </tr>
-                            <tr className="border-b dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/50">
+                            <tr className="border-b dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800">
                                 <td className="p-4 font-semibold flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-500"/> Impact on Post-Grad OPT</td>
                                 <td className="p-4 text-red-600 dark:text-red-400 font-bold">Deducts time directly</td>
                                 <td className="p-4 text-green-600 dark:text-green-400 font-bold">No impact* (unless 12+ mos full-time)</td>
@@ -162,15 +158,15 @@ export default function PreCompletionOPTvsCPTPage() {
                     The most critical difference between the two is how they affect your standard 12-month post-graduation OPT.
                 </p>
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl border border-red-100 dark:border-red-900/50">
+                    <div className="bg-red-50 dark:bg-red-950 p-6 rounded-xl border border-red-100 dark:border-red-950">
                         <h4 className="font-bold text-red-800 dark:text-red-400 mb-3 text-lg">Using Pre-Completion OPT</h4>
                         <p className="text-red-900 dark:text-red-200 text-sm mb-0">
                             <strong>Directly subtracts from your 12 months.</strong><br/><br/>
                             Every day you are authorized for Pre-Completion OPT is subtracted from your available Post-Completion OPT time.<br/><br/>
-                            <em>Part-time Pre-OPT deductions happen at a 50% rate (e.g., 2 months of part-time Pre-OPT deducts 1 month from Post-OPT).</em>
+                            Part-time Pre-OPT deductions happen at a 50% rate (e.g., 2 months of part-time Pre-OPT deducts 1 month from Post-OPT).
                         </p>
                     </div>
-                    <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-100 dark:border-green-900/50">
+                    <div className="bg-green-50 dark:bg-green-950 p-6 rounded-xl border border-green-100 dark:border-green-950">
                         <h4 className="font-bold text-green-800 dark:text-green-400 mb-3 text-lg">Using CPT</h4>
                         <p className="text-green-900 dark:text-green-200 text-sm mb-0">
                             <strong>Zero impact (in most cases).</strong><br/><br/>
@@ -183,12 +179,12 @@ export default function PreCompletionOPTvsCPTPage() {
                 <h2 className="text-2xl font-bold mt-12 mb-6">When to Choose Which?</h2>
                 
                 <div className="bg-gray-100 dark:bg-zinc-800 p-6 rounded-xl mb-6">
-                    <h3 className="text-xl font-bold mb-3 mt-0">✅ When you should choose CPT:</h3>
+                    <h3 className="text-xl font-bold mb-3 mt-0">When you should choose CPT:</h3>
                     <p className="mb-0">Almost always. If your school offers an internship course, a practicum, or independent study that allows for CPT authorization, you should take this route. It saves you $470, protects your post-graduation OPT time, and can be processed by your school in just a few days.</p>
                 </div>
 
                 <div className="bg-gray-100 dark:bg-zinc-800 p-6 rounded-xl mb-10">
-                    <h3 className="text-xl font-bold mb-3 mt-0">⚠️ When you should choose Pre-Completion OPT:</h3>
+                    <h3 className="text-xl font-bold mb-3 mt-0">When you should choose Pre-Completion OPT:</h3>
                     <p>You should only use Pre-Completion OPT if you are forced to. Common scenarios include:</p>
                     <ul className="mb-0 mt-2">
                         <li>Your degree program strictly prohibits CPT (some PhD programs or specific majors do not allow it).</li>
@@ -217,9 +213,7 @@ export default function PreCompletionOPTvsCPTPage() {
                 </div>
             </div>
 
-            <hr className="my-12 border-gray-200 dark:border-zinc-800" />
-
-            <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-2xl p-8 mb-12 border border-gray-200 dark:border-zinc-800">
+            <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-8 mt-12 mb-12">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Keep Track of Your Authorized Dates
                 </h3>
@@ -229,7 +223,7 @@ export default function PreCompletionOPTvsCPTPage() {
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/login"
-                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover transition-colors"
                     >
                         Create Free Account
                     </Link>
@@ -240,7 +234,7 @@ export default function PreCompletionOPTvsCPTPage() {
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Resources</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <Link href="/blog/cpt-complete-guide" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 CPT Complete Guide
                             </h4>
@@ -253,7 +247,7 @@ export default function PreCompletionOPTvsCPTPage() {
                         </div>
                     </Link>
                     <Link href="/blog/opt-application-checklist-2026" className="group block h-full">
-                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary/50 hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
+                        <div className="border border-gray-200 dark:border-zinc-800 rounded-xl p-6 h-full hover:border-primary hover:shadow-lg transition-all bg-white dark:bg-zinc-900">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">
                                 OPT Application Checklist
                             </h4>

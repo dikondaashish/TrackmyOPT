@@ -504,7 +504,7 @@ export default function ResumeGeneratorPage() {
 
     return (
         <>
-        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="max-md:-mx-3 max-md:-my-3 md:min-h-screen bg-slate-50 dark:bg-gray-950">
             <ResumeGeneratorHeader
                 usageLimit={usageLimit}
                 onBuyCredits={() => setShowCreditModal(true)}
@@ -581,7 +581,7 @@ export default function ResumeGeneratorPage() {
                                     setShowPricingModal(true);
                                 }
                             }}
-                            className="px-8 py-6 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all"
+                            className="px-8 py-6 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white shadow-lg transition-all"
                         >
                             <Sparkles className="w-5 h-5 mr-2" />
                             {usageLimit?.canBuyResumeCredits ? "Buy Resume Credits" : "Upgrade to Pro"}
@@ -591,7 +591,7 @@ export default function ResumeGeneratorPage() {
                         <Button
                             onClick={handleSelectTemplate}
                             disabled={!canProceed}
-                            className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                            className="px-8 py-6 text-lg font-semibold bg-primary hover:bg-primary-hover text-primary-foreground shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                         >
                             <Sparkles className="w-5 h-5 mr-2" />
                             Select Template
@@ -620,11 +620,8 @@ export default function ResumeGeneratorPage() {
                 )}
 
                 {/* Best Results Tips */}
-                <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                    <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-white text-sm font-bold">i</span>
-                        </div>
+                <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div>
                         <div>
                             <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">For best results:</h3>
                             <ul className="text-blue-700 dark:text-blue-300 text-xs space-y-0.5">

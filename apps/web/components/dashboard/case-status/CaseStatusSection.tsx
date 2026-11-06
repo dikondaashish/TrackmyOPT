@@ -153,7 +153,7 @@ export function CaseStatusSection() {
         currentStatus={caseStatus?.current_status ?? null}
       />
       {/* Minimal page title — no marketing copy */}
-      <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+      <h1 className="text-xl sm:text-2xl font-extrabold">
         USCIS Case Status
       </h1>
 

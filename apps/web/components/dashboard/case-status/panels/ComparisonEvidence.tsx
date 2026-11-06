@@ -36,13 +36,13 @@ export function ComparisonEvidence({
             {evidence.includedReports.toLocaleString()}
           </dd>
         </div>
-        <div className="rounded-lg bg-muted/40 p-3">
+        <div className="rounded-lg bg-muted p-3">
           <dt>Stored reports</dt>
           <dd className="mt-1 text-xl font-semibold tabular-nums text-foreground">
             {evidence.totalReports.toLocaleString()}
           </dd>
         </div>
-        <div className="col-span-2 rounded-lg bg-muted/40 p-3 sm:col-span-1">
+        <div className="col-span-2 rounded-lg bg-muted p-3 sm:col-span-1">
           <dt>Sources</dt>
           <dd className="mt-1 text-xl font-semibold tabular-nums text-foreground">
             {evidence.sources.length}

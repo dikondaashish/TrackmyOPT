@@ -6,9 +6,8 @@ export function GlobalTalentGlobe() {
     return (
         <div className="relative w-full aspect-square max-w-[500px] mx-auto flex items-center justify-center overflow-hidden">
             {/* Globe Container - Masked Circle */}
-            <div className="relative w-[80%] h-[80%] rounded-full bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-zinc-900 dark:to-zinc-950 shadow-inner overflow-hidden border border-blue-100 dark:border-zinc-800">
+            <div className="relative w-[80%] h-[80%] rounded-full bg-blue-50 dark:bg-zinc-900 overflow-hidden border border-blue-100 dark:border-zinc-800">
                 {/* Grid Overlay for 3D effect */}
-                <div className="absolute inset-0 z-10 rounded-full shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_0_40px_rgba(0,0,0,0.5)] pointer-events-none" />
 
                 {/* Moving Map Texture (Simulated with Dot Grid) */}
                 <div className="absolute inset-0 flex items-center">
@@ -24,12 +23,12 @@ export function GlobalTalentGlobe() {
                 </div>
 
                 {/* Atmosphere Glow */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/0 pointer-events-none" />
+                <div className="absolute inset-0 rounded-full pointer-events-none" />
             </div>
 
             {/* Orbiting Elements / Satellites */}
             <motion.div
-                className="absolute w-[90%] h-[30%] border border-blue-200/50 dark:border-blue-500/20 rounded-full top-[35%] left-[5%]"
+                className="absolute w-[90%] h-[30%] border border-blue-200 dark:border-blue-900 rounded-full top-[35%] left-[5%]"
                 style={{ transform: "rotate(-15deg)" }}
                 animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 5, repeat: Infinity }}
